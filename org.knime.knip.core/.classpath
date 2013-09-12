@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="res/"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/commons-math3-3.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/imglib2-2.0.0-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/imglib2-algorithms-2.0.0-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/imglib2-algorithms-gpl-2.0.0-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/imglib2-meta-2.0.0-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/imglib2-ops-2.0.0-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/imglib2-realtransform-2.0.0-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/jama-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/log4j-1.2.16.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/mahout-collections-1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/mines-jtk-20100113.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/mpicbg-20111128.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/slf4j-api-1.6.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/slf4j-log4j12-1.6.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/imglib2-algorithms-legacy-2.0.0-20130821.051543-1245.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
