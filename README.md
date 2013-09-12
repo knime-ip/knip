@@ -5,11 +5,11 @@ The KNIME Image Processing Extension adds new nodes to KNIME (www.knime.org) to 
 
 The KNIME Image Processing Extension currently provides about 90 nodes for (pre)-processing, filtering, segmentation, feature extraction, various views, ....
 
-Installation
+Installation and Development
 ====
-You should use eclipse to develop plugins for KNIME Image processing
+You have to use the KNIME Development Kit to develop plugins for KNIME Image Processing
 
-1. Clone Repository using git-clone 
-2. In File -> Import -> Existing Projects Into Workspace
-
-
+1. Download current version of KNIME Development Kit (http://www.knime.org/downloads/overview)
+2. Clone Repository using your favourite Git-Client
+3. In File -> Import -> Existing Projects Into Workspace
+4. Follow steps from http://tech.knime.org/developers
