@@ -11,5 +11,5 @@ You have to use the KNIME Development Kit to develop plugins for KNIME Image Pro
 
 1. Download current version of KNIME Development Kit (http://www.knime.org/downloads/overview)
 2. Clone Repository using your favourite Git-Client
-3. In File -> Import -> Existing Projects Into Workspace
+3. Eclipse: File -> Import -> Existing Projects Into Workspace
 4. Follow steps from http://tech.knime.org/developers
