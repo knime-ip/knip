@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="" type="Manipulator">
+	<name>Example Node</name>
+
+	<shortDescription>
+		High level description
+    </shortDescription>
+
+	<fullDescription>
+		<intro>Description</intro>
+		<tab name="Settings">
+			<option name="Your option">Option</option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Images">Images</inPort>
+		<outPort index="0" name="Images">Images</outPort>
+
+	</ports>
+
+</knimeNode>

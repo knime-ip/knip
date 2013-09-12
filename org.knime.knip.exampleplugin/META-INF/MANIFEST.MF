@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-Name: KNIP Example Plugin
+Bundle-SymbolicName: org.knime.knip.example;singleton:=true
+Bundle-ManifestVersion: 2
+Bundle-Version: 0.0.1.qualifier
+Bundle-Vendor: University of Konstanz
+Eclipse-RegisterBuddy: org.knime.core
+Require-Bundle: org.knime.base,
+ org.knime.workbench.repository,
+ org.apache.log4j;bundle-version="1.2.15",
+ org.eclipse.core.runtime,
+ org.eclipse.ui,
+ org.knime.knip.core;bundle-version="[1.0.1,2.0.0)",
+ org.knime.knip.base;bundle-version="[1.0.1,2.0.0)"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ClassPath: knipexample.jar
+Export-Package: org.knime.knip.nodes,
+ org.knime.knip.nodes.examplenode
+

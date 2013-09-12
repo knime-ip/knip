@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+     <extension
+         point="org.knime.workbench.repository.nodes">
+     </extension>
+     <extension
+           point="org.knime.workbench.repository.categories">
+        <category
+              level-id="examplenodes"
+              name="Example Nodes"
+              path="/">
+        </category>
+     </extension>
+     <extension
+           point="org.knime.workbench.repository.nodesets">
+        <nodeset
+              expert-flag="false"
+              factory-class="org.knime.knip.nodes.ExampleNodeSetFactory"
+              id="org.knime.knip.nodes.ExampleNodeSetFactory">
+        </nodeset>
+     </extension>
+</plugin>
