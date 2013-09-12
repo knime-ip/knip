@@ -1,0 +1,33 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="resampler.png" type="Manipulator">
+	<name>Resampler</name>
+	<shortDescription>
+		Resizes the image.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>Resizes the image in each dimension according to given new
+			sizes
+		</intro>
+		<tab name="Options">
+			<option name="New dimensions">
+				The new size of the images per dimension
+		</option>
+			<option name="Interpolation Mode">
+				Determines how to interpolate the pixels.
+			</option>
+
+		</tab>
+
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Images">Images</inPort>
+		<outPort index="0" name="Resampled Image">Resampled Image</outPort>
+	</ports>
+</knimeNode>

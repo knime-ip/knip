@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="icons/img2lab.png" type="Manipulator">
+	<name>Image to Labeling</name>
+
+	<shortDescription>
+		Converts an image cell to a segmentation/labeling
+		cell.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			Converts images in a column (or a set of columns) to
+			segmentations. 
+		</intro>
+		<tab name="Options">
+		<option name="Set Background">If true, no labels will be set for pixels with the
+			value specified in "Background Value"</option>
+		<option name="Background Value">The value of the pixels which will be regarded as
+			background. Hence, no label will be assigned to them (if "Set
+			Background" is selected)</option>
+		<option name="Column Selection">Move the columns of interest into the
+			&quot;Include&quot; list</option>
+		</tab>
+
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Images">Arbitrary image columns</inPort>
+		<outPort index="0" name="Segmentation">Input data with new SegmentationTypes.
+		</outPort>
+	</ports>
+</knimeNode>

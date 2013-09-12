@@ -1,0 +1,40 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="icons/sobelfilter.png" type="Manipulator">
+	<name>Sobel Filter</name>
+	<shortDescription>
+		Applies the Sobel-Operator to the input images. Use
+		signed image types (like byte, short, etc) to avoid unwanted image
+		artifacts.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+
+			Wikipedia:
+			The Sobel operator is used in image processing,
+			particularly within edge detection algorithms. Technically, it is a
+			discrete differentiation operator, computing an approximation of the
+			gradient of the image intensity function. At each point in the image,
+			the result of the Sobel operator is either the corresponding gradient
+			vector or the normof this vector. The Sobel operator is based on
+			convolving the image with a small, separable, and integer valued
+			filter in horizontal and vertical direction and is therefore
+			relatively inexpensive in terms of computations. On the other hand,
+			the gradient approximation which it	produces is relatively crude, in
+			particular for high frequency variations in the image.
+
+			Details:
+			http://en.wikipedia.org/wiki/Sobel_operator
+		</intro>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Images">Images</inPort>
+		<outPort index="0" name="Sobel filtered Images">Filtered Images</outPort>
+	</ports>
+</knimeNode>

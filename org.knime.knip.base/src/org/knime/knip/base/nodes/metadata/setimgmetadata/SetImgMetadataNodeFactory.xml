@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="setmetadata.png" type="Manipulator">
+	<name>Set Image Metadata</name>
+	<shortDescription>Manipulates the image metadata.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>Manipulates the image metadata, like name, source and dimension
+			axis labels.
+		</intro>
+		<tab name="Options">
+			<option name="Image">The image column whose image metadata will be
+				manipulated.</option>
+			<option name="Image Name">The new optional image name.</option>
+			<option name="Image Source">The new optional image source.</option>
+			<option name="Label of Dimension x">The label of the according dimension.</option>
+		</tab>
+		<tab name="Calibrations">
+			<option name="Calibration for Dimension X">The calibration for the according dimension. If
+				0, the calibration will not be modified.</option>
+		</tab>
+	</fullDescription>
+	<ports>
+		<inPort name="Images" index="0">Images</inPort>
+		<outPort name="Images" index="0">Images with manipulated metadata
+		</outPort>
+	</ports>
+
+	<views>
+		<view name="Table Cell View" index="0"></view>
+	</views>
+
+</knimeNode>

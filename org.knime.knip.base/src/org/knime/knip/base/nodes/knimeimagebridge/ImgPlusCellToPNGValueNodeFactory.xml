@@ -1,0 +1,40 @@
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="ImgToPng.png" type="Manipulator">
+	<name> ImgPlus to PNG Images </name>
+
+	<shortDescription>
+		Converts a KNIME Image Processing image
+		(ImgPlusValue) to an image in KNIME PNG Image (PNGImageValue).
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			Converts a KNIME Image Processing Image (ImgPlusValue) from
+			KNIME
+			to KNIME PNG Image (PNGImageCell). At least two
+			dimensions must
+			be selected (the image plane). The alpha
+			channel of the resulting PNG is ignored.
+
+			If there exist more than one images planes, e.g. in a
+			video, then there will be as many PNG Images created as there exist
+			planes (number of time steps in the case of the video).
+		</intro>
+
+		<tab name="Options">
+			<option name="XY Dimension Selection">Select the dimensions which serve as the image
+				plane (often 'X', 'Y').
+			</option>
+
+			<option name="Channel Dimension selection">Select the dimension with the color information
+				(often 'channel') or no dimension for grey value images.
+			</option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="ImgPlus">ImgPlus</inPort>
+		<outPort index="0" name="PNG Images">PNG Images in Collection Cell
+		</outPort>
+	</ports>
+</knimeNode>

@@ -1,0 +1,29 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="../../filter/icons/imgfilter.png" type="Source">
+	<name>Convolution Kernel Creator</name>
+	<shortDescription>
+		Creates convolution kernels, i.e. images from certain
+		functions.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>Creates convolution kernels, i.e. images from certain
+			functions, which subsequently can be used for the convolution with
+			other images using the Convolver-node.</intro>
+		<option name="Usage">
+			Add the kernels of choice from the list and
+			configure them accordingly. For most parameters of the kernels
+			multiple values are allowed (separated by comma), where each parameter combination results
+			in a new kernel (cp. 'Variant Browser') and, hence, a new row in the result table.
+		</option>
+	</fullDescription>
+
+	<ports>
+		<outPort index="0" name="Convolution Kernels">Convolution Kernels</outPort>
+	</ports>
+</knimeNode>

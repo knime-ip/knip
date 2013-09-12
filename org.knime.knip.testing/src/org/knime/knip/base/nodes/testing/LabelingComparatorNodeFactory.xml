@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./icons/missing.gif" type="Other">
+	<name>Labeling Comparator</name>
+
+	<shortDescription>
+		Compares two labelings pixelwise. Throws Exception if they are invalid.
+    </shortDescription>
+
+	<fullDescription>
+		<intro>Compares two labelings pixelwise. Throws IllegalStateException if they are invalid.
+		</intro>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Input images">Incoming labeling to be compared</inPort>
+		<outPort index="0" name="BooleanValue">result of the comparison
+		</outPort>
+		<!-- possibly more output ports here -->
+	</ports>
+</knimeNode>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (c) 2010 IBM Corporation 
+	and others. All rights reserved. This program and the accompanying materials 
+	are made available under the terms of the Eclipse Public License v1.0 which 
+	accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html 
+	Contributors: IBM Corporation - initial API and implementation -->
+
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="imgreader.png" type="Source">
+	<name>Image Reader</name>
+	<shortDescription>
+		Reads images from possibly different directories and
+		imports them to the
+		KNIME-internal image format. The images will be
+		read an as PlanarImages, which means that they are optimized for the
+		access of the first two dimensions. To convert them to another image
+		format (ArrayImg if you want to process the whole image at once)
+		please make use of
+		the converter node.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			Reads images from various file formats supported by the Bio-Formats
+			library and imports them to the KNIME-internal image format.
+			A list of
+			the supported formats can be found here:
+			<a href="http://loci.wisc.edu/bio-formats/formats">http://loci.wisc.edu/bio-formats/formats</a>
+		</intro>
+		<tab name="Options">
+			<option name="File browser">
+				Choose your image files here and add them to the
+				list of selected files.
+				An image preview is available which will also
+				help you to determine,
+				whether an image format is supported or not.
+				The list of the core meta data gives you some more information about
+				the
+				image object.
+			</option>
+		</tab>
+		<tab name="Additional Options">
+			<option name="Append additional OME-XML-metadata column">
+				You can add a column containing the metadata formated as
+				an
+				OME-XML-String
+				(more details on
+				<a href="http://www.ome-xml.org/">http://www.ome-xml.org/</a>
+				).
+			</option>
+			<option name="Image Factory">Defines the way how the images are created and
+				therewith kept in memory: Array Image Factory (stored as ONE array;
+				pros: fast pixel access; cons: limited number of pixels per image),
+				Planar Image Factory (each plane is stored in an array; pros: images
+				are read faster; cons: limited number of pixels in an XY-plane,
+				slower pixel access), and Cell Image Factory (multiple arrays of
+				fixed sizes are used, pros: unlimited number of pixels per images;
+				cons: very slow pixel reading and pixel access))</option>
+			<option name="Use complete file path as row key">
+				If checked, the complete file path will be used
+				as
+				row key, else only
+				the file name.</option>
+			<option name="Check file format for each file">Checks for each file individually the
+				file-format, if checked. Else, the file format as assumed to be the
+				same for all files and only if the reading fails, the new file
+				format will be determined.</option>
+			<option name="File name column in optional table">If another node with a string column is plugged
+				to the optional in-port, the column, which contains the potential
+				file paths, can be selected.</option>
+			<option name="Read all series">Some image file formats might contain multiple
+				images (called series). One can either read all available series
+				(each appended as own table row) or just one series with the specified
+				index ("Series index").
+			</option>
+			<option name="Load group files">If selected, related group files will be read as
+				well.</option>
+
+		</tab>
+		<tab name="Subset Selection">
+			<option name="Image Subset Selection">
+				Select the image planes here you actually want to
+				open. Use shift or
+				ctrl-keys to mark more than one plane or the
+				"all"-checkbox to select
+				all available planes. Detailed informations
+				about the sizes of the
+				individual
+				dimensions can be obtained from the
+				core metadata list above in the file
+				chooser.
+				The possible dimension
+				of
+				an image apart from the image width (X) and
+				height (Y) are Z (for
+				3D-information),
+				C (channels, mostly represented by different colors)
+				and T
+				(the time points e.g. of a video).
+			</option>
+		</tab>
+
+	</fullDescription>
+
+	<ports>
+		<inPort name="File names (optional)" index="0">Optional input table
+			with a column containing the file names/paths.</inPort>
+		<outPort index="0" name="Images">
+			The opened images and optionally a
+			column with the metadata.
+		</outPort>
+	</ports>
+
+	<views>
+		<view index="0" name="Table Cell View">
+			Displays the selected cells with their
+			associated viewer if it exists.
+		</view>
+	</views>
+</knimeNode>

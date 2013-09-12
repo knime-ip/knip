@@ -1,0 +1,44 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="icons/labelingcombiner.png" type="Manipulator">
+	<name>Labeling Arithmetic</name>
+	<shortDescription>
+		Labeling Arithmetic Node.
+  </shortDescription>
+
+	<fullDescription>
+		<intro>Perform special arithmetics to combine to labelings.
+		</intro>
+		<tab name="Options">
+			<option name="Choose labeling columns">
+				Select the columns to process here.
+    	</option>
+			<option name="Method">
+				<ul>
+					<li>INTERSECT: intersection of two labelings at any pixel position</li>
+					<li>DIFFERENCE: difference of two labelings at any pixel position</li>
+					<li>CONGRUENT: if two labelings at a pixel position are congruent,
+						the labels at this position will be set. else empty list.</li>
+					<li>MERGE: two labelings will be merged at any pixel position</li>
+					<li>AND: the labels of the first column will be set, if both
+						labelings contain labels at this pixel position</li>
+					<li>XOR - if there are no labels at each of the two labelings, but
+						in the other labeling there are, the available labels will be set</li>
+				</ul>
+			</option>
+			<option name="Virtually extend">
+				Select if the second labeling should be
+				synchronized to the size of the first selected labeling.
+    		</option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Labelings">Labelings</inPort>
+		<outPort index="0" name="Labeling">Result</outPort>
+	</ports>
+</knimeNode>

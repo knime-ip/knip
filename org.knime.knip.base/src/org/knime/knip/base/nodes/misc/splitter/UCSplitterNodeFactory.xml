@@ -1,0 +1,32 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="splitter.png" type="Manipulator">
+	<name>Splitter (uncropped)</name>
+	<shortDescription>
+		Splits images in lower dimensional parts.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>Splits an image object to multiple images (i.e. resulting in
+			multiple columns). In contrast to the normal "Splitter"-node the
+			sizes of the dimensions which remain together will not be modified.
+			To split the resulting Collection-Column use the "Split Colleciton
+			Column"-node. </intro>
+		<tab name="Options">
+			<option name="Dimension selection">Select those dimensions here, which should stay
+				together. I.e. for each selected subset, the non-selected dimensions
+				will be split completely.</option>
+		</tab>
+	</fullDescription>
+
+
+
+	<ports>
+		<inPort index="0" name="Images">Images</inPort>
+		<outPort index="0" name="Split Images">Split Images in a list cell.</outPort>
+	</ports>
+</knimeNode>

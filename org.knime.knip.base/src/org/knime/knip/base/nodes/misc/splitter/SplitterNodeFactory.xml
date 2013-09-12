@@ -1,0 +1,51 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="splitter.png" type="Manipulator">
+	<name>Splitter</name>
+	<shortDescription>
+
+	</shortDescription>
+
+	<fullDescription>
+		<intro>Splits an image object to multiple images (i.e. resulting in
+			multiple columns). Note that all images must have the same dimensions
+			and dimension order. If the input images are not of the same
+			dimensions, the least common size for each dimension will be used for
+			the result images (i.e. the images will possibly be cropped). If you
+			want to avoid that please use the "Splitter (uncropped)" node.
+		</intro>
+		<tab name="Options">
+			<option name="Image to process">The image object to split.</option>
+			<option name="Dimension selection">Select those dimensions here, which should stay
+				together. I.e. for each selected subset, the non-selected dimensions
+				will be split completely.</option>
+		</tab>
+		<tab name="Advanced">
+			<option name="Advanced split settings">
+				This options allows you to specify the maximum size of each
+				dimension in the resulting images. If
+				<b>0</b>
+				the maximum dimension size is the one of the according image.
+				Example: Consider a video with dimensions X=100,Y=100,T=100. If your
+				settings are X=0,Y=0,T=10 your image/video will be split in 10 parts
+				each
+				of size X=100,Y=100,T=10. Essentially you are cutting the video
+				in
+				10 blocks with 10 frames in it.
+			</option>
+		</tab>
+	</fullDescription>
+	<ports>
+		<inPort index="0" name="Images">Images</inPort>
+		<outPort index="0" name="Split Images">Split Images</outPort>
+	</ports>
+
+	<views>
+		<view name="Table Cell Viewer" index="0"></view>
+	</views>
+
+</knimeNode>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="segmentoverlay.png" type="Visualizer">
+	<name>Interactive Segmentation View</name>
+	<shortDescription>
+		Allows the interactive exploration of labelings using
+		overlay renderes, filters and highlighting. Especially
+		useful in combination with a Segment Feature node and an Interactive Table.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>This nodes allows to view segment labels rendered on top of the
+			original image. You can explore
+			such overlays by adjusting transparency, colors and the used renderer.
+			Additionally filtering of labels
+			is possible and allows in detail examination of segments. This basic
+			behavior can be extended if the node
+			is used in combination with an Interactive Table. Both nodes have to be
+			connected to the same (Image) Segment
+			Feature node and have to use identical label names. This will connect the
+			highlight mechanism of both nodes and
+			allows interactive highlighting across view borders.
+		</intro>
+
+
+		<tab name="Options">
+			<option name="Img column">select the image column</option>
+			<option name="Labeling column">and the appropriate segment column.</option>
+		</tab>
+
+		<tab name="Label Transformation">
+			<option name="">
+				This tab is only needed if the node is used in combination with an
+				interactive table.
+				In this case the label names have to be build from the variable blocks
+				such that the
+				name pattern is exactly the same as in the Interactive Table. A common
+				case is $ImgName$#$Label$.
+				Image1.png#4, Image1.png#5, ...
+			</option>
+		</tab>
+	</fullDescription>
+	<ports>
+		<inPort index="0" name="Images">original images and corresponding
+			labelings.</inPort>
+		<inPort index="1" name="Segment Features">optional e.g. output of the (Image)
+			Segment Feature node.</inPort>
+	</ports>
+
+	<views>
+		<view index="0" name="Segment Overlay View">
+			Displays the images with their
+			corresponding segment overlays.
+		</view>
+	</views>
+</knimeNode>

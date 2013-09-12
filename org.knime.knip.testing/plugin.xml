@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?eclipse version="3.0"?>
+
+<plugin>
+     <extension point="org.knime.workbench.repository.nodes">
+</extension>
+     <extension point="org.knime.workbench.repository.categories">
+        <category
+              description="KNIME Image Processing Testing Nodes"
+              level-id="kniptesting"
+              name="Testing"
+              path="/community/knip">
+        </category>
+     </extension>
+     <extension
+           point="org.knime.workbench.repository.nodesets">
+        <nodeset
+              expert-flag="false"
+              factory-class="org.knime.knip.testing.TestingNodeSetFactory"
+              id="org.knime.knip.testing.TestingNodeSetFactory">
+        </nodeset>
+     </extension>
+</plugin>

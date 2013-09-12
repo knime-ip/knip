@@ -1,0 +1,36 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="icons/projector.png" type="Manipulator">
+	<name>Projector</name>
+	<shortDescription>
+		Projects one dimension of the image onto the other
+		ones.
+	</shortDescription>
+
+	<fullDescription>
+		<intro> Projects the selected dimension onto the remaining dimensions.
+			Hence, the values of the selected will be summarized to just one
+			value according to the chosen operation.			
+		</intro>
+
+		<tab name="Options">
+			<option name="Image"> The column containing the image </option>
+			<option name="Projection Operation">The mathematical operation which is performed to
+				to summarize the values of the dimension to project.</option>
+			<option name="Projection Direction"> The dimension that will be collapsed.
+			</option>
+		</tab>
+
+
+	</fullDescription>
+
+
+	<ports>
+		<inPort index="0" name="Images">Images</inPort>
+		<outPort index="0" name="Projected Images">Projected Images</outPort>
+	</ports>
+</knimeNode>

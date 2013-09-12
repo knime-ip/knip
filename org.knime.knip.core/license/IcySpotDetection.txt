@@ -1,0 +1,44 @@
+Our spot detection plugin uses the class B3SplineUDWT and WaveletConfigException from the Icy Spot Detection Plugin.
+The original copyright is reproduced below:
+
+/*
+ * Copyright 2010, 2011 Institut Pasteur.
+ * 
+ * This file is part of ICY.
+ * 
+ * ICY is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * ICY is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with ICY. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
+=> our additions
+
+B3SplineUDWT
+/*
+ * edited by
+ * Michael Zinsmaier, University of Konstanz
+ * 
+ * I removed some methods that we didn't need. Thre remaining code is
+ * the same as in the original implementation. The original file can be
+ * found in the ICY release of the Spot Detection Plugin.
+ */
+ 
+ WaveletConfigException
+ /*
+ * copied by
+ * Michael Zinsmaier, University of Konstanz
+ *
+ * no changes used in conjunction with B3SplineUDWT
+ */
+ 
+ The original code can be found here: http://icy.bioimageanalysis.org/plugin/Spot_Detector

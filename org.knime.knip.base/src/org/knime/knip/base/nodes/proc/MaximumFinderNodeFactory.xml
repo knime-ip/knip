@@ -1,0 +1,35 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="icons/peaks.png" type="Manipulator">
+	<name>Maximum Finder</name>
+	<shortDescription>Processes given images and locates local maxima within
+		them. The analysis of maxima can be done in
+		any dimensionality and including channels.</shortDescription>
+
+	<fullDescription>
+		<intro>
+			<p>
+				Processes given images and locates local maxima within
+		them. The analysis of maxima can be done in
+		any dimensionality and including channels.
+			</p>
+		</intro>
+		<tab name="Options">
+			<option name="Noise Tolerance">Choose whether or not to use a noise tolerance. If
+				set a toleance of your choosing is included
+				in the computation.</option>
+			<option name="Suppression">Choose whether or not to use a suppression of found
+				maxima.If set each maxima will be a local one
+				within the set radius. If supression is set to 0, nothing will be done.</option>			
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Image">Image</inPort>
+		<outPort index="0" name="Maxima Image">Binary image containing the maxima.</outPort>
+	</ports>
+</knimeNode>

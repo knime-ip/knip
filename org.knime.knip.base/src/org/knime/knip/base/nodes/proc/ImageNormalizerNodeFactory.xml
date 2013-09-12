@@ -1,0 +1,37 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="icons/contrastenhancer.png" type="Manipulator">
+	<name>Image Normalizer</name>
+	<shortDescription>
+		Enhances the image contrast by either normalizing or
+		equalizing it.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>Enhances the images contrast by using the selected method. The image can be either normalized and use an optional stauration threshold or it
+			can be equalized by linearizing the cumulative distribution function of the image's
+			histogramm.</intro>
+		<tab name="Options">
+			<option name="Enhancement Type">
+				Choose either "Normalize", "Equalize" or "Manual".
+				<ul>
+					<li>Normalize: This enhancement type stretches the histogram of the image. I.e. your image has an intensity range from 50-170 and the data type range is 0 to 255 then 50 gets substracted from each pixel intensity (so the new range is 0 to 120) and is then multiplied with 255/120 so the new intensity range is 0 to 255.</li>
+					<li>Equalize: This enhancement type linearizes the cumulative distribution function of the image's histogram. This enhancement differs from normalization as it does not only stretches the histogram but also compresses it (please note that only 256 bins are used for the required histogram!).</li>
+					<li>Manual: This enhancement type allows you to set the minimum and maximum value of the source or of the target image manually. For example, if you want to normalize the image values between 0 and 1, your should check the checkbox 'isTarget' and set min = 0 and max = 1.</li>
+				</ul>
+			</option>
+			<option name="Saturation (%)">
+				Enter a percentage how many pixels are already saturated. This parameter only affects the normalizer.			
+			</option>
+		</tab>
+	</fullDescription>
+	
+	<ports>
+		<inPort index="0" name="Images">Images</inPort>
+		<outPort index="0" name="Normalized Images">Cropped Images</outPort>
+	</ports>
+</knimeNode>

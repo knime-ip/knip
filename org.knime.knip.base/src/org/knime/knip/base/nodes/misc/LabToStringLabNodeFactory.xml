@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="labelingtostring.png" type="Manipulator">
+	<name>Labeling to String based Labeling</name>
+	<shortDescription>
+		Converts a labeling to a String based labeling.
+		String based labeling means, that all labels in this labeling are
+		considered as Strings. This may be useful as a pre-processing node,
+		e.g. if you want to add String labels.
+	</shortDescription>
+
+	<fullDescription>
+		<intro> Converts a labeling to a String based labeling.
+			String based
+			labeling means, that all labels in this labeling are
+			considered as
+			Strings. This may be useful as a pre-processing node,
+			e.g. if you want
+			to add String labels.
+		</intro>
+	</fullDescription>
+	<ports>
+		<inPort name="Labelings" index="0">Labelings</inPort>
+		<outPort name="Labelings" index="0">String based Labelings
+		</outPort>
+	</ports>
+
+</knimeNode>

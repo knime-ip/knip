@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="imgparameteradjuster.png" type="Visualizer">
+	<name>Image Parameter Adjuster</name>
+
+	<shortDescription>
+		Allows one do adjust image parameters manually,
+		stored as flow variables.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			Interactive node to adjust image parameters manually, which are
+			then
+			available as flow variables. Currently adjustable parameters are
+			<br></br>
+			<i>- saturation for the normalization</i>
+			<br></br>
+			<i>- mouse position</i>
+			<br></br>
+			<i>- zoom factor</i>
+			<br></br>
+			<i>- threshold value.</i>
+			<br></br>
+			<br></br>
+
+			To do so, execute the node and open the view while the node is
+			executing. If you continue the node-execution from the view, the last
+			used parameter settings are used and then available as flow
+			variables.
+		</intro>
+	</fullDescription>
+
+	<ports>
+		<inPort name="Images" index="0">Images for the parameter adjustment
+		</inPort>
+	</ports>
+
+
+	<views>
+		<view index="0" name="Ineractive Adjustment View">View to interactive adjust image parameters
+		</view>
+		<!--view index="1" name="name of second view">Description of second view...</view -->
+	</views>
+</knimeNode>

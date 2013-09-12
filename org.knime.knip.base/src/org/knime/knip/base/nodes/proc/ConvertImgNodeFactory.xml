@@ -1,0 +1,72 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="icons/converter.png" type="Manipulator">
+	<name>Image Converter</name>
+	<shortDescription>Converts a given image from one pixel type into
+		another (e.g. ShortType to ByteType).</shortDescription>
+
+	<fullDescription>
+		<intro>Converts a given input image from one pixel type (or image
+			type) into another pixel type (or image type), e.g. ShortType into
+			ByteType or an PlanarImg into an ArrayImg.
+		</intro>
+		<tab name="Options">
+			<option name="Target type">
+				Select the pixel type here in which the images
+				should
+				be
+				converted.
+			</option>
+			<option name="Conversion method">
+				Determines how the pixel values should be treated (e.g. if they
+				don't fit in
+				the domain of the target pixel type).
+				Available methods
+				are
+				<ul>
+					<li>
+						Copy - Just copies the values. If the orgininal values are out
+						of the
+						domain of the target type, it might lead to unexpected
+						results (e.g. when converting from ShortType to ByteType).
+					</li>
+					<li>
+						Clip - Copies the values but replaces the values beyond the
+						range of the target type with the minimum and maximum value,
+						respectively.
+					</li>
+					<li>
+						Scale - Scales the values to the new domain. No overflows will
+						occur.
+					</li>
+					<li>
+						Normalize and Scale - First normalizes the with respect to the
+						original domain and then scales them to according to the new
+						domain, i.e. the target type.
+					</li>
+					<li>
+						Normalize - Only normalizes the whole image before copying the
+						values.
+					</li>
+					<li>
+						Normalize (Clipped) - Normalizes the values, copies them and
+						takes the minimum/maximum, if they are out of range.</li>
+				</ul>
+				
+			</option>
+			<option name="Factory Selection">How the image pixel will be organised in the
+				memory. May have impact on the runtime of algorithms. SOURCE_FACTORY
+				uses the storage strategy from the original image.
+			</option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Images">Images</inPort>
+		<outPort index="0" name="Converted Images">The converted images</outPort>
+	</ports>
+</knimeNode>

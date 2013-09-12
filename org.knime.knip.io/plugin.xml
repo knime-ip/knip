@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+   <extension-point id="IFormatReader" name="IFormatReader" schema="schema/IFormatReader.exsd"/>
+   <extension-point id="ScifioFormat" name="ScifioFormat" schema="schema/ScifioFormat.exsd"/>
+     <extension
+           point="org.knime.workbench.repository.nodesets">
+        <nodeset
+              expert-flag="false"
+              factory-class="org.knime.knip.io.nodes.IONodeSetFactory"
+              id="org.knime.knip.io.nodes.IONodeSetFactory">
+        </nodeset>
+     </extension>
+     <extension
+           point="org.knime.knip.base.TableCellView">
+        <TableCellView
+              TableCellViewFactory="org.knime.knip.io.view.XMLCellViewFactory">
+        </TableCellView>
+     </extension>
+</plugin>

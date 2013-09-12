@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./properties.png" type="Manipulator">
+	<name>Image Properties</name>
+
+	<shortDescription>This node lists the properties of all images of an
+		image column</shortDescription>
+
+	<fullDescription>
+		<intro>This node can list properties of image in an image column.
+			It
+			supports the number of dimensions, number of pixels, data type,
+			number of labels, container type, etc</intro>
+
+
+		<tab name="Features">
+			<option name="">Select the properties to be determined.</option>
+		</tab>
+		<tab name="Column Selection">
+			<option name="">Selected the column to work on here.</option>
+		</tab>
+
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Images">Images</inPort>
+		<outPort index="0" name="Result Table">Image Properties Table</outPort>
+	</ports>
+</knimeNode>

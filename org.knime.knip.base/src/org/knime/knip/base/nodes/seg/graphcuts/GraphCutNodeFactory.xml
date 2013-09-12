@@ -1,0 +1,54 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="graphcut.png" type="Manipulator">
+	<name>GraphCut 2D </name>
+	<shortDescription>
+		Perform the graph cut algorithm to segment an image.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>From wikipedia:
+			Graph partitioning methods can effectively be
+			used for image
+			segmentation. In these methods, the image is modeled as
+			a weighted,
+			undirected graph. Usually a pixel or a group of pixels are
+			associated
+			with nodes and edge weights define the (dis)similarity
+			between the
+			neighborhood pixels. The graph (image) is then partitioned
+			according
+			to a criterion designed to model "good" clusters. Each
+			partition of
+			the nodes (pixels) output from these algorithms are
+			considered an
+			object segment in the image.
+
+			see also (Graph Cuts and
+			Efficient N-D Image Segmentation (Boykov et. al)):
+			http://www.springerlink.com/content/j3k24j8347k42425/fulltext.pdf
+		</intro>
+
+		<tab name="Options">
+			<option name="lambda"> Value weighting the local (high lambda) / global
+				(low lambda) influence of seeding points
+		</option>
+
+			<option name="Feature Dimension selection (optional)">
+				The selected dimension is regarded as a feature
+				vector. e.g.: if you select in the dim selection X and Y in a RGB
+				image and in the feature dim selection C, the graph weights are
+				calculated according to the color vectors (R,G,B) of the RGB image
+			</option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Images and Seed Segmentation">Images and Seed Labeling (optional)</inPort>
+		<outPort index="0" name="Image BitType">Image BitType</outPort>
+	</ports>
+</knimeNode>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="../icons/imgfilter.png" type="Manipulator">
+	<name>Max Homogeneity</name>
+
+	<shortDescription>
+		This Node provides Edge-Preserving denoising via
+		searching for homogeneous neighborhoods around each pixel.
+	</shortDescription>
+
+	<fullDescription>
+
+		<intro>
+			The Maximum Homogeneity Neighborhood Node lays 8 different
+			areas around one Pixel and applies a measurement of homogeneity which
+			is then processed in some sort of weight. Then, it calculates each
+			areas mean-value and combines both mean-value and weight to the new
+			pixel value, so that the most homogeneous areas take the most part in
+			the new value of the pixel and areas that lay over edges are not
+			taken into account. Via a parameter you can regulate the influence of
+			the weights.
+		</intro>
+
+		<tab name="options">
+			<option name="lambda">The Parameter to determine the influence of the
+				weights via weights^lambda. For lambda = 0 the filter becomes a
+				simple mean filter which filters the most noise but preserves no
+				edges. For lambda -> infinity only the most homogeneous area is
+				taken to get the new Pixel-Value thus Edges are most preserved but
+				the denoising is not as strong.</option>
+			<option name="Window Span">The Window Span parameter determines the span of
+				the window in one direction. The resulting window size is given by:
+				span*2+1 in each dimension. So the bigger it gets, the more noise is
+				filtered out but the less details are preserved.</option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Input images">Images to filter</inPort>
+		<outPort index="0" name="Output images">Filtered images
+		</outPort>
+	</ports>
+</knimeNode>

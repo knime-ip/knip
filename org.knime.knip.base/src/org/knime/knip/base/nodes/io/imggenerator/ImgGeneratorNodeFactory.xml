@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (c) 2010 IBM Corporation 
+	and others. All rights reserved. This program and the accompanying materials 
+	are made available under the terms of the Eclipse Public License v1.0 which 
+	accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html 
+	Contributors: IBM Corporation - initial API and implementation -->
+
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="imggenerator.png" type="Source">
+	<name>Image Generator</name>
+	<shortDescription>
+		Generates random images
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			Generates (random) images according to the specified options.
+		</intro>
+
+		<option name="How many images shall be created?">
+			Number of images which are created.
+		</option>
+
+		<option name="Img size">
+			Select the sizes of the image in the various
+			dimensions. The first value specifies the minimum, the second
+			the maximum size. E.g. the entry 1,10 will result in images from
+			(including) size 1 to 10 in the selected dimension. Setting
+			both values to zero excludes a dimension. 
+		</option>
+		<option name="Random size in bounds">
+			If selected, random images within the defined
+			dimensionality will be
+			generated. For example, if you select X and Y
+			to be 100 each, then
+			the resulting images may be of size [1;100] for X
+			and Y respectively.
+		</option>
+		<option name="Pixel Type">
+			Select the pixel type of the resulting images. If
+			you select random, each
+			generated image may have another PixelType.
+			Please keep in mind, that the larger your PixelType (e.g. IntType
+			needs more memory than ByteType) the more memory is uses.
+		</option>
+
+		<option name="Factory type">
+			Select the factory type of the resulting images.
+			If you select random, each
+			generated image may have another factory.
+		</option>
+
+		<option name="Image content">
+			Select a constant value as the value of each pixel
+			or select the pixels to be set randomly according to their value
+			range. (e.g. ByteType is -128 up to 127).
+		</option>
+
+	</fullDescription>
+
+	<ports>
+		<outPort index="0" name="Images">
+			The generated images
+		</outPort>
+	</ports>
+
+</knimeNode>

@@ -1,0 +1,49 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="icons/thresholder.png" type="Manipulator">
+	<name>Global Thresholder (deprecated)</name>
+	<shortDescription>
+		A threshold is determined manually or calculated
+		automatically to
+		threshold the image.
+    </shortDescription>
+
+	<fullDescription>
+		<intro>
+			A thresholder thresholds the intensity values of an image according
+			to a given threshold. The result is a binary segmentation.
+			Please note
+			that you have to use the Connected Component Analysis Node
+			after the
+			thresholding analysis to extract a segmentation with
+			seperated
+			segments.
+			For details see:
+			<i>"Survey over image thresholding techniques and quantitative
+				performance evaluation"</i>
+			Sezgin04.
+		</intro>
+		<tab name="Options">
+			<option name="Manual Threshold"> The threshold value used if MANUAL is used as
+				threshold value.</option>
+			<option name="Thresholding method">The thresholding method to determine the
+				threshold
+        </option>
+			<option name="Dim selection">The dimensions for which the threshold value is
+				calculated (if a automatic method is selected)</option>
+		</tab>
+
+	</fullDescription>
+
+
+
+	<ports>
+		<inPort index="0" name="Images">Images</inPort>
+		<outPort index="0" name="Threshold Images">Thresholded images in bitType
+		</outPort>
+	</ports>
+</knimeNode>

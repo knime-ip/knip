@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (c) 2010 IBM Corporation 
+	and others. All rights reserved. This program and the accompanying materials 
+	are made available under the terms of the Eclipse Public License v1.0 which 
+	accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html 
+	Contributors: IBM Corporation - initial API and implementation -->
+
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="imagefileref.png" type="Source">
+	<name>Image File Linker</name>
+	<shortDescription>Creates references to image files.</shortDescription>
+
+	<fullDescription>
+		<intro>
+			Reads images from various file formats supported by the Bio-Formats
+			library and imports them to the KNIME-internal image format.
+			A list of the supported formats can be found here:
+			<a href="http://loci.wisc.edu/bio-formats/formats">http://loci.wisc.edu/bio-formats/formats</a>
+		</intro>
+		<option name="File chooser">
+			Choose your image files here and add them to the list of selected files.
+			An image preview is available which will also help you to determine,
+			whether an image format is supported or not.
+			The list of the core meta data gives you some more information about the
+			image object.
+		</option>
+		<option name="Additional options">
+			You can add a column containing the metadata formated as an
+			OME-XML-String
+			(more details on
+			<a href="http://www.ome-xml.org/">http://www.ome-xml.org/</a>
+			).
+		</option>
+	</fullDescription>
+
+	<ports>
+		<outPort index="0" name="Images">
+			The opened images and optionaly a column with the metadata.
+		</outPort>
+	</ports>
+	
+	<views>
+		<view index="0" name="Table Cell View">
+			Displays the selected cells with their
+			associated viewer if it exists.
+        </view>
+	</views>
+</knimeNode>

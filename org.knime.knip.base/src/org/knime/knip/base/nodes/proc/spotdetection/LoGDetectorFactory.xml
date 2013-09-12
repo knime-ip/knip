@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="icon/SpotDetect.png" type="Manipulator">
+	<name>LoG Spot Detection (TrackMate)</name>
+
+	<shortDescription>
+		Applies a Laplacian of Gaussian to the input and
+		returns a BitType image containing the found spots.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>Implementation of the TrackMate (see http://fiji.sc/TrackMate)
+			LogDetector.</intro>
+		<tab name="Settings">
+			<option name="radius">The minimum radius a spot.</option>
+			<option name="threshold">A threshold for pruning the found spot to filter
+				out the background. </option>
+			<option name="do Sub Pixel Localization"> Choose whether you want to use sub pixel
+				localization.</option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Images">Images</inPort>
+		<outPort index="0" name="Images">Images (BitType)</outPort>
+	</ports>
+
+</knimeNode>

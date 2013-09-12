@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./default.png" type="Manipulator">
+	<name>Local Thresholding</name>
+
+	<shortDescription>Performs an efficient local binary thresholding on an
+		input image.
+	</shortDescription>
+
+	<fullDescription>
+
+		<intro>The local thresholding is performed in an efficient way. If
+			possible (depends on the chosen method) an integral image approach is
+			used which is very fast.
+		</intro>
+
+		<tab name="options">
+			<option name="Thresholding method">The used thresholding Method: Mean, Median,
+				Sauvola, MidGrey, Bernsen, Niblack. Mean, Niblack and Sauvola are
+				implemented using the fast integral image approach.
+			</option>
+			<option name="Parameters">Thresholding method dependent parameters. Window
+				size specifies the size of the local region. Other parameters:
+				Contrast threshold (needed for Bernsen), c (constant offset value,
+				needed for Mean, Median, Niblack and MidGrey), k (needed for Niblack
+				and Sauvola with different values) and r (needed for Sauvola).
+			</option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Input images">Images to threshold.</inPort>
+		<outPort index="0" name="Output images">The thresholded images (as BitType
+			images).
+		</outPort>
+	</ports>
+</knimeNode>

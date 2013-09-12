@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode type="Visualizer" icon="./colormanager.png">
+	<name>Apply Color Settings To Labels</name>
+
+	<shortDescription>
+		Assigns colors to labels given a color model.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			Assigns colors to labels given the color model from the second
+			table. Use the ColorManager to create a color model for a given
+			column of the table. Please make sure, that the labels of all the
+			labelings from InPort #1 are contained in the column with the
+			appended color model of InPort #2.
+		</intro>
+
+		<option name="Column">
+			Select column with labelings.
+		</option>
+
+		<option name="Override Existing">
+			If selected, existing color tables (if there are
+			any) of the labelings are deleted and therefore override, else the
+			information from the color manager is appended.
+		</option>
+
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Labelings">Labelings
+		</inPort>
+		<inPort index="1" name="Labelings">Column with appended ColorModel.
+		</inPort>
+		<outPort index="0" name="Labelings with ColorModels">Labelings with applied ColorModels
+		</outPort>
+	</ports>
+</knimeNode>

@@ -1,0 +1,65 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="morphops.png" type="Manipulator">
+	<name>Morphological Image Operations</name>
+	<shortDescription>
+		Perform morphological operations on images.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			Perform morphological operations on images.
+		</intro>
+		<tab name="Options">
+			<option name="Connection Type">
+				<ul>
+					<li>Four-Connected</li>
+					<li>Eight-Connected</li>
+					<li>Structuring Element: Read the structuring element from the
+						optional second in port.</li>
+				</ul>
+			</option>
+			<option name="Column">
+				Column of the structuring element.
+			</option>
+			<option name="Method">
+				<ul>
+					<li>Erode: Shrink bright areas.</li>
+					<li>Dilate: Grow bright areas.</li>
+					<li>Open: Erode followed by Dilate. Erases tiny bright spots.</li>
+					<li>Close: Dilate followed by Erode. Erases tiny dark holes.</li>
+				</ul>
+			</option>
+			<option name="Nearest neighbor count (deprecated)">
+				This option has been removed, as it has been
+				inconsistent with the implementations of morphological operations
+				using arbitrary structuring elements. If you made use of this
+				option, your settings will be kept until you reset the node.
+			</option>
+			<option name="Number of iterations">
+				Determines how often the chosen morphological
+				operation should be applied to
+				the images (to increase the effect).
+				If Open/Closed is selected, first Erode/Dilate is applied n times
+				then Dilate/Erode n times.
+			</option>
+			<option name="Dimension selection">Determines for which dimensions the morphological
+				operations will be applied individually.</option>
+		</tab>
+	</fullDescription>
+
+
+	<ports>
+		<inPort index="0" name="BitType Images">Images</inPort>
+		<inPort index="1" name="Optional Structuring Elements">Optional Structuring Elements</inPort>
+		<outPort index="0" name="Processed Images">Processed Images</outPort>
+	</ports>
+
+	<views>
+		<view name="Table Cell View" index="0"></view>
+	</views>
+</knimeNode>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="icons/wavelet.png" type="Manipulator">
+	<name>Wavelet Filter</name>
+	<shortDescription>
+		  Wavelet filter
+	</shortDescription>
+	
+	<fullDescription>
+        <intro>
+            Apply a wavelet filter to the image. The result is a filtered image of the same size.
+        </intro>
+    </fullDescription>
+
+    <ports>
+    	<inPort index="0" name="Image">
+    		The image data.
+    	</inPort>
+        <outPort index="0" name="Filtered image">
+            After application of wavelet filter.
+        </outPort>
+    </ports>
+</knimeNode>

@@ -1,0 +1,38 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="../icons/quantilefilter.png" type="Manipulator">
+	<name>QuantileFilter</name>
+	<shortDescription>
+		A constant-time Quantile Filter
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			This Filter is a generalized median filter using the algorithm from
+			<b>Median Filtering in Constant Time</b>
+			,
+			S. Perreault and P. Hebert,
+			<i>IEEE transactions on image processing
+				(2007)</i>
+			.
+			<b>Important note:</b>
+			the image stack is converted to UnsignedByteType!
+		</intro>
+		<tab name="Options">
+			<option name="Quantile">The quantile to be used (1-100, 50=median)
+			</option>
+			<option name="Radius">The radius of the moving box to compute the
+				quantile</option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="ImageStack">Imagestack to process</inPort>
+		<outPort index="0" name="Image">The filtered imagestack (converted to
+			UnsignedByteType!)</outPort>
+	</ports>
+</knimeNode>

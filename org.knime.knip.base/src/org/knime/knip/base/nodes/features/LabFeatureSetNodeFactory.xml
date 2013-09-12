@@ -1,0 +1,141 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="segfeature.png" type="Manipulator">
+	<name>Segment Features</name>
+	<shortDescription>Calculates features of segments using labelings</shortDescription>
+
+	<fullDescription>
+		<intro>
+			Calculate features of an image under consideration of a given
+			labeling. e.g.: Calculate each selected feature for each individual
+			segment.
+		</intro>
+
+		<tab name="Features">
+			<option name="Selection of the features to be calculated">
+				<ul>
+					<li>Shape features:
+						Absolut distance: The distance from the centroid to
+						the outline of this segment</li>
+
+					<li>FD features see:
+						Shape Based Image
+						Retrieval Using Generic Fourier Descriptors (Zhang et. al 2004)</li>
+
+					<li>Geometric features:
+						- Segment size, centroid, ...</li>
+
+				</ul>
+
+			</option>
+		</tab>
+		<tab name="ROI settings">
+			<option name="Append labels of overlapping ROIs?">
+				If region of interests are overlapping, the union
+				of this labels will
+				be append.          
+            </option>
+			<option name="Depended ROIs don't need to completely overlap?">
+				If selected, regions will also be counted as
+				overlapping, if so don't
+				overlap completely.</option>
+			<option name="Append ROI information">If selected, additional information of each
+				region of interest will be add (e.g. bitmask, source labeling,
+				label). Useful, e.g., if the resulting segment table should be
+				composed again to a labeling (e.g. using the GroupBy-node).</option>
+			<option name="Filter labels">
+				If you have multi-labeled pixel positions, this
+				means that a
+				position
+				in
+				your image may have more than one label, the
+				set of pixels
+				with a
+				unique combination of labels would be regarded as
+				a single
+				segment.
+				<br />
+				<br />
+				To
+				avoid such calculations, you can filter the
+				labeling from
+				two sides:
+
+				a.
+				From the left side: Only labels which hold
+				the given rule
+				a
+				regarded
+				considered during the process of finding
+				individual segments
+				b. From
+				the right side: Only labels which hold the
+				given rule a
+				regarded as
+				class labels of the filtered labels from the
+				left.
+				<br />
+				<br />
+
+				<b>Examples :</b>
+
+
+				A pixel may have 3 labels and there are 3 pixels: px1 =
+				{classA,
+				segId15, track12}
+				<br />
+				px2 = {classB, segId14, track12}, px3 =
+				{XXclassA,
+				segId11, track11}
+				<br />
+				<br />
+
+				<i>e.g. 1 (not intersection mode):</i>
+				- filter
+				from the
+				left: Seg*
+				- filter from the
+				right: *Class*
+
+				Output:
+				Features for
+				segId15
+				(ClassA), segId14(ClassB)
+				and segId11(XXClassA)
+				<br />
+				<br />
+
+				<i>e.g. 2 (not
+					intersection mode):</i>
+				- filter from the left: *Class*
+				- filter from the
+				right: *
+
+				Output:
+				Features for XXclassA (segId15, segId11), classB
+				(segId14)
+				<br />
+				<br />
+
+				<b>Intersection mode vs. not intersection mode:</b>
+				Not intersection
+				mode: Only labels which always appear together are
+				considered to have
+				a dependency
+				Intersection mode: Labels which at
+				least appear one time
+				together are considered to have a dependency
+			</option>
+		</tab>
+
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Source labeling">Source labeling</inPort>
+		<outPort index="0" name="Features">Feature table</outPort>
+	</ports>
+</knimeNode>

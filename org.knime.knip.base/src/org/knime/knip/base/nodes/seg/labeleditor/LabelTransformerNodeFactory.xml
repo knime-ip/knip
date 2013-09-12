@@ -1,0 +1,33 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="labeltransformer.png" type="Manipulator">
+	<name>Label Transformer</name>
+	<shortDescription>
+		Transforms a label using the given expression. Attention: Only the Labeling Name is transformed!
+	</shortDescription>
+	<fullDescription>
+		<intro>
+			<p>
+				This nodes evaluates the given expression by concatenating the
+				defined variables or a self-defined string.
+				The result is a
+				string-based labeling, containing the new, modified labels, resulting from the expression.
+			</p>
+		</intro>
+		<tab name="Options">
+			<option name="Column List">Available String input columns.
+				Click any column
+				name to include the
+				value in the expression text field. </option>
+			<option name="Expression">The string expression</option>
+		</tab>
+	</fullDescription>
+	<ports>
+		<inPort index="0" name="Labeling">Labeling</inPort>
+		<outPort index="0" name="Result images">Resulting labeling</outPort>
+	</ports>
+</knimeNode>

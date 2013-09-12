@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="../icons/imgfilter.png" type="Manipulator">
+	<name>Anisotropic Diffusion</name>
+
+	<shortDescription>
+		This Node applies the Perona and Malik diffusion scheme to denoise images. 
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+		This Node implements the so-called anisotropic diffusion scheme of Perona and Malik, 1990.
+		For details on the anisotropic diffusion principles, see: http://en.wikipedia.org/wiki/Anisotropic_diffusion,
+		and the original paper:
+
+		Perona and Malik. 
+		Scale-Space and Edge Detection Using Anisotropic Diffusion. 
+		IEEE Transactions on Pattern Analysis and Machine Intelligence (1990) vol. 12 pp. 629-639
+
+		</intro>
+		<tab name="options">
+		<option name="Diffusion Function">This Option allows to use different Functions to be used for filtering. At the moment there are two Functions available:
+										  1. STRONG_EDGE_ENHANCER can be used to enhance Edges and smooth everything in between
+										  2. WIDE_REGION_ENHANCER doesn't preserve Edges but gives a very smooth image in total. </option>
+		<option name="Kappa">This parameter depends on the Function one uses. Usually a greater value means a stronger filtering, but this may result in more artifacts. It is recommended to use more Iterations to get a stronger filtering result instead of increasing Kappa. </option>
+		<option name="Delta t">This is the integration constant, typically less than 1. Usually a greater value means a stronger filtering, but this may result in more artifacts. It is recommended to use more Iterations to get a stronger filtering result instead of increasing Delta t. </option>		
+		<option name="Iterations">This number says how often the Method is applied to the image, with the settings above. Be careful not to choose a value too large, this may slow down your calculations.</option>
+		<option name="Threads">Says how many threads are used for calculation. For Expert use; the standard value should work fine.</option>
+	</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Input images">noisy images
+		</inPort>
+		<outPort index="0" name="Output images">filtered images</outPort>
+	</ports>
+</knimeNode>

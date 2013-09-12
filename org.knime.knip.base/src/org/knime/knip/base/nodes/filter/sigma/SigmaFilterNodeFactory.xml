@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="../icons/imgfilter.png" type="Manipulator">
+	<name>Sigma Filter</name>
+
+	<shortDescription>
+		Applies sigma filtering to the input images.
+	</shortDescription>
+
+	<fullDescription>
+
+		<intro>
+			Applies sigma filtering to the input images assuming normally
+			distributed noise.
+		</intro>
+
+		<tab name="options">
+			<option name="Window Span">The Window Span parameter determines the span of
+				the window in one direction. The resulting window size is given by:
+				span*2+1 in each dimension. </option>
+			<option name="Sigma Factor">Factor to scale sigma. It
+				modifies the size of the
+				interval.</option>
+			<option name="Pixel Fraction">The minimum fraction of pixels which have to be
+				in range. Otherwise the mean of all values inside the window is
+				calculated.</option>
+			<option name="Outlier Detection">Extends the option "Pixel Fraction" by leaving
+				out the center pixel if the fraction of pixels is below the minimum.</option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Input images">Images to filter</inPort>
+		<outPort index="0" name="Output images">Filtered images
+		</outPort>
+	</ports>
+</knimeNode>

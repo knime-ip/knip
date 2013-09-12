@@ -1,0 +1,45 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="icons/colordeconv.png" type="Manipulator">
+	<name>Color Deconvolution</name>
+	<shortDescription>
+		Deconvoluted images.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			The colour deconvolution node implements stain separation using
+			Ruifrok and
+			Johnston's method described in
+			<i>Ruifrok AC, Johnston DA. Quantification of histochemical staining
+				by color deconvolution. Anal Quant Cytol Histol 23: 291-299, 2001.</i>
+		</intro>
+		<tab name="Options">
+			<option name="Dim selection">Select the dimensions here. The first dimensions
+				(usually X and Y) are the dimensions of the image plane, the third
+				dimensions should contain the RGB-information (at most 3).</option>
+			<option name="Stain selection">There are a number of "built in" stain vectors,
+				but you may have to
+				determine your own vectors to achieve a
+				more
+				accurate stain
+				separation, depending on the stains and methods
+				you use.
+				Additionally there is the option to determine the stain vectors
+				manually by specifing some regions in a source image representing the
+				different colors (r,g,b), see 'Manual selection'. 
+		</option>
+			<option name="Manual selection">Select here the regions for the three different
+				colors in a specific source image.</option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Images">RGB Images</inPort>
+		<outPort index="0" name="Color Deconvoluted Images">Deconvoluted Images</outPort>
+	</ports>
+</knimeNode>

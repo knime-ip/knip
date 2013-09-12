@@ -1,0 +1,24 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="icons/hmaximatransformation.png" type="Manipulator">
+	<name>H-Maxima Transformation</name>
+	<shortDescription>
+		TBD
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			<p>replaces all maxima in the intensity image (I) whose height is more than the threshold which is max(I)-lambda. (1)</p>
+		(1) Soille, P., Morphological Image Analysis: Principles and Applications, Springer-Verlag, 1999, pp. 170-171.
+		</intro>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Images">Images</inPort>
+		<outPort index="0" name="H-Maxima Transformation Image">H-Maxima Transformation Image</outPort>
+	</ports>
+</knimeNode>

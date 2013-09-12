@@ -1,0 +1,75 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="calc.png" type="Manipulator">
+	<name>Image Calculator</name>
+
+	<shortDescription>
+		Evaluates mathematical formula on images, appending
+		result
+		as a new image column or replacing an input column.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			<p>
+				This node evaluates a (free-form) mathematical expression based on
+				the images in a row. The computed results can be either appended as
+				new column or be used to replace an input column. Available
+				variables
+				are the values in the corresponding row of the table (left
+				list
+				in the dialog). Commonly used functions are shown in the list
+				"Mathematical Functions".
+				<b>Important:</b>
+				Please make sure that all used images are of the same pixel type,
+				the same dimensions and image type (e.g. ArrayImg). If not, use the
+				"Converter" and/or the "Orthogonal Cropper"-Node to satisfy these
+				conditions.
+			</p>
+			<p>
+				This node uses
+				<i>JEP</i>
+				, the
+				<a href="http://www.singularsys.com/jep/">
+					Java Math Expression Parser</a>
+				.
+			</p>
+		</intro>
+		<tab name="Math Expression">
+			<option name="Column List">Available image input columns.
+				Click any column
+				name to include the
+				value in the expression text field. </option>
+			<option name="Mathematical Function">Mathematical functions that can be
+				used, the
+				tooltip shows a short description for each function.</option>
+			<option name="Constants">Constant values available during execution.
+			</option>
+			<option name="Result pixel type">If the "Calc as double values"-option is
+				activated, the options specifies the type of the result image. If
+				not, it will be ignored and the result image will have the same type
+				as the input images.</option>
+		</tab>
+		<tab name="Advanced Settings">
+			<option name="Reference Image">Result images get dimensionality definitions and metadata from the reference image. If none is selected
+			the reference column will be set to the first column in the incoming table that is used in the computed expression.</option>
+			<option name="Adjust Dimensions">Activate to allow calculations on images with different dimensionalities. The result dimension
+			will be taken from the reference image.</option>
+		</tab>
+	</fullDescription>
+
+
+
+	<ports>
+		<inPort index="0" name="Images">Images</inPort>
+		<outPort index="0" name="Result images">Result images</outPort>
+	</ports>
+
+	<views>
+		<view name="Table Cell View" index="0"></view>
+	</views>
+</knimeNode>

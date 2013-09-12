@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="icons/edgeobjectexcluder.png" type="Manipulator">
+	<name>Edge Object Excluder (Deprecated)</name>
+
+	<shortDescription>
+		Exclude objects on the edge of image. The node is deprecated. Please use the
+		"Labeling Filter"-node instead.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>Exclude objects on the edge of image. The node is deprecated. Please use the
+		"Labeling Filter"-node instead.</intro>
+
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Labeling">Labeling</inPort>
+		<outPort index="0" name="Labeling">Labeling without objects on edges</outPort>
+	</ports>
+</knimeNode>

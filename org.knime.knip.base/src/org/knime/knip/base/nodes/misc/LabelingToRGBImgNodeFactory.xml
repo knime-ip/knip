@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="labelingtorgb.png" type="Manipulator">
+	<name>Labeling to RGB Img</name>
+	<shortDescription>
+		Converts a labeling to an image with an additional
+		C-dimension containing the color information.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>Converts a labeling to an image with an additional
+			C-dimension
+			containing the color information. It is, for instance, useful to
+			write a colored labeling to an image file. Optionally the labeling
+			can be blended with a background image of the same size.</intro>
+			<tab name="options">
+				<option name="Image overlay">Allows to choose a background image that is blended with the labeling. The
+				image must have the same number of dimension and be of the same size as the labelings. DoubleType
+				is currently not supported.</option>
+				<option name="Transparency of labels">Adjust the label transparency value between 0 and 255 where 255 means
+				the labels are completely opaque.</option>
+		</tab>		
+	</fullDescription>
+
+	<ports>
+		<inPort name="Labelings" index="0">Labelings and (optional images)</inPort>
+		<outPort name="Images" index="0">Images with color channels
+		</outPort>
+	</ports>
+
+</knimeNode>

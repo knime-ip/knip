@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./properties.png" type="Manipulator">
+	<name>Labeling Properties</name>
+
+	<shortDescription>This node lists the properties of all labelings of an
+		labeling column</shortDescription>
+
+	<fullDescription>
+		<intro>This node can list properties of labeling in an labeling
+			column.
+			It supports the number of dimensions, number of pixels, data type,
+			number of labels, container type, etc</intro>
+
+		<tab name="Options">
+			<option name="Labeling to analyse">Select an image column which images
+				shall be analyzed.</option>
+			<option name="Select Properties">Select which properties shall be analyzed.
+			</option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Lableling">Labelings</inPort>
+		<outPort index="0" name="Result Table">Labeling Properties Table</outPort>
+	</ports>
+</knimeNode>

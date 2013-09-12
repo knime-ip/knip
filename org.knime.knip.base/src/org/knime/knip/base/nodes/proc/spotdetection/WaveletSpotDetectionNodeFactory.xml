@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="icon/SpotDetect.png" type="Manipulator">
+	<name>Spot Detection</name>
+
+	<shortDescription>
+		Based on "Extraction of spots in biological images using multiscale products".
+	</shortDescription>
+
+	<fullDescription>
+		<intro>Based on <b>Extraction of spots in biological images using multiscale products</b> 			,
+			Jean-Christophe Olivo-Marin
+			<i>Pattern Recognition 35</i>. This plugin
+		uses currently some GPL code form Icy.</intro>
+
+
+		<option name="avg method">The calculated value is used to generate the auto threshold with the formula (3 * value / 0.67) * threshold factor</option>
+		<option name="configure levels">add or remove wavelet levels to determine the number of used levels<br></br>
+		<ul>
+			<li>enable: enable the wavelet levels that should be used in the spot detection (at least one)</li>
+			<li>threshold factor: use this for fine tuning. The background auto threshold is multiplied by the factor.</li>
+		</ul>
+		</option>
+		<option name="select dimensions">select a 2d slice for processing</option>
+
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Input images">input image with bright spots over dark background (use the inverter node if necessary)
+		</inPort>
+		<outPort index="0" name="Output images">bitmask of the detected spots</outPort>
+	</ports>
+	
+	<views>
+		<view name="Table Cell View" index="0"></view>
+	</views>
+</knimeNode>

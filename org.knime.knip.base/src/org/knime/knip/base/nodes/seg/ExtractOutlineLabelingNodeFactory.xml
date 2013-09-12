@@ -1,0 +1,32 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="icons/extractoutlinelabeling.png" type="Manipulator">
+	<name>Extract Outline Labeling</name>
+	<shortDescription>
+		Extracts the inner outlines of a given labeling.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			Definition of outline: All pixels which have a empty neighbor
+			are considered as
+			the outline of an labeling.
+		</intro>
+		<tab name="Options">
+			<option name="ConnectedType"> Neighbor of pixel. If 4-connected only pixels to
+				the left/right and top/bottom with distance one are considered as
+				neighbors. If 8-connected all pixels surrounding the pixel are
+				considered as neighbors.
+		</option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Labeling">Labeling</inPort>
+		<outPort index="0" name="Labeling">Outline Labeling</outPort>
+	</ports>
+</knimeNode>

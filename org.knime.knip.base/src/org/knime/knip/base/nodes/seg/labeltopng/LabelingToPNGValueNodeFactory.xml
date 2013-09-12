@@ -1,0 +1,52 @@
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="LabelToPng.png" type="Manipulator">
+	<name>Labeling to PNG Images</name>
+
+	<shortDescription>
+	Combines a labeling and its background image to a PNG image. 
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+		Combines a labeling and its background image to a PNG image. The node only processes 2D slices and
+		produces a collection of multiple 2D slices if necessary. The resulting image is the same as in the Interactive Segmentation View. In particular bounding boxes, bounding box colors and
+		bounding box names are supported.<br></br> (Important: You may want to use a Split Collection Column node subsequently!)
+		</intro>
+
+		<tab name="Options">
+			<option name="Dimension Selection">Select the dimensions which serve as the image
+				plane and, if needed, additionally the dimension of the channel</option>
+		</tab>
+		<tab name="Image Settings">
+			<option name="Transparency of Labels">
+			Adjust the label transparency value between 0 and 255 where 255 means the labels are completely opaque. 
+			</option>
+			<option name="Select a Renderer">
+				<ul>
+					<li>
+						Random Color Labeling Renderer renders the labels with the image as background. The colors for the
+						labels are determined from the current runtime color table (i.e. same colors as in opened Interactive Segmentation Views).
+					</li>
+										<li>
+						Bounding Box Renderer renders the bounding boxes of the labels with the image as background.
+					</li>
+					<li>
+						Bounding Box Color Labeling Renderer a combination of the two others.
+					</li>
+				</ul>
+			</option>
+			<option name="Select Bounding Box Color">
+				Sets to color of the bounding boxes in the rendered images. This has no effect on Interactive
+				Segmentation Views at runtime.
+			</option>
+			<option name="Show Bounding Box Names">
+				If set to true the bounding box names are rendered into the image.
+			</option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Labeling">Labelings and Images</inPort>		
+		<outPort index="0" name="PNG Images">PNG Images in Collection Cells</outPort>
+	</ports>
+</knimeNode>

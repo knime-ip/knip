@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="icons/grayscalerecon.png" type="Manipulator">
+	<name>Grayscale Reconstruction</name>
+
+	<shortDescription>Reconstruct a grayscale or binary image from a marker
+		image</shortDescription>
+
+	<fullDescription>
+		<intro>
+			Reconstruct area of all marked objects using either dilation
+			( what
+			you probably want, expanding small objects to full
+			size again ) or
+			erosion (shrinking enlarged objects down to
+			their original size).
+			<p>Contributed by INCIDE, University of Konstanz</p>
+		</intro>
+
+		<tab name="options">
+			<option name="Connection Type">Use either four or eight connected grids.</option>
+			<option name="Operation Type">Use either dilation or erosion operation for
+				reconstruction.</option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Input images">First image must be the original image,
+			second image must be the marker image</inPort>
+		<outPort index="0" name="Output images">Reconstructed image</outPort>
+	</ports>
+</knimeNode>

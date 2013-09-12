@@ -1,0 +1,39 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="icons/binarithmetic.png" type="Manipulator">
+	<name>Binary Image Operations</name>
+	<shortDescription>
+		Combines two binary images with and, or, xor.
+  </shortDescription>
+
+	<fullDescription>
+		<intro>Allows to apply boolean operations (like and, or, xor)
+		to binary (black and white) images.
+		</intro>
+		<tab name="Options">
+			<option name="Choose image column">
+				Select the column to process here.
+    </option>
+			<option name="Method">
+				<ul>
+					<li>AND</li>
+					<li>OR</li>
+					<li>XOR</li>
+				</ul>
+			</option>
+			<option name="Virtually extend">
+				Select if the second labeling should be
+				synchronized to the size of the first selected labeling.
+    		</option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Segmentation">Images</inPort>
+		<outPort index="0" name="Segmentation">Result</outPort>
+	</ports>
+</knimeNode>

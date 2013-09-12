@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./icons/missing.gif" type="Other">
+	<name>Image Comparator</name>
+
+	<shortDescription>
+		Compares to images pixelwise. Throws Exception if they are invalid.
+    </shortDescription>
+
+	<fullDescription>
+		<intro>Compares to images pixelwise. Throws IllegalStateException if they are invalid.
+		</intro>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Input images">Incoming images to be compared</inPort>
+		<outPort index="0" name="BooleanValue">Outgoing images
+		</outPort>
+		<!-- possibly more output ports here -->
+	</ports>
+</knimeNode>

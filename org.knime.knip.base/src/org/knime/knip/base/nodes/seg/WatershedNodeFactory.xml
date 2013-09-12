@@ -1,0 +1,59 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="icons/connectedcompanalysis.png" type="Manipulator">
+	<name>Seeded Watershed</name>
+	<shortDescription>
+		Seeded Watershed algorithm. The catchment basins of
+		the watershed algorithms are determined by seeding points.
+  </shortDescription>
+
+	<fullDescription>
+		<intro>
+			<p>
+				Watershed algorithms. The watershed algorithm segments and labels
+				an image using an analogy to a landscape. The image intensities are
+				turned into the z-height of the landscape and the landscape is
+				"filled with water" and the
+				bodies of water label the landscape's
+				pixels. Here is the reference
+				for the original paper:
+		</p>
+			<p>
+				Lee Vincent, Pierre Soille, Watersheds in digital spaces: An
+				efficient
+				algorithm based on immersion simulations, IEEE Trans.
+				Pattern Anal.
+				Machine Intell., 13(6) 583-598 (1991)
+				
+				</p>
+
+			<p> Watersheds are often performed on the gradient of an intensity
+				image or one
+				where the edges of the object boundaries have been
+				enhanced. The
+				resulting image has a depressed object interior and a
+				ridge which
+				constrains the watershed boundary.
+				
+
+    </p>
+
+		</intro>
+		<tab name="Options">
+			<option name="Use Threshold">If the specified threshold value should be used.
+			</option>
+			<option name="Threshold Value">Set the threshold where the watershed should stop
+				no matter if
+				* another water basin was reached.</option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Images and Seeds">Images and Seeds</inPort>
+		<outPort index="0" name="Labeling">Labeling</outPort>
+	</ports>
+</knimeNode>

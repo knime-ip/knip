@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<fileset-config file-format-version="1.2.0" simple-config="false" sync-formatter="true">
+  <local-check-config name="UniKN KNIME" location="/org.knime.knip.core/res/KNIMECheckstyle5.0.xml" type="project" description="">
+    <additional-data name="protect-config-file" value="true"/>
+  </local-check-config>
+  <fileset name="Java Files" enabled="true" check-config-name="UniKN KNIME" local="true">
+    <file-match-pattern match-pattern=".*\.java$" include-pattern="false"/>
+  </fileset>
+</fileset-config>

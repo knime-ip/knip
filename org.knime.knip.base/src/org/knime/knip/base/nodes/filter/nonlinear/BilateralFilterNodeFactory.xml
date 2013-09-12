@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="../icons/bilateral.png" type="Manipulator">
+	<name>Bilateral filter</name>
+	<shortDescription>
+		Bilateral filter
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			Filter the input image using a bilateral filter.
+		</intro>
+
+		<tab name="Options">
+			<option name="SimgaR"></option>
+			<option name="SimgaS"></option>
+			<option name="Radius"></option>
+		</tab>
+	</fullDescription>
+
+
+
+	<ports>
+		<inPort index="0" name="Image">
+			The image data.
+		</inPort>
+		<outPort index="0" name="Filtered image">
+			After application bilateral filter.
+		</outPort>
+	</ports>
+</knimeNode>

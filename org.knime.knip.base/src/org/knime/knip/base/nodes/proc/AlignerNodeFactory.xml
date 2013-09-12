@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="icons/aligner.png" type="Manipulator">
+	<name>Align image</name>
+
+	<shortDescription>Align image using simple cross-correlation</shortDescription>
+
+	<fullDescription>
+		<intro>The input image is aligned using a simple cross-correlation
+			approach on the smoothed image.</intro>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Data">Input image and smoothed image used for shift calculations</inPort>
+		<outPort index="0" name="Result Table">Aligned image</outPort>
+	</ports>
+</knimeNode>

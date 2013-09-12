@@ -1,0 +1,53 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="morphops.png" type="Manipulator">
+	<name>Morphological Labeling Operations</name>
+	<shortDescription>
+		Perform morphological operations on labelings.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			Perform morphological operations on labelings.
+		</intro>
+		<tab name="options">
+			<option name="Connection Type">
+				<ul>
+					<li>Four-Connected</li>
+					<li>Eight-Connected</li>
+					<li>Structuring Element: Read the structuring element from the
+						optional second in port.</li>
+				</ul>
+			</option>
+			<option name="Column">
+				Column of the structuring element.
+		</option>
+			<option name="Method">
+				<ul>
+					<li>Erode: Shrink labeled areas.</li>
+					<li>Dilate: Grow labeled areas.</li>
+					<li>Open: Erode followed by Dilate. Erases tiny labeled spots.</li>
+					<li>Close: Dilate followed by Erode. Erases small holes in labeled
+						components.</li>
+				</ul>
+			</option>
+			<option name="Labeling-based">
+				<ul>
+					<li>Individual Labeling: Erode/Dilate each label individually.</li>
+					<li>Binary: Erode/Dilate each pixel with none/any labeling in the
+						neighborhood.</li>
+				</ul>
+			</option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Labelings">Labelings</inPort>
+		<inPort index="1" name="Optional Structuring Elements">Optional Structuring Elements</inPort>
+		<outPort index="0" name="Processed Labelings">Processed Labelings</outPort>
+	</ports>
+</knimeNode>

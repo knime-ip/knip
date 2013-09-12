@@ -1,0 +1,62 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="merger.png" type="Manipulator">
+	<name>Merger</name>
+	<shortDescription>
+		Merges images from different columns to one image
+		object.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>Merges images from different columns to one image object as
+			follows: the input images are regarded as one single line of pixels
+			(depending on the iteration order of each underlying image factory).
+			These pixel are added successively to the new image object, filling
+			each dimension to the given maximum. If the maximum is reached, the
+			next dimensions is added and/or extended.</intro>
+		<tab name="Options">
+			<option name="Image to merge">Select the columns containing the images to
+				merge.
+			</option>
+			<option name="Result dimensions">
+				Specify the maximum pixel number (integer) for the
+				first, second,
+				third, ... dimension, separated by ',' (comma) (
+				<b>NOTE</b>
+				: for convenience one can also type there dimension labels, which
+				will be replaced by the according dimension from the input image).
+				<b>Example:</b>
+				If you, e.g., want to merge three 2D source images of width 500 and
+				height 400 pixels, than write '500,400' and the 3rd dimension will
+				contain the three images. The result image will be of size
+				500x400x.. no matter what size the input image has. If you type
+				"X,Y" instead, then these labels will be replaced by the actuall
+				dimension from the currently processed input image.
+			</option>
+			<option name="Result dimension names">The labels for the dimensions of the result
+				images.</option>
+		</tab>
+		<tab name="Additional Settings">
+			<option name="Image Factory">Defines the way how the images are created and
+				therewith kept in memory: Array Image Factory (stored as ONE array;
+				pros: fast pixel access; cons: limited number of pixels per image),
+				Planar Image Factory (each plane is stored in an array; pros: images
+				are read faster; cons: limited number of pixels in an XY-plane,
+				slower pixel access))
+			</option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Images">Images</inPort>
+		<outPort index="0" name="Merged Images">Merged Images</outPort>
+	</ports>
+
+	<views>
+		<view name="Table Cell View" index="0"></view>
+	</views>
+</knimeNode>

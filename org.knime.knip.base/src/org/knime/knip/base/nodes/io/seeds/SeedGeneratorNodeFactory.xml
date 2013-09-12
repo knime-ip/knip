@@ -1,0 +1,32 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="seedgen.png" type="Source">
+	<name>Seed Generator</name>
+	<shortDescription>
+		Generates a seeded labeling. E.g. useful for a
+		watershed algorithm.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>Generates a seeded labeling. E.g. useful for a watershed
+			algorithm.</intro>
+		<tab name="Options">
+			<option name="Seeding method">Select a seeding method here. The seeds can
+				either be
+				generated based on the pixel value of the input image
+				(Image_Probability), or generated independent from the image
+				(randomly or arranged in a regular grid).</option>
+			<option name="Average distance">The average number of pixel the seeds are going
+				to have in one dimension in average.</option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Images">Images</inPort>
+		<outPort index="0" name="Seeds Labeling">Seeds Labeling</outPort>
+	</ports>
+</knimeNode>

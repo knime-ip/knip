@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (c) 2010 IBM Corporation 
+	and others. All rights reserved. This program and the accompanying materials 
+	are made available under the terms of the Eclipse Public License v1.0 which 
+	accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html 
+	Contributors: IBM Corporation - initial API and implementation -->
+
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="annotator.png" type="Source">
+	<name>Image Annotator</name>
+	<shortDescription>
+		Annotate your images.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			Node to annotate images by creating a labeling. Useful to e.g.
+			create training data
+			for learning
+			algorithms or create a ground-truth
+			to test your
+			algorithms.
+		</intro>
+		<tab name="Selection">
+			<option name="File chooser">
+				Choose your files to annotate
+			</option>
+			<option name="Selection">
+				Create the annotation
+			</option>
+		</tab>
+		<tab name="Selection">
+			<option name="Tools and Labels">
+				Allows to annotate images with user created labels using rectangles,
+				points, ...
+				Labelings will be created for all annotated images that are selected in the
+				column selection tab.
+				Not annotated images result in MissingCells.
+				<br></br>
+				<br></br>
+				<ul>
+					<li>Delete labels (removes labels and their annotations)</li>
+					<li>Add label (create a new label)</li>
+					<li>Set labels (change labels of selected annotations)</li>
+					<li>Reset colors (changes colors of selected labels)</li>
+					<li>Pan (move the viewport)</li>
+					<li>Selection (mark annotations press strg to chain) </li>
+				</ul>
+
+				Selected Annotations can be moved if the left mouse button is
+				pressed and can be deleted
+				by right clicking on them.
+			</option>
+		</tab>
+		<tab name="Label Settings">
+			<option name="Add unique segment id as label">
+				Additionally to the labels that are created by
+				the user (label list) generates one label
+				for each annotation
+				component (each rectangle, point, ...).
+			</option>
+			<option name="Factory Type">
+				Select the factory for the resulting labelings.
+			</option>
+			<option name="Storage Img Type">
+				The internal number representation of the
+				labelings. The datatype limits the
+				maximum number of different
+				labels.
+			</option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<outPort index="0" name="Images">
+			Images
+		</outPort>
+		<outPort index="1" name="Selection">
+			Labeling of the images
+		</outPort>
+	</ports>
+
+	<views>
+		<view name="Table Cell View" index="0">
+			Displays the selected cells
+			with their associated viewer if it exists.
+		</view>
+	</views>
+
+</knimeNode>

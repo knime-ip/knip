@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="icons/img2lab.png" type="Manipulator">
+	<name>Labeling to Image</name>
+
+	<shortDescription>
+		Converts a segmentation/labeling cell to an image
+		cell.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			Converts segmentations in a column (or a set of columns) to
+			images. 
+		</intro>
+		<tab name="Options">
+			<option name="Column Selection">Move the columns of interest into the
+				&quot;Include&quot; list</option>
+		</tab>
+
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Segmentations">Arbitrary segmentation columns</inPort>
+		<outPort index="0" name="Images">Segmentations
+		</outPort>
+	</ports>
+</knimeNode>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (c) 2010 IBM Corporation 
+	and others. All rights reserved. This program and the accompanying materials 
+	are made available under the terms of the Eclipse Public License v1.0 which 
+	accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html 
+	Contributors: IBM Corporation - initial API and implementation -->
+
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./contourdetect.png" type="Manipulator">
+	<name>Contour Detector (deprecated)</name>
+
+	<shortDescription>
+		Detects nearly convex structures from a 'probability
+		image'. (Deprecation: Will be replaced in future release!).
+	</shortDescription>
+
+	<fullDescription>
+		<intro>Detects nearly convex structures from a 'probability image'
+			(where pixels of high intensity are likely to be part of part
+			contour).
+			(Deprecation: Will be replaced in future release!).
+		</intro>
+		<option name="Radius">The maximum radius the objects to be detected can
+			have.
+		</option>
+		<option name="Angles">Has impact on the precision of the contours to be
+			detected. But more angles increase the runtime.
+		</option>
+		<option name="Line variance">The value one is usually appropriate.</option>
+		<option name="Overlap">Determines how much the detected objects are
+			allowed to overlap. If two objects overlap more the specified, only
+			the one with the higher score will be kept.
+		</option>
+		<option name="Minimal score">The minimal allowed score (between 0 and 1). All
+			objects below that score will be disregarded.
+		</option>
+		<option name="Minimal area">Objects with a smaller area will be disregarded as
+			well.
+		</option>
+		<option name="Distance equidistant seeding points">The distance between the seeding points over the
+			image. The lower the distance, the more seeding points will be used
+			causing more calculations. A good choice is the half size of the
+			objects to be detected.
+		</option>
+		<option name="Smooth contour">Smoothes the contours by removing little
+			perturbations.
+		</option>
+
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="In-Port name">Source Image and Seeds</inPort>
+		<!-- possibly more input ports here -->
+		<outPort index="0" name="Out-Port name">Detected Segments</outPort>
+		<!-- possibly more output ports here -->
+	</ports>
+
+</knimeNode>

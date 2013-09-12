@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="imgimporter.png" type="Source">
+	<name>Image Importer</name>
+	<shortDescription>
+		Imports referenced images to the KNIME-internal representation basically to
+		process them in further steps.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>Imports referenced images to KNIME basically to process them in
+			further steps.
+			It copies them from various sources and converts them to the
+			KNIME-internal representation.</intro>
+		<tab name="Options">
+			<option name="Column selection">
+				The selection of the column which contains the image references.
+			</option>
+			<option name="Image Plane Selection">
+				Select the image planes here you actually want to import. Use shift or
+				ctrl-keys to mark more than one plane or the "all"-checkbox to
+				select
+				all available planes. Detailed informations about the sizes of the
+				individual
+				dimensions can be obtained from the core metadata list above in the file
+				chooser.
+				The possible dimension of an image apart from the image width (X) and
+				height (Y) are Z (for 3D-information),
+				C (channels, mostly represented by different colors) and T
+				(the time points e.g. of a video).
+        </option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<outPort index="0" name="Image Table">Image Table</outPort>
+	</ports>
+</knimeNode>

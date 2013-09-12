@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="icons/hdome.png" type="Manipulator">
+	<name>h-dome Extraction</name>
+
+	<shortDescription>Extract regions of height h from an image.</shortDescription>
+
+	<fullDescription>
+		<intro>
+			Extract regions of height h from an image.
+			<p>Contributed by INCIDE, University of Konstanz</p>
+		</intro>
+
+		<tab name="options">
+			<option name="Connection Type">Use a four or eight connected grid.</option>
+			<option name="Subtract domes of height before extraction">This option controls wether domes of height x
+				should be subtracted from the image before the domes of height h are
+				extracted. This can be used if you are searching markers for e.g.
+				watershedding, when there are multiple small domes of height x close
+				together that should be joined into a plateau.</option>
+			<option name="Height of domes">The height of the domes to extract.</option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Input images">Image to extract domes of</inPort>
+		<outPort index="0" name="Output images">Extracted domes</outPort>
+	</ports>
+</knimeNode>

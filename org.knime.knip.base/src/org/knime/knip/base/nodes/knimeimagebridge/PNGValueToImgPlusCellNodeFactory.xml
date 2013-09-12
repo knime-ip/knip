@@ -1,0 +1,17 @@
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="PngToImg.png" type="Manipulator">
+	<name>PNG Image to ImgPlus</name>
+
+	<shortDescription>
+		Converts a PNG Image (PNGImageValue) to an ImgPlus (ImgPlusCell of KNIME Image Processing).
+    </shortDescription>
+
+	<fullDescription>
+		<intro> Converts a PNG Image (PNGImageValue) to an ImgPlus (ImgPlusCell of KNIME Image Processing).</intro>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="PNG Images">PNG Images</inPort>
+		<outPort index="0" name="ImgPlus">ImgPlus</outPort>
+	</ports>
+</knimeNode>

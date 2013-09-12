@@ -1,0 +1,66 @@
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="icons/connectedcompanalysis.png" type="Manipulator">
+	<name>Connected Component Analysis</name>
+	<shortDescription>
+		Identifies connected components in a image.
+  </shortDescription>
+
+	<fullDescription>
+		<intro>
+			<p>
+				Identifies connected components in a image.
+    </p>
+			<p>
+				Connected component labeling (alternatively connected component analysis)
+				is an algorithmic application of graph theory, where subsets of
+				connected
+				components are uniquely labeled. Connected component labeling is used in
+				computer vision to detect connected regions in binary digital
+				images.
+    </p>
+			<p>
+				A graph, containing vertices and connecting edges, is constructed
+				from
+				relevant input data. The vertices contain information required by the
+				comparison heuristic, while the edges indicate connected
+				'neighbors'.
+				An algorithm traverses the graph, labeling the vertices based on the
+				connectivity and relative values of their neighbors. Connectivity is
+				determined by the medium; image graphs, for example, can be
+				4-connected
+				or 8-connected.
+	</p>
+			<p>
+				Copied from wikipedia
+				<a href="http://en.wikipedia.org/wiki/Connected_Component_Analysis">[1]</a>
+				<a href="http://en.wikipedia.org/wiki/Pixel_connectivity">[2]</a>
+			</p>
+		</intro>
+		<tab name="Options">
+			<option name="Connection Type">
+				Neighborhood definition.
+				<ul>
+					<li>FOUR_CONNECTED: These pixels are connected along one of the
+						primary axes.</li>
+					<li>EIGHT_CONNECTED: These pixels are connected along either one,
+						two, or all of the primary axes.</li>
+				</ul>
+			</option>
+			<option name="Background level">
+				Background intensity value. Regions of this value are ignored.
+				Normally the minimal value of the image type.
+    </option>
+			<option name="Dimensions">
+				The dimension for which the connected component analysis should be
+				applied individually. If, for instance, X and Y are selected, the
+				CCA will be applied for each XY-plane individually and the connected
+				components will have different ID's in the different planes.
+			</option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Images">Images</inPort>
+		<outPort index="0" name="Segments">Labeled segments</outPort>
+	</ports>
+</knimeNode>

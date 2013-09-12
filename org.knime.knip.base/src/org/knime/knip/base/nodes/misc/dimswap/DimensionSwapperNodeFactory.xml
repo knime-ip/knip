@@ -1,0 +1,22 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="dimswapper.png" type="Manipulator">
+	<name>Dimension Swapper</name>
+	<shortDescription>
+		Node to swap the dimensions of an image.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			e.g.: If you swap dimension X and Y, the Image will be rotated by 90 degress.
+		</intro>
+	</fullDescription>
+	<ports>
+		<inPort index="0" name="Images">Images</inPort>
+		<outPort index="0" name="Images">DimensionSwapped Images</outPort>
+	</ports>
+</knimeNode>

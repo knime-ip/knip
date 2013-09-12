@@ -1,0 +1,29 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="lab2table.png" type="Manipulator">
+	<name>Labeling to Table</name>
+	<shortDescription>
+		Converts a labeling to a segment table
+	</shortDescription>
+
+	<fullDescription>
+		<intro>Converts a labeling to segment table containing the individual
+			segments as bitmasks, their position, their labels and the row key of
+			the labeling the originally come from.
+		</intro>
+
+		<option name="Choose segmentation column">
+			Select the source segmentation here.
+		</option>
+
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Labeling">Labeling</inPort>
+		<outPort index="0" name="Segment table">Segment table</outPort>
+	</ports>
+</knimeNode>

@@ -1,0 +1,31 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="cropper.png" type="Manipulator">
+	<name>Segment Cropper</name>
+	<shortDescription>
+		Given input images and corresponding labelings, the
+		segment cropper crops
+		all possible segments from the input image.
+	</shortDescription>
+
+	<fullDescription>
+		<intro> Given input images and corresponding labelings, the segment
+			cropper crops all possible segments from the input image. e.g.: This
+			node can be used to work on the individual segments upcoming nodes.
+		</intro>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Images">Images and corresponding labeling in
+			same column</inPort>
+		<outPort index="0" name="Features">Cropped segments</outPort>
+	</ports>
+
+	<views>
+		<view name="Table Cell View" index="0"></view>
+	</views>
+</knimeNode>

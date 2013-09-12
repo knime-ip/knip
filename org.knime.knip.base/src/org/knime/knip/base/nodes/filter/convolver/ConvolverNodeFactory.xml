@@ -1,0 +1,39 @@
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="../icons/imgfilter.png" type="Manipulator">
+	<name>Convolver</name>
+	<shortDescription>
+		Generic Convolver to convolve an Image with a given
+		convolution kernel
+		(which is also an image).
+	</shortDescription>
+
+	<fullDescription>
+		<intro>Generic Convolver to convolve an Image with a given convolution
+			kernel (which is also an image). One possible way to create Kernels
+			for your the convolution of the image is the Convolution Kernel
+			Creator. Remark: All incoming kernels must have the same number of
+			dimensions, else you have to use two different Convolvers (one after
+			the other). </intro>
+		<tab name="Options">
+			<option name="Dim Selection">Select the orientation of the kernel. The number
+				of select dimensions must be the same as the number of dimensions of
+				the kernel. If your kernel has the same dimensionality as your input
+				image, this setting has no effect).
+				to </option>
+			<option name="Calculate as float">If checked, the complete convolution will be
+				calculated in float precision. The result will also be an float
+				image.</option>
+			<option name="Out of bounds strategy">
+				Select the strategy to represent image values
+				outside the image interval.
+			</option>
+		</tab>
+
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Images">Images</inPort>
+		<inPort index="1" name="Kernels">Kernels</inPort>
+		<outPort index="0" name="Processed Images">Processed Images</outPort>
+	</ports>
+</knimeNode>

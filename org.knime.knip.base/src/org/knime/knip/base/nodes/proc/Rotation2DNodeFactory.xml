@@ -1,0 +1,39 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="icons/rotate.png" type="Manipulator">
+	<name>Rotation 2D</name>
+	<shortDescription>
+		Rotates two dimensions of an image.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>Rotates two specified dimensions of an image.
+		</intro>
+
+		<tab name="Options">
+			<option name="Angle">
+				The rotation angle (radian).
+		</option>
+			<option name="Rotations dimensions">
+				The to dimensions to be rotated.
+		</option>
+			<option name="Keep size">Whether the resulting image should have same size
+				as the source image (some image parts might be cut) or should be
+				resized.</option>
+			<option name="Center Dim 1">The center of the first dimension, if -1, the
+				image center will be used.</option>
+			<option name="Center Dim 2">The center of the second dimension, if -1, the
+				image center will be used.</option>
+		</tab>
+
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Images">Images</inPort>
+		<outPort index="0" name="Rotated Image">Rotated Image</outPort>
+	</ports>
+</knimeNode>

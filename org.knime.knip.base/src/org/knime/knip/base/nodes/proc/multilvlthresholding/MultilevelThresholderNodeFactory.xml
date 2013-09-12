@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="../icons/multi_thresholder.png" type="Manipulator">
+	<name> Multilevel Thresholding</name>
+
+	<shortDescription>Performs an efficient multilevel thresholding on an
+		input image. This node was implemented by Markus Friedrich (University
+		of Konstanz, markus.friedrich@uni-konstanz.de).
+	</shortDescription>
+
+
+	<fullDescription>
+		<intro>By now, only the Otsu method is implemented in an efficient way
+			using lookup-tables.
+		</intro>
+		<tab name="Options">
+
+			<option name="Thresholding method">The method to use for thresholding.</option>
+			<option name="Parameters">Important parameters. Number of levels specifies
+				the number of levels in the output image. Number of intensities
+				states, how many bins are used in the input image's histogram.
+			</option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Input images">Images to threshold.</inPort>
+		<outPort index="0" name="Output images">The thresholded images.</outPort>
+	</ports>
+
+</knimeNode>

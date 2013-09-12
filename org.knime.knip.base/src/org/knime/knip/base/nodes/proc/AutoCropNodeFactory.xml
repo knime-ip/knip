@@ -1,0 +1,45 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="icons/orthocropper.png" type="Manipulator">
+	<name>Auto Crop</name>
+	<shortDescription>
+		Automatically crops an image.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>Automatically crops an image by finding the smallest
+			bounding
+			box which still contains all pixels of the specified value.</intro>
+		<tab name="Options">
+			<option name="Pixel values">
+				Pixel having a value within the specified range (including the interval border) are guaruanteed to remain in the cropped image.
+			</option>
+		</tab>
+		<tab name ="Margin">
+			<option name="Margin">
+				The found bounding box can be resized by a constant amount. It will be
+				enlarged if the margin is chosen to be positive, else it will be
+				shrunk.
+			</option>
+			<option name="Respected dimensions">
+			 The margin will be added only to those dimensions that are selected.
+			</option>
+			<option name ="Keep within image borders">
+			  If the margin reaches out the original image border it will either be ignored (true) or the image will be extended by the border pixel values.
+			</option>
+			<option name ="Out of bounds value">
+			Value to be set if the result images reaches out of the original image borders.
+			</option>
+		</tab>
+
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Images">Images</inPort>
+		<outPort index="0" name="Cropped Images">Cropped Images</outPort>
+	</ports>
+</knimeNode>

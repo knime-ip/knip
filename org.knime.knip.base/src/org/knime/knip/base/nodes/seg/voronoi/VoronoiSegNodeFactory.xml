@@ -1,0 +1,53 @@
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="voronoi.png" type="Manipulator">
+	<name>Voronoi Segmentation</name>
+	<shortDescription>
+		Voronoi based segmentation
+    </shortDescription>
+
+	<fullDescription>
+		<intro>
+			Performs a Voronoi based segmentation of images. Requires
+			an
+			input table with a source image and a labeling of the corresponding
+			seed regions.
+    </intro>
+
+		<tab name="Options">
+			<option name="Image to work on">
+				Select the column that contains the full image of
+				the cells.
+    </option>
+			<option name="Seed regions image">
+				Select the column that contains image with the
+				seed regions.
+    </option>
+			<option name="Background threshold value">
+				If a pixel value is less than this value it is
+				considered being
+				background
+				and is not part of any cell.
+    </option>
+			<option name="Fill holes">Fills holes within segments of the same label in
+				a
+				post-processing step.</option>
+			<option name="Result column">Appends either a column with the complete voronoi
+				based segmentation, the voronoi segmentation without the seeds or
+				both.</option>
+		</tab>
+
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Input Images">
+			A DataTable with cell and seed region
+			labling</inPort>
+		<outPort index="0" name="Segmentation results">
+			Labeling</outPort>
+	</ports>
+
+	<views>
+		<view name="Table Cell View" index="0"></view>
+	</views>
+
+</knimeNode>
