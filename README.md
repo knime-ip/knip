@@ -5,6 +5,17 @@ The KNIME Image Processing Extension adds new nodes to KNIME (www.knime.org) to 
 
 The KNIME Image Processing Extension currently provides about 90 nodes for (pre)-processing, filtering, segmentation, feature extraction, various views, ....
 
+Package Organization
+====
+
+* org.knime.knip.core: Logic/Algorithms/DataStructures/Views independent of KNIME
+* org.knime.knip.base: KNIME Image Processing Nodes wrapping core and providing dedicated KNIME Image Processing functionality (NodeModels etc).
+* org.knime.knip.testing: KNIME Image Processing Testings nodes, e.g. for regressions tests.
+* org.knime.knip.io: Image Reader/Image Writer for KNIME Image Processing. 
+* org.knime.knip.scijava: SciJava Libraries used by several projects
+* org.knime.knip.scifio: Scifio Librarires used by several projects
+* org.knime.knip.exampleplugin: Easy example plugin to get an idea how we develop nodes for KNIME.
+
 Installation and Development
 ====
 You have to use the KNIME Development Kit to develop plugins for KNIME Image Processing
@@ -12,4 +23,4 @@ You have to use the KNIME Development Kit to develop plugins for KNIME Image Pro
 1. Download current version of KNIME Development Kit (http://www.knime.org/downloads/overview)
 2. Clone Repository using your favourite Git-Client
 3. Eclipse: File -> Import -> Existing Projects Into Workspace
-4. Follow steps from http://tech.knime.org/developers
+4. Start KNIME as Eclipse Application out of the KNIME Development Kit (for details see http://tech.knime.org/developers) or simply write us an email.
