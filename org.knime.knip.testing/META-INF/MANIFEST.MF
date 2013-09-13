@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bundle-Name: KNIME Image Processing Testing
+Bundle-Name: KNIME Image Processing - Testing
 Bundle-SymbolicName: org.knime.knip.testing;singleton:=true
 Bundle-ManifestVersion: 2
 Bundle-Version: 1.1.0.qualifier

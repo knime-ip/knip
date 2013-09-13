@@ -16,8 +16,8 @@
            point="org.knime.workbench.repository.nodesets">
         <nodeset
               expert-flag="false"
-              factory-class="org.knime.knip.testing.TestingNodeSetFactory"
-              id="org.knime.knip.testing.TestingNodeSetFactory">
+              factory-class="org.knime.knip.base.nodes.testing.TestingNodeSetFactory"
+              id="org.knime.knip.base.nodes.testing.TestingNodeSetFactory">
         </nodeset>
      </extension>
 </plugin>
