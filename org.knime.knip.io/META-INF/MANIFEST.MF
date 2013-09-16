@@ -28,7 +28,8 @@ Bundle-ClassPath: knip-io.jar,
  lib/mvn/ome-xml-4.4.8.jar,
  lib/mvn/poi-loci-4.4.8.jar,
  lib/mvn/scifio-4.4.8.jar,
- lib/mvn/scifio-bf-compat-1.1.1-20130820.194736-2.jar
+ lib/mvn/scifio-bf-compat-1.2.0.jar,
+ lib/mvn/ome-formats-0.1.0.jar
 Export-Package: loci.common,
  loci.common.enumeration,
  loci.common.services,
