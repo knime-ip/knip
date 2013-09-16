@@ -191,9 +191,8 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>> e
 
     private final SettingsModelString m_smLabelingType = createLabelingTypeModel();
 
+    //labels to create the label color table
     private HashSet<String> m_labelList = null;
-
-    private int m_labelColIdx = -1;
 
     public LabelingComposeOperator() {
         super("compose_labeling_2", "Compose Labeling", "Compose Labeling");
@@ -298,6 +297,12 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>> e
             setSkipMessage("The Bitmask in row " + row.getKey() + " is not of pixel type BitType!");
             return true;
         }
+        String label = null;
+        final int labelColIdx = getGlobalSettings().findColumnIndex(m_labelCol);
+        if (labelColIdx != -1) {
+            label = row.getCell(labelColIdx).toString();
+        }
+
         final int intervalColIdx = getGlobalSettings().findColumnIndex(m_intervalCol);
 
         final int avoidOverlapColIdx = getGlobalSettings().findColumnIndex(m_smAvoidOverlapCol.getStringValue());
@@ -321,20 +326,10 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>> e
                     new DefaultLabelingMetadata(iv.getCalibratedSpace(), iv.getName(), iv.getSource(),
                             new DefaultLabelingColorTable());
 
-            m_labelColIdx = getGlobalSettings().findColumnIndex(m_labelCol);
-
-            if (m_labelColIdx > -1 && getGlobalSettings().getOriginalColumnSpec(m_labelCol).getColorHandler() != null) {
-                m_labelList = new HashSet<String>();
-            }
-
         }
 
-        String label = null;
-        if (m_labelColIdx != -1) {
-            label = row.getCell(m_labelColIdx).toString();
-            if (m_labelList != null) {
-                m_labelList.add(label);
-            }
+        if (labelColIdx > -1 && getGlobalSettings().getOriginalColumnSpec(m_labelCol).getColorHandler() != null) {
+            m_labelList = new HashSet<String>();
         }
 
         // add the bitmask either to the the bitmask list (if the
