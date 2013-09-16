@@ -49,6 +49,8 @@
 package org.knime.knip.io.nodes.imgreader;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -75,10 +77,12 @@ import org.knime.core.data.xml.XMLCell;
 import org.knime.core.data.xml.XMLCellFactory;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.NodeLogger;
+import org.knime.core.util.pathresolve.ResolverUtil;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
 import org.knime.knip.io.ScifioImgSource;
+import org.knime.knip.io.node.dialog.DialogComponentMultiFileChooser;
 
 /**
  * Implements a <code>DataTable</code> that read image data from files.
@@ -151,6 +155,8 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 	 */
 	private int m_selectedSeries = -1;
 
+	private String m_workflowCanonicalPath;
+
 	/**
 	 * Creates an new and empty ImageTable and is useful to get the table
 	 * specification without actually knowing the content.
@@ -160,6 +166,7 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 	 * 
 	 */
 	public ReadFileImgTable(final boolean omexml) {
+		initCanonicalWorkflowPath();
 		m_omexml = omexml;
 	}
 
@@ -201,6 +208,7 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 			final boolean isGroupFiles, final int selectedSeries,
 			final ImgFactory<T> imgFactory) {
 
+		initCanonicalWorkflowPath();
 		m_completePathRowKey = completePathRowKey;
 		m_fileList = fileList;
 		m_numberOfFiles = numberOfFiles;
@@ -327,6 +335,10 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 						currentSeries++;
 					} else {
 						currentFile = fileIterator.next().trim();
+
+						// replace relative file pathes knime://knime.workflow
+						currentFile = DialogComponentMultiFileChooser.convertToFilePath(currentFile, m_workflowCanonicalPath); 
+
 						seriesCount = m_imgSource.getSeriesCount(currentFile);
 						currentSeries = m_selectedSeries == -1 ? 0
 								: m_selectedSeries;
@@ -409,5 +421,17 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 
 		};
 
+	}
+	
+	private void initCanonicalWorkflowPath() {
+		m_workflowCanonicalPath = null;
+		try {
+			m_workflowCanonicalPath = ResolverUtil.resolveURItoLocalFile(
+					new URI(DialogComponentMultiFileChooser.KNIME_WORKFLOW_RELPATH)).getCanonicalPath();
+		} catch (URISyntaxException e) {
+			LOGGER.warn("could not resolve the workflow directory as local file");
+		} catch (IOException e) {
+			LOGGER.warn("could not resolve the workflow directory as local file");
+		}
 	}
 }
