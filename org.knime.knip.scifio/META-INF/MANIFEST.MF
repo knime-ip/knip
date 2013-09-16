@@ -16,7 +16,7 @@ Bundle-ClassPath: scifio.jar,
  lib/mvn/serializer-2.7.1.jar,
  lib/mvn/xalan-2.7.1.jar,
  lib/mvn/xml-apis-1.3.04.jar,
- lib/mvn/scifio-0.6.1-20130910.183238-12.jar
+ lib/mvn/scifio-0.6.1-20130912.211952-15.jar
 Export-Package: io.scif,
  io.scif.app,
  io.scif.codec,
