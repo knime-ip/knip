@@ -115,7 +115,7 @@ import org.knime.knip.core.util.EnumListProvider;
 import org.knime.knip.core.util.Triple;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -246,6 +246,8 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>> e
         }
         if (label == null) {
             label = "" + m_labelGenerator.nextLabel();
+        } else {
+            m_labelList.add(label);
         }
 
         // Set segmented pixels to label
@@ -328,7 +330,8 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>> e
 
         }
 
-        if (labelColIdx > -1 && getGlobalSettings().getOriginalColumnSpec(m_labelCol).getColorHandler() != null) {
+        if (m_labelList == null && labelColIdx != -1
+                && getGlobalSettings().getOriginalColumnSpec(m_labelCol).getColorHandler() != null) {
             m_labelList = new HashSet<String>();
         }
 
@@ -510,8 +513,15 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>> e
                     new DefaultLabelingMetadata(new DefaultCalibratedSpace(m_maxDims.length), new DefaultNamed(
                             "Unknown"), new DefaultSourced("Unknown"), new DefaultLabelingColorTable());
             m_resAccess = m_resultLab.randomAccess();
-            m_labelList = new HashSet<String>();
             m_labelGenerator.reset();
+        }
+
+        if ((m_intervalCol.length() == 0) || (m_smAvoidOverlapCol.getStringValue().length() != 0)) {
+            for (final Triple<ImgPlusValue<BitType>, String, Double> p : m_bitMaskList) {
+                if (p != null) {
+                    addToLabeling(p.getFirst(), p.getSecond());
+                }
+            }
         }
 
         if (m_labelList != null) {
@@ -522,14 +532,6 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>> e
                     m_resultMetadata.getLabelingColorTable().setColor(label,
                                                                       colorHandler.getColorAttr(new StringCell(label))
                                                                               .getColor().getRGB());
-                }
-            }
-        }
-
-        if ((m_intervalCol.length() == 0) || (m_smAvoidOverlapCol.getStringValue().length() != 0)) {
-            for (final Triple<ImgPlusValue<BitType>, String, Double> p : m_bitMaskList) {
-                if (p != null) {
-                    addToLabeling(p.getFirst(), p.getSecond());
                 }
             }
         }
