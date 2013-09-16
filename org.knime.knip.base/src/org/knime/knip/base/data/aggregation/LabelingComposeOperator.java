@@ -54,7 +54,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 
 import javax.swing.BoxLayout;
@@ -89,8 +88,6 @@ import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.DataValue;
 import org.knime.core.data.DoubleValue;
-import org.knime.core.data.def.StringCell;
-import org.knime.core.data.property.ColorHandler;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeSettingsRO;
@@ -103,7 +100,6 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.data.IntervalValue;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingCell;
-import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
 import org.knime.knip.core.data.IntegerLabelGenerator;
 import org.knime.knip.core.data.LabelGenerator;
 import org.knime.knip.core.data.img.DefaultLabelingMetadata;
@@ -115,7 +111,7 @@ import org.knime.knip.core.util.EnumListProvider;
 import org.knime.knip.core.util.Triple;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -190,9 +186,6 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>> e
     private final SettingsModelString m_smLabelingFactory = createLabelingFactoryModel();
 
     private final SettingsModelString m_smLabelingType = createLabelingTypeModel();
-
-    //labels to create the label color table
-    private HashSet<String> m_labelList = null;
 
     public LabelingComposeOperator() {
         super("compose_labeling_2", "Compose Labeling", "Compose Labeling");
@@ -297,6 +290,7 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>> e
             setSkipMessage("The Bitmask in row " + row.getKey() + " is not of pixel type BitType!");
             return true;
         }
+
         String label = null;
         final int labelColIdx = getGlobalSettings().findColumnIndex(m_labelCol);
         if (labelColIdx != -1) {
@@ -321,15 +315,8 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>> e
             m_resAccess =
                     Views.extendValue(m_resultLab, (LabelingType<String>)new ConstantLabelingType<String>(""))
                             .randomAccess();
+            m_resultMetadata = new DefaultLabelingMetadata(iv.getCalibratedSpace(), iv.getName(), iv.getSource(), null);
 
-            m_resultMetadata =
-                    new DefaultLabelingMetadata(iv.getCalibratedSpace(), iv.getName(), iv.getSource(),
-                            new DefaultLabelingColorTable());
-
-        }
-
-        if (labelColIdx > -1 && getGlobalSettings().getOriginalColumnSpec(m_labelCol).getColorHandler() != null) {
-            m_labelList = new HashSet<String>();
         }
 
         // add the bitmask either to the the bitmask list (if the
@@ -390,7 +377,6 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>> e
         if (m_smIntervalCol.getStringValue().length() == 0) {
             LOGGER.warn("Creating a composed labeling with no selected interval may be less efficient and may not meet the requirement.");
         }
-
     }
 
     private void createDCs() {
@@ -505,25 +491,11 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>> e
         if (m_intervalCol.length() == 0) {
             // compose result and return
             m_resultLab = new NativeImgLabeling<String, T>(m_factory.create(m_maxDims, m_resType));
-            //TODO: Make Missing Color handler selectable
             m_resultMetadata =
                     new DefaultLabelingMetadata(new DefaultCalibratedSpace(m_maxDims.length), new DefaultNamed(
-                            "Unknown"), new DefaultSourced("Unknown"), new DefaultLabelingColorTable());
+                            "Unknown"), new DefaultSourced("Unknown"), null);
             m_resAccess = m_resultLab.randomAccess();
-            m_labelList = new HashSet<String>();
             m_labelGenerator.reset();
-        }
-
-        if (m_labelList != null) {
-            for (String label : m_labelList) {
-                ColorHandler colorHandler =
-                        getGlobalSettings().getOriginalColumnSpec(m_smLabelCol.getStringValue()).getColorHandler();
-                if (colorHandler != null) {
-                    m_resultMetadata.getLabelingColorTable().setColor(label,
-                                                                      colorHandler.getColorAttr(new StringCell(label))
-                                                                              .getColor().getRGB());
-                }
-            }
         }
 
         if ((m_intervalCol.length() == 0) || (m_smAvoidOverlapCol.getStringValue().length() != 0)) {
