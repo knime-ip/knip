@@ -291,6 +291,7 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 				&& canonicalPath.startsWith(canonicalWorkflowPath)) {
 			path = canonicalPath.replace(canonicalWorkflowPath,
 					KNIME_WORKFLOW_RELPATH);
+			path = path.replaceAll("\\\\", "/");
 		}
 		return path;
 	}
