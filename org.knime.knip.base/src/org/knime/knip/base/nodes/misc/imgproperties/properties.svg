@@ -16,7 +16,7 @@
    version="1.1"
    inkscape:version="0.48.3.1 r9886"
    sodipodi:docname="properties.svg"
-   inkscape:export-filename="/home/hornm/workspaces/eclipse/workspace_indigo/knip/org.knime.knip.base/src/org/knime/knip/base/nodes/misc/imgproperties/properties.png"
+   inkscape:export-filename="/home/hornm/workspaces/eclipse/workspace_indigo/knip/org.knime.knip.base/bin/org/knime/knip/base/nodes/misc/labelingproperties/properties.png"
    inkscape:export-xdpi="6.4961152"
    inkscape:export-ydpi="6.4961152">
   <defs
@@ -43,11 +43,11 @@
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1066"
-     inkscape:window-height="671"
+     inkscape:window-width="1375"
+     inkscape:window-height="876"
      inkscape:window-x="65"
      inkscape:window-y="24"
-     inkscape:window-maximized="0"
+     inkscape:window-maximized="1"
      fit-margin-top="0"
      fit-margin-left="0"
      fit-margin-right="0"
@@ -81,12 +81,12 @@
     <rect
        style="fill:#000000;fill-opacity:1;stroke:none"
        id="rect20894"
-       width="9.355195"
-       height="9.355195"
-       x="-168.01904"
+       width="7.9797735"
+       height="7.9797735"
+       x="-167.16759"
        y="360.07306"
-       rx="2.7317751e-06"
-       ry="3.7128973e-06" />
+       rx="2.3301436e-06"
+       ry="3.167019e-06" />
     <text
        xml:space="preserve"
        style="font-size:6.61631203px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"

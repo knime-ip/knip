@@ -15,7 +15,7 @@
    version="1.1"
    inkscape:version="0.48.3.1 r9886"
    sodipodi:docname="SpotDetect.svg"
-   inkscape:export-filename="/home/hornm/workspaces/eclipse/workspace_indigo/knip/org.knime.knip.base/src/org/knime/knip/base/nodes/proc/resampler/resampler.png"
+   inkscape:export-filename="/home/hornm/workspaces/eclipse/workspace_indigo/knip/org.knime.knip.base/bin/org/knime/knip/base/nodes/proc/spotdetection/icon/SpotDetect.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -230,7 +230,7 @@
        sodipodi:cy="2.859375"
        sodipodi:rx="1.015625"
        sodipodi:ry="1.015625"
-       d="m 6.03125,2.859375 a 1.015625,1.015625 0 1 1 -2.03125,0 1.015625,1.015625 0 1 1 2.03125,0 z"
+       d="M 6.03125,2.859375 C 6.03125,3.4202892 5.5765392,3.875 5.015625,3.875 4.4547108,3.875 4,3.4202892 4,2.859375 4,2.2984608 4.4547108,1.84375 5.015625,1.84375 c 0.5609142,0 1.015625,0.4547108 1.015625,1.015625 z"
        transform="matrix(2.1076923,0,0,2.1076923,-5.0873606,1033.3824)" />
     <path
        sodipodi:type="arc"
@@ -240,7 +240,7 @@
        sodipodi:cy="2.859375"
        sodipodi:rx="1.015625"
        sodipodi:ry="1.015625"
-       d="m 6.03125,2.859375 a 1.015625,1.015625 0 1 1 -2.03125,0 1.015625,1.015625 0 1 1 2.03125,0 z"
+       d="M 6.03125,2.859375 C 6.03125,3.4202892 5.5765392,3.875 5.015625,3.875 4.4547108,3.875 4,3.4202892 4,2.859375 4,2.2984608 4.4547108,1.84375 5.015625,1.84375 c 0.5609142,0 1.015625,0.4547108 1.015625,1.015625 z"
        transform="matrix(2.1076923,0,0,2.1076923,1.8500707,1036.3354)" />
     <path
        sodipodi:type="arc"
@@ -250,7 +250,7 @@
        sodipodi:cy="2.859375"
        sodipodi:rx="1.015625"
        sodipodi:ry="1.015625"
-       d="m 6.03125,2.859375 a 1.015625,1.015625 0 1 1 -2.03125,0 1.015625,1.015625 0 1 1 2.03125,0 z"
+       d="M 6.03125,2.859375 C 6.03125,3.4202892 5.5765392,3.875 5.015625,3.875 4.4547108,3.875 4,3.4202892 4,2.859375 4,2.2984608 4.4547108,1.84375 5.015625,1.84375 c 0.5609142,0 1.015625,0.4547108 1.015625,1.015625 z"
        transform="matrix(2.9539626,0,0,2.9539626,-8.8633377,1039.5249)" />
   </g>
 </svg>

@@ -15,7 +15,7 @@
    version="1.1"
    inkscape:version="0.48.3.1 r9886"
    sodipodi:docname="LabelToPng.svg"
-   inkscape:export-filename="C:\Users\zinsmaie\Desktop\Archiv\icons\LabelToPng.png"
+   inkscape:export-filename="/home/hornm/workspaces/eclipse/workspace_indigo/knip/org.knime.knip.base/bin/org/knime/knip/base/nodes/seg/labeltopng/LabelToPng.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -27,17 +27,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.197802"
-     inkscape:cx="-1.1015705"
-     inkscape:cy="16"
+     inkscape:zoom="23.298113"
+     inkscape:cx="3.3935231"
+     inkscape:cy="9.868008"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:grid-bbox="true"
      inkscape:document-units="px"
-     inkscape:window-width="1600"
-     inkscape:window-height="1148"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:window-width="1375"
+     inkscape:window-height="876"
+     inkscape:window-x="65"
+     inkscape:window-y="24"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata2990">
@@ -58,51 +58,60 @@
      transform="translate(0,-16)">
     <path
        sodipodi:type="arc"
-       style="fill:#e70016;fill-opacity:1;stroke:none"
+       style="fill:#000000;fill-opacity:1;stroke:none"
        id="path3767"
        sodipodi:cx="6.4298334"
        sodipodi:cy="5.4769378"
        sodipodi:rx="2.4111874"
        sodipodi:ry="2.5004907"
        d="m 8.8410208,5.4769378 a 2.4111874,2.5004907 0 1 1 -4.8223748,0 2.4111874,2.5004907 0 1 1 4.8223748,0 z"
-       transform="matrix(1.3381815,0,0,1.3085638,-1.4693938,9.4648072)" />
+       transform="matrix(1.055064,0,0,1.0317125,2.2283894,13.214873)" />
     <path
        sodipodi:type="arc"
-       style="fill:#2f4bb6;fill-opacity:1;stroke:none"
+       style="fill:#5f5f5f;fill-opacity:1;stroke:none"
        id="path3785"
        sodipodi:cx="7.412169"
        sodipodi:cy="14.541217"
        sodipodi:rx="5.2688913"
        sodipodi:ry="3.170265"
        d="m 12.68106,14.541217 a 5.2688913,3.170265 0 1 1 -10.5377824,0 5.2688913,3.170265 0 1 1 10.5377824,0 z"
-       transform="matrix(0.59513775,0,0,1.0321067,-1.2755456,7.5769595)" />
+       transform="matrix(0.46922515,0,0,0.8137451,2.3812254,11.726436)" />
     <path
        sodipodi:type="arc"
-       style="fill:#1af53a;fill-opacity:1;stroke:none"
+       style="fill:#b1b1b1;fill-opacity:1;stroke:none"
        id="path3787"
        sodipodi:cx="15.494112"
        sodipodi:cy="17.354269"
        sodipodi:rx="2.5451424"
        sodipodi:ry="3.9293425"
        d="m 18.039254,17.354269 a 2.5451424,3.9293425 0 1 1 -5.090284,0 2.5451424,3.9293425 0 1 1 5.090284,0 z"
-       transform="matrix(0.86599885,0,0,0.6361074,-4.3515733,12.636551)" />
+       transform="matrix(0.68278049,0,0,0.5015269,-0.04401081,15.715574)" />
     <text
        xml:space="preserve"
-       style="font-size:5.08885908px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Verdana;-inkscape-font-specification:Verdana Bold"
-       x="-0.49100602"
-       y="32.15387"
+       style="font-size:4.01221514px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Verdana;-inkscape-font-specification:Verdana Bold"
+       x="2.9997807"
+       y="31.103638"
        id="text3775-1"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan3777-4"
-         x="-0.49100602"
-         y="32.15387"
-         style="font-size:7.124403px;font-weight:bold;-inkscape-font-specification:Verdana Bold">PNG</tspan></text>
+         x="2.9997807"
+         y="31.103638"
+         style="font-size:5.61710119px;font-weight:bold;-inkscape-font-specification:Verdana Bold">PNG</tspan></text>
     <path
-       style="fill:none;stroke:#000000;stroke-width:1.01777184;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       d="m 11.99976,17.052881 2.896592,3.579664 -2.735049,3.640758"
+       style="fill:none;stroke:#000000;stroke-width:0.80244309;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 12.84789,19.197547 2.283764,2.822319 -2.156398,2.870487"
        id="path3779-2"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="ccc" />
+    <rect
+       ry="2.5365337e-06"
+       rx="1.8662621e-06"
+       y="16"
+       x="0"
+       height="16"
+       width="2"
+       id="rect3089"
+       style="fill:#8c0000;fill-opacity:1;stroke:none" />
   </g>
 </svg>

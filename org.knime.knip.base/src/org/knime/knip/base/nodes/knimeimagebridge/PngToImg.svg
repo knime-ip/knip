@@ -15,7 +15,7 @@
    version="1.1"
    inkscape:version="0.48.3.1 r9886"
    sodipodi:docname="PngToImg.svg"
-   inkscape:export-filename="C:\Users\zinsmaie\Desktop\Archiv\icons\PngToImg.png"
+   inkscape:export-filename="/home/hornm/workspaces/eclipse/workspace_indigo/knip/org.knime.knip.base/bin/org/knime/knip/base/nodes/knimeimagebridge/PngToImg.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -34,10 +34,10 @@
      showgrid="true"
      inkscape:grid-bbox="true"
      inkscape:document-units="px"
-     inkscape:window-width="1600"
-     inkscape:window-height="1148"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:window-width="1375"
+     inkscape:window-height="876"
+     inkscape:window-x="65"
+     inkscape:window-y="24"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata2990">
@@ -57,48 +57,41 @@
      inkscape:groupmode="layer"
      transform="translate(0,-16)">
     <rect
-       style="fill:#1a951a;fill-opacity:1;stroke:none"
+       style="fill:#000000;fill-opacity:1;stroke:none"
        id="rect2995"
-       width="9.7644291"
-       height="8.4756098"
-       x="6.4948606"
-       y="23.51837"
-       rx="3.8922718"
+       width="7.8051491"
+       height="6.7749372"
+       x="8.0402374"
+       y="23.544397"
+       rx="3.1112683"
        ry="0" />
-    <path
-       style="fill:#2660ee;fill-opacity:1;stroke:none"
-       d="m 6.539858,28.830496 2.0698786,-0.274669 1.5749084,-0.618005 1.034939,0.549337 1.52991,0.652339 1.169932,-0.206001 2.339862,0.03433 -0.045,-5.493377 c -3.239809,0.01144 -4.859714,0.0229 -9.764427,0 0,0 -1.6e-6,5.665046 0.089993,5.356044 z"
-       id="path3765"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cccccccccc" />
-    <path
-       sodipodi:type="arc"
-       style="fill:#e5ee26;fill-opacity:1;stroke:none"
-       id="path3767"
-       sodipodi:cx="6.4298334"
-       sodipodi:cy="5.4769378"
-       sodipodi:rx="2.4111874"
-       sodipodi:ry="2.5004907"
-       d="m 8.8410208,5.4769378 a 2.4111874,2.5004907 0 1 1 -4.8223748,0 2.4111874,2.5004907 0 1 1 4.8223748,0 z"
-       transform="matrix(0.80246208,0,0,0.78153485,3.8550156,21.543493)" />
     <text
        xml:space="preserve"
-       style="font-size:4.9777503px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Verdana;-inkscape-font-specification:Verdana Bold"
-       x="-0.25166103"
-       y="21.894938"
+       style="font-size:3.97894073px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Verdana;-inkscape-font-specification:Verdana Bold"
+       x="2.6129718"
+       y="22.304829"
        id="text3775"
        sodipodi:linespacing="125%"
-       transform="scale(1.0122476,0.98790063)"><tspan
+       transform="scale(1.0122476,0.98790059)"><tspan
          sodipodi:role="line"
          id="tspan3777"
-         x="-0.25166103"
-         y="21.894938"
-         style="font-size:6.96885014px;font-weight:bold;-inkscape-font-specification:Verdana Bold">PNG</tspan></text>
+         x="2.6129718"
+         y="22.304829"
+         style="font-size:5.57051659px;font-weight:bold;-inkscape-font-specification:Verdana Bold">PNG</tspan></text>
     <path
-       style="fill:none;stroke:#000000;stroke-width:0.99555004;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       d="m 1.1335855,23.900854 2.86805,3.459141 -2.7080982,3.518177"
+       style="fill:none;stroke:#000000;stroke-width:0.79578805;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 3.7547281,23.850133 2.2925617,2.765047 -2.164705,2.812238"
        id="path3779"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="ccc" />
+    <rect
+       ry="2.5365337e-06"
+       rx="1.8662621e-06"
+       y="16"
+       x="0"
+       height="16"
+       width="2"
+       id="rect3089"
+       style="fill:#8c0000;fill-opacity:1;stroke:none" />
   </g>
 </svg>
