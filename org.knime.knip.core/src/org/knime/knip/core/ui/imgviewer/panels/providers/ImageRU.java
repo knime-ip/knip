@@ -105,6 +105,11 @@ public class ImageRU<T extends RealType<T>> extends CommonViewRU {
 
     private Real2GreyRenderer<T> m_greyRenderer;
 
+    public ImageRU() {
+        this(false);
+    }
+
+
     /**
      * @param service
      * @param enforceGreyScale

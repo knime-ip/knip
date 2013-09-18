@@ -57,13 +57,11 @@ import net.imglib2.type.numeric.RealType;
 import org.knime.knip.core.ui.imgviewer.ImgCanvas;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.ui.imgviewer.ViewerComponents;
-import org.knime.knip.core.ui.imgviewer.events.SetCachingEvent;
 import org.knime.knip.core.ui.imgviewer.panels.LabelOptionPanel;
 import org.knime.knip.core.ui.imgviewer.panels.infobars.HistogramViewInfoPanel;
 import org.knime.knip.core.ui.imgviewer.panels.infobars.ImgViewInfoPanel;
 import org.knime.knip.core.ui.imgviewer.panels.infobars.LabelingViewInfoPanel;
 import org.knime.knip.core.ui.imgviewer.panels.providers.AWTImageProvider;
-import org.knime.knip.core.ui.imgviewer.panels.providers.HistogramBufferedImageProvider;
 import org.knime.knip.core.ui.imgviewer.panels.providers.ImageRU;
 import org.knime.knip.core.ui.imgviewer.panels.transfunc.PlaneSelectionTFCDataProvider;
 import org.knime.knip.core.ui.imgviewer.panels.transfunc.TransferFunctionControlPanel;
@@ -86,7 +84,7 @@ public class ViewerFactory {
     public static <T extends RealType<T>> ImgViewer createHistViewer(final int cacheSize) {
         final ImgViewer viewer = new ImgViewer();
 
-        viewer.addViewerComponent(new HistogramBufferedImageProvider<T>(cacheSize, 512));
+  //      viewer.addViewerComponent(new HistogramBufferedImageProvider<T>(cacheSize, 512));
         viewer.addViewerComponent(new HistogramViewInfoPanel<T, Img<T>>());
         viewer.addViewerComponent(new ImgCanvas<T, Img<T>>());
         viewer.addViewerComponent(ViewerComponents.MINIMAP.createInstance());
@@ -125,7 +123,7 @@ public class ViewerFactory {
     public static <L extends Comparable<L>> ImgViewer createLabelingViewer(final int cacheSize) {
         final ImgViewer viewer = new ImgViewer();
 
-        new LabelingBufferedImageProvider<L>(cacheSize).setEventService(viewer.getEventService());
+     //   new LabelingBufferedImageProvider<L>(cacheSize).setEventService(viewer.getEventService());
 
         viewer.addViewerComponent(new LabelingViewInfoPanel<L>());
 
@@ -155,9 +153,9 @@ public class ViewerFactory {
 
         final ImgViewer viewer = new ImgViewer();
 
-        final BufferedImageProvider<T> realProvider = new BufferedImageProvider<T>(cacheSize);
-        realProvider.setEventService(viewer.getEventService());
-        realProvider.onSetCaching(new SetCachingEvent(false));
+    //    final BufferedImageProvider<T> realProvider = new BufferedImageProvider<T>(cacheSize);
+    //    realProvider.setEventService(viewer.getEventService());
+    //    realProvider.onSetCaching(new SetCachingEvent(false));
 
         viewer.addViewerComponent(new ImgViewInfoPanel<T>());
         viewer.addViewerComponent(new ImgCanvas<T, Img<T>>());

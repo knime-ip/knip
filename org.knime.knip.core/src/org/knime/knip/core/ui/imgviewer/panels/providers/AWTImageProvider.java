@@ -344,7 +344,10 @@ public class AWTImageProvider extends HiddenViewerComponent {
         g.drawImage(img, 0, 0, null);
 
         for (int i = 1; i < m_renderUnits.length; i++) {
-            g.drawImage(Transparency.makeColorTransparent(m_renderUnits[i].createImage(), Color.WHITE, m_transparency), 0, 0, null);
+            Image next = m_renderUnits[i].createImage();
+            if (next != null) {
+                g.drawImage(Transparency.makeColorTransparent(next, Color.WHITE, m_transparency), 0, 0, null);
+            }
         }
 
         return joinedImg;
