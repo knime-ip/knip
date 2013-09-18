@@ -50,7 +50,6 @@
 package org.knime.knip.core.ui.imgviewer.panels.providers;
 
 import java.awt.Image;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -119,10 +118,6 @@ public class ImageRU<T extends RealType<T>> extends CommonViewRU {
     @SuppressWarnings("unchecked")
     @Override
     public Image createImage() {
-        if (m_renderer == null || m_src == null || m_sel == null) {
-            return new BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB);
-        }
-
         //converted version is guaranteed to be ? extends RealType => getNormalization and render should work
         //TODO find a way to relax type constraints from R extends RealType  to RealType
 
@@ -148,6 +143,7 @@ public class ImageRU<T extends RealType<T>> extends CommonViewRU {
                     m_renderer.render(convertedSrc, m_sel.getPlaneDimIndex1(), m_sel.getPlaneDimIndex2(),
                                       m_sel.getPlanePos());
         } else {
+            m_greyRenderer.setNormalizationParameters(normParams[0], normParams[1]);
             ret =
                     m_greyRenderer.render(convertedSrc, m_sel.getPlaneDimIndex1(), m_sel.getPlaneDimIndex2(),
                                           m_sel.getPlanePos());
@@ -201,10 +197,8 @@ public class ImageRU<T extends RealType<T>> extends CommonViewRU {
         int hash = super.generateHashCode();
         hash += m_normalizationParameters.hashCode();
         hash *= 31;
-        if (m_src != null) {
-            hash += m_src.hashCode();
-            hash *= 31;
-        }
+        hash += m_src.hashCode();
+        hash *= 31;
         return hash;
     }
 

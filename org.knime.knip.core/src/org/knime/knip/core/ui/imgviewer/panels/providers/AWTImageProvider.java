@@ -269,10 +269,12 @@ public class AWTImageProvider extends HiddenViewerComponent {
         e.getRandomAccessibleInterval().dimensions(dims);
 
         if ((m_sel == null) || !isInsideDims(m_sel.getPlanePos(), dims)) {
-            m_sel = new PlaneSelectionEvent(0, 1, new long[e.getRandomAccessibleInterval().numDimensions()]);
+            //publish if necessary
+            m_eventService.publish(new PlaneSelectionEvent(0, 1, new long[e.getRandomAccessibleInterval().numDimensions()]));
         }
 
         final ImageRenderer<?>[] renderers = RendererFactory.createSuitableRenderer(e.getRandomAccessibleInterval());
+        ImageRenderer<?> newRenderer = null;
         if (m_renderer != null) {
             boolean contained = false;
             for (final ImageRenderer<?> renderer : renderers) {
@@ -283,10 +285,15 @@ public class AWTImageProvider extends HiddenViewerComponent {
                 }
             }
             if (!contained) {
-                m_renderer = renderers[0];
+                newRenderer = renderers[0];
             }
         } else {
-            m_renderer = renderers[0];
+            newRenderer = renderers[0];
+        }
+
+        if (newRenderer != null) {
+            //publish if necessary
+            m_eventService.publish(new RendererSelectionChgEvent(newRenderer));
         }
     }
 

@@ -66,12 +66,11 @@ import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
 import org.knime.knip.core.ui.imgviewer.events.RendererSelectionChgEvent;
 
-
 /**
-* @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
-* @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
-* @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
-*/
+ * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
+ * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
+ * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ */
 public abstract class CommonViewRU implements RenderUnit {
 
     /**
@@ -124,10 +123,8 @@ public abstract class CommonViewRU implements RenderUnit {
         service.subscribe(this);
     }
 
-
     /**
-     * Generates a hashcode according to the parameters of {@link PlaneSelectionEvent},
-     * and {@link ImgRenderer}.
+     * Generates a hashcode according to the parameters of {@link PlaneSelectionEvent}, and {@link ImgRenderer}.
      *
      * HashCode is generated as hash = 31 + object.hashCode()*31 + object.hashCode()*31 ...
      *
@@ -138,12 +135,10 @@ public abstract class CommonViewRU implements RenderUnit {
         int hash = 31;
         hash += m_sel.hashCode();
         hash *= 31;
-        if (m_renderer != null) {
-            hash += m_renderer.getClass().hashCode();
-            hash *= 31;
-            hash += m_renderer.toString().hashCode(); //if the user information differs
-            hash *= 31;                               //re-rendering is most likely necessary
-        }
+        hash += m_renderer.getClass().hashCode();
+        hash *= 31;
+        hash += m_renderer.toString().hashCode(); //if the user information differs
+        hash *= 31; //re-rendering is most likely necessary
 
         return hash;
     }

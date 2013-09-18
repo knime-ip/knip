@@ -51,7 +51,6 @@ package org.knime.knip.core.ui.imgviewer.panels.providers;
 
 import java.awt.Color;
 import java.awt.Image;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -114,10 +113,6 @@ public class LabelingRU<L extends Comparable<L>> extends CommonViewRU {
 
     @Override
     public Image createImage() {
-        if (m_src == null || m_sel == null || m_renderer == null) {
-            return new BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB);
-        }
-
         if (m_renderer instanceof RendererWithLabels) {
             final RendererWithLabels<L> r = (RendererWithLabels<L>)m_renderer;
             r.setActiveLabels(m_activeLabels);
