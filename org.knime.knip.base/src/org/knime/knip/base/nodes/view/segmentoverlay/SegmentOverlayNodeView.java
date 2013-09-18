@@ -94,11 +94,13 @@ import org.knime.knip.core.ui.imgviewer.panels.LabelFilterPanel;
 import org.knime.knip.core.ui.imgviewer.panels.RendererSelectionPanel;
 import org.knime.knip.core.ui.imgviewer.panels.TransparencyColorSelectionPanel;
 import org.knime.knip.core.ui.imgviewer.panels.infobars.ImgLabelingViewInfoPanel;
-import org.knime.knip.core.ui.imgviewer.panels.providers.BufferedImageLabelingOverlayProvider;
+import org.knime.knip.core.ui.imgviewer.panels.providers.AWTImageProvider;
+import org.knime.knip.core.ui.imgviewer.panels.providers.ImageRU;
+import org.knime.knip.core.ui.imgviewer.panels.providers.LabelingRU;
 import org.knime.knip.core.util.MiscViews;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -150,7 +152,7 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
 
     /**
      * Constructor
-     * 
+     *
      * @param model
      */
     public SegmentOverlayNodeView(final SegmentOverlayNodeModel<T, L> model) {
@@ -164,7 +166,7 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
         m_tableView = new TableView(m_tableContentView);
 
         m_imgView = new ImgViewer();
-        m_imgView.addViewerComponent(new BufferedImageLabelingOverlayProvider<T, L>(20));
+        m_imgView.addViewerComponent(new AWTImageProvider(20, new ImageRU<T>(true), new LabelingRU<L>()));
         m_imgView.addViewerComponent(new ImgLabelingViewInfoPanel<T, L>());
         m_imgView.addViewerComponent(new ImgCanvas<T, Img<T>>());
         m_imgView.addViewerComponent(ViewerComponents.MINIMAP.createInstance());
@@ -203,7 +205,7 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     @Override
@@ -216,7 +218,7 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     @Override
@@ -239,7 +241,7 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     @Override
@@ -251,8 +253,8 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
 
     /**
      * Updates the ViewPane with the selected image and labeling
-     * 
-     * 
+     *
+     *
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")

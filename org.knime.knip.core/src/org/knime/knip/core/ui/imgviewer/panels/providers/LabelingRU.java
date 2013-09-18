@@ -43,18 +43,21 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
+ * Created on 18.09.2013 by zinsmaie
  */
 package org.knime.knip.core.ui.imgviewer.panels.providers;
 
 import java.awt.Color;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Set;
 
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.display.ScreenImage;
 import net.imglib2.labeling.LabelingMapping;
 import net.imglib2.labeling.LabelingType;
@@ -64,9 +67,10 @@ import org.knime.knip.core.awt.labelingcolortable.LabelingColorTable;
 import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableRenderer;
 import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableUtils;
 import org.knime.knip.core.awt.labelingcolortable.RandomMissingColorHandler;
+import org.knime.knip.core.awt.parametersupport.RendererWithHilite;
 import org.knime.knip.core.awt.parametersupport.RendererWithLabels;
 import org.knime.knip.core.ui.event.EventListener;
-import org.knime.knip.core.ui.imgviewer.events.AWTImageChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.HilitedLabelsChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.IntervalWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelColoringChangeEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelOptionsChangeEvent;
@@ -75,96 +79,57 @@ import org.knime.knip.core.ui.imgviewer.events.LabelingWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter.Operator;
 
 /**
- * Creates an awt image from a plane selection, labeling and labeling renderer. Propagates {@link AWTImageChgEvent}.
- * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @param <L>
  */
-public class LabelingBufferedImageProvider<L extends Comparable<L>> extends AWTImageProvider<LabelingType<L>> {
+public class LabelingRU<L extends Comparable<L>> extends CommonViewRU {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
 
     private int m_colorMapGeneration = RandomMissingColorHandler.getGeneration();
 
     private Color m_boundingBoxColor = LabelingColorTableUtils.getBoundingBoxColor();
 
-    protected Set<String> m_activeLabels;
+    private Set<String> m_activeLabels;
 
-    protected Operator m_operator;
+    private Operator m_operator;
 
-    protected LabelingMapping<L> m_labelMapping;
+    private LabelingMapping<L> m_labelMapping;
 
-    protected boolean m_withLabelStrings = false;
+    private boolean m_withLabelStrings = false;
 
-    protected LabelingColorTable m_labelingColorMapping;
+    private LabelingColorTable m_labelingColorMapping;
 
-    /**
-     * TODO
-     */
-    public LabelingBufferedImageProvider(final int cacheSize) {
-        super(cacheSize);
-    }
+    //hilite
 
-    @Override
-    @EventListener
-    public void onUpdated(final IntervalWithMetadataChgEvent<LabelingType<L>> e) {
-        m_labelMapping = e.getIterableInterval().firstElement().getMapping();
-        m_labelingColorMapping =
-                LabelingColorTableUtils.extendLabelingColorTable(((LabelingWithMetadataChgEvent)e)
-                        .getLabelingMetaData().getLabelingColorTable(), new RandomMissingColorHandler());
+    private Set<String> m_hilitedLabels;
 
-        super.onUpdated(e);
-    }
+    private boolean m_isHiliteMode = false;
 
-    @EventListener
-    public void onLabelColoringChangeEvent(final LabelColoringChangeEvent e) {
-        m_colorMapGeneration = e.getColorMapNr();
-        m_boundingBoxColor = e.getBoundingBoxColor();
-    }
+    //end
 
-    @EventListener
-    public void onLabelOptionsChangeEvent(final LabelOptionsChangeEvent e) {
-        m_withLabelStrings = e.getRenderWithLabelStrings();
-    }
+    private RandomAccessibleInterval<LabelingType<L>> m_src;
 
     @Override
-    protected int generateHashCode() {
-
-        int hash = super.generateHashCode();
-
-        if (m_activeLabels != null) {
-            hash *= 31;
-            hash += m_activeLabels.hashCode();
-            hash *= 31;
-            hash += m_operator.ordinal();
+    public Image createImage() {
+        if (m_src == null || m_sel == null || m_renderer == null) {
+            return new BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB);
         }
 
-        hash *= 31;
-        hash += m_boundingBoxColor.hashCode();
-        hash *= 31;
-        hash += m_colorMapGeneration;
-        hash *= 31;
-        if (m_withLabelStrings) {
-            hash += 1;
-        } else {
-            hash += 2;
-        }
-
-        return hash;
-    }
-
-    @Override
-    protected Image createImage() {
         if (m_renderer instanceof RendererWithLabels) {
             final RendererWithLabels<L> r = (RendererWithLabels<L>)m_renderer;
             r.setActiveLabels(m_activeLabels);
             r.setOperator(m_operator);
             r.setLabelMapping(m_labelMapping);
             r.setRenderingWithLabelStrings(m_withLabelStrings);
+        }
+
+        if ((m_renderer instanceof RendererWithHilite) && (m_hilitedLabels != null)) {
+            final RendererWithHilite r = (RendererWithHilite)m_renderer;
+            r.setHilitedLabels(m_hilitedLabels);
+            r.setHiliteMode(m_isHiliteMode);
         }
 
         if (m_renderer instanceof LabelingColorTableRenderer) {
@@ -178,22 +143,80 @@ public class LabelingBufferedImageProvider<L extends Comparable<L>> extends AWTI
         return AWTImageTools.makeBuffered(ret.image());
     }
 
+    @Override
+    public int generateHashCode() {
+        int hash = super.generateHashCode();
+        if (m_activeLabels != null) {
+            hash += m_activeLabels.hashCode();
+            hash *= 31;
+            hash += m_operator.ordinal();
+            hash *= 31;
+        }
+        ////////
+        hash += m_boundingBoxColor.hashCode();
+        hash *= 31;
+        hash += m_colorMapGeneration;
+        hash *= 31;
+        ////////
+        if (m_withLabelStrings) {
+            hash += 1;
+        } else {
+            hash += 2;
+        }
+        hash *= 31;
+        /////////
+        if (m_isHiliteMode) {
+            hash = (hash * 31) + 1;
+        }
+        if ((m_hilitedLabels != null)) {
+            hash = (hash * 31) + m_hilitedLabels.hashCode();
+        }
+
+        return hash;
+    }
+
+    @EventListener
+    public void onUpdated(final IntervalWithMetadataChgEvent<LabelingType<L>> e) {
+        m_src = e.getRandomAccessibleInterval();
+        m_labelMapping = e.getIterableInterval().firstElement().getMapping();
+        m_labelingColorMapping =
+                LabelingColorTableUtils.extendLabelingColorTable(((LabelingWithMetadataChgEvent)e)
+                        .getLabelingMetaData().getLabelingColorTable(), new RandomMissingColorHandler());
+    }
+
+    @EventListener
+    public void onLabelColoringChangeEvent(final LabelColoringChangeEvent e) {
+        m_colorMapGeneration = e.getColorMapNr();
+        m_boundingBoxColor = e.getBoundingBoxColor();
+    }
+
+    @EventListener
+    public void onLabelOptionsChangeEvent(final LabelOptionsChangeEvent e) {
+        m_withLabelStrings = e.getRenderWithLabelStrings();
+    }
+
     @EventListener
     public void onUpdate(final LabelPanelVisibleLabelsChgEvent e) {
         m_activeLabels = e.getLabels();
         m_operator = e.getOperator();
     }
 
+    @EventListener
+    public void onUpdated(final HilitedLabelsChgEvent e) {
+        m_hilitedLabels = e.getHilitedLabels();
+    }
+
     @Override
-    public void saveComponentConfiguration(final ObjectOutput out) throws IOException {
-        super.saveComponentConfiguration(out);
+    public void saveAdditionalConfigurations(final ObjectOutput out) throws IOException {
+        super.saveAdditionalConfigurations(out);
         out.writeObject(m_activeLabels);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public void loadComponentConfiguration(final ObjectInput in) throws IOException, ClassNotFoundException {
-        super.loadComponentConfiguration(in);
+    public void loadAdditionalConfigurations(final ObjectInput in) throws IOException, ClassNotFoundException {
+        super.loadAdditionalConfigurations(in);
         m_activeLabels = (Set<String>)in.readObject();
     }
+
 }

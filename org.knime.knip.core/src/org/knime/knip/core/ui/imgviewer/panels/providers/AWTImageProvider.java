@@ -96,6 +96,10 @@ package org.knime.knip.core.ui.imgviewer.panels.providers;
  * ------------------------------------------------------------------------
  *
  */
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -109,76 +113,45 @@ import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.converter.read.ConvertedRandomAccessibleInterval;
 import net.imglib2.img.Img;
-import net.imglib2.meta.CalibratedSpace;
 import net.imglib2.ops.operation.real.unary.Convert;
 import net.imglib2.ops.operation.real.unary.Convert.TypeConversionTypes;
-import net.imglib2.type.Type;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.view.Views;
 
-import org.knime.knip.core.awt.AWTImageTools;
 import org.knime.knip.core.awt.ImageRenderer;
 import org.knime.knip.core.awt.RendererFactory;
+import org.knime.knip.core.awt.Transparency;
 import org.knime.knip.core.data.LRUCache;
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.events.AWTImageChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
 import org.knime.knip.core.ui.imgviewer.events.IntervalWithMetadataChgEvent;
-import org.knime.knip.core.ui.imgviewer.events.NormalizationParametersChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
 import org.knime.knip.core.ui.imgviewer.events.RendererSelectionChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ResetCacheEvent;
 import org.knime.knip.core.ui.imgviewer.events.SetCachingEvent;
-import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
+import org.knime.knip.core.ui.imgviewer.events.TransparencyPanelValueChgEvent;
 import org.knime.knip.core.ui.imgviewer.panels.HiddenViewerComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
- * 
  * Publishes {@link AWTImageChgEvent}.
- * 
- * @param <T> The Type of the {@link Img} object
- * @param <I> The {@link Img} class which will be converted to a {@link BufferedImage}
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public abstract class AWTImageProvider<T extends Type<T>> extends HiddenViewerComponent {
+public class AWTImageProvider extends HiddenViewerComponent {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
 
-    /**
-     * {@link Logger}
-     */
-    protected final static Logger LOGGER = LoggerFactory.getLogger(AWTImageProvider.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(AWTImageProvider.class);
 
-    /**
-     * {@link Img} rendered as {@link BufferedImage}
-     */
-    protected RandomAccessibleInterval<T> m_src;
-
-    /**
-     * {@link PlaneSelectionEvent} indicating the current plane coordinates in the {@link Img} which will be rendered
-     */
-    protected PlaneSelectionEvent m_sel;
-
-    /**
-     * {@link Renderer} rendering the {@link Img}
-     */
-    protected ImageRenderer m_renderer;
-
-    /**
-     * {@link EventService}
-     */
-    protected EventService m_eventService;
+    private EventService m_eventService;
 
     /*
      * {@link LRUCache} managing the cache of the rendered {@link
@@ -186,48 +159,85 @@ public abstract class AWTImageProvider<T extends Type<T>> extends HiddenViewerCo
      */
     private LRUCache<Integer, SoftReference<Image>> m_awtImageCache;
 
-    /* Indicates weather caching is active or not */
+    /* Indicates whether caching is active or not */
     private boolean m_isCachingActive = false;
 
-    /* */
+    /* the cache (stores images for faster access */
     private int m_cache;
 
-    public AWTImageProvider() {
-        // for serialization
-    }
+    /**
+     * {@link PlaneSelectionEvent} indicating the current plane coordinates in the {@link Img} which will be rendered
+     */
+    private PlaneSelectionEvent m_sel;
+
+    /**
+     * {@link Renderer} rendering the {@link Img}
+     */
+    private ImageRenderer<?> m_renderer;
+
+    private Integer m_transparency = 128;
+
+    private RenderUnit[] m_renderUnits;
+
+    private GraphicsConfiguration m_graphicsConfig;
+
+
 
     /**
      * Constructor
-     * 
+     *
      * @param cacheSize The number of {@link BufferedImage}s beeing cached using the {@link LRUCache}. A cache size < 2
      *            indicates, that caching is inactive
      */
-    public AWTImageProvider(final int cacheSize) {
-
+    public AWTImageProvider(final int cacheSize, final RenderUnit... renderUnits) {
         if (cacheSize > 1) {
             m_awtImageCache = new LRUCache<Integer, SoftReference<Image>>(cacheSize);
         }
-
         m_cache = cacheSize;
         m_isCachingActive = cacheSize > 1;
+        m_renderUnits = renderUnits;
+        m_graphicsConfig = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
     }
 
     /**
-     * Renders the buffered image according to the parameters of {@link PlaneSelectionEvent},
-     * {@link NormalizationParametersChgEvent}, {@link Img} and {@link ImgRenderer}
-     * 
-     * @return the rendererd {@link Image}
+     * Resets the image cache.
+     *
+     * @param e
      */
-    protected abstract Image createImage();
+    @EventListener
+    public void onResetCache(final ResetCacheEvent e) {
+        if (m_isCachingActive) {
+            m_awtImageCache.clear();
+            LOGGER.debug("Image cache cleared.");
+        }
+    }
 
     /**
-     * {@link EventListener} for {@link PlaneSelectionEvent} events The {@link PlaneSelectionEvent} of the
-     * {@link AWTImageTools} will be updated
-     * 
-     * Renders and caches the image
-     * 
-     * @param img {@link Img} to render
-     * @param sel {@link PlaneSelectionEvent}
+     * Turns of the caching, e.g. the TransferFunctionRenderer creates different images all the time, it is not possible
+     * to store all of them.
+     *
+     * @param e
+     */
+    @EventListener
+    public void onSetCaching(final SetCachingEvent e) {
+        m_isCachingActive = e.caching();
+    }
+
+    /**
+     * triggers an actual redraw of the image. If a parameter changes the providers and additional components can first
+     * react to the parameter change event before the image is redrawn after the subsequent ImgRedrawEvent. Therefore
+     * chained parameters and parameter changes that trigger further changes are possible.
+     *
+     * @param e
+     */
+    @EventListener
+    public void onRedrawImage(final ImgRedrawEvent e) {
+        renderAndCacheImg();
+    }
+
+    /**
+     * stores current plane selection for fitDim checks if a new source is selected.
+     * @param sel
      */
     @EventListener
     public void onPlaneSelectionUpdate(final PlaneSelectionEvent sel) {
@@ -235,35 +245,26 @@ public abstract class AWTImageProvider<T extends Type<T>> extends HiddenViewerCo
     }
 
     /**
-     * 
-     * Renders and caches the image
-     * 
-     * @param renderer {@link ImgRenderer} which will be used to render the {@link BufferedImage}
-     * 
+     * stores current renderer to test it against new sources.
+     * @param e
      */
     @EventListener
     public void onRendererUpdate(final RendererSelectionChgEvent e) {
         m_renderer = e.getRenderer();
     }
 
+    @EventListener
+    public void onUpdate(final TransparencyPanelValueChgEvent e) {
+        m_transparency = e.getTransparency();
+    }
+
     /**
-     * {@link EventListener} for {@link Img} and it's {@link CalibratedSpace} {@link Img} and it's
-     * {@link CalibratedSpace} metadata will be updated.
-     * 
-     * Creates a new suiteable {@link ImgRenderer} if the existing one doesn't fit with new {@link Img} Creates a new
+     * Creates a new suitable {@link ImageRenderer} if the existing one doesn't fit the new source. Creates a new
      * {@link PlaneSelectionEvent} if numDimensions of the existing {@link PlaneSelectionEvent} doesn't fit with new
-     * {@link Img}
-     * 
-     * Renders and caches the image
-     * 
-     * @param img The {@link Img} to render. May also be a Labeling.
-     * @param axes The axes of the img, currently not used
-     * @param name The name of the img
+     * data.
      */
     @EventListener
-    public void onUpdated(final IntervalWithMetadataChgEvent<T> e) {
-        m_src = e.getRandomAccessibleInterval();
-
+    public void onUpdated(final IntervalWithMetadataChgEvent<?> e) {
         final long[] dims = new long[e.getRandomAccessibleInterval().numDimensions()];
         e.getRandomAccessibleInterval().dimensions(dims);
 
@@ -271,10 +272,10 @@ public abstract class AWTImageProvider<T extends Type<T>> extends HiddenViewerCo
             m_sel = new PlaneSelectionEvent(0, 1, new long[e.getRandomAccessibleInterval().numDimensions()]);
         }
 
-        final ImageRenderer[] renderers = RendererFactory.createSuitableRenderer(m_src);
+        final ImageRenderer<?>[] renderers = RendererFactory.createSuitableRenderer(e.getRandomAccessibleInterval());
         if (m_renderer != null) {
             boolean contained = false;
-            for (final ImageRenderer renderer : renderers) {
+            for (final ImageRenderer<?> renderer : renderers) {
                 if (m_renderer.toString().equals(renderer.toString())) {
                     m_renderer = renderer;
                     contained = true;
@@ -289,85 +290,10 @@ public abstract class AWTImageProvider<T extends Type<T>> extends HiddenViewerCo
         }
     }
 
-    /**
-     * Resets the image cache.
-     * 
-     * @param e
-     */
-    @EventListener
-    public void onResetCache(final ResetCacheEvent e) {
-        if (m_isCachingActive) {
-            m_awtImageCache.clear();
-            LOGGER.debug("Image cache cleared.");
-        }
-    }
-
-    /**
-     * Turns of the caching, e.g. the TransferFunctionRenderer creates different images all the time, it is not possible
-     * to store all of them.
-     * 
-     * @param e
-     */
-    @EventListener
-    public void onSetCaching(final SetCachingEvent e) {
-        m_isCachingActive = e.caching();
-    }
-
-    /**
-     * triggers an actual redraw of the image. If a parameter changes the providers and additional components can first
-     * react to the parameter change event before the image is redrawn after the subsequent ImgRedrawEvent. Therefore
-     * chained parameters and parameter changes that trigger further changes are possible.
-     * 
-     * @param e
-     */
-    @EventListener
-    public void onRedrawImage(final ImgRedrawEvent e) {
-        renderAndCacheImg();
-    }
-
-    private boolean isInsideDims(final long[] planePos, final long[] dims) {
-        if (planePos.length != dims.length) {
-            return false;
-        }
-
-        for (int d = 0; d < planePos.length; d++) {
-            if (planePos[d] >= dims[d]) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Generates a hashcode according to the parameters of {@link PlaneSelectionEvent},
-     * {@link NormalizationParametersChgEvent}, {@link Img} and {@link ImgRenderer}. Override this method to add
-     * provider specific hashcode types.
-     * 
-     * HashCode is generated as hash = hash*31 + object.hashCode().
-     * 
-     * @return HashCode
-     */
-    protected int generateHashCode() {
-        int hash = 31 + m_src.hashCode();
-        hash *= 31;
-        hash += m_sel.hashCode();
-        hash *= 31;
-        hash += m_renderer.getClass().hashCode();
-        hash *= 31;
-        hash += m_renderer.toString().hashCode(); //if the user information differs
-                                                  //re-rendering is most likely necessary
-        return hash;
-    }
-
     /*
      * Renders and caches the image according to it's hashcode
      */
     private void renderAndCacheImg() {
-
-        if (m_src == null) {
-            return;
-        }
         Image awtImage = null;
         if (m_isCachingActive) {
 
@@ -393,6 +319,30 @@ public abstract class AWTImageProvider<T extends Type<T>> extends HiddenViewerCo
         m_eventService.publish(new AWTImageChgEvent(awtImage));
     }
 
+    private int generateHashCode() {
+        int hash = 31;
+        for (RenderUnit ru : m_renderUnits) {
+            hash += ru.generateHashCode();
+            hash *= 31;
+        }
+
+        return hash;
+    }
+
+    private Image createImage() {
+        //blend images together
+        Image img = m_renderUnits[0].createImage();
+        Image joinedImg = m_graphicsConfig.createCompatibleImage(img.getWidth(null), img.getHeight(null), java.awt.Transparency.TRANSLUCENT);
+        Graphics g = joinedImg.getGraphics();
+        g.drawImage(img, 0, 0, null);
+
+        for (int i = 1; i < m_renderUnits.length; i++) {
+            g.drawImage(Transparency.makeColorTransparent(m_renderUnits[i].createImage(), Color.WHITE, m_transparency), 0, 0, null);
+        }
+
+        return joinedImg;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -400,42 +350,45 @@ public abstract class AWTImageProvider<T extends Type<T>> extends HiddenViewerCo
     public void setEventService(final EventService eventService) {
         m_eventService = eventService;
         eventService.subscribe(this);
+        for (RenderUnit ru : m_renderUnits) {
+            ru.setEventService(m_eventService);
+        }
     }
 
     @Override
     public void saveComponentConfiguration(final ObjectOutput out) throws IOException {
         out.writeBoolean(m_isCachingActive);
         out.writeInt(m_cache);
-        out.writeUTF(m_renderer.getClass().getName());
+        for (RenderUnit ru : m_renderUnits) {
+            ru.saveAdditionalConfigurations(out);
+        }
     }
 
     @Override
     public void loadComponentConfiguration(final ObjectInput in) throws IOException, ClassNotFoundException {
         m_isCachingActive = in.readBoolean();
         m_cache = in.readInt();
-
-        try {
-            m_renderer = (ImageRenderer)Class.forName(in.readUTF()).newInstance();
-        } catch (final InstantiationException e) {
-            e.printStackTrace();
-        } catch (final IllegalAccessException e) {
-            e.printStackTrace();
+        for (RenderUnit ru : m_renderUnits) {
+            ru.loadAdditionalConfigurations(in);
         }
-
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @EventListener
-    public void reset(final ViewClosedEvent e) {
-        m_src = null;
-        m_sel = null;
+    private boolean isInsideDims(final long[] planePos, final long[] dims) {
+        if (planePos.length != dims.length) {
+            return false;
+        }
 
+        for (int d = 0; d < planePos.length; d++) {
+            if (planePos[d] >= dims[d]) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     @SuppressWarnings("unchecked")
-    public RandomAccessibleInterval<? extends RealType<?>>
+    public static RandomAccessibleInterval<? extends RealType<?>>
             convertIfDouble(final RandomAccessibleInterval<? extends RealType<?>> src) {
         final IterableInterval<?> iterable = Views.iterable(src);
 

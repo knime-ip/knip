@@ -43,8 +43,9 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
+ * Created on 18.09.2013 by zinsmaie
  */
 package org.knime.knip.core.ui.imgviewer.panels.providers;
 
@@ -57,81 +58,76 @@ import java.io.ObjectOutput;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.display.ColorTable;
 import net.imglib2.display.ScreenImage;
-import net.imglib2.img.Img;
-import net.imglib2.type.Type;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.knip.core.awt.AWTImageTools;
+import org.knime.knip.core.awt.Real2GreyRenderer;
 import org.knime.knip.core.awt.lookup.LookupTable;
 import org.knime.knip.core.awt.parametersupport.RendererWithColorTable;
 import org.knime.knip.core.awt.parametersupport.RendererWithLookupTable;
 import org.knime.knip.core.awt.parametersupport.RendererWithNormalization;
 import org.knime.knip.core.ui.event.EventListener;
-import org.knime.knip.core.ui.imgviewer.events.AWTImageChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.ImgAndLabelingChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.NormalizationParametersChgEvent;
 import org.knime.knip.core.ui.imgviewer.panels.transfunc.BundleChgEvent;
 import org.knime.knip.core.ui.imgviewer.panels.transfunc.LookupTableChgEvent;
 
 /**
- * Converts an {@link Img} to a {@link BufferedImage}.
- * 
- * It creates an image from a plane selection, image, image renderer, and normalization parameters. Propagates
- * {@link AWTImageChgEvent}.
- * 
- * 
- * @param <T> the {@link Type} of the {@link Img} converted to a {@link BufferedImage}
- * @param <I> the {@link Img} converted to a {@link BufferedImage}
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @param <T>
  */
-public class BufferedImageProvider<T extends RealType<T>> extends AWTImageProvider<T> {
+public class ImageRU<T extends RealType<T>> extends CommonViewRU {
 
     /**
      * A simple class that can be injected in the converter so that we will always get some result.
      */
     private class SimpleTable implements LookupTable<T, ARGBType> {
-
         @Override
         public final ARGBType lookup(final T value) {
             return new ARGBType(1);
         }
     }
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
-
-    private NormalizationParametersChgEvent m_normalizationParameters;
 
     private LookupTable<T, ARGBType> m_lookupTable = new SimpleTable();
 
+    private NormalizationParametersChgEvent m_normalizationParameters = new NormalizationParametersChgEvent(0, false);
+
     private ColorTable[] m_colorTables = new ColorTable[]{};
 
-    /**
-     * @param cacheSize The size of the cache beeing used in {@link AWTImageProvider}
-     */
-    public BufferedImageProvider(final int cacheSize) {
-        super(cacheSize);
-        m_normalizationParameters = new NormalizationParametersChgEvent(0, false);
-    }
+    private RandomAccessibleInterval<T> m_src;
+
+    private final boolean m_enforceGreyScale;
+
+    private Real2GreyRenderer<T> m_greyRenderer;
 
     /**
-     * Render an image of
-     * 
-     * @return
+     * @param service
+     * @param enforceGreyScale
      */
+    public ImageRU(final boolean enforceGreyScale) {
+        //grey mode exists to support image rendering beneath labels
+        m_enforceGreyScale = enforceGreyScale;
+        m_greyRenderer = new Real2GreyRenderer<T>();
+    }
+
     @SuppressWarnings("unchecked")
     @Override
-    protected Image createImage() {
+    public Image createImage() {
+        if (m_renderer == null || m_src == null || m_sel == null) {
+            return new BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB);
+        }
+
         //converted version is guaranteed to be ? extends RealType => getNormalization and render should work
         //TODO find a way to relax type constraints from R extends RealType  to RealType
 
         @SuppressWarnings("rawtypes")
-        RandomAccessibleInterval convertedSrc = convertIfDouble(m_src);
+        RandomAccessibleInterval convertedSrc = AWTImageProvider.convertIfDouble(m_src);
         final double[] normParams = m_normalizationParameters.getNormalizationParameters(convertedSrc, m_sel);
 
         if (m_renderer instanceof RendererWithNormalization) {
@@ -146,9 +142,16 @@ public class BufferedImageProvider<T extends RealType<T>> extends AWTImageProvid
             ((RendererWithColorTable)m_renderer).setColorTables(m_colorTables);
         }
 
-        final ScreenImage ret =
-                m_renderer.render(convertedSrc, m_sel.getPlaneDimIndex1(), m_sel.getPlaneDimIndex2(),
-                                  m_sel.getPlanePos());
+        final ScreenImage ret;
+        if (!m_enforceGreyScale) {
+            ret =
+                    m_renderer.render(convertedSrc, m_sel.getPlaneDimIndex1(), m_sel.getPlaneDimIndex2(),
+                                      m_sel.getPlanePos());
+        } else {
+            ret =
+                    m_greyRenderer.render(convertedSrc, m_sel.getPlaneDimIndex1(), m_sel.getPlaneDimIndex2(),
+                                          m_sel.getPlanePos());
+        }
 
         return AWTImageTools.makeBuffered(ret.image());
     }
@@ -156,7 +159,7 @@ public class BufferedImageProvider<T extends RealType<T>> extends AWTImageProvid
     /**
      * {@link EventListener} for {@link NormalizationParametersChgEvent} events The
      * {@link NormalizationParametersChgEvent} of the {@link AWTImageTools} will be updated
-     * 
+     *
      * @param normalizationParameters
      */
     @EventListener
@@ -165,20 +168,21 @@ public class BufferedImageProvider<T extends RealType<T>> extends AWTImageProvid
     }
 
     /**
-     * 
+     *
      * {@link EventListener} for {@link BundleChgEvent}. A new lookup table will be constructed using the given transfer
      * function bundle.
-     * 
+     *
      * @param event
      */
     @EventListener
     public void onLookupTableChgEvent(final LookupTableChgEvent<T, ARGBType> event) {
         m_lookupTable = event.getTable();
-
     }
 
     @EventListener
     public void onImageUpdated(final ImgWithMetadataChgEvent<T> e) {
+        m_src = e.getRandomAccessibleInterval();
+
         final int size = e.getImgMetaData().getColorTableCount();
         m_colorTables = new ColorTable[size];
 
@@ -187,24 +191,34 @@ public class BufferedImageProvider<T extends RealType<T>> extends AWTImageProvid
         }
     }
 
-    @Override
-    protected int generateHashCode() {
-
-        return (super.generateHashCode() * 31) + m_normalizationParameters.hashCode();
-
+    @EventListener
+    public void onImageUpdated(final ImgAndLabelingChgEvent<T, ?> e) {
+        m_src = e.getRandomAccessibleInterval();
     }
 
     @Override
-    public void saveComponentConfiguration(final ObjectOutput out) throws IOException {
-        super.saveComponentConfiguration(out);
+    public int generateHashCode() {
+        int hash = super.generateHashCode();
+        hash += m_normalizationParameters.hashCode();
+        hash *= 31;
+        if (m_src != null) {
+            hash += m_src.hashCode();
+            hash *= 31;
+        }
+        return hash;
+    }
+
+    @Override
+    public void saveAdditionalConfigurations(final ObjectOutput out) throws IOException {
+        super.saveAdditionalConfigurations(out);
         m_normalizationParameters.writeExternal(out);
-
     }
 
     @Override
-    public void loadComponentConfiguration(final ObjectInput in) throws IOException, ClassNotFoundException {
-        super.loadComponentConfiguration(in);
+    public void loadAdditionalConfigurations(final ObjectInput in) throws IOException, ClassNotFoundException {
+        super.loadAdditionalConfigurations(in);
         m_normalizationParameters = new NormalizationParametersChgEvent();
         m_normalizationParameters.readExternal(in);
     }
+
 }

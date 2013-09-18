@@ -62,15 +62,15 @@ import org.knime.knip.core.ui.imgviewer.panels.LabelOptionPanel;
 import org.knime.knip.core.ui.imgviewer.panels.infobars.HistogramViewInfoPanel;
 import org.knime.knip.core.ui.imgviewer.panels.infobars.ImgViewInfoPanel;
 import org.knime.knip.core.ui.imgviewer.panels.infobars.LabelingViewInfoPanel;
-import org.knime.knip.core.ui.imgviewer.panels.providers.BufferedImageProvider;
+import org.knime.knip.core.ui.imgviewer.panels.providers.AWTImageProvider;
 import org.knime.knip.core.ui.imgviewer.panels.providers.HistogramBufferedImageProvider;
-import org.knime.knip.core.ui.imgviewer.panels.providers.LabelingBufferedImageProvider;
+import org.knime.knip.core.ui.imgviewer.panels.providers.ImageRU;
 import org.knime.knip.core.ui.imgviewer.panels.transfunc.PlaneSelectionTFCDataProvider;
 import org.knime.knip.core.ui.imgviewer.panels.transfunc.TransferFunctionControlPanel;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -79,7 +79,7 @@ public class ViewerFactory {
 
     /**
      * Creates a ImgViewer showing the histogram of the given image.
-     * 
+     *
      * @param <T>
      * @return
      */
@@ -99,14 +99,14 @@ public class ViewerFactory {
     /**
      * Creates a ImgViewer for {@link Img}s with a Minimap, Plane Selection, Renderer Selection, Image Normalization and
      * Image Properties Panel
-     * 
+     *
      * @return
      */
     public static <T extends RealType<T> & NativeType<T>> ImgViewer createImgViewer(final int cacheSize) {
 
         final ImgViewer viewer = new ImgViewer();
 
-        final BufferedImageProvider<T> realProvider = new BufferedImageProvider<T>(cacheSize);
+        final AWTImageProvider realProvider = new AWTImageProvider(cacheSize, new ImageRU<T>(false));
         realProvider.setEventService(viewer.getEventService());
 
         viewer.addViewerComponent(new ImgViewInfoPanel<T>());
@@ -148,7 +148,7 @@ public class ViewerFactory {
 
     /**
      * Creates a ImgViewer for {@link Img}s with a Minimap, Plane Selection, and TransferFunctionPanel
-     * 
+     *
      * @return
      */
     public static <T extends RealType<T> & NativeType<T>> ImgViewer createTransferFunctionViewer(final int cacheSize) {
