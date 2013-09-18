@@ -7,79 +7,79 @@
            point="org.knime.workbench.repository.categories">
         <category
               description="Image Processing and Mining Nodes from the University of Konstanz"
-              icon="icons/hca.image.png"
+              icon="icons/cube.png"
               level-id="knip"
               name="KNIME Image Processing"
              path="/community">
         </category>
         <category
               description="Reading and writing images from/to various sources."
-              icon="icons/hca.image.io.png"
+              icon="icons/cube.png"
               level-id="io"
               name="IO"
              path="/community/knip">
         </category>
         <category
-              icon="icons/missing.gif"
+              icon="icons/cube.png"
               level-id="other"
               name="Other"
               path="/community/knip/io">
         </category>
         <category
               description="Operations on images"
-              icon="icons/hca.image.png"
+              icon="icons/cube.png"
               level-id="image"
               name="Image"
               path="/community/knip">
         </category>
         <category
-              icon="icons/hca.image.proc.png"
+              icon="icons/cube.png"
               level-id="process"
               name="Process"
              path="/community/knip/image">
         </category>
         <category
-              icon="icons/hca.image.proc.bin.png"
+              icon="icons/cube.png"
               level-id="binary"
               name="Binary"
               path="/community/knip/image">
         </category>
         <category
-              icon="icons/hca.image.filter.png"
+              icon="icons/cube.png"
               level-id="filters"
               name="Filters"
               path="/community/knip/image">
         </category>
         <category
               after="image"
-              icon="icons/hca.image.seg.png"
+              icon="icons/cube.png"
               level-id="labeling"
               name="Labeling"
               path="/community/knip">
         </category>
         <category
               after="labeling"
-              icon="icons/hca.image.feature.png"
+              icon="icons/cube.png"
               level-id="features"
               name="Features"
              path="/community/knip">
         </category>
         <category
               after="features"
-              icon="icons/hca.image.view.png"
+              icon="icons/cube.png"
               level-id="views"
               name="Views"
              path="/community/knip">
         </category>
         <category
               after="process"
-              icon="icons/hca.image.misc.png"
+              icon="icons/cube.png"
               level-id="metadata"
               name="Metadata"
              path="/community/knip/image">
         </category>
         <category
-              icon="icons/missing.gif"
+              icon="icons/cube.png"
               level-id="misc"
               name="Misc"
               path="/community/knip/image">

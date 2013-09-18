@@ -10,17 +10,17 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   version="1.1"
+   version="1.2"
    width="16"
    height="16"
    id="svg2"
    inkscape:version="0.48.3.1 r9886"
-   sodipodi:docname="labelingtorgb.svg"
-   inkscape:export-filename="/home/hornm/workspaces/eclipse/workspace_indigo/knip/org.knime.knip.base/src/org/knime/knip/base/nodes/misc/labelingtorgb.png"
+   sodipodi:docname="transfermetadata.svg"
+   inkscape:export-filename="/home/hornm/workspaces/eclipse/workspace_indigo/knip/org.knime.knip.base/bin/org/knime/knip/base/nodes/metadata/transferimgmetadata/transfermetadata.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <metadata
-     id="metadata23769">
+     id="metadata103">
     <rdf:RDF>
       <cc:Work
          rdf:about="">
@@ -42,11 +42,11 @@
      inkscape:pageshadow="2"
      inkscape:window-width="1375"
      inkscape:window-height="876"
-     id="namedview23767"
+     id="namedview101"
      showgrid="false"
      inkscape:zoom="14.75"
      inkscape:cx="-3.9322034"
-     inkscape:cy="21.501788"
+     inkscape:cy="8"
      inkscape:window-x="65"
      inkscape:window-y="24"
      inkscape:window-maximized="1"
@@ -400,33 +400,33 @@
      style="fill:#8c0000;fill-opacity:1;stroke:none" />
   <rect
      style="fill:#000000;fill-opacity:1;stroke:none"
-     id="rect23789"
-     width="8.9491529"
-     height="8.9491529"
-     x="4.1355934"
-     y="0.94915289"
-     rx="1.8662621e-06"
-     ry="2.5365337e-06" />
+     id="rect3087"
+     width="8.052577"
+     height="8.4503851"
+     x="2.6440678"
+     y="0.94915235"
+     rx="1.5393489e-06"
+     ry="2.1955668e-06" />
+  <rect
+     style="fill:#000000;fill-opacity:1;stroke:none"
+     id="rect3087-6"
+     width="8.2702951"
+     height="8.6788597"
+     x="7.5263147"
+     y="6.4074755"
+     rx="1.5809683e-06"
+     ry="2.2549286e-06" />
   <text
      xml:space="preserve"
-     style="font-size:8.16789436px;font-style:normal;font-weight:bold;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"
-     x="5.9308949"
-     y="8.3389826"
-     id="text23791"
-     sodipodi:linespacing="125%"><tspan
+     style="font-size:4.90997839px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans"
+     x="4.3827748"
+     y="8.4353514"
+     id="text4001"
+     sodipodi:linespacing="125%"
+     transform="scale(0.84225125,1.1872942)"><tspan
        sodipodi:role="line"
-       id="tspan23793"
-       x="5.9308949"
-       y="8.3389826">L</tspan></text>
-  <text
-     xml:space="preserve"
-     style="font-size:4.85133123px;font-style:normal;font-weight:bold;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"
-     x="3.2016175"
-     y="14.820786"
-     id="text23791-2"
-     sodipodi:linespacing="125%"><tspan
-       sodipodi:role="line"
-       id="tspan23793-8"
-       x="3.2016175"
-       y="14.820786">RGB</tspan></text>
+       id="tspan4003"
+       x="4.3827748"
+       y="8.4353514"
+       style="font-weight:bold;fill:#ffffff;fill-opacity:1;-inkscape-font-specification:Sans Bold">ABC</tspan></text>
 </svg>
