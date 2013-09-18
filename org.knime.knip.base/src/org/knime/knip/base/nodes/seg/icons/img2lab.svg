@@ -13,9 +13,9 @@
    height="16"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.1 r9760"
+   inkscape:version="0.48.3.1 r9886"
    sodipodi:docname="img2lab.svg"
-   inkscape:export-filename="/home/kaminkatze/java/knime-sdk/workspace/org.knime.ip_experimental/src/org/knime/ip/node/seg/img2lab/img2lab.png"
+   inkscape:export-filename="/home/hornm/workspaces/eclipse/workspace_indigo/knip/org.knime.knip.base/src/org/knime/knip/base/nodes/seg/icons/img2lab.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -473,14 +473,14 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="32"
-     inkscape:cx="10.853613"
-     inkscape:cy="11.43175"
+     inkscape:cx="5.353613"
+     inkscape:cy="8.93175"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1860"
-     inkscape:window-height="1176"
-     inkscape:window-x="60"
+     inkscape:window-width="1375"
+     inkscape:window-height="876"
+     inkscape:window-x="65"
      inkscape:window-y="24"
      inkscape:window-maximized="1" />
   <metadata
@@ -491,7 +491,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -500,55 +500,44 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,-1036.3622)">
-    <path
-       sodipodi:type="arc"
-       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none;marker-start:none;marker-end:url(#Arrow2Mend-6)"
-       id="path3079"
-       sodipodi:cx="7.875"
-       sodipodi:cy="8.125"
-       sodipodi:rx="6.59375"
-       sodipodi:ry="6.59375"
-       d="M 7.171906,14.681157 A 6.59375,6.59375 0 0 1 1.8663609,10.840473"
-       transform="translate(0,1036.3622)"
-       sodipodi:start="1.6776298"
-       sodipodi:end="2.7171364"
-       sodipodi:open="true" />
-    <path
-       sodipodi:open="true"
-       sodipodi:end="6.2585631"
-       sodipodi:start="4.0446942"
-       transform="translate(0,1036.3622)"
-       d="M 3.7922986,2.9472506 A 6.59375,6.59375 0 0 1 14.466751,7.9626637"
-       sodipodi:ry="6.59375"
-       sodipodi:rx="6.59375"
-       sodipodi:cy="8.125"
-       sodipodi:cx="7.875"
-       id="use5301"
-       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none;marker-start:none;marker-end:url(#Arrow2Mend-6)"
-       sodipodi:type="arc" />
     <text
        xml:space="preserve"
-       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#4d4d4d;fill-opacity:1;stroke:none;font-family:MgOpen Cosmetica;-inkscape-font-specification:MgOpen Cosmetica"
-       x="-0.95200002"
-       y="1045.7562"
+       style="font-size:8.39817429px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:MgOpen Cosmetica;-inkscape-font-specification:MgOpen Cosmetica"
+       x="1.8788595"
+       y="1048.0588"
        id="text3076"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan3078"
-         x="-0.95200002"
-         y="1045.7562"
-         style="font-size:14px;font-weight:bold;-inkscape-font-specification:MgOpen Cosmetica Bold">I</tspan></text>
+         x="1.8788595"
+         y="1048.0588"
+         style="font-size:11.75744343px;font-weight:bold;fill:#000000;fill-opacity:1;-inkscape-font-specification:MgOpen Cosmetica Bold">I</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#4d4d4d;fill-opacity:1;stroke:none;font-family:MgOpen Cosmetica;-inkscape-font-specification:MgOpen Cosmetica"
-       x="7.5459995"
-       y="1052.3622"
+       style="font-size:8.46255684px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:MgOpen Cosmetica;-inkscape-font-specification:MgOpen Cosmetica"
+       x="10.193892"
+       y="1056.1101"
        id="text3076-5"
-       sodipodi:linespacing="125%"><tspan
+       sodipodi:linespacing="125%"
+       transform="scale(1.0076662,0.99239211)"><tspan
          sodipodi:role="line"
          id="tspan3078-4"
-         x="7.5459995"
-         y="1052.3622"
-         style="font-size:14px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:MgOpen Cosmetica;-inkscape-font-specification:MgOpen Cosmetica Bold">L</tspan></text>
+         x="10.193892"
+         y="1056.1101"
+         style="font-size:11.847579px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;fill:#000000;fill-opacity:1;font-family:MgOpen Cosmetica;-inkscape-font-specification:MgOpen Cosmetica Bold">L</tspan></text>
+    <rect
+       ry="2.5365337e-06"
+       rx="1.8662621e-06"
+       y="1036.3622"
+       x="0"
+       height="16"
+       width="2"
+       id="rect3089"
+       style="fill:#8c0000;fill-opacity:1;stroke:none" />
+    <path
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       d="m 6.9375,1040.6436 0,6.1562 3.382358,-3.3824 z"
+       id="path4155"
+       inkscape:connector-curvature="0" />
   </g>
 </svg>

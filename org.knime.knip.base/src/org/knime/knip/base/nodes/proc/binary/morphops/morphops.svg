@@ -13,9 +13,9 @@
    height="16"
    id="svg2"
    version="1.1"
-   inkscape:version="0.47 r22583"
-   sodipodi:docname="binops.svg"
-   inkscape:export-filename="/media/usb-data/knime/img/org.knime.ip/src/org/knime/ip/node/proc/binary/ops/binops.png"
+   inkscape:version="0.48.3.1 r9886"
+   sodipodi:docname="morphops.svg"
+   inkscape:export-filename="/home/hornm/workspaces/eclipse/workspace_indigo/knip/org.knime.knip.base/src/org/knime/knip/base/nodes/proc/binary/morphops/morphops.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -162,15 +162,15 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="32"
-     inkscape:cx="8.8709521"
+     inkscape:zoom="22.627417"
+     inkscape:cx="4.798486"
      inkscape:cy="6.9604725"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1120"
      inkscape:window-height="785"
-     inkscape:window-x="798"
+     inkscape:window-x="318"
      inkscape:window-y="66"
      inkscape:window-maximized="0" />
   <metadata
@@ -181,7 +181,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -191,14 +191,25 @@
      id="layer1"
      transform="translate(0,-1036.3622)">
     <path
-       style="color:#000000;fill:#808080;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
-       d="m 11.471027,1039.7211 c -2.3739656,-1.4385 -9.451033,-2.248 -7.2536264,2.9801 2.1974066,5.2281 -4.8575518,4.5146 2.7135881,6.7334 7.5711403,2.2187 2.6616813,-2.3099 2.6336413,-4.9092 -0.02804,-2.5987 4.280363,-3.3658 1.906397,-4.8043 z"
+       style="color:#000000;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.5;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       d="m 12.841046,1039.8095 c -2.373965,-1.4385 -9.4510326,-2.248 -7.253626,2.9801 2.1974066,5.2281 -4.85755181,4.5146 2.7135881,6.7334 7.5711399,2.2187 2.6616809,-2.3099 2.6336409,-4.9092 -0.02804,-2.5987 4.280363,-3.3658 1.906397,-4.8043 z"
        id="path2843"
-       sodipodi:nodetypes="czzzz" />
+       sodipodi:nodetypes="czzzz"
+       inkscape:connector-curvature="0" />
     <path
        sodipodi:nodetypes="czzzz"
        id="use2838"
-       d="m 13.04721,1038.1639 c -4.6070437,-2.6903 -13.6719056,-1.3875 -10.996821,4.0471 2.6750846,5.4348 -6.5144236,6.703 4.3028948,9.0518 10.8173182,2.3489 5.3419612,-3.4427 5.3720812,-6.0666 0.03012,-2.6239 5.928889,-4.3421 1.321845,-7.0324 z"
-       style="color:#000000;fill:none;stroke:#000000;stroke-width:0.50000000000000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+       d="m 14.417229,1038.2523 c -4.6070433,-2.6903 -13.67190521,-1.3875 -10.9968206,4.0471 2.6750846,5.4348 -6.5144236,6.703 4.3028948,9.0518 10.8173178,2.3489 5.3419608,-3.4427 5.3720808,-6.0666 0.03012,-2.6239 5.928889,-4.3421 1.321845,-7.0324 z"
+       style="color:#000000;fill:none;stroke:#000000;stroke-width:0.89999998;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       inkscape:connector-curvature="0" />
+    <rect
+       ry="2.5365337e-06"
+       rx="1.8662621e-06"
+       y="1036.3622"
+       x="0"
+       height="16"
+       width="2"
+       id="rect3089"
+       style="fill:#8c0000;fill-opacity:1;stroke:none" />
   </g>
 </svg>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
-<knimeNode icon="./default.png" type="Manipulator">
+<knimeNode icon="./localthresholder.png" type="Manipulator">
 	<name>Local Thresholding</name>
 
 	<shortDescription>Performs an efficient local binary thresholding on an
