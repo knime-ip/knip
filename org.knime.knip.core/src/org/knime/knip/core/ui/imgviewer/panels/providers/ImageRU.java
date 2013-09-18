@@ -91,6 +91,10 @@ public class ImageRU<T extends RealType<T>> extends CommonViewRU {
         }
     }
 
+    private int m_hashOfLastRendering;
+
+    private Image m_lastImage;
+
     private static final long serialVersionUID = 1L;
 
     private LookupTable<T, ARGBType> m_lookupTable = new SimpleTable();
@@ -123,6 +127,10 @@ public class ImageRU<T extends RealType<T>> extends CommonViewRU {
     @SuppressWarnings("unchecked")
     @Override
     public Image createImage() {
+        if (m_lastImage != null && m_hashOfLastRendering == generateHashCode()) {
+            return m_lastImage;
+        }
+
         //converted version is guaranteed to be ? extends RealType => getNormalization and render should work
         //TODO find a way to relax type constraints from R extends RealType  to RealType
 
@@ -153,6 +161,9 @@ public class ImageRU<T extends RealType<T>> extends CommonViewRU {
                     m_greyRenderer.render(convertedSrc, m_sel.getPlaneDimIndex1(), m_sel.getPlaneDimIndex2(),
                                           m_sel.getPlanePos());
         }
+
+        m_lastImage = ret.image();
+        m_hashOfLastRendering = generateHashCode();
 
         return AWTImageTools.makeBuffered(ret.image());
     }

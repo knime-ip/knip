@@ -91,6 +91,10 @@ public class LabelingRU<L extends Comparable<L>> extends CommonViewRU {
 
     private Color m_boundingBoxColor = LabelingColorTableUtils.getBoundingBoxColor();
 
+    private int m_hashOfLastRendering;
+
+    private Image m_lastImage;
+
     private Set<String> m_activeLabels;
 
     private Operator m_operator;
@@ -113,6 +117,10 @@ public class LabelingRU<L extends Comparable<L>> extends CommonViewRU {
 
     @Override
     public Image createImage() {
+        if (m_lastImage != null && m_hashOfLastRendering == generateHashCode()) {
+            return m_lastImage;
+        }
+
         if (m_renderer instanceof RendererWithLabels) {
             final RendererWithLabels<L> r = (RendererWithLabels<L>)m_renderer;
             r.setActiveLabels(m_activeLabels);
@@ -134,6 +142,9 @@ public class LabelingRU<L extends Comparable<L>> extends CommonViewRU {
 
         final ScreenImage ret =
                 m_renderer.render(m_src, m_sel.getPlaneDimIndex1(), m_sel.getPlaneDimIndex2(), m_sel.getPlanePos());
+
+        m_hashOfLastRendering = generateHashCode();
+        m_lastImage = ret.image();
 
         return AWTImageTools.makeBuffered(ret.image());
     }

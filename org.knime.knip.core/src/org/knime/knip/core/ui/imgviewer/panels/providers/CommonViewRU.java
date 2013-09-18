@@ -157,7 +157,8 @@ public abstract class CommonViewRU implements RenderUnit {
     @Override
     public void loadAdditionalConfigurations(final ObjectInput in) throws IOException, ClassNotFoundException {
         try {
-            m_renderer = (ImageRenderer)Class.forName(in.readUTF()).newInstance();
+            String name = in.readUTF();
+            m_renderer = (ImageRenderer)Class.forName(name).newInstance();
         } catch (final InstantiationException e) {
             e.printStackTrace();
         } catch (final IllegalAccessException e) {
