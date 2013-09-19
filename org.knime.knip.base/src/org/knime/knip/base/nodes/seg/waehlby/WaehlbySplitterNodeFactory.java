@@ -121,7 +121,7 @@ public class WaehlbySplitterNodeFactory<T extends RealType<T>, L extends Compara
                 int[] selectedDimIndices =
                         m_smDimSelection.getSelectedDimIndices(cellLabelingVal.getLabelingMetadata());
 
-                WaehlbySplitterOp<L, T> op = new WaehlbySplitterOp<L, T>();
+                WaehlbySplitterOp<L, T> op = new WaehlbySplitterOp<L, T>(WaehlbySplitterOp.SEG_TYPE.SHAPE_BASED_SEGMENTATION);
 
                 SubsetOperations.iterate(op, selectedDimIndices, labeling, imgValue.getImgPlus(), out,
                                          getExecutorService());

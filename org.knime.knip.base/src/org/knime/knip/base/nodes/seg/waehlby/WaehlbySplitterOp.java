@@ -50,13 +50,56 @@
 package org.knime.knip.base.nodes.seg.waehlby;
 
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.algorithm.gauss.Gauss;
+import net.imglib2.img.Img;
+import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.ops.operation.BinaryObjectFactory;
 import net.imglib2.ops.operation.BinaryOutputOperation;
+import net.imglib2.ops.operation.randomaccessibleinterval.unary.DistanceMap;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.type.numeric.real.FloatType;
 
 public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> implements
         BinaryOutputOperation<Labeling<L>, RandomAccessibleInterval<T>, Labeling<L>> {
+
+    /**
+     * Segmentation type enum
+     *
+     * @author squareys
+     */
+    public enum SEG_TYPE {
+        /**
+         * Shape based segmentation.
+         */
+        SHAPE_BASED_SEGMENTATION
+    }
+
+    private SEG_TYPE m_segType;
+
+    protected int m_gaussSize;
+
+    /**
+     * Contructor for WaehlbySplitter operation.
+     *
+     * @param segtype
+     */
+    public WaehlbySplitterOp(final SEG_TYPE segtype) {
+        super();
+        m_segType = segtype;
+
+        m_gaussSize = 10;
+    }
+
+    private long[] getDimensions (final RandomAccessibleInterval<T> img) {
+        long[] array = new long[img.numDimensions()];
+
+        for(int i = 0; i < img.numDimensions(); i++) {
+            array[i] = img.dimension(i);
+        }
+
+        return array;
+    }
 
     /**
      * {@inheritDoc}
@@ -64,8 +107,45 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
     @Override
     public Labeling<L> compute(final Labeling<L> inLab, final RandomAccessibleInterval<T> img, final Labeling<L> outLab) {
 
-        // Here goes your cod
+//        Labeling<L> seeds = new LabelingFactory().create(inLab);
+        Img<FloatType> result = new ArrayImgFactory<FloatType>().create(getDimensions(img), new FloatType());
 
+        if(m_segType == SEG_TYPE.SHAPE_BASED_SEGMENTATION){
+            Img<FloatType> fimg = /* I need something here */ null;
+
+            /* Start with distance transform */
+            new DistanceMap<T, RandomAccessibleInterval<T>, Img<FloatType>>().compute(img, result);
+            /* Gaussian smoothing */
+            Gauss.toFloat(m_gaussSize, result);
+        } else {
+            /* Gaussian smoothing */
+            Gauss.toFloat(m_gaussSize, result);
+        }
+
+        /* Disc dilation */
+
+        /* Combine Images */
+        //(S) Combine, if src1 < src2, else set as background
+
+        /* Label the found Minima */
+
+        /* Seeded Watershed */
+
+        // Some "transformImageIf"
+
+        /* Object Merge */
+
+        /* weird complex algorithm with CrackContourCirculation */
+
+        /* Merge objects */
+
+        /* transform Images if ... */
+
+        /* hole filling */
+
+        /* Copy image for some reason */
+
+        //...
         return outLab;
     }
 
@@ -88,7 +168,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
      */
     @Override
     public BinaryOutputOperation<Labeling<L>, RandomAccessibleInterval<T>, Labeling<L>> copy() {
-        return new WaehlbySplitterOp<L, T>();
+        return new WaehlbySplitterOp<L, T>(WaehlbySplitterOp.SEG_TYPE.SHAPE_BASED_SEGMENTATION);
     }
 
 }
