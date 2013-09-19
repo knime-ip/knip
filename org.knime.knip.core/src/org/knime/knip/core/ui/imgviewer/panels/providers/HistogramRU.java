@@ -43,8 +43,9 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
+ * Created on 19.09.2013 by zinsmaie
  */
 package org.knime.knip.core.ui.imgviewer.panels.providers;
 
@@ -53,7 +54,9 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.histogram.Histogram1d;
+import net.imglib2.img.Img;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.iterableinterval.unary.MakeHistogram;
@@ -61,32 +64,44 @@ import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 
 import org.knime.knip.core.awt.AWTImageTools;
+import org.knime.knip.core.ui.event.EventListener;
+import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.events.HistogramChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.IntervalWithMetadataChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
 
 /**
- * Creates an histogram AWTImage. Publishes a {@link HistogramChgEvent}.
- * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param T
  */
-public class HistogramBufferedImageProvider<T extends RealType<T>> extends AWTImageProvider<T> {
+public class HistogramRU<T extends RealType<T>> implements RenderUnit {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
 
     private final int m_histHeight;
 
-    public HistogramBufferedImageProvider(final int cacheSize, final int histHeight) {
-        super(cacheSize);
+    /**
+     * {@link PlaneSelectionEvent} indicating the current plane coordinates in the {@link Img} which will be rendered
+     */
+    private PlaneSelectionEvent m_sel;
 
+    private RandomAccessibleInterval<T> m_src;
+
+    private EventService m_eventService;
+
+    /**
+     *
+     * @param histHeight
+     */
+    public HistogramRU(final int histHeight) {
         m_histHeight = histHeight;
     }
 
     @Override
-    protected Image createImage() {
+    public Image createImage() {
         final Histogram1d<T> hist =
                 Operations.compute(new MakeHistogram<T>(),
                                    Views.iterable(SubsetOperations.subsetview(m_src, m_sel.getInterval(m_src))));
@@ -95,14 +110,65 @@ public class HistogramBufferedImageProvider<T extends RealType<T>> extends AWTIm
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void saveComponentConfiguration(final ObjectOutput out) throws IOException {
-        super.saveComponentConfiguration(out);
+    public int generateHashCode() {
+        int hash = 31;
+        hash += m_sel.hashCode();
+        hash *= 31;
+        hash += m_src.hashCode();
+        hash *= 31;
+
+        return hash;
     }
 
+    /**
+     * {@link EventListener} for {@link PlaneSelectionEvent} events The {@link PlaneSelectionEvent} of the
+     * {@link AWTImageTools} will be updated
+     *
+     * Renders and caches the image
+     *
+     * @param img {@link Img} to render
+     * @param sel {@link PlaneSelectionEvent}
+     */
+    @EventListener
+    public void onPlaneSelectionUpdate(final PlaneSelectionEvent sel) {
+        m_sel = sel;
+    }
+
+    @EventListener
+    public void onUpdated(final IntervalWithMetadataChgEvent<T> e) {
+        m_src = e.getRandomAccessibleInterval();
+    }
+
+
+    //standard methods
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void loadComponentConfiguration(final ObjectInput in) throws IOException, ClassNotFoundException {
-        super.loadComponentConfiguration(in);
+    public void setEventService(final EventService service) {
+        service.subscribe(this);
+        m_eventService = service;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveAdditionalConfigurations(final ObjectOutput out) throws IOException {
+        //nothing to do here
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadAdditionalConfigurations(final ObjectInput in) throws IOException, ClassNotFoundException {
+        //nothing to do here
     }
 
 }
