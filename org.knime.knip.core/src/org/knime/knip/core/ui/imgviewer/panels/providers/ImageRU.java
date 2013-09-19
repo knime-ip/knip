@@ -79,7 +79,7 @@ import org.knime.knip.core.ui.imgviewer.panels.transfunc.LookupTableChgEvent;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @param <T>
  */
-public class ImageRU<T extends RealType<T>> extends CommonViewRU {
+public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
 
     /**
      * A simple class that can be injected in the converter so that we will always get some result.
@@ -91,11 +91,11 @@ public class ImageRU<T extends RealType<T>> extends CommonViewRU {
         }
     }
 
+    private static final long serialVersionUID = 1L;
+
     private int m_hashOfLastRendering;
 
     private Image m_lastImage;
-
-    private static final long serialVersionUID = 1L;
 
     private LookupTable<T, ARGBType> m_lookupTable = new SimpleTable();
 
@@ -112,7 +112,6 @@ public class ImageRU<T extends RealType<T>> extends CommonViewRU {
     public ImageRU() {
         this(false);
     }
-
 
     /**
      * @param service

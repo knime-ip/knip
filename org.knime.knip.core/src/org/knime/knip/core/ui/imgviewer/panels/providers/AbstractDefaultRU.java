@@ -54,8 +54,6 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import javax.swing.Renderer;
-
 import net.imglib2.img.Img;
 import net.imglib2.type.Type;
 
@@ -71,21 +69,15 @@ import org.knime.knip.core.ui.imgviewer.events.RendererSelectionChgEvent;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public abstract class CommonViewRU implements RenderUnit {
+public abstract class AbstractDefaultRU<T extends Type<T>> implements RenderUnit {
 
     /**
      * {@link PlaneSelectionEvent} indicating the current plane coordinates in the {@link Img} which will be rendered
      */
     protected PlaneSelectionEvent m_sel;
 
-    /**
-     * {@link Renderer} rendering the {@link Img}
-     */
-    protected ImageRenderer<? extends Type> m_renderer;
+    protected ImageRenderer<T> m_renderer;
 
-    /**
-     * {@link EventService}
-     */
     protected EventService m_eventService;
 
     /**

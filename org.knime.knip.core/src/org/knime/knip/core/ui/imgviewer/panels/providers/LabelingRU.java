@@ -83,7 +83,7 @@ import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter.Operator;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @param <L>
  */
-public class LabelingRU<L extends Comparable<L>> extends CommonViewRU {
+public class LabelingRU<L extends Comparable<L>> extends AbstractDefaultRU<LabelingType<L>> {
 
     private static final long serialVersionUID = 1L;
 

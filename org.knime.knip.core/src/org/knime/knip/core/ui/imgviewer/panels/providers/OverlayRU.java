@@ -60,6 +60,8 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import net.imglib2.labeling.LabelingType;
+
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorImgAndOverlayChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
@@ -72,7 +74,7 @@ import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @param <L>
  */
-public class OverlayRU<L extends Comparable<L>> extends CommonViewRU {
+public class OverlayRU<L extends Comparable<L>> extends AbstractDefaultRU<LabelingType<L>> {
 
     private static final long serialVersionUID = 1L;
 
