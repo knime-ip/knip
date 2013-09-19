@@ -49,7 +49,6 @@
  */
 package org.knime.knip.core.ui.imgviewer.panels.providers;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
@@ -58,36 +57,47 @@ import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 
 import net.imglib2.labeling.LabelingType;
+import net.imglib2.type.numeric.RealType;
 
 import org.knime.knip.core.ui.event.EventListener;
+import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorImgAndOverlayChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.OverlayChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.TransparencyPanelValueChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
 
 /**
- * Renders the overlay primitives that affect the currently selected plane in a 2D image.
+ * Renders the overlay primitives that affect the currently selected plane in a 2D image on top of a background image.
+ * The background image is included to allow live updates during drawing without the need to blend images together.
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @param <L>
+ * @param <T>
  */
-public class OverlayRU<L extends Comparable<L>> extends AbstractDefaultRU<LabelingType<L>> {
+public class OverlayRU<T extends RealType<T>, L extends Comparable<L>> extends AbstractDefaultRU<LabelingType<L>> {
 
     /** context that allows to create graphics that fit the environment OS .. */
-    private final GraphicsConfiguration m_graphicsConfig =
-            GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
+    private final GraphicsConfiguration m_graphicsConfig = GraphicsEnvironment.getLocalGraphicsEnvironment()
+            .getDefaultScreenDevice().getDefaultConfiguration();
 
-    /** stores a canvas to allow faster writing if the required size doesn't change
-     *  between two {@link #createImage} calls. */
+    /**
+     * stores a canvas to allow faster writing if the required size doesn't change between two {@link #createImage}
+     * calls.
+     */
     private BufferedImage m_tmpCanvas;
+
+    private ImageRU<T> m_backgroundImageRenderer = new ImageRU<T>();
 
     // event members
 
     private Overlay<L> m_overlay;
 
     private long[] m_srcDims;
+
+    private int m_transparency = 128;
 
     @Override
     public Image createImage() {
@@ -98,11 +108,10 @@ public class OverlayRU<L extends Comparable<L>> extends AbstractDefaultRU<Labeli
             m_tmpCanvas = m_graphicsConfig.createCompatibleImage((int)width, (int)height, Transparency.TRANSLUCENT);
         }
         Graphics g = m_tmpCanvas.getGraphics();
-        g.setColor(Color.white);
-        g.fillRect(0, 0, (int)width, (int)height);
+        g.drawImage(m_backgroundImageRenderer.createImage(), 0, 0, null);
 
-        m_overlay.renderBufferedImage(m_tmpCanvas.getGraphics(), m_planeSelection.getDimIndices(),
-                                      m_planeSelection.getPlanePos(), 255);
+        m_overlay.renderBufferedImage(g, m_planeSelection.getDimIndices(), m_planeSelection.getPlanePos(),
+                                      m_transparency);
 
         return m_tmpCanvas;
     }
@@ -143,15 +152,36 @@ public class OverlayRU<L extends Comparable<L>> extends AbstractDefaultRU<Labeli
     }
 
     /**
+     * The transparency value determines how the overlay is rendered on top of the image.
+     *
+     * @param e transparency value used for blending
+     */
+    @EventListener
+    public void onUpdate(final TransparencyPanelValueChgEvent e) {
+        m_transparency = e.getTransparency();
+    }
+
+    /**
      * set all members that could hold expensive references to null or resets them to allow storage clean ups.
+     *
      * @param event marker event
      */
     @EventListener
     public void onClose2(final ViewClosedEvent event) {
         m_tmpCanvas = null;
         m_overlay = null;
+        m_backgroundImageRenderer = new ImageRU<T>();
     }
 
+    //standard methods
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setEventService(final EventService service) {
+        super.setEventService(service);
+        m_backgroundImageRenderer.setEventService(service);
+    }
 
 }
