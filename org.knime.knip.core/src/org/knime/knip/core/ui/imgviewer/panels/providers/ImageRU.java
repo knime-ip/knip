@@ -214,6 +214,10 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
         hash *= 31;
         hash += m_src.hashCode();
         hash *= 31;
+        hash += m_lookupTable.hashCode();
+        hash *= 31;
+        hash += m_colorTables.hashCode();
+        hash *= 31;
         return hash;
     }
 
