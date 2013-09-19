@@ -49,10 +49,6 @@
  */
 package org.knime.knip.core.ui.imgviewer.panels.providers;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-
 import net.imglib2.type.Type;
 
 import org.knime.knip.core.awt.ImageRenderer;
@@ -60,6 +56,7 @@ import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
 import org.knime.knip.core.ui.imgviewer.events.RendererSelectionChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 
 /**
  * Default implementation for {@link RenderUnit}s that depend on {@link ImageRenderer} and PlaneSelection events.
@@ -120,23 +117,18 @@ public abstract class AbstractDefaultRU<T extends Type<T>> implements RenderUnit
         m_renderer = e.getRenderer();
     }
 
+    /**
+     * set all members that could hold expensive references to null or resets them to allow storage clean ups.
+     * @param event marker event
+     */
+    @EventListener
+    public void onClose(final ViewClosedEvent event) {
+        m_planeSelection = null;
+        m_renderer = null;
+    }
+
     //standard methods
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void saveAdditionalConfigurations(final ObjectOutput out) throws IOException {
-        //TODO should the selected renderer be saved?
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadAdditionalConfigurations(final ObjectInput in) throws IOException, ClassNotFoundException {
-        //TODO should the selected renderer be saved?
-    }
 
     /**
     * {@inheritDoc}

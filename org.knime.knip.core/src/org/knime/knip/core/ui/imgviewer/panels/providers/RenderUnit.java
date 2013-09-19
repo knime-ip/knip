@@ -50,9 +50,6 @@
 package org.knime.knip.core.ui.imgviewer.panels.providers;
 
 import java.awt.Image;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 
 import org.knime.knip.core.ui.event.EventService;
 
@@ -64,8 +61,6 @@ import org.knime.knip.core.ui.event.EventService;
  * <br>
  * The contract is that if the {@link #generateHashCode() hashCode} changes {@link #createImage()
  * createImage} will return a different image. <br><br>
- * RenderUnits may store their current state (helps to support an unbroken UI experience even if
- * the View is closed/opened multiple times)
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -100,18 +95,4 @@ public interface RenderUnit {
      */
     public void setEventService(EventService service);
 
-    /**
-     * allows RenderUnits to save additional configurations to out (e.g. used normalization parameter)
-     * @param out written to this output object
-     * @throws IOException in case something doesn't work
-     */
-    public void saveAdditionalConfigurations(final ObjectOutput out) throws IOException;
-
-    /**
-     * allows RenderUnits to load additional configurations from in (e.g. used normalization parameter)
-     * @param in read your state from here
-     * @throws IOException in case IO problems occur
-     * @throws ClassNotFoundException if something (with Reflection) wen't wrong during recreation of e.g. a renderer
-     */
-    public void loadAdditionalConfigurations(final ObjectInput in) throws IOException, ClassNotFoundException;
 }

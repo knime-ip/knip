@@ -158,7 +158,7 @@ public class ViewerFactory {
 
         final AWTImageProvider realProvider = new AWTImageProvider(cacheSize, new ImageRU<T>());
         realProvider.setEventService(viewer.getEventService());
-        realProvider.onSetCaching(new SetCachingEvent(false));
+        realProvider.onSetCachingStrategy(new SetCachingEvent(false));
 
         viewer.addViewerComponent(new ImgViewInfoPanel<T>());
         viewer.addViewerComponent(new ImgCanvas<T, Img<T>>());

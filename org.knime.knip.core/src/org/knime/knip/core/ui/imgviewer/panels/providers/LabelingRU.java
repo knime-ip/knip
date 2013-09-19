@@ -51,9 +51,6 @@ package org.knime.knip.core.ui.imgviewer.panels.providers;
 
 import java.awt.Color;
 import java.awt.Image;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.Set;
 
 import net.imglib2.RandomAccessibleInterval;
@@ -265,22 +262,16 @@ public class LabelingRU<L extends Comparable<L>> extends AbstractDefaultRU<Label
     public void onClose2(final ViewClosedEvent event) {
         m_lastImage = null;
         m_src = null;
+        m_labelingColorMapping = null;
+        m_labelMapping = null;
+        m_activeLabels = null;
+        m_operator = null;
+        m_colorMapGeneration = RandomMissingColorHandler.getGeneration();
+        m_boundingBoxColor = LabelingColorTableUtils.getBoundingBoxColor();
+        m_hilitedLabels = null;
     }
 
     // standard methods
-
-    @Override
-    public void saveAdditionalConfigurations(final ObjectOutput out) throws IOException {
-        super.saveAdditionalConfigurations(out);
-        out.writeObject(m_activeLabels);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void loadAdditionalConfigurations(final ObjectInput in) throws IOException, ClassNotFoundException {
-        super.loadAdditionalConfigurations(in);
-        m_activeLabels = (Set<String>)in.readObject();
-    }
 
 
 }

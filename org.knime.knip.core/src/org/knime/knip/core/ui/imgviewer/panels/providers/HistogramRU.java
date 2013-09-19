@@ -50,9 +50,6 @@
 package org.knime.knip.core.ui.imgviewer.panels.providers;
 
 import java.awt.Image;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.histogram.Histogram1d;
@@ -152,6 +149,7 @@ public class HistogramRU<T extends RealType<T>> implements RenderUnit {
     @EventListener
     public void onClose(final ViewClosedEvent event) {
         m_src = null;
+        m_planeSelection = null;
     }
 
     //standard methods
@@ -165,19 +163,4 @@ public class HistogramRU<T extends RealType<T>> implements RenderUnit {
         m_eventService = service;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void saveAdditionalConfigurations(final ObjectOutput out) throws IOException {
-        //nothing to do here
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadAdditionalConfigurations(final ObjectInput in) throws IOException, ClassNotFoundException {
-        //nothing to do here
-    }
 }

@@ -425,18 +425,12 @@ public class AWTImageProvider extends HiddenViewerComponent {
     public void saveComponentConfiguration(final ObjectOutput out) throws IOException {
         out.writeBoolean(m_isCachingActive);
         out.writeInt(m_cacheSize);
-        for (RenderUnit ru : m_renderUnits) {
-            ru.saveAdditionalConfigurations(out);
-        }
     }
 
     @Override
     public void loadComponentConfiguration(final ObjectInput in) throws IOException, ClassNotFoundException {
         m_isCachingActive = in.readBoolean();
         m_cacheSize = in.readInt();
-        for (RenderUnit ru : m_renderUnits) {
-            ru.loadAdditionalConfigurations(in);
-        }
     }
 
 

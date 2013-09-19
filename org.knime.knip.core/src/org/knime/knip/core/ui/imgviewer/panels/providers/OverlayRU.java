@@ -56,9 +56,6 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 
 import net.imglib2.labeling.LabelingType;
 
@@ -122,7 +119,7 @@ public class OverlayRU<L extends Comparable<L>> extends AbstractDefaultRU<Labeli
 
     @Override
     public boolean isActive() {
-        return (m_overlay == null);
+        return (m_overlay != null);
     }
 
     //event handling
@@ -156,19 +153,5 @@ public class OverlayRU<L extends Comparable<L>> extends AbstractDefaultRU<Labeli
     }
 
 
-    //standard methods
-
-    @Override
-    public void saveAdditionalConfigurations(final ObjectOutput out) throws IOException {
-        super.saveAdditionalConfigurations(out);
-        m_overlay.writeExternal(out);
-    }
-
-    @Override
-    public void loadAdditionalConfigurations(final ObjectInput in) throws IOException, ClassNotFoundException {
-        super.loadAdditionalConfigurations(in);
-        m_overlay = new Overlay<L>();
-        m_overlay.readExternal(in);
-    }
 
 }

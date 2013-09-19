@@ -50,9 +50,6 @@
 package org.knime.knip.core.ui.imgviewer.panels.providers;
 
 import java.awt.Image;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.display.ScreenImage;
@@ -173,6 +170,8 @@ public class ThresholdRU<T extends RealType<T>> extends AbstractDefaultRU<BitTyp
     @EventListener
     public void onClose2(final ViewClosedEvent event) {
         m_src = null;
+        m_imageRenderer = new ImageRU<T>();
+        m_normalizationParameters = new NormalizationParametersChgEvent(0, false);
     }
 
     //standard methods
@@ -183,18 +182,5 @@ public class ThresholdRU<T extends RealType<T>> extends AbstractDefaultRU<BitTyp
         m_imageRenderer.setEventService(service);
     }
 
-    @Override
-    public void saveAdditionalConfigurations(final ObjectOutput out) throws IOException {
-        super.saveAdditionalConfigurations(out);
-        m_normalizationParameters.writeExternal(out);
-
-    }
-
-    @Override
-    public void loadAdditionalConfigurations(final ObjectInput in) throws IOException, ClassNotFoundException {
-        super.loadAdditionalConfigurations(in);
-        m_normalizationParameters = new NormalizationParametersChgEvent();
-        m_normalizationParameters.readExternal(in);
-    }
 
 }

@@ -50,9 +50,6 @@
 package org.knime.knip.core.ui.imgviewer.panels.providers;
 
 import java.awt.Image;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.display.ColorTable;
@@ -112,7 +109,7 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
     private final boolean m_enforceGreyScale;
 
     /** used for all grey rendering mode. */
-    private Real2GreyRenderer<T> m_greyRenderer;
+    private Real2GreyRenderer<T> m_greyRenderer = new Real2GreyRenderer<T>();
 
     // event members
 
@@ -137,7 +134,6 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
      */
     public ImageRU(final boolean enforceGreyScale) {
         m_enforceGreyScale = enforceGreyScale;
-        m_greyRenderer = new Real2GreyRenderer<T>();
     }
 
 
@@ -260,21 +256,11 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
     public void onClose2(final ViewClosedEvent event) {
         m_lastImage = null;
         m_src = null;
+        m_greyRenderer = new Real2GreyRenderer<T>();
+        m_lookupTable = new SimpleTable();
+        m_normalizationParameters = new NormalizationParametersChgEvent(0, false);
+        m_colorTables = new ColorTable[] {};
     }
 
-    //standard methods
-
-    @Override
-    public void saveAdditionalConfigurations(final ObjectOutput out) throws IOException {
-        super.saveAdditionalConfigurations(out);
-        m_normalizationParameters.writeExternal(out);
-    }
-
-    @Override
-    public void loadAdditionalConfigurations(final ObjectInput in) throws IOException, ClassNotFoundException {
-        super.loadAdditionalConfigurations(in);
-        m_normalizationParameters = new NormalizationParametersChgEvent();
-        m_normalizationParameters.readExternal(in);
-    }
 
 }
