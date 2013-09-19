@@ -60,11 +60,12 @@ import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.ViewerComponent;
 import org.knime.knip.core.ui.imgviewer.events.ImgViewerMousePressedEvent;
 import org.knime.knip.core.ui.imgviewer.events.NormalizationParametersChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.ThresholdValChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewZoomfactorChgEvent;
 import org.knime.knip.core.ui.imgviewer.panels.ImgNormalizationPanel;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -161,7 +162,7 @@ public class ParameterPanel extends ViewerComponent {
 
     /**
      * Listens to changes in the {@link ImgNormalizationPanel} of the viewer.
-     * 
+     *
      * @param np
      */
     @EventListener

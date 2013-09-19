@@ -43,24 +43,22 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
+ * Created on 19.09.2013 by zinsmaie
  */
-package org.knime.knip.base.nodes.view.imgparadjust;
+package org.knime.knip.core.ui.imgviewer.panels.providers;
 
 import java.awt.Image;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.display.ScreenImage;
-import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.ops.img.UnaryRelationAssigment;
 import net.imglib2.ops.relation.real.unary.RealGreaterThanConstant;
-import net.imglib2.type.Type;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
@@ -68,88 +66,80 @@ import net.imglib2.view.Views;
 import org.knime.knip.core.awt.AWTImageTools;
 import org.knime.knip.core.awt.parametersupport.RendererWithNormalization;
 import org.knime.knip.core.ui.event.EventListener;
-import org.knime.knip.core.ui.imgviewer.events.AWTImageChgEvent;
+import org.knime.knip.core.ui.event.EventService;
+import org.knime.knip.core.ui.imgviewer.events.IntervalWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.NormalizationParametersChgEvent;
-import org.knime.knip.core.ui.imgviewer.panels.providers.AWTImageProvider;
+import org.knime.knip.core.ui.imgviewer.events.ThresholdValChgEvent;
 
 /**
- * Converts an {@link Img} to a {@link BufferedImage}.
- * 
- * It creates an image from a plane selection, image, image renderer, and normalization parameters. Propagates
- * {@link AWTImageChgEvent}.
- * 
- * 
- * @param <T> the {@link Type} of the {@link Img} converted to a {@link BufferedImage}
- * @param <I> the {@link Img} converted to a {@link BufferedImage}
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @param T
  */
-public class ThresholdBufferedImageProvider<T extends RealType<T>> extends AWTImageProvider<T> {
+public class ThresholdRU<T extends RealType<T>> extends AbstractDefaultRU<BitType> {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
 
-    protected NormalizationParametersChgEvent m_normalizationParameters;
+    private NormalizationParametersChgEvent m_normalizationParameters = new NormalizationParametersChgEvent(0, false);
+
+    private RandomAccessibleInterval<T> m_src;
 
     private double m_thresholdVal;
 
-    /**
-     * @param cacheSize The size of the cache beeing used in {@link AWTImageProvider}
-     */
-    public ThresholdBufferedImageProvider(final int cacheSize) {
-        super(cacheSize);
-        m_normalizationParameters = new NormalizationParametersChgEvent(0, false);
-    }
+    /* can be used instead of the threshold rendering if the selection is deactivated. */
+    private ImageRU<T> m_imageRenderer = new ImageRU<T>();
 
-    /**
-     * Render an image of
-     * 
-     * @return
-     */
     @Override
-    protected Image createImage() {
-        final double[] normParams = m_normalizationParameters.getNormalizationParameters(m_src, m_sel);
-        RandomAccessibleInterval<BitType> tmp = null;
+    public Image createImage() {
+        if (Double.isNaN(m_thresholdVal)) {
+            //selection is deactivated render normal image
+            return m_imageRenderer.createImage();
+        } else {
+            //create a thresholded image
+            final double[] normParams = m_normalizationParameters.getNormalizationParameters(m_src, m_sel);
 
-        if (!Double.isNaN(m_thresholdVal)) {
+            if (m_renderer instanceof RendererWithNormalization) {
+                ((RendererWithNormalization)m_renderer).setNormalizationParameters(normParams[0], normParams[1]);
+            }
+            RandomAccessibleInterval<BitType> bitImage = null;
+
             final T type = Views.iterable(m_src).firstElement().createVariable();
-
-            tmp = new ArrayImgFactory<BitType>().create(m_src, new BitType());
-
+            bitImage = new ArrayImgFactory<BitType>().create(m_src, new BitType());
             type.setReal(m_thresholdVal);
-
             new UnaryRelationAssigment<T>(new RealGreaterThanConstant<T>(type)).compute(Views.iterable(m_src),
-                                                                                        Views.iterable(tmp));
+                                                                                    Views.iterable(bitImage));
+            final ScreenImage ret =
+                m_renderer.render(bitImage, m_sel.getPlaneDimIndex1(), m_sel.getPlaneDimIndex2(), m_sel.getPlanePos());
 
+            return AWTImageTools.makeBuffered(ret.image());
         }
-
-        if (m_renderer instanceof RendererWithNormalization) {
-            ((RendererWithNormalization)m_renderer).setNormalizationParameters(normParams[0], normParams[1]);
-        }
-        final ScreenImage ret =
-                m_renderer.render(tmp == null ? m_src : tmp, m_sel.getPlaneDimIndex1(), m_sel.getPlaneDimIndex2(),
-                                  m_sel.getPlanePos());
-
-        return AWTImageTools.makeBuffered(ret.image());
     }
 
     @Override
-    protected int generateHashCode() {
-
-        int hash = (super.generateHashCode() * 31) + m_normalizationParameters.hashCode();
-        hash = (hash * 31) + (int)(m_thresholdVal * 100);
+    public int generateHashCode() {
+        int hash = super.generateHashCode();
+        hash += m_normalizationParameters.hashCode();
+        hash *= 31;
+        hash += (int)(m_thresholdVal * 100);
+        hash *= 31;
+        hash += m_src.hashCode();
+        hash *= 31;
         return hash;
-
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void loadComponentConfiguration(final ObjectInput in) throws IOException, ClassNotFoundException {
-        super.loadComponentConfiguration(in);
-        m_normalizationParameters = new NormalizationParametersChgEvent();
-        m_normalizationParameters.readExternal(in);
+    public void setEventService(final EventService service) {
+        super.setEventService(service);
+        m_imageRenderer.setEventService(service);
+    }
+
+    @EventListener
+    public void onUpdated(final IntervalWithMetadataChgEvent<T> e) {
+        m_src = e.getRandomAccessibleInterval();
     }
 
     @EventListener
@@ -157,21 +147,22 @@ public class ThresholdBufferedImageProvider<T extends RealType<T>> extends AWTIm
         m_thresholdVal = threshold.getValue();
     }
 
-    /**
-     * {@link EventListener} for {@link NormalizationParametersChgEvent} events The
-     * {@link NormalizationParametersChgEvent} of the {@link AWTImageTools} will be updated
-     * 
-     * @param normalizationParameters
-     */
     @EventListener
     public void onUpdated(final NormalizationParametersChgEvent normalizationParameters) {
         m_normalizationParameters = normalizationParameters;
     }
 
     @Override
-    public void saveComponentConfiguration(final ObjectOutput out) throws IOException {
-        super.saveComponentConfiguration(out);
+    public void saveAdditionalConfigurations(final ObjectOutput out) throws IOException {
+        super.saveAdditionalConfigurations(out);
         m_normalizationParameters.writeExternal(out);
 
+    }
+
+    @Override
+    public void loadAdditionalConfigurations(final ObjectInput in) throws IOException, ClassNotFoundException {
+        super.loadAdditionalConfigurations(in);
+        m_normalizationParameters = new NormalizationParametersChgEvent();
+        m_normalizationParameters.readExternal(in);
     }
 }

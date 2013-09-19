@@ -82,9 +82,11 @@ import org.knime.knip.core.ui.imgviewer.panels.ImgNormalizationPanel;
 import org.knime.knip.core.ui.imgviewer.panels.MinimapPanel;
 import org.knime.knip.core.ui.imgviewer.panels.PlaneSelectionPanel;
 import org.knime.knip.core.ui.imgviewer.panels.infobars.ImgViewInfoPanel;
+import org.knime.knip.core.ui.imgviewer.panels.providers.AWTImageProvider;
+import org.knime.knip.core.ui.imgviewer.panels.providers.ThresholdRU;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -153,7 +155,7 @@ public class ImgParAdjustNodeView<T extends RealType<T>> extends NodeView<ImgPar
         // contructing the image viewer
         final int CACHE_SIZE = 50;
         m_imgViewer = new ImgViewer();
-        final ThresholdBufferedImageProvider<T> realProvider = new ThresholdBufferedImageProvider<T>(CACHE_SIZE);
+        final AWTImageProvider realProvider = new AWTImageProvider(CACHE_SIZE, new ThresholdRU<T>());
         realProvider.setEventService(m_imgViewer.getEventService());
 
         m_imgViewer.addViewerComponent(new ImgViewInfoPanel<T>());
