@@ -215,4 +215,14 @@
               Convolver="org.knime.knip.base.nodes.filter.convolver.ImgLib2AddDimConvolverExt">
         </Convolver>
      </extension>
+     <extension
+           point="org.knime.product.splashExtension">
+        <splashExtension
+              icon="icons/knip_splash_50.png"
+              icon24="icons/knip_splash_24.png"
+              icon32="icons/knip_splash_32.png"
+              id="knime-ip"
+              tooltip="Image Processing and Analysis">
+        </splashExtension>
+     </extension>
 </plugin>
