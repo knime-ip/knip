@@ -84,21 +84,23 @@ import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 /**
  * Dialog component collection which arranges the {@link DialogComponent} the one hand as usual (e.g. as be done in the
  * {@link DefaultNodeSettingsPane}. But some specific dialog components (@see
- * {@link FeatureDialogComponentCollection#addDialogComponent(String, DialogComponent)} will be added to a configuration
- * pane of a feature set (identified by a String).
- * 
- * 
+ * {@link FeatureSetDialogComponentCollection#addDialogComponent(String, DialogComponent)} will be added to a
+ * configuration pane of a feature set (identified by a String).
+ *
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class FeatureDialogComponentCollection extends DialogComponentCollection {
+class FeatureSetDialogComponentCollection {
 
     private final SettingsModelStringArray m_activeFeatureSetSettings;
 
     private final List<DialogComponent> m_allDialogComponents;
 
     private final HashMap<String, HashMap<String, List<DialogComponent>>> m_dialogComponents;
+
+    private final HashMap<String, String> m_featIdNameMap;
 
     private final HashMap<String, List<DialogComponent>> m_featureSetProvidersDialogComponents;
 
@@ -107,28 +109,40 @@ public class FeatureDialogComponentCollection extends DialogComponentCollection 
     /**
      * @param activeFeatureSetSettings settings to store the activated feature sets
      */
-    public FeatureDialogComponentCollection(final SettingsModelStringArray activeFeatureSetSettings) {
+    public FeatureSetDialogComponentCollection(final SettingsModelStringArray activeFeatureSetSettings) {
         m_activeFeatureSetSettings = activeFeatureSetSettings;
 
         m_dialogComponents = new HashMap<String, HashMap<String, List<DialogComponent>>>();
         m_featureSetProvidersDialogComponents = new HashMap<String, List<DialogComponent>>();
+        m_featIdNameMap = new HashMap<String, String>();
         m_allDialogComponents = new ArrayList<DialogComponent>();
     }
 
     /**
-     * {@inheritDoc} Adds the Dialog Component to the feature list!
+     * Adds the Dialog Component to the feature list.
+     *
+     * @param featureName the name of the feature set
+     * @param featureId a unique id of the feature set
+     * @param dc
      */
-    @Override
-    public void addDialogComponent(final String features, final DialogComponent dc) {
-        if (!m_featureSetProvidersDialogComponents.containsKey(features)) {
-            m_featureSetProvidersDialogComponents.put(features, new ArrayList<DialogComponent>());
+    public void
+            addFeatureSetDialogComponent(final String featureId, final String featureName, final DialogComponent dc) {
+        if (!m_featureSetProvidersDialogComponents.containsKey(featureId)) {
+            m_featureSetProvidersDialogComponents.put(featureId, new ArrayList<DialogComponent>());
         }
 
-        m_featureSetProvidersDialogComponents.get(features).add(dc);
+        m_featureSetProvidersDialogComponents.get(featureId).add(dc);
+        m_featIdNameMap.put(featureId, featureName);
 
     }
 
-    @Override
+    /**
+     * Adds the {@link DialogComponent} to the specified tab and group.
+     *
+     * @param tab
+     * @param group
+     * @param dc
+     */
     public void addDialogComponent(final String tab, final String group, final DialogComponent dc) {
         if (!m_dialogComponents.containsKey(tab)) {
             m_dialogComponents.put(tab, new LinkedHashMap<String, List<DialogComponent>>());
@@ -144,9 +158,11 @@ public class FeatureDialogComponentCollection extends DialogComponentCollection 
     }
 
     /**
-     * {@inheritDoc}
+     * Checks whether the settings model of the dialog components is different to the given ones.
+     *
+     * @param settingsModels
+     * @return
      */
-    @Override
     public boolean checkConsistency(final List<SettingsModel> settingsModels) {
         for (final SettingsModel sm : settingsModels) {
             for (final DialogComponent dc : m_allDialogComponents) {
@@ -158,7 +174,11 @@ public class FeatureDialogComponentCollection extends DialogComponentCollection 
         return true;
     }
 
-    @Override
+    /**
+     * Creates the dialog from the previously added {@link DialogComponent}s.
+     *
+     * @return the newly created dialog
+     */
     public NodeDialogPane getDialog() {
 
         final int maxCheckBoxColumnWidth = 12;
@@ -200,21 +220,18 @@ public class FeatureDialogComponentCollection extends DialogComponentCollection 
                 // setting up the table containing the features
                 // set list and the
                 // checkboxes to active/inactivate them
+                final List<String> featureSetNames = new ArrayList<String>();
+                final List<String> featureSetIds = new ArrayList<String>();
+                for (final String s : m_featureSetProvidersDialogComponents.keySet()) {
+                    featureSetIds.add(s);
+                    featureSetNames.add(m_featIdNameMap.get(s));
+                }
                 m_featureSetTable = new JTable(new AbstractTableModel() {
 
                     /**
-                     * 
+                     *
                      */
                     private static final long serialVersionUID = -7197084943688726222L;
-
-                    private List<String> m_featureSets;
-
-                    {
-                        m_featureSets = new ArrayList<String>();
-                        for (final String s : m_featureSetProvidersDialogComponents.keySet()) {
-                            m_featureSets.add(s);
-                        }
-                    }
 
                     @Override
                     public java.lang.Class<?> getColumnClass(final int arg0) {
@@ -232,15 +249,15 @@ public class FeatureDialogComponentCollection extends DialogComponentCollection 
 
                     @Override
                     public int getRowCount() {
-                        return m_featureSets.size();
+                        return featureSetNames.size();
                     }
 
                     @Override
                     public Object getValueAt(final int rowIndex, final int columnIndex) {
                         if (columnIndex == 1) {
-                            return m_featureSets.get(rowIndex);
+                            return featureSetNames.get(rowIndex);
                         } else {
-                            return m_active.contains(m_featureSets.get(rowIndex));
+                            return m_active.contains(featureSetIds.get(rowIndex));
                         }
                     }
                 });
@@ -259,8 +276,7 @@ public class FeatureDialogComponentCollection extends DialogComponentCollection 
 
                     @Override
                     public void mouseReleased(final MouseEvent e) {
-                        final String currentSet =
-                                m_featureSetTable.getValueAt(m_featureSetTable.getSelectedRow(), 1).toString();
+                        final String currentSet = featureSetIds.get(m_featureSetTable.getSelectedRow());
 
                         if (m_featureSetTable.getSelectedColumn() == 0) {
 
@@ -365,5 +381,4 @@ public class FeatureDialogComponentCollection extends DialogComponentCollection 
             }
         };
     }
-
 }

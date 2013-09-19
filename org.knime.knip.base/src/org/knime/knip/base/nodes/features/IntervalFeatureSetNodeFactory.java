@@ -56,6 +56,7 @@ import net.imglib2.meta.CalibratedSpace;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.ValuePair;
 
+import org.knime.core.data.DataCell;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
@@ -70,7 +71,10 @@ import org.knime.knip.base.nodes.features.IntervalFeatureSetNodeModel.FeatureTyp
 import org.knime.knip.base.nodes.features.providers.FeatureSetProvider;
 
 /**
- * 
+ * Abstract node model to calculate various features (arbitrary {@link DataCell}s) on an {@link IterableInterval}. The
+ * {@link IterableInterval} stems either from a complete image, a labeling (multiple {@link IterableInterval}s, aka.
+ * ROIs) or a labeling and an image (multiple {@link IterableInterval}s, aka ROIs).
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -83,8 +87,8 @@ public abstract class IntervalFeatureSetNodeFactory<L extends Comparable<L>, T e
             createDialog(final FeatureType type,
                          final FeatureSetProvider<ValuePair<IterableInterval<T>, CalibratedSpace>>[] featSetProvider) {
 
-        final DialogComponentCollection dialogComponentCollection =
-                new FeatureDialogComponentCollection(IntervalFeatureSetNodeModel.createActiveFeatureSetModel());
+        final FeatureSetDialogComponentCollection dialogComponentCollection =
+                new FeatureSetDialogComponentCollection(IntervalFeatureSetNodeModel.createActiveFeatureSetModel());
 
         if ((type == FeatureType.LABELING) || (type == FeatureType.IMAGE_AND_LABELING)) {
 
@@ -122,11 +126,12 @@ public abstract class IntervalFeatureSetNodeFactory<L extends Comparable<L>, T e
                                                                  "Image", 0, ImgPlusValue.class));
         }
 
-        for (final FeatureSetProvider<ValuePair<IterableInterval<T>, CalibratedSpace>> featFacWrapper : featSetProvider) {
+        for (final FeatureSetProvider<ValuePair<IterableInterval<T>, CalibratedSpace>> featSet : featSetProvider) {
             final List<DialogComponent> dialogComponents = new ArrayList<DialogComponent>();
-            featFacWrapper.initAndAddDialogComponents(dialogComponents);
+            featSet.initAndAddDialogComponents(dialogComponents);
             for (final DialogComponent comp : dialogComponents) {
-                dialogComponentCollection.addDialogComponent(featFacWrapper.getFeatureSetName(), comp);
+                dialogComponentCollection.addFeatureSetDialogComponent(featSet.getFeatureSetId(),
+                                                                       featSet.getFeatureSetName(), comp);
             }
         }
         return dialogComponentCollection.getDialog();

@@ -81,7 +81,7 @@ import org.knime.knip.core.util.EnumListProvider;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -177,6 +177,11 @@ public class HaralickFeatureSetProvider<T extends RealType<T>> implements
 
     @Override
     public String getFeatureSetName() {
+        return "Haralick";
+    }
+
+    @Override
+    public String getFeatureSetId() {
         return "Haralick";
     }
 
