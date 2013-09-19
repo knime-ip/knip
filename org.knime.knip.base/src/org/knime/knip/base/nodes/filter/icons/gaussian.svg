@@ -13,9 +13,9 @@
    height="16"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.1 "
-   sodipodi:docname="gaussian"
-   inkscape:export-filename="C:\Users\felix\workspace\org.knime.ip_experimental\src\org\knime\ip\node\filter\linear\gaussian.png"
+   inkscape:version="0.48.3.1 r9886"
+   sodipodi:docname="gaussian.svg"
+   inkscape:export-filename="/home/hornm/workspaces/eclipse/workspace_indigo/knip/org.knime.knip.base/bin/org/knime/knip/base/nodes/filter/icons/gaussian.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -478,11 +478,11 @@
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1194"
-     inkscape:window-height="823"
-     inkscape:window-x="372"
-     inkscape:window-y="241"
-     inkscape:window-maximized="0" />
+     inkscape:window-width="1375"
+     inkscape:window-height="876"
+     inkscape:window-x="65"
+     inkscape:window-y="24"
+     inkscape:window-maximized="1" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -501,10 +501,19 @@
      id="layer1"
      transform="translate(0,-1036.3622)">
     <path
-       style="fill:none;stroke:#000000;stroke-width:0.68947548;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       d="M 0.43656509,1051.0842 C 4.5742518,1051.1922 4.8765898,1045.0767 8,1045.0767 c 3.12341,0 3.091199,6.0075 7.563435,6.0075"
+       style="fill:none;stroke:#000000;stroke-width:1.38900006;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 0.74004243,1048.2518 c 4.13768667,0.108 4.44002467,-6.0075 7.56343487,-6.0075 3.1234097,0 3.0911987,6.0075 7.5634347,6.0075"
        id="path3050"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="czc" />
+    <rect
+       ry="2.5365337e-06"
+       rx="1.8662621e-06"
+       y="1036.3622"
+       x="0"
+       height="16"
+       width="2"
+       id="rect3089"
+       style="fill:#8c0000;fill-opacity:1;stroke:none" />
   </g>
 </svg>
