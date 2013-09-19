@@ -148,7 +148,7 @@ public abstract class CommonViewRU implements RenderUnit {
      */
     @Override
     public void saveAdditionalConfigurations(final ObjectOutput out) throws IOException {
-        out.writeUTF(m_renderer.getClass().getName());
+        //TODO should the selected renderer be saved?
     }
 
     /**
@@ -156,13 +156,6 @@ public abstract class CommonViewRU implements RenderUnit {
      */
     @Override
     public void loadAdditionalConfigurations(final ObjectInput in) throws IOException, ClassNotFoundException {
-        try {
-            String name = in.readUTF();
-            m_renderer = (ImageRenderer)Class.forName(name).newInstance();
-        } catch (final InstantiationException e) {
-            e.printStackTrace();
-        } catch (final IllegalAccessException e) {
-            e.printStackTrace();
-        }
+        //TODO should the selected renderer be saved?
     }
 }
