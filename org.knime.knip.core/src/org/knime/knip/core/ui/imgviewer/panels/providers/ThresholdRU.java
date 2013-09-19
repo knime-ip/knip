@@ -72,14 +72,21 @@ import org.knime.knip.core.ui.imgviewer.events.NormalizationParametersChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ThresholdValChgEvent;
 
 /**
+ * Renders either the original image using a selected renderer or the thresholded image.
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
- * @param T
+ *
+ * @param <T> numeric type of the image that is thresholded.
  */
 public class ThresholdRU<T extends RealType<T>> extends AbstractDefaultRU<BitType> {
 
-    private static final long serialVersionUID = 1L;
+
+    /** can be used instead of the threshold rendering if the selection is deactivated. */
+    private ImageRU<T> m_imageRenderer = new ImageRU<T>();
+
+    // event members
 
     private NormalizationParametersChgEvent m_normalizationParameters = new NormalizationParametersChgEvent(0, false);
 
@@ -87,8 +94,6 @@ public class ThresholdRU<T extends RealType<T>> extends AbstractDefaultRU<BitTyp
 
     private double m_thresholdVal;
 
-    /* can be used instead of the threshold rendering if the selection is deactivated. */
-    private ImageRU<T> m_imageRenderer = new ImageRU<T>();
 
     @Override
     public Image createImage() {
@@ -97,7 +102,7 @@ public class ThresholdRU<T extends RealType<T>> extends AbstractDefaultRU<BitTyp
             return m_imageRenderer.createImage();
         } else {
             //create a thresholded image
-            final double[] normParams = m_normalizationParameters.getNormalizationParameters(m_src, m_sel);
+            final double[] normParams = m_normalizationParameters.getNormalizationParameters(m_src, m_planeSelection);
 
             if (m_renderer instanceof RendererWithNormalization) {
                 ((RendererWithNormalization)m_renderer).setNormalizationParameters(normParams[0], normParams[1]);
@@ -108,9 +113,10 @@ public class ThresholdRU<T extends RealType<T>> extends AbstractDefaultRU<BitTyp
             bitImage = new ArrayImgFactory<BitType>().create(m_src, new BitType());
             type.setReal(m_thresholdVal);
             new UnaryRelationAssigment<T>(new RealGreaterThanConstant<T>(type)).compute(Views.iterable(m_src),
-                                                                                    Views.iterable(bitImage));
+                                                                                        Views.iterable(bitImage));
             final ScreenImage ret =
-                m_renderer.render(bitImage, m_sel.getPlaneDimIndex1(), m_sel.getPlaneDimIndex2(), m_sel.getPlanePos());
+                    m_renderer.render(bitImage, m_planeSelection.getPlaneDimIndex1(),
+                                      m_planeSelection.getPlaneDimIndex2(), m_planeSelection.getPlanePos());
 
             return AWTImageTools.makeBuffered(ret.image());
         }
@@ -128,28 +134,43 @@ public class ThresholdRU<T extends RealType<T>> extends AbstractDefaultRU<BitTyp
         return hash;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void setEventService(final EventService service) {
-        super.setEventService(service);
-        m_imageRenderer.setEventService(service);
+    public boolean isActive() {
+        return true;
     }
 
+    //event handling
+
+    /**
+     * @param e update the stored source image
+     */
     @EventListener
     public void onUpdated(final IntervalWithMetadataChgEvent<T> e) {
         m_src = e.getRandomAccessibleInterval();
     }
 
+    /**
+     * @param threshold update the stored threshold value
+     */
     @EventListener
     public void onThresholdUpdated(final ThresholdValChgEvent threshold) {
         m_thresholdVal = threshold.getValue();
     }
 
+    /**
+     * @param normalizationParameters update normalization parameters for saturation ...
+     */
     @EventListener
     public void onUpdated(final NormalizationParametersChgEvent normalizationParameters) {
         m_normalizationParameters = normalizationParameters;
+    }
+
+    //standard methods
+
+    @Override
+    public void setEventService(final EventService service) {
+        super.setEventService(service);
+        m_imageRenderer.setEventService(service);
     }
 
     @Override
@@ -165,4 +186,5 @@ public class ThresholdRU<T extends RealType<T>> extends AbstractDefaultRU<BitTyp
         m_normalizationParameters = new NormalizationParametersChgEvent();
         m_normalizationParameters.readExternal(in);
     }
+
 }

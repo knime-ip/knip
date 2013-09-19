@@ -70,14 +70,23 @@ import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.imgviewer.events.ImgAndLabelingChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.NormalizationParametersChgEvent;
-import org.knime.knip.core.ui.imgviewer.panels.transfunc.BundleChgEvent;
 import org.knime.knip.core.ui.imgviewer.panels.transfunc.LookupTableChgEvent;
 
+/*
+ * This class could be split into three following the one class one responsibility paradigm. However its not a complex
+ * class and this way its closer to the original implementation of the AWTImageProvider descendants.
+ *
+ * TODO split it after a migration phase if the new implementation stays
+ */
 /**
+ * Combined image renderer. Supports basic rendering of pure images with grey, color, color table renderers as well as
+ * pure grey rendering (e.g. as background for labels) and rendering using transfer functions.
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
- * @param <T>
+ *
+ * @param <T> number based type of the rendered image
  */
 public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
 
@@ -91,37 +100,46 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
         }
     }
 
-    private static final long serialVersionUID = 1L;
-
+    /** Identifying hashCode of the last rendered image.*/
     private int m_hashOfLastRendering;
 
+    /** caches the last rendered image. */
     private Image m_lastImage;
+
+    /** true if all images should be rendered using a greyScale renderer
+     *  (independent of the renderer selection).*/
+    private final boolean m_enforceGreyScale;
+
+    /** used for all grey rendering mode. */
+    private Real2GreyRenderer<T> m_greyRenderer;
+
+    // event members
 
     private LookupTable<T, ARGBType> m_lookupTable = new SimpleTable();
 
     private NormalizationParametersChgEvent m_normalizationParameters = new NormalizationParametersChgEvent(0, false);
 
-    private ColorTable[] m_colorTables = new ColorTable[]{};
+    private ColorTable[] m_colorTables = new ColorTable[] {};
 
     private RandomAccessibleInterval<T> m_src;
 
-    private final boolean m_enforceGreyScale;
-
-    private Real2GreyRenderer<T> m_greyRenderer;
-
+    /** default constructor that creates a renderer selection dependent image {@link RenderUnit}. */
     public ImageRU() {
         this(false);
     }
 
     /**
-     * @param service
-     * @param enforceGreyScale
+     * Creates a {@link RenderUnit} for image data.
+     *
+     * @param enforceGreyScale false => depends on renderer selection <br>
+     *            true => always uses a {@link Real2GreyRenderer}
      */
     public ImageRU(final boolean enforceGreyScale) {
-        //grey mode exists to support image rendering beneath labels
         m_enforceGreyScale = enforceGreyScale;
         m_greyRenderer = new Real2GreyRenderer<T>();
     }
+
+
 
     @SuppressWarnings("unchecked")
     @Override
@@ -130,13 +148,13 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
             return m_lastImage;
         }
 
-        //converted version is guaranteed to be ? extends RealType => getNormalization and render should work
-        //TODO find a way to relax type constraints from R extends RealType  to RealType
-
+        //+ allows normalization - breaks type safety
         @SuppressWarnings("rawtypes")
         RandomAccessibleInterval convertedSrc = AWTImageProvider.convertIfDouble(m_src);
-        final double[] normParams = m_normalizationParameters.getNormalizationParameters(convertedSrc, m_sel);
+        final double[] normParams =
+                m_normalizationParameters.getNormalizationParameters(convertedSrc, m_planeSelection);
 
+        //set parameters of the renderer
         if (m_renderer instanceof RendererWithNormalization) {
             ((RendererWithNormalization)m_renderer).setNormalizationParameters(normParams[0], normParams[1]);
         }
@@ -152,59 +170,19 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
         final ScreenImage ret;
         if (!m_enforceGreyScale) {
             ret =
-                    m_renderer.render(convertedSrc, m_sel.getPlaneDimIndex1(), m_sel.getPlaneDimIndex2(),
-                                      m_sel.getPlanePos());
+                    m_renderer.render(convertedSrc, m_planeSelection.getPlaneDimIndex1(),
+                                      m_planeSelection.getPlaneDimIndex2(), m_planeSelection.getPlanePos());
         } else {
             m_greyRenderer.setNormalizationParameters(normParams[0], normParams[1]);
             ret =
-                    m_greyRenderer.render(convertedSrc, m_sel.getPlaneDimIndex1(), m_sel.getPlaneDimIndex2(),
-                                          m_sel.getPlanePos());
+                    m_greyRenderer.render(convertedSrc, m_planeSelection.getPlaneDimIndex1(),
+                                          m_planeSelection.getPlaneDimIndex2(), m_planeSelection.getPlanePos());
         }
 
         m_lastImage = ret.image();
         m_hashOfLastRendering = generateHashCode();
 
         return AWTImageTools.makeBuffered(ret.image());
-    }
-
-    /**
-     * {@link EventListener} for {@link NormalizationParametersChgEvent} events The
-     * {@link NormalizationParametersChgEvent} of the {@link AWTImageTools} will be updated
-     *
-     * @param normalizationParameters
-     */
-    @EventListener
-    public void onUpdated(final NormalizationParametersChgEvent normalizationParameters) {
-        m_normalizationParameters = normalizationParameters;
-    }
-
-    /**
-     *
-     * {@link EventListener} for {@link BundleChgEvent}. A new lookup table will be constructed using the given transfer
-     * function bundle.
-     *
-     * @param event
-     */
-    @EventListener
-    public void onLookupTableChgEvent(final LookupTableChgEvent<T, ARGBType> event) {
-        m_lookupTable = event.getTable();
-    }
-
-    @EventListener
-    public void onImageUpdated(final ImgWithMetadataChgEvent<T> e) {
-        m_src = e.getRandomAccessibleInterval();
-
-        final int size = e.getImgMetaData().getColorTableCount();
-        m_colorTables = new ColorTable[size];
-
-        for (int i = 0; i < size; i++) {
-            m_colorTables[i] = e.getImgMetaData().getColorTable(i);
-        }
-    }
-
-    @EventListener
-    public void onImageUpdated(final ImgAndLabelingChgEvent<T, ?> e) {
-        m_src = e.getRandomAccessibleInterval();
     }
 
     @Override
@@ -220,6 +198,60 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
         hash *= 31;
         return hash;
     }
+
+    @Override
+    public boolean isActive() {
+        return true;
+    }
+
+    //event handling
+
+    /**
+     * stores normalization parameters into a member.
+     *
+     * @param normalizationParameters saturation ... used for rendering.
+     */
+    @EventListener
+    public void onUpdated(final NormalizationParametersChgEvent normalizationParameters) {
+        m_normalizationParameters = normalizationParameters;
+    }
+
+    /**
+     * {@link EventListener} for {@link LookupTableChgEvent}. The {@link LookupTable} is stored in a member and is used
+     * for transfer function handling.
+     * @param event holds a lookup table
+     */
+    @EventListener
+    public void onLookupTableChgEvent(final LookupTableChgEvent<T, ARGBType> event) {
+        m_lookupTable = event.getTable();
+    }
+
+    /**
+     * changes the stored image (for rendering) additionally updates the color table member.
+     * @param e image and MetaData
+     */
+    @EventListener
+    public void onImageUpdated(final ImgWithMetadataChgEvent<T> e) {
+        m_src = e.getRandomAccessibleInterval();
+
+        final int size = e.getImgMetaData().getColorTableCount();
+        m_colorTables = new ColorTable[size];
+
+        for (int i = 0; i < size; i++) {
+            m_colorTables[i] = e.getImgMetaData().getColorTable(i);
+        }
+    }
+
+    /**
+     * changes the stored image (for rendering).
+     * @param e contains a image.
+     */
+    @EventListener
+    public void onImageUpdated(final ImgAndLabelingChgEvent<T, ?> e) {
+        m_src = e.getRandomAccessibleInterval();
+    }
+
+    //standard methods
 
     @Override
     public void saveAdditionalConfigurations(final ObjectOutput out) throws IOException {

@@ -82,13 +82,14 @@ import org.knime.knip.core.awt.labelingcolortable.RandomMissingColorHandler;
 import org.knime.knip.core.types.NativeTypes;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.event.EventServiceClient;
+import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
 import org.knime.knip.core.ui.imgviewer.events.OverlayChgEvent;
 
 /**
  * Overlay
- * 
+ *
  * @TODO: Replace by ImageJ2 implementations or actually use ImageJ2?
- * 
+ *
  * @param <L>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -111,10 +112,10 @@ public class Overlay<L extends Comparable<L>> implements EventServiceClient, Ext
 
     /**
      * No-arguments constructor need for externalization of overlays. Don't use this.
-     * 
+     *
      * @throws SecurityException
      * @throws IllegalArgumentException
-     * 
+     *
      */
     public Overlay() {
         m_elements = new ArrayList<OverlayElement2D<L>>();
@@ -274,7 +275,7 @@ public class Overlay<L extends Comparable<L>> implements EventServiceClient, Ext
     }
 
     /**
-     * 
+     *
      * @param addSegmentID if true, an additional label with a unique id for each segment is added
      * @return
      */
@@ -360,6 +361,7 @@ public class Overlay<L extends Comparable<L>> implements EventServiceClient, Ext
 
     public void fireOverlayChanged() {
         m_eventService.publish(new OverlayChgEvent(this));
+        m_eventService.publish(new ImgRedrawEvent());
     }
 
     @Override

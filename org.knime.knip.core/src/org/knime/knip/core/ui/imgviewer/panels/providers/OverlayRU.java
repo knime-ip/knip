@@ -64,11 +64,12 @@ import net.imglib2.labeling.LabelingType;
 
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorImgAndOverlayChgEvent;
-import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
 import org.knime.knip.core.ui.imgviewer.events.OverlayChgEvent;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
 
 /**
+ * Renders the overlay primitives that affect the currently selected plane in a 2D image.
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -76,29 +77,24 @@ import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
  */
 public class OverlayRU<L extends Comparable<L>> extends AbstractDefaultRU<LabelingType<L>> {
 
-    private static final long serialVersionUID = 1L;
+    /** context that allows to create graphics that fit the environment OS .. */
+    private final GraphicsConfiguration m_graphicsConfig =
+            GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
+
+    /** stores a canvas to allow faster writing if the required size doesn't change
+     *  between two {@link #createImage} calls. */
+    private BufferedImage m_tmpCanvas;
+
+    // event members
 
     private Overlay<L> m_overlay;
 
     private long[] m_srcDims;
 
-    private final GraphicsConfiguration m_graphicsConfig;
-
-    private BufferedImage m_tmpCanvas;
-
-    public OverlayRU() {
-        m_graphicsConfig =
-                GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
-    }
-
     @Override
     public Image createImage() {
-        if (m_overlay == null) {
-            return null;
-        }
-
-        long width = m_srcDims[m_sel.getPlaneDimIndex1()];
-        long height = m_srcDims[m_sel.getPlaneDimIndex2()];
+        long width = m_srcDims[m_planeSelection.getPlaneDimIndex1()];
+        long height = m_srcDims[m_planeSelection.getPlaneDimIndex2()];
 
         if ((m_tmpCanvas == null) || (m_tmpCanvas.getWidth() != width) || (m_tmpCanvas.getHeight() != height)) {
             m_tmpCanvas = m_graphicsConfig.createCompatibleImage((int)width, (int)height, Transparency.TRANSLUCENT);
@@ -107,7 +103,8 @@ public class OverlayRU<L extends Comparable<L>> extends AbstractDefaultRU<Labeli
         g.setColor(Color.white);
         g.fillRect(0, 0, (int)width, (int)height);
 
-        m_overlay.renderBufferedImage(m_tmpCanvas.getGraphics(), m_sel.getDimIndices(), m_sel.getPlanePos(), 255);
+        m_overlay.renderBufferedImage(m_tmpCanvas.getGraphics(), m_planeSelection.getDimIndices(),
+                                      m_planeSelection.getPlanePos(), 255);
 
         return m_tmpCanvas;
     }
@@ -115,25 +112,39 @@ public class OverlayRU<L extends Comparable<L>> extends AbstractDefaultRU<Labeli
     @Override
     public int generateHashCode() {
         int hash = super.generateHashCode();
-        if (m_overlay != null) {
+        if (isActive()) {
             hash += m_overlay.hashCode();
             hash *= 31;
         }
         return hash;
     }
 
+    @Override
+    public boolean isActive() {
+        return (m_overlay == null);
+    }
+
+    //event handling
+
+    /**
+     * @param e update the overlay member.
+     */
     @EventListener
     public void onUpdated(final OverlayChgEvent e) {
         m_overlay = e.getOverlay();
-        m_eventService.publish(new ImgRedrawEvent());
     }
 
+    /**
+     * @param e update overlay member and readout dims of the annotated image.
+     */
     @EventListener
     public void onUpdated(final AnnotatorImgAndOverlayChgEvent e) {
+        m_overlay = e.getOverlay();
         m_srcDims = new long[e.getImg().numDimensions()];
         e.getImg().dimensions(m_srcDims);
-        m_overlay = e.getOverlay();
     }
+
+    //standard methods
 
     @Override
     public void saveAdditionalConfigurations(final ObjectOutput out) throws IOException {
@@ -147,4 +158,5 @@ public class OverlayRU<L extends Comparable<L>> extends AbstractDefaultRU<Labeli
         m_overlay = new Overlay<L>();
         m_overlay.readExternal(in);
     }
+
 }

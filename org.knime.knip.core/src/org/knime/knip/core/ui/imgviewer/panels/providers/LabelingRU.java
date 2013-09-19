@@ -77,43 +77,52 @@ import org.knime.knip.core.ui.imgviewer.events.LabelPanelVisibleLabelsChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelingWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter.Operator;
 
+/*
+ * This class could be likely split into multiple following the one class one responsibility paradigm. However
+ * its closer to the original implementation of the AWTImageProvider descendants.
+ *
+ * TODO split it after a migration phase if the new implementation stays
+ */
 /**
+ * Combined label renderer. Supports label rendering, with filters, with hilite, with color tables with/without strings
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
- * @param <L>
+ *
+ * @param <L> labeling based type of the rendered source
  */
 public class LabelingRU<L extends Comparable<L>> extends AbstractDefaultRU<LabelingType<L>> {
 
-    private static final long serialVersionUID = 1L;
-
-    private int m_colorMapGeneration = RandomMissingColorHandler.getGeneration();
-
-    private Color m_boundingBoxColor = LabelingColorTableUtils.getBoundingBoxColor();
-
+    /** Identifying hashCode of the last rendered image. */
     private int m_hashOfLastRendering;
 
+    /** caches the last rendered labeling as {@link Image}. */
     private Image m_lastImage;
+
+    // event members
+
+    private RandomAccessibleInterval<LabelingType<L>> m_src;
+
+    private LabelingColorTable m_labelingColorMapping;
+
+    private LabelingMapping<L> m_labelMapping;
 
     private Set<String> m_activeLabels;
 
     private Operator m_operator;
 
-    private LabelingMapping<L> m_labelMapping;
+    private int m_colorMapGeneration = RandomMissingColorHandler.getGeneration();
+
+    private Color m_boundingBoxColor = LabelingColorTableUtils.getBoundingBoxColor();
 
     private boolean m_withLabelStrings = false;
 
-    private LabelingColorTable m_labelingColorMapping;
-
-    //hilite
+    /* hilite */
 
     private Set<String> m_hilitedLabels;
 
     private boolean m_isHiliteMode = false;
-
-    //end
-
-    private RandomAccessibleInterval<LabelingType<L>> m_src;
 
     @Override
     public Image createImage() {
@@ -122,6 +131,7 @@ public class LabelingRU<L extends Comparable<L>> extends AbstractDefaultRU<Label
         }
 
         if (m_renderer instanceof RendererWithLabels) {
+            @SuppressWarnings("unchecked")
             final RendererWithLabels<L> r = (RendererWithLabels<L>)m_renderer;
             r.setActiveLabels(m_activeLabels);
             r.setOperator(m_operator);
@@ -141,7 +151,8 @@ public class LabelingRU<L extends Comparable<L>> extends AbstractDefaultRU<Label
         }
 
         final ScreenImage ret =
-                m_renderer.render(m_src, m_sel.getPlaneDimIndex1(), m_sel.getPlaneDimIndex2(), m_sel.getPlanePos());
+                m_renderer.render(m_src, m_planeSelection.getPlaneDimIndex1(), m_planeSelection.getPlaneDimIndex2(),
+                                  m_planeSelection.getPlanePos());
 
         m_hashOfLastRendering = generateHashCode();
         m_lastImage = ret.image();
@@ -152,6 +163,14 @@ public class LabelingRU<L extends Comparable<L>> extends AbstractDefaultRU<Label
     @Override
     public int generateHashCode() {
         int hash = super.generateHashCode();
+        ////////
+        hash += m_src.hashCode();
+        hash *= 31;
+        hash += m_labelingColorMapping.hashCode();
+        hash *= 31;
+        hash += m_labelMapping.hashCode();
+        hash *= 31;
+        ////////
         if (m_activeLabels != null) {
             hash += m_activeLabels.hashCode();
             hash *= 31;
@@ -178,42 +197,66 @@ public class LabelingRU<L extends Comparable<L>> extends AbstractDefaultRU<Label
             hash = (hash * 31) + m_hilitedLabels.hashCode();
         }
         /////////
-        hash += m_src.hashCode();
-        hash *= 31;
-
         return hash;
     }
 
+    @Override
+    public boolean isActive() {
+        return true;
+    }
+
+    //event handling
+
+    /**
+     * @param e updates the stored labeling that is the source of the created image. Also updates
+     *  related member variables.
+     */
     @EventListener
     public void onUpdated(final IntervalWithMetadataChgEvent<LabelingType<L>> e) {
         m_src = e.getRandomAccessibleInterval();
         m_labelMapping = e.getIterableInterval().firstElement().getMapping();
         m_labelingColorMapping =
-                LabelingColorTableUtils.extendLabelingColorTable(((LabelingWithMetadataChgEvent)e)
+                LabelingColorTableUtils.extendLabelingColorTable(((LabelingWithMetadataChgEvent<L>)e)
                         .getLabelingMetaData().getLabelingColorTable(), new RandomMissingColorHandler());
     }
 
+    /**
+     * @param e updates the stored colorMap and boundingBoxColor
+     */
     @EventListener
     public void onLabelColoringChangeEvent(final LabelColoringChangeEvent e) {
         m_colorMapGeneration = e.getColorMapNr();
         m_boundingBoxColor = e.getBoundingBoxColor();
     }
 
+    /**
+     * @param e switches rendering with label string names on/off
+     */
     @EventListener
     public void onLabelOptionsChangeEvent(final LabelOptionsChangeEvent e) {
         m_withLabelStrings = e.getRenderWithLabelStrings();
     }
 
+    /**
+     * stores active labels and filter operators in members.
+     * @param e issued if labels get filtered.
+     */
     @EventListener
     public void onUpdate(final LabelPanelVisibleLabelsChgEvent e) {
         m_activeLabels = e.getLabels();
         m_operator = e.getOperator();
     }
 
+    /**
+     * stores hilited labels in a member.
+     * @param e contains all hilited labels.
+     */
     @EventListener
     public void onUpdated(final HilitedLabelsChgEvent e) {
         m_hilitedLabels = e.getHilitedLabels();
     }
+
+    // standard methods
 
     @Override
     public void saveAdditionalConfigurations(final ObjectOutput out) throws IOException {
@@ -227,5 +270,6 @@ public class LabelingRU<L extends Comparable<L>> extends AbstractDefaultRU<Label
         super.loadAdditionalConfigurations(in);
         m_activeLabels = (Set<String>)in.readObject();
     }
+
 
 }

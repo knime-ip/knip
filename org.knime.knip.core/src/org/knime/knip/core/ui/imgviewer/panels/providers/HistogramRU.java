@@ -56,7 +56,6 @@ import java.io.ObjectOutput;
 
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.histogram.Histogram1d;
-import net.imglib2.img.Img;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.iterableinterval.unary.MakeHistogram;
@@ -71,30 +70,28 @@ import org.knime.knip.core.ui.imgviewer.events.IntervalWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
 
 /**
+ * Generates the image of a histogram from a source image.
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  *
- * @param T
+ * @param <T>
  */
 public class HistogramRU<T extends RealType<T>> implements RenderUnit {
 
-    private static final long serialVersionUID = 1L;
-
-    private final int m_histHeight;
-
-    /**
-     * {@link PlaneSelectionEvent} indicating the current plane coordinates in the {@link Img} which will be rendered
-     */
-    private PlaneSelectionEvent m_sel;
-
-    private RandomAccessibleInterval<T> m_src;
+    //event members
 
     private EventService m_eventService;
 
+    private final int m_histHeight;
+
+    private PlaneSelectionEvent m_planeSelection;
+
+    private RandomAccessibleInterval<T> m_src;
+
     /**
-     *
-     * @param histHeight
+     * @param histHeight sets the default value for the height of the created histograms
      */
     public HistogramRU(final int histHeight) {
         m_histHeight = histHeight;
@@ -104,10 +101,10 @@ public class HistogramRU<T extends RealType<T>> implements RenderUnit {
     public Image createImage() {
         final Histogram1d<T> hist =
                 Operations.compute(new MakeHistogram<T>(),
-                                   Views.iterable(SubsetOperations.subsetview(m_src, m_sel.getInterval(m_src))));
+                                   Views.iterable(SubsetOperations.subsetview(m_src,
+                                                                              m_planeSelection.getInterval(m_src))));
         m_eventService.publish(new HistogramChgEvent(hist));
         return AWTImageTools.drawHistogram(hist.toLongArray(), m_histHeight);
-
     }
 
     /**
@@ -116,7 +113,7 @@ public class HistogramRU<T extends RealType<T>> implements RenderUnit {
     @Override
     public int generateHashCode() {
         int hash = 31;
-        hash += m_sel.hashCode();
+        hash += m_planeSelection.hashCode();
         hash *= 31;
         hash += m_src.hashCode();
         hash *= 31;
@@ -124,25 +121,28 @@ public class HistogramRU<T extends RealType<T>> implements RenderUnit {
         return hash;
     }
 
+    @Override
+    public boolean isActive() {
+        return true;
+    }
+
+    //event handling
+
     /**
-     * {@link EventListener} for {@link PlaneSelectionEvent} events The {@link PlaneSelectionEvent} of the
-     * {@link AWTImageTools} will be updated
-     *
-     * Renders and caches the image
-     *
-     * @param img {@link Img} to render
-     * @param sel {@link PlaneSelectionEvent}
+     * @param sel updates the member for currently selected planes
      */
     @EventListener
     public void onPlaneSelectionUpdate(final PlaneSelectionEvent sel) {
-        m_sel = sel;
+        m_planeSelection = sel;
     }
 
+    /**
+     * @param e updates the source member (source image is used to calculate the histogram)
+     */
     @EventListener
     public void onUpdated(final IntervalWithMetadataChgEvent<T> e) {
         m_src = e.getRandomAccessibleInterval();
     }
-
 
     //standard methods
 
@@ -170,5 +170,4 @@ public class HistogramRU<T extends RealType<T>> implements RenderUnit {
     public void loadAdditionalConfigurations(final ObjectInput in) throws IOException, ClassNotFoundException {
         //nothing to do here
     }
-
 }

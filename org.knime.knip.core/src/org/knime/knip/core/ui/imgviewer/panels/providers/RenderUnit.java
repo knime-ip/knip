@@ -57,6 +57,15 @@ import java.io.ObjectOutput;
 import org.knime.knip.core.ui.event.EventService;
 
 /**
+ * Encapsulates a (parameter) state and allows to create an image from a given state. Parameters
+ * (normalization / source /...) are retrieved by listening to the {@link EventService} and can change.
+ * A {@link RenderUnit} listens to changes of all parameters that are important for the creation of its
+ * {@link Image}, creates a {@link Image} if asked and provides a hashCode that summarizes its sate.<br>
+ * <br>
+ * The contract is that if the {@link #generateHashCode() hashCode} changes {@link #createImage()
+ * createImage} will return a different image. <br><br>
+ * RenderUnits may store their current state (helps to support an unbroken UI experience even if
+ * the View is closed/opened multiple times)
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -65,33 +74,44 @@ import org.knime.knip.core.ui.event.EventService;
 public interface RenderUnit {
 
     /**
-     * @return renders something (e.g. a labeling) into an java image.
+     * Renders something (e.g. a labeling) into a {@link Image}. White will be treated as
+     * transparent color during blending!
+     * @return the created image.
      */
     public Image createImage();
 
     /**
-     * @return a hashcode that represents the complete state that leads to the image
-     * created by {@link createImage}. (I.e. if the hashcode is the same the resulting image is the same)
+     * Returns a hashCode that represents the complete state that leads to the image
+     * created by {@link #createImage}. (I.e. if the hashCode is the same the resulting image is the same) <br>
+     * <br>
+     * the hashCode should be created like this:  super.hashCode + object1.hashCode * 31 + object2.hashCode * 31
+     *
+     * @return hashCode that identifies the image created by {@link #createImage()}
      */
     public int generateHashCode();
 
     /**
-     * @param service registers at the provided service
+     * @return false => createImage won't produce something useful given the current (parameter) state
+     */
+    public boolean isActive();
+
+    /**
+     * @param service registers at the provided service to listen to parameter changes.
      */
     public void setEventService(EventService service);
 
     /**
-     * allows RenderUnits to save additional configurations to out (e.g. the used renderer)
-     * @param out
-     * @throws IOException
+     * allows RenderUnits to save additional configurations to out (e.g. used normalization parameter)
+     * @param out written to this output object
+     * @throws IOException in case something doesn't work
      */
     public void saveAdditionalConfigurations(final ObjectOutput out) throws IOException;
 
     /**
-     * allows RenderUnits to load additional configurations from in (e.g. the used renderer)
-     * @param in
-     * @throws IOException
-     * @throws ClassNotFoundException
+     * allows RenderUnits to load additional configurations from in (e.g. used normalization parameter)
+     * @param in read your state from here
+     * @throws IOException in case IO problems occur
+     * @throws ClassNotFoundException if something (with Reflection) wen't wrong during recreation of e.g. a renderer
      */
     public void loadAdditionalConfigurations(final ObjectInput in) throws IOException, ClassNotFoundException;
 }

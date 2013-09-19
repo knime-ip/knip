@@ -49,15 +49,12 @@
  */
 package org.knime.knip.core.ui.imgviewer.panels.providers;
 
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import net.imglib2.img.Img;
 import net.imglib2.type.Type;
 
-import org.knime.knip.core.awt.AWTImageTools;
 import org.knime.knip.core.awt.ImageRenderer;
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
@@ -65,67 +62,35 @@ import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
 import org.knime.knip.core.ui.imgviewer.events.RendererSelectionChgEvent;
 
 /**
+ * Default implementation for {@link RenderUnit}s that depend on {@link ImageRenderer} and PlaneSelection events.
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <T> defines the type of the {@link ImageRenderer}
  */
 public abstract class AbstractDefaultRU<T extends Type<T>> implements RenderUnit {
 
-    /**
-     * {@link PlaneSelectionEvent} indicating the current plane coordinates in the {@link Img} which will be rendered
-     */
-    protected PlaneSelectionEvent m_sel;
 
+    // event members
+
+    /** holds the currently selected plane position. */
+    protected PlaneSelectionEvent m_planeSelection;
+
+    /** holds the currently selected renderer. */
     protected ImageRenderer<T> m_renderer;
 
+    /** holds the {@link EventService} this {@link RenderUnit} is registered at. */
     protected EventService m_eventService;
-
-    /**
-     * {@link EventListener} for {@link PlaneSelectionEvent} events The {@link PlaneSelectionEvent} of the
-     * {@link AWTImageTools} will be updated
-     *
-     * Renders and caches the image
-     *
-     * @param img {@link Img} to render
-     * @param sel {@link PlaneSelectionEvent}
-     */
-    @EventListener
-    public void onPlaneSelectionUpdate(final PlaneSelectionEvent sel) {
-        m_sel = sel;
-    }
-
-    /**
-     *
-     * Renders and caches the image
-     *
-     * @param renderer {@link ImgRenderer} which will be used to render the {@link BufferedImage}
-     *
-     */
-    @EventListener
-    public void onRendererUpdate(final RendererSelectionChgEvent e) {
-        m_renderer = e.getRenderer();
-    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setEventService(final EventService service) {
-        m_eventService = service;
-        service.subscribe(this);
-    }
-
-    /**
-     * Generates a hashcode according to the parameters of {@link PlaneSelectionEvent}, and {@link ImgRenderer}.
-     *
-     * HashCode is generated as hash = 31 + object.hashCode()*31 + object.hashCode()*31 ...
-     *
-     * @return HashCode
-     */
-    @Override
     public int generateHashCode() {
         int hash = 31;
-        hash += m_sel.hashCode();
+        hash += m_planeSelection.hashCode();
         hash *= 31;
         hash += m_renderer.getClass().hashCode();
         hash *= 31;
@@ -134,6 +99,28 @@ public abstract class AbstractDefaultRU<T extends Type<T>> implements RenderUnit
 
         return hash;
     }
+
+    // event handling
+
+    /**
+     * stores the current planeSelection in a member.
+     * @param sel {@link PlaneSelectionEvent}
+     */
+    @EventListener
+    public void onPlaneSelectionUpdate(final PlaneSelectionEvent sel) {
+        m_planeSelection = sel;
+    }
+
+    /**
+     * stores the currently active renderer in a member.
+     * @param e contains a {@link ImageRenderer}
+     */
+    @EventListener
+    public void onRendererUpdate(final RendererSelectionChgEvent e) {
+        m_renderer = e.getRenderer();
+    }
+
+    //standard methods
 
     /**
      * {@inheritDoc}
@@ -150,4 +137,13 @@ public abstract class AbstractDefaultRU<T extends Type<T>> implements RenderUnit
     public void loadAdditionalConfigurations(final ObjectInput in) throws IOException, ClassNotFoundException {
         //TODO should the selected renderer be saved?
     }
+
+    /**
+    * {@inheritDoc}
+    */
+   @Override
+   public void setEventService(final EventService service) {
+       m_eventService = service;
+       service.subscribe(this);
+   }
 }
