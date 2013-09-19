@@ -68,6 +68,7 @@ import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.events.HistogramChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.IntervalWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
+import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 
 /**
  * Generates the image of a histogram from a source image.
@@ -142,6 +143,15 @@ public class HistogramRU<T extends RealType<T>> implements RenderUnit {
     @EventListener
     public void onUpdated(final IntervalWithMetadataChgEvent<T> e) {
         m_src = e.getRandomAccessibleInterval();
+    }
+
+    /**
+     * set all members that could hold expensive references to null to allow storage clean ups.
+     * @param event marker event
+     */
+    @EventListener
+    public void onClose(final ViewClosedEvent event) {
+        m_src = null;
     }
 
     //standard methods

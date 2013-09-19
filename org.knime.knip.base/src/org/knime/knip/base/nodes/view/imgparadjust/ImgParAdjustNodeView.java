@@ -229,10 +229,12 @@ public class ImgParAdjustNodeView<T extends RealType<T>> extends NodeView<ImgPar
 
         final int row = m_tableContentView.getSelectionModel().getLeadSelectionIndex();
         final int col = m_tableContentView.getColumnModel().getSelectionModel().getLeadSelectionIndex();
-        final ImgPlus<T> imgPlus =
-                ((ImgPlusValue<T>)m_tableContentView.getContentModel().getValueAt(row, col)).getImgPlus();
-        m_imgViewer.setImg(imgPlus);
 
+        if (m_tableContentView.getContentModel().getValueAt(row, col) instanceof ImgPlusValue) {
+            final ImgPlus<T> imgPlus =
+                    ((ImgPlusValue<T>)m_tableContentView.getContentModel().getValueAt(row, col)).getImgPlus();
+            m_imgViewer.setImg(imgPlus);
+        }
     }
 
     /**

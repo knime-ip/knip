@@ -65,6 +65,7 @@ import net.imglib2.labeling.LabelingType;
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorImgAndOverlayChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.OverlayChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
 
 /**
@@ -143,6 +144,17 @@ public class OverlayRU<L extends Comparable<L>> extends AbstractDefaultRU<Labeli
         m_srcDims = new long[e.getImg().numDimensions()];
         e.getImg().dimensions(m_srcDims);
     }
+
+    /**
+     * set all members that could hold expensive references to null or resets them to allow storage clean ups.
+     * @param event marker event
+     */
+    @EventListener
+    public void onClose2(final ViewClosedEvent event) {
+        m_tmpCanvas = null;
+        m_overlay = null;
+    }
+
 
     //standard methods
 

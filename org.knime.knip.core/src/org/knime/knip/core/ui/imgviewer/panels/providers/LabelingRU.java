@@ -76,6 +76,7 @@ import org.knime.knip.core.ui.imgviewer.events.LabelOptionsChangeEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelPanelVisibleLabelsChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelingWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter.Operator;
+import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 
 /*
  * This class could be likely split into multiple following the one class one responsibility paradigm. However
@@ -254,6 +255,16 @@ public class LabelingRU<L extends Comparable<L>> extends AbstractDefaultRU<Label
     @EventListener
     public void onUpdated(final HilitedLabelsChgEvent e) {
         m_hilitedLabels = e.getHilitedLabels();
+    }
+
+    /**
+     * set all members that could hold expensive references to null or resets them to allow storage clean ups.
+     * @param event marker event
+     */
+    @EventListener
+    public void onClose2(final ViewClosedEvent event) {
+        m_lastImage = null;
+        m_src = null;
     }
 
     // standard methods

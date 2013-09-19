@@ -130,7 +130,7 @@ public class AWTImageProvider extends HiddenViewerComponent {
 
     private EventService m_eventService;
 
-    private PlaneSelectionEvent m_planeSelectionEvent;
+    private PlaneSelectionEvent m_planeSelection;
 
     private ImageRenderer<?> m_renderer;
 
@@ -254,6 +254,9 @@ public class AWTImageProvider extends HiddenViewerComponent {
      */
     private int generateHashCode() {
         int hash = 31;
+        hash += m_transparency;
+        hash *= 31;
+
         for (RenderUnit ru : m_renderUnits) {
             hash += ru.generateHashCode();
             hash *= 31;
@@ -274,7 +277,7 @@ public class AWTImageProvider extends HiddenViewerComponent {
         final long[] dims = new long[e.getRandomAccessibleInterval().numDimensions()];
         e.getRandomAccessibleInterval().dimensions(dims);
 
-        if ((m_planeSelectionEvent == null) || !isInsideDims(m_planeSelectionEvent.getPlanePos(), dims)) {
+        if ((m_planeSelection == null) || !isInsideDims(m_planeSelection.getPlanePos(), dims)) {
             //publish if necessary
             m_eventService.publish(new PlaneSelectionEvent(0, 1, new long[e.getRandomAccessibleInterval()
                     .numDimensions()]));
@@ -381,7 +384,7 @@ public class AWTImageProvider extends HiddenViewerComponent {
      */
     @EventListener
     public void onPlaneSelectionUpdate(final PlaneSelectionEvent sel) {
-        m_planeSelectionEvent = sel;
+        m_planeSelection = sel;
     }
 
     /**
@@ -403,7 +406,6 @@ public class AWTImageProvider extends HiddenViewerComponent {
     public void onUpdate(final TransparencyPanelValueChgEvent e) {
         m_transparency = e.getTransparency();
     }
-
 
     //HiddenViewerComponent methods
 

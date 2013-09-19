@@ -70,6 +70,7 @@ import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.imgviewer.events.ImgAndLabelingChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.NormalizationParametersChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 import org.knime.knip.core.ui.imgviewer.panels.transfunc.LookupTableChgEvent;
 
 /*
@@ -249,6 +250,16 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
     @EventListener
     public void onImageUpdated(final ImgAndLabelingChgEvent<T, ?> e) {
         m_src = e.getRandomAccessibleInterval();
+    }
+
+    /**
+     * set all members that could hold expensive references to null or resets them to allow storage clean ups.
+     * @param event marker event
+     */
+    @EventListener
+    public void onClose2(final ViewClosedEvent event) {
+        m_lastImage = null;
+        m_src = null;
     }
 
     //standard methods

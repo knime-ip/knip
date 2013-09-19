@@ -70,6 +70,7 @@ import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.events.IntervalWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.NormalizationParametersChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ThresholdValChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 
 /**
  * Renders either the original image using a selected renderer or the thresholded image.
@@ -163,6 +164,15 @@ public class ThresholdRU<T extends RealType<T>> extends AbstractDefaultRU<BitTyp
     @EventListener
     public void onUpdated(final NormalizationParametersChgEvent normalizationParameters) {
         m_normalizationParameters = normalizationParameters;
+    }
+
+    /**
+     * set all members that could hold expensive references to null or resets them to allow storage clean ups.
+     * @param event marker event
+     */
+    @EventListener
+    public void onClose2(final ViewClosedEvent event) {
+        m_src = null;
     }
 
     //standard methods
