@@ -65,6 +65,7 @@ import org.knime.knip.core.ui.imgviewer.panels.infobars.LabelingViewInfoPanel;
 import org.knime.knip.core.ui.imgviewer.panels.providers.AWTImageProvider;
 import org.knime.knip.core.ui.imgviewer.panels.providers.HistogramRU;
 import org.knime.knip.core.ui.imgviewer.panels.providers.ImageRU;
+import org.knime.knip.core.ui.imgviewer.panels.providers.LabelingRU;
 import org.knime.knip.core.ui.imgviewer.panels.transfunc.PlaneSelectionTFCDataProvider;
 import org.knime.knip.core.ui.imgviewer.panels.transfunc.TransferFunctionControlPanel;
 
@@ -125,7 +126,7 @@ public class ViewerFactory {
     public static <L extends Comparable<L>> ImgViewer createLabelingViewer(final int cacheSize) {
         final ImgViewer viewer = new ImgViewer();
 
-     //   new LabelingBufferedImageProvider<L>(cacheSize).setEventService(viewer.getEventService());
+        new AWTImageProvider(cacheSize, new LabelingRU<L>()).setEventService(viewer.getEventService());
 
         viewer.addViewerComponent(new LabelingViewInfoPanel<L>());
 

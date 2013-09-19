@@ -177,6 +177,9 @@ public class LabelingRU<L extends Comparable<L>> extends CommonViewRU {
         if ((m_hilitedLabels != null)) {
             hash = (hash * 31) + m_hilitedLabels.hashCode();
         }
+        /////////
+        hash += m_src.hashCode();
+        hash *= 31;
 
         return hash;
     }
