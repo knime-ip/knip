@@ -79,7 +79,9 @@ public interface RenderUnit {
      * Returns a hashCode that represents the complete state that leads to the image
      * created by {@link #createImage}. (I.e. if the hashCode is the same the resulting image is the same) <br>
      * <br>
-     * the hashCode should be created like this:  super.hashCode + object1.hashCode * 31 + object2.hashCode * 31
+     * the hashCode should be created like this:  super.hashCode + object1.hashCode * 31 + object2.hashCode * 31<br>
+     * <br>
+     * IMPORTANT: hashCode generation has to be fast! (the hashCode is used for caching decisions)
      *
      * @return hashCode that identifies the image created by {@link #createImage()}
      */

@@ -48,10 +48,6 @@ package org.knime.knip.core.ui.imgviewer.panels.providers;
  * ------------------------------------------------------------------------
  *
  */
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -71,7 +67,6 @@ import net.imglib2.view.Views;
 import org.knime.knip.core.awt.ImageRenderer;
 import org.knime.knip.core.awt.Real2ColorByLookupTableRenderer;
 import org.knime.knip.core.awt.RendererFactory;
-import org.knime.knip.core.awt.Transparency;
 import org.knime.knip.core.data.LRUCache;
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
@@ -82,7 +77,6 @@ import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
 import org.knime.knip.core.ui.imgviewer.events.RendererSelectionChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ResetCacheEvent;
 import org.knime.knip.core.ui.imgviewer.events.SetCachingEvent;
-import org.knime.knip.core.ui.imgviewer.events.TransparencyPanelValueChgEvent;
 import org.knime.knip.core.ui.imgviewer.panels.HiddenViewerComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,8 +128,6 @@ public class AWTImageProvider extends HiddenViewerComponent {
 
     private ImageRenderer<?> m_renderer;
 
-    private Integer m_transparency = 128;
-
     //
 
     /** {@link LRUCache} managing the cache of the rendered {@link Image}s. */
@@ -147,32 +139,25 @@ public class AWTImageProvider extends HiddenViewerComponent {
     /** size of the {@link LRUCache}. */
     private int m_cacheSize;
 
-    /** each rendering unit produces a {@link Image} and all {@link Image}s get blended for
-     * together to produce the final outcome. */
-    private RenderUnit[] m_renderUnits;
+    /** the render unit that is used to create the image result. */
+    private RenderUnit m_renderUnit;
 
-    /** a graphic context that fits the current environment (OS ...) and can be used to create images. */
-    private GraphicsConfiguration m_graphicsConfig;
 
     /**
      * Creates a new AWTImageProviders that uses different parameters from the {@link EventService} to create
-     * images using its associated {@link RenderUnit}s. The images are blended together and put in a cache
-     * for efficient image management.
+     * images using its associated {@link RenderUnit}.
      *
+     * @param ru the {@link RenderUnit} that creates the images
      * @param cacheSize The number of {@link Image}s being cached using the {@link LRUCache}. A cache size < 2
      *            indicates, that caching is inactive
-     * @param renderUnits the created images of the renderUnits are blended together to create the
-     *  result {@link Image} of the provider.
      */
-    public AWTImageProvider(final int cacheSize, final RenderUnit... renderUnits) {
+    public AWTImageProvider(final int cacheSize, final RenderUnit ru) {
         if (cacheSize > 1) {
             m_awtImageCache = new LRUCache<Integer, SoftReference<Image>>(cacheSize);
         }
         m_cacheSize = cacheSize;
         m_isCachingActive = cacheSize > 1;
-        m_renderUnits = renderUnits;
-        m_graphicsConfig =
-                GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
+        m_renderUnit = ru;
     }
 
 
@@ -184,14 +169,14 @@ public class AWTImageProvider extends HiddenViewerComponent {
         Image awtImage = null;
         if (m_isCachingActive) {
 
-            final int hash = generateHashCode();
+            final int hash = (31 + m_renderUnit.generateHashCode());
             final SoftReference<Image> ref = m_awtImageCache.get(hash);
             if (ref != null) {
                 awtImage = ref.get();
             }
 
             if (awtImage == null) {
-                awtImage = createImage();
+                awtImage = m_renderUnit.createImage();
 
                 m_awtImageCache.put(hash, new SoftReference<Image>(awtImage));
                 LOGGER.info("Caching Image ... (" + m_awtImageCache.usedEntries() + ")");
@@ -200,70 +185,12 @@ public class AWTImageProvider extends HiddenViewerComponent {
             }
 
         } else {
-            awtImage = createImage();
+            awtImage = m_renderUnit.createImage();
         }
 
         m_eventService.publish(new AWTImageChgEvent(awtImage));
     }
 
-    /**
-     * Creates a blended image, that consists of the result {@link Image}s of the active {@link RenderUnit}s. The parts
-     * are joined using the transparency value from the last {@link TransparencyPanelValueChgEvent}.
-     *
-     * @return blended {@link Image}
-     */
-    private Image createImage() {
-        int i = 0;
-
-        //forward to the first active image
-        while (i < m_renderUnits.length) {
-            if (m_renderUnits[i].isActive()) {
-                break;
-            }
-            i++;
-        }
-
-        if (i < m_renderUnits.length) {
-            //at least one active image
-            Image img = m_renderUnits[0].createImage();
-            Image joinedImg =
-                    m_graphicsConfig.createCompatibleImage(img.getWidth(null), img.getHeight(null),
-                                                           java.awt.Transparency.TRANSLUCENT);
-            Graphics g = joinedImg.getGraphics();
-            g.drawImage(img, 0, 0, null);
-
-            //blend in the other active images
-            while (i < m_renderUnits.length) {
-                if (m_renderUnits[i].isActive()) {
-                    g.drawImage(Transparency.makeColorTransparent(m_renderUnits[i].createImage(),
-                                                                  Color.WHITE, m_transparency), 0, 0, null);
-                }
-                i++;
-            }
-
-            return joinedImg;
-        } else {
-            //no active renderer create dummy image
-            return m_graphicsConfig.createCompatibleImage(100, 100);
-        }
-    }
-
-    /**
-     * @return combined HashCode of all {@link RenderUnit}s. By contract that allows to identify
-     * images generated by {@link #createImage()} including all parameters that have influence on the creation.
-     */
-    private int generateHashCode() {
-        int hash = 31;
-        hash += m_transparency;
-        hash *= 31;
-
-        for (RenderUnit ru : m_renderUnits) {
-            hash += ru.generateHashCode();
-            hash *= 31;
-        }
-
-        return hash;
-    }
 
     /**
      * Publishes a {@link RendererSelectionChgEvent} with a new suitable {@link ImageRenderer} if the
@@ -396,16 +323,6 @@ public class AWTImageProvider extends HiddenViewerComponent {
         m_renderer = e.getRenderer();
     }
 
-    /**
-     * The transparency value determines how the {@link Image}s of multiple {@link RenderUnit}s
-     * get blended together.
-     *
-     * @param e transparency value used for blending
-     */
-    @EventListener
-    public void onUpdate(final TransparencyPanelValueChgEvent e) {
-        m_transparency = e.getTransparency();
-    }
 
     //HiddenViewerComponent methods
 
@@ -416,9 +333,7 @@ public class AWTImageProvider extends HiddenViewerComponent {
     public void setEventService(final EventService eventService) {
         m_eventService = eventService;
         eventService.subscribe(this);
-        for (RenderUnit ru : m_renderUnits) {
-            ru.setEventService(m_eventService);
-        }
+        m_renderUnit.setEventService(eventService);
     }
 
     @Override

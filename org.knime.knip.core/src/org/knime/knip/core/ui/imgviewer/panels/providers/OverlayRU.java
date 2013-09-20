@@ -57,7 +57,6 @@ import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 
 import net.imglib2.labeling.LabelingType;
-import net.imglib2.type.numeric.RealType;
 
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
@@ -77,7 +76,7 @@ import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
  * @param <L>
  * @param <T>
  */
-public class OverlayRU<T extends RealType<T>, L extends Comparable<L>> extends AbstractDefaultRU<LabelingType<L>> {
+public class OverlayRU<L extends Comparable<L>> extends AbstractDefaultRU<LabelingType<L>> {
 
     /** context that allows to create graphics that fit the environment OS .. */
     private final GraphicsConfiguration m_graphicsConfig = GraphicsEnvironment.getLocalGraphicsEnvironment()
@@ -89,7 +88,8 @@ public class OverlayRU<T extends RealType<T>, L extends Comparable<L>> extends A
      */
     private BufferedImage m_tmpCanvas;
 
-    private ImageRU<T> m_backgroundImageRenderer = new ImageRU<T>();
+    /** the background renderer is used to create the image beneath the overlay primitives. */
+    private RenderUnit m_backgroundRenderer;
 
     // event members
 
@@ -98,6 +98,13 @@ public class OverlayRU<T extends RealType<T>, L extends Comparable<L>> extends A
     private long[] m_srcDims;
 
     private int m_transparency = 128;
+
+    /**
+     * @param ru {@link RenderUnit} for background rendering. Overlay images are applied on top of it.
+     */
+    public OverlayRU(final RenderUnit ru) {
+        m_backgroundRenderer = ru;
+    }
 
     @Override
     public Image createImage() {
@@ -108,7 +115,7 @@ public class OverlayRU<T extends RealType<T>, L extends Comparable<L>> extends A
             m_tmpCanvas = m_graphicsConfig.createCompatibleImage((int)width, (int)height, Transparency.TRANSLUCENT);
         }
         Graphics g = m_tmpCanvas.getGraphics();
-        g.drawImage(m_backgroundImageRenderer.createImage(), 0, 0, null);
+        g.drawImage(m_backgroundRenderer.createImage(), 0, 0, null);
 
         m_overlay.renderBufferedImage(g, m_planeSelection.getDimIndices(), m_planeSelection.getPlanePos(),
                                       m_transparency);
@@ -122,13 +129,15 @@ public class OverlayRU<T extends RealType<T>, L extends Comparable<L>> extends A
         if (isActive()) {
             hash += m_overlay.hashCode();
             hash *= 31;
+            hash += m_backgroundRenderer.generateHashCode();
+            hash *= 31;
         }
         return hash;
     }
 
     @Override
     public boolean isActive() {
-        return (m_overlay != null);
+        return (m_overlay != null && m_backgroundRenderer.isActive());
     }
 
     //event handling
@@ -170,7 +179,6 @@ public class OverlayRU<T extends RealType<T>, L extends Comparable<L>> extends A
     public void onClose2(final ViewClosedEvent event) {
         m_tmpCanvas = null;
         m_overlay = null;
-        m_backgroundImageRenderer = new ImageRU<T>();
     }
 
     //standard methods
@@ -181,7 +189,7 @@ public class OverlayRU<T extends RealType<T>, L extends Comparable<L>> extends A
     @Override
     public void setEventService(final EventService service) {
         super.setEventService(service);
-        m_backgroundImageRenderer.setEventService(service);
+        m_backgroundRenderer.setEventService(service);
     }
 
 }
