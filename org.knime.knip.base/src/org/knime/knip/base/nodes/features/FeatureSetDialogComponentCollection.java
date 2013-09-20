@@ -87,12 +87,14 @@ import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
  * {@link FeatureSetDialogComponentCollection#addDialogComponent(String, DialogComponent)} will be added to a
  * configuration pane of a feature set (identified by a String).
  *
+ * PENDING CODE. Subject to changes!
+ *
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-class FeatureSetDialogComponentCollection {
+public class FeatureSetDialogComponentCollection {
 
     private final SettingsModelStringArray m_activeFeatureSetSettings;
 
