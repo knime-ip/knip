@@ -139,7 +139,7 @@ public class ShapeDescriptorFeatureSetProvider implements
         // select the appropriate features
         final String[] selectedFeatures = m_fouriershapeFeat.getStringArrayValue();
 
-        final List<FeatureSet> featSets = new ArrayList<FeatureSet>(3);
+        final List<FeatureSet> featSets = new ArrayList<FeatureSet>(2);
 
         for (int i = 0; i < selectedFeatures.length; i++) {
             switch (ShapeDescriptors.valueOf(selectedFeatures[i])) {

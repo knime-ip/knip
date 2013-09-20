@@ -116,18 +116,18 @@ import org.knime.knip.core.util.MiscViews;
  * A abstract node model, which allows to calculate arbitrary features on {@link IterableInterval}s. That intervals can
  * be either derived from a single image, from a single segments of a labeling or from segments and the according source
  * image toghether (region of interest).
- * 
+ *
  * Subclasses basically only need to specify the type on what the features should be calculated (image, labeling,
  * image_and_labeling) which determines whether to select only an image column, only a labeling column, or an image and
  * a labeling column in the configuration dialog.
- * 
+ *
  * The method {@link IntervalFeatureSetNodeModel#getFeatureSetProviders()}, to be overwritten in the subclasses,
  * determines the available features sets (which provide additional dialog components to configure the features, and
  * actually calculates the feature values).
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
  * @param <L>
  * @param <T>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
@@ -199,7 +199,7 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
     /**
      * @param type the feature type, i.e. which objects are needed to calculate the features: there are either a single
      *            image, image AND labeling or only a labeling
-     * 
+     *
      */
     protected IntervalFeatureSetNodeModel(final FeatureType type,
                                           final FeatureSetProvider<ValuePair<IterableInterval<T>, CalibratedSpace>>[] fsetProviders) {
@@ -315,11 +315,9 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
             final List<DataCell> cells = new ArrayList<DataCell>();
             if (m_type == FeatureType.IMAGE) {
                 img = ((ImgPlusValue<T>)imgCell).getImgPlus();
-                for (final FeatureSetProvider<ValuePair<IterableInterval<T>, CalibratedSpace>> featFacWrapper : m_featSetProviders) {
-                    if (isFeatureSetActive(featFacWrapper.getFeatureSetName())) {
-                        featFacWrapper
-                                .calcAndAddFeatures(new ValuePair<IterableInterval<T>, CalibratedSpace>(img, img),
-                                                    cells);
+                for (final FeatureSetProvider<ValuePair<IterableInterval<T>, CalibratedSpace>> featSet : m_featSetProviders) {
+                    if (isFeatureSetActive(featSet.getFeatureSetId())) {
+                        featSet.calcAndAddFeatures(new ValuePair<IterableInterval<T>, CalibratedSpace>(img, img), cells);
                     }
                 }
                 exec.setProgress(i++ / count, "Calculated features for row " + row.getKey().toString());
@@ -435,9 +433,9 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
                     cells.add(new StringCell(buf.toString()));
                 }
 
-                for (final FeatureSetProvider<ValuePair<IterableInterval<T>, CalibratedSpace>> featFacWrapper : m_featSetProviders) {
-                    if (isFeatureSetActive(featFacWrapper.getFeatureSetName())) {
-                        featFacWrapper
+                for (final FeatureSetProvider<ValuePair<IterableInterval<T>, CalibratedSpace>> featSet : m_featSetProviders) {
+                    if (isFeatureSetActive(featSet.getFeatureSetId())) {
+                        featSet
                                 .calcAndAddFeatures(new ValuePair<IterableInterval<T>, CalibratedSpace>(ii, mdata),
                                                     cells);
                     }
@@ -504,9 +502,9 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
                 specs.add(new DataColumnSpecCreator("LabelDependencies", StringCell.TYPE).createSpec());
             }
         }
-        for (final FeatureSetProvider<ValuePair<IterableInterval<T>, CalibratedSpace>> featFactoryWrapper : m_featSetProviders) {
-            if (isFeatureSetActive(featFactoryWrapper.getFeatureSetName())) {
-                featFactoryWrapper.initAndAddColumnSpecs(specs);
+        for (final FeatureSetProvider<ValuePair<IterableInterval<T>, CalibratedSpace>> featSet : m_featSetProviders) {
+            if (isFeatureSetActive(featSet.getFeatureSetId())) {
+                featSet.initAndAddColumnSpecs(specs);
             }
         }
 
@@ -520,9 +518,9 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
      * @return true, if the specified feature set is marked as active in the
      * dialog
      */
-    private boolean isFeatureSetActive(final String featureSetName) {
+    private boolean isFeatureSetActive(final String featureSetId) {
         for (final String s : m_activeFeatureSets.getStringArrayValue()) {
-            if (featureSetName.equals(s)) {
+            if (featureSetId.equals(s)) {
                 return true;
             }
         }
