@@ -60,6 +60,7 @@ import net.imglib2.labeling.LabelingType;
 
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
+import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorResetEvent;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorImgAndOverlayChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.OverlayChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.TransparencyPanelValueChgEvent;
@@ -179,6 +180,18 @@ public class OverlayRU<L extends Comparable<L>> extends AbstractDefaultRU<Labeli
     public void onClose2(final ViewClosedEvent event) {
         m_tmpCanvas = null;
         m_overlay = null;
+    }
+
+    /**
+     * @param event  {@link #onClose2()}
+     */
+    @EventListener
+    public void onAnnotatorReset(final AnnotatorResetEvent event) {
+        //we need this because annotators are currently placed in dialogs. Unlike views dialogs
+        //are not recreated on reopening. Therefore annotators can't use the ViewClosedEvent that
+        //destroys some of the ViewerComponents (on a view they would be recreated).
+        //=> RenderUnits listen to AnnotatorResetEvents as well
+        onClose2(new ViewClosedEvent());
     }
 
     //standard methods

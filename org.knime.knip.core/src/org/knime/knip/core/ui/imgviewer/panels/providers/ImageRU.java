@@ -64,6 +64,7 @@ import org.knime.knip.core.awt.parametersupport.RendererWithColorTable;
 import org.knime.knip.core.awt.parametersupport.RendererWithLookupTable;
 import org.knime.knip.core.awt.parametersupport.RendererWithNormalization;
 import org.knime.knip.core.ui.event.EventListener;
+import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorResetEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgAndLabelingChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.NormalizationParametersChgEvent;
@@ -98,7 +99,7 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
         }
     }
 
-    /** Identifying hashCode of the last rendered image.*/
+    /** Identifying hashCode of the last rendered image. */
     private int m_hashOfLastRendering;
 
     /** caches the last rendered image. */
@@ -185,20 +186,22 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
     @Override
     public int generateHashCode() {
         int hash = super.generateHashCode();
-        hash += m_normalizationParameters.hashCode();
-        hash *= 31;
-        hash += m_src.hashCode();
-        hash *= 31;
-        hash += m_lookupTable.hashCode();
-        hash *= 31;
-        hash += m_colorTables.hashCode();
-        hash *= 31;
+        if (isActive()) {
+            hash += m_normalizationParameters.hashCode();
+            hash *= 31;
+            hash += m_src.hashCode();
+            hash *= 31;
+            hash += m_lookupTable.hashCode();
+            hash *= 31;
+            hash += m_colorTables.hashCode();
+            hash *= 31;
+        }
         return hash;
     }
 
     @Override
     public boolean isActive() {
-        return true;
+        return (m_src != null);
     }
 
     //event handling
@@ -262,5 +265,16 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
         m_colorTables = new ColorTable[] {};
     }
 
+    /**
+     * @param event  {@link #onClose2()}
+     */
+    @EventListener
+    public void onAnnotatorReset(final AnnotatorResetEvent event) {
+        //we need this because annotators are currently placed in dialogs. Unlike views dialogs
+        //are not recreated on reopening. Therefore annotators can't use the ViewClosedEvent that
+        //destroys some of the ViewerComponents (on a view they would be recreated).
+        //=> RenderUnits listen to AnnotatorResetEvents as well
+        onClose2(new ViewClosedEvent());
+    }
 
 }

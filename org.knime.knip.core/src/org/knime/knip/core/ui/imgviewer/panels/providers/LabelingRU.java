@@ -66,6 +66,7 @@ import org.knime.knip.core.awt.labelingcolortable.RandomMissingColorHandler;
 import org.knime.knip.core.awt.parametersupport.RendererWithHilite;
 import org.knime.knip.core.awt.parametersupport.RendererWithLabels;
 import org.knime.knip.core.ui.event.EventListener;
+import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorResetEvent;
 import org.knime.knip.core.ui.imgviewer.events.HilitedLabelsChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.IntervalWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelColoringChangeEvent;
@@ -269,6 +270,18 @@ public class LabelingRU<L extends Comparable<L>> extends AbstractDefaultRU<Label
         m_colorMapGeneration = RandomMissingColorHandler.getGeneration();
         m_boundingBoxColor = LabelingColorTableUtils.getBoundingBoxColor();
         m_hilitedLabels = null;
+    }
+
+    /**
+     * @param event  {@link #onClose2()}
+     */
+    @EventListener
+    public void onAnnotatorReset(final AnnotatorResetEvent event) {
+        //we need this because annotators are currently placed in dialogs. Unlike views dialogs
+        //are not recreated on reopening. Therefore annotators can't use the ViewClosedEvent that
+        //destroys some of the ViewerComponents (on a view they would be recreated).
+        //=> RenderUnits listen to AnnotatorResetEvents as well
+        onClose2(new ViewClosedEvent());
     }
 
     // standard methods
