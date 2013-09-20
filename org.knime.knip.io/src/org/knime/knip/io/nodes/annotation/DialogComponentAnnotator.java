@@ -83,6 +83,7 @@ import org.knime.knip.core.ui.imgviewer.panels.RendererSelectionPanel;
 import org.knime.knip.core.ui.imgviewer.panels.TransparencyPanel;
 import org.knime.knip.core.ui.imgviewer.panels.infobars.ImgViewInfoPanel;
 import org.knime.knip.core.ui.imgviewer.panels.providers.AWTImageProvider;
+import org.knime.knip.core.ui.imgviewer.panels.providers.ImageRU;
 import org.knime.knip.core.ui.imgviewer.panels.providers.OverlayRU;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -156,7 +157,7 @@ public class DialogComponentAnnotator<T extends RealType<T> & NativeType<T>>
 		m_annotator = new AnnotatorImgViewer();
 
 		m_annotator
-				.addViewerComponent(new AWTImageProvider(0, new OverlayRU<T, String>()));
+				.addViewerComponent(new AWTImageProvider(0, new OverlayRU<String>(new ImageRU<T>())));
 		m_annotator.addViewerComponent(m_manager);
 
 		m_annotator.addViewerComponent(new AnnotatorFilePanel<T>());
