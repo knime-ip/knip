@@ -48,40 +48,81 @@
  */
 package org.knime.knip.core.features.fd;
 
+import java.awt.Polygon;
+
 import net.imglib2.IterableInterval;
 import net.imglib2.type.logic.BitType;
 
-import org.knime.knip.core.data.labeling.Signature;
+import org.knime.knip.core.algorithm.InplaceFFT;
+import org.knime.knip.core.data.algebra.Complex;
 import org.knime.knip.core.features.FeatureSet;
 import org.knime.knip.core.features.FeatureTargetListener;
 import org.knime.knip.core.features.ObjectCalcAndCache;
 import org.knime.knip.core.features.SharesObjects;
+import org.knime.knip.core.util.PolygonTools;
 
 /**
- * 
+ *
+ * Calculates the distance of the points on the contour to the centroid and transforms them into the fourier space. The
+ * resulting features are additionally normalized by the first FD-component.
+ *
+ * The contour points are extracted by an contour tracing algorithm (
+ * {@link PolygonTools#extractPolygon(net.imglib2.RandomAccessibleInterval, int[])}).
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class CentralDistanceFeatureSet implements FeatureSet, SharesObjects {
+public class FDCentroidDistanceFeatureSet implements FeatureSet, SharesObjects {
 
-    private final int m_numAngles;
+    /*
+     * Complex array containing the current signature as complex values
+     */
+    private final Complex[] m_complexSignature;
 
-    private Signature m_signature;
+    /*
+     * The Fourier Transformed Signature
+     */
+    private Complex[] m_transformed;
+
+    private final int m_numContourPoints;
+
+    private final double[] m_descriptor;
 
     private ObjectCalcAndCache m_ocac;
 
     /**
-     * @param numAngles
-     * @param target
+     * @param numContourPoints
      */
-    public CentralDistanceFeatureSet(final int numAngles) {
-        m_numAngles = numAngles;
+    public FDCentroidDistanceFeatureSet(final int numContourPoints) {
+        m_numContourPoints = numContourPoints;
+        m_complexSignature = new Complex[numContourPoints];
+        m_transformed = new Complex[numContourPoints];
+        m_descriptor = new double[(numContourPoints / 2) - 1];
+
     }
 
     @FeatureTargetListener
     public void iiUpdated(final IterableInterval<BitType> interval) {
-        m_signature = m_ocac.signature(interval, m_numAngles);
+        Polygon poly = m_ocac.traceContour(interval);
+        final double[] centroid = m_ocac.centroid(interval);
+        for (int i = 0; i < centroid.length; i++) {
+            centroid[i] -= interval.min(i);
+        }
+        double tmpx, tmpy;
+        for (int x = 0; x < m_numContourPoints; x++) {
+            int i = (int)((poly.npoints / (double)m_numContourPoints) * x);
+            tmpx = poly.xpoints[i] - centroid[0];
+            tmpy = poly.ypoints[i] - centroid[1];
+
+            m_complexSignature[x] = new Complex(Math.sqrt(tmpx * tmpx + tmpy * tmpy), 0);
+        }
+
+        m_transformed = InplaceFFT.fft(m_complexSignature);
+        final double dcMagnitude = m_transformed[0].getMagnitude();
+        for (int t = 1; t < (m_transformed.length / 2); t++) {
+            m_descriptor[t - 1] = (m_transformed[t].getMagnitude() / dcMagnitude);
+        }
     }
 
     /**
@@ -89,7 +130,7 @@ public class CentralDistanceFeatureSet implements FeatureSet, SharesObjects {
      */
     @Override
     public double value(final int id) {
-        return m_signature.getPosAt(id);
+        return m_descriptor[id];
     }
 
     /**
@@ -97,7 +138,7 @@ public class CentralDistanceFeatureSet implements FeatureSet, SharesObjects {
      */
     @Override
     public String name(final int id) {
-        return "Abs:CentralDistance [" + id + "]";
+        return "FD:CentroidDistance [" + id + "]";
     }
 
     /**
@@ -105,7 +146,7 @@ public class CentralDistanceFeatureSet implements FeatureSet, SharesObjects {
      */
     @Override
     public int numFeatures() {
-        return m_numAngles;
+        return m_descriptor.length;
     }
 
     /**
@@ -113,7 +154,7 @@ public class CentralDistanceFeatureSet implements FeatureSet, SharesObjects {
      */
     @Override
     public String featureSetId() {
-        return "Central Distance Feature Factory";
+        return "FD Centroid Distance Feature Factory";
     }
 
     /**
@@ -121,7 +162,7 @@ public class CentralDistanceFeatureSet implements FeatureSet, SharesObjects {
      */
     @Override
     public void enable(final int id) {
-        // nothing to do
+        // nothing to do here
 
     }
 

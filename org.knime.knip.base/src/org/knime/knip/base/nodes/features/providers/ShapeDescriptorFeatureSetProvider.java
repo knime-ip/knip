@@ -69,9 +69,8 @@ import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.knime.knip.core.features.FeatureFactory;
 import org.knime.knip.core.features.FeatureSet;
-import org.knime.knip.core.features.fd.CentralDistanceFeatureSet;
-import org.knime.knip.core.features.fd.FDCentralDistanceFeatureSet;
-import org.knime.knip.core.features.fd.FDComplexCoordinatesFeatureSet;
+import org.knime.knip.core.features.fd.CentroidDistanceFeatureSet;
+import org.knime.knip.core.features.fd.FDCentroidDistanceFeatureSet;
 import org.knime.knip.core.util.EnumListProvider;
 
 /**
@@ -89,17 +88,13 @@ public class ShapeDescriptorFeatureSetProvider implements
      * Different kinds of shape features
      */
     public enum ShapeDescriptors {
-        CENTRAL_DISTANCE, FD_CENTRAL_DISTANCE, FD_COMPLEX_COORDINATES;
+        CENTROID_DISTANCE, FD_CENTROID_DISTANCE;
     }
 
     private static final int DEFAULT_SAMPLING_RATE = 128;
 
     private static SettingsModelStringArray createFeatModel() {
         return new SettingsModelStringArray("feature_selection", new String[]{});
-    }
-
-    private static SettingsModelInteger createNumBinsModel() {
-        return new SettingsModelInteger("binSize", DEFAULT_SAMPLING_RATE);
     }
 
     private static SettingsModelInteger createSamplingRateModel() {
@@ -114,11 +109,6 @@ public class ShapeDescriptorFeatureSetProvider implements
     /* The kind of descriptor to be calculated */
     private SettingsModelStringArray m_fouriershapeFeat;
 
-    /*
-     * Num of bins
-     */
-    private SettingsModelInteger m_numBins;
-
     /* The sampling rate to calculate the feature */
     private SettingsModelInteger m_samplingRate;
 
@@ -127,32 +117,21 @@ public class ShapeDescriptorFeatureSetProvider implements
                                    final List<DataCell> cells) {
         m_featFac.updateFeatureTarget(roi.a);
 
-        if ((m_samplingRate.getIntValue() % m_numBins.getIntValue()) != 0) {
-            throw new IllegalArgumentException("Wrong configuration: SamplingRate mod bins must be 0");
-        }
-
-        // bins
-        final int binSize = m_samplingRate.getIntValue() / m_numBins.getIntValue();
-
         // Features
         double sum = 0;
         for (int featID = 0; featID < m_featFac.getNumFeatures(); featID++) {
-            sum += m_featFac.getFeatureValue(featID);
-            if ((featID % binSize) == 0) {
-                cells.add(new DoubleCell(sum / binSize));
-                sum = 0.0;
-            }
+            cells.add(new DoubleCell(m_featFac.getFeatureValue(featID)));
         }
     }
 
     @Override
     public String getFeatureSetName() {
-        return "Shape descriptors";
+        return "Shape Descriptors";
     }
 
     @Override
     public String getFeatureSetId() {
-        return "Shape descriptors";
+        return "Shape Descriptors";
     }
 
     @Override
@@ -164,30 +143,22 @@ public class ShapeDescriptorFeatureSetProvider implements
 
         for (int i = 0; i < selectedFeatures.length; i++) {
             switch (ShapeDescriptors.valueOf(selectedFeatures[i])) {
-                case CENTRAL_DISTANCE:
-                    featSets.add(new CentralDistanceFeatureSet(m_samplingRate.getIntValue()));
+                case CENTROID_DISTANCE:
+                    featSets.add(new CentroidDistanceFeatureSet(m_samplingRate.getIntValue()));
                     break;
-                case FD_CENTRAL_DISTANCE:
-                    featSets.add(new FDCentralDistanceFeatureSet(m_samplingRate.getIntValue()));
+                case FD_CENTROID_DISTANCE:
+                    featSets.add(new FDCentroidDistanceFeatureSet(m_samplingRate.getIntValue()));
                     break;
-
-                case FD_COMPLEX_COORDINATES:
-                    featSets.add(new FDComplexCoordinatesFeatureSet(m_samplingRate.getIntValue()));
-                    break;
-
                 default:
                     //
             }
         }
 
-        // bins
-        final int binSize = m_samplingRate.getIntValue() / m_numBins.getIntValue();
-
         m_featFac = new FeatureFactory(true, featSets);
 
         // create outspec according to the selected features
         final String[] featNames = m_featFac.getFeatureNames();
-        for (int i = 0; i < (featNames.length / binSize); i++) {
+        for (int i = 0; i < featNames.length; i++) {
             specs.add(new DataColumnSpecCreator(featNames[i], DoubleCell.TYPE).createSpec());
         }
     }
@@ -195,14 +166,11 @@ public class ShapeDescriptorFeatureSetProvider implements
     @Override
     public void initAndAddDialogComponents(final List<DialogComponent> components) {
 
-        components.add(new DialogComponentStringListSelection(createFeatModel(), "Features", Arrays
+        components.add(new DialogComponentStringListSelection(createFeatModel(), "Shape Descriptors", Arrays
                 .asList(EnumListProvider.getStringList(ShapeDescriptors.values())), true, 2));
 
-        components.add(new DialogComponentNumber(createSamplingRateModel(), "Number of samples (must fit 2^n)", 2));
-
-        components.add(new DialogComponentNumber(createNumBinsModel(),
-                "Number of bins (samplingRate mod bins must be 0)", 1));
-
+        components.add(new DialogComponentNumber(createSamplingRateModel(),
+                "Number of contour points (should fit 2^n, if FD used)", 2));
     }
 
     @Override
@@ -210,7 +178,5 @@ public class ShapeDescriptorFeatureSetProvider implements
         settingsModels.add(m_fouriershapeFeat = createFeatModel());
 
         settingsModels.add(m_samplingRate = createSamplingRateModel());
-
-        settingsModels.add(m_numBins = createNumBinsModel());
     }
 }

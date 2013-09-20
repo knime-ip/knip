@@ -110,7 +110,7 @@ public class SegmentFeatureSetProvider implements
 
     @Override
     public String getFeatureSetName() {
-        return "Segment geometry";
+        return "Segment Geometry";
     }
 
     @Override
