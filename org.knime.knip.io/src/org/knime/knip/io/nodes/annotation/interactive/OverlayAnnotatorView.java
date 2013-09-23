@@ -233,7 +233,7 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
 			ImgPlus<T> imgPlus = ((ImgPlusValue<T>) currentImgCell)
 					.getImgPlus();
 
-			m_eventService.publish(new ImgWithMetadataChgEvent<T>(imgPlus,
+			m_eventService.publish(new ImgWithMetadataChgEvent<T>(imgPlus.getImg(),
 					imgPlus));
 			m_eventService.publish(new ImgRedrawEvent());
 		} catch (final IndexOutOfBoundsException e2) {

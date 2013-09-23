@@ -50,6 +50,7 @@
 package org.knime.knip.core.ui.imgviewer.panels.providers;
 
 import java.awt.Image;
+import java.util.Arrays;
 
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.display.ColorTable;
@@ -96,6 +97,14 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
         @Override
         public final ARGBType lookup(final T value) {
             return new ARGBType(1);
+        }
+
+        /**
+         * {@inheritDoc} all instances of SimpleTable have identical hashCodes
+         */
+        @Override
+        public int hashCode() {
+            return 1;
         }
     }
 
@@ -193,7 +202,7 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
             hash *= 31;
             hash += m_lookupTable.hashCode();
             hash *= 31;
-            hash += m_colorTables.hashCode();
+            hash += Arrays.hashCode(m_colorTables);
             hash *= 31;
         }
         return hash;
