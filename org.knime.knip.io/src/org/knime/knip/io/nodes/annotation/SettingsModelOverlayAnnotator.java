@@ -1,4 +1,4 @@
-package org.knime.knip.io.nodes.annotation.interactive.dc;
+package org.knime.knip.io.nodes.annotation;
 
 /*
  * ------------------------------------------------------------------------

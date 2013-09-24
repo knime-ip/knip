@@ -46,7 +46,7 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.io.nodes.annotation.interactive;
+package org.knime.knip.io.nodes.annotation.create;
 
 import java.io.IOException;
 import java.util.List;
@@ -74,7 +74,7 @@ import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.types.NativeTypes;
 import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
-import org.knime.knip.io.nodes.annotation.interactive.dc.SettingsModelOverlayAnnotator;
+import org.knime.knip.io.nodes.annotation.SettingsModelOverlayAnnotator;
 
 /**
  * TODO Auto-generated

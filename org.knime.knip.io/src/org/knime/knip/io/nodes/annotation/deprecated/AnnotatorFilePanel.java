@@ -46,7 +46,7 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.io.nodes.annotation;
+package org.knime.knip.io.nodes.annotation.deprecated;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -72,8 +72,8 @@ import net.imglib2.type.numeric.RealType;
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.ViewerComponent;
-import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorManager;
 import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorResetEvent;
+import org.knime.knip.core.ui.imgviewer.annotator.deprecated.AnnotatorManager;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorFilelistChgEvent;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorImgWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgViewerTextMessageChgEvent;

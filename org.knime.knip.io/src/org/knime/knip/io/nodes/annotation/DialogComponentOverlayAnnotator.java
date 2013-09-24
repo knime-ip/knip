@@ -46,7 +46,7 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.io.nodes.annotation.interactive.dc;
+package org.knime.knip.io.nodes.annotation;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -63,8 +63,8 @@ import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
-import org.knime.knip.io.nodes.annotation.interactive.AnnotatorView;
-import org.knime.knip.io.nodes.annotation.interactive.OverlayAnnotatorView;
+import org.knime.knip.io.nodes.annotation.create.AnnotatorView;
+import org.knime.knip.io.nodes.annotation.create.OverlayAnnotatorView;
 
 /**
  * Adapter class that ties a SettingsModel and a {@link AnnotatorView} together.

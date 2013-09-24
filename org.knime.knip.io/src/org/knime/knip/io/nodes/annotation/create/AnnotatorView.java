@@ -46,7 +46,7 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.io.nodes.annotation.interactive;
+package org.knime.knip.io.nodes.annotation.create;
 
 import java.util.List;
 
@@ -55,7 +55,7 @@ import javax.swing.JPanel;
 import org.knime.core.data.DataTable;
 import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
-import org.knime.knip.io.nodes.annotation.interactive.dc.DialogComponentOverlayAnnotator;
+import org.knime.knip.io.nodes.annotation.DialogComponentOverlayAnnotator;
 
 /**
  * Decouples visual annotator components from the component that uses them.
