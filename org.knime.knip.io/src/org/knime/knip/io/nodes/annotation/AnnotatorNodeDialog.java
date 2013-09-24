@@ -81,7 +81,7 @@ public class AnnotatorNodeDialog<T extends RealType<T> & NativeType<T>, L extend
 		createNewGroup("Image Annotation");
 
 		m_dialogComponentAnnotator = new DialogComponentAnnotator<T>(
-				new SettingsModelAnnotator<String>(
+				new SettingsModelAnnotator(
 						AnnotatorNodeModel.CFG_POINTS));
 		addDialogComponent(m_dialogComponentAnnotator);
 		closeCurrentGroup();

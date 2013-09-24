@@ -72,6 +72,7 @@ import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
 import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.types.NativeTypes;
+import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
 import org.knime.knip.io.nodes.annotation.interactive.dc.SettingsModelOverlayAnnotator;
 
@@ -89,8 +90,8 @@ public class OverlayAnnotatorNodeModel<T extends RealType<T> & NativeType<T>>
 
 	static String LABEL_SETTINGS_KEY = "annotatedLabels";
 
-	static SettingsModelOverlayAnnotator<String> createAnnotatorSM() {
-		return new SettingsModelOverlayAnnotator<String>(LABEL_SETTINGS_KEY);
+	static SettingsModelOverlayAnnotator createAnnotatorSM() {
+		return new SettingsModelOverlayAnnotator(LABEL_SETTINGS_KEY);
 	}
 
 	static SettingsModelBoolean createWithSegmentidSM() {
@@ -107,7 +108,7 @@ public class OverlayAnnotatorNodeModel<T extends RealType<T> & NativeType<T>>
 				NativeTypes.SHORTTYPE.toString());
 	}
 
-	private SettingsModelOverlayAnnotator<String> m_annotationsSM = createAnnotatorSM();
+	private SettingsModelOverlayAnnotator m_annotationsSM = createAnnotatorSM();
 
 	private final SettingsModelBoolean m_addSegmentID = createWithSegmentidSM();
 
@@ -134,11 +135,11 @@ public class OverlayAnnotatorNodeModel<T extends RealType<T> & NativeType<T>>
 	protected LabelingCell<String> compute(ImgPlusValue<T> cellValue)
 			throws Exception {
 
-		Map<String, Overlay<String>> overlayMap = m_annotationsSM
+		Map<RowColKey, Overlay> overlayMap = m_annotationsSM
 				.getOverlayMap();
 		ImgPlus<?> imgPlus = cellValue.getImgPlus();
 
-		final Overlay<String> overlay = overlayMap.get(imgPlus.getSource());
+		final Overlay overlay = overlayMap.get(imgPlus.getSource());
 
 		if ((overlay != null) && (overlay.getElements().length > 0)) {
 			final Labeling<String> labeling = overlay.renderSegmentationImage(

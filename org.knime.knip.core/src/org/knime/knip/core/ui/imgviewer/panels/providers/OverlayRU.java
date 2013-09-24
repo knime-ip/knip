@@ -155,7 +155,7 @@ public class OverlayRU<L extends Comparable<L>> extends AbstractDefaultRU<Labeli
      * @param e update overlay member and readout dims of the annotated image.
      */
     @EventListener
-    public void onUpdated(final AnnotatorImgAndOverlayChgEvent e) {
+    public void onUpdated(final AnnotatorImgAndOverlayChgEvent<?> e) {
         m_overlay = e.getOverlay();
         m_srcDims = new long[e.getImg().numDimensions()];
         e.getImg().dimensions(m_srcDims);

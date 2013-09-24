@@ -68,6 +68,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.port.PortObjectSpec;
+import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,7 +82,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @param <L>
  */
-public class SettingsModelOverlayAnnotator<L extends Comparable<L>> extends
+public class SettingsModelOverlayAnnotator extends
 		SettingsModel {
 
 	/* Logger */
@@ -90,17 +91,17 @@ public class SettingsModelOverlayAnnotator<L extends Comparable<L>> extends
 
 	private final String m_configName;
 
-	private HashMap<String, Overlay<L>> m_labelingMap = new HashMap<String, Overlay<L>>();
+	private HashMap<RowColKey, Overlay> m_labelingMap = new HashMap<RowColKey, Overlay>();
 
 	public SettingsModelOverlayAnnotator(String configName) {
 		m_configName = configName;
 	}
 
-	public void setOverlayMap(HashMap<String, Overlay<L>> map) {
+	public void setOverlayMap(HashMap<RowColKey, Overlay> map) {
 		m_labelingMap = map;
 	}
 
-	public Map<String, Overlay<L>> getOverlayMap() {
+	public Map<RowColKey, Overlay> getOverlayMap() {
 		return m_labelingMap;
 	}
 
@@ -117,7 +118,7 @@ public class SettingsModelOverlayAnnotator<L extends Comparable<L>> extends
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			ObjectOutputStream out = new ObjectOutputStream(baos);
 
-			for (Entry<String, Overlay<L>> entry : m_labelingMap.entrySet()) {
+			for (Entry<RowColKey, Overlay> entry : m_labelingMap.entrySet()) {
 				// write key
 				out.writeObject(entry.getKey());
 				// write value
@@ -141,7 +142,7 @@ public class SettingsModelOverlayAnnotator<L extends Comparable<L>> extends
 			int numOverlays = settings.getInt("numOverlayEntries");
 
 			// load drawings
-			m_labelingMap = new HashMap<String, Overlay<L>>();
+			m_labelingMap = new HashMap<RowColKey, Overlay>();
 
 			ByteArrayInputStream bais = new ByteArrayInputStream(
 					Base64.decode(settings.getString("labeling").getBytes()));
@@ -149,9 +150,9 @@ public class SettingsModelOverlayAnnotator<L extends Comparable<L>> extends
 
 			for (int i = 0; i < numOverlays; i++) {
 				// read key
-				String key = (String) in.readObject();
+				RowColKey key = (RowColKey) in.readObject();
 				// read value
-				Overlay<L> value = (Overlay<L>) in.readObject();
+				Overlay value = (Overlay) in.readObject();
 
 				m_labelingMap.put(key, value);
 			}
@@ -195,9 +196,9 @@ public class SettingsModelOverlayAnnotator<L extends Comparable<L>> extends
 
 	@Override
 	protected <T extends SettingsModel> T createClone() {
-		SettingsModelOverlayAnnotator<L> clone = new SettingsModelOverlayAnnotator<L>(
+		SettingsModelOverlayAnnotator clone = new SettingsModelOverlayAnnotator(
 				m_configName);
-		clone.setOverlayMap((HashMap<String, Overlay<L>>) m_labelingMap.clone());
+		clone.setOverlayMap((HashMap<RowColKey, Overlay>) m_labelingMap.clone());
 		return (T) clone;
 	}
 

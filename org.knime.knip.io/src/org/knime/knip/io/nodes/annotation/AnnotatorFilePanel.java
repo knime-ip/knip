@@ -72,10 +72,11 @@ import net.imglib2.type.numeric.RealType;
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.ViewerComponent;
+import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorManager;
 import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorResetEvent;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorFilelistChgEvent;
+import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorImgWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgViewerTextMessageChgEvent;
-import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
 import org.knime.knip.io.ImgSource;
 import org.knime.knip.io.ImgSourcePool;
 import org.knime.knip.io.ScifioImgSource;
@@ -226,8 +227,9 @@ public class AnnotatorFilePanel<T extends RealType<T> & NativeType<T>> extends
 			@SuppressWarnings("unchecked")
 			final ImgPlus<T> imgPlus = (ImgPlus<T>) source.getImg(ref, 0);
 
-			m_eventService.publish(new ImgWithMetadataChgEvent<T>(imgPlus.getImg(),
-					imgPlus));
+			//replacement code to allow soft migration to new interactive annotator
+			m_eventService.publish(new AnnotatorImgWithMetadataChgEvent<T>(imgPlus.getImg(),
+					imgPlus, AnnotatorManager.toRowColKey(imgPlus.getSource())));
 		} catch (final IncompatibleTypeException e) {
 			logger.warn("Failed to load image");
 			m_eventService.publish(new ImgViewerTextMessageChgEvent(

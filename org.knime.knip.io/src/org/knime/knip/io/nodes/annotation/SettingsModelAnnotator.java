@@ -73,6 +73,8 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
+import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorManager;
+import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
 import org.knime.knip.io.ImgSource;
 import org.knime.knip.io.ImgSourcePool;
@@ -85,9 +87,10 @@ import org.slf4j.LoggerFactory;
  * 
  * @author dietzc, hornm
  * 
- * @param <L>
+ * @param 
  */
-public class SettingsModelAnnotator<L extends Comparable<L>> extends
+@Deprecated
+public class SettingsModelAnnotator extends
 		SettingsModel {
 
 	public static <T extends RealType<T> & NativeType<T>> ImgPlus<T> loadImgPlus(
@@ -114,7 +117,7 @@ public class SettingsModelAnnotator<L extends Comparable<L>> extends
 	private final String m_configName;
 
 	/* Map to store the overlays for different Img */
-	private Map<String, Overlay<L>> m_overlayMap;
+	private Map<RowColKey, Overlay> m_overlayMap;
 
 	/**
 	 * @param configName
@@ -122,7 +125,7 @@ public class SettingsModelAnnotator<L extends Comparable<L>> extends
 	 */
 	public SettingsModelAnnotator(final String configName) {
 		m_configName = configName;
-		m_overlayMap = new HashMap<String, Overlay<L>>();
+		m_overlayMap = new HashMap<RowColKey, Overlay>();
 		m_base64Coded = "";
 		if (ImgSourcePool.getImgSource(AnnotatorFilePanel.IMAGE_SOURCE_ID) == null) {
 			ImgSourcePool.addImgSource(AnnotatorFilePanel.IMAGE_SOURCE_ID,
@@ -136,7 +139,7 @@ public class SettingsModelAnnotator<L extends Comparable<L>> extends
 	@SuppressWarnings("unchecked")
 	@Override
 	protected <T extends SettingsModel> T createClone() {
-		final SettingsModelAnnotator<L> clone = new SettingsModelAnnotator<L>(
+		final SettingsModelAnnotator clone = new SettingsModelAnnotator(
 				m_configName);
 		clone.setOverlayMapAndComponents(m_base64Coded, m_overlayMap);
 		return (T) clone;
@@ -171,7 +174,7 @@ public class SettingsModelAnnotator<L extends Comparable<L>> extends
 	 * @return The overlay map containing the different {@link Overlay} for
 	 *         different {@link Img}
 	 */
-	public Map<String, Overlay<L>> getOverlayMap() {
+	public Map<RowColKey, Overlay> getOverlayMap() {
 		return m_overlayMap;
 	}
 
@@ -211,7 +214,7 @@ public class SettingsModelAnnotator<L extends Comparable<L>> extends
 			final ObjectInputStream in = new ObjectInputStream(bais);
 
 			for (int i = 0; i < settings.getInt("numOverlayEntries"); i++) {
-				m_overlayMap.put(in.readUTF(), (Overlay<L>) in.readObject());
+				m_overlayMap.put(AnnotatorManager.toRowColKey(in.readUTF()), (Overlay) in.readObject());
 			}
 
 			in.close();
@@ -246,9 +249,9 @@ public class SettingsModelAnnotator<L extends Comparable<L>> extends
 
 			final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			final ObjectOutputStream out = new ObjectOutputStream(baos);
-			for (final Entry<String, Overlay<L>> entry : getOverlayMap()
+			for (final Entry<RowColKey, Overlay> entry : getOverlayMap()
 					.entrySet()) {
-				out.writeUTF(entry.getKey());
+				out.writeUTF(AnnotatorManager.fromRowColKey(entry.getKey()));
 				out.writeObject(entry.getValue());
 			}
 
@@ -272,7 +275,7 @@ public class SettingsModelAnnotator<L extends Comparable<L>> extends
 	 *            Map to store the overlays for different {@link Img}
 	 */
 	public void setOverlayMapAndComponents(final String base64Coded,
-			final Map<String, Overlay<L>> overlayMap) {
+			final Map<RowColKey, Overlay> overlayMap) {
 		m_overlayMap = overlayMap;
 		m_base64Coded = base64Coded;
 	}

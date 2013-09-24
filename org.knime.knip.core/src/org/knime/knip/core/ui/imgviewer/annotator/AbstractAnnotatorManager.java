@@ -57,6 +57,7 @@ import org.knime.knip.core.awt.labelingcolortable.RandomMissingColorHandler;
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorImgAndOverlayChgEvent;
+import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorImgWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorLabelEditEvent;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorLabelsColResetEvent;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorLabelsDelEvent;
@@ -67,7 +68,6 @@ import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgViewerMouseDraggedEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgViewerMousePressedEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgViewerMouseReleasedEvent;
-import org.knime.knip.core.ui.imgviewer.events.IntervalWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.OverlayChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
@@ -99,13 +99,13 @@ public abstract class AbstractAnnotatorManager<T extends RealType<T>> extends Hi
 
     protected Overlay m_currentOverlay;
 
-    protected AnnotatorTool m_currentTool;
+    protected AnnotatorTool<?> m_currentTool;
 
     public AbstractAnnotatorManager() {
         m_selectedLabels = new String[]{"Unknown"};
     }
 
-    protected abstract Map<String, Overlay> getOverlayMap();
+    protected abstract Map<RowColKey, Overlay> getOverlayMap();
 
     @Override
     public void setEventService(final EventService eventService) {
@@ -172,13 +172,12 @@ public abstract class AbstractAnnotatorManager<T extends RealType<T>> extends Hi
      * @param axes
      */
     @EventListener
-    public void onUpdate(final IntervalWithMetadataChgEvent<T> e) {
-
-        m_currentOverlay = getOverlayMap().get(e.getSource().getSource());
+    public void onUpdate(final AnnotatorImgWithMetadataChgEvent<T> e) {
+        m_currentOverlay = getOverlayMap().get(e.getKey());
 
         if (m_currentOverlay == null) {
             m_currentOverlay = new Overlay(e.getRandomAccessibleInterval());
-            getOverlayMap().put(e.getSource().getSource(), m_currentOverlay);
+            getOverlayMap().put(e.getKey(), m_currentOverlay);
             m_currentOverlay.setEventService(m_eventService);
         }
 

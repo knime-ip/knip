@@ -61,6 +61,7 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.port.PortObjectSpec;
+import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
 import org.knime.knip.io.nodes.annotation.interactive.AnnotatorView;
 import org.knime.knip.io.nodes.annotation.interactive.OverlayAnnotatorView;
@@ -80,10 +81,10 @@ public class DialogComponentOverlayAnnotator<T extends RealType<T> & NativeType<
 		extends DialogComponent {
 
 	/* wrapped by this component */
-	private AnnotatorView<String> m_annotatorView = new OverlayAnnotatorView<T>();
+	private AnnotatorView m_annotatorView = new OverlayAnnotatorView<T>();
 
 	public DialogComponentOverlayAnnotator(
-			final SettingsModelOverlayAnnotator<String> model) {
+			final SettingsModelOverlayAnnotator model) {
 		super(model);
 
 		// set the view panel
@@ -112,22 +113,22 @@ public class DialogComponentOverlayAnnotator<T extends RealType<T> & NativeType<
 		// ideally be the other way around. However the forgiving implementation
 		// of the OverlayAnnotatorView
 		// makes it possible to add the overlays before the input table.
-		SettingsModelOverlayAnnotator<String> model = (SettingsModelOverlayAnnotator<String>) getModel();
-		Map<String, Overlay<String>> map = model.getOverlayMap();
+		SettingsModelOverlayAnnotator model = (SettingsModelOverlayAnnotator) getModel();
+		Map<RowColKey, Overlay> map = model.getOverlayMap();
 
 		m_annotatorView.reset();
-		for (String srcName : map.keySet()) {
-			m_annotatorView.setOverlay(srcName, map.get(srcName));
+		for (RowColKey key : map.keySet()) {
+			m_annotatorView.setOverlay(key, map.get(key));
 		}
 	}
 
 	@Override
 	protected void validateSettingsBeforeSave() throws InvalidSettingsException {
-		SettingsModelOverlayAnnotator<String> model = (SettingsModelOverlayAnnotator<String>) getModel();
+		SettingsModelOverlayAnnotator model = (SettingsModelOverlayAnnotator) getModel();
 
-		HashMap<String, Overlay<String>> map = new HashMap<String, Overlay<String>>();
-		for (String srcName : m_annotatorView.getOverlaySrcNames()) {
-			map.put(srcName, m_annotatorView.getOverlay(srcName));
+		HashMap<RowColKey, Overlay> map = new HashMap<RowColKey, Overlay>();
+		for (RowColKey key : m_annotatorView.getOverlayKeys()) {
+			map.put(key, m_annotatorView.getOverlay(key));
 		}
 
 		model.setOverlayMap(map);

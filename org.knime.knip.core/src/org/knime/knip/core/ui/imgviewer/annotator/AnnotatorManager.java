@@ -62,6 +62,10 @@ import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorFilelistChgEvent;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
 
+/*
+ * Implementation for the none interactive Annotator upon removal the hierarchy (AbstractAnnotatorManager)
+ * should be reconsidered as well.
+ */
 /**
  * Manages overlays and overlay elements ...
  *
@@ -71,6 +75,7 @@ import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @author Christian
  */
+@Deprecated
 public class AnnotatorManager<T extends RealType<T>> extends AbstractAnnotatorManager<T> {
 
     /**
@@ -79,16 +84,16 @@ public class AnnotatorManager<T extends RealType<T>> extends AbstractAnnotatorMa
     private static final long serialVersionUID = 1L;
 
     /* Are serialized */
-    private Map<String, Overlay> m_overlayMap;
+    private Map<RowColKey, Overlay> m_overlayMap;
 
     public AnnotatorManager() {
         super();
-        setOverlayMap(new HashMap<String, Overlay>());
+        setOverlayMap(new HashMap<RowColKey, Overlay>());
     }
 
     @EventListener
     public void onFileListChange(final AnnotatorFilelistChgEvent e) {
-        for (final String key : new HashSet<String>(m_overlayMap.keySet())) {
+        for (final RowColKey key : new HashSet<RowColKey>(m_overlayMap.keySet())) {
             // Switching systems
             boolean contains = false;
             for (final String file : e.getFileList()) {
@@ -112,8 +117,8 @@ public class AnnotatorManager<T extends RealType<T>> extends AbstractAnnotatorMa
     public void saveComponentConfiguration(final ObjectOutput out) throws IOException {
         out.writeInt(getOverlayMap().size());
 
-        for (final Entry<String, Overlay> entry : getOverlayMap().entrySet()) {
-            out.writeUTF(entry.getKey());
+        for (final Entry<RowColKey, Overlay> entry : getOverlayMap().entrySet()) {
+            out.writeUTF(fromRowColKey(entry.getKey()));
             entry.getValue().writeExternal(out);
         }
         out.writeInt(m_selectedLabels.length);
@@ -133,7 +138,7 @@ public class AnnotatorManager<T extends RealType<T>> extends AbstractAnnotatorMa
             final Overlay o = new Overlay();
             o.readExternal(in);
             o.setEventService(m_eventService);
-            getOverlayMap().put(key, o);
+            getOverlayMap().put(toRowColKey(key), o);
         }
 
         m_selectedLabels = new String[in.readInt()];
@@ -143,16 +148,38 @@ public class AnnotatorManager<T extends RealType<T>> extends AbstractAnnotatorMa
     }
 
     @Override
-    public Map<String, Overlay> getOverlayMap() {
+    public Map<RowColKey, Overlay> getOverlayMap() {
         return m_overlayMap;
     }
 
-    public void setOverlayMap(final Map<String, Overlay> m_overlayMap) {
+    public void setOverlayMap(final Map<RowColKey, Overlay> m_overlayMap) {
         this.m_overlayMap = m_overlayMap;
     }
 
     @EventListener
     public void reset2(final AnnotatorResetEvent e) {
-        m_overlayMap = new HashMap<String, Overlay>();
+        m_overlayMap = new HashMap<RowColKey, Overlay>();
+    }
+
+    /**
+     * Converter to extract the source name from a dummy rowColKey helps to keep the old
+     * none interactive annotator working.
+     *
+     * @param rowColKey created with {@link #toRowColKey(String)}
+     * @return the source name.
+     */
+    @Deprecated
+    public static String fromRowColKey(final RowColKey rowColKey) {
+        return rowColKey.getRowName();
+    }
+
+    /**
+     * converter that creates pseudo row col keys for the old file loading based annotator.
+     * @param sourceName image source name
+     * @return a dummy row col key based on the source name
+     */
+    @Deprecated
+    public static RowColKey toRowColKey(final String sourceName) {
+        return new RowColKey(sourceName, "colDummy");
     }
 }

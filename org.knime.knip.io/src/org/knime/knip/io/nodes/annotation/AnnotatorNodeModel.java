@@ -90,6 +90,8 @@ import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
 import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.types.NativeTypes;
+import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorManager;
+import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
 
 /**
@@ -136,7 +138,7 @@ public class AnnotatorNodeModel<T extends RealType<T> & NativeType<T>, L extends
 	/*
 	 * Settings for the Overlay
 	 */
-	private final SettingsModelAnnotator<String> m_annotatorModel = new SettingsModelAnnotator<String>(
+	private final SettingsModelAnnotator m_annotatorModel = new SettingsModelAnnotator(
 			CFG_POINTS);
 
 	/* data table for the table cell viewer */
@@ -205,20 +207,20 @@ public class AnnotatorNodeModel<T extends RealType<T> & NativeType<T>, L extends
 		final BufferedDataContainer labelCon = exec
 				.createDataContainer(m_labelsOutSpec);
 
-		final Map<String, Overlay<String>> map = m_annotatorModel
+		final Map<RowColKey, Overlay> map = m_annotatorModel
 				.getOverlayMap();
 		final Set<String> labels = new HashSet<String>();
 		final ImgPlusCellFactory imgCellFactory = new ImgPlusCellFactory(exec);
 		final LabelingCellFactory labCellFactory = new LabelingCellFactory(exec);
-		for (final Entry<String, Overlay<String>> entry : map.entrySet()) {
+		for (final Entry<RowColKey, Overlay> entry : map.entrySet()) {
 
-			final ImgPlus<T> imgPlus = SettingsModelAnnotator.loadImgPlus(entry
-					.getKey());
+			final ImgPlus<T> imgPlus = SettingsModelAnnotator.loadImgPlus(AnnotatorManager.fromRowColKey(entry
+					.getKey()));
 
 			final long[] dimensions = new long[imgPlus.numDimensions()];
 			imgPlus.dimensions(dimensions);
 
-			final Overlay<String> o = entry.getValue();
+			final Overlay o = entry.getValue();
 
 			if ((o != null) && (o.getElements().length > 0)) {
 				final Labeling<String> labeling = o.renderSegmentationImage(
@@ -226,7 +228,7 @@ public class AnnotatorNodeModel<T extends RealType<T> & NativeType<T>, L extends
 								m_factoryType.getStringValue(), imgPlus),
 						m_addSegmentID.getBooleanValue(), NativeTypes
 								.valueOf(m_labelingType.getStringValue()));
-				imgCon.addRowToTable(new DefaultRow(new RowKey(entry.getKey()),
+				imgCon.addRowToTable(new DefaultRow(new RowKey(AnnotatorManager.fromRowColKey(entry.getKey())),
 						imgCellFactory.createCell(imgPlus),
 						labCellFactory.createCell(labeling,
 								new DefaultLabelingMetadata(imgPlus, imgPlus,

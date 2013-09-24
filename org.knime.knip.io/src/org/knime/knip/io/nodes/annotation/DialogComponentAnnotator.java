@@ -115,7 +115,7 @@ public class DialogComponentAnnotator<T extends RealType<T> & NativeType<T>>
 	 *            SettingsModel to load previous made annotations
 	 * 
 	 */
-	public DialogComponentAnnotator(final SettingsModelAnnotator<String> model) {
+	public DialogComponentAnnotator(final SettingsModelAnnotator model) {
 		super(model);
 		createAnnotator();
 
@@ -130,7 +130,7 @@ public class DialogComponentAnnotator<T extends RealType<T> & NativeType<T>>
 	 *            init classes
 	 * 
 	 */
-	public DialogComponentAnnotator(final SettingsModelAnnotator<String> model,
+	public DialogComponentAnnotator(final SettingsModelAnnotator model,
 			final String... initialClasses) {
 		super(model);
 		createAnnotator(initialClasses);
@@ -204,7 +204,7 @@ public class DialogComponentAnnotator<T extends RealType<T> & NativeType<T>>
 		try {
 			m_annotator.reset();
 			m_annotator
-					.setComponentConfiguration(((SettingsModelAnnotator<String>) getModel())
+					.setComponentConfiguration(((SettingsModelAnnotator) getModel())
 							.getBase64CodedImgViewer());
 		} catch (final IOException e) {
 			logger.error("IOError while loading annotator");
@@ -222,7 +222,7 @@ public class DialogComponentAnnotator<T extends RealType<T> & NativeType<T>>
 	@Override
 	protected void validateSettingsBeforeSave() throws InvalidSettingsException {
 		try {
-			((SettingsModelAnnotator<String>) getModel())
+			((SettingsModelAnnotator) getModel())
 					.setOverlayMapAndComponents(
 							m_annotator.getComponentConfiguration(),
 							m_manager.getOverlayMap());
