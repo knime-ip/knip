@@ -86,11 +86,10 @@ import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.view.Views;
 
 import org.knime.knip.core.ops.interval.MaximumFinder;
-import org.knime.knip.core.util.ImgUtils;
 
 //TODO: Make Integer more generic
-public class WaehlbySplitterOp<T extends RealType<T>> implements
-        BinaryOutputOperation<Labeling<Integer>, RandomAccessibleInterval<T>, Labeling<Integer>> {
+public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> implements
+        BinaryOutputOperation<Labeling<L>, RandomAccessibleInterval<T>, Labeling<Integer>> {
 
     /**
      * Segmentation type enum
@@ -135,7 +134,7 @@ public class WaehlbySplitterOp<T extends RealType<T>> implements
      * {@inheritDoc}
      */
     @Override
-    public Labeling<Integer> compute(final Labeling<Integer> inLab, final RandomAccessibleInterval<T> img,
+    public Labeling<Integer> compute(final Labeling<L> inLab, final RandomAccessibleInterval<T> img,
                                      final Labeling<Integer> outLab) {
 
         int maxima_size = 4;
@@ -179,8 +178,8 @@ public class WaehlbySplitterOp<T extends RealType<T>> implements
                         return b;
                     }
 
-                }, new ConvertedRandomAccessible<LabelingType<Integer>, BitType>(inLab, new LabelingToMaskConverter(), new BitType()));
-
+                }, new ConvertedRandomAccessible<LabelingType<L>, BitType>(inLab, new LabelingToMaskConverter(),
+                        new BitType()));
 
         /* Label the found Minima */
         ConvertedRandomAccessible<FloatType, FloatType> inverter =
@@ -196,7 +195,7 @@ public class WaehlbySplitterOp<T extends RealType<T>> implements
         final CCA<BitType, Img<BitType>, Labeling<Integer>> cca =
                 new CCA<BitType, Img<BitType>, Labeling<Integer>>(structuringElement, new BitType(false));
 
-        Labeling<Integer> seeds = ImgUtils.createEmptyCopy(inLab);
+        Labeling<Integer> seeds = inLab.<Integer> factory().create(inLab);
         new NativeImgLabeling<Integer, ShortType>(new ArrayImgFactory<ShortType>().create(getDimensions(img),
                                                                                           new ShortType()));
         cca.compute(tmp3, seeds);
@@ -240,10 +239,10 @@ public class WaehlbySplitterOp<T extends RealType<T>> implements
 
         //convert image to array
 
-        byte[] pixels = ((DataBufferByte) strel.getRaster().getDataBuffer()).getData();
+        byte[] pixels = ((DataBufferByte)strel.getRaster().getDataBuffer()).getData();
         long[][] element = new long[s][s];
 
-        if (pixels.length != s*s) {
+        if (pixels.length != s * s) {
             //that's not correct...
             return null;
         }
@@ -251,8 +250,8 @@ public class WaehlbySplitterOp<T extends RealType<T>> implements
         int x = 0;
         int y = 0;
 
-        for( int i = 0; i < pixels.length; i++, x++) {
-            if(x >= s) {
+        for (int i = 0; i < pixels.length; i++, x++) {
+            if (x >= s) {
                 x = 0;
                 y++;
             }
@@ -267,11 +266,11 @@ public class WaehlbySplitterOp<T extends RealType<T>> implements
      * {@inheritDoc}
      */
     @Override
-    public BinaryObjectFactory<Labeling<Integer>, RandomAccessibleInterval<T>, Labeling<Integer>> bufferFactory() {
-        return new BinaryObjectFactory<Labeling<Integer>, RandomAccessibleInterval<T>, Labeling<Integer>>() {
+    public BinaryObjectFactory<Labeling<L>, RandomAccessibleInterval<T>, Labeling<Integer>> bufferFactory() {
+        return new BinaryObjectFactory<Labeling<L>, RandomAccessibleInterval<T>, Labeling<Integer>>() {
 
             @Override
-            public Labeling<Integer> instantiate(final Labeling<Integer> lab, final RandomAccessibleInterval<T> in) {
+            public Labeling<Integer> instantiate(final Labeling<L> lab, final RandomAccessibleInterval<T> in) {
                 return lab.<Integer> factory().create(lab);
             }
         };
@@ -294,8 +293,8 @@ public class WaehlbySplitterOp<T extends RealType<T>> implements
      * {@inheritDoc}
      */
     @Override
-    public BinaryOutputOperation<Labeling<Integer>, RandomAccessibleInterval<T>, Labeling<Integer>> copy() {
-        return new WaehlbySplitterOp<T>(WaehlbySplitterOp.SEG_TYPE.SHAPE_BASED_SEGMENTATION);
+    public BinaryOutputOperation<Labeling<L>, RandomAccessibleInterval<T>, Labeling<Integer>> copy() {
+        return new WaehlbySplitterOp<L, T>(WaehlbySplitterOp.SEG_TYPE.SHAPE_BASED_SEGMENTATION);
     }
 
     /*
@@ -387,13 +386,13 @@ public class WaehlbySplitterOp<T extends RealType<T>> implements
     }
 
     // TODO: Make Integer more generic
-    private class LabelingToMaskConverter implements Converter <LabelingType<Integer>, BitType> {
+    private class LabelingToMaskConverter<L extends Comparable<L>> implements Converter<LabelingType<L>, BitType> {
 
         /**
          * {@inheritDoc}
          */
         @Override
-        public void convert(final LabelingType<Integer> input, BitType output) {
+        public void convert(final LabelingType<L> input, BitType output) {
             if (input.getLabeling().isEmpty()) {
                 output = new BitType(false);
             } else {
@@ -403,6 +402,5 @@ public class WaehlbySplitterOp<T extends RealType<T>> implements
         }
 
     }
-
 
 }
