@@ -77,6 +77,7 @@ import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeLogger;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
@@ -92,12 +93,14 @@ import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
 import org.knime.knip.core.util.ImgUtils;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<T>> {
+
+    private static NodeLogger LOGGER = NodeLogger.getLogger(MorphImgOpsNodeModel.class);
 
     enum ConnectedType {
         EIGHT_CONNECTED("Eight-Connected"), FOUR_CONNECTED("Four-Connected"),
@@ -257,14 +260,13 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
 
             final Img<BitType> out = ImgUtils.createEmptyCopy(in, new BitType());
 
-            // TODO: Logger
             try {
                 SubsetOperations.iterate(op, m_smDimensions.getSelectedDimIndices(in), (Img<BitType>)in, out,
                                          getExecutorService());
             } catch (final InterruptedException e) {
-                e.printStackTrace();
+                LOGGER.warn("Thread execution was interrupted", e);
             } catch (final ExecutionException e) {
-                e.printStackTrace();
+                LOGGER.warn("Couldn't retrieve results from thread because execution was interrupted/aborted", e);
             }
 
             return (ImgPlusCell<T>)m_imgCellFactory.createCell(out, in);
@@ -282,15 +284,12 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
             final UnaryOperation<Img<T>, Img<T>> op =
                     createOperationGray(m_structElement, m_smDimensions.getNumSelectedDimLabels());
 
-            // TODO: Logger
             try {
                 SubsetOperations.iterate(op, m_smDimensions.getSelectedDimIndices(in), in, out, getExecutorService());
             } catch (final InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                LOGGER.warn("Thread execution was interrupted", e);
             } catch (final ExecutionException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                LOGGER.warn("Couldn't retrieve results from thread because execution was interrupted/aborted", e);
             }
 
             return m_imgCellFactory.createCell(out, in);
