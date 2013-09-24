@@ -56,12 +56,12 @@ import org.knime.knip.core.ui.imgviewer.overlay.elements.RectangleOverlayElement
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class AnnotatorRectangleTool extends AnnotationDrawingTool<RectangleOverlayElement<String>> {
+public class AnnotatorRectangleTool extends AnnotationDrawingTool<RectangleOverlayElement> {
 
     private long[] m_startPoint;
 
@@ -71,8 +71,8 @@ public class AnnotatorRectangleTool extends AnnotationDrawingTool<RectangleOverl
 
     @Override
     public void onMouseDoubleClickLeft(final ImgViewerMouseEvent e,
-                                       final RectangleOverlayElement<String> currentOverlayElement,
-                                       final PlaneSelectionEvent selection, final Overlay<String> overlay,
+                                       final RectangleOverlayElement currentOverlayElement,
+                                       final PlaneSelectionEvent selection, final Overlay overlay,
                                        final String... labels) {
         // Nothing to do here
     }
@@ -80,12 +80,12 @@ public class AnnotatorRectangleTool extends AnnotationDrawingTool<RectangleOverl
     @SuppressWarnings("unchecked")
     @Override
     public void onMousePressedLeft(final ImgViewerMouseEvent e,
-                                   final RectangleOverlayElement<String> currentOverlayElement,
-                                   final PlaneSelectionEvent selection, final Overlay<String> overlay,
+                                   final RectangleOverlayElement currentOverlayElement,
+                                   final PlaneSelectionEvent selection, final Overlay overlay,
                                    final String... labels) {
         m_startPoint = getDragPoint();
-        final RectangleOverlayElement<String> element =
-                new RectangleOverlayElement<String>(selection.getPlanePos(e.getPosX(), e.getPosY()),
+        final RectangleOverlayElement element =
+                new RectangleOverlayElement(selection.getPlanePos(e.getPosX(), e.getPosY()),
                         selection.getDimIndices(), labels);
         overlay.addElement(element);
         element.setRectangle(m_startPoint[selection.getPlaneDimIndex1()], m_startPoint[selection.getPlaneDimIndex2()],
@@ -97,8 +97,8 @@ public class AnnotatorRectangleTool extends AnnotationDrawingTool<RectangleOverl
 
     @Override
     public void onMouseReleasedLeft(final ImgViewerMouseEvent e,
-                                    final RectangleOverlayElement<String> currentOverlayElement,
-                                    final PlaneSelectionEvent selection, final Overlay<String> overlay,
+                                    final RectangleOverlayElement currentOverlayElement,
+                                    final PlaneSelectionEvent selection, final Overlay overlay,
                                     final String... labels) {
         currentOverlayElement.setStatus(OverlayElementStatus.ACTIVE);
         fireStateChanged();
@@ -107,8 +107,8 @@ public class AnnotatorRectangleTool extends AnnotationDrawingTool<RectangleOverl
 
     @Override
     public void onMouseDraggedLeft(final ImgViewerMouseEvent e,
-                                   final RectangleOverlayElement<String> currentOverlayElement,
-                                   final PlaneSelectionEvent selection, final Overlay<String> overlay,
+                                   final RectangleOverlayElement currentOverlayElement,
+                                   final PlaneSelectionEvent selection, final Overlay overlay,
                                    final String... labels) {
 
         if (currentOverlayElement.getStatus() == OverlayElementStatus.DRAWING) {

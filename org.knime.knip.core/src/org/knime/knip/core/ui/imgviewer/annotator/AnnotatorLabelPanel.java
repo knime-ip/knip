@@ -84,7 +84,7 @@ import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorLabelsSetEvent
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -99,7 +99,7 @@ public class AnnotatorLabelPanel extends ViewerComponent {
 
     private Vector<String> m_labels;
 
-    private JList m_jLabelList;
+    private JList<String> m_jLabelList;
 
     private boolean m_isAdjusting;
 
@@ -125,7 +125,7 @@ public class AnnotatorLabelPanel extends ViewerComponent {
             }
         }
 
-        m_jLabelList = new JList(m_labels);
+        m_jLabelList = new JList<String>(m_labels);
         m_jLabelList.setSelectedIndex(0);
 
         m_jLabelList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);

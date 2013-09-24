@@ -56,12 +56,12 @@ import org.knime.knip.core.ui.imgviewer.overlay.elements.PolygonOverlayElement;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class AnnotatorPolygonTool extends AnnotationDrawingTool<PolygonOverlayElement<String>> {
+public class AnnotatorPolygonTool extends AnnotationDrawingTool<PolygonOverlayElement> {
 
     public AnnotatorPolygonTool() {
         super("Polygon", "tool-poly.png");
@@ -69,8 +69,8 @@ public class AnnotatorPolygonTool extends AnnotationDrawingTool<PolygonOverlayEl
 
     @Override
     public void onMouseDoubleClickLeft(final ImgViewerMouseEvent e,
-                                       final PolygonOverlayElement<String> currentOverlayElement,
-                                       final PlaneSelectionEvent selection, final Overlay<String> overlay,
+                                       final PolygonOverlayElement currentOverlayElement,
+                                       final PlaneSelectionEvent selection, final Overlay overlay,
                                        final String... labels) {
         currentOverlayElement.close();
         currentOverlayElement.setStatus(OverlayElementStatus.ACTIVE);
@@ -79,20 +79,20 @@ public class AnnotatorPolygonTool extends AnnotationDrawingTool<PolygonOverlayEl
 
     @Override
     public void onMousePressedLeft(final ImgViewerMouseEvent e,
-                                   final PolygonOverlayElement<String> currentOverlayElement,
-                                   final PlaneSelectionEvent selection, final Overlay<String> overlay,
+                                   final PolygonOverlayElement currentOverlayElement,
+                                   final PlaneSelectionEvent selection, final Overlay overlay,
                                    final String... labels) {
 
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public void onMouseReleasedLeft(final ImgViewerMouseEvent e, PolygonOverlayElement<String> currentOverlayElement,
-                                    final PlaneSelectionEvent selection, final Overlay<String> overlay,
+    public void onMouseReleasedLeft(final ImgViewerMouseEvent e, PolygonOverlayElement currentOverlayElement,
+                                    final PlaneSelectionEvent selection, final Overlay overlay,
                                     final String... labels) {
         if ((currentOverlayElement == null) || (currentOverlayElement.getStatus() != OverlayElementStatus.DRAWING)) {
             currentOverlayElement =
-                    new PolygonOverlayElement<String>(selection.getPlanePos(e.getPosX(), e.getPosY()),
+                    new PolygonOverlayElement(selection.getPlanePos(e.getPosX(), e.getPosY()),
                             selection.getDimIndices(), labels);
             overlay.addElement(currentOverlayElement);
             setCurrentOverlayElement(OverlayElementStatus.DRAWING, currentOverlayElement);
@@ -103,8 +103,8 @@ public class AnnotatorPolygonTool extends AnnotationDrawingTool<PolygonOverlayEl
 
     @Override
     public void onMouseDraggedLeft(final ImgViewerMouseEvent e,
-                                   final PolygonOverlayElement<String> currentOverlayElement,
-                                   final PlaneSelectionEvent selection, final Overlay<String> overlay,
+                                   final PolygonOverlayElement currentOverlayElement,
+                                   final PlaneSelectionEvent selection, final Overlay overlay,
                                    final String... labels) {
         // Nothing to do here
     }

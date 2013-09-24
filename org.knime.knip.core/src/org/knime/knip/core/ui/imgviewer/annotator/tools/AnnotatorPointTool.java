@@ -56,12 +56,12 @@ import org.knime.knip.core.ui.imgviewer.overlay.elements.PointOverlayElement;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class AnnotatorPointTool extends AnnotationDrawingTool<PointOverlayElement<String>> {
+public class AnnotatorPointTool extends AnnotationDrawingTool<PointOverlayElement> {
 
     public AnnotatorPointTool() {
         super("Point", "tool-point.png");
@@ -69,20 +69,19 @@ public class AnnotatorPointTool extends AnnotationDrawingTool<PointOverlayElemen
 
     @Override
     public void onMouseDoubleClickLeft(final ImgViewerMouseEvent e,
-                                       final PointOverlayElement<String> currentOverlayElement,
-                                       final PlaneSelectionEvent selection, final Overlay<String> overlay,
+                                       final PointOverlayElement currentOverlayElement,
+                                       final PlaneSelectionEvent selection, final Overlay overlay,
                                        final String... labels) {
         // Nothing to do here
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void onMousePressedLeft(final ImgViewerMouseEvent e,
-                                   final PointOverlayElement<String> currentOverlayElement,
-                                   final PlaneSelectionEvent selection, final Overlay<String> overlay,
+                                   final PointOverlayElement currentOverlayElement,
+                                   final PlaneSelectionEvent selection, final Overlay overlay,
                                    final String... labels) {
-        final PointOverlayElement<String> element =
-                new PointOverlayElement<String>(e.getPosX(), e.getPosY(), selection.getPlanePos(e.getPosX(),
+        final PointOverlayElement element =
+                new PointOverlayElement(e.getPosX(), e.getPosY(), selection.getPlanePos(e.getPosX(),
                                                                                                 e.getPosY()),
                         selection.getDimIndices(), labels);
 
@@ -95,16 +94,16 @@ public class AnnotatorPointTool extends AnnotationDrawingTool<PointOverlayElemen
 
     @Override
     public void onMouseReleasedLeft(final ImgViewerMouseEvent e,
-                                    final PointOverlayElement<String> currentOverlayElement,
-                                    final PlaneSelectionEvent selection, final Overlay<String> overlay,
+                                    final PointOverlayElement currentOverlayElement,
+                                    final PlaneSelectionEvent selection, final Overlay overlay,
                                     final String... labels) {
         // Nothing to do here
     }
 
     @Override
     public void onMouseDraggedLeft(final ImgViewerMouseEvent e,
-                                   final PointOverlayElement<String> currentOverlayElement,
-                                   final PlaneSelectionEvent selection, final Overlay<String> overlay,
+                                   final PointOverlayElement currentOverlayElement,
+                                   final PlaneSelectionEvent selection, final Overlay overlay,
                                    final String... labels) {
         // Nothing to do here
     }

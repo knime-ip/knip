@@ -94,7 +94,7 @@ public class OverlayRU<L extends Comparable<L>> extends AbstractDefaultRU<Labeli
 
     // event members
 
-    private Overlay<L> m_overlay;
+    private Overlay m_overlay;
 
     private long[] m_srcDims;
 

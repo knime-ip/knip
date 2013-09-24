@@ -56,19 +56,19 @@ import org.knime.knip.core.ui.imgviewer.overlay.elements.SplineOverlayElement;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class AnnotatorSplineTool extends AnnotationDrawingTool<SplineOverlayElement<String>> {
+public class AnnotatorSplineTool extends AnnotationDrawingTool<SplineOverlayElement> {
 
     public AnnotatorSplineTool() {
         super("Spline", "tool-spline.png");
     }
 
     @Override
-    public void fireFocusLost(final Overlay<String> overlay) {
+    public void fireFocusLost(final Overlay overlay) {
         if (setCurrentOverlayElement(null, null)) {
             fireStateChanged();
         }
@@ -76,8 +76,8 @@ public class AnnotatorSplineTool extends AnnotationDrawingTool<SplineOverlayElem
 
     @Override
     public void onMouseDoubleClickLeft(final ImgViewerMouseEvent e,
-                                       final SplineOverlayElement<String> currentOverlayElement,
-                                       final PlaneSelectionEvent selection, final Overlay<String> overlay,
+                                       final SplineOverlayElement currentOverlayElement,
+                                       final PlaneSelectionEvent selection, final Overlay overlay,
                                        final String... labels) {
 
         currentOverlayElement.close();
@@ -88,12 +88,12 @@ public class AnnotatorSplineTool extends AnnotationDrawingTool<SplineOverlayElem
 
     @SuppressWarnings("unchecked")
     @Override
-    public void onMousePressedLeft(final ImgViewerMouseEvent e, SplineOverlayElement<String> currentOverlayElement,
-                                   final PlaneSelectionEvent selection, final Overlay<String> overlay,
+    public void onMousePressedLeft(final ImgViewerMouseEvent e, SplineOverlayElement currentOverlayElement,
+                                   final PlaneSelectionEvent selection, final Overlay overlay,
                                    final String... labels) {
         if ((currentOverlayElement == null) || (currentOverlayElement.getStatus() != OverlayElementStatus.DRAWING)) {
             currentOverlayElement =
-                    new SplineOverlayElement<String>(selection.getPlanePos(e.getPosX(), e.getPosY()),
+                    new SplineOverlayElement(selection.getPlanePos(e.getPosX(), e.getPosY()),
                             selection.getDimIndices(), labels);
             overlay.addElement(currentOverlayElement);
             setCurrentOverlayElement(OverlayElementStatus.DRAWING, currentOverlayElement);
@@ -105,16 +105,16 @@ public class AnnotatorSplineTool extends AnnotationDrawingTool<SplineOverlayElem
 
     @Override
     public void onMouseReleasedLeft(final ImgViewerMouseEvent e,
-                                    final SplineOverlayElement<String> currentOverlayElement,
-                                    final PlaneSelectionEvent selection, final Overlay<String> overlay,
+                                    final SplineOverlayElement currentOverlayElement,
+                                    final PlaneSelectionEvent selection, final Overlay overlay,
                                     final String... labels) {
         // Nothing to do here
     }
 
     @Override
     public void onMouseDraggedLeft(final ImgViewerMouseEvent e,
-                                   final SplineOverlayElement<String> currentOverlayElement,
-                                   final PlaneSelectionEvent selection, final Overlay<String> overlay,
+                                   final SplineOverlayElement currentOverlayElement,
+                                   final PlaneSelectionEvent selection, final Overlay overlay,
                                    final String... labels) {
         // Nothing to do here
     }
