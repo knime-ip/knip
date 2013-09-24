@@ -59,6 +59,7 @@ import net.imglib2.type.numeric.RealType;
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.imgviewer.annotator.AbstractAnnotatorManager;
 import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorResetEvent;
+import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
 
 /**
@@ -79,14 +80,14 @@ public class OverlayAnnotatorManager<T extends RealType<T>> extends AbstractAnno
     */
     private static final long serialVersionUID = 1L;
 
-    private Map<String, Overlay> m_overlayMap;
+    private Map<RowColKey, Overlay> m_overlayMap;
 
     /**
      *
      */
     public OverlayAnnotatorManager() {
         super();
-        m_overlayMap = new HashMap<String, Overlay>();
+        m_overlayMap = new HashMap<RowColKey, Overlay>();
     }
 
     /*
@@ -98,14 +99,14 @@ public class OverlayAnnotatorManager<T extends RealType<T>> extends AbstractAnno
      */
     @EventListener
     public void reset2(final AnnotatorResetEvent e) {
-        m_overlayMap = new HashMap<String, Overlay>();
+        m_overlayMap = new HashMap<RowColKey, Overlay>();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Map<String, Overlay> getOverlayMap() {
+    public Map<RowColKey, Overlay> getOverlayMap() {
         return m_overlayMap;
     }
 
@@ -114,8 +115,8 @@ public class OverlayAnnotatorManager<T extends RealType<T>> extends AbstractAnno
      * @param srcName
      * @return
      */
-    public Overlay getOverlay(final String srcName) {
-        return m_overlayMap.get(srcName);
+    public Overlay getOverlay(final RowColKey key) {
+        return m_overlayMap.get(key);
     }
 
     /**
@@ -123,8 +124,8 @@ public class OverlayAnnotatorManager<T extends RealType<T>> extends AbstractAnno
      * @param srcName
      * @param overlay
      */
-    public void addOverlay(final String srcName, final Overlay overlay) {
-        m_overlayMap.put(srcName, overlay);
+    public void addOverlay(final RowColKey rowColKey, final Overlay overlay) {
+        m_overlayMap.put(rowColKey, overlay);
     }
 
     //save and load componentConfig NOT LONGER USED

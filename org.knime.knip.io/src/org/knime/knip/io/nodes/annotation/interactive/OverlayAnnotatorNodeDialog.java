@@ -103,7 +103,7 @@ public class OverlayAnnotatorNodeDialog<T extends RealType<T> & NativeType<T>>
 		createNewTab("Selection");
 		createNewGroup("Image Annotation");
 
-		SettingsModelOverlayAnnotator<String> annotatorSM = OverlayAnnotatorNodeModel
+		SettingsModelOverlayAnnotator annotatorSM = OverlayAnnotatorNodeModel
 				.createAnnotatorSM();
 		m_dialogComponentAnnotator = new DialogComponentOverlayAnnotator<T>(
 				annotatorSM);

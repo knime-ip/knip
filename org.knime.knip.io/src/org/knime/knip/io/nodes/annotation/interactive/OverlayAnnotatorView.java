@@ -76,9 +76,10 @@ import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorLabelPanel;
 import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorResetEvent;
 import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorToolbar;
+import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
+import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorImgWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.annotator.interactive.OverlayAnnotatorManager;
 import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
-import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
 import org.knime.knip.core.ui.imgviewer.panels.ImgNormalizationPanel;
 import org.knime.knip.core.ui.imgviewer.panels.PlaneSelectionPanel;
@@ -99,7 +100,7 @@ import org.knime.knip.io.nodes.annotation.AnnotatorImgCanvas;
  *         Zinsmaier</a>
  */
 public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
-		implements AnnotatorView<String>, ListSelectionListener {
+		implements AnnotatorView, ListSelectionListener {
 
 	private final JPanel m_mainPanel = new JPanel();
 
@@ -112,8 +113,11 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
 
 	private TableContentView m_tableContentView;
 
+	private TableContentModel m_tableContentModel;
+	
 	private int m_currentRow = -1;
 	private int m_currentCol = -1;
+
 
 	public OverlayAnnotatorView() {
 		createAnnotator();
@@ -125,17 +129,17 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
 	}
 
 	@Override
-	public Overlay<String> getOverlay(String srcName) {
-		return m_manager.getOverlay(srcName);
+	public Overlay getOverlay(RowColKey key) {
+		return m_manager.getOverlay(key);
 	}
 
 	@Override
-	public void setOverlay(String srcName, Overlay<String> overlay) {
+	public void setOverlay(RowColKey key, Overlay overlay) {
 		// assumption overlays that should be added like this come from
 		// serialization => they belong to the input table and they need a
 		// reference to the event service
 		overlay.setEventService(m_eventService);
-		m_manager.addOverlay(srcName, overlay);
+		m_manager.addOverlay(key, overlay);
 	}
 
 	@Override
@@ -146,14 +150,14 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
 	}
 
 	@Override
-	public List<String> getOverlaySrcNames() {
-		LinkedList<String> ret = new LinkedList<String>();
-		Map<String, Overlay<String>> map = m_manager.getOverlayMap();
+	public List<RowColKey> getOverlayKeys() {
+		LinkedList<RowColKey> ret = new LinkedList<RowColKey>();
+		Map<RowColKey, Overlay> map = m_manager.getOverlayMap();
 
 		// add all none empty overlays
-		for (String srcName : map.keySet()) {
-			if (map.get(srcName).getElements().length > 0) {
-				ret.add(srcName);
+		for (RowColKey key : map.keySet()) {
+			if (map.get(key).getElements().length > 0) {
+				ret.add(key);
 			}
 		}
 
@@ -162,7 +166,8 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
 
 	@Override
 	public void setInputTable(DataTable inputTable) {
-		m_tableContentView.setModel(new TableContentModel(inputTable));
+		m_tableContentModel = new TableContentModel(inputTable);
+		m_tableContentView.setModel(m_tableContentModel);
 		// Scale to thumbnail size
 		m_tableContentView.validate();
 		m_tableContentView.repaint();
@@ -230,11 +235,15 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
 		try {
 			final DataCell currentImgCell = m_tableContentView
 					.getContentModel().getValueAt(m_currentRow, m_currentCol);
+			
 			ImgPlus<T> imgPlus = ((ImgPlusValue<T>) currentImgCell)
 					.getImgPlus();
 
-			m_eventService.publish(new ImgWithMetadataChgEvent<T>(imgPlus.getImg(),
-					imgPlus));
+			String colKey = m_tableContentModel.getColumnName(m_currentCol);
+			String rowKey = m_tableContentModel.getRowKey(m_currentRow).getString(); 
+			
+			m_eventService.publish(new AnnotatorImgWithMetadataChgEvent<T>(imgPlus.getImg(),
+					imgPlus, new RowColKey(rowKey, colKey)));
 			m_eventService.publish(new ImgRedrawEvent());
 		} catch (final IndexOutOfBoundsException e2) {
 			return;
