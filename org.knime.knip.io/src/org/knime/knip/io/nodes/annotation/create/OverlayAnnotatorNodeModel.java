@@ -58,11 +58,15 @@ import net.imglib2.meta.ImgPlus;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
+import org.knime.core.data.DataRow;
+import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataTableHolder;
 import org.knime.core.node.ExecutionContext;
+import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.node.port.PortObjectSpec;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingCellFactory;
@@ -118,6 +122,10 @@ public class OverlayAnnotatorNodeModel<T extends RealType<T> & NativeType<T>>
 
 	private LabelingCellFactory m_labelingCellFactory;
 
+	private DataRow m_currentRow;
+
+	private DataTableSpec m_inSpec;
+
 	@Override
 	protected void addSettingsModels(List<SettingsModel> settingsModels) {
 		settingsModels.add(m_annotationsSM);
@@ -126,20 +134,38 @@ public class OverlayAnnotatorNodeModel<T extends RealType<T> & NativeType<T>>
 		settingsModels.add(m_labelingType);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs)
+			throws InvalidSettingsException {
+		m_inSpec = (DataTableSpec) inSpecs[0];
+
+		return super.configure(inSpecs);
+	}
+
 	@Override
 	protected void prepareExecute(ExecutionContext exec) {
 		m_labelingCellFactory = new LabelingCellFactory(exec);
+	}
+
+	protected void computeDataRow(final DataRow row) {
+		m_currentRow = row;
 	}
 
 	@Override
 	protected LabelingCell<String> compute(ImgPlusValue<T> cellValue)
 			throws Exception {
 
-		Map<RowColKey, Overlay> overlayMap = m_annotationsSM
-				.getOverlayMap();
+		Map<RowColKey, Overlay> overlayMap = m_annotationsSM.getOverlayMap();
 		ImgPlus<?> imgPlus = cellValue.getImgPlus();
+	
+		// calculate key
+		String rowName = m_currentRow.getKey().getString();
+		String colName = m_inSpec.getColumnNames()[m_currentCellIdx];
 
-		final Overlay overlay = overlayMap.get(imgPlus.getSource());
+		final Overlay overlay = overlayMap.get(new RowColKey(rowName, colName));
 
 		if ((overlay != null) && (overlay.getElements().length > 0)) {
 			final Labeling<String> labeling = overlay.renderSegmentationImage(
