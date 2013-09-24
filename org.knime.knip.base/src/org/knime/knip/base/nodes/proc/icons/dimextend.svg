@@ -13,9 +13,9 @@
    height="16"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.0 r9654"
+   inkscape:version="0.48.3.1 r9886"
    sodipodi:docname="remove1dim.svg"
-   inkscape:export-filename="/home/hornm/workspaces/eclipse/workspace/org.knime.yaiap/src/org/knime/yaiap/nodes/misc/remove1dim/remove1dim.png"
+   inkscape:export-filename="/home/hornm/workspaces/eclipse/workspace_indigo/knip/org.knime.knip.base/src/org/knime/knip/base/nodes/proc/icons/remove1dim.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -654,10 +654,10 @@
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1600"
-     inkscape:window-height="1153"
-     inkscape:window-x="-4"
-     inkscape:window-y="-4"
+     inkscape:window-width="1375"
+     inkscape:window-height="876"
+     inkscape:window-x="65"
+     inkscape:window-y="24"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata7">
@@ -678,26 +678,25 @@
      transform="translate(0,-1036.3622)">
     <text
        xml:space="preserve"
-       style="font-size:9.92787266px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:arial black;-inkscape-font-specification:arial black"
-       x="-0.29589844"
-       y="825.04187"
+       style="font-size:8.39325809px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:arial black;-inkscape-font-specification:arial black"
+       x="2.6370053"
+       y="824.43652"
        id="text4241"
        sodipodi:linespacing="125%"
        transform="scale(0.78739749,1.2700066)"><tspan
          sodipodi:role="line"
          id="tspan4243"
-         x="-0.29589844"
-         y="825.04187"
+         x="2.6370053"
+         y="824.43652"
          style="font-family:arial black;-inkscape-font-specification:arial black">[.1.]</tspan></text>
-    <g
-       transform="matrix(0.78739749,0,0,1.2700066,-4.2116724,10.322726)"
-       style="font-size:9.92787266px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;font-family:arial black;-inkscape-font-specification:arial black"
-       id="text4241-1">
-      <path
-         d="m 17.09531,809.72152 0,7.22776 -1.997209,0 0,-4.7361 c -0.323176,0.24562 -0.636653,0.44437 -0.940433,0.59625 -0.300553,0.1519 -0.678665,0.29733 -1.134337,0.43629 l 0,-1.6191 c 0.672198,-0.21652 1.194122,-0.47667 1.565772,-0.78046 0.371647,-0.30378 0.662502,-0.67866 0.872567,-1.12464 l 1.63364,0"
-         style="fill:#ff0000;fill-opacity:1;stroke:none;font-family:arial black;-inkscape-font-specification:arial black"
-         id="path4354"
-         inkscape:connector-curvature="0" />
-    </g>
+    <rect
+       ry="2.5365337e-06"
+       rx="1.8662621e-06"
+       y="1036.3622"
+       x="0"
+       height="16"
+       width="2"
+       id="rect3089"
+       style="fill:#8c0000;fill-opacity:1;stroke:none" />
   </g>
 </svg>

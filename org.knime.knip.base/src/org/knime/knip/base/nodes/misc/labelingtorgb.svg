@@ -2,13 +2,55 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    version="1.1"
    width="16"
    height="16"
-   id="svg2">
+   id="svg2"
+   inkscape:version="0.48.3.1 r9886"
+   sodipodi:docname="labelingtorgb.svg"
+   inkscape:export-filename="/home/hornm/workspaces/eclipse/workspace_indigo/knip/org.knime.knip.base/src/org/knime/knip/base/nodes/misc/labelingtorgb.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <metadata
+     id="metadata23769">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1375"
+     inkscape:window-height="876"
+     id="namedview23767"
+     showgrid="false"
+     inkscape:zoom="14.75"
+     inkscape:cx="-3.9322034"
+     inkscape:cy="21.501788"
+     inkscape:window-x="65"
+     inkscape:window-y="24"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2" />
   <defs
      id="defs4">
     <linearGradient
@@ -347,49 +389,44 @@
          offset="1" />
     </linearGradient>
   </defs>
-  <g
-     transform="translate(0,-1036.3622)"
-     id="layer1">
-    <path
-       d="m 25.765524,5.2024283 a 0.02064545,0.26839089 0 1 1 -0.04129,0 0.02064545,0.26839089 0 1 1 0.04129,0 z"
-       transform="translate(0,1036.3622)"
-       id="path4946"
-       style="opacity:0.93999999;fill:#ffe100;fill-opacity:1;stroke:#a90000;stroke-opacity:0" />
-    <rect
-       width="7.8357172"
-       height="7.7561932"
-       ry="0.48437613"
-       x="0.23923682"
-       y="1036.7253"
-       id="rect4992"
-       style="opacity:0.93999999;fill:none;stroke:#000000;stroke-width:0.50213784;stroke-opacity:1" />
-    <path
-       d="m 6.1240726,1037.7673 c -1.0777714,-1.5059 -2.2088048,2.0542 -1.4541283,2.4636 0.5217204,0.2831 0.9322307,-1.3317 1.489558,-0.7415 1.5068649,1.5957 2.1534642,-0.231 1.4818847,-1.0063 -1.9159036,-2.2117 0.8415462,0.3319 -1.5173144,-0.7158 l 0,0 z"
-       id="path3049-6-6"
-       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.12464739;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:0.32051284;stroke-dasharray:none" />
-    <path
-       d="m 2.8829324,1039.3154 c -1.480589,-2.0687 -1.2619382,2.4173 -1.9976091,3.3846 -0.75061247,0.9869 2.510033,0.093 3.2756614,0.9035 2.0700554,2.1921 0.8886351,-2.6083 -0.4230232,-2.963 -0.9474661,-0.256 2.3854676,0.1142 -0.8550291,-1.3251 l 0,0 z"
-       id="path3049-6-6-3"
-       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.17123434;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:0.32051284;stroke-dasharray:none" />
-    <rect
-       width="7.8357172"
-       height="7.7561932"
-       ry="0.48437613"
-       x="8.0749531"
-       y="1044.4816"
-       id="rect4992-7"
-       style="opacity:0.93999999;fill:none;stroke:#00005c;stroke-width:0.50213784;stroke-opacity:1" />
-    <path
-       d="m 13.959789,1045.5233 c -1.077772,-1.5057 -2.208805,2.0543 -1.454128,2.4638 0.521719,0.283 0.932229,-1.3318 1.489557,-0.7416 1.506865,1.5957 2.153464,-0.231 1.481885,-1.0063 -1.915904,-2.2116 0.841546,0.3319 -1.517314,-0.7159 l 0,0 z"
-       id="path3049-6-6-38"
-       style="fill:#d46200;fill-opacity:1;stroke:#000000;stroke-width:0.12464739;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:0.32051284;stroke-dasharray:none" />
-    <path
-       d="m 10.718648,1047.0716 c -1.4805877,-2.0686 -1.2619377,2.4171 -1.9976082,3.3844 -0.750612,0.9871 2.5100332,0.093 3.2756612,0.9036 2.070054,2.1922 0.888634,-2.6083 -0.423022,-2.9629 -0.947468,-0.2562 2.385467,0.114 -0.855031,-1.3251 l 0,0 z"
-       id="path3049-6-6-3-6"
-       style="fill:#008c00;fill-opacity:1;stroke:#000000;stroke-width:0.17123434;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:0.32051284;stroke-dasharray:none" />
-    <path
-       d="m 9.5284862,1038.9984 c 2.7065358,-0.1285 3.6871868,2.489 3.6871868,2.489 l 0.114467,1.187"
-       id="path5471"
-       style="fill:none;stroke:#000000;stroke-width:0.7869013px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:none;marker-end:url(#Arrow2Send-554)" />
-  </g>
+  <rect
+     ry="2.5365337e-06"
+     rx="1.8662621e-06"
+     y="0"
+     x="0"
+     height="16"
+     width="2"
+     id="rect3089"
+     style="fill:#8c0000;fill-opacity:1;stroke:none" />
+  <rect
+     style="fill:#000000;fill-opacity:1;stroke:none"
+     id="rect23789"
+     width="8.9491529"
+     height="8.9491529"
+     x="4.1355934"
+     y="0.94915289"
+     rx="1.8662621e-06"
+     ry="2.5365337e-06" />
+  <text
+     xml:space="preserve"
+     style="font-size:8.16789436px;font-style:normal;font-weight:bold;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"
+     x="5.9308949"
+     y="8.3389826"
+     id="text23791"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       id="tspan23793"
+       x="5.9308949"
+       y="8.3389826">L</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-size:4.85133123px;font-style:normal;font-weight:bold;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"
+     x="3.2016175"
+     y="14.820786"
+     id="text23791-2"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       id="tspan23793-8"
+       x="3.2016175"
+       y="14.820786">RGB</tspan></text>
 </svg>

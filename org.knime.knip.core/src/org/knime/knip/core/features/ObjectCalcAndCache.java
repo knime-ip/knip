@@ -48,6 +48,7 @@
  */
 package org.knime.knip.core.features;
 
+import java.awt.Polygon;
 import java.util.BitSet;
 
 import net.imglib2.Cursor;
@@ -66,11 +67,14 @@ import net.imglib2.type.numeric.RealType;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.knime.knip.core.data.labeling.Signature;
+import org.knime.knip.core.util.PolygonTools;
 
 /**
- * 
- * Utility class which calculates caches commonly used objects.
- * 
+ *
+ * Utility class which calculates "caches" commonly used objects, i.e. as soon as one of the methods is called, the
+ * demanded object is created and returned. On the second call the already created object is returned, if the parameter
+ * object equals (object equality) the parameter object of the previous call.
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -236,6 +240,24 @@ public class ObjectCalcAndCache {
         }
 
         return m_signature;
+
+    }
+
+    private IterableInterval<BitType> m_tIterableInterval;
+
+    private Polygon m_polygon;
+
+    private int[] m_offset = new int[2];
+
+    public Polygon traceContour(final IterableInterval<BitType> ii) {
+
+        if (m_sIterableInterval != ii) {
+            m_sIterableInterval = ii;
+
+            m_polygon = PolygonTools.extractPolygon(binaryMask(ii), m_offset);
+
+        }
+        return m_polygon;
 
     }
 

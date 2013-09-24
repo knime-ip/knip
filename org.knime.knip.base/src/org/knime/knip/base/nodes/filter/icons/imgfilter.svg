@@ -16,7 +16,7 @@
    version="1.1"
    inkscape:version="0.48.3.1 r9886"
    sodipodi:docname="imgfilter.svg"
-   inkscape:export-filename="/home/hornm/workspaces/eclipse/workspace_helios/org.knime.knip.base/src/org/knime/knip/base/nodes/filter/icons/imgfilter.png"
+   inkscape:export-filename="/home/hornm/workspaces/eclipse/workspace_indigo/knip/org.knime.knip.base/bin/org/knime/knip/base/nodes/filter/icons/imgfilter.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -210,7 +210,7 @@
        x2="12.90625"
        y2="1044.9247"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.3732314,0,0,0.50142099,-2.7608923,525.48602)" />
+       gradientTransform="matrix(1.2657438,0,0,0.65156024,-0.8537954,367.97141)" />
     <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient3848-6"
@@ -239,14 +239,14 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="32"
-     inkscape:cx="9.8371259"
+     inkscape:cx="4.3371259"
      inkscape:cy="7.8042225"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1600"
-     inkscape:window-height="1176"
-     inkscape:window-x="1600"
+     inkscape:window-width="1375"
+     inkscape:window-height="876"
+     inkscape:window-x="65"
      inkscape:window-y="24"
      inkscape:window-maximized="1"
      showguides="true"
@@ -270,7 +270,7 @@
      transform="translate(0,-1036.3622)">
     <path
        style="fill:url(#linearGradient4338);fill-opacity:1;stroke:none"
-       d="m 0.88675381,1046.8948 6.05478859,3.8189 0,1.2423 2.270427,0 0,-1.2536 6.0038146,-3.797 z"
+       d="m 2.5083367,1045.5043 5.5808593,4.9624 0,1.6143 2.092713,0 0,-1.629 5.533875,-4.9339 z"
        id="path4330"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccccc" />
@@ -283,18 +283,28 @@
        sodipodi:rx="5.1875"
        sodipodi:ry="0.96875"
        d="m 4.7999266,3.2422923 a 5.1875,0.96875 0 1 1 6.667e-4,8.34e-5"
-       transform="matrix(1.3732314,0,0,0.50142099,-2.5892383,1045.6882)"
+       transform="matrix(1.2657438,0,0,0.65156024,-0.6955774,1043.9364)"
        sodipodi:start="2.1611329"
        sodipodi:end="8.4441635"
        sodipodi:open="true" />
-    <image
-       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAABHNCSVQICAgIfAhkiAAAAaJJREFU KJF90E1I2nEYB/DvX22QJTEKGpQdjKLBIiyYs5yFRblYRdBivdFhBoLB2KXotssoom6GlfRGB9NL dNmlS8OEIhg02GD0wjCtFibOYPnSn+9O/63sz34Pz+V5ns/Dw08giczX0SHUajRwiSKGPR76M/uK zEJjo/C8qQlehwNPbnIMc6auPvN/UfWLNuMjw8jKabo9OxBbSXZOfHr8XRNwC33CXUgSJKG3vjS+ mXQGfVFSyorxuiCioGoEP8rLYZRmFQBQ09z6TG+xeltsDq20LJW4xnH254dIAdpvuSqdDut6vVAP AEKVpdlQ09Lmsw4Nl2Tevr3rQSx+9ruuskv9cUyX+BoVTw61sKk0+QXzcgAATIYeAFBv7s0lt4qU yfiaWAYbnAqVMuvt5tLsz9vD6WQCkVAQyxvvruyrxWF3of3Br5lUHhcQwhXsIImG14MNQ9Ouc1+U 9EZEvhp9T/P0QBxh8G84cYJ21JL893sSnNr+wsWjS+ZO5V/IgTvoNvwQ2CH8wo0cuIckWNr/9ACi PJBFJIFumNCLfTlAEn8AiFESceGtWxMAAAAASUVORK5CYII= "
-       width="13"
-       height="13"
-       id="image4416"
-       x="1"
-       y="1036.4247"
-       clip-path="url(#clipPath4426)"
-       transform="translate(0.03125,-0.125)" />
+    <rect
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       id="rect3022"
+       width="7.2391505"
+       height="7.2391505"
+       x="738.76727"
+       y="725.70782"
+       rx="2.2170507e-06"
+       ry="3.0133085e-06"
+       transform="matrix(0.70710678,0.70710678,-0.70710678,0.70710678,0,0)" />
+    <rect
+       ry="2.5365337e-06"
+       rx="1.8662621e-06"
+       y="1036.3622"
+       x="0"
+       height="16"
+       width="2"
+       id="rect3089"
+       style="fill:#8c0000;fill-opacity:1;stroke:none" />
   </g>
 </svg>

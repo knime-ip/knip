@@ -64,8 +64,8 @@ import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
 
 /**
  * Manages overlays and overlay elements ...
- * 
- * 
+ *
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -79,11 +79,11 @@ public class AnnotatorManager<T extends RealType<T>> extends AbstractAnnotatorMa
     private static final long serialVersionUID = 1L;
 
     /* Are serialized */
-    private Map<String, Overlay<String>> m_overlayMap;
+    private Map<String, Overlay> m_overlayMap;
 
     public AnnotatorManager() {
         super();
-        setOverlayMap(new HashMap<String, Overlay<String>>());
+        setOverlayMap(new HashMap<String, Overlay>());
     }
 
     @EventListener
@@ -112,7 +112,7 @@ public class AnnotatorManager<T extends RealType<T>> extends AbstractAnnotatorMa
     public void saveComponentConfiguration(final ObjectOutput out) throws IOException {
         out.writeInt(getOverlayMap().size());
 
-        for (final Entry<String, Overlay<String>> entry : getOverlayMap().entrySet()) {
+        for (final Entry<String, Overlay> entry : getOverlayMap().entrySet()) {
             out.writeUTF(entry.getKey());
             entry.getValue().writeExternal(out);
         }
@@ -130,7 +130,7 @@ public class AnnotatorManager<T extends RealType<T>> extends AbstractAnnotatorMa
         final int num = in.readInt();
         for (int i = 0; i < num; i++) {
             final String key = in.readUTF();
-            final Overlay<String> o = new Overlay<String>();
+            final Overlay o = new Overlay();
             o.readExternal(in);
             o.setEventService(m_eventService);
             getOverlayMap().put(key, o);
@@ -143,19 +143,16 @@ public class AnnotatorManager<T extends RealType<T>> extends AbstractAnnotatorMa
     }
 
     @Override
-    public Map<String, Overlay<String>> getOverlayMap() {
+    public Map<String, Overlay> getOverlayMap() {
         return m_overlayMap;
     }
 
-    public void setOverlayMap(final Map<String, Overlay<String>> m_overlayMap) {
+    public void setOverlayMap(final Map<String, Overlay> m_overlayMap) {
         this.m_overlayMap = m_overlayMap;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @EventListener
     public void reset2(final AnnotatorResetEvent e) {
-        m_overlayMap = new HashMap<String, Overlay<String>>();
+        m_overlayMap = new HashMap<String, Overlay>();
     }
 }

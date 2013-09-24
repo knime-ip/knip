@@ -72,7 +72,7 @@ import org.knime.knip.core.features.seg.SegmentFeatureSet;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -110,6 +110,11 @@ public class SegmentFeatureSetProvider implements
 
     @Override
     public String getFeatureSetName() {
+        return "Segment Geometry";
+    }
+
+    @Override
+    public String getFeatureSetId() {
         return "Segment geometry";
     }
 

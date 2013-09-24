@@ -76,8 +76,8 @@ import org.knime.knip.core.ui.imgviewer.panels.HiddenViewerComponent;
 
 /**
  * Manages overlays and overlay elements ...
- * 
- * 
+ *
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -97,15 +97,15 @@ public abstract class AbstractAnnotatorManager<T extends RealType<T>> extends Hi
     /* Are not serialized or calculated from serzalization values */
     protected EventService m_eventService;
 
-    protected Overlay<String> m_currentOverlay;
+    protected Overlay m_currentOverlay;
 
-    protected AnnotatorTool<?> m_currentTool;
+    protected AnnotatorTool m_currentTool;
 
     public AbstractAnnotatorManager() {
         m_selectedLabels = new String[]{"Unknown"};
     }
 
-    protected abstract Map<String, Overlay<String>> getOverlayMap();
+    protected abstract Map<String, Overlay> getOverlayMap();
 
     @Override
     public void setEventService(final EventService eventService) {
@@ -120,6 +120,7 @@ public abstract class AbstractAnnotatorManager<T extends RealType<T>> extends Hi
         }
 
         m_eventService.publish(new OverlayChgEvent(m_currentOverlay));
+        m_eventService.publish(new ImgRedrawEvent());
     }
 
     @EventListener
@@ -146,10 +147,10 @@ public abstract class AbstractAnnotatorManager<T extends RealType<T>> extends Hi
 
     @EventListener
     public void onLabelsDeleted(final AnnotatorLabelsDelEvent e) {
-        ArrayList<OverlayElement2D<String>> m_removeList = new ArrayList<OverlayElement2D<String>>();
+        ArrayList<OverlayElement2D> m_removeList = new ArrayList<OverlayElement2D>();
 
-        for (final Overlay<String> overlay : getOverlayMap().values()) {
-            for (final OverlayElement2D<String> element : overlay.getElements()) {
+        for (final Overlay overlay : getOverlayMap().values()) {
+            for (final OverlayElement2D element : overlay.getElements()) {
                 for (final String label : e.getLabels()) {
                     element.getLabels().remove(label);
                 }
@@ -176,7 +177,7 @@ public abstract class AbstractAnnotatorManager<T extends RealType<T>> extends Hi
         m_currentOverlay = getOverlayMap().get(e.getSource().getSource());
 
         if (m_currentOverlay == null) {
-            m_currentOverlay = new Overlay<String>(e.getRandomAccessibleInterval());
+            m_currentOverlay = new Overlay(e.getRandomAccessibleInterval());
             getOverlayMap().put(e.getSource().getSource(), m_currentOverlay);
             m_currentOverlay.setEventService(m_eventService);
         }
@@ -214,8 +215,8 @@ public abstract class AbstractAnnotatorManager<T extends RealType<T>> extends Hi
 
     @EventListener
     public void onLabelEdit(final AnnotatorLabelEditEvent e) {
-        for (final Overlay<String> overlay : getOverlayMap().values()) {
-            for (final OverlayElement2D<String> element : overlay.getElements()) {
+        for (final Overlay overlay : getOverlayMap().values()) {
+            for (final OverlayElement2D element : overlay.getElements()) {
                 if (element.getLabels().remove(e.getOldLabel())) {
                     element.getLabels().add(e.getNewLabel());
                 }

@@ -13,9 +13,9 @@
    height="16"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.1 "
-   sodipodi:docname="gaussian.svg"
-   inkscape:export-filename="C:\Users\felix\workspace\org.knime.ip_experimental\src\org\knime\ip\node\filter\linear\gaussian.png"
+   inkscape:version="0.48.3.1 r9886"
+   sodipodi:docname="derivativegaussian.svg"
+   inkscape:export-filename="/home/hornm/workspaces/eclipse/workspace_indigo/knip/org.knime.knip.base/bin/org/knime/knip/base/nodes/filter/icons/derivativegaussian.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -474,15 +474,15 @@
      inkscape:pageshadow="2"
      inkscape:zoom="29.65625"
      inkscape:cx="12.616775"
-     inkscape:cy="10.654316"
+     inkscape:cy="9.0423215"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1194"
-     inkscape:window-height="823"
-     inkscape:window-x="236"
-     inkscape:window-y="253"
-     inkscape:window-maximized="0" />
+     inkscape:window-width="1375"
+     inkscape:window-height="876"
+     inkscape:window-x="65"
+     inkscape:window-y="24"
+     inkscape:window-maximized="1" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -501,22 +501,31 @@
      id="layer1"
      transform="translate(0,-1036.3622)">
     <path
-       style="fill:none;stroke:#000000;stroke-width:0.68947548;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       d="M 0.43656509,1051.0842 C 4.5742518,1051.1922 4.8765898,1045.0767 8,1045.0767 c 3.12341,0 3.091199,6.0075 7.563435,6.0075"
+       style="fill:none;stroke:#000000;stroke-width:0.59584099;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 3.583004,1049.5109 c 3.5757665,0.093 3.8370453,-5.1917 6.536279,-5.1917 2.699234,0 2.671397,5.1917 6.536279,5.1917"
        id="path3050"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="czc" />
     <text
        xml:space="preserve"
-       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="-0.47924805"
-       y="1047.1112"
+       style="font-size:34.56778336px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="2.7915635"
+       y="1046.0774"
        id="text3049"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan3051"
-         x="-0.47924805"
-         y="1047.1112"
-         style="font-size:13px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Cambria Math;-inkscape-font-specification:Cambria Math Bold">∇</tspan></text>
+         x="2.7915635"
+         y="1046.0774"
+         style="font-size:11.2345295px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Cambria Math;-inkscape-font-specification:Cambria Math Bold">∇</tspan></text>
+    <rect
+       ry="2.5365337e-06"
+       rx="1.8662621e-06"
+       y="1036.3622"
+       x="0"
+       height="16"
+       width="2"
+       id="rect3089"
+       style="fill:#8c0000;fill-opacity:1;stroke:none" />
   </g>
 </svg>

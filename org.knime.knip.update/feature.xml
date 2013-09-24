@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.knime.knip.update"
+      label="KNIP Update Site"
+      version="1.1.0.qualifier">
+
+   <includes
+         id="org.knime.knip.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="org.knime.knip.testing.feature"
+         version="0.0.0"/>
+
+</feature>

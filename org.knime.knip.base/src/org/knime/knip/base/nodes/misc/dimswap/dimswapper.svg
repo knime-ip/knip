@@ -13,9 +13,9 @@
    height="16"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.0 r9654"
+   inkscape:version="0.48.3.1 r9886"
    sodipodi:docname="dimswapper.svg"
-   inkscape:export-filename="/home/kaminkatze/data/scsrc/eclipse_knime_2.2.0/workspace/org.knime.ip_dev/src/org/knime/ip/node/misc/dimension/dimswapper.png"
+   inkscape:export-filename="/home/hornm/workspaces/eclipse/workspace_indigo/knip/org.knime.knip.base/src/org/knime/knip/base/nodes/misc/dimswap/dimswapper.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -472,15 +472,15 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="32"
-     inkscape:cx="-4.984375"
-     inkscape:cy="7.3198475"
+     inkscape:zoom="26.461929"
+     inkscape:cx="5.1209152"
+     inkscape:cy="8.4219378"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1920"
-     inkscape:window-height="1156"
-     inkscape:window-x="0"
+     inkscape:window-width="1375"
+     inkscape:window-height="876"
+     inkscape:window-x="65"
      inkscape:window-y="24"
      inkscape:window-maximized="1" />
   <metadata
@@ -491,7 +491,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -502,49 +502,58 @@
      transform="translate(0,-1036.3622)">
     <text
        xml:space="preserve"
-       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;writing-mode:lr-tb;text-anchor:middle;fill:#4d4d4d;fill-opacity:1;stroke:none;font-family:MgOpen Cosmetica;-inkscape-font-specification:MgOpen Cosmetica"
-       x="2.65625"
-       y="1043.0721"
+       style="font-size:7.90708112999999990px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:MgOpen Cosmetica;-inkscape-font-specification:MgOpen Cosmetica"
+       x="5.4985299"
+       y="1043.587"
        id="text3050"><tspan
          sodipodi:role="line"
          id="tspan3052"
-         x="2.65625"
-         y="1043.0721">X</tspan></text>
+         x="5.4985299"
+         y="1043.587">X</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;writing-mode:lr-tb;text-anchor:middle;fill:#4d4d4d;fill-opacity:1;stroke:none;font-family:MgOpen Cosmetica;-inkscape-font-specification:MgOpen Cosmetica"
-       x="12.93125"
-       y="1052.2522"
+       style="font-size:7.90708112999999990px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:MgOpen Cosmetica;-inkscape-font-specification:MgOpen Cosmetica"
+       x="13.623055"
+       y="1050.8458"
        id="text3050-6"><tspan
          sodipodi:role="line"
          id="tspan3052-2"
-         x="12.93125"
-         y="1052.2522">C</tspan></text>
+         x="13.623055"
+         y="1050.8458">C</tspan></text>
     <path
        sodipodi:type="arc"
-       style="fill:none;stroke:#000000;stroke-width:0.50000000000000000;stroke-miterlimit:4;stroke-dasharray:none;marker-start:none;marker-end:url(#Arrow2Mend-6)"
+       style="fill:none;stroke:#000000;stroke-width:0.62602115;stroke-miterlimit:4;stroke-dasharray:none;marker-start:none;marker-end:url(#Arrow2Mend-6)"
        id="path3079"
        sodipodi:cx="7.875"
        sodipodi:cy="8.125"
        sodipodi:rx="6.59375"
        sodipodi:ry="6.59375"
-       d="m 7.8750002,14.71875 c -3.199905,0 -5.9379185,-2.297466 -6.4935763,-5.4487571"
-       transform="translate(0,1036.3622)"
+       d="M 7.8750002,14.71875 A 6.59375,6.59375 0 0 1 1.331227,8.9352923"
+       transform="matrix(0.79070811,0,0,0.79070811,3.3982116,1038.2815)"
        sodipodi:start="1.5707963"
-       sodipodi:end="2.9670597"
+       sodipodi:end="3.0183933"
        sodipodi:open="true" />
     <path
        sodipodi:open="true"
        sodipodi:end="6.1086524"
        sodipodi:start="4.712389"
-       transform="translate(0,1036.3622)"
-       d="m 7.8750001,1.53125 c 3.1999049,1e-7 5.9379189,2.2974662 6.4935759,5.4487574"
+       transform="matrix(0.79070811,0,0,0.79070811,3.3982116,1038.2815)"
+       d="M 7.8750001,1.53125 A 6.59375,6.59375 0 0 1 14.368576,6.9800074"
        sodipodi:ry="6.59375"
        sodipodi:rx="6.59375"
        sodipodi:cy="8.125"
        sodipodi:cx="7.875"
        id="use5301"
-       style="fill:none;stroke:#000000;stroke-width:0.50000000000000000;stroke-miterlimit:4;stroke-dasharray:none;marker-start:none;marker-end:url(#Arrow2Mend-6)"
+       style="fill:none;stroke:#000000;stroke-width:0.62602115;stroke-miterlimit:4;stroke-dasharray:none;marker-start:none;marker-end:url(#Arrow2Mend-6)"
        sodipodi:type="arc" />
+    <rect
+       ry="2.5365337e-06"
+       rx="1.8662621e-06"
+       y="1036.3622"
+       x="0"
+       height="16"
+       width="2"
+       id="rect3089"
+       style="fill:#8c0000;fill-opacity:1;stroke:none" />
   </g>
 </svg>

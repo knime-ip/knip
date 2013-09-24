@@ -58,8 +58,8 @@ import org.knime.core.node.defaultnodesettings.SettingsModel;
 /**
  * Calculates features on a specific object and associates the feature calculation with some {@link DialogComponent}s
  * (and their {@link SettingsModel}s) allowing the configuration of the actual feature calculation.
- * 
- * 
+ *
+ *
  * @param <T> the target object for the feature calculation
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -70,7 +70,7 @@ public interface FeatureSetProvider<T> {
     /**
      * Performs the actual calculation of the features based the the given T. The cells itself and their order has to be
      * conform with the column specs (@see {@link FeatureSetProvider#initAndAddColumnSpecs(List)}.
-     * 
+     *
      * @param obj
      * @param name TODO
      * @param axes TODO
@@ -84,8 +84,13 @@ public interface FeatureSetProvider<T> {
     String getFeatureSetName();
 
     /**
+     * @return a unique id of the feature set
+     */
+    String getFeatureSetId();
+
+    /**
      * Creates and adds the column specifications to the result list.
-     * 
+     *
      * @param columns
      */
     void initAndAddColumnSpecs(List<DataColumnSpec> columns);
@@ -94,14 +99,14 @@ public interface FeatureSetProvider<T> {
      * Initialises the dialog components needed for the feature calculation and adds them to dialog component
      * collection. Please note that the settings model objects used here must be different to the settings model objects
      * used in this{@link #initAndAddSettingsModels(List)}!
-     * 
+     *
      * @param dialogComponents
      */
     void initAndAddDialogComponents(List<DialogComponent> dialogComponents);
 
     /**
      * Initialises the settings models needed for the feature calculation and adds them to the list.
-     * 
+     *
      * @param settingsModels
      */
     void initAndAddSettingsModels(List<SettingsModel> settingsModels);

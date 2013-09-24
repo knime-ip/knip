@@ -14,9 +14,9 @@
    height="16"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.1 r9760"
+   inkscape:version="0.48.3.1 r9886"
    sodipodi:docname="calc.svg"
-   inkscape:export-filename="/home/kaminkatze/java/knime-sdk/workspace/org.knime.ip_experimental/src/org/knime/ip/node/proc/calculator/calc.png"
+   inkscape:export-filename="/home/hornm/workspaces/eclipse/workspace_indigo/knip/org.knime.knip.base/src/org/knime/knip/base/nodes/proc/imgjep/calc.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -428,14 +428,14 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="34.250001"
-     inkscape:cx="13.116248"
+     inkscape:cx="7.977562"
      inkscape:cy="7.5819878"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1120"
      inkscape:window-height="785"
-     inkscape:window-x="798"
+     inkscape:window-x="318"
      inkscape:window-y="66"
      inkscape:window-maximized="0" />
   <metadata
@@ -457,13 +457,14 @@
      transform="translate(0,-1036.3622)">
     <g
        id="g3061"
-       transform="translate(0.7763099,-0.5067)">
+       transform="translate(1.6522223,-0.38991168)"
+       style="fill:#000000;fill-opacity:1">
       <text
          sodipodi:linespacing="125%"
          id="text3050"
          y="1050.4351"
          x="7.4744525"
-         style="font-size:14px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;font-family:MgOpen Cosmetica;-inkscape-font-specification:MgOpen Cosmetica Bold"
+         style="font-size:14px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:MgOpen Cosmetica;-inkscape-font-specification:MgOpen Cosmetica Bold"
          xml:space="preserve"><tspan
            y="1050.4351"
            x="7.4744525"
@@ -471,14 +472,23 @@
            sodipodi:role="line">I</tspan></text>
       <g
          id="text3054"
-         style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;font-family:MgOpen Cosmetica;-inkscape-font-specification:MgOpen Cosmetica">
+         style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:MgOpen Cosmetica;-inkscape-font-specification:MgOpen Cosmetica">
         <path
-           style="fill:#333333;stroke:none"
+           style="fill:#000000;fill-opacity:1;stroke:none"
            sodipodi:nodetypes="cccccccccccc"
            inkscape:connector-curvature="0"
            id="path3059"
            d="m 6.0522639,1039.0515 7.2190001,0 0,0.6563 -6.4795641,0 -2.4839046,10.9785 -0.6847484,0 -1.42154,-6.0362 -0.8544922,0.3077 -0.1708985,-0.5469 1.9345704,-0.6699 0.9908759,4.8466 1.9507014,-9.5361" />
       </g>
     </g>
+    <rect
+       ry="2.5365337e-06"
+       rx="1.8662621e-06"
+       y="1036.3622"
+       x="0"
+       height="16"
+       width="2"
+       id="rect3089"
+       style="fill:#8c0000;fill-opacity:1;stroke:none" />
   </g>
 </svg>

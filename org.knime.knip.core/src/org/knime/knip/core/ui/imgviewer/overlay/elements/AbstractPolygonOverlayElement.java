@@ -64,13 +64,12 @@ import org.knime.knip.core.ui.imgviewer.overlay.OverlayElement2D;
 import org.knime.knip.core.ui.imgviewer.overlay.OverlayElementStatus;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public abstract class AbstractPolygonOverlayElement<L extends Comparable<L>> extends OverlayElement2D<L> implements
-        Externalizable {
+public abstract class AbstractPolygonOverlayElement extends OverlayElement2D implements Externalizable {
 
     protected static final int DRAWING_RADIUS = 2;
 

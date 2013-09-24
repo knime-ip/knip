@@ -52,14 +52,14 @@ import org.knime.knip.core.ui.event.KNIPEvent;
 import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorTool;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 public class AnnotatorToolChgEvent implements KNIPEvent {
 
-    private final AnnotatorTool m_tool;
+    private final AnnotatorTool<?> m_tool;
 
     public AnnotatorToolChgEvent(final AnnotatorTool tool) {
         m_tool = tool;
@@ -69,7 +69,7 @@ public class AnnotatorToolChgEvent implements KNIPEvent {
     /**
      * @return the tool
      */
-    public AnnotatorTool getTool() {
+    public AnnotatorTool<?> getTool() {
         return m_tool;
     }
 

@@ -85,7 +85,9 @@ import org.knime.knip.core.ui.imgviewer.panels.PlaneSelectionPanel;
 import org.knime.knip.core.ui.imgviewer.panels.RendererSelectionPanel;
 import org.knime.knip.core.ui.imgviewer.panels.TransparencyPanel;
 import org.knime.knip.core.ui.imgviewer.panels.infobars.ImgViewInfoPanel;
-import org.knime.knip.core.ui.imgviewer.panels.providers.OverlayBufferedImageProvider;
+import org.knime.knip.core.ui.imgviewer.panels.providers.AWTImageProvider;
+import org.knime.knip.core.ui.imgviewer.panels.providers.ImageRU;
+import org.knime.knip.core.ui.imgviewer.panels.providers.OverlayRU;
 import org.knime.knip.io.nodes.annotation.AnnotatorImgCanvas;
 
 /**
@@ -181,7 +183,7 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
 		ImgViewer annotator = new ImgViewer();
 
 		annotator
-				.addViewerComponent(new OverlayBufferedImageProvider<T, String>());
+				.addViewerComponent(new AWTImageProvider(0, new OverlayRU<String>(new ImageRU<T>())));
 		annotator.addViewerComponent(m_manager);
 		annotator.addViewerComponent(new AnnotatorLabelPanel());
 		annotator.addViewerComponent(AnnotatorToolbar.createStandardToolbar());
@@ -231,7 +233,7 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
 			ImgPlus<T> imgPlus = ((ImgPlusValue<T>) currentImgCell)
 					.getImgPlus();
 
-			m_eventService.publish(new ImgWithMetadataChgEvent<T>(imgPlus,
+			m_eventService.publish(new ImgWithMetadataChgEvent<T>(imgPlus.getImg(),
 					imgPlus));
 			m_eventService.publish(new ImgRedrawEvent());
 		} catch (final IndexOutOfBoundsException e2) {

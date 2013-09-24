@@ -99,14 +99,21 @@ package org.knime.knip.io.node.dialog;
  *   12 Nov 2009 (hornm): created
  */
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import javax.swing.BoxLayout;
 import javax.swing.filechooser.FileFilter;
 
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.knime.core.node.port.PortObjectSpec;
+import org.knime.core.util.pathresolve.ResolverUtil;
 import org.knime.knip.io.nodes.imgreader.FileChooserPanel;
 
 /**
@@ -118,6 +125,13 @@ import org.knime.knip.io.nodes.imgreader.FileChooserPanel;
  *         Zinsmaier</a>
  */
 public class DialogComponentMultiFileChooser extends DialogComponent {
+
+	private static NodeLogger LOGGER = NodeLogger
+			.getLogger(DialogComponentMultiFileChooser.class);
+
+	public final static String KNIME_WORKFLOW_RELPATH = "knime://knime.workflow";
+
+	private String m_workflowCanonicalPath;
 
 	/*
 	 * The file chooser
@@ -143,6 +157,17 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 			final FileFilter fileFilter, final String historyID) {
 
 		super(stringArrayModel);
+
+		m_workflowCanonicalPath = null;
+		try {
+			m_workflowCanonicalPath = ResolverUtil.resolveURItoLocalFile(
+					new URI(KNIME_WORKFLOW_RELPATH)).getCanonicalPath();
+		} catch (URISyntaxException e) {
+			LOGGER.warn("could not resolve the workflow directory as local file");
+		} catch (IOException e) {
+			LOGGER.warn("could not resolve the workflow directory as local file");
+		}
+
 		// m_dirHistory = StringHistory.getInstance(historyID);
 		m_fileChooser = new FileChooserPanel(fileFilter);
 		// m_fileChooser.setDirectoryHistory(m_dirHistory.getHistory());
@@ -208,12 +233,19 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 	 */
 	@Override
 	protected void updateComponent() {
-		m_fileChooser.update(m_stringArrayModel.getStringArrayValue());
+		String[] paths = m_stringArrayModel.getStringArrayValue();
+		for (int i = 0; i < paths.length; i++) {
+			paths[i] = convertToFilePath(paths[i], m_workflowCanonicalPath);
+		}
+		m_fileChooser.update(paths);
 	}
 
 	private void updateModel() {
-		m_stringArrayModel
-				.setStringArrayValue(m_fileChooser.getSelectedFiles());
+		String[] paths = m_fileChooser.getSelectedFiles();
+		for (int i = 0; i < paths.length; i++) {
+			paths[i] = convertToKNIMEPath(paths[i], m_workflowCanonicalPath);
+		}
+		m_stringArrayModel.setStringArrayValue(paths);
 	}
 
 	/**
@@ -223,6 +255,45 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 	protected void validateSettingsBeforeSave() throws InvalidSettingsException {
 		// m_dirHistory.add(m_fileChooser.getCurrentDirectory());
 		updateModel();
+	}
+
+	/**
+	 * expands relative knime://knime.workflow URI parts of pathes to normal
+	 * local paths to allow handling as normal files.
+	 * 
+	 * @param paths
+	 */
+	public static String convertToFilePath(String path,
+			String canonicalWorkflowPath) {
+		if (path.startsWith(KNIME_WORKFLOW_RELPATH)) {
+			path = path.replace(KNIME_WORKFLOW_RELPATH, canonicalWorkflowPath);
+		}
+		return path;
+	}
+
+	/**
+	 * changes the string path identifiers to use the knime://knime.workflow URI
+	 * syntax if possible. This is used before storing into the model and allows
+	 * to move such workflows with relative references to data.
+	 * 
+	 * @param path
+	 */
+	public static String convertToKNIMEPath(String path,
+			String canonicalWorkflowPath) {
+		String canonicalPath = null;
+		try {
+			canonicalPath = new File(path).getCanonicalPath();
+		} catch (IOException e) {
+			LOGGER.warn("Could not convert path to canonical path. This may affect workflow relative file paths.");
+		}
+
+		if (canonicalPath != null
+				&& canonicalPath.startsWith(canonicalWorkflowPath)) {
+			path = canonicalPath.replace(canonicalWorkflowPath,
+					KNIME_WORKFLOW_RELPATH);
+			path = path.replaceAll("\\\\", "/");
+		}
+		return path;
 	}
 
 }

@@ -58,12 +58,12 @@ import net.imglib2.RealPoint;
 import net.imglib2.roi.PolygonRegionOfInterest;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class SplineOverlayElement<L extends Comparable<L>> extends AbstractPolygonOverlayElement<L> {
+public class SplineOverlayElement extends AbstractPolygonOverlayElement {
     private static final int SPLINE_STEPS = 12;
 
     private Polygon m_tmpPoly;

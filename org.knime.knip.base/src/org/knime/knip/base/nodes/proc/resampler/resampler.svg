@@ -13,9 +13,9 @@
    height="16"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.1 r9760"
+   inkscape:version="0.48.3.1 r9886"
    sodipodi:docname="resampler.svg"
-   inkscape:export-filename="/home/kaminkatze/java/knime-sdk/workspace/org.knime.ip_experimental/src/org/knime/ip/node/proc/resampler/resampler.png"
+   inkscape:export-filename="/home/hornm/workspaces/eclipse/workspace_indigo/knip/org.knime.knip.base/src/org/knime/knip/base/nodes/proc/resampler/resampler.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -177,13 +177,13 @@
      inkscape:pageshadow="2"
      inkscape:zoom="32"
      inkscape:cx="8.8709521"
-     inkscape:cy="7.8354725"
+     inkscape:cy="7.7056515"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1120"
      inkscape:window-height="785"
-     inkscape:window-x="572"
+     inkscape:window-x="318"
      inkscape:window-y="69"
      inkscape:window-maximized="0"
      inkscape:snap-bbox="true"
@@ -213,43 +213,28 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,-1036.3622)">
-    <path
-       style="fill:none;stroke:#4d4d4d;stroke-width:0.5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-start:url(#Arrow2Sstart);marker-mid:none;marker-end:url(#Arrow2Send-5)"
-       d="m 1.0087548,1037.371 2.2724952,2.2724"
-       id="path3009"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cc" />
-    <path
-       style="fill:none;stroke:#4d4d4d;stroke-width:0.5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-start:url(#Arrow2Sstart);marker-end:url(#Arrow2Send-5)"
-       d="m 14.991245,1037.371 -2.272495,2.2724"
-       id="path3011"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cc" />
-    <path
-       style="fill:none;stroke:#4d4d4d;stroke-width:0.5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-start:url(#Arrow2Sstart);marker-end:url(#Arrow2Send-5)"
-       d="m 14.991245,1051.3534 -2.272495,-2.2725"
-       id="path3013"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cc" />
-    <path
-       style="fill:none;stroke:#4d4d4d;stroke-width:0.5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-start:url(#Arrow2Sstart);marker-end:url(#Arrow2Send-5)"
-       d="M 1.0087548,1051.3534 3.28125,1049.0809"
-       id="path3015"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cc" />
     <rect
-       style="fill:none;stroke:#808080;stroke-width:0.50000000000000000;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
-       id="rect3005"
-       width="15.5"
-       height="15.500001"
-       x="0.25"
-       y="1036.6122" />
+       ry="2.5365337e-06"
+       rx="1.8662621e-06"
+       y="1036.3622"
+       x="0"
+       height="16"
+       width="2"
+       id="rect3089"
+       style="fill:#8c0000;fill-opacity:1;stroke:none" />
     <rect
-       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
-       id="rect3007"
-       width="7.9848418"
-       height="7.9848418"
-       x="4.0075793"
-       y="1040.3698" />
+       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1.71699023;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="rect16022-8"
+       width="10.89201"
+       height="10.89201"
+       x="3.5067449"
+       y="1039.0568" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:none"
+       id="rect16022-8-6"
+       width="6.9374318"
+       height="6.9374318"
+       x="5.4840336"
+       y="1041.0341" />
   </g>
 </svg>

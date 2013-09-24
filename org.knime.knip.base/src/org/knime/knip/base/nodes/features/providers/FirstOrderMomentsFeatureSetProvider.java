@@ -80,7 +80,7 @@ import org.knime.knip.core.features.seg.FirstOrderMomentsFeatureSet;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -163,6 +163,11 @@ public class FirstOrderMomentsFeatureSetProvider<T extends RealType<T>> implemen
 
     @Override
     public String getFeatureSetName() {
+        return "First order statistics";
+    }
+
+    @Override
+    public String getFeatureSetId() {
         return "First order statistics";
     }
 

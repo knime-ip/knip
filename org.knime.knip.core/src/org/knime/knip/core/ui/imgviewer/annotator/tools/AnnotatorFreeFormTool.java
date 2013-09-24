@@ -56,12 +56,12 @@ import org.knime.knip.core.ui.imgviewer.overlay.elements.FreeFormOverlayElement;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class AnnotatorFreeFormTool extends AnnotationDrawingTool<FreeFormOverlayElement<String>> {
+public class AnnotatorFreeFormTool extends AnnotationDrawingTool<FreeFormOverlayElement> {
 
     public AnnotatorFreeFormTool() {
         super("Free Form", "tool-freeform.png");
@@ -69,8 +69,8 @@ public class AnnotatorFreeFormTool extends AnnotationDrawingTool<FreeFormOverlay
 
     @Override
     public void onMouseDoubleClickLeft(final ImgViewerMouseEvent e,
-                                       final FreeFormOverlayElement<String> currentOverlayElement,
-                                       final PlaneSelectionEvent selection, final Overlay<String> overlay,
+                                       final FreeFormOverlayElement currentOverlayElement,
+                                       final PlaneSelectionEvent selection, final Overlay overlay,
                                        final String... labels) {
         // Nothing to do here
 
@@ -79,12 +79,12 @@ public class AnnotatorFreeFormTool extends AnnotationDrawingTool<FreeFormOverlay
     @SuppressWarnings("unchecked")
     @Override
     public void onMousePressedLeft(final ImgViewerMouseEvent e,
-                                   final FreeFormOverlayElement<String> currentOverlayElement,
-                                   final PlaneSelectionEvent selection, final Overlay<String> overlay,
+                                   final FreeFormOverlayElement currentOverlayElement,
+                                   final PlaneSelectionEvent selection, final Overlay overlay,
                                    final String... labels) {
 
-        final FreeFormOverlayElement<String> element =
-                new FreeFormOverlayElement<String>(selection.getPlanePos(e.getPosX(), e.getPosY()),
+        final FreeFormOverlayElement element =
+                new FreeFormOverlayElement(selection.getPlanePos(e.getPosX(), e.getPosY()),
                         selection.getDimIndices(), true, labels);
 
         overlay.addElement(element);
@@ -97,8 +97,8 @@ public class AnnotatorFreeFormTool extends AnnotationDrawingTool<FreeFormOverlay
 
     @Override
     public void onMouseReleasedLeft(final ImgViewerMouseEvent e,
-                                    final FreeFormOverlayElement<String> currentOverlayElement,
-                                    final PlaneSelectionEvent selection, final Overlay<String> overlay,
+                                    final FreeFormOverlayElement currentOverlayElement,
+                                    final PlaneSelectionEvent selection, final Overlay overlay,
                                     final String... labels) {
 
         currentOverlayElement.close();
@@ -109,8 +109,8 @@ public class AnnotatorFreeFormTool extends AnnotationDrawingTool<FreeFormOverlay
 
     @Override
     public void onMouseDraggedLeft(final ImgViewerMouseEvent e,
-                                   final FreeFormOverlayElement<String> currentOverlayElement,
-                                   final PlaneSelectionEvent selection, final Overlay<String> overlay,
+                                   final FreeFormOverlayElement currentOverlayElement,
+                                   final PlaneSelectionEvent selection, final Overlay overlay,
                                    final String... labels) {
 
         if (currentOverlayElement.getStatus() == OverlayElementStatus.DRAWING) {

@@ -80,11 +80,12 @@ import org.knime.knip.core.ui.imgviewer.ViewerComponents;
 import org.knime.knip.core.ui.imgviewer.events.ViewZoomfactorChgEvent;
 import org.knime.knip.core.ui.imgviewer.panels.ImgNormalizationPanel;
 import org.knime.knip.core.ui.imgviewer.panels.infobars.ImgViewInfoPanel;
-import org.knime.knip.core.ui.imgviewer.panels.providers.BufferedImageProvider;
+import org.knime.knip.core.ui.imgviewer.panels.providers.AWTImageProvider;
+import org.knime.knip.core.ui.imgviewer.panels.providers.ImageRU;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -97,8 +98,8 @@ public abstract class ImgConfiguration<T extends RealType<T>> extends Serializab
 
     private static <T extends RealType<T>, I extends Img<T>> ImgViewer createImgViewer() {
         final ImgViewer viewer = new ImgViewer();
-        final BufferedImageProvider<T> realProvider =
-                new BufferedImageProvider<T>(KNIMEKNIPPlugin.getCacheSizeForBufferedImages());
+        final AWTImageProvider realProvider =
+                new AWTImageProvider(KNIMEKNIPPlugin.getCacheSizeForBufferedImages(), new ImageRU<T>());
         realProvider.setEventService(viewer.getEventService());
         viewer.addViewerComponent(new ImgViewInfoPanel<T>());
         viewer.addViewerComponent(new ImgCanvas<T, Img<T>>());

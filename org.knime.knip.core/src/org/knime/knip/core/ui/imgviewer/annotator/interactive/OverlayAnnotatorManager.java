@@ -63,11 +63,11 @@ import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
 
 /**
  * Manages overlays and overlay elements ...
- * 
+ *
  * @param <T>
- * 
- * 
- * 
+ *
+ *
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -79,14 +79,14 @@ public class OverlayAnnotatorManager<T extends RealType<T>> extends AbstractAnno
     */
     private static final long serialVersionUID = 1L;
 
-    private Map<String, Overlay<String>> m_overlayMap;
+    private Map<String, Overlay> m_overlayMap;
 
     /**
      *
      */
     public OverlayAnnotatorManager() {
         super();
-        m_overlayMap = new HashMap<String, Overlay<String>>();
+        m_overlayMap = new HashMap<String, Overlay>();
     }
 
     /*
@@ -98,32 +98,32 @@ public class OverlayAnnotatorManager<T extends RealType<T>> extends AbstractAnno
      */
     @EventListener
     public void reset2(final AnnotatorResetEvent e) {
-        m_overlayMap = new HashMap<String, Overlay<String>>();
+        m_overlayMap = new HashMap<String, Overlay>();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Map<String, Overlay<String>> getOverlayMap() {
+    public Map<String, Overlay> getOverlayMap() {
         return m_overlayMap;
     }
 
     /**
-     * 
+     *
      * @param srcName
      * @return
      */
-    public Overlay<String> getOverlay(final String srcName) {
+    public Overlay getOverlay(final String srcName) {
         return m_overlayMap.get(srcName);
     }
 
     /**
-     * 
+     *
      * @param srcName
      * @param overlay
      */
-    public void addOverlay(final String srcName, final Overlay<String> overlay) {
+    public void addOverlay(final String srcName, final Overlay overlay) {
         m_overlayMap.put(srcName, overlay);
     }
 
