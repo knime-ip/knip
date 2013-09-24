@@ -133,7 +133,12 @@ public class CaptureScreenshot extends ViewerComponent {
                 if (m_currentImage != null) {
                     try {
                         final RenderedImage ri = (RenderedImage)m_currentImage;
-                        ImageIO.write(ri, "png", getFile());
+
+                        try {
+                            ImageIO.write(ri, "png", getFile());
+                        } catch (NullPointerException ex) {
+                            System.err.println("Couldn't save image, invalid file name?");
+                        }
                     } catch (final ClassCastException exception) {
                         System.err.println("Could not cast image to RenderedImage, not writing image");
                     } catch (final IOException exception) {
