@@ -78,17 +78,11 @@ import org.knime.knip.core.util.ImgUtils;
 /**
  * Cell containing a Polygon.
  *
- * @author hornm, University of Konstanz
  * @param <T> image type
- * @deprecated Will be removed in future releases
- */
-
-/**
- * TODO Auto-generated
- * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @deprecated Will be removed in future releases
  */
 @Deprecated
 @SuppressWarnings("serial")
@@ -121,7 +115,7 @@ public class PolygonCell extends DataCell implements PolygonValue, ImgPlusValue<
 
     /**
      * Convenience access member for <code>DataType.getType(StringCell.class)</code>.
-     * 
+     *
      * @see DataType#getType(Class)
      */
     public static final DataType TYPE = DataType.getType(PolygonCell.class);
@@ -129,7 +123,7 @@ public class PolygonCell extends DataCell implements PolygonValue, ImgPlusValue<
     /**
      * Returns the factory to read/write DataCells of this class from/to a DataInput/DataOutput. This method is called
      * via reflection.
-     * 
+     *
      * @return A serializer for reading/writing cells of this kind.
      * @see DataCell
      */
@@ -140,7 +134,7 @@ public class PolygonCell extends DataCell implements PolygonValue, ImgPlusValue<
     /**
      * Returns the preferred value class of this cell implementation. This method is called per reflection to determine
      * which is the preferred renderer, comparator, etc.
-     * 
+     *
      * @return ImageValue.class;
      */
     public static final Class<? extends DataValue> getPreferredValueClass() {
@@ -156,7 +150,7 @@ public class PolygonCell extends DataCell implements PolygonValue, ImgPlusValue<
 
     /**
      * Creates a new cell wrapping a polygon.
-     * 
+     *
      * @param ref
      * @deprecated Will be removed in future releases
      */
@@ -168,7 +162,7 @@ public class PolygonCell extends DataCell implements PolygonValue, ImgPlusValue<
 
     /**
      * @deprecated Will be removed in future releases
-     * 
+     *
      */
     @Deprecated
     public PolygonCell(final ExtendedPolygon poly, final long[] min) {
