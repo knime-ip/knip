@@ -59,9 +59,9 @@ import net.imglib2.meta.TypedAxis;
 import net.imglib2.meta.TypedSpace;
 
 /**
- * 
- * 
- * 
+ *
+ *
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -111,7 +111,7 @@ public class LabelingViewInfoPanel<L extends Comparable<L>> extends ViewInfoPane
             if (rndAccess.get().getLabeling().size() > 0) {
                 for (final L label : rndAccess.get().getLabeling()) {
                     valueBuffer.append(label.toString());
-                    valueBuffer.append(";)");
+                    valueBuffer.append(";");
                 }
                 valueBuffer.deleteCharAt(valueBuffer.length() - 1);
                 valueBuffer.append("]");
