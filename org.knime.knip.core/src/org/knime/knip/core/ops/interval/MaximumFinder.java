@@ -56,7 +56,8 @@ import java.util.Iterator;
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.meta.ImgPlus;
+import net.imglib2.img.Img;
+import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
@@ -66,7 +67,7 @@ import org.knime.knip.core.util.NeighborhoodUtils;
 
 /**
  * Operation to Compute local maxima within a given image. Maxima computation can be done in any dimensionality desired.
- * 
+ *
  * @author Tino Klingebiel, University of Konstanz
  */
 
@@ -151,24 +152,18 @@ public class MaximumFinder<T extends RealType<T>> implements
     }
 
     /*
-     * ToDo: Get rid of the ImgPlus usage. Status Image Type should not be
+     * Status Image Type should not be
      * anything higher than ByteType
      */
     protected void analyzeCandidates(final RandomAccessibleInterval<T> input, final long[] dimensions,
                                      final RandomAccessibleInterval<BitType> output) {
 
         Collections.sort(pList);
-        ImgPlus<T> img = (ImgPlus<T>)input;
-
         /*
          * Status structure to avoid running over pixels more than once when
          * computing plateau centers.
          */
-        ImgPlus<BitType> status =
-                new ImgPlus<BitType>(((ImgPlus<BitType>)output).factory().create(dimensions,
-                                                                                 ((ImgPlus<BitType>)output)
-                                                                                         .firstElement()));
-
+        Img<BitType> status = new ArrayImgFactory<BitType>().create(output, new BitType());
         /*
          * Status structure to mark all previous reached pixels. SInce we stark with the
          * highest intensity pixels we know, when reaching a pixel marked as processed,
@@ -177,13 +172,10 @@ public class MaximumFinder<T extends RealType<T>> implements
          * or a region connected to one. Since we can only reach point in noise tolerance
          * our candidat eis now real max.
          */
-        ImgPlus<BitType> processed =
-                new ImgPlus<BitType>(((ImgPlus<BitType>)output).factory().create(dimensions,
-                                                                                 ((ImgPlus<BitType>)output)
-                                                                                         .firstElement()));
+        Img<BitType> processed = new ArrayImgFactory<BitType>().create(output, new BitType());
 
-        RandomAccess<T> ra = img.randomAccess();
-        RandomAccess<T> act = img.randomAccess();
+        RandomAccess<T> ra = input.randomAccess();
+        RandomAccess<T> act = input.randomAccess();
         RandomAccess<BitType> ra2 = output.randomAccess();
         RandomAccess<BitType> raStat = status.randomAccess();
         RandomAccess<BitType> raProc = processed.randomAccess();
@@ -224,7 +216,8 @@ public class MaximumFinder<T extends RealType<T>> implements
                         }
 
                         long[] myPosi =
-                                analyzeneighborhood(img, status, processed, act, dimensions, act.get().getRealDouble());
+                                analyzeneighborhood(input, status, processed, act, dimensions, act.get()
+                                        .getRealDouble());
 
                         if (myPosi != null) {
                             long[] newPos = new long[dimensions.length];
@@ -335,7 +328,7 @@ public class MaximumFinder<T extends RealType<T>> implements
 
     /**
      * Analyze the Neighbor candidates. Find Plateaus, compute Center.
-     * 
+     *
      * @param img - The Input Image.
      * @param status - The 3 dimensional Status Structure.
      * @param status - The 3 dimensional processing Status Structure.
@@ -343,8 +336,9 @@ public class MaximumFinder<T extends RealType<T>> implements
      * @param dimensions - Dimensions of the Image.
      * @return null when the random access was not on a real maximum or the computed real max.
      */
-    protected long[] analyzeneighborhood(final ImgPlus<T> img, final ImgPlus<BitType> status,
-                                         final ImgPlus<BitType> processed, final RandomAccess<T> ra,
+    protected long[] analyzeneighborhood(final RandomAccessibleInterval<T> rndAccessibleInterval,
+                                         final RandomAccessibleInterval<BitType> status,
+                                         final RandomAccessibleInterval<BitType> processed, final RandomAccess<T> ra,
                                          final long[] dimensions, final double initialIntensity) {
 
         long[] retVal = new long[dimensions.length + 1];
@@ -450,7 +444,7 @@ public class MaximumFinder<T extends RealType<T>> implements
 
     /**
      * Check if a given Position is within our bounds.
-     * 
+     *
      * @param ra - Random access on the Position.
      * @param dimensions - The dimensions of our given view.
      * @return - true if the Position is within bounds, false otherwise.

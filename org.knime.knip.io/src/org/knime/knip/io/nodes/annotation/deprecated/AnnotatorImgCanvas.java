@@ -46,70 +46,53 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.io.nodes.annotation;
+package org.knime.knip.io.nodes.annotation.deprecated;
 
+import net.imglib2.img.Img;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
-import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
-import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
-import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
-import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
-import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.knime.knip.core.types.ImgFactoryTypes;
-import org.knime.knip.core.types.NativeTypes;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.ui.event.EventListener;
+import org.knime.knip.core.ui.imgviewer.ImgCanvas;
+import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorResetEvent;
+import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorToolChgEvent;
+import org.knime.knip.core.ui.imgviewer.annotator.tools.AnnotatorNoTool;
 
 /**
- * Dialog for the Point Picker Node.
+ * blocks panning if a interactive tool like rectangle selection... is selected.
  * 
+ * 
+ * @param <T>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
  */
-public class AnnotatorNodeDialog<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
-		extends DefaultNodeSettingsPane {
+public class AnnotatorImgCanvas<T extends RealType<T> & NativeType<T>> extends
+		ImgCanvas<T, Img<T>> {
 
-	private final DialogComponentAnnotator<T> m_dialogComponentAnnotator;
+	/**
+     * 
+     */
+	private static final long serialVersionUID = 1L;
 
-	public AnnotatorNodeDialog() {
-		super();
-
-		removeTab("Options");
-		createNewTab("Selection");
-		createNewGroup("Image Annotation");
-
-		m_dialogComponentAnnotator = new DialogComponentAnnotator<T>(
-				new SettingsModelAnnotator(
-						AnnotatorNodeModel.CFG_POINTS));
-		addDialogComponent(m_dialogComponentAnnotator);
-		closeCurrentGroup();
-
-		createNewTab("Label Settings");
-		setHorizontalPlacement(true);
-		createNewGroup("Options");
-
-		addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
-				AnnotatorNodeModel.CFG_ADD_SEGMENT_ID, true),
-				"Add unique segment id as label"));
-		addDialogComponent(new DialogComponentStringSelection(
-				new SettingsModelString(AnnotatorNodeModel.CFG_FACTORY_TYPE,
-						ImgFactoryTypes.ARRAY_IMG_FACTORY.toString()),
-				"Factory Type", EnumListProvider.getStringList(ImgFactoryTypes
-						.values())));
-		addDialogComponent(new DialogComponentStringSelection(
-				new SettingsModelString(AnnotatorNodeModel.CFG_LABELING_TYPE,
-						NativeTypes.SHORTTYPE.toString()), "Storage Img Type",
-				EnumListProvider.getStringList(NativeTypes.intTypeValues())));
-
-		closeCurrentGroup();
+	public AnnotatorImgCanvas() {
+		// set initial panning on
+		onAnnotatorToolChgEvent(new AnnotatorToolChgEvent(new AnnotatorNoTool()));
 	}
 
-	@Override
-	public void onClose() {
-		// can result in errors because the dialog is a ConfigureDialog
-		// and will not be rebuild on reopening
-		// m_dialogComponentAnnotator.close();
+	@EventListener
+	public void onAnnotatorToolChgEvent(final AnnotatorToolChgEvent e) {
+		// in case we are coupled to an annotator
+		if (e.getTool().getClass().equals(AnnotatorNoTool.class)) {
+			blockPanning(false);
+		} else {
+			blockPanning(true);
+		}
 	}
-}
+
+	@EventListener
+	public void onAnnotatorReset(AnnotatorResetEvent e) {
+		m_image = null;
+	}
+};

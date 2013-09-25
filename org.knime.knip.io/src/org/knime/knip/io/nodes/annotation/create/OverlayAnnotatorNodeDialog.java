@@ -46,7 +46,7 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.io.nodes.annotation.interactive;
+package org.knime.knip.io.nodes.annotation.create;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -73,8 +73,8 @@ import org.knime.knip.base.node.dialog.DataAwareDefaultNodeSettingsPane;
 import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.types.NativeTypes;
 import org.knime.knip.core.util.EnumListProvider;
-import org.knime.knip.io.nodes.annotation.interactive.dc.DialogComponentOverlayAnnotator;
-import org.knime.knip.io.nodes.annotation.interactive.dc.SettingsModelOverlayAnnotator;
+import org.knime.knip.io.nodes.annotation.DialogComponentOverlayAnnotator;
+import org.knime.knip.io.nodes.annotation.SettingsModelOverlayAnnotator;
 
 /**
  * TODO Auto-generated

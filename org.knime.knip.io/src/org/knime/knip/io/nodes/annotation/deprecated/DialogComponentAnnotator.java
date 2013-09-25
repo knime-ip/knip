@@ -46,7 +46,7 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.io.nodes.annotation;
+package org.knime.knip.io.nodes.annotation.deprecated;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -72,9 +72,9 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.ui.imgviewer.ViewerComponent;
 import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorLabelPanel;
-import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorManager;
 import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorResetEvent;
 import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorToolbar;
+import org.knime.knip.core.ui.imgviewer.annotator.deprecated.AnnotatorManager;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 import org.knime.knip.core.ui.imgviewer.panels.ImgNormalizationPanel;
 import org.knime.knip.core.ui.imgviewer.panels.MinimapPanel;

@@ -1,4 +1,4 @@
-package org.knime.knip.io.nodes.annotation;
+package org.knime.knip.io.nodes.annotation.deprecated;
 
 /*
  * ------------------------------------------------------------------------
@@ -73,8 +73,8 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
-import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorManager;
 import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
+import org.knime.knip.core.ui.imgviewer.annotator.deprecated.AnnotatorManager;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
 import org.knime.knip.io.ImgSource;
 import org.knime.knip.io.ImgSourcePool;

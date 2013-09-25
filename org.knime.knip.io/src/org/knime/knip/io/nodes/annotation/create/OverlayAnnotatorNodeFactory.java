@@ -46,81 +46,66 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.io.nodes.annotation.interactive;
+package org.knime.knip.io.nodes.annotation.create;
 
-import java.util.List;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
 
-import javax.swing.JPanel;
-
-import org.knime.core.data.DataTable;
-import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
-import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
-import org.knime.knip.io.nodes.annotation.interactive.dc.DialogComponentOverlayAnnotator;
+import org.knime.core.node.NodeDialogPane;
+import org.knime.core.node.NodeFactory;
+import org.knime.core.node.NodeView;
+import org.knime.knip.base.nodes.view.TableCellViewNodeView;
 
 /**
- * Decouples visual annotator components from the component that uses them.
- * Allows you to use the implemented component in dialogs, views, ... see
- * {@link DialogComponentOverlayAnnotator}.<br>
- * <br>
- * An AnnotatorView allows to create annotations for images from a table. An
- * image can have zero or one associated annotations. The AnnotatorView allows
- * to edit and create these annotations.
- * 
+ * TODO Auto-generated
  * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
  */
-public interface AnnotatorView {
+public class OverlayAnnotatorNodeFactory<T extends RealType<T> & NativeType<T>>
+		extends NodeFactory<OverlayAnnotatorNodeModel<T>> {
 
 	/**
-	 * @return a panel that holds all components and functionality to annotate
-	 *         images
+	 * {@inheritDoc}
 	 */
-	public JPanel getAnnotatorPanel();
+	@Override
+	public OverlayAnnotatorNodeModel<T> createNodeModel() {
+		return new OverlayAnnotatorNodeModel<T>();
+	}
 
 	/**
-	 * @return a list of table based image keys. Each key identifies an
-	 *         {@link Overlay} that is managed by this component. The
-	 *         {@link Overlay} annotates the associated image from the input
-	 *         table.
+	 * {@inheritDoc}
 	 */
-	public List<RowColKey> getOverlayKeys();
+	@Override
+	public int getNrNodeViews() {
+		return 1;
+	}
 
 	/**
-	 * @param key
-	 *            table based image identifier for an
-	 *            associated {@link Overlay}
-	 * @return the {@link Overlay} that is associated with the image source name
-	 *         or <code>null</code> if no such Overlay exists.
+	 * {@inheritDoc}
 	 */
-	public Overlay getOverlay(RowColKey key);
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	public NodeView<OverlayAnnotatorNodeModel<T>> createNodeView(final int i,
+			final OverlayAnnotatorNodeModel<T> nodeModel) {
+		return new TableCellViewNodeView(nodeModel);
+	}
 
 	/**
-	 * Adds an already existing overlay to the AnnotatorView. An image with the
-	 * given key (table based identifier) has to exist in the inputTable. This method exist to
-	 * allow recreation after serialization.
-	 * 
-	 * @param key
-	 *            table identifier of the associated image.
-	 * @param overlay
-	 *            the overlay that should be set for the image.
+	 * {@inheritDoc}
 	 */
-	public void setOverlay(RowColKey key, Overlay overlay);
+	@Override
+	public NodeDialogPane createNodeDialogPane() {
+		return new OverlayAnnotatorNodeDialog<T>();
+	}
 
 	/**
-	 * Deletes all managed overlays.
+	 * {@inheritDoc}
 	 */
-	public void reset();
-
-	/**
-	 * Sets the input table. The input table holds the images that can be
-	 * annotated using this component.
-	 * 
-	 * @param inputTable
-	 *            a table that contains some image columns.
-	 */
-	public void setInputTable(final DataTable inputTable);
-
+	@Override
+	public boolean hasDialog() {
+		return true;
+	}
 }

@@ -46,15 +46,25 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.io.nodes.annotation.interactive;
+package org.knime.knip.io.nodes.annotation.create;
 
-import org.knime.knip.core.ui.event.EventListener;
-import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorResetEvent;
-import org.knime.knip.core.ui.imgviewer.panels.MinimapPanel;
+import java.util.List;
+
+import javax.swing.JPanel;
+
+import org.knime.core.data.DataTable;
+import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
+import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
+import org.knime.knip.io.nodes.annotation.DialogComponentOverlayAnnotator;
 
 /**
- * Extension of the MinimapPanel that adds correct behavior for resets of the
- * annotator.
+ * Decouples visual annotator components from the component that uses them.
+ * Allows you to use the implemented component in dialogs, views, ... see
+ * {@link DialogComponentOverlayAnnotator}.<br>
+ * <br>
+ * An AnnotatorView allows to create annotations for images from a table. An
+ * image can have zero or one associated annotations. The AnnotatorView allows
+ * to edit and create these annotations.
  * 
  * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
@@ -62,13 +72,55 @@ import org.knime.knip.core.ui.imgviewer.panels.MinimapPanel;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
  */
-public class AnnotatorMinimapPanel extends MinimapPanel {
+public interface AnnotatorView {
 
-	/** */
-	private static final long serialVersionUID = 1L;
+	/**
+	 * @return a panel that holds all components and functionality to annotate
+	 *         images
+	 */
+	public JPanel getAnnotatorPanel();
 
-	@EventListener
-	public void onAnnotatorReset(AnnotatorResetEvent e) {
-		m_img = null;
-	}
+	/**
+	 * @return a list of table based image keys. Each key identifies an
+	 *         {@link Overlay} that is managed by this component. The
+	 *         {@link Overlay} annotates the associated image from the input
+	 *         table.
+	 */
+	public List<RowColKey> getOverlayKeys();
+
+	/**
+	 * @param key
+	 *            table based image identifier for an
+	 *            associated {@link Overlay}
+	 * @return the {@link Overlay} that is associated with the image source name
+	 *         or <code>null</code> if no such Overlay exists.
+	 */
+	public Overlay getOverlay(RowColKey key);
+
+	/**
+	 * Adds an already existing overlay to the AnnotatorView. An image with the
+	 * given key (table based identifier) has to exist in the inputTable. This method exist to
+	 * allow recreation after serialization.
+	 * 
+	 * @param key
+	 *            table identifier of the associated image.
+	 * @param overlay
+	 *            the overlay that should be set for the image.
+	 */
+	public void setOverlay(RowColKey key, Overlay overlay);
+
+	/**
+	 * Deletes all managed overlays.
+	 */
+	public void reset();
+
+	/**
+	 * Sets the input table. The input table holds the images that can be
+	 * annotated using this component.
+	 * 
+	 * @param inputTable
+	 *            a table that contains some image columns.
+	 */
+	public void setInputTable(final DataTable inputTable);
+
 }

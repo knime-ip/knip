@@ -99,7 +99,7 @@ public class AnnotatorLabelPanel extends ViewerComponent {
 
     private Vector<String> m_labels;
 
-    private JList<String> m_jLabelList;
+    private JList m_jLabelList;
 
     private boolean m_isAdjusting;
 
@@ -125,7 +125,7 @@ public class AnnotatorLabelPanel extends ViewerComponent {
             }
         }
 
-        m_jLabelList = new JList<String>(m_labels);
+        m_jLabelList = new JList(m_labels);
         m_jLabelList.setSelectedIndex(0);
 
         m_jLabelList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);

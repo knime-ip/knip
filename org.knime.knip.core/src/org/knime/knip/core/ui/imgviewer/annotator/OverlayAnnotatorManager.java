@@ -46,53 +46,101 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.io.nodes.annotation;
+package org.knime.knip.core.ui.imgviewer.annotator;
 
-import net.imglib2.img.Img;
-import net.imglib2.type.NativeType;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.util.HashMap;
+import java.util.Map;
+
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.knip.core.ui.event.EventListener;
-import org.knime.knip.core.ui.imgviewer.ImgCanvas;
-import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorResetEvent;
-import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorToolChgEvent;
-import org.knime.knip.core.ui.imgviewer.annotator.tools.AnnotatorNoTool;
+import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
 
 /**
- * blocks panning if a interactive tool like rectangle selection... is selected.
- * 
- * 
+ * Manages overlays and overlay elements ...
+ *
  * @param <T>
+ *
+ *
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
- *         Zinsmaier</a>
+ * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class AnnotatorImgCanvas<T extends RealType<T> & NativeType<T>> extends
-		ImgCanvas<T, Img<T>> {
+public class OverlayAnnotatorManager<T extends RealType<T>> extends AbstractAnnotatorManager<T> {
 
-	/**
-     * 
+    /**
+    *
+    */
+    private static final long serialVersionUID = 1L;
+
+    private Map<RowColKey, Overlay> m_overlayMap;
+
+    /**
+     *
      */
-	private static final long serialVersionUID = 1L;
+    public OverlayAnnotatorManager() {
+        super();
+        m_overlayMap = new HashMap<RowColKey, Overlay>();
+    }
 
-	public AnnotatorImgCanvas() {
-		// set initial panning on
-		onAnnotatorToolChgEvent(new AnnotatorToolChgEvent(new AnnotatorNoTool()));
-	}
+    /*
+     * Handling storage
+     */
 
-	@EventListener
-	public void onAnnotatorToolChgEvent(final AnnotatorToolChgEvent e) {
-		// in case we are coupled to an annotator
-		if (e.getTool().getClass().equals(AnnotatorNoTool.class)) {
-			blockPanning(false);
-		} else {
-			blockPanning(true);
-		}
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @EventListener
+    public void reset2(final AnnotatorResetEvent e) {
+        m_overlayMap = new HashMap<RowColKey, Overlay>();
+    }
 
-	@EventListener
-	public void onAnnotatorReset(AnnotatorResetEvent e) {
-		m_image = null;
-	}
-};
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<RowColKey, Overlay> getOverlayMap() {
+        return m_overlayMap;
+    }
+
+    /**
+     *
+     * @param srcName
+     * @return
+     */
+    public Overlay getOverlay(final RowColKey key) {
+        return m_overlayMap.get(key);
+    }
+
+    /**
+     *
+     * @param srcName
+     * @param overlay
+     */
+    public void addOverlay(final RowColKey rowColKey, final Overlay overlay) {
+        m_overlayMap.put(rowColKey, overlay);
+    }
+
+    //save and load componentConfig NOT LONGER USED
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveComponentConfiguration(final ObjectOutput out) throws IOException {
+        //nothing to do
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadComponentConfiguration(final ObjectInput in) throws IOException, ClassNotFoundException {
+        //nothing to do
+    }
+
+}

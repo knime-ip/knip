@@ -26,8 +26,6 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
 import org.apache.commons.io.FileUtils;
-import org.knime.core.data.util.memory.MemoryReleasable;
-import org.knime.core.data.util.memory.MemoryWarningSystem;
 import org.knime.core.node.NodeLogger;
 
 /**

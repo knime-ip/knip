@@ -46,66 +46,29 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.io.nodes.annotation.interactive;
+package org.knime.knip.io.nodes.annotation.create;
 
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-
-import org.knime.core.node.NodeDialogPane;
-import org.knime.core.node.NodeFactory;
-import org.knime.core.node.NodeView;
-import org.knime.knip.base.nodes.view.TableCellViewNodeView;
+import org.knime.knip.core.ui.event.EventListener;
+import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorResetEvent;
+import org.knime.knip.core.ui.imgviewer.panels.MinimapPanel;
 
 /**
- * TODO Auto-generated
+ * Extension of the MinimapPanel that adds correct behavior for resets of the
+ * annotator.
+ * 
  * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
  */
-public class OverlayAnnotatorNodeFactory<T extends RealType<T> & NativeType<T>>
-		extends NodeFactory<OverlayAnnotatorNodeModel<T>> {
+public class AnnotatorMinimapPanel extends MinimapPanel {
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public OverlayAnnotatorNodeModel<T> createNodeModel() {
-		return new OverlayAnnotatorNodeModel<T>();
-	}
+	/** */
+	private static final long serialVersionUID = 1L;
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int getNrNodeViews() {
-		return 1;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	@Override
-	public NodeView<OverlayAnnotatorNodeModel<T>> createNodeView(final int i,
-			final OverlayAnnotatorNodeModel<T> nodeModel) {
-		return new TableCellViewNodeView(nodeModel);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public NodeDialogPane createNodeDialogPane() {
-		return new OverlayAnnotatorNodeDialog<T>();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean hasDialog() {
-		return true;
+	@EventListener
+	public void onAnnotatorReset(AnnotatorResetEvent e) {
+		m_img = null;
 	}
 }

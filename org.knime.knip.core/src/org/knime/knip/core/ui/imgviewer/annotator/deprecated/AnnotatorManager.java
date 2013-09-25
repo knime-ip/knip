@@ -46,7 +46,7 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.core.ui.imgviewer.annotator;
+package org.knime.knip.core.ui.imgviewer.annotator.deprecated;
 
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -59,6 +59,9 @@ import java.util.Map.Entry;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.knip.core.ui.event.EventListener;
+import org.knime.knip.core.ui.imgviewer.annotator.AbstractAnnotatorManager;
+import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorResetEvent;
+import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorFilelistChgEvent;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
 

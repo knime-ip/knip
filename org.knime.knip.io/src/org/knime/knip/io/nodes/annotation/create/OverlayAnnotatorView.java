@@ -46,7 +46,7 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.io.nodes.annotation.interactive;
+package org.knime.knip.io.nodes.annotation.create;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -76,9 +76,9 @@ import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorLabelPanel;
 import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorResetEvent;
 import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorToolbar;
+import org.knime.knip.core.ui.imgviewer.annotator.OverlayAnnotatorManager;
 import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorImgWithMetadataChgEvent;
-import org.knime.knip.core.ui.imgviewer.annotator.interactive.OverlayAnnotatorManager;
 import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
 import org.knime.knip.core.ui.imgviewer.panels.ImgNormalizationPanel;
@@ -89,7 +89,7 @@ import org.knime.knip.core.ui.imgviewer.panels.infobars.ImgViewInfoPanel;
 import org.knime.knip.core.ui.imgviewer.panels.providers.AWTImageProvider;
 import org.knime.knip.core.ui.imgviewer.panels.providers.ImageRU;
 import org.knime.knip.core.ui.imgviewer.panels.providers.OverlayRU;
-import org.knime.knip.io.nodes.annotation.AnnotatorImgCanvas;
+import org.knime.knip.io.nodes.annotation.deprecated.AnnotatorImgCanvas;
 
 /**
  * TODO Auto-generated

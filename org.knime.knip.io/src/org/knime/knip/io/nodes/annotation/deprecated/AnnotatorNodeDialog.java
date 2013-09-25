@@ -46,104 +46,70 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.core.ui.imgviewer.annotator.interactive;
+package org.knime.knip.io.nodes.annotation.deprecated;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.util.HashMap;
-import java.util.Map;
-
+import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
-import org.knime.knip.core.ui.event.EventListener;
-import org.knime.knip.core.ui.imgviewer.annotator.AbstractAnnotatorManager;
-import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorResetEvent;
-import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
-import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
+import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
+import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
+import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
+import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
+import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.knip.core.types.ImgFactoryTypes;
+import org.knime.knip.core.types.NativeTypes;
+import org.knime.knip.core.util.EnumListProvider;
 
 /**
- * Manages overlays and overlay elements ...
- *
- * @param <T>
- *
- *
- *
+ * Dialog for the Point Picker Node.
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
+ *         Zinsmaier</a>
  */
-public class OverlayAnnotatorManager<T extends RealType<T>> extends AbstractAnnotatorManager<T> {
+public class AnnotatorNodeDialog<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
+		extends DefaultNodeSettingsPane {
 
-    /**
-    *
-    */
-    private static final long serialVersionUID = 1L;
+	private final DialogComponentAnnotator<T> m_dialogComponentAnnotator;
 
-    private Map<RowColKey, Overlay> m_overlayMap;
+	public AnnotatorNodeDialog() {
+		super();
 
-    /**
-     *
-     */
-    public OverlayAnnotatorManager() {
-        super();
-        m_overlayMap = new HashMap<RowColKey, Overlay>();
-    }
+		removeTab("Options");
+		createNewTab("Selection");
+		createNewGroup("Image Annotation");
 
-    /*
-     * Handling storage
-     */
+		m_dialogComponentAnnotator = new DialogComponentAnnotator<T>(
+				new SettingsModelAnnotator(
+						AnnotatorNodeModel.CFG_POINTS));
+		addDialogComponent(m_dialogComponentAnnotator);
+		closeCurrentGroup();
 
-    /**
-     * {@inheritDoc}
-     */
-    @EventListener
-    public void reset2(final AnnotatorResetEvent e) {
-        m_overlayMap = new HashMap<RowColKey, Overlay>();
-    }
+		createNewTab("Label Settings");
+		setHorizontalPlacement(true);
+		createNewGroup("Options");
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Map<RowColKey, Overlay> getOverlayMap() {
-        return m_overlayMap;
-    }
+		addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
+				AnnotatorNodeModel.CFG_ADD_SEGMENT_ID, true),
+				"Add unique segment id as label"));
+		addDialogComponent(new DialogComponentStringSelection(
+				new SettingsModelString(AnnotatorNodeModel.CFG_FACTORY_TYPE,
+						ImgFactoryTypes.ARRAY_IMG_FACTORY.toString()),
+				"Factory Type", EnumListProvider.getStringList(ImgFactoryTypes
+						.values())));
+		addDialogComponent(new DialogComponentStringSelection(
+				new SettingsModelString(AnnotatorNodeModel.CFG_LABELING_TYPE,
+						NativeTypes.SHORTTYPE.toString()), "Storage Img Type",
+				EnumListProvider.getStringList(NativeTypes.intTypeValues())));
 
-    /**
-     *
-     * @param srcName
-     * @return
-     */
-    public Overlay getOverlay(final RowColKey key) {
-        return m_overlayMap.get(key);
-    }
+		closeCurrentGroup();
+	}
 
-    /**
-     *
-     * @param srcName
-     * @param overlay
-     */
-    public void addOverlay(final RowColKey rowColKey, final Overlay overlay) {
-        m_overlayMap.put(rowColKey, overlay);
-    }
-
-    //save and load componentConfig NOT LONGER USED
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void saveComponentConfiguration(final ObjectOutput out) throws IOException {
-        //nothing to do
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadComponentConfiguration(final ObjectInput in) throws IOException, ClassNotFoundException {
-        //nothing to do
-    }
-
+	@Override
+	public void onClose() {
+		// can result in errors because the dialog is a ConfigureDialog
+		// and will not be rebuild on reopening
+		// m_dialogComponentAnnotator.close();
+	}
 }

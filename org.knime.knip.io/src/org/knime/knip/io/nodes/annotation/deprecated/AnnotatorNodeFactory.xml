@@ -5,7 +5,7 @@
 	Contributors: IBM Corporation - initial API and implementation -->
 
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
-<knimeNode icon="annotator.png" type="Source">
+<knimeNode icon="../annotator.png" type="Source">
 	<name>Image Annotator</name>
 	<shortDescription>
 		Annotate your images.
