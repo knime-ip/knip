@@ -63,6 +63,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
+import org.knime.knip.core.ops.img.ImgPlusToImgPlusWrapperOp;
 import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
@@ -131,9 +132,13 @@ public class CLAHENodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNod
 
             @Override
             protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> op(final ImgPlus<T> imgPlus) {
-                return Operations.wrap(new CLAHE<T, ImgPlus<T>>(m_ctxRegionsX.getIntValue(), m_ctxRegionsY
-                                               .getIntValue(), m_enableClipping.getBooleanValue()), ImgPlusFactory
-                                               .<T, T> get(imgPlus.firstElement()));
+
+                CLAHE<T> clahe =
+                        new CLAHE<T>(m_ctxRegionsX.getIntValue(), m_ctxRegionsY.getIntValue(),
+                                m_enableClipping.getBooleanValue());
+
+                return Operations.wrap(new ImgPlusToImgPlusWrapperOp<T, T>(clahe, imgPlus.firstElement()
+                        .createVariable()), ImgPlusFactory.<T, T> get(imgPlus.firstElement()));
             }
 
             @Override
