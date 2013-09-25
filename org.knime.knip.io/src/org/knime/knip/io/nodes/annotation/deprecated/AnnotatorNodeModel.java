@@ -104,6 +104,7 @@ import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
  */
+@Deprecated
 public class AnnotatorNodeModel<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
 		extends NodeModel implements BufferedDataTableHolder {
 

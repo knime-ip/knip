@@ -71,6 +71,7 @@ import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.ui.imgviewer.ViewerComponent;
+import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorImgCanvas;
 import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorLabelPanel;
 import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorResetEvent;
 import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorToolbar;
@@ -95,6 +96,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
  */
+@Deprecated
 public class DialogComponentAnnotator<T extends RealType<T> & NativeType<T>>
 		extends DialogComponent {
 

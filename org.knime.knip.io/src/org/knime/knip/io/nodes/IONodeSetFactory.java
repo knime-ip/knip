@@ -57,7 +57,6 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSetFactory;
 import org.knime.core.node.config.ConfigRO;
 import org.knime.knip.io.nodes.annotation.create.OverlayAnnotatorNodeFactory;
-import org.knime.knip.io.nodes.annotation.deprecated.AnnotatorNodeFactory;
 import org.knime.knip.io.nodes.fileref.ImageFileRefNodeFactory;
 import org.knime.knip.io.nodes.imgimporter.ImgImporterNodeFactory;
 import org.knime.knip.io.nodes.imgreader.ImgReaderNodeFactory;
@@ -126,8 +125,9 @@ public class IONodeSetFactory implements NodeSetFactory {
 				"/community/knip/io/other");
 		m_nodeFactories.put(ImgImporterNodeFactory.class.getCanonicalName(),
 				"/community/knip/io/other");
-		m_nodeFactories.put(AnnotatorNodeFactory.class.getCanonicalName(),
-				"/community/knip/labeling");
+		// deprecated
+		// m_nodeFactories.put(AnnotatorNodeFactory.class.getCanonicalName(),
+		// "/community/knip/labeling");
 		m_nodeFactories.put(
 				OverlayAnnotatorNodeFactory.class.getCanonicalName(),
 				"/community/knip/labeling");

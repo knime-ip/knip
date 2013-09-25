@@ -65,6 +65,7 @@ import org.knime.knip.base.nodes.view.TableCellViewNodeView;
  *         Zinsmaier</a>
  * @author schoenen
  */
+@Deprecated
 public class AnnotatorNodeFactory<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
 		extends NodeFactory<AnnotatorNodeModel<T, L>> {
 

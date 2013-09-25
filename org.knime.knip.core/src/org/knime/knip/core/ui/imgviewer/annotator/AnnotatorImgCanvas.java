@@ -46,7 +46,7 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.io.nodes.annotation.deprecated;
+package org.knime.knip.core.ui.imgviewer.annotator;
 
 import net.imglib2.img.Img;
 import net.imglib2.type.NativeType;
