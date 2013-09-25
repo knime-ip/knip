@@ -92,7 +92,7 @@ public class WaehlbySplitterNodeFactory<T extends RealType<T>, L extends Compara
             public void addDialogComponents() {
 
                 addDialogComponent("Options", "Dimensions", new DialogComponentDimSelection(createDimSelectionModel(),
-                        "Dimensions", 2, 5));
+                        "Dimensions", 2, 2)); //2, 5
 
             }
         };

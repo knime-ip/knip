@@ -49,11 +49,7 @@
  */
 package org.knime.knip.base.nodes.seg.waehlby;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-
+import net.imglib2.Cursor;
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
@@ -76,9 +72,12 @@ import net.imglib2.ops.operation.BinaryOperation;
 import net.imglib2.ops.operation.BinaryOutputOperation;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.DistanceMap;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.morph.DilateGray;
+import net.imglib2.ops.operation.randomaccessibleinterval.unary.morph.StructuringElementCursor;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.AbstractRegionGrowing;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.CCA;
 import net.imglib2.ops.operation.real.unary.RealUnaryOperation;
+import net.imglib2.ops.operation.subset.views.ImgView;
+import net.imglib2.roi.EllipseRegionOfInterest;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.ShortType;
@@ -148,21 +147,27 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
             new DistanceMap<T, RandomAccessibleInterval<T>, RandomAccessibleInterval<FloatType>>().compute(img, tmp2);
             /* Gaussian smoothing */
             try {
-                Gauss3.gauss(m_gaussSize, tmp2, tmp);
+                //new GaussNativeType<T>(sigma, input);
+                Gauss3.gauss(m_gaussSize, Views.extendBorder(tmp2), tmp);
             } catch (IncompatibleTypeException e) {
                 // TODO Auto-generated catch block
             }
         } else {
             /* Gaussian smoothing */
             try {
-                Gauss3.gauss(m_gaussSize, img, tmp);
+                Gauss3.gauss(m_gaussSize, Views.extendBorder(img), tmp);
             } catch (IncompatibleTypeException e) {
                 // TODO Auto-generated catch block
             }
         }
 
         /* Disc dilation */
-        new DilateGray<FloatType, Img<FloatType>>(createDiscStructuringElement(maxima_size)).compute(tmp, tmp2);
+        new DilateGray<FloatType, Img<FloatType>>(createDiscStructuringElement(maxima_size))
+                .compute(new ImgView<FloatType>(Views.interval(Views.extendBorder(tmp), tmp), new ArrayImgFactory<FloatType>()), tmp2);
+
+        RandomAccessible<BitType> mask =
+                new ConvertedRandomAccessible<LabelingType<L>, BitType>(inLab,
+                        new LabelingToMaskConverter<LabelingType<L>>(), new BitType());
 
         /* Combine Images */
         //(S) Combine, if src1 < src2, else set as background
@@ -178,8 +183,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
                         return b;
                     }
 
-                }, new ConvertedRandomAccessible<LabelingType<L>, BitType>(inLab, new LabelingToMaskConverter(),
-                        new BitType()));
+                }, mask);
 
         /* Label the found Minima */
         ConvertedRandomAccessible<FloatType, FloatType> inverter =
@@ -207,7 +211,22 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         watershed.setIntensityImage(tmp);
         watershed.process();
 
-        // Some "transformImageIf"
+        CombinedRandomAccessible<BitType, BitType, BitType> maskBgFg =
+                new CombinedRandomAccessible<BitType, BitType, BitType>(
+                        new ConvertedRandomAccessible<LabelingType<Integer>, BitType>(outLab,
+                                new LabelingToMaskConverter<LabelingType<Integer>>(), new BitType()), mask,
+                        new BinaryOperationBasedCombiner<BitType, BitType, BitType>(
+                                new ConditionalBinaryOp<BitType, BitType, BitType>(
+                                        new IfThenElse<BitType, BitType, BitType>() {
+                                            @Override
+                                            public BitType test(final BitType a, final BitType b) {
+                                                boolean ret = true;
+
+                                                ret = a.get() && b.get();
+
+                                                return new BitType(ret);
+                                            }
+                                        })), new BitType());
 
         /* Object Merge */
 
@@ -230,36 +249,20 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
      * @return
      */
     private long[][] createDiscStructuringElement(final int radius) {
-        int s = radius << 2;
-        BufferedImage strel = new BufferedImage(s, s, BufferedImage.TYPE_BYTE_GRAY);
+        int s = radius * 2;
 
-        Graphics2D g = strel.createGraphics();
-        g.setColor(Color.BLACK);
-        g.fillOval(0, 0, s, s);
+        Img<BitType> strel = new ArrayImgFactory<BitType>().create(new long[]{s, s}, new BitType());
 
-        //convert image to array
+        EllipseRegionOfInterest roi = new EllipseRegionOfInterest(2);
+        roi.setRadius(radius);
 
-        byte[] pixels = ((DataBufferByte)strel.getRaster().getDataBuffer()).getData();
-        long[][] element = new long[s][s];
+        Cursor<BitType> c = roi.getIterableIntervalOverROI(strel).cursor();
 
-        if (pixels.length != s * s) {
-            //that's not correct...
-            return null;
+        while (c.hasNext()) {
+            c.next().set(true);
         }
 
-        int x = 0;
-        int y = 0;
-
-        for (int i = 0; i < pixels.length; i++, x++) {
-            if (x >= s) {
-                x = 0;
-                y++;
-            }
-
-            element[x][y] = pixels[i];
-        }
-
-        return element;
+        return StructuringElementCursor.createElementFromImg(strel);
     }
 
     /**
@@ -281,12 +284,12 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
                                            final IfThenElse<FloatType, FloatType, FloatType> cond,
                                            final RandomAccessible<BitType> mask) {
         return new CombinedRandomAccessible<FloatType, BitType, FloatType>(
-                new CombinedRandomAccessible<FloatType, FloatType, FloatType>(a, b,
-                        new BinaryOperationBasedCombiner<FloatType, FloatType, FloatType>(
-                                new ConditionalCombineOp(cond)), new FloatType()),
-                mask,
-                new BinaryOperationBasedCombiner<FloatType, BitType, FloatType>(new MaskOp<FloatType>(new FloatType())),
-                new FloatType());
+                new CombinedRandomAccessible<FloatType, FloatType, FloatType>(
+                        a,
+                        b,
+                        new BinaryOperationBasedCombiner<FloatType, FloatType, FloatType>(new ConditionalBinaryOp(cond)),
+                        new FloatType()), mask, new BinaryOperationBasedCombiner<FloatType, BitType, FloatType>(
+                        new MaskOp<FloatType>(new FloatType())), new FloatType());
     }
 
     /**
@@ -325,11 +328,11 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         public abstract Z test(X a, Y b);
     }
 
-    private class ConditionalCombineOp<X, Y, Z> implements BinaryOperation<X, Y, Z> {
+    private class ConditionalBinaryOp<X, Y, Z> implements BinaryOperation<X, Y, Z> {
 
         private IfThenElse<X, Y, Z> m_condition;
 
-        public ConditionalCombineOp(final IfThenElse<X, Y, Z> condition) {
+        public ConditionalBinaryOp(final IfThenElse<X, Y, Z> condition) {
             m_condition = condition;
         }
 
@@ -348,9 +351,8 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
          */
         @Override
         public BinaryOperation<X, Y, Z> copy() {
-            return new ConditionalCombineOp<X, Y, Z>(m_condition);
+            return new ConditionalBinaryOp<X, Y, Z>(m_condition);
         }
-
     }
 
     private class MaskOp<X> implements BinaryOperation<X, BitType, X> {
@@ -386,13 +388,13 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
     }
 
     // TODO: Make Integer more generic
-    private class LabelingToMaskConverter<L extends Comparable<L>> implements Converter<LabelingType<L>, BitType> {
+    private class LabelingToMaskConverter<T extends LabelingType> implements Converter<T, BitType> {
 
         /**
          * {@inheritDoc}
          */
         @Override
-        public void convert(final LabelingType<L> input, BitType output) {
+        public void convert(final T input, BitType output) {
             if (input.getLabeling().isEmpty()) {
                 output = new BitType(false);
             } else {
