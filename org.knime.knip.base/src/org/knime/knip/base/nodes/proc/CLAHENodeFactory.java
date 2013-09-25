@@ -53,7 +53,6 @@ import java.util.List;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.UnaryOutputOperation;
-import net.imglib2.ops.operation.randomaccessibleinterval.unary.CLAHE;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
@@ -68,7 +67,7 @@ import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
  * Factory class to produce an image inverter node.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -99,6 +98,7 @@ public class CLAHENodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNod
 
                 addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxRegionXModel(),
                         "Number of contextual regions in X direction.", 1));
+
                 addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxRegionYModel(),
                         "Number of contextual regions in Y direction.", 1));
 
