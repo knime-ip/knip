@@ -135,6 +135,7 @@ public class CombinedRU implements RenderUnit {
                                                            java.awt.Transparency.TRANSLUCENT);
             Graphics g = joinedImg.getGraphics();
             g.drawImage(img, 0, 0, null);
+            i++;
 
             //blend in the other active images
             while (i < m_renderUnits.length) {
