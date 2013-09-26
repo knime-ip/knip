@@ -72,7 +72,7 @@ import org.knime.knip.core.ui.imgviewer.ViewerComponent;
 import org.knime.knip.core.ui.imgviewer.events.AWTImageChgEvent;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -91,6 +91,9 @@ public class CaptureScreenshot extends ViewerComponent {
     private JButton m_dirButton = new JButton(new ImageIcon(getClass().getResource("FolderIcon.png")));
 
     private final JFileChooser m_chooser = new JFileChooser();
+
+    // start directory is the user home
+    private String m_dirname = System.getProperty("user.home");
 
     /**
      *
@@ -123,13 +126,19 @@ public class CaptureScreenshot extends ViewerComponent {
     }
 
     private void setUpButtons() {
+
         m_captureButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
                 if (m_currentImage != null) {
                     try {
                         final RenderedImage ri = (RenderedImage)m_currentImage;
-                        ImageIO.write(ri, "png", getFile());
+
+                        try {
+                            ImageIO.write(ri, "png", getFile());
+                        } catch (NullPointerException ex) {
+                            System.err.println("Couldn't save image, invalid file name?");
+                        }
                     } catch (final ClassCastException exception) {
                         System.err.println("Could not cast image to RenderedImage, not writing image");
                     } catch (final IOException exception) {
@@ -142,8 +151,17 @@ public class CaptureScreenshot extends ViewerComponent {
         m_dirButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                //TODO: Handle return value?
-                m_chooser.showOpenDialog(CaptureScreenshot.this);
+                int returnVal = m_chooser.showOpenDialog(CaptureScreenshot.this);
+
+                // only change directory if user approved it
+                if (JFileChooser.APPROVE_OPTION == returnVal) {
+                    File selectedFile = m_chooser.getSelectedFile();
+                    // update directory path
+                    m_dirname = selectedFile.getPath();
+
+                    // update file chooser path
+                    m_chooser.setCurrentDirectory(selectedFile);
+                }
             }
         });
     }
@@ -161,7 +179,7 @@ public class CaptureScreenshot extends ViewerComponent {
     }
 
     private String getFileName() {
-        return m_chooser.getSelectedFile() + System.getProperty("file.separator") + m_fieldName.getText();
+        return m_dirname + System.getProperty("file.separator") + m_fieldName.getText();
     }
 
     private void setUpFileChooser() {

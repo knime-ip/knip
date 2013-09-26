@@ -65,6 +65,7 @@ import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.IntType;
 
 import org.knime.core.node.ExecutionContext;
+import org.knime.core.node.NodeLogger;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
@@ -86,13 +87,15 @@ import org.knime.knip.core.util.ImgUtils;
 
 /**
  * Factory class to produce a Connected Component Analysis Node.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 public class ConnectedCompAnalysisNodeFactory<T extends RealType<T> & Comparable<T> & NativeType<T>> extends
         ValueToCellNodeFactory<ImgPlusValue<T>> {
+
+    private static NodeLogger LOGGER = NodeLogger.getLogger(ConnectedCompAnalysisNodeFactory.class);
 
     private static SettingsModelInteger createBackgroundModel() {
         return new SettingsModelInteger("background", -128);
@@ -191,14 +194,13 @@ public class ConnectedCompAnalysisNodeFactory<T extends RealType<T> & Comparable
                         new NativeImgLabeling<Integer, IntType>(ImgUtils.<IntType> createEmptyCopy(ImgFactoryTypes
                                 .getImgFactory(m_factory.getStringValue(), img.getImg()), img, new IntType()));
 
-                // TODO: Logger
                 try {
                     SubsetOperations.iterate(cca, m_dimSelection.getSelectedDimIndices(img), img, lab,
                                              getExecutorService());
-                } catch (final InterruptedException e) {
-                    e.printStackTrace();
-                } catch (final ExecutionException e) {
-                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    LOGGER.warn("Thread execution interrupted", e);
+                } catch (ExecutionException e) {
+                    LOGGER.warn("Couldn't retrieve results because thread execution was interrupted/aborted", e);
                 }
 
                 return m_labCellFactory.createCell(lab, new DefaultLabelingMetadata(img, img, img,

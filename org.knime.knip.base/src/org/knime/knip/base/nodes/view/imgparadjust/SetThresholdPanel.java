@@ -55,6 +55,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -105,7 +106,7 @@ public class SetThresholdPanel<T extends RealType<T>, I extends RandomAccessible
         m_thresholdSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(final ChangeEvent e) {
-                m_thresholdValue.setText("" + m_thresholdSlider.getValue());
+                m_thresholdValue.setText(String.valueOf(m_thresholdSlider.getValue()));
                 publishEvent();
             }
         });
@@ -113,14 +114,18 @@ public class SetThresholdPanel<T extends RealType<T>, I extends RandomAccessible
         m_useThreshold.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                m_thresholdValue.setText("" + m_thresholdSlider.getValue());
+                m_thresholdValue.setText(String.valueOf(m_thresholdSlider.getValue()));
                 publishEvent();
             }
         });
         add(m_useThreshold);
         add(m_thresholdSlider);
-        add(m_thresholdValue);
 
+        Box thresholdValueBox = Box.createHorizontalBox();
+        thresholdValueBox.add(Box.createHorizontalGlue());
+        thresholdValueBox.add(m_thresholdValue);
+        thresholdValueBox.add(Box.createHorizontalGlue());
+        add(thresholdValueBox);
     }
 
     /**
