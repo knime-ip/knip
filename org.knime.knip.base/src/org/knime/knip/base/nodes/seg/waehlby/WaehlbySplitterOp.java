@@ -138,8 +138,8 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
 
         int maxima_size = 4;
         //        Labeling<LongType> outLabeling = new NativeImgLabeling<LongType, LongType>(new ArrayImgFactory<LongType>().create(getDimensions(img), new LongType()));
-        Img<FloatType> tmp = new ArrayImgFactory<FloatType>().create(getDimensions(img), new FloatType());
-        Img<FloatType> tmp2 = new ArrayImgFactory<FloatType>().create(getDimensions(img), new FloatType());
+        Img<FloatType> tmp = new ArrayImgFactory<FloatType>().create(img, new FloatType());
+        Img<FloatType> tmp2 = new ArrayImgFactory<FloatType>().create(img, new FloatType());
 
         if (m_segType == SEG_TYPE.SHAPE_BASED_SEGMENTATION) {
 
