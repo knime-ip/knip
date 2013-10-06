@@ -10,6 +10,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/mvn/imglib2-algorithms-gpl-2.0.0-SNAPSHOT.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/imglib2-meta-2.0.0-SNAPSHOT.jar" sourcepath="lib/mvn-imglib2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/imglib2-ops-2.0.0-SNAPSHOT.jar" sourcepath="lib/mvn-imglib2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/imglib2-algorithms-legacy-2.0.0-20131006.134557-1427.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/imglib2-realtransform-2.0.0-SNAPSHOT.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/jama-1.0.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/log4j-1.2.16.jar"/>
@@ -18,7 +19,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/mvn/mpicbg-20111128.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/slf4j-api-1.6.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/slf4j-log4j12-1.6.4.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/imglib2-algorithms-legacy-2.0.0-20131006.051610-1424.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/udunits-4.3.18.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
