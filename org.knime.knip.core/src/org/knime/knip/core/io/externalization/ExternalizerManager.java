@@ -70,7 +70,7 @@ import org.knime.knip.core.io.externalization.externalizers.ImgMetadataExt1;
 import org.knime.knip.core.io.externalization.externalizers.ImgViewExt0;
 import org.knime.knip.core.io.externalization.externalizers.LabelingMappingExt0;
 import org.knime.knip.core.io.externalization.externalizers.LabelingMetadataExt0;
-import org.knime.knip.core.io.externalization.externalizers.LinearSpaceExt0;
+import org.knime.knip.core.io.externalization.externalizers.DefaultLinearSpaceExt0;
 import org.knime.knip.core.io.externalization.externalizers.NamedExt0;
 import org.knime.knip.core.io.externalization.externalizers.NativeImgLabelingExt0;
 import org.knime.knip.core.io.externalization.externalizers.NtreeImgExt0;
@@ -133,7 +133,7 @@ public final class ExternalizerManager {
         registerExternalizer(new ImageMetadataExt1());
         registerExternalizer(new ImgMetadataExt1());
 
-        registerExternalizer(new LinearSpaceExt0());
+        registerExternalizer(new DefaultLinearSpaceExt0());
 
         registerExtensionPoints();
 
