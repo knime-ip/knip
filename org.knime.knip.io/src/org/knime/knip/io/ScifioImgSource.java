@@ -72,6 +72,7 @@ import net.imglib2.meta.AxisType;
 import net.imglib2.meta.CalibratedAxis;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.meta.TypedAxis;
+import net.imglib2.meta.axis.LinearAxis;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.knip.core.types.NativeTypes;
@@ -202,7 +203,7 @@ public class ScifioImgSource implements ImgSource {
 				getPixelType(imgRef, currentSeries), m_imgFactory, options);
 		double[] calib = getCalibration(imgRef, currentSeries);
 		for (int d = 0; d < ret.numDimensions(); d++) {
-			ret.setCalibration(calib[d], d);
+			((LinearAxis) ret.axis(d)).setScale(calib[d]);
 		}
 
 		if (withCropping) {
@@ -257,9 +258,11 @@ public class ScifioImgSource implements ImgSource {
 
 		double[] calib = new double[getDimensions(imgRef, currentSeries).length];
 
+		// TODO: remove completely after scifio has adopted to new calibrated
+		// axis structure
 		int i = 0;
 		for (CalibratedAxis axes : omexml.getAxes(currentSeries)) {
-			calib[i] = axes.calibration();
+			calib[i] = axes.averageScale(0, 0);
 			i++;
 		}
 
@@ -303,7 +306,7 @@ public class ScifioImgSource implements ImgSource {
 	 */
 	@Override
 	public RealType getPixelType(final String imgRef, final int currentSeries)
-			throws FormatException, IOException {
+			throws IOException, FormatException {
 
 		if (m_imgUtilsService == null) {
 			m_imgUtilsService = ScifioGateway.getSCIFIO().getContext()

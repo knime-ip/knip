@@ -20,7 +20,8 @@ Bundle-ClassPath: knip-core.jar,
  lib/mvn/mpicbg-20111128.jar,
  lib/mvn/slf4j-api-1.6.4.jar,
  lib/mvn/slf4j-log4j12-1.6.4.jar,
- lib/mvn/imglib2-algorithms-legacy-2.0.0-20130821.051543-1245.jar
+ lib/mvn/imglib2-algorithms-legacy-2.0.0-20131006.051610-1424.jar,
+ lib/mvn/udunits-4.3.18.jar
 Require-Bundle: org.apache.log4j;bundle-version="1.2.15",
  org.eclipse.core.runtime;bundle-version="3.6.0"
 Bundle-ActivationPolicy: lazy
@@ -87,6 +88,8 @@ Export-Package: net.imglib2,
  net.imglib2.iterator,
  net.imglib2.labeling,
  net.imglib2.meta,
+ net.imglib2.meta.axis,
+ net.imglib2.meta.units,
  net.imglib2.meta.view,
  net.imglib2.multithreading,
  net.imglib2.neighborsearch,
