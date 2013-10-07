@@ -70,7 +70,7 @@ import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.core.ops.metadata.DimSwapper;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -127,7 +127,7 @@ public class DimensionSwapperNodeFactory<T extends RealType<T>> extends ValueToC
                     offset[i] = m_mapping.getOffset(i);
                     size[i] = m_mapping.getSize(i);
                 }
-                mapping = getCorrectedMapping(mapping);
+//                mapping = getCorrectedMapping(mapping);
 
                 // swap metadata
                 final double[] calibration = new double[img.numDimensions()];
@@ -142,35 +142,58 @@ public class DimensionSwapperNodeFactory<T extends RealType<T>> extends ValueToC
                         new ImgPlus<T>(Operations.compute(new DimSwapper<T>(mapping, offset, size), img), img);
                 for (int i = 0; i < axes.length; i++) {
                     res.setAxis(new DefaultCalibratedAxis(axes[i]), i);
+                    res.setCalibration(calibration[i], i);
                 }
 
                 return m_imgCellFactory.createCell(res);
             }
 
-            protected int[] getCorrectedMapping(final int[] mapping) {
+//            protected int[] getCorrectedMapping(final int[] mapping) {
+//
+////                final int[] fixed = new int[mapping.length];
+////                for (int i = 0; i < fixed.length; i++) {
+////                    fixed[i] = i;
+////                }
+////
+////                int j = 0;
+//
+//                int[] fixed = {2,0,1};
+//
+//                return fixed;
+//            }
 
-                final int[] fixed = new int[mapping.length];
-                int j = 0;
-
-                for (int i = 0; i < mapping.length; i++) {
-                    fixed[i] = -1;
-
-                    while (fixed[i] == -1) {
-                        for (int k = 0; k < mapping.length; k++) {
-                            if (mapping[k] == j) {
-                                fixed[i] = k;
-                            }
-                        }
-
-                        j++;
-                    }
-                }
-                return fixed;
-            }
+            //            protected int[] getCorrectedMapping(final int[] mapping) {
+            //
+            //                final int[] fixed = new int[mapping.length];
+            //                int j = 0;
+            //
+            //                for (int i = 0; i < mapping.length; i++) {
+            //                    fixed[i] = -1;
+            //
+            //                    while (fixed[i] == -1) {
+            //                        for (int k = 0; k < mapping.length; k++) {
+            //                            if (mapping[k] == j) {
+            //                                fixed[i] = k;
+            //                            }
+            //                        }
+            //
+            //                        j++;
+            //                    }
+            //                }
+            //                return fixed;
+            //            }
 
             /**
-             * {@inheritDoc}
+             * @author Gabriel Einsdorf
+             * @param
              */
+//            private int[] permSwap(final int[] array, final int a, final int b){
+//                int temp = array[a];
+//                array[a]= array[b];
+//                array[b] = temp;
+//                return array;
+//            }
+
             @Override
             protected void prepareExecute(final ExecutionContext exec) {
                 m_imgCellFactory = new ImgPlusCellFactory(exec);

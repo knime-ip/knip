@@ -48,15 +48,22 @@
  */
 package org.knime.knip.core.ops.metadata;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccess;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
+import net.imglib2.img.ImgFactory;
 import net.imglib2.ops.img.UnaryObjectFactory;
 import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.type.Type;
+import net.imglib2.view.Views;
 
 /**
- * 
+ *
  * @param <T>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -70,13 +77,19 @@ public class DimSwapper<T extends Type<T>> implements UnaryOutputOperation<Img<T
 
     private final long[] m_srcSize;
 
+    //List of mappings that don't cause problems when swapped using a cursor
+    private static final String[] fastSwapables = {"[1, 0, 2]", "[0, 1, 2]", "[0, 2, 1]"}; //TODO extend
+
+    //HashSet of these mappings for fast access
+    private static final Set<String> m_fastSwapMappings = new HashSet<String>(Arrays.asList(fastSwapables));
+
     /**
      * <pre>
      * mapping[0] = 1; // X &lt;- Y, Y becomes X
      * mapping[1] = 2; // Y &lt;- C, C becomes Y
      * mapping[2] = 0; // C &lt;- X, X becomes C
      * </pre>
-     * 
+     *
      * @param backMapping
      */
     public DimSwapper(final int[] backMapping) {
@@ -86,7 +99,7 @@ public class DimSwapper<T extends Type<T>> implements UnaryOutputOperation<Img<T
     }
 
     /**
-     * 
+     *
      * @param backMapping
      * @param srcOffset Offset in source coordinates.
      * @param srcSize Size in source coordinates.
@@ -108,17 +121,55 @@ public class DimSwapper<T extends Type<T>> implements UnaryOutputOperation<Img<T
                 throw new IllegalArgumentException("Channel mapping is out of bounds");
             }
         }
-        final RandomAccess<T> opc = op.randomAccess();
-        final Cursor<T> rc = r.localizingCursor();
-        while (rc.hasNext()) {
-            rc.fwd();
-            for (int i = 0; i < nDims; i++) {
-                opc.setPosition(rc.getLongPosition(i) + m_srcOffset[i], m_backMapping[i]);
+        if (m_fastSwapMappings.contains(Arrays.toString(m_backMapping))) {
+
+            final RandomAccess<T> opc = op.randomAccess();
+            final Cursor<T> rc = r.localizingCursor();
+            while (rc.hasNext()) {
+                rc.fwd();
+                for (int i = 0; i < nDims; i++) {
+                    opc.setPosition(rc.getLongPosition(i) + m_srcOffset[i], m_backMapping[i]);
+                }
+                rc.get().set(opc.get());
             }
-            rc.get().set(opc.get());
+            return r;
+
         }
 
-        return r;
+        RandomAccessibleInterval permuted = op; //FIXME does this change anything about op?
+       int[] mapping = m_backMapping.clone();
+
+        while (!(inOrder(mapping))) {
+            for (int d = 0; d < nDims; d++) {
+                    if (mapping[d] == d) {
+                        continue;
+                    }
+                    permuted = Views.permute(permuted, d, mapping[d]);
+                    int temp = mapping[mapping[d]];
+                    mapping[mapping[d]] = mapping[d];
+                    mapping[d] = temp;
+                    break;
+               }
+        }
+        ImgFactory<T> factory = op.factory();
+        final Img<T> correctedImg = factory.create(permuted, op.firstElement().createVariable());
+
+       return correctedImg;
+    }
+
+    /**
+     * checks if mapping is ordered
+     *
+     * @param mapping
+     * @return true if ordered
+     */
+    private boolean inOrder(final int[] mapping) {
+        for (int i = 0; i < mapping.length; i++) {
+            if (mapping[i] != i) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
