@@ -63,9 +63,9 @@ import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.meta.Axes;
 import net.imglib2.meta.AxisType;
 import net.imglib2.meta.CalibratedAxis;
-import net.imglib2.meta.DefaultCalibratedAxis;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.meta.ImgPlusMetadata;
+import net.imglib2.meta.axis.DefaultLinearAxis;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.ByteType;
@@ -377,7 +377,7 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
 			noAccessWarning(e);
 			tmpAxes = new CalibratedAxis[getDimensions().length];
 			for (int i = 0; i < tmpAxes.length; i++) {
-				tmpAxes[i] = new DefaultCalibratedAxis(Axes.get("Unknown " + i));
+				tmpAxes[i] = new DefaultLinearAxis(Axes.get("Unknown " + i));
 			}
 		}
 
@@ -402,25 +402,6 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
 			@Override
 			public CalibratedAxis axis(final int d) {
 				return axes[d];
-			}
-
-			@Override
-			public void calibration(final double[] cal) {
-				for (int d = 0; d < cal.length; d++) {
-					cal[d] = calibration[d];
-				}
-			}
-
-			@Override
-			public void calibration(final float[] cal) {
-				for (int d = 0; d < cal.length; d++) {
-					cal[d] = (float) calibration[d];
-				}
-			}
-
-			@Override
-			public double calibration(final int d) {
-				return calibration[d];
 			}
 
 			@Override
@@ -490,25 +471,6 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
 			}
 
 			@Override
-			public void setCalibration(final double cal, final int d) {
-				calibration[d] = cal;
-			}
-
-			@Override
-			public void setCalibration(final double[] cal) {
-				for (int d = 0; d < cal.length; d++) {
-					calibration[d] = (float) cal[d];
-				}
-			}
-
-			@Override
-			public void setCalibration(final float[] cal) {
-				for (int d = 0; d < cal.length; d++) {
-					calibration[d] = cal[d];
-				}
-			}
-
-			@Override
 			public void setChannelMaximum(final int c, final double max) {
 				// Nothing to do here
 			}
@@ -546,13 +508,56 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
 			}
 
 			@Override
-			public String unit(int d) {
-				return axes[d].unit();
+			public double averageScale(int d) {
+				return axis(d).averageScale(0, getDimensions()[d] - 1);
 			}
 
 			@Override
-			public void setUnit(final String unit, final int d) {
-				axes[d].setUnit(unit);
+			public double calibration(int d) {
+				throw new UnsupportedOperationException(
+						"Operation not supported anymore (deprecation)");
+			}
+
+			@Override
+			public void calibration(double[] cal) {
+				throw new UnsupportedOperationException(
+						"Operation not supported anymore (deprecation)");
+			}
+
+			@Override
+			public void calibration(float[] cal) {
+				throw new UnsupportedOperationException(
+						"Operation not supported anymore (deprecation)");
+			}
+
+			@Override
+			public void setCalibration(double cal, int d) {
+				throw new UnsupportedOperationException(
+						"Operation not supported anymore (deprecation)");
+			}
+
+			@Override
+			public void setCalibration(double[] cal) {
+				throw new UnsupportedOperationException(
+						"Operation not supported anymore (deprecation)");
+			}
+
+			@Override
+			public void setCalibration(float[] cal) {
+				throw new UnsupportedOperationException(
+						"Operation not supported anymore (deprecation)");
+			}
+
+			@Override
+			public String unit(int d) {
+				throw new UnsupportedOperationException(
+						"Operation not supported anymore (deprecation)");
+			}
+
+			@Override
+			public void setUnit(String unit, int d) {
+				throw new UnsupportedOperationException(
+						"Operation not supported anymore (deprecation)");
 			}
 
 		};

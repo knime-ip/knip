@@ -57,6 +57,8 @@ import java.util.Vector;
 import loci.formats.FormatException;
 import net.imglib2.Pair;
 import net.imglib2.img.ImgFactory;
+import net.imglib2.meta.Axes;
+import net.imglib2.meta.AxisType;
 import net.imglib2.meta.CalibratedAxis;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.meta.TypedAxis;
@@ -363,6 +365,9 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 					// some dims are removed (as they are of
 					// size 1) a optimized iterable interval
 					// is created
+					
+					AxisType a = Axes.X;
+					
 					final ImgPlus<T> resImgPlus = (ImgPlus<T>) m_imgSource
 							.getImg(currentFile, currentSeries,
 									axisSelectionConstraints);

@@ -52,12 +52,12 @@ import java.io.File;
 import java.io.IOException;
 
 import net.imglib2.meta.Axes;
-import net.imglib2.meta.DefaultCalibratedAxis;
 import net.imglib2.meta.DefaultCalibratedSpace;
 import net.imglib2.meta.DefaultNamed;
 import net.imglib2.meta.DefaultSourced;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.meta.ImgPlusMetadata;
+import net.imglib2.meta.axis.DefaultLinearAxis;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.data.DataCell;
@@ -90,7 +90,7 @@ import org.knime.knip.base.node.NodeTools;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -225,7 +225,8 @@ public class SetImgMetadataNodeModel<T extends RealType<T>> extends NodeModel im
                     if (m_calibrations[i].getDoubleValue() > 0) {
                         calibration[i] = m_calibrations[i].getDoubleValue();
                     } else {
-                        calibration[i] = imgPlus.calibration(i);
+                        //TODO: what about arbitrary calibrated spaces?
+                        calibration[i] = imgPlus.axis(i).averageScale(0, 0);
                     }
                 }
 
@@ -236,13 +237,14 @@ public class SetImgMetadataNodeModel<T extends RealType<T>> extends NodeModel im
                     }
                 }
 
+                //TODO: what about arbitrary calibrated spaces?
                 DefaultCalibratedSpace defaultCalibratedSpace = new DefaultCalibratedSpace(axisLabels.length);
                 for (int i = 0; i < axisLabels.length; i++) {
-                    defaultCalibratedSpace.setAxis(new DefaultCalibratedAxis(Axes.get(axisLabels[i])), i);
+                    DefaultLinearAxis axis = new DefaultLinearAxis(Axes.get(axisLabels[i]));
+                    axis.setScale(calibration[i]);
+                    defaultCalibratedSpace.setAxis(axis, i);
 
                 }
-
-                defaultCalibratedSpace.setCalibration(calibration);
 
                 final ImgPlusMetadata metadata =
                         new DefaultImgMetadata(defaultCalibratedSpace, new DefaultNamed(name), new DefaultSourced(
