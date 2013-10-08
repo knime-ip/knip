@@ -52,9 +52,9 @@ import java.util.List;
 
 import net.imglib2.meta.Axes;
 import net.imglib2.meta.AxisType;
-import net.imglib2.meta.DefaultCalibratedAxis;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.meta.TypedAxis;
+import net.imglib2.meta.axis.DefaultLinearAxis;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.type.numeric.RealType;
 
@@ -127,7 +127,6 @@ public class DimensionSwapperNodeFactory<T extends RealType<T>> extends ValueToC
                     offset[i] = m_mapping.getOffset(i);
                     size[i] = m_mapping.getSize(i);
                 }
-//                mapping = getCorrectedMapping(mapping);
 
                 // swap metadata
                 final double[] calibration = new double[img.numDimensions()];
@@ -141,58 +140,13 @@ public class DimensionSwapperNodeFactory<T extends RealType<T>> extends ValueToC
                 final ImgPlus<T> res =
                         new ImgPlus<T>(Operations.compute(new DimSwapper<T>(mapping, offset, size), img), img);
                 for (int i = 0; i < axes.length; i++) {
-                    res.setAxis(new DefaultCalibratedAxis(axes[i]), i);
+                    res.setAxis(new DefaultLinearAxis(axes[i]), i);
                     res.setCalibration(calibration[i], i);
                 }
 
                 return m_imgCellFactory.createCell(res);
             }
 
-//            protected int[] getCorrectedMapping(final int[] mapping) {
-//
-////                final int[] fixed = new int[mapping.length];
-////                for (int i = 0; i < fixed.length; i++) {
-////                    fixed[i] = i;
-////                }
-////
-////                int j = 0;
-//
-//                int[] fixed = {2,0,1};
-//
-//                return fixed;
-//            }
-
-            //            protected int[] getCorrectedMapping(final int[] mapping) {
-            //
-            //                final int[] fixed = new int[mapping.length];
-            //                int j = 0;
-            //
-            //                for (int i = 0; i < mapping.length; i++) {
-            //                    fixed[i] = -1;
-            //
-            //                    while (fixed[i] == -1) {
-            //                        for (int k = 0; k < mapping.length; k++) {
-            //                            if (mapping[k] == j) {
-            //                                fixed[i] = k;
-            //                            }
-            //                        }
-            //
-            //                        j++;
-            //                    }
-            //                }
-            //                return fixed;
-            //            }
-
-            /**
-             * @author Gabriel Einsdorf
-             * @param
-             */
-//            private int[] permSwap(final int[] array, final int a, final int b){
-//                int temp = array[a];
-//                array[a]= array[b];
-//                array[b] = temp;
-//                return array;
-//            }
 
             @Override
             protected void prepareExecute(final ExecutionContext exec) {

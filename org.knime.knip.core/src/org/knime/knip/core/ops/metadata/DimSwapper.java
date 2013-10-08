@@ -78,7 +78,8 @@ public class DimSwapper<T extends Type<T>> implements UnaryOutputOperation<Img<T
     private final long[] m_srcSize;
 
     //List of mappings that don't cause problems when swapped using a cursor
-    private static final String[] fastSwapables = {"[1, 0, 2]", "[0, 1, 2]", "[0, 2, 1]"}; //TODO extend
+//    private static final String[] fastSwapables = {"[1, 0, 2]", "[0, 1, 2]", "[0, 2, 1]"}; //TODO extend
+    private static final String[] fastSwapables = {"[1, 0, 2]"}; //TODO extend
 
     //HashSet of these mappings for fast access
     private static final Set<String> m_fastSwapMappings = new HashSet<String>(Arrays.asList(fastSwapables));
