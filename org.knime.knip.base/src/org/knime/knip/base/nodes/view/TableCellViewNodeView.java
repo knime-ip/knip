@@ -50,7 +50,6 @@ package org.knime.knip.base.nodes.view;
 
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -298,19 +297,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
         m_sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
-        m_tableContentView = new TableContentView() {
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            public void paint(final Graphics g) {
-                try {
-                    super.paint(g);
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
+        m_tableContentView = new TableContentView();
 
         m_tableContentView.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
