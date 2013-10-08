@@ -49,9 +49,9 @@
 package org.knime.knip.core.awt;
 
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.display.ARGBScreenImage;
-import net.imglib2.display.projectors.Abstract2DProjector;
-import net.imglib2.display.projectors.DimProjector2D;
+import net.imglib2.display.projectors.AbstractProjector2D;
+import net.imglib2.display.projectors.sampler.SamplingProjector2D;
+import net.imglib2.display.projectors.screenimages.ARGBScreenImage;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.RealType;
 
@@ -89,11 +89,11 @@ public class Real2ColorRenderer<R extends RealType<R>> extends ProjectingRendere
     }
 
     @Override
-    protected Abstract2DProjector<R, ARGBType> getProjector(final int dimX, final int dimY,
+    protected AbstractProjector2D<R, ARGBType> getProjector(final int dimX, final int dimY,
                                                             final RandomAccessibleInterval<R> source,
                                                             final ARGBScreenImage target) {
 
-        return new DimProjector2D<R, ARGBType>(dimX, dimY, source, target, m_converter, m_projectedDimension);
+        return new SamplingProjector2D<R, ARGBType>(dimX, dimY, source, target, m_converter, m_projectedDimension);
     }
 
 }

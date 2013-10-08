@@ -53,8 +53,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.display.ARGBScreenImage;
-import net.imglib2.display.ScreenImage;
+import net.imglib2.display.projectors.screenimages.ARGBScreenImage;
+import net.imglib2.display.projectors.screenimages.ScreenImage;
 import net.imglib2.meta.ImgPlusMetadata;
 import net.imglib2.meta.Named;
 import net.imglib2.meta.Sourced;

@@ -129,7 +129,7 @@ import org.knime.node2012.ViewsDocument.Views;
  */
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -140,7 +140,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     /**
      * Add the description of the view.
-     * 
+     *
      * @param views
      */
     public static void addViewDescriptionTo(final Views views) {
@@ -294,58 +294,61 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
     }
 
     private void initViewComponents() {
-        m_sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
-        m_tableContentView = new TableContentView();
-        m_tableContentView.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        synchronized (m_sp) {
 
-        m_listSelectionListenerA = new ListSelectionListener() {
-            @Override
-            public void valueChanged(final ListSelectionEvent e) {
-                if (e.getValueIsAdjusting()) {
-                    return;
+            m_sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+
+            m_tableContentView = new TableContentView();
+            m_tableContentView.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+            m_listSelectionListenerA = new ListSelectionListener() {
+                @Override
+                public void valueChanged(final ListSelectionEvent e) {
+                    if (e.getValueIsAdjusting()) {
+                        return;
+                    }
+                    cellSelectionChanged();
+
                 }
-                cellSelectionChanged();
+            };
+            m_tableContentView.getSelectionModel().addListSelectionListener(m_listSelectionListenerA);
+            m_listSelectionListenerB = new ListSelectionListener() {
 
-            }
-        };
-        m_tableContentView.getSelectionModel().addListSelectionListener(m_listSelectionListenerA);
-        m_listSelectionListenerB = new ListSelectionListener() {
+                @Override
+                public void valueChanged(final ListSelectionEvent e) {
+                    if (e.getValueIsAdjusting()) {
+                        return;
+                    }
+                    cellSelectionChanged();
 
-            @Override
-            public void valueChanged(final ListSelectionEvent e) {
-                if (e.getValueIsAdjusting()) {
-                    return;
                 }
-                cellSelectionChanged();
+            };
+            m_tableContentView.getColumnModel().getSelectionModel().addListSelectionListener(m_listSelectionListenerB);
+            m_tableView = new TableView(m_tableContentView);
+            m_sp.add(m_tableView);
+            m_cellViews = new HashMap<String, List<TableCellView>>();
+            m_viewComponents = new HashMap<String, Component>();
 
-            }
-        };
-        m_tableContentView.getColumnModel().getSelectionModel().addListSelectionListener(m_listSelectionListenerB);
+            m_cellViewTabs = new JTabbedPane();
+            m_tableContentView.setModel(m_tableModel);
 
-        m_tableView = new TableView(m_tableContentView);
-        m_sp.add(m_tableView);
-        m_cellViews = new HashMap<String, List<TableCellView>>();
-        m_viewComponents = new HashMap<String, Component>();
+            m_changeListener = new ChangeListener() {
+                @Override
+                public void stateChanged(final ChangeEvent e) {
+                    tabSelectionChanged();
+                }
+            };
 
-        m_cellViewTabs = new JTabbedPane();
-        m_tableContentView.setModel(m_tableModel);
+            m_cellViewTabs.addChangeListener(m_changeListener);
+            m_sp.add(m_cellViewTabs);
+            setComponent(m_sp);
+            m_sp.setDividerLocation(300);
+            // add hilite menu
+            getJMenuBar().add(m_tableView.createHiLiteMenu());
+            m_tableView.setHiLiteHandler(getNodeModel().getInHiLiteHandler(0));
 
-        m_changeListener = new ChangeListener() {
-            @Override
-            public void stateChanged(final ChangeEvent e) {
-                tabSelectionChanged();
-            }
-        };
-
-        m_cellViewTabs.addChangeListener(m_changeListener);
-        m_sp.add(m_cellViewTabs);
-        setComponent(m_sp);
-        m_sp.setDividerLocation(300);
-
-        // add hilite menu
-        getJMenuBar().add(m_tableView.createHiLiteMenu());
-        m_tableView.setHiLiteHandler(getNodeModel().getInHiLiteHandler(0));
+        }
     }
 
     private void loadPortContent() {
@@ -354,7 +357,9 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         // public void run() {
         m_tableModel = new TableContentModel();
         m_tableModel.setDataTable(getNodeModel().getInternalTables()[m_portIdx]);
+
         initViewComponents();
+
         // }
         // });
     }
