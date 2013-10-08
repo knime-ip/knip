@@ -50,6 +50,7 @@ package org.knime.knip.base.nodes.view;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -295,60 +296,71 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     private void initViewComponents() {
 
-        synchronized (m_sp) {
+        m_sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
-            m_sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-
-            m_tableContentView = new TableContentView();
-            m_tableContentView.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-            m_listSelectionListenerA = new ListSelectionListener() {
-                @Override
-                public void valueChanged(final ListSelectionEvent e) {
-                    if (e.getValueIsAdjusting()) {
-                        return;
-                    }
-                    cellSelectionChanged();
-
+        m_tableContentView = new TableContentView() {
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            public void paint(final Graphics g) {
+                try {
+                    super.paint(g);
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    e.printStackTrace();
                 }
-            };
-            m_tableContentView.getSelectionModel().addListSelectionListener(m_listSelectionListenerA);
-            m_listSelectionListenerB = new ListSelectionListener() {
+            }
+        };
 
-                @Override
-                public void valueChanged(final ListSelectionEvent e) {
-                    if (e.getValueIsAdjusting()) {
-                        return;
-                    }
-                    cellSelectionChanged();
+        m_tableContentView.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
+        m_listSelectionListenerA = new ListSelectionListener() {
+            @Override
+            public void valueChanged(final ListSelectionEvent e) {
+                if (e.getValueIsAdjusting()) {
+                    return;
                 }
-            };
-            m_tableContentView.getColumnModel().getSelectionModel().addListSelectionListener(m_listSelectionListenerB);
-            m_tableView = new TableView(m_tableContentView);
-            m_sp.add(m_tableView);
-            m_cellViews = new HashMap<String, List<TableCellView>>();
-            m_viewComponents = new HashMap<String, Component>();
+                cellSelectionChanged();
 
-            m_cellViewTabs = new JTabbedPane();
-            m_tableContentView.setModel(m_tableModel);
+            }
+        };
+        m_tableContentView.getSelectionModel().addListSelectionListener(m_listSelectionListenerA);
+        m_listSelectionListenerB = new ListSelectionListener() {
 
-            m_changeListener = new ChangeListener() {
-                @Override
-                public void stateChanged(final ChangeEvent e) {
-                    tabSelectionChanged();
+            @Override
+            public void valueChanged(final ListSelectionEvent e) {
+                if (e.getValueIsAdjusting()) {
+                    return;
                 }
-            };
+                cellSelectionChanged();
 
-            m_cellViewTabs.addChangeListener(m_changeListener);
-            m_sp.add(m_cellViewTabs);
-            setComponent(m_sp);
-            m_sp.setDividerLocation(300);
-            // add hilite menu
-            getJMenuBar().add(m_tableView.createHiLiteMenu());
-            m_tableView.setHiLiteHandler(getNodeModel().getInHiLiteHandler(0));
+            }
+        };
+        m_tableContentView.getColumnModel().getSelectionModel().addListSelectionListener(m_listSelectionListenerB);
+        m_tableView = new TableView(m_tableContentView);
+        m_sp.add(m_tableView);
+        m_tableView.setHiLiteHandler(getNodeModel().getInHiLiteHandler(0));
+        getJMenuBar().add(m_tableView.createHiLiteMenu());
 
-        }
+        m_cellViews = new HashMap<String, List<TableCellView>>();
+        m_viewComponents = new HashMap<String, Component>();
+
+        m_cellViewTabs = new JTabbedPane();
+        m_tableContentView.setModel(m_tableModel);
+
+        m_changeListener = new ChangeListener() {
+            @Override
+            public void stateChanged(final ChangeEvent e) {
+                tabSelectionChanged();
+            }
+        };
+
+        m_cellViewTabs.addChangeListener(m_changeListener);
+        m_sp.setDividerLocation(300);
+        m_sp.add(m_cellViewTabs);
+
+        setComponent(m_sp);
+
     }
 
     private void loadPortContent() {
