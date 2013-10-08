@@ -129,7 +129,7 @@ import org.knime.node2012.ViewsDocument.Views;
  */
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -140,7 +140,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     /**
      * Add the description of the view.
-     * 
+     *
      * @param views
      */
     public static void addViewDescriptionTo(final Views views) {
@@ -294,9 +294,11 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
     }
 
     private void initViewComponents() {
+
         m_sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
         m_tableContentView = new TableContentView();
+
         m_tableContentView.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         m_listSelectionListenerA = new ListSelectionListener() {
@@ -322,9 +324,11 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
             }
         };
         m_tableContentView.getColumnModel().getSelectionModel().addListSelectionListener(m_listSelectionListenerB);
-
         m_tableView = new TableView(m_tableContentView);
         m_sp.add(m_tableView);
+        m_tableView.setHiLiteHandler(getNodeModel().getInHiLiteHandler(0));
+        getJMenuBar().add(m_tableView.createHiLiteMenu());
+
         m_cellViews = new HashMap<String, List<TableCellView>>();
         m_viewComponents = new HashMap<String, Component>();
 
@@ -339,13 +343,11 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         };
 
         m_cellViewTabs.addChangeListener(m_changeListener);
-        m_sp.add(m_cellViewTabs);
-        setComponent(m_sp);
         m_sp.setDividerLocation(300);
+        m_sp.add(m_cellViewTabs);
 
-        // add hilite menu
-        getJMenuBar().add(m_tableView.createHiLiteMenu());
-        m_tableView.setHiLiteHandler(getNodeModel().getInHiLiteHandler(0));
+        setComponent(m_sp);
+
     }
 
     private void loadPortContent() {
@@ -354,7 +356,9 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         // public void run() {
         m_tableModel = new TableContentModel();
         m_tableModel.setDataTable(getNodeModel().getInternalTables()[m_portIdx]);
+
         initViewComponents();
+
         // }
         // });
     }

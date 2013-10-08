@@ -49,15 +49,15 @@
 package org.knime.knip.core.awt;
 
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.display.ARGBScreenImage;
-import net.imglib2.display.ScreenImage;
-import net.imglib2.display.projectors.Abstract2DProjector;
+import net.imglib2.display.projectors.AbstractProjector2D;
+import net.imglib2.display.projectors.screenimages.ARGBScreenImage;
+import net.imglib2.display.projectors.screenimages.ScreenImage;
 import net.imglib2.type.Type;
 import net.imglib2.type.numeric.ARGBType;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -78,7 +78,7 @@ public abstract class ProjectingRenderer<T extends Type<T>> implements ImageRend
         final int height = (int)source.dimension(dimY);
 
         final ARGBScreenImage target = new ARGBScreenImage(width, height);
-        final Abstract2DProjector<T, ARGBType> projector = getProjector(dimX, dimY, source, target);
+        final AbstractProjector2D<T, ARGBType> projector = getProjector(dimX, dimY, source, target);
 
         projector.setPosition(planePos);
         projector.map();
@@ -86,7 +86,7 @@ public abstract class ProjectingRenderer<T extends Type<T>> implements ImageRend
         return target;
     }
 
-    protected abstract Abstract2DProjector<T, ARGBType> getProjector(int dimX, int dimY,
+    protected abstract AbstractProjector2D<T, ARGBType> getProjector(int dimX, int dimY,
                                                                      RandomAccessibleInterval<T> source,
                                                                      ARGBScreenImage target);
 }

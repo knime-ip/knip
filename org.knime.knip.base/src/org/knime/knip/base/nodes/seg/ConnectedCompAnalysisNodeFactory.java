@@ -52,7 +52,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import net.imglib2.img.Img;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.NativeImgLabeling;
 import net.imglib2.meta.ImgPlus;
@@ -187,8 +186,7 @@ public class ConnectedCompAnalysisNodeFactory<T extends RealType<T> & Comparable
                                     .get4ConStructuringElement(m_dimSelection.getSelectedDimIndices(img).length);
                 }
 
-                final CCA<T, Img<T>, Labeling<Integer>> cca =
-                        new CCA<T, Img<T>, Labeling<Integer>>(structuringElement, background);
+                final CCA<T> cca = new CCA<T>(structuringElement, background);
 
                 final Labeling<Integer> lab =
                         new NativeImgLabeling<Integer, IntType>(ImgUtils.<IntType> createEmptyCopy(ImgFactoryTypes

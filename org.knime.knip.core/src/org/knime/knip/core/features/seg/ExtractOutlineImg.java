@@ -62,8 +62,8 @@ import net.imglib2.type.logic.BitType;
  * as all pixels, which are next to the pixels which are on the border of the connected component. Please be aware that
  * for a correct calculation of the Perimeter only one connected component should be contained in the {@link Img} of
  * {@link BitType}
- * 
- * 
+ *
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -81,8 +81,8 @@ public class ExtractOutlineImg implements UnaryOperation<Img<BitType>, Img<BitTy
         m_imgManWith =
                 new BinaryOperationAssignment<BitType, BitType, BitType>(new RealXor<BitType, BitType, BitType>());
         m_op =
-                m_outlineInsideSegment ? new Erode<Img<BitType>>(ConnectedType.EIGHT_CONNECTED, 1)
-                        : new Dilate<Img<BitType>>(ConnectedType.FOUR_CONNECTED, 1);
+                m_outlineInsideSegment ? new Erode(ConnectedType.EIGHT_CONNECTED, 1) : new Dilate(
+                        ConnectedType.FOUR_CONNECTED, 1);
     }
 
     @Override
