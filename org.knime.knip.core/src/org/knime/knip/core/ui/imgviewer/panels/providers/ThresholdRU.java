@@ -52,7 +52,7 @@ package org.knime.knip.core.ui.imgviewer.panels.providers;
 import java.awt.Image;
 
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.display.ScreenImage;
+import net.imglib2.display.projectors.screenimages.ScreenImage;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.ops.img.UnaryRelationAssigment;
 import net.imglib2.ops.relation.real.unary.RealGreaterThanConstant;

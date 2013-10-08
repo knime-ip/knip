@@ -110,7 +110,7 @@ import org.knime.knip.core.util.MiscViews;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -126,7 +126,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
     /**
      * Helper
-     * 
+     *
      * @return SettingsModel to store img column
      */
     public static SettingsModelBoolean createSMAddDependency() {
@@ -135,7 +135,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
     /**
      * Helper
-     * 
+     *
      * @return SettingsModel to store factory selection
      */
     public static SettingsModelString createSMFactorySelection() {
@@ -144,7 +144,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
     /**
      * Helper
-     * 
+     *
      * @return SettingsModel to store img column
      */
     public static SettingsModelString createSMImgColumnSelection() {
@@ -160,7 +160,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
     /**
      * Helper
-     * 
+     *
      * @return SettingsModelFilterSelection to store left filter selection
      */
     public static <LL extends Comparable<LL>> SettingsModelFilterSelection<LL> createSMLabelFilterLeft() {
@@ -169,7 +169,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
     /**
      * Helper
-     * 
+     *
      * @return SettingsModelFilterSelection to store right filter selection
      */
     public static <LL extends Comparable<LL>> SettingsModelFilterSelection<LL>
@@ -181,7 +181,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
     /**
      * Helper
-     * 
+     *
      * @return SettingsModel to store labeling column
      */
     public static SettingsModelString createSMLabelingColumnSelection() {
@@ -197,14 +197,8 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
     // SettingsModel to store factory type of resulting img snippets
     private final SettingsModelString m_factorySelection = createSMFactorySelection();
 
-    // Index of img column
-    private int m_imgColIndex;
-
     // SettingsModel to store Img column
     private final SettingsModelString m_imgColumn = createSMImgColumnSelection();
-
-    // Index of labeling column
-    private int m_labColIndex;
 
     // SettingsModel to store Labeling column
     private final SettingsModelString m_labelingColumn = createSMLabelingColumnSelection();
@@ -244,16 +238,15 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
      */
     @Override
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
-        m_labColIndex = inSpecs[0].findColumnIndex(m_labelingColumn.getStringValue());
-        if (m_labColIndex == -1) {
-            if ((m_labColIndex =
-                    NodeTools.autoOptionalColumnSelection(inSpecs[0], m_labelingColumn, LabelingValue.class)) >= 0) {
+        int labColIndex = inSpecs[0].findColumnIndex(m_labelingColumn.getStringValue());
+        if (labColIndex == -1) {
+            if ((labColIndex = NodeTools.autoOptionalColumnSelection(inSpecs[0], m_labelingColumn, LabelingValue.class)) >= 0) {
                 setWarningMessage("Auto-configure Label Column: " + m_labelingColumn.getStringValue());
             } else {
                 throw new InvalidSettingsException("No column selected!");
             }
         }
-        m_imgColIndex = inSpecs[0].findColumnIndex(m_imgColumn.getStringValue());
+        inSpecs[0].findColumnIndex(m_imgColumn.getStringValue());
 
         final ArrayList<DataColumnSpec> specs = new ArrayList<DataColumnSpec>();
         specs.add(new DataColumnSpecCreator("CroppedImg", ImgPlusCell.TYPE).createSpec());
@@ -282,6 +275,20 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
     @SuppressWarnings("unchecked")
     protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
             throws Exception {
+
+        //retrieve column indices
+        int labColIndex = inData[0].getDataTableSpec().findColumnIndex(m_labelingColumn.getStringValue());
+        if (labColIndex == -1) {
+            if ((labColIndex =
+                    NodeTools.autoOptionalColumnSelection(inData[0].getDataTableSpec(), m_labelingColumn,
+                                                          LabelingValue.class)) >= 0) {
+                setWarningMessage("Auto-configure Label Column: " + m_labelingColumn.getStringValue());
+            } else {
+                throw new InvalidSettingsException("No column selected!");
+            }
+        }
+        int imgColIndex = inData[0].getDataTableSpec().findColumnIndex(m_imgColumn.getStringValue());
+
         final BufferedDataContainer con = exec.createDataContainer(m_outSpec);
 
         final RulebasedLabelFilter<L> leftFilter = m_leftFilter.getRulebasedFilter();
@@ -298,14 +305,14 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
         while (it.hasNext()) {
             row = it.next();
 
-            final LabelingValue<L> labelingValue = (LabelingValue<L>)row.getCell(m_labColIndex);
+            final LabelingValue<L> labelingValue = (LabelingValue<L>)row.getCell(labColIndex);
 
             final LabelingDependency<L> labelingDependency = new LabelingDependency<L>(leftFilter, rightFilter, false);
 
             // If no img selected, create bitmasks
             ImgPlus<T> img = null;
-            if (m_imgColIndex != -1) {
-                img = ((ImgPlusValue<T>)row.getCell(m_imgColIndex)).getImgPlus();
+            if (imgColIndex != -1) {
+                img = ((ImgPlusValue<T>)row.getCell(imgColIndex)).getImgPlus();
             }
 
             Labeling<L> labeling = labelingValue.getLabeling();
@@ -391,12 +398,12 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
                                 new DefaultImageMetadata());
 
                 cells.add(imgCellFactory.createCell(res, metadata, min));
-                if (m_imgColIndex != -1) {
-                    cells.add(row.getCell(m_imgColIndex));
+                if (imgColIndex != -1) {
+                    cells.add(row.getCell(imgColIndex));
                 } else {
                     cells.add(DataType.getMissingCell());
                 }
-                cells.add(row.getCell(m_labColIndex));
+                cells.add(row.getCell(labColIndex));
                 cells.add(new StringCell(l.toString()));
 
                 if (m_addDependencies.getBooleanValue()) {

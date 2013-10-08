@@ -71,7 +71,7 @@ import org.knime.knip.core.algorithm.logtrackmate.SubPixelLocalization.LocationT
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -107,7 +107,9 @@ public class LoGDetectorOp<T extends RealType<T> & NativeType<T>> implements
         double sigma = radius / Math.sqrt(numDimensions);
         // Turn it in pixel coordinates
         final double[] calibration = new double[input.numDimensions()];
-        input.calibration(calibration);
+        for(int d=0; d < input.numDimensions();d++) {
+            calibration[d] = input.axis(d).averageScale(0, 0);
+        }
 
         double[] sigmas = new double[numDimensions];
         for (int i = 0; i < sigmas.length; i++) {

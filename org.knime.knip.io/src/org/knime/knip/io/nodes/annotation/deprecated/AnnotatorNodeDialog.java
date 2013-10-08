@@ -68,6 +68,7 @@ import org.knime.knip.core.util.EnumListProvider;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
  */
+@Deprecated
 public class AnnotatorNodeDialog<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
 		extends DefaultNodeSettingsPane {
 

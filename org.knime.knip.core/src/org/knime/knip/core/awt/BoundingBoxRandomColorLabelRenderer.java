@@ -52,8 +52,8 @@ import java.awt.Graphics;
 import java.util.Set;
 
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.display.ARGBScreenImage;
-import net.imglib2.display.ScreenImage;
+import net.imglib2.display.projectors.screenimages.ARGBScreenImage;
+import net.imglib2.display.projectors.screenimages.ScreenImage;
 import net.imglib2.labeling.LabelingMapping;
 import net.imglib2.labeling.LabelingType;
 import net.imglib2.type.Type;
@@ -64,13 +64,19 @@ import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter.Operator;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 public class BoundingBoxRandomColorLabelRenderer<L extends Comparable<L> & Type<L>> extends BoundingBoxLabelRenderer<L>
         implements LabelingColorTableRenderer {
+
+    /**
+     * RENDERER_NAME, must be accessed in a static way, otherwise value get overriden by BoundingBoxLabelRenderer.
+     */
+    @SuppressWarnings("hiding")
+    public static final String RENDERER_NAME = "Bounding Box Color Labeling Renderer";
 
     private final ColorLabelingRenderer<L> m_labelRenderer;
 

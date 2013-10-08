@@ -76,7 +76,7 @@ import org.knime.knip.core.util.EnumListProvider;
 
 /**
  * NodeFactory for the image to segmentation Node that converts double to integer values.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -134,7 +134,7 @@ public class LabelingToImgNodeFactory<L extends Comparable<L>, V extends Integer
 
             /**
              * {@inheritDoc}
-             * 
+             *
              * @throws IncompatibleTypeException
              */
             @SuppressWarnings({"rawtypes", "unchecked"})
@@ -160,10 +160,8 @@ public class LabelingToImgNodeFactory<L extends Comparable<L>, V extends Integer
 
                 convert.compute(lab.getStorageImg(), out);
 
-                // TODO: More general way of copying?
                 for (int a = 0; a < cellValue.getDimensions().length; a++) {
-                    out.setAxis(cellValue.getLabelingMetadata().axis(a), a);
-                    out.setCalibration(cellValue.getLabelingMetadata().calibration(a), a);
+                    out.setAxis(cellValue.getLabelingMetadata().axis(a).copy(), a);
                 }
 
                 out.setSource(cellValue.getLabelingMetadata().getSource());

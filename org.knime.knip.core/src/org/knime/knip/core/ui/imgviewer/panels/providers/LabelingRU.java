@@ -54,7 +54,7 @@ import java.awt.Image;
 import java.util.Set;
 
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.display.ScreenImage;
+import net.imglib2.display.projectors.screenimages.ScreenImage;
 import net.imglib2.labeling.LabelingMapping;
 import net.imglib2.labeling.LabelingType;
 

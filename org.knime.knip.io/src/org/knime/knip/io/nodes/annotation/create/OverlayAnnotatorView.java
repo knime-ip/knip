@@ -73,6 +73,7 @@ import org.knime.core.node.tableview.TableView;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
+import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorImgCanvas;
 import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorLabelPanel;
 import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorResetEvent;
 import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorToolbar;
@@ -89,7 +90,6 @@ import org.knime.knip.core.ui.imgviewer.panels.infobars.ImgViewInfoPanel;
 import org.knime.knip.core.ui.imgviewer.panels.providers.AWTImageProvider;
 import org.knime.knip.core.ui.imgviewer.panels.providers.ImageRU;
 import org.knime.knip.core.ui.imgviewer.panels.providers.OverlayRU;
-import org.knime.knip.io.nodes.annotation.deprecated.AnnotatorImgCanvas;
 
 /**
  * TODO Auto-generated
@@ -114,10 +114,9 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
 	private TableContentView m_tableContentView;
 
 	private TableContentModel m_tableContentModel;
-	
+
 	private int m_currentRow = -1;
 	private int m_currentCol = -1;
-
 
 	public OverlayAnnotatorView() {
 		createAnnotator();
@@ -187,8 +186,8 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
 		m_manager = new OverlayAnnotatorManager<T>();
 		ImgViewer annotator = new ImgViewer();
 
-		annotator
-				.addViewerComponent(new AWTImageProvider(0, new OverlayRU<String>(new ImageRU<T>())));
+		annotator.addViewerComponent(new AWTImageProvider(0,
+				new OverlayRU<String>(new ImageRU<T>())));
 		annotator.addViewerComponent(m_manager);
 		annotator.addViewerComponent(new AnnotatorLabelPanel());
 		annotator.addViewerComponent(AnnotatorToolbar.createStandardToolbar());
@@ -235,15 +234,16 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
 		try {
 			final DataCell currentImgCell = m_tableContentView
 					.getContentModel().getValueAt(m_currentRow, m_currentCol);
-			
+
 			ImgPlus<T> imgPlus = ((ImgPlusValue<T>) currentImgCell)
 					.getImgPlus();
 
 			String colKey = m_tableContentModel.getColumnName(m_currentCol);
-			String rowKey = m_tableContentModel.getRowKey(m_currentRow).getString(); 
-			
-			m_eventService.publish(new AnnotatorImgWithMetadataChgEvent<T>(imgPlus.getImg(),
-					imgPlus, new RowColKey(rowKey, colKey)));
+			String rowKey = m_tableContentModel.getRowKey(m_currentRow)
+					.getString();
+
+			m_eventService.publish(new AnnotatorImgWithMetadataChgEvent<T>(
+					imgPlus.getImg(), imgPlus, new RowColKey(rowKey, colKey)));
 			m_eventService.publish(new ImgRedrawEvent());
 		} catch (final IndexOutOfBoundsException e2) {
 			return;

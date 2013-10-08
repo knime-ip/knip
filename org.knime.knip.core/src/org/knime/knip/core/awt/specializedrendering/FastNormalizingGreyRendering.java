@@ -49,9 +49,9 @@
 package org.knime.knip.core.awt.specializedrendering;
 
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.display.ScreenImage;
-import net.imglib2.display.projectors.Abstract2DProjector;
+import net.imglib2.display.projectors.AbstractProjector2D;
 import net.imglib2.display.projectors.screenimages.ByteScreenImage;
+import net.imglib2.display.projectors.screenimages.ScreenImage;
 import net.imglib2.display.projectors.screenimages.ShortScreenImage;
 import net.imglib2.display.projectors.specializedprojectors.ArrayImgXYByteProjector;
 import net.imglib2.display.projectors.specializedprojectors.ArrayImgXYShortProjector;
@@ -70,7 +70,7 @@ import org.knime.knip.core.types.NativeTypes;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -113,7 +113,7 @@ public class FastNormalizingGreyRendering {
                           final long[] planePos, final double normalizationFactor, final double min) {
 
         if ((dimX == 0) && (dimY == 1) && (source instanceof ArrayImg)) {
-            Abstract2DProjector<?, ?> projector;
+            AbstractProjector2D<?, ?> projector;
             ScreenImage target;
             final NativeTypes type = NativeTypes.getPixelType(source.randomAccess().get());
 
@@ -147,7 +147,7 @@ public class FastNormalizingGreyRendering {
                                                                        final double min) {
 
         if ((dimX == 0) && (dimY == 1) && (source instanceof PlanarImg)) {
-            Abstract2DProjector<?, ?> projector;
+            AbstractProjector2D<?, ?> projector;
             ScreenImage target;
             final NativeTypes type = NativeTypes.getPixelType(source.randomAccess().get());
 

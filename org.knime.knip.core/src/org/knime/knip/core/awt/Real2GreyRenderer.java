@@ -49,20 +49,20 @@
 package org.knime.knip.core.awt;
 
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.display.ARGBScreenImage;
-import net.imglib2.display.ScreenImage;
-import net.imglib2.display.projectors.Abstract2DProjector;
+import net.imglib2.display.projectors.AbstractProjector2D;
+import net.imglib2.display.projectors.Projector2D;
+import net.imglib2.display.projectors.screenimages.ARGBScreenImage;
+import net.imglib2.display.projectors.screenimages.ScreenImage;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.knip.core.awt.converter.RealGreyARGBConverter;
 import org.knime.knip.core.awt.parametersupport.RendererWithNormalization;
 import org.knime.knip.core.awt.specializedrendering.FastNormalizingGreyRendering;
-import org.knime.knip.core.awt.specializedrendering.Projector2D;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -111,7 +111,7 @@ public class Real2GreyRenderer<R extends RealType<R>> extends ProjectingRenderer
     }
 
     @Override
-    protected Abstract2DProjector<R, ARGBType> getProjector(final int dimX, final int dimY,
+    protected AbstractProjector2D<R, ARGBType> getProjector(final int dimX, final int dimY,
                                                             final RandomAccessibleInterval<R> source,
                                                             final ARGBScreenImage target) {
 

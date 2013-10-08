@@ -93,6 +93,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
  */
+@Deprecated
 public class AnnotatorFilePanel<T extends RealType<T> & NativeType<T>> extends
 		ViewerComponent {
 
