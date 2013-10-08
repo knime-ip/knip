@@ -209,6 +209,8 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     private Map<String, Component> m_viewComponents;
 
+    private boolean m_hiliteAdded = false;
+
     public TableCellViewNodeView(final T nodeModel) {
         this(nodeModel, 0);
 
@@ -327,7 +329,11 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         m_tableView = new TableView(m_tableContentView);
         m_sp.add(m_tableView);
         m_tableView.setHiLiteHandler(getNodeModel().getInHiLiteHandler(0));
-        getJMenuBar().add(m_tableView.createHiLiteMenu());
+
+        if (!m_hiliteAdded) {
+            getJMenuBar().add(m_tableView.createHiLiteMenu());
+            m_hiliteAdded = true;
+        }
 
         m_cellViews = new HashMap<String, List<TableCellView>>();
         m_viewComponents = new HashMap<String, Component>();
