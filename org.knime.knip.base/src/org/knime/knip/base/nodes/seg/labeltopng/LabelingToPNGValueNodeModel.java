@@ -99,7 +99,7 @@ import org.knime.knip.core.awt.labelingcolortable.RandomMissingColorHandler;
 import org.knime.knip.core.awt.parametersupport.RendererWithLabels;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -107,10 +107,8 @@ import org.knime.knip.core.awt.parametersupport.RendererWithLabels;
 public class LabelingToPNGValueNodeModel<T extends RealType<T>, L extends Comparable<L> & Type<L>> extends
         TwoValuesToCellNodeModel<ImgPlusValue<T>, LabelingValue<L>, ListCell> {
 
-    //TODO provide static name access for the renderers
-    @SuppressWarnings("rawtypes")
-    final static String[] RENDERER_NAMES = new String[]{new ColorLabelingRenderer().toString(),
-            new BoundingBoxLabelRenderer().toString(), new BoundingBoxRandomColorLabelRenderer().toString()};
+    final static String[] RENDERER_NAMES = new String[]{ColorLabelingRenderer.RENDERER_NAME,
+        BoundingBoxLabelRenderer.RENDERER_NAME, BoundingBoxRandomColorLabelRenderer.RENDERER_NAME};
 
     NodeLogger LOGGER = NodeLogger.getLogger(LabelingToPNGValueNodeFactory.class);
 
@@ -157,9 +155,9 @@ public class LabelingToPNGValueNodeModel<T extends RealType<T>, L extends Compar
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @throws KNIPException
-     * 
+     *
      * @throws IllegalArgumentException
      */
     @Override

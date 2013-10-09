@@ -74,7 +74,7 @@ import org.knime.knip.base.node.ValueToCellsNodeFactory;
 import org.knime.knip.base.node.ValueToCellsNodeModel;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -181,7 +181,7 @@ public class ImgPropertiesNodeFactory<T extends RealType<T>> extends ValueToCell
                             final List<DoubleCell> calibration =
                                     new ArrayList<DoubleCell>(imgPlusValue.getMetadata().numDimensions());
                             for (int i = 0; i < imgPlusValue.getMetadata().numDimensions(); i++) {
-                                calibration.add(new DoubleCell(imgPlusValue.getMetadata().calibration(i)));
+                                calibration.add(new DoubleCell(imgPlusValue.getMetadata().axis(i).averageScale(0, 0)));
                             }
                             cells[ctr++] = CollectionCellFactory.createListCell(calibration);
                             break;

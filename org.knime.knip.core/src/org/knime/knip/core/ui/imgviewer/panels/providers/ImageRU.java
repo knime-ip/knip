@@ -54,7 +54,7 @@ import java.util.Arrays;
 
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.display.ColorTable;
-import net.imglib2.display.ScreenImage;
+import net.imglib2.display.projectors.screenimages.ScreenImage;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.RealType;
 

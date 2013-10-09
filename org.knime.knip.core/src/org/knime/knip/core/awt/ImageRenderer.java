@@ -49,7 +49,7 @@
 package org.knime.knip.core.awt;
 
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.display.ScreenImage;
+import net.imglib2.display.projectors.screenimages.ScreenImage;
 import net.imglib2.type.Type;
 
 /**

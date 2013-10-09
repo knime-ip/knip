@@ -56,7 +56,7 @@ import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.algorithm.gauss3.SeparableSymmetricConvolution;
 import net.imglib2.converter.Converters;
-import net.imglib2.display.RealFloatConverter;
+import net.imglib2.converter.RealFloatConverter;
 import net.imglib2.exception.IncompatibleTypeException;
 import net.imglib2.ops.img.BinaryOperationAssignment;
 import net.imglib2.ops.operation.SubsetOperations;

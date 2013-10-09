@@ -6,9 +6,10 @@
 
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="../annotator.png" type="Source">
-	<name>Image Annotator</name>
+	<name>Image Annotator (deprecated)</name>
 	<shortDescription>
 		Annotate your images.
+		Deprecated: Use Interactive Annotator instead.
 	</shortDescription>
 
 	<fullDescription>
@@ -19,6 +20,7 @@
 			algorithms or create a ground-truth
 			to test your
 			algorithms.
+			Deprecated: Use Interactive Annotator instead.
 		</intro>
 		<tab name="Selection">
 			<option name="File chooser">

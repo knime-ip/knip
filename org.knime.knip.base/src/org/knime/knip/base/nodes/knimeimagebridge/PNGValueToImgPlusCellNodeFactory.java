@@ -57,8 +57,8 @@ import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.iterator.LocalizingIntervalIterator;
 import net.imglib2.meta.Axes;
-import net.imglib2.meta.DefaultCalibratedAxis;
 import net.imglib2.meta.ImgPlus;
+import net.imglib2.meta.axis.DefaultLinearAxis;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 
 import org.knime.core.data.image.png.PNGImageValue;
@@ -76,7 +76,7 @@ import org.knime.knip.core.util.EnumListProvider;
 
 /**
  * Converts PNGImageValues to ImgPlusCells<UnsignedByteType>
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -129,7 +129,7 @@ public class PNGValueToImgPlusCellNodeFactory extends ValueToCellNodeFactory<PNG
 
             /**
              * {@inheritDoc}
-             * 
+             *
              * @throws IllegalArgumentException
              */
             @SuppressWarnings({"rawtypes"})
@@ -170,9 +170,9 @@ public class PNGValueToImgPlusCellNodeFactory extends ValueToCellNodeFactory<PNG
 
                 final ImgPlus<UnsignedByteType> imgPlus = new ImgPlus<UnsignedByteType>(img);
 
-                imgPlus.setAxis(new DefaultCalibratedAxis(Axes.get("X")), 0);
-                imgPlus.setAxis(new DefaultCalibratedAxis(Axes.get("Y")), 1);
-                imgPlus.setAxis(new DefaultCalibratedAxis(Axes.get("Channel")), 2);
+                imgPlus.setAxis(new DefaultLinearAxis(Axes.get("X")), 0);
+                imgPlus.setAxis(new DefaultLinearAxis(Axes.get("Y")), 1);
+                imgPlus.setAxis(new DefaultLinearAxis(Axes.get("Channel")), 2);
 
                 return m_imgCellFactory.createCell(imgPlus);
             }

@@ -50,9 +50,7 @@ package org.knime.knip.base.nodes.misc.dimswap;
 
 import java.util.List;
 
-import net.imglib2.meta.Axes;
-import net.imglib2.meta.AxisType;
-import net.imglib2.meta.DefaultCalibratedAxis;
+import net.imglib2.meta.CalibratedAxis;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.meta.TypedAxis;
 import net.imglib2.ops.operation.Operations;
@@ -70,7 +68,7 @@ import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.core.ops.metadata.DimSwapper;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -130,18 +128,19 @@ public class DimensionSwapperNodeFactory<T extends RealType<T>> extends ValueToC
                 mapping = getCorrectedMapping(mapping);
 
                 // swap metadata
-                final double[] calibration = new double[img.numDimensions()];
-                final double[] tmpCalibration = new double[img.numDimensions()];
-                img.calibration(tmpCalibration);
-                final AxisType[] axes = new AxisType[img.numDimensions()];
+                final CalibratedAxis[] tmpAxes = new CalibratedAxis[img.numDimensions()];
+                for (int d = 0; d < tmpAxes.length; d++) {
+                    tmpAxes[d] = (CalibratedAxis)img.axis(d).copy();
+                }
+
+                final CalibratedAxis[] axes = new CalibratedAxis[img.numDimensions()];
                 for (int i = 0; i < axes.length; i++) {
-                    calibration[i] = tmpCalibration[mapping[i]];
-                    axes[i] = Axes.get(img.axis(mapping[i]).type().getLabel());
+                    axes[i] = tmpAxes[mapping[i]];
                 }
                 final ImgPlus<T> res =
                         new ImgPlus<T>(Operations.compute(new DimSwapper<T>(mapping, offset, size), img), img);
                 for (int i = 0; i < axes.length; i++) {
-                    res.setAxis(new DefaultCalibratedAxis(axes[i]), i);
+                    res.setAxis(axes[i], i);
                 }
 
                 return m_imgCellFactory.createCell(res);

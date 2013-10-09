@@ -48,25 +48,25 @@
  */
 package org.knime.knip.core.awt.specializedrendering;
 
-import net.imglib2.display.ScreenImage;
-import net.imglib2.display.projectors.Abstract2DProjector;
+import net.imglib2.display.projectors.AbstractProjector2D;
+import net.imglib2.display.projectors.screenimages.ScreenImage;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 class RenderTripel {
 
-    private Abstract2DProjector<?, ?> m_projector;
+    private AbstractProjector2D<?, ?> m_projector;
 
     private ScreenImage m_img;
 
     private boolean m_successfull;
 
-    RenderTripel(final Abstract2DProjector<?, ?> projector, final ScreenImage img) {
+    RenderTripel(final AbstractProjector2D<?, ?> projector, final ScreenImage img) {
         this.m_projector = projector;
         this.m_img = img;
         this.m_successfull = true;
@@ -86,7 +86,7 @@ class RenderTripel {
     /**
      * @return the m_projector
      */
-    public Abstract2DProjector<?, ?> getProjector() {
+    public AbstractProjector2D<?, ?> getProjector() {
         return m_projector;
     }
 
