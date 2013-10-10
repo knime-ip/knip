@@ -96,12 +96,12 @@ public class MaximumFinder<T extends RealType<T>> implements
 
         pList = new ArrayList<AnalyticPoint>();
 
-        Cursor<T> cur = Views.iterable(input).localizingCursor();
+        Cursor<T> cur = Views.iterable(input).cursor();
         RandomAccess<T> ra = input.randomAccess(input);
 
         m_strucEl =
-                NeighborhoodUtils.reworkStructuringElement(NeighborhoodUtils.get8ConStructuringElement(input.numDimensions()));
-
+                NeighborhoodUtils.reworkStructuringElement(NeighborhoodUtils.get8ConStructuringElement(input
+                        .numDimensions()));
 
         boolean candidate;
         double act;
@@ -204,6 +204,7 @@ public class MaximumFinder<T extends RealType<T>> implements
 
             for (long[] offset : m_strucEl) {
                 raInput.move(offset);
+                act.setPosition(p.getPosition());
                 if (isWithin(raInput, dimensions)) {
                     if (Math.abs(act.get().getRealDouble() - raInput.get().getRealDouble()) <= m_noise) {
 
@@ -228,7 +229,7 @@ public class MaximumFinder<T extends RealType<T>> implements
                                 d = 0;
                                 for (int i = 0; i < newPos.length; ++i) {
                                     v = newPos[i] - pList.get(k).getPosition()[i];
-                                    d += v*v;
+                                    d += v * v;
                                 }
                                 if (d <= mindist) {
                                     minPos = k;
@@ -275,7 +276,7 @@ public class MaximumFinder<T extends RealType<T>> implements
          * Useful for all later operations on the list.
          */
         @SuppressWarnings("unchecked")
-        ArrayList<AnalyticPoint> cpList = (ArrayList<AnalyticPoint>) pList.clone();
+        ArrayList<AnalyticPoint> cpList = (ArrayList<AnalyticPoint>)pList.clone();
         for (AnalyticPoint p : cpList) {
             if (!p.isMax()) {
                 pList.remove(p);
@@ -398,7 +399,7 @@ public class MaximumFinder<T extends RealType<T>> implements
                                 mpos = new int[numDimensions];
                                 for (int i = 0; i < numDimensions; ++i) {
                                     retVal[i] += ra.getIntPosition(i);
-                                    mpos[i]    = ra.getIntPosition(i);
+                                    mpos[i] = ra.getIntPosition(i);
                                 }
                                 retVal[numDimensions]++;
 
@@ -444,8 +445,7 @@ public class MaximumFinder<T extends RealType<T>> implements
     }
 
     /**
-     * Check if a given Position is within our bounds.
-     * Optimized for dimensions.
+     * Check if a given Position is within our bounds. Optimized for dimensions.
      *
      * @param ra - Random access on the Position.
      * @param dimensions - The dimensions of our given view as Dimension.
@@ -464,8 +464,7 @@ public class MaximumFinder<T extends RealType<T>> implements
     }
 
     /**
-     * Check if a given Position is within our bounds.
-     * Optimized for long arrays.
+     * Check if a given Position is within our bounds. Optimized for long arrays.
      *
      * @param ra - Random access on the Position.
      * @param dimensions - The dimensions of our given view as long[]
