@@ -49,7 +49,6 @@
 package org.knime.knip.core.ops.interval;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -182,7 +181,6 @@ public class MaximumFinder<T extends RealType<T>> implements
         int numDimensions = dimensions.numDimensions(); //frequently used shortcut
 
         while (it.hasNext()) {
-            boolean error = false;
             AnalyticPoint p = it.next();
             raProc.setPosition(p.getPosition());
             raStat.setPosition(p.getPosition());
@@ -201,6 +199,9 @@ public class MaximumFinder<T extends RealType<T>> implements
 
             int[] myPos = new int[numDimensions];
             act.localize(myPos);
+
+            p.setMax(true);
+            int indexOfp = pList.indexOf(p);
 
             for (long[] offset : m_strucEl) {
                 raInput.move(offset);
@@ -221,7 +222,7 @@ public class MaximumFinder<T extends RealType<T>> implements
                             }
 
                             long mindist = 10000;
-                            int minPos = pList.indexOf(p);
+                            int minPos = indexOfp;
 
                             long d, v;
 
@@ -246,61 +247,57 @@ public class MaximumFinder<T extends RealType<T>> implements
                              * most likely not the real local max within the region.
                              * Mark it, so that it will not be set as a local max.
                              * The real max is set 3 lines above and could still
-                             * be the candidate. If so, there will be no error.
+                             * be the candidate. We will leave p isMax as default false.
                              */
-                            error = true;
                             break;
                         }
                     }
                 }
-
             }
-            if (error) {
-                raProc.setPosition(p.getPosition());
-                raProc.get().set(true);
-            } else {
-                /*
-                 * We did not reach the neighborhoodethod, so there is
-                 * no connected point within 8-con-neighborhood in noise tolerance.
-                 * Since a candidate has no higher intensity pixels around all neighbors
-                 * must haveintensitys smaller than actual - noise.
-                 * Thus we have a real local max and can mark.
-                 */
-                p.setMax(true);
-                raProc.setPosition(p.getPosition());
-                raProc.get().set(true);
-            }
-        }
 
-        /* Remove every Point from the List that  is no max.
-         * Useful for all later operations on the list.
-         */
-        @SuppressWarnings("unchecked")
-        ArrayList<AnalyticPoint> cpList = (ArrayList<AnalyticPoint>)pList.clone();
-        for (AnalyticPoint p : cpList) {
-            if (!p.isMax()) {
-                pList.remove(p);
-            }
-        }
-
-        if (m_suppression > 0) {
-            doSuppression();
+            raProc.setPosition(p.getPosition());
+            raProc.get().set(true);
         }
 
         /*
-         * Mark all single maximum points.
+         * Create a list of only the maxima
          */
-        /*for (int i = 0; i < pList.size(); ++i) {
-            if (pList.get(i).isMax()) {
-                raOutput.setPosition(pList.get(i).getPosition());
+        ArrayList<AnalyticPoint> maxList = new ArrayList<AnalyticPoint>();
+
+        /* Optimization: When we don't do suppression, we can need to iterate through
+         * our list only once. This makes maximum finding a lot faster without suppression.
+         */
+
+        if(m_suppression > 0) {
+            //Put maxima into maxList
+            for (AnalyticPoint p : pList) {
+                if (p.isMax()) {
+                    maxList.add(p);
+                }
+            }
+
+            pList = maxList; //drop the old list
+
+            doSuppression();
+
+            /*
+             * Mark all single maximum points.
+             */
+            for (AnalyticPoint p : pList) {
+                raOutput.setPosition(p.getPosition());
                 raOutput.get().setReal(255);
             }
-        } */
-        for (AnalyticPoint p : pList) {
-            raOutput.setPosition(p.getPosition());
-            raOutput.get().setReal(255);
-        }
+        } else {
+            for (AnalyticPoint p : pList) {
+                if (p.isMax()) {
+                    maxList.add(p);
+                    raOutput.setPosition(p.getPosition());
+                    raOutput.get().setReal(255); //mark the point on the output
+                }
+            }
 
+            pList = maxList;
+        }
     }
 
     /**
@@ -308,9 +305,7 @@ public class MaximumFinder<T extends RealType<T>> implements
      */
     protected void doSuppression() {
 
-        Collections.sort(pList);
-
-        /*Build a distance Matrix (To avoid running
+        /* Build a distance Matrix (To avoid running
          * over everything more often than we need to
          */
 
