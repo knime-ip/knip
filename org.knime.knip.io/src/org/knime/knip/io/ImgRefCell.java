@@ -54,6 +54,8 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
@@ -345,27 +347,9 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
 	public ImgPlusMetadata getMetadata() {
 		// default metadata
 
-		double[] tmpCal;
+		List<CalibratedAxis> tmpAxes;
 		try {
-			tmpCal = (double[]) ObjectCache.getCachedObject(m_sourceID,
-					m_imgRef + CALIBRATION_SUFFIX);
-			if (tmpCal == null) {
-				tmpCal = ImgSourcePool.getImgSource(m_sourceID).getCalibration(
-						m_imgRef, 0);
-				ObjectCache.addObject(m_sourceID,
-						m_imgRef + CALIBRATION_SUFFIX, tmpCal);
-			}
-		} catch (final Exception e) {
-			noAccessWarning(e);
-			tmpCal = new double[getDimensions().length];
-			for (int i = 0; i < tmpCal.length; i++) {
-				tmpCal[i] = 1;
-			}
-		}
-
-		CalibratedAxis[] tmpAxes;
-		try {
-			tmpAxes = (CalibratedAxis[]) ObjectCache.getCachedObject(
+			tmpAxes = (List<CalibratedAxis>) ObjectCache.getCachedObject(
 					m_sourceID, m_imgRef + AXES_SUFFIX);
 			if (tmpAxes == null) {
 				tmpAxes = ImgSourcePool.getImgSource(m_sourceID).getAxes(
@@ -375,19 +359,14 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
 			}
 		} catch (final Exception e) {
 			noAccessWarning(e);
-			tmpAxes = new CalibratedAxis[getDimensions().length];
-			for (int i = 0; i < tmpAxes.length; i++) {
-				tmpAxes[i] = new DefaultLinearAxis(Axes.get("Unknown " + i));
+			tmpAxes = new ArrayList<CalibratedAxis>();
+			for (int i = 0; i < getDimensions().length; i++) {
+				tmpAxes.add(new DefaultLinearAxis(Axes.get("Unknown " + i)));
 			}
 		}
 
 		// setting everything to metadata
-		final CalibratedAxis[] axes = new CalibratedAxis[tmpAxes.length];
-		for (int i = 0; i < axes.length; i++) {
-			axes[i] = tmpAxes[i];
-		}
-
-		final double[] calibration = tmpCal.clone();
+		final List<CalibratedAxis> axes = new ArrayList<CalibratedAxis>(tmpAxes);
 
 		// TODO: Can be replaced by FinalMetadata?!
 		return new ImgPlusMetadata() {
@@ -401,13 +380,14 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
 
 			@Override
 			public CalibratedAxis axis(final int d) {
-				return axes[d];
+				return (CalibratedAxis) axes.get(d).copy();
 			}
 
 			@Override
 			public int dimensionIndex(final AxisType axisType) {
-				for (int i = 0; i < axes.length; i++) {
-					if (axisType.getLabel().equals(axes[i].type().getLabel())) {
+				for (int i = 0; i < axes.size(); i++) {
+					if (axisType.getLabel().equals(
+							axes.get(i).type().getLabel())) {
 						return i;
 					}
 				}
@@ -462,12 +442,12 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
 
 			@Override
 			public int numDimensions() {
-				return axes.length;
+				return axes.size();
 			}
 
 			@Override
 			public void setAxis(final CalibratedAxis axis, final int d) {
-				axes[d] = axis;
+				axes.set(d, axis);
 			}
 
 			@Override
