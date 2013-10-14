@@ -77,5 +77,8 @@ Export-Package: loci.common,
  ome.xml.r2003fc.ome,
  org.knime.knip.io,
  org.knime.knip.io.node.dialog,
+ org.knime.knip.io.nodes,
+ org.knime.knip.io.nodes.annotation,
+ org.knime.knip.io.nodes.annotation.create,
  org.knime.knip.io.nodes.imgreader
 
