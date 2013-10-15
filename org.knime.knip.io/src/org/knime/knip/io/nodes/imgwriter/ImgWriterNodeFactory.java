@@ -63,45 +63,45 @@ import org.knime.core.node.NodeView;
 @SuppressWarnings("rawtypes")
 public class ImgWriterNodeFactory extends NodeFactory<ImgWriterNodeModel> {
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected NodeDialogPane createNodeDialogPane() {
-		return new ImgWriterNodeDialog();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected NodeDialogPane createNodeDialogPane() {
+        return new ImgWriterNodeDialog();
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ImgWriterNodeModel createNodeModel() {
-		return new ImgWriterNodeModel();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ImgWriterNodeModel createNodeModel() {
+        return new ImgWriterNodeModel();
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public NodeView<ImgWriterNodeModel> createNodeView(final int viewIndex,
-			final ImgWriterNodeModel nodeModel) {
-		return null;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public NodeView<ImgWriterNodeModel> createNodeView(final int viewIndex,
+            final ImgWriterNodeModel nodeModel) {
+        return null;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected int getNrNodeViews() {
-		return 0;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected int getNrNodeViews() {
+        return 0;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected boolean hasDialog() {
-		return true;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean hasDialog() {
+        return true;
+    }
 
 }

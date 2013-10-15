@@ -126,174 +126,177 @@ import org.knime.knip.io.nodes.imgreader.FileChooserPanel;
  */
 public class DialogComponentMultiFileChooser extends DialogComponent {
 
-	private static NodeLogger LOGGER = NodeLogger
-			.getLogger(DialogComponentMultiFileChooser.class);
+    private static NodeLogger LOGGER = NodeLogger
+            .getLogger(DialogComponentMultiFileChooser.class);
 
-	public final static String KNIME_WORKFLOW_RELPATH = "knime://knime.workflow";
+    public final static String KNIME_WORKFLOW_RELPATH =
+            "knime://knime.workflow";
 
-	private String m_workflowCanonicalPath;
+    private String m_workflowCanonicalPath;
 
-	/*
-	 * The file chooser
-	 */
-	private final FileChooserPanel m_fileChooser;
+    /*
+     * The file chooser
+     */
+    private final FileChooserPanel m_fileChooser;
 
-	/*
-	 * Settings to save the selected file list.
-	 */
-	private final SettingsModelStringArray m_stringArrayModel;
+    /*
+     * Settings to save the selected file list.
+     */
+    private final SettingsModelStringArray m_stringArrayModel;
 
-	// private StringHistory m_dirHistory;
+    // private StringHistory m_dirHistory;
 
-	/**
-	 * TODO: Use History
-	 * 
-	 * Creates new a DialogComponent.
-	 * 
-	 * @param stringArrayModel
-	 */
-	public DialogComponentMultiFileChooser(
-			final SettingsModelStringArray stringArrayModel,
-			final FileFilter fileFilter, final String historyID) {
+    /**
+     * TODO: Use History
+     * 
+     * Creates new a DialogComponent.
+     * 
+     * @param stringArrayModel
+     */
+    public DialogComponentMultiFileChooser(
+            final SettingsModelStringArray stringArrayModel,
+            final FileFilter fileFilter, final String historyID) {
 
-		super(stringArrayModel);
+        super(stringArrayModel);
 
-		m_workflowCanonicalPath = null;
-		try {
-			m_workflowCanonicalPath = ResolverUtil.resolveURItoLocalFile(
-					new URI(KNIME_WORKFLOW_RELPATH)).getCanonicalPath();
-		} catch (URISyntaxException e) {
-			LOGGER.warn("could not resolve the workflow directory as local file");
-		} catch (IOException e) {
-			LOGGER.warn("could not resolve the workflow directory as local file");
-		}
+        m_workflowCanonicalPath = null;
+        try {
+            m_workflowCanonicalPath =
+                    ResolverUtil.resolveURItoLocalFile(
+                            new URI(KNIME_WORKFLOW_RELPATH)).getCanonicalPath();
+        } catch (URISyntaxException e) {
+            LOGGER.warn("could not resolve the workflow directory as local file");
+        } catch (IOException e) {
+            LOGGER.warn("could not resolve the workflow directory as local file");
+        }
 
-		// m_dirHistory = StringHistory.getInstance(historyID);
-		m_fileChooser = new FileChooserPanel(fileFilter);
-		// m_fileChooser.setDirectoryHistory(m_dirHistory.getHistory());
-		// m_fileChooser.setCurrentDirectory(System
-		// .getProperty("user.home"));
-		m_stringArrayModel = stringArrayModel;
+        // m_dirHistory = StringHistory.getInstance(historyID);
+        m_fileChooser = new FileChooserPanel(fileFilter);
+        // m_fileChooser.setDirectoryHistory(m_dirHistory.getHistory());
+        // m_fileChooser.setCurrentDirectory(System
+        // .getProperty("user.home"));
+        m_stringArrayModel = stringArrayModel;
 
-		/*
-		 * // when the user input changes we need to update the model.
-		 * m_fileChooser.addChangeListener(new ChangeListener() { public void
-		 * stateChanged(final ChangeEvent e) { updateModel(); } });
-		 */
-		updateModel();
+        /*
+         * // when the user input changes we need to update the model.
+         * m_fileChooser.addChangeListener(new ChangeListener() { public void
+         * stateChanged(final ChangeEvent e) { updateModel(); } });
+         */
+        updateModel();
 
-		getComponentPanel().add(m_fileChooser);
-		// m_fileChooser.setPreferredSize(new Dimension(1500, 600));
+        getComponentPanel().add(m_fileChooser);
+        // m_fileChooser.setPreferredSize(new Dimension(1500, 600));
 
-		// updateComponent();
+        // updateComponent();
 
-		getComponentPanel().setLayout(
-				new BoxLayout(getComponentPanel(), BoxLayout.X_AXIS));
+        getComponentPanel().setLayout(
+                new BoxLayout(getComponentPanel(), BoxLayout.X_AXIS));
 
-	}
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void checkConfigurabilityBeforeLoad(final PortObjectSpec[] specs)
-			throws NotConfigurableException {
-		// Nothing to do here
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void checkConfigurabilityBeforeLoad(final PortObjectSpec[] specs)
+            throws NotConfigurableException {
+        // Nothing to do here
+    }
 
-	public FileChooserPanel getFileChooserPanel() {
-		return m_fileChooser;
-	}
+    public FileChooserPanel getFileChooserPanel() {
+        return m_fileChooser;
+    }
 
-	/**
-	 * @return the list of the currently selected files.
-	 */
-	public String[] getSelectFiles() {
-		return m_fileChooser.getSelectedFiles();
-	}
+    /**
+     * @return the list of the currently selected files.
+     */
+    public String[] getSelectFiles() {
+        return m_fileChooser.getSelectedFiles();
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void setEnabledComponents(final boolean enabled) {
-		// Nothing to do here
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void setEnabledComponents(final boolean enabled) {
+        // Nothing to do here
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setToolTipText(final String text) {
-		// Nothing to do here
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setToolTipText(final String text) {
+        // Nothing to do here
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void updateComponent() {
-		String[] paths = m_stringArrayModel.getStringArrayValue();
-		for (int i = 0; i < paths.length; i++) {
-			paths[i] = convertToFilePath(paths[i], m_workflowCanonicalPath);
-		}
-		m_fileChooser.update(paths);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void updateComponent() {
+        String[] paths = m_stringArrayModel.getStringArrayValue();
+        for (int i = 0; i < paths.length; i++) {
+            paths[i] = convertToFilePath(paths[i], m_workflowCanonicalPath);
+        }
+        m_fileChooser.update(paths);
+    }
 
-	private void updateModel() {
-		String[] paths = m_fileChooser.getSelectedFiles();
-		for (int i = 0; i < paths.length; i++) {
-			paths[i] = convertToKNIMEPath(paths[i], m_workflowCanonicalPath);
-		}
-		m_stringArrayModel.setStringArrayValue(paths);
-	}
+    private void updateModel() {
+        String[] paths = m_fileChooser.getSelectedFiles();
+        for (int i = 0; i < paths.length; i++) {
+            paths[i] = convertToKNIMEPath(paths[i], m_workflowCanonicalPath);
+        }
+        m_stringArrayModel.setStringArrayValue(paths);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void validateSettingsBeforeSave() throws InvalidSettingsException {
-		// m_dirHistory.add(m_fileChooser.getCurrentDirectory());
-		updateModel();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void validateSettingsBeforeSave() throws InvalidSettingsException {
+        // m_dirHistory.add(m_fileChooser.getCurrentDirectory());
+        updateModel();
+    }
 
-	/**
-	 * expands relative knime://knime.workflow URI parts of pathes to normal
-	 * local paths to allow handling as normal files.
-	 * 
-	 * @param paths
-	 */
-	public static String convertToFilePath(String path,
-			String canonicalWorkflowPath) {
-		if (path.startsWith(KNIME_WORKFLOW_RELPATH)) {
-			path = path.replace(KNIME_WORKFLOW_RELPATH, canonicalWorkflowPath);
-		}
-		return path;
-	}
+    /**
+     * expands relative knime://knime.workflow URI parts of pathes to normal
+     * local paths to allow handling as normal files.
+     * 
+     * @param paths
+     */
+    public static String convertToFilePath(String path,
+            String canonicalWorkflowPath) {
+        if (path.startsWith(KNIME_WORKFLOW_RELPATH)) {
+            path = path.replace(KNIME_WORKFLOW_RELPATH, canonicalWorkflowPath);
+        }
+        return path;
+    }
 
-	/**
-	 * changes the string path identifiers to use the knime://knime.workflow URI
-	 * syntax if possible. This is used before storing into the model and allows
-	 * to move such workflows with relative references to data.
-	 * 
-	 * @param path
-	 */
-	public static String convertToKNIMEPath(String path,
-			String canonicalWorkflowPath) {
-		String canonicalPath = null;
-		try {
-			canonicalPath = new File(path).getCanonicalPath();
-		} catch (IOException e) {
-			LOGGER.warn("Could not convert path to canonical path. This may affect workflow relative file paths.");
-		}
+    /**
+     * changes the string path identifiers to use the knime://knime.workflow URI
+     * syntax if possible. This is used before storing into the model and allows
+     * to move such workflows with relative references to data.
+     * 
+     * @param path
+     */
+    public static String convertToKNIMEPath(String path,
+            String canonicalWorkflowPath) {
+        String canonicalPath = null;
+        try {
+            canonicalPath = new File(path).getCanonicalPath();
+        } catch (IOException e) {
+            LOGGER.warn("Could not convert path to canonical path. This may affect workflow relative file paths.");
+        }
 
-		if (canonicalPath != null
-				&& canonicalPath.startsWith(canonicalWorkflowPath)) {
-			path = canonicalPath.replace(canonicalWorkflowPath,
-					KNIME_WORKFLOW_RELPATH);
-			path = path.replaceAll("\\\\", "/");
-		}
-		return path;
-	}
+        if (canonicalPath != null
+                && canonicalPath.startsWith(canonicalWorkflowPath)) {
+            path =
+                    canonicalPath.replace(canonicalWorkflowPath,
+                            KNIME_WORKFLOW_RELPATH);
+            path = path.replaceAll("\\\\", "/");
+        }
+        return path;
+    }
 
 }

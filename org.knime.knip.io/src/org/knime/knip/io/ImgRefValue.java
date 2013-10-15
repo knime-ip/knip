@@ -70,81 +70,84 @@ import org.knime.knip.base.renderer.ThumbnailRenderer;
  */
 public interface ImgRefValue extends DataValue {
 
-	/** Gathers meta information to this type. */
-	public static final class ImageUtilityFactory extends UtilityFactory {
+    /** Gathers meta information to this type. */
+    public static final class ImageUtilityFactory extends UtilityFactory {
 
-		private static final StringValueComparator COMPARATOR = new StringValueComparator();
+        private static final StringValueComparator COMPARATOR =
+                new StringValueComparator();
 
-		/*
-		 * Specialized icon for ImageCell
-		 */
-		private static final Icon ICON;
+        /*
+         * Specialized icon for ImageCell
+         */
+        private static final Icon ICON;
 
-		/*
-		 * try loading this icon, if fails we use null in the probably silly
-		 * assumption everyone can deal with that
-		 */
-		static {
-			ImageIcon icon;
-			try {
-				final ClassLoader loader = ImgRefValue.class.getClassLoader();
-				final String path = ImgRefValue.class.getPackage().getName()
-						.replace('.', '/');
-				icon = new ImageIcon(loader.getResource(path
-						+ "/icon/imageicon.png"));
-			} catch (final Exception e) {
-				icon = null;
-			}
-			ICON = icon;
-		}
+        /*
+         * try loading this icon, if fails we use null in the probably silly
+         * assumption everyone can deal with that
+         */
+        static {
+            ImageIcon icon;
+            try {
+                final ClassLoader loader = ImgRefValue.class.getClassLoader();
+                final String path =
+                        ImgRefValue.class.getPackage().getName()
+                                .replace('.', '/');
+                icon =
+                        new ImageIcon(loader.getResource(path
+                                + "/icon/imageicon.png"));
+            } catch (final Exception e) {
+                icon = null;
+            }
+            ICON = icon;
+        }
 
-		/** Limits scope of constructor, does nothing. */
-		protected ImageUtilityFactory() {
-			//
-		}
+        /** Limits scope of constructor, does nothing. */
+        protected ImageUtilityFactory() {
+            //
+        }
 
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		protected DataValueComparator getComparator() {
-			return COMPARATOR;
-		}
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        protected DataValueComparator getComparator() {
+            return COMPARATOR;
+        }
 
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		public Icon getIcon() {
-			return ICON;
-		}
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Icon getIcon() {
+            return ICON;
+        }
 
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		protected DataValueRendererFamily getRendererFamily(
-				final DataColumnSpec spec) {
-			return new DefaultDataValueRendererFamily(
-					ThumbnailRenderer.THUMBNAIL_RENDERER);
-		}
-	}
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        protected DataValueRendererFamily getRendererFamily(
+                final DataColumnSpec spec) {
+            return new DefaultDataValueRendererFamily(
+                    ThumbnailRenderer.THUMBNAIL_RENDERER);
+        }
+    }
 
-	/**
-	 * Static singleton for meta description.
-	 * 
-	 * @see DataValue#UTILITY
-	 */
-	public static final UtilityFactory UTILITY = new ImageUtilityFactory();
+    /**
+     * Static singleton for meta description.
+     * 
+     * @see DataValue#UTILITY
+     */
+    public static final UtilityFactory UTILITY = new ImageUtilityFactory();
 
-	/**
-	 * @return description of the image origin (e.g. URL, filename, ...)
-	 */
-	public String getImageReference();
+    /**
+     * @return description of the image origin (e.g. URL, filename, ...)
+     */
+    public String getImageReference();
 
-	/**
-	 * @return a string describing the image source
-	 */
-	public String getSource();
+    /**
+     * @return a string describing the image source
+     */
+    public String getSource();
 
 }

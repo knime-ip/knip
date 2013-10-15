@@ -87,214 +87,211 @@ import org.slf4j.LoggerFactory;
  * 
  * @author dietzc, hornm
  * 
- * @param 
+ * @param
  */
 @Deprecated
-public class SettingsModelAnnotator extends
-		SettingsModel {
+public class SettingsModelAnnotator extends SettingsModel {
 
-	public static <T extends RealType<T> & NativeType<T>> ImgPlus<T> loadImgPlus(
-			final String key) throws Exception {
-		final ImgSource src = ImgSourcePool
-				.getImgSource(AnnotatorFilePanel.IMAGE_SOURCE_ID);
-		@SuppressWarnings("unchecked")
-		final ImgPlus<T> img = (ImgPlus<T>) src.getImg(key, 0);
+    public static <T extends RealType<T> & NativeType<T>> ImgPlus<T> loadImgPlus(
+            final String key) throws Exception {
+        final ImgSource src =
+                ImgSourcePool.getImgSource(AnnotatorFilePanel.IMAGE_SOURCE_ID);
+        @SuppressWarnings("unchecked")
+        final ImgPlus<T> img = (ImgPlus<T>)src.getImg(key, 0);
 
-		return img;
-	}
+        return img;
+    }
 
-	/* Logger */
-	private final Logger logger = LoggerFactory
-			.getLogger(SettingsModelAnnotator.class);
+    /* Logger */
+    private final Logger logger = LoggerFactory
+            .getLogger(SettingsModelAnnotator.class);
 
-	/*
-	 * The complete annotations as base64 coded string to store the result in a
-	 * XML file
-	 */
-	private String m_base64Coded;
+    /*
+     * The complete annotations as base64 coded string to store the result in a
+     * XML file
+     */
+    private String m_base64Coded;
 
-	/* Config name of the settings model */
-	private final String m_configName;
+    /* Config name of the settings model */
+    private final String m_configName;
 
-	/* Map to store the overlays for different Img */
-	private Map<RowColKey, Overlay> m_overlayMap;
+    /* Map to store the overlays for different Img */
+    private Map<RowColKey, Overlay> m_overlayMap;
 
-	/**
-	 * @param configName
-	 *            ConfigName of the SettingsModel
-	 */
-	public SettingsModelAnnotator(final String configName) {
-		m_configName = configName;
-		m_overlayMap = new HashMap<RowColKey, Overlay>();
-		m_base64Coded = "";
-		if (ImgSourcePool.getImgSource(AnnotatorFilePanel.IMAGE_SOURCE_ID) == null) {
-			ImgSourcePool.addImgSource(AnnotatorFilePanel.IMAGE_SOURCE_ID,
-					new ScifioImgSource());
-		}
-	}
+    /**
+     * @param configName ConfigName of the SettingsModel
+     */
+    public SettingsModelAnnotator(final String configName) {
+        m_configName = configName;
+        m_overlayMap = new HashMap<RowColKey, Overlay>();
+        m_base64Coded = "";
+        if (ImgSourcePool.getImgSource(AnnotatorFilePanel.IMAGE_SOURCE_ID) == null) {
+            ImgSourcePool.addImgSource(AnnotatorFilePanel.IMAGE_SOURCE_ID,
+                    new ScifioImgSource());
+        }
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	protected <T extends SettingsModel> T createClone() {
-		final SettingsModelAnnotator clone = new SettingsModelAnnotator(
-				m_configName);
-		clone.setOverlayMapAndComponents(m_base64Coded, m_overlayMap);
-		return (T) clone;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    protected <T extends SettingsModel> T createClone() {
+        final SettingsModelAnnotator clone =
+                new SettingsModelAnnotator(m_configName);
+        clone.setOverlayMapAndComponents(m_base64Coded, m_overlayMap);
+        return (T)clone;
+    }
 
-	/**
-	 * @return Base64 String representation of the complete {@link ImgViewer}
-	 *         (Annotator) and it's settings
-	 */
-	public String getBase64CodedImgViewer() {
-		return m_base64Coded;
-	}
+    /**
+     * @return Base64 String representation of the complete {@link ImgViewer}
+     *         (Annotator) and it's settings
+     */
+    public String getBase64CodedImgViewer() {
+        return m_base64Coded;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected String getConfigName() {
-		return m_configName;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String getConfigName() {
+        return m_configName;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected String getModelTypeID() {
-		return "SMID_overlayselection";
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String getModelTypeID() {
+        return "SMID_overlayselection";
+    }
 
-	/**
-	 * 
-	 * @return The overlay map containing the different {@link Overlay} for
-	 *         different {@link Img}
-	 */
-	public Map<RowColKey, Overlay> getOverlayMap() {
-		return m_overlayMap;
-	}
+    /**
+     * 
+     * @return The overlay map containing the different {@link Overlay} for
+     *         different {@link Img}
+     */
+    public Map<RowColKey, Overlay> getOverlayMap() {
+        return m_overlayMap;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void loadSettingsForDialog(final NodeSettingsRO settings,
-			final PortObjectSpec[] specs) throws NotConfigurableException {
-		try {
-			loadSettingsForModel(settings);
-		} catch (final InvalidSettingsException e) {
-			logger.error("Error while loading settings for annotator dialog", e);
-		}
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void loadSettingsForDialog(final NodeSettingsRO settings,
+            final PortObjectSpec[] specs) throws NotConfigurableException {
+        try {
+            loadSettingsForModel(settings);
+        } catch (final InvalidSettingsException e) {
+            logger.error("Error while loading settings for annotator dialog", e);
+        }
+    }
 
-	/**
-	 * Load the Base64 coded String representation of the annotator in the
-	 * settingsmodel and deseralizes the {@link Overlay} for the different
-	 * {@link Img}
-	 * 
-	 * {@inheritDoc}
-	 * 
-	 * @throws InvalidSettingsException
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	protected void loadSettingsForModel(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
-		try {
-			m_base64Coded = settings.getString("base64");
-			m_overlayMap.clear();
+    /**
+     * Load the Base64 coded String representation of the annotator in the
+     * settingsmodel and deseralizes the {@link Overlay} for the different
+     * {@link Img}
+     * 
+     * {@inheritDoc}
+     * 
+     * @throws InvalidSettingsException
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void loadSettingsForModel(final NodeSettingsRO settings)
+            throws InvalidSettingsException {
+        try {
+            m_base64Coded = settings.getString("base64");
+            m_overlayMap.clear();
 
-			final ByteArrayInputStream bais = new ByteArrayInputStream(
-					settings.getByteArray("overlays"));
+            final ByteArrayInputStream bais =
+                    new ByteArrayInputStream(settings.getByteArray("overlays"));
 
-			final ObjectInputStream in = new ObjectInputStream(bais);
+            final ObjectInputStream in = new ObjectInputStream(bais);
 
-			for (int i = 0; i < settings.getInt("numOverlayEntries"); i++) {
-				m_overlayMap.put(AnnotatorManager.toRowColKey(in.readUTF()), (Overlay) in.readObject());
-			}
+            for (int i = 0; i < settings.getInt("numOverlayEntries"); i++) {
+                m_overlayMap.put(AnnotatorManager.toRowColKey(in.readUTF()),
+                        (Overlay)in.readObject());
+            }
 
-			in.close();
-		} catch (final IOException e) {
-			logger.error("IOError while loading annotator", e);
-		} catch (final ClassNotFoundException e) {
-			logger.error("ClassNotFound while loading annotator", e);
-		}
-	}
+            in.close();
+        } catch (final IOException e) {
+            logger.error("IOError while loading annotator", e);
+        } catch (final ClassNotFoundException e) {
+            logger.error("ClassNotFound while loading annotator", e);
+        }
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void saveSettingsForDialog(final NodeSettingsWO settings)
-			throws InvalidSettingsException {
-		saveSettingsForModel(settings);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void saveSettingsForDialog(final NodeSettingsWO settings)
+            throws InvalidSettingsException {
+        saveSettingsForModel(settings);
+    }
 
-	/**
-	 * Adds the Base64 coded String representation of the annotator to the
-	 * settingsmodel and writes the {@link Overlay} for the different
-	 * {@link Img}
-	 * 
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void saveSettingsForModel(final NodeSettingsWO settings) {
-		try {
-			settings.addString("base64", m_base64Coded);
-			settings.addInt("numOverlayEntries", m_overlayMap.size());
+    /**
+     * Adds the Base64 coded String representation of the annotator to the
+     * settingsmodel and writes the {@link Overlay} for the different
+     * {@link Img}
+     * 
+     * {@inheritDoc}
+     */
+    @Override
+    protected void saveSettingsForModel(final NodeSettingsWO settings) {
+        try {
+            settings.addString("base64", m_base64Coded);
+            settings.addInt("numOverlayEntries", m_overlayMap.size());
 
-			final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			final ObjectOutputStream out = new ObjectOutputStream(baos);
-			for (final Entry<RowColKey, Overlay> entry : getOverlayMap()
-					.entrySet()) {
-				out.writeUTF(AnnotatorManager.fromRowColKey(entry.getKey()));
-				out.writeObject(entry.getValue());
-			}
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            final ObjectOutputStream out = new ObjectOutputStream(baos);
+            for (final Entry<RowColKey, Overlay> entry : getOverlayMap()
+                    .entrySet()) {
+                out.writeUTF(AnnotatorManager.fromRowColKey(entry.getKey()));
+                out.writeObject(entry.getValue());
+            }
 
-			// TODO: Faster
-			settings.addByteArray("overlays", baos.toByteArray());
+            // TODO: Faster
+            settings.addByteArray("overlays", baos.toByteArray());
 
-			out.close();
-		} catch (final IOException e) {
+            out.close();
+        } catch (final IOException e) {
 
-			e.printStackTrace();
-		}
+            e.printStackTrace();
+        }
 
-	}
+    }
 
-	/**
-	 * 
-	 * @param base64Coded
-	 *            the complete information about the annotation as base64coded
-	 *            string
-	 * @param overlayMap
-	 *            Map to store the overlays for different {@link Img}
-	 */
-	public void setOverlayMapAndComponents(final String base64Coded,
-			final Map<RowColKey, Overlay> overlayMap) {
-		m_overlayMap = overlayMap;
-		m_base64Coded = base64Coded;
-	}
+    /**
+     * 
+     * @param base64Coded the complete information about the annotation as
+     *            base64coded string
+     * @param overlayMap Map to store the overlays for different {@link Img}
+     */
+    public void setOverlayMapAndComponents(final String base64Coded,
+            final Map<RowColKey, Overlay> overlayMap) {
+        m_overlayMap = overlayMap;
+        m_base64Coded = base64Coded;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String toString() {
-		return m_configName;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return m_configName;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void validateSettingsForModel(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
-		// Nothing to do here
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void validateSettingsForModel(final NodeSettingsRO settings)
+            throws InvalidSettingsException {
+        // Nothing to do here
+    }
 
 }

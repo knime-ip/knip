@@ -61,19 +61,20 @@ import java.util.Map;
  */
 public class ImgSourcePool {
 
-	private static Map<String, ImgSource> m_imgSources = new HashMap<String, ImgSource>();
+    private static Map<String, ImgSource> m_imgSources =
+            new HashMap<String, ImgSource>();
 
-	public static void addImgSource(final String sourceID, final ImgSource src) {
-		m_imgSources.put(sourceID, src);
-	}
+    public static void addImgSource(final String sourceID, final ImgSource src) {
+        m_imgSources.put(sourceID, src);
+    }
 
-	public static ImgSource getImgSource(final String sourceID) {
-		final ImgSource src = m_imgSources.get(sourceID);
-		// if (src == null) {
-		// throw new RuntimeException(
-		// "Image source doesn't exist in img source pool!");
-		// }
-		return src;
-	}
+    public static ImgSource getImgSource(final String sourceID) {
+        final ImgSource src = m_imgSources.get(sourceID);
+        // if (src == null) {
+        // throw new RuntimeException(
+        // "Image source doesn't exist in img source pool!");
+        // }
+        return src;
+    }
 
 }

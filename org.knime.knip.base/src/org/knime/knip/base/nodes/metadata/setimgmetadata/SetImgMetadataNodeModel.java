@@ -226,7 +226,7 @@ public class SetImgMetadataNodeModel<T extends RealType<T>> extends NodeModel im
                         calibration[i] = m_calibrations[i].getDoubleValue();
                     } else {
                         //TODO: what about arbitrary calibrated spaces?
-                        calibration[i] = imgPlus.axis(i).averageScale(0, 0);
+                        calibration[i] = imgPlus.axis(i).averageScale(0, 1);
                     }
                 }
 
