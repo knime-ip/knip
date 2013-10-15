@@ -201,9 +201,9 @@ public class ScifioImgSource implements ImgSource {
 		ImgPlus<RealType> ret = m_imgOpener.openImg(getReader(imgRef),
 				getPixelType(imgRef, currentSeries), m_imgFactory, options);
 
-		// TODO remove this as soon as calibration is set in image per default
-		getCalibration(imgRef, currentSeries);
-		
+		// TODO remove this as soon as calibration is set in ImgPlus by SCIFIO. Since now: this is not done automatically
+		double[] calibration = getCalibration(imgRef, currentSeries);
+		ret.setCalibration(calibration);
 		
 		if (withCropping) {
 			ret = MiscViews.cleanImgPlus(ret);
