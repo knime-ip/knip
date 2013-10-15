@@ -72,7 +72,7 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.knip.base.exceptions.KNIPException;
 
 /**
- *
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -108,7 +108,7 @@ public class SettingsModelSubsetSelection extends SettingsModel {
 
     /**
      * Creates a new plane selection where all planes of each dimension are selected.
-     *
+     * 
      * @param configName
      */
     public SettingsModelSubsetSelection(final String configName) {
@@ -132,9 +132,9 @@ public class SettingsModelSubsetSelection extends SettingsModel {
 
     /**
      * Creates the selected intervals according to the given image and its metadata.
-     *
+     * 
      * @param dimensions
-     *
+     * 
      * @return
      * @throws KNIPException
      */
@@ -372,7 +372,7 @@ public class SettingsModelSubsetSelection extends SettingsModel {
 
     /**
      * Check if all dimensions are completely selected
-     *
+     * 
      * @param dimSize
      * @param dim
      * @return
@@ -406,8 +406,8 @@ public class SettingsModelSubsetSelection extends SettingsModel {
 
     /**
      * Check if a dimension is completely selected & should be included
-     *
-     *
+     * 
+     * 
      * @param dimSize
      * @param dim
      * @return
@@ -569,7 +569,7 @@ public class SettingsModelSubsetSelection extends SettingsModel {
 
     /**
      * if selection.get(dimlabel) ==null -> all coordinates are selected
-     *
+     * 
      * @param dimLabel
      * @param selection
      */
@@ -612,7 +612,7 @@ public class SettingsModelSubsetSelection extends SettingsModel {
 
     /**
      * Returns for each axis that is not completely selected a pair axes, [] {selected Indices}
-     *
+     * 
      * @param dimensions
      * @param calibAxes
      * @return an array of pairs {axes}{selected indices}

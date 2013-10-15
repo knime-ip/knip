@@ -63,45 +63,45 @@ import org.knime.knip.base.nodes.view.TableCellViewNodeView;
  */
 public class ImageFileRefNodeFactory extends NodeFactory<ImageFileRefNodeModel> {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeDialogPane createNodeDialogPane() {
-        return new ImageFileRefNodeDialog();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeDialogPane createNodeDialogPane() {
+		return new ImageFileRefNodeDialog();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ImageFileRefNodeModel createNodeModel() {
-        return new ImageFileRefNodeModel();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ImageFileRefNodeModel createNodeModel() {
+		return new ImageFileRefNodeModel();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeView<ImageFileRefNodeModel> createNodeView(final int i,
-            final ImageFileRefNodeModel nodeModel) {
-        return new TableCellViewNodeView<ImageFileRefNodeModel>(nodeModel);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeView<ImageFileRefNodeModel> createNodeView(final int i,
+			final ImageFileRefNodeModel nodeModel) {
+		return new TableCellViewNodeView<ImageFileRefNodeModel>(nodeModel);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getNrNodeViews() {
-        return 1;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getNrNodeViews() {
+		return 1;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean hasDialog() {
-        return true;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean hasDialog() {
+		return true;
+	}
 
 }

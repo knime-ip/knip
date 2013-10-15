@@ -70,47 +70,46 @@ import org.knime.knip.core.util.EnumListProvider;
  */
 @Deprecated
 public class AnnotatorNodeDialog<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
-        extends DefaultNodeSettingsPane {
+		extends DefaultNodeSettingsPane {
 
-    private final DialogComponentAnnotator<T> m_dialogComponentAnnotator;
+	private final DialogComponentAnnotator<T> m_dialogComponentAnnotator;
 
-    public AnnotatorNodeDialog() {
-        super();
+	public AnnotatorNodeDialog() {
+		super();
 
-        removeTab("Options");
-        createNewTab("Selection");
-        createNewGroup("Image Annotation");
+		removeTab("Options");
+		createNewTab("Selection");
+		createNewGroup("Image Annotation");
 
-        m_dialogComponentAnnotator =
-                new DialogComponentAnnotator<T>(new SettingsModelAnnotator(
-                        AnnotatorNodeModel.CFG_POINTS));
-        addDialogComponent(m_dialogComponentAnnotator);
-        closeCurrentGroup();
+		m_dialogComponentAnnotator = new DialogComponentAnnotator<T>(
+				new SettingsModelAnnotator(AnnotatorNodeModel.CFG_POINTS));
+		addDialogComponent(m_dialogComponentAnnotator);
+		closeCurrentGroup();
 
-        createNewTab("Label Settings");
-        setHorizontalPlacement(true);
-        createNewGroup("Options");
+		createNewTab("Label Settings");
+		setHorizontalPlacement(true);
+		createNewGroup("Options");
 
-        addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
-                AnnotatorNodeModel.CFG_ADD_SEGMENT_ID, true),
-                "Add unique segment id as label"));
-        addDialogComponent(new DialogComponentStringSelection(
-                new SettingsModelString(AnnotatorNodeModel.CFG_FACTORY_TYPE,
-                        ImgFactoryTypes.ARRAY_IMG_FACTORY.toString()),
-                "Factory Type", EnumListProvider.getStringList(ImgFactoryTypes
-                        .values())));
-        addDialogComponent(new DialogComponentStringSelection(
-                new SettingsModelString(AnnotatorNodeModel.CFG_LABELING_TYPE,
-                        NativeTypes.SHORTTYPE.toString()), "Storage Img Type",
-                EnumListProvider.getStringList(NativeTypes.intTypeValues())));
+		addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
+				AnnotatorNodeModel.CFG_ADD_SEGMENT_ID, true),
+				"Add unique segment id as label"));
+		addDialogComponent(new DialogComponentStringSelection(
+				new SettingsModelString(AnnotatorNodeModel.CFG_FACTORY_TYPE,
+						ImgFactoryTypes.ARRAY_IMG_FACTORY.toString()),
+				"Factory Type", EnumListProvider.getStringList(ImgFactoryTypes
+						.values())));
+		addDialogComponent(new DialogComponentStringSelection(
+				new SettingsModelString(AnnotatorNodeModel.CFG_LABELING_TYPE,
+						NativeTypes.SHORTTYPE.toString()), "Storage Img Type",
+				EnumListProvider.getStringList(NativeTypes.intTypeValues())));
 
-        closeCurrentGroup();
-    }
+		closeCurrentGroup();
+	}
 
-    @Override
-    public void onClose() {
-        // can result in errors because the dialog is a ConfigureDialog
-        // and will not be rebuild on reopening
-        // m_dialogComponentAnnotator.close();
-    }
+	@Override
+	public void onClose() {
+		// can result in errors because the dialog is a ConfigureDialog
+		// and will not be rebuild on reopening
+		// m_dialogComponentAnnotator.close();
+	}
 }

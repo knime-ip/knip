@@ -71,7 +71,7 @@ import org.knime.knip.core.ui.imgviewer.panels.transfunc.TransferFunctionControl
 
 /**
  * TODO Auto-generated
- *
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -80,7 +80,7 @@ public class ViewerFactory {
 
     /**
      * Creates a ImgViewer showing the histogram of the given image.
-     *
+     * 
      * @param <T>
      * @return
      */
@@ -100,7 +100,7 @@ public class ViewerFactory {
     /**
      * Creates a ImgViewer for {@link Img}s with a Minimap, Plane Selection, Renderer Selection, Image Normalization and
      * Image Properties Panel
-     *
+     * 
      * @return
      */
     public static <T extends RealType<T> & NativeType<T>> ImgViewer createImgViewer(final int cacheSize) {
@@ -149,7 +149,7 @@ public class ViewerFactory {
 
     /**
      * Creates a ImgViewer for {@link Img}s with a Minimap, Plane Selection, and TransferFunctionPanel
-     *
+     * 
      * @return
      */
     public static <T extends RealType<T> & NativeType<T>> ImgViewer createTransferFunctionViewer(final int cacheSize) {

@@ -84,11 +84,11 @@ import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
  */
 /**
  * Combined label renderer. Supports label rendering, with filters, with hilite, with color tables with/without strings
- *
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
- *
+ * 
  * @param <L> labeling based type of the rendered source
  */
 public class LabelingRU<L extends Comparable<L>> extends AbstractDefaultRU<LabelingType<L>> {
@@ -207,8 +207,8 @@ public class LabelingRU<L extends Comparable<L>> extends AbstractDefaultRU<Label
     //event handling
 
     /**
-     * @param e updates the stored labeling that is the source of the created image. Also updates
-     *  related member variables.
+     * @param e updates the stored labeling that is the source of the created image. Also updates related member
+     *            variables.
      */
     @EventListener
     public void onUpdated(final IntervalWithMetadataChgEvent<LabelingType<L>> e) {
@@ -238,6 +238,7 @@ public class LabelingRU<L extends Comparable<L>> extends AbstractDefaultRU<Label
 
     /**
      * stores active labels and filter operators in members.
+     * 
      * @param e issued if labels get filtered.
      */
     @EventListener
@@ -248,6 +249,7 @@ public class LabelingRU<L extends Comparable<L>> extends AbstractDefaultRU<Label
 
     /**
      * stores hilited labels in a member.
+     * 
      * @param e contains all hilited labels.
      */
     @EventListener
@@ -257,6 +259,7 @@ public class LabelingRU<L extends Comparable<L>> extends AbstractDefaultRU<Label
 
     /**
      * set all members that could hold expensive references to null or resets them to allow storage clean ups.
+     * 
      * @param event marker event
      */
     @EventListener
@@ -273,7 +276,7 @@ public class LabelingRU<L extends Comparable<L>> extends AbstractDefaultRU<Label
     }
 
     /**
-     * @param event  {@link #onClose2()}
+     * @param event {@link #onClose2()}
      */
     @EventListener
     public void onAnnotatorReset(final AnnotatorResetEvent event) {
@@ -285,6 +288,5 @@ public class LabelingRU<L extends Comparable<L>> extends AbstractDefaultRU<Label
     }
 
     // standard methods
-
 
 }

@@ -106,239 +106,231 @@ import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
  */
 @Deprecated
 public class AnnotatorNodeModel<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
-        extends NodeModel implements BufferedDataTableHolder {
+		extends NodeModel implements BufferedDataTableHolder {
 
-    /**
-     * Key to store the "add segment id" option
-     */
-    public static final String CFG_ADD_SEGMENT_ID = "add_segment_id";
+	/**
+	 * Key to store the "add segment id" option
+	 */
+	public static final String CFG_ADD_SEGMENT_ID = "add_segment_id";
 
-    /**
-     * Key to store the "factory type" option
-     */
-    public static final String CFG_FACTORY_TYPE = "factory_type";
+	/**
+	 * Key to store the "factory type" option
+	 */
+	public static final String CFG_FACTORY_TYPE = "factory_type";
 
-    /**
-     * Key to store the "factory type" option
-     */
-    public static final String CFG_LABELING_TYPE = "labeling_type";
+	/**
+	 * Key to store the "factory type" option
+	 */
+	public static final String CFG_LABELING_TYPE = "labeling_type";
 
-    /**
-     * Key to store the points
-     */
-    public static final String CFG_POINTS = "points";
+	/**
+	 * Key to store the points
+	 */
+	public static final String CFG_POINTS = "points";
 
-    /**
-     * The image out port of the Node.
-     */
-    public static final int IMAGEOUTPORT = 0;
+	/**
+	 * The image out port of the Node.
+	 */
+	public static final int IMAGEOUTPORT = 0;
 
-    private final SettingsModelBoolean m_addSegmentID =
-            new SettingsModelBoolean(CFG_ADD_SEGMENT_ID, true);
+	private final SettingsModelBoolean m_addSegmentID = new SettingsModelBoolean(
+			CFG_ADD_SEGMENT_ID, true);
 
-    /*
-     * Settings for the Overlay
-     */
-    private final SettingsModelAnnotator m_annotatorModel =
-            new SettingsModelAnnotator(CFG_POINTS);
+	/*
+	 * Settings for the Overlay
+	 */
+	private final SettingsModelAnnotator m_annotatorModel = new SettingsModelAnnotator(
+			CFG_POINTS);
 
-    /* data table for the table cell viewer */
-    private BufferedDataTable m_data;
+	/* data table for the table cell viewer */
+	private BufferedDataTable m_data;
 
-    private final SettingsModelString m_factoryType = new SettingsModelString(
-            CFG_FACTORY_TYPE, ImgFactoryTypes.NTREE_IMG_FACTORY.toString());
+	private final SettingsModelString m_factoryType = new SettingsModelString(
+			CFG_FACTORY_TYPE, ImgFactoryTypes.NTREE_IMG_FACTORY.toString());
 
-    /*
-     * The image-output-table DataSpec
-     */
-    private DataTableSpec m_imageOutSpec;
+	/*
+	 * The image-output-table DataSpec
+	 */
+	private DataTableSpec m_imageOutSpec;
 
-    private final SettingsModelString m_labelingType = new SettingsModelString(
-            CFG_LABELING_TYPE, NativeTypes.SHORTTYPE.toString());
+	private final SettingsModelString m_labelingType = new SettingsModelString(
+			CFG_LABELING_TYPE, NativeTypes.SHORTTYPE.toString());
 
-    private DataTableSpec m_labelsOutSpec;
+	private DataTableSpec m_labelsOutSpec;
 
-    /*
-     * Collection of all settings.
-     */
-    private final Collection<SettingsModel> m_settingsCollection;
+	/*
+	 * Collection of all settings.
+	 */
+	private final Collection<SettingsModel> m_settingsCollection;
 
-    /**
-     * Initializes the ImageReader
-     */
-    public AnnotatorNodeModel() {
-        super(0, 2);
-        m_settingsCollection = new ArrayList<SettingsModel>();
-        m_settingsCollection.add(m_annotatorModel);
-        m_settingsCollection.add(m_addSegmentID);
-        m_settingsCollection.add(m_labelingType);
-        m_settingsCollection.add(m_factoryType);
+	/**
+	 * Initializes the ImageReader
+	 */
+	public AnnotatorNodeModel() {
+		super(0, 2);
+		m_settingsCollection = new ArrayList<SettingsModel>();
+		m_settingsCollection.add(m_annotatorModel);
+		m_settingsCollection.add(m_addSegmentID);
+		m_settingsCollection.add(m_labelingType);
+		m_settingsCollection.add(m_factoryType);
 
-    }
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
-            throws InvalidSettingsException {
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
+			throws InvalidSettingsException {
 
-        m_imageOutSpec =
-                new DataTableSpec(
-                        new DataColumnSpec[]{
-                                new DataColumnSpecCreator("Image",
-                                        ImgPlusCell.TYPE).createSpec(),
-                                new DataColumnSpecCreator("Segments",
-                                        LabelingCell.TYPE).createSpec()});
+		m_imageOutSpec = new DataTableSpec(
+				new DataColumnSpec[] {
+						new DataColumnSpecCreator("Image", ImgPlusCell.TYPE)
+								.createSpec(),
+						new DataColumnSpecCreator("Segments", LabelingCell.TYPE)
+								.createSpec() });
 
-        m_labelsOutSpec =
-                new DataTableSpec(
-                        new DataColumnSpec[]{new DataColumnSpecCreator("Image",
-                                StringCell.TYPE).createSpec()});
+		m_labelsOutSpec = new DataTableSpec(
+				new DataColumnSpec[] { new DataColumnSpecCreator("Image",
+						StringCell.TYPE).createSpec() });
 
-        return new DataTableSpec[]{m_imageOutSpec, m_labelsOutSpec};
-    }
+		return new DataTableSpec[] { m_imageOutSpec, m_labelsOutSpec };
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
-            final ExecutionContext exec) throws Exception {
-        final BufferedDataContainer imgCon =
-                exec.createDataContainer(m_imageOutSpec);
-        final BufferedDataContainer labelCon =
-                exec.createDataContainer(m_labelsOutSpec);
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
+			final ExecutionContext exec) throws Exception {
+		final BufferedDataContainer imgCon = exec
+				.createDataContainer(m_imageOutSpec);
+		final BufferedDataContainer labelCon = exec
+				.createDataContainer(m_labelsOutSpec);
 
-        final Map<RowColKey, Overlay> map = m_annotatorModel.getOverlayMap();
-        final Set<String> labels = new HashSet<String>();
-        final ImgPlusCellFactory imgCellFactory = new ImgPlusCellFactory(exec);
-        final LabelingCellFactory labCellFactory =
-                new LabelingCellFactory(exec);
-        for (final Entry<RowColKey, Overlay> entry : map.entrySet()) {
+		final Map<RowColKey, Overlay> map = m_annotatorModel.getOverlayMap();
+		final Set<String> labels = new HashSet<String>();
+		final ImgPlusCellFactory imgCellFactory = new ImgPlusCellFactory(exec);
+		final LabelingCellFactory labCellFactory = new LabelingCellFactory(exec);
+		for (final Entry<RowColKey, Overlay> entry : map.entrySet()) {
 
-            final ImgPlus<T> imgPlus =
-                    SettingsModelAnnotator.loadImgPlus(AnnotatorManager
-                            .fromRowColKey(entry.getKey()));
+			final ImgPlus<T> imgPlus = SettingsModelAnnotator
+					.loadImgPlus(AnnotatorManager.fromRowColKey(entry.getKey()));
 
-            final long[] dimensions = new long[imgPlus.numDimensions()];
-            imgPlus.dimensions(dimensions);
+			final long[] dimensions = new long[imgPlus.numDimensions()];
+			imgPlus.dimensions(dimensions);
 
-            final Overlay o = entry.getValue();
+			final Overlay o = entry.getValue();
 
-            if ((o != null) && (o.getElements().length > 0)) {
-                final Labeling<String> labeling =
-                        o.renderSegmentationImage(
-                                (NativeImgFactory<?>)ImgFactoryTypes
-                                        .getImgFactory(
-                                                m_factoryType.getStringValue(),
-                                                imgPlus), m_addSegmentID
-                                        .getBooleanValue(), NativeTypes
-                                        .valueOf(m_labelingType
-                                                .getStringValue()));
-                imgCon.addRowToTable(new DefaultRow(new RowKey(AnnotatorManager
-                        .fromRowColKey(entry.getKey())), imgCellFactory
-                        .createCell(imgPlus), labCellFactory.createCell(
-                        labeling, new DefaultLabelingMetadata(imgPlus, imgPlus,
-                                imgPlus, new DefaultLabelingColorTable()))));
+			if ((o != null) && (o.getElements().length > 0)) {
+				final Labeling<String> labeling = o.renderSegmentationImage(
+						(NativeImgFactory<?>) ImgFactoryTypes.getImgFactory(
+								m_factoryType.getStringValue(), imgPlus),
+						m_addSegmentID.getBooleanValue(), NativeTypes
+								.valueOf(m_labelingType.getStringValue()));
+				imgCon.addRowToTable(new DefaultRow(new RowKey(AnnotatorManager
+						.fromRowColKey(entry.getKey())), imgCellFactory
+						.createCell(imgPlus), labCellFactory.createCell(
+						labeling, new DefaultLabelingMetadata(imgPlus, imgPlus,
+								imgPlus, new DefaultLabelingColorTable()))));
 
-                for (final String s : labeling.firstElement().getMapping()
-                        .getLabels()) {
-                    if (!s.contains("Segment:")) {
-                        labels.add(s);
-                    }
-                }
+				for (final String s : labeling.firstElement().getMapping()
+						.getLabels()) {
+					if (!s.contains("Segment:")) {
+						labels.add(s);
+					}
+				}
 
-            }
+			}
 
-        }
+		}
 
-        for (final String s : labels) {
-            pushFlowVariableString("Label_" + s, s);
-            labelCon.addRowToTable(new DefaultRow(s, new StringCell(s)));
-        }
+		for (final String s : labels) {
+			pushFlowVariableString("Label_" + s, s);
+			labelCon.addRowToTable(new DefaultRow(s, new StringCell(s)));
+		}
 
-        labelCon.close();
-        imgCon.close();
+		labelCon.close();
+		imgCon.close();
 
-        final BufferedDataTable[] out =
-                new BufferedDataTable[]{imgCon.getTable(), labelCon.getTable()};
+		final BufferedDataTable[] out = new BufferedDataTable[] {
+				imgCon.getTable(), labelCon.getTable() };
 
-        // data table for the table cell viewer
-        m_data = out[0];
+		// data table for the table cell viewer
+		m_data = out[0];
 
-        return out;
-    }
+		return out;
+	}
 
-    @Override
-    public BufferedDataTable[] getInternalTables() {
-        return new BufferedDataTable[]{m_data};
-    }
+	@Override
+	public BufferedDataTable[] getInternalTables() {
+		return new BufferedDataTable[] { m_data };
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void loadInternals(final File nodeInternDir,
-            final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
-        //
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void loadInternals(final File nodeInternDir,
+			final ExecutionMonitor exec) throws IOException,
+			CanceledExecutionException {
+		//
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-            throws InvalidSettingsException {
-        for (final SettingsModel sm : m_settingsCollection) {
-            sm.loadSettingsFrom(settings);
-        }
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
+			throws InvalidSettingsException {
+		for (final SettingsModel sm : m_settingsCollection) {
+			sm.loadSettingsFrom(settings);
+		}
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void reset() {
-        m_data = null;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void reset() {
+		m_data = null;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void saveInternals(final File nodeInternDir,
-            final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
-        //
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void saveInternals(final File nodeInternDir,
+			final ExecutionMonitor exec) throws IOException,
+			CanceledExecutionException {
+		//
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void saveSettingsTo(final NodeSettingsWO settings) {
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void saveSettingsTo(final NodeSettingsWO settings) {
 
-        for (final SettingsModel sm : m_settingsCollection) {
-            sm.saveSettingsTo(settings);
-        }
+		for (final SettingsModel sm : m_settingsCollection) {
+			sm.saveSettingsTo(settings);
+		}
 
-    }
+	}
 
-    @Override
-    public void setInternalTables(final BufferedDataTable[] tables) {
-        m_data = tables[0];
-    }
+	@Override
+	public void setInternalTables(final BufferedDataTable[] tables) {
+		m_data = tables[0];
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void validateSettings(final NodeSettingsRO settings)
-            throws InvalidSettingsException {
-        for (final SettingsModel sm : m_settingsCollection) {
-            sm.validateSettings(settings);
-        }
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void validateSettings(final NodeSettingsRO settings)
+			throws InvalidSettingsException {
+		for (final SettingsModel sm : m_settingsCollection) {
+			sm.validateSettings(settings);
+		}
+	}
 }

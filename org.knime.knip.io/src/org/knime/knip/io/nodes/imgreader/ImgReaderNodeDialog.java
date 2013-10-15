@@ -90,123 +90,117 @@ import org.knime.knip.io.node.dialog.DialogComponentMultiFileChooser;
  */
 public class ImgReaderNodeDialog extends DefaultNodeSettingsPane {
 
-    public static final FileFilter FILEFILTER;
+	public static final FileFilter FILEFILTER;
 
-    static {
-        // create file filter
-        final List<String> suffices = new ArrayList<String>();
+	static {
+		// create file filter
+		final List<String> suffices = new ArrayList<String>();
 
-        final Set<Format> formats = ScifioGateway.getFORMATS();
-        for (final Format f : formats) {
-            for (final String s : f.getSuffixes()) {
-                if ((s != null) && (s.length() > 0)) {
-                    suffices.add(s);
-                }
-            }
-        }
+		final Set<Format> formats = ScifioGateway.getFORMATS();
+		for (final Format f : formats) {
+			for (final String s : f.getSuffixes()) {
+				if ((s != null) && (s.length() > 0)) {
+					suffices.add(s);
+				}
+			}
+		}
 
-        FILEFILTER =
-                new FileNameExtensionFilter("BioFormats files",
-                        suffices.toArray(new String[suffices.size()]));
+		FILEFILTER = new FileNameExtensionFilter("BioFormats files",
+				suffices.toArray(new String[suffices.size()]));
 
-    }
+	}
 
-    private final DialogComponentMultiFileChooser m_filechooser;
+	private final DialogComponentMultiFileChooser m_filechooser;
 
-    private final SettingsModelString m_fileNamesColumn;
+	private final SettingsModelString m_fileNamesColumn;
 
-    @SuppressWarnings("unchecked")
-    ImgReaderNodeDialog() {
+	@SuppressWarnings("unchecked")
+	ImgReaderNodeDialog() {
 
-        super();
+		super();
 
-        createNewGroup("");
-        m_filechooser =
-                new DialogComponentMultiFileChooser(
-                        new SettingsModelStringArray(
-                                ImgReaderNodeModel.CFG_FILE_LIST,
-                                new String[]{}), FILEFILTER,
-                        ImgReaderNodeModel.CFG_DIR_HISTORY);
-        addDialogComponent(m_filechooser);
-        closeCurrentGroup();
+		createNewGroup("");
+		m_filechooser = new DialogComponentMultiFileChooser(
+				new SettingsModelStringArray(ImgReaderNodeModel.CFG_FILE_LIST,
+						new String[] {}), FILEFILTER,
+				ImgReaderNodeModel.CFG_DIR_HISTORY);
+		addDialogComponent(m_filechooser);
+		closeCurrentGroup();
 
-        createNewTab("Additional Options");
+		createNewTab("Additional Options");
 
-        createNewGroup("Output");
-        addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
-                ImgReaderNodeModel.CFG_OME_XML_METADATA_COLUMN, false),
-                "Append additional OME-XML-metadata column"));
-        addDialogComponent(new DialogComponentStringSelection(
-                new SettingsModelString(ImgReaderNodeModel.CFG_IMG_FACTORY,
-                        ImgReaderNodeModel.IMG_FACTORIES[0]), "Image factory",
-                ImgReaderNodeModel.IMG_FACTORIES));
-        closeCurrentGroup();
+		createNewGroup("Output");
+		addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
+				ImgReaderNodeModel.CFG_OME_XML_METADATA_COLUMN, false),
+				"Append additional OME-XML-metadata column"));
+		addDialogComponent(new DialogComponentStringSelection(
+				new SettingsModelString(ImgReaderNodeModel.CFG_IMG_FACTORY,
+						ImgReaderNodeModel.IMG_FACTORIES[0]), "Image factory",
+				ImgReaderNodeModel.IMG_FACTORIES));
+		closeCurrentGroup();
 
-        createNewGroup("File");
-        addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
-                ImgReaderNodeModel.CFG_COMPLETE_PATH_ROWKEY, false),
-                "Use complete file path as row key"));
+		createNewGroup("File");
+		addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
+				ImgReaderNodeModel.CFG_COMPLETE_PATH_ROWKEY, false),
+				"Use complete file path as row key"));
 
-        addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
-                ImgReaderNodeModel.CFG_CHECK_FILE_FORMAT, true),
-                "Check file format for each file (may be slower)"));
-        closeCurrentGroup();
+		addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
+				ImgReaderNodeModel.CFG_CHECK_FILE_FORMAT, true),
+				"Check file format for each file (may be slower)"));
+		closeCurrentGroup();
 
-        createNewGroup("Optional Inport");
-        m_fileNamesColumn =
-                new SettingsModelString(ImgReaderNodeModel.CFG_FILENAME_COLUMN,
-                        "");
-        addDialogComponent(new DialogComponentColumnNameSelection(
-                m_fileNamesColumn, "File name column in optional table", 0,
-                false, true, StringValue.class));
-        closeCurrentGroup();
+		createNewGroup("Optional Inport");
+		m_fileNamesColumn = new SettingsModelString(
+				ImgReaderNodeModel.CFG_FILENAME_COLUMN, "");
+		addDialogComponent(new DialogComponentColumnNameSelection(
+				m_fileNamesColumn, "File name column in optional table", 0,
+				false, true, StringValue.class));
+		closeCurrentGroup();
 
-        createNewGroup("Series & Groups");
-        final SettingsModelBoolean smReadAll =
-                new SettingsModelBoolean(
-                        ImgReaderNodeModel.CFG_READ_ALL_SERIES, true);
-        final SettingsModelIntegerBounded smSeriesIdx =
-                new SettingsModelIntegerBounded(
-                        ImgReaderNodeModel.CFG_SERIES_SELECTION, 0, 0, 1000);
-        addDialogComponent(new DialogComponentBoolean(smReadAll,
-                "Read all series"));
-        addDialogComponent(new DialogComponentNumber(smSeriesIdx,
-                "Series index", 1));
-        smReadAll.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(final ChangeEvent e) {
-                smSeriesIdx.setEnabled(!smReadAll.getBooleanValue());
-            }
-        });
-        smSeriesIdx.setEnabled(!smReadAll.getBooleanValue());
-        addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
-                ImgReaderNodeModel.CFG_GROUP_FILES, true), "Load group files?"));
-        closeCurrentGroup();
+		createNewGroup("Series & Groups");
+		final SettingsModelBoolean smReadAll = new SettingsModelBoolean(
+				ImgReaderNodeModel.CFG_READ_ALL_SERIES, true);
+		final SettingsModelIntegerBounded smSeriesIdx = new SettingsModelIntegerBounded(
+				ImgReaderNodeModel.CFG_SERIES_SELECTION, 0, 0, 1000);
+		addDialogComponent(new DialogComponentBoolean(smReadAll,
+				"Read all series"));
+		addDialogComponent(new DialogComponentNumber(smSeriesIdx,
+				"Series index", 1));
+		smReadAll.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(final ChangeEvent e) {
+				smSeriesIdx.setEnabled(!smReadAll.getBooleanValue());
+			}
+		});
+		smSeriesIdx.setEnabled(!smReadAll.getBooleanValue());
+		addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
+				ImgReaderNodeModel.CFG_GROUP_FILES, true), "Load group files?"));
+		closeCurrentGroup();
 
-        createNewTab("Subset Selection");
-        createNewGroup("Image Subset Selection");
-        addDialogComponent(new DialogComponentSubsetSelection(
-                new SettingsModelSubsetSelection(
-                        ImgReaderNodeModel.CFG_PLANE_SLECTION), true, true,
-                new int[]{0, 1}));
-        closeCurrentGroup();
+		createNewTab("Subset Selection");
+		createNewGroup("Image Subset Selection");
+		addDialogComponent(new DialogComponentSubsetSelection(
+				new SettingsModelSubsetSelection(
+						ImgReaderNodeModel.CFG_PLANE_SLECTION), true, true,
+				new int[] { 0, 1 }));
+		closeCurrentGroup();
 
-    }
+	}
 
-    @Override
-    public void loadAdditionalSettingsFrom(final NodeSettingsRO settings,
-            final PortObjectSpec[] specs) throws NotConfigurableException {
-        super.loadAdditionalSettingsFrom(settings, specs);
-    }
+	@Override
+	public void loadAdditionalSettingsFrom(final NodeSettingsRO settings,
+			final PortObjectSpec[] specs) throws NotConfigurableException {
+		super.loadAdditionalSettingsFrom(settings, specs);
+	}
 
-    @Override
-    public void saveAdditionalSettingsTo(final NodeSettingsWO settings)
-            throws InvalidSettingsException {
-        if ((m_filechooser.getSelectFiles().length == 0)
-                && (m_fileNamesColumn.getStringValue() == null)) {
-            m_filechooser.getFileChooserPanel().onAdd();
-        }
-        // throw new InvalidSettingsException("No files selected");
-        super.saveAdditionalSettingsTo(settings);
-    }
+	@Override
+	public void saveAdditionalSettingsTo(final NodeSettingsWO settings)
+			throws InvalidSettingsException {
+		if ((m_filechooser.getSelectFiles().length == 0)
+				&& (m_fileNamesColumn.getStringValue() == null)) {
+			m_filechooser.getFileChooserPanel().onAdd();
+		}
+		// throw new InvalidSettingsException("No files selected");
+		super.saveAdditionalSettingsTo(settings);
+	}
 }

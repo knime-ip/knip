@@ -61,7 +61,7 @@ import org.knime.knip.core.ui.imgviewer.overlay.elements.AbstractPolygonOverlayE
 
 /**
  * TODO Auto-generated
- *
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -106,8 +106,7 @@ public class AnnotatorSelectionTool extends AnnotatorTool<OverlayElement2D> {
     }
 
     @Override
-    public void onMouseDoubleClickLeft(final ImgViewerMouseEvent e,
-                                       final OverlayElement2D currentOverlayElement,
+    public void onMouseDoubleClickLeft(final ImgViewerMouseEvent e, final OverlayElement2D currentOverlayElement,
                                        final PlaneSelectionEvent selection, final Overlay overlay,
                                        final String... labels) {
         // Nothing to do here
@@ -116,8 +115,7 @@ public class AnnotatorSelectionTool extends AnnotatorTool<OverlayElement2D> {
 
     @Override
     public void onMousePressedLeft(final ImgViewerMouseEvent e, final OverlayElement2D currentOverlayElement,
-                                   final PlaneSelectionEvent selection, final Overlay overlay,
-                                   final String... labels) {
+                                   final PlaneSelectionEvent selection, final Overlay overlay, final String... labels) {
         final List<OverlayElement2D> elements =
                 overlay.getElementsByPosition(selection.getPlanePos(e.getPosX(), e.getPosY()),
                                               selection.getDimIndices());
@@ -136,8 +134,9 @@ public class AnnotatorSelectionTool extends AnnotatorTool<OverlayElement2D> {
                     }
                 } else if (currentOverlayElement instanceof AbstractPolygonOverlayElement) {
                     m_selectedIndex =
-                            ((AbstractPolygonOverlayElement)currentOverlayElement).getPointIndexByPosition(e
-                                    .getPosX(), e.getPosY(), 3);
+                            ((AbstractPolygonOverlayElement)currentOverlayElement).getPointIndexByPosition(e.getPosX(),
+                                                                                                           e.getPosY(),
+                                                                                                           3);
                 }
 
             } else {
@@ -157,15 +156,13 @@ public class AnnotatorSelectionTool extends AnnotatorTool<OverlayElement2D> {
 
     @Override
     public void onMouseReleasedLeft(final ImgViewerMouseEvent e, final OverlayElement2D currentOverlayElement,
-                                    final PlaneSelectionEvent selection, final Overlay overlay,
-                                    final String... labels) {
+                                    final PlaneSelectionEvent selection, final Overlay overlay, final String... labels) {
         // Nothing to do here
     }
 
     @Override
     public void onMouseDraggedLeft(final ImgViewerMouseEvent e, final OverlayElement2D currentOverlayElement,
-                                   final PlaneSelectionEvent selection, final Overlay overlay,
-                                   final String... labels) {
+                                   final PlaneSelectionEvent selection, final Overlay overlay, final String... labels) {
 
         if (!m_elements.isEmpty()) {
             final long[] pos = selection.getPlanePos(e.getPosX(), e.getPosY()).clone();
@@ -189,8 +186,7 @@ public class AnnotatorSelectionTool extends AnnotatorTool<OverlayElement2D> {
     }
 
     @Override
-    public void onMouseDoubleClickRight(final ImgViewerMouseEvent e,
-                                        final OverlayElement2D currentOverlayElement,
+    public void onMouseDoubleClickRight(final ImgViewerMouseEvent e, final OverlayElement2D currentOverlayElement,
                                         final PlaneSelectionEvent selection, final Overlay overlay,
                                         final String... labels) {
         m_selectedIndex = -1;
@@ -198,16 +194,15 @@ public class AnnotatorSelectionTool extends AnnotatorTool<OverlayElement2D> {
 
     @Override
     public void onMousePressedRight(final ImgViewerMouseEvent e, final OverlayElement2D currentOverlayElement,
-                                    final PlaneSelectionEvent selection, final Overlay overlay,
-                                    final String... labels) {
+                                    final PlaneSelectionEvent selection, final Overlay overlay, final String... labels) {
         m_selectedIndex = -1;
 
     }
 
     @Override
-    public void onMouseReleasedRight(final ImgViewerMouseEvent e, final OverlayElement2D currentOverlayElement,
-                                     final PlaneSelectionEvent selection, final Overlay overlay,
-                                     final String... labels) {
+    public void
+            onMouseReleasedRight(final ImgViewerMouseEvent e, final OverlayElement2D currentOverlayElement,
+                                 final PlaneSelectionEvent selection, final Overlay overlay, final String... labels) {
         m_selectedIndex = -1;
         overlay.removeAll(m_elements);
         if (setCurrentOverlayElement(OverlayElementStatus.IDLE, null)) {
@@ -218,14 +213,12 @@ public class AnnotatorSelectionTool extends AnnotatorTool<OverlayElement2D> {
 
     @Override
     public void onMouseDraggedRight(final ImgViewerMouseEvent e, final OverlayElement2D currentOverlayElement,
-                                    final PlaneSelectionEvent selection, final Overlay overlay,
-                                    final String... labels) {
+                                    final PlaneSelectionEvent selection, final Overlay overlay, final String... labels) {
         m_selectedIndex = -1;
     }
 
     @Override
-    public void onMouseDoubleClickMid(final ImgViewerMouseEvent e,
-                                      final OverlayElement2D currentOverlayElement,
+    public void onMouseDoubleClickMid(final ImgViewerMouseEvent e, final OverlayElement2D currentOverlayElement,
                                       final PlaneSelectionEvent selection, final Overlay overlay,
                                       final String... labels) {
         // Nothing to do here
@@ -233,22 +226,19 @@ public class AnnotatorSelectionTool extends AnnotatorTool<OverlayElement2D> {
 
     @Override
     public void onMousePressedMid(final ImgViewerMouseEvent e, final OverlayElement2D currentOverlayElement,
-                                  final PlaneSelectionEvent selection, final Overlay overlay,
-                                  final String... labels) {
+                                  final PlaneSelectionEvent selection, final Overlay overlay, final String... labels) {
         // Nothing to do here
     }
 
     @Override
     public void onMouseReleasedMid(final ImgViewerMouseEvent e, final OverlayElement2D currentOverlayElement,
-                                   final PlaneSelectionEvent selection, final Overlay overlay,
-                                   final String... labels) {
+                                   final PlaneSelectionEvent selection, final Overlay overlay, final String... labels) {
 
     }
 
     @Override
     public void onMouseDraggedMid(final ImgViewerMouseEvent e, final OverlayElement2D currentOverlayElement,
-                                  final PlaneSelectionEvent selection, final Overlay overlay,
-                                  final String... labels) {
+                                  final PlaneSelectionEvent selection, final Overlay overlay, final String... labels) {
         // Nothing to do here
     }
 }

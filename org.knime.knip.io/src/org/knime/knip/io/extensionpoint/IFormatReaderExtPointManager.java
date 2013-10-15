@@ -119,70 +119,69 @@ import org.knime.core.node.NodeLogger;
  */
 public class IFormatReaderExtPointManager {
 
-    private static final NodeLogger LOGGER = NodeLogger
-            .getLogger(IFormatReaderExtPointManager.class);
+	private static final NodeLogger LOGGER = NodeLogger
+			.getLogger(IFormatReaderExtPointManager.class);
 
-    private IFormatReaderExtPointManager() {
-        // utility class
-    }
+	private IFormatReaderExtPointManager() {
+		// utility class
+	}
 
-    /** The id of the IFormatReaderExtPoint extension point. */
-    public static final String EXT_POINT_ID = "org.knime.knip.io.IFormatReader";
+	/** The id of the IFormatReaderExtPoint extension point. */
+	public static final String EXT_POINT_ID = "org.knime.knip.io.IFormatReader";
 
-    /**
-     * The attribute of the iformatreader view extension point pointing to the
-     * factory class
-     */
-    public static final String EXT_POINT_ATTR_DF = "IFormatReader";
+	/**
+	 * The attribute of the iformatreader view extension point pointing to the
+	 * factory class
+	 */
+	public static final String EXT_POINT_ATTR_DF = "IFormatReader";
 
-    public static List<IFormatReader> getIFormatReaders() {
+	public static List<IFormatReader> getIFormatReaders() {
 
-        List<IFormatReader> readers = new ArrayList<IFormatReader>();
+		List<IFormatReader> readers = new ArrayList<IFormatReader>();
 
-        try {
-            final IExtensionRegistry registry = Platform.getExtensionRegistry();
-            final IExtensionPoint point =
-                    registry.getExtensionPoint(EXT_POINT_ID);
-            if (point == null) {
-                LOGGER.error("Invalid extension point: " + EXT_POINT_ID);
-                throw new IllegalStateException("ACTIVATION ERROR: "
-                        + " --> Invalid extension point: " + EXT_POINT_ID);
-            }
-            for (final IConfigurationElement elem : point
-                    .getConfigurationElements()) {
-                final String operator = elem.getAttribute(EXT_POINT_ATTR_DF);
-                final String decl =
-                        elem.getDeclaringExtension().getUniqueIdentifier();
+		try {
+			final IExtensionRegistry registry = Platform.getExtensionRegistry();
+			final IExtensionPoint point = registry
+					.getExtensionPoint(EXT_POINT_ID);
+			if (point == null) {
+				LOGGER.error("Invalid extension point: " + EXT_POINT_ID);
+				throw new IllegalStateException("ACTIVATION ERROR: "
+						+ " --> Invalid extension point: " + EXT_POINT_ID);
+			}
+			for (final IConfigurationElement elem : point
+					.getConfigurationElements()) {
+				final String operator = elem.getAttribute(EXT_POINT_ATTR_DF);
+				final String decl = elem.getDeclaringExtension()
+						.getUniqueIdentifier();
 
-                if (operator == null || operator.isEmpty()) {
-                    LOGGER.error("The extension '" + decl
-                            + "' doesn't provide the required attribute '"
-                            + EXT_POINT_ATTR_DF + "'");
-                    LOGGER.error("Extension " + decl + " ignored.");
-                    continue;
-                }
+				if (operator == null || operator.isEmpty()) {
+					LOGGER.error("The extension '" + decl
+							+ "' doesn't provide the required attribute '"
+							+ EXT_POINT_ATTR_DF + "'");
+					LOGGER.error("Extension " + decl + " ignored.");
+					continue;
+				}
 
-                try {
-                    final IFormatReader reader =
-                            (IFormatReader)elem
-                                    .createExecutableExtension(EXT_POINT_ATTR_DF);
-                    readers.add(reader);
-                } catch (final Throwable t) {
-                    LOGGER.error("Problems during initialization of "
-                            + "IFormatReaderExtensionPoint (with id '"
-                            + operator + "'.)");
-                    if (decl != null) {
-                        LOGGER.error("Extension " + decl + " ignored.", t);
-                    }
-                }
-            }
-        } catch (final Exception e) {
-            LOGGER.error("Exception while registering "
-                    + "IFormatReader extensions");
-        }
+				try {
+					final IFormatReader reader = (IFormatReader) elem
+							.createExecutableExtension(EXT_POINT_ATTR_DF);
+					readers.add(reader);
+				} catch (final Throwable t) {
+					LOGGER.error("Problems during initialization of "
+							+ "IFormatReaderExtensionPoint (with id '"
+							+ operator + "'.)");
+					if (decl != null) {
+						LOGGER.error("Extension " + decl + " ignored.", t);
+					}
+				}
+			}
+		} catch (final Exception e) {
+			LOGGER.error("Exception while registering "
+					+ "IFormatReader extensions");
+		}
 
-        return readers;
+		return readers;
 
-    }
+	}
 
 }

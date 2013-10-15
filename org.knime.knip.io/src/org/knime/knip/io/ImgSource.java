@@ -75,104 +75,118 @@ import net.imglib2.type.numeric.RealType;
  */
 public interface ImgSource {
 
-    /**
-     * Closes the source. It should be used to close opened files or
-     * connections.
-     */
-    public void close();
+	/**
+	 * Closes the source. It should be used to close opened files or
+	 * connections.
+	 */
+	public void close();
 
-    /**
-     * 
-     * @param imgRef description of the exact image source (URL, ...)
-     * @param currentSeries image number in a dataset with multiple images
-     * @return
-     * @throws Exception
-     */
-    public List<CalibratedAxis> getAxes(String imgRef, int currentSeries)
-            throws Exception;
+	/**
+	 * 
+	 * @param imgRef
+	 *            description of the exact image source (URL, ...)
+	 * @param currentSeries
+	 *            image number in a dataset with multiple images
+	 * @return
+	 * @throws Exception
+	 */
+	public List<CalibratedAxis> getAxes(String imgRef, int currentSeries)
+			throws Exception;
 
-    /**
-     * 
-     * @param currentSeries image number in a dataset with multiple images
-     * @param imgRef description of the exact image source (URL, ...)
-     * @return the size of the image object behind the reference
-     * 
-     * @throws Exception
-     * 
-     */
-    public long[] getDimensions(String imgRef, int currentSeries)
-            throws Exception;
+	/**
+	 * 
+	 * @param currentSeries
+	 *            image number in a dataset with multiple images
+	 * @param imgRef
+	 *            description of the exact image source (URL, ...)
+	 * @return the size of the image object behind the reference
+	 * 
+	 * @throws Exception
+	 * 
+	 */
+	public long[] getDimensions(String imgRef, int currentSeries)
+			throws Exception;
 
-    /**
-     * @param <T>
-     * @param imgRef description of the exact {@link Img} source (URL, ...)
-     * @param currentSeries image number in a dataset with multiple images
-     * @return the complete image
-     * 
-     * @throws Exception
-     */
-    @SuppressWarnings("rawtypes")
-    public ImgPlus<RealType> getImg(String imgRef, int currentSeries)
-            throws Exception;
+	/**
+	 * @param <T>
+	 * @param imgRef
+	 *            description of the exact {@link Img} source (URL, ...)
+	 * @param currentSeries
+	 *            image number in a dataset with multiple images
+	 * @return the complete image
+	 * 
+	 * @throws Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public ImgPlus<RealType> getImg(String imgRef, int currentSeries)
+			throws Exception;
 
-    /**
-     * Retrieves the sub image at the given interval. In case of slower image
-     * sources, the image planes should be created when needed.
-     * 
-     * @param imgRef description of the exact image source (URL, ...)
-     * @param <T>
-     * @param axisSelectionConstraints allows to specify selected indices for
-     *            the axes. Per default all indices are considered to be
-     *            selected <br>
-     *            axisSelectionConstraints can be <code>null</code>
-     * @param currentSeries image number in a dataset with multiple images
-     * 
-     * @return the image plane
-     * @throws Exception the appropriate exception, if the image can't be
-     *             retrieved
-     */
-    @SuppressWarnings("rawtypes")
-    public ImgPlus<RealType> getImg(String imgRef, final int currentSeries,
-            final Pair<TypedAxis, long[]>[] axisSelectionConstraints)
-            throws Exception;
+	/**
+	 * Retrieves the sub image at the given interval. In case of slower image
+	 * sources, the image planes should be created when needed.
+	 * 
+	 * @param imgRef
+	 *            description of the exact image source (URL, ...)
+	 * @param <T>
+	 * @param axisSelectionConstraints
+	 *            allows to specify selected indices for the axes. Per default
+	 *            all indices are considered to be selected <br>
+	 *            axisSelectionConstraints can be <code>null</code>
+	 * @param currentSeries
+	 *            image number in a dataset with multiple images
+	 * 
+	 * @return the image plane
+	 * @throws Exception
+	 *             the appropriate exception, if the image can't be retrieved
+	 */
+	@SuppressWarnings("rawtypes")
+	public ImgPlus<RealType> getImg(String imgRef, final int currentSeries,
+			final Pair<TypedAxis, long[]>[] axisSelectionConstraints)
+			throws Exception;
 
-    /**
-     * 
-     * @param imgRef description of the exact image source (URL, ...)
-     * @param currentSeries image number in a dataset with multiple images
-     * @return the pixel type of the referenced image
-     * @throws FormatException
-     * @throws IOException
-     */
-    public RealType getPixelType(final String imgRef, final int currentSeries)
-            throws FormatException, IOException;
+	/**
+	 * 
+	 * @param imgRef
+	 *            description of the exact image source (URL, ...)
+	 * @param currentSeries
+	 *            image number in a dataset with multiple images
+	 * @return the pixel type of the referenced image
+	 * @throws FormatException
+	 * @throws IOException
+	 */
+	public RealType getPixelType(final String imgRef, final int currentSeries)
+			throws FormatException, IOException;
 
-    /**
-     * The name of the img
-     * 
-     * @param imgRef description of the exact image source (URL, ...)
-     * @return the image file name
-     * @throws Exception
-     */
-    public String getName(String imgRef) throws Exception;
+	/**
+	 * The name of the img
+	 * 
+	 * @param imgRef
+	 *            description of the exact image source (URL, ...)
+	 * @return the image file name
+	 * @throws Exception
+	 */
+	public String getName(String imgRef) throws Exception;
 
-    /**
-     * The source path of the img
-     * 
-     * @param imgRef description of the exact image source (URL, ...)
-     * @return the source path
-     * @throws Exception
-     */
-    public String getSource(String imgRef) throws Exception;
+	/**
+	 * The source path of the img
+	 * 
+	 * @param imgRef
+	 *            description of the exact image source (URL, ...)
+	 * @return the source path
+	 * @throws Exception
+	 */
+	public String getSource(String imgRef) throws Exception;
 
-    // TODO planeNo is not supported atm
-    /**
-     * @param <T>
-     * @param imgRef description of the exact image source (URL, ...)
-     * @param planeNo number of the plane to be opened as thumbnail
-     * @throws Exception
-     */
-    public BufferedImage getThumbnail(String imgRef, int planeNo)
-            throws Exception;
+	// TODO planeNo is not supported atm
+	/**
+	 * @param <T>
+	 * @param imgRef
+	 *            description of the exact image source (URL, ...)
+	 * @param planeNo
+	 *            number of the plane to be opened as thumbnail
+	 * @throws Exception
+	 */
+	public BufferedImage getThumbnail(String imgRef, int planeNo)
+			throws Exception;
 
 }

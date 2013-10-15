@@ -70,40 +70,38 @@ import org.knime.knip.io.nodes.imgreader.ImgReaderNodeModel;
  */
 public class ImageFileRefNodeDialog extends DefaultNodeSettingsPane {
 
-    // private DialogComponentStringListSelection m_metadatakeys;
+	// private DialogComponentStringListSelection m_metadatakeys;
 
-    private final DialogComponentMultiFileChooser m_filechooser;
+	private final DialogComponentMultiFileChooser m_filechooser;
 
-    // private DialogComponentProcessExecution m_analyse;
+	// private DialogComponentProcessExecution m_analyse;
 
-    /**
-     * Creates a new ImageTable "Enter File Location" dialog. If the OK button
-     * is pressed this will set the new URL. If the dialog is canceled, no
-     * changes will be applied.
-     */
-    ImageFileRefNodeDialog() {
+	/**
+	 * Creates a new ImageTable "Enter File Location" dialog. If the OK button
+	 * is pressed this will set the new URL. If the dialog is canceled, no
+	 * changes will be applied.
+	 */
+	ImageFileRefNodeDialog() {
 
-        super();
+		super();
 
-        m_filechooser =
-                new DialogComponentMultiFileChooser(
-                        new SettingsModelStringArray(
-                                ImageFileRefNodeModel.CFG_FILE_LIST,
-                                new String[]{}),
-                        ImgReaderNodeDialog.FILEFILTER,
-                        ImgReaderNodeModel.CFG_DIR_HISTORY);
-        addDialogComponent(m_filechooser);
+		m_filechooser = new DialogComponentMultiFileChooser(
+				new SettingsModelStringArray(
+						ImageFileRefNodeModel.CFG_FILE_LIST, new String[] {}),
+				ImgReaderNodeDialog.FILEFILTER,
+				ImgReaderNodeModel.CFG_DIR_HISTORY);
+		addDialogComponent(m_filechooser);
 
-        addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
-                ImageFileRefNodeModel.CFG_GENERATE_THUMBNAILS, false),
-                "Generate thumbnails"));
+		addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
+				ImageFileRefNodeModel.CFG_GENERATE_THUMBNAILS, false),
+				"Generate thumbnails"));
 
-        addDialogComponent(new DialogComponentColumnNameSelection(
-                new SettingsModelString(
-                        ImageFileRefNodeModel.CFG_FILENAME_COLUMN, ""),
-                "File name column in optional table", 0, false, true,
-                StringValue.class));
+		addDialogComponent(new DialogComponentColumnNameSelection(
+				new SettingsModelString(
+						ImageFileRefNodeModel.CFG_FILENAME_COLUMN, ""),
+				"File name column in optional table", 0, false, true,
+				StringValue.class));
 
-    }
+	}
 
 }

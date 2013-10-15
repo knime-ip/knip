@@ -87,9 +87,9 @@ import org.knime.knip.core.ui.imgviewer.events.OverlayChgEvent;
 
 /**
  * Overlay
- *
+ * 
  * @TODO: Replace by ImageJ2 implementations or actually use ImageJ2?
- *
+ * 
  * @param
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -112,10 +112,10 @@ public class Overlay implements EventServiceClient, Externalizable {
 
     /**
      * No-arguments constructor need for externalization of overlays. Don't use this.
-     *
+     * 
      * @throws SecurityException
      * @throws IllegalArgumentException
-     *
+     * 
      */
     public Overlay() {
         m_elements = new ArrayList<OverlayElement2D>();
@@ -275,7 +275,7 @@ public class Overlay implements EventServiceClient, Externalizable {
     }
 
     /**
-     *
+     * 
      * @param addSegmentID if true, an additional label with a unique id for each segment is added
      * @return
      */
