@@ -83,10 +83,11 @@ public class ImgPropertiesNodeFactory<T extends RealType<T>> extends ValueToCell
 
     private static final DataType[] FEATURE_DATA_TYPES = new DataType[]{IntCell.TYPE,
             ListCell.getCollectionType(LongCell.TYPE), IntCell.TYPE, StringCell.TYPE, StringCell.TYPE, StringCell.TYPE,
-            StringCell.TYPE, StringCell.TYPE, ListCell.getCollectionType(DoubleCell.TYPE)};
+            StringCell.TYPE, StringCell.TYPE, ListCell.getCollectionType(DoubleCell.TYPE),
+            ListCell.getCollectionType(LongCell.TYPE)};
 
     private static final String[] FEATURE_NAMES = new String[]{"Number of Dimensions", "Dimensions",
-            "Number of Pixels", "Type", "Factory Type", "Axes", "Name", "Source", "Calibration"};
+            "Number of Pixels", "Type", "Factory Type", "Axes", "Name", "Source", "Calibration", "Offsets"};
 
     private static SettingsModelStringArray createFeatSelectionModel() {
         return new SettingsModelStringArray("feature_seleciton", new String[]{});
@@ -185,7 +186,14 @@ public class ImgPropertiesNodeFactory<T extends RealType<T>> extends ValueToCell
                             }
                             cells[ctr++] = CollectionCellFactory.createListCell(calibration);
                             break;
-
+                        case 9:
+                            long[] offsets = imgPlusValue.getMinimum();
+                            final List<LongCell> offsetCells = new ArrayList<LongCell>(offsets.length);
+                            for (int i = 0; i < offsets.length; i++) {
+                                offsetCells.add(new LongCell(offsets[i]));
+                            }
+                            cells[ctr++] = CollectionCellFactory.createListCell(offsetCells);
+                            break;
                         default:
                             cells[ctr++] = DataType.getMissingCell();
                     }
