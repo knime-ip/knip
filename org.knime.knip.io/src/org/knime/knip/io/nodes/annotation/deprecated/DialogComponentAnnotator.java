@@ -158,8 +158,8 @@ public class DialogComponentAnnotator<T extends RealType<T> & NativeType<T>>
 
 		m_annotator = new AnnotatorImgViewer();
 
-		m_annotator
-				.addViewerComponent(new AWTImageProvider(0, new OverlayRU<String>(new ImageRU<T>())));
+		m_annotator.addViewerComponent(new AWTImageProvider(0,
+				new OverlayRU<String>(new ImageRU<T>())));
 		m_annotator.addViewerComponent(m_manager);
 
 		m_annotator.addViewerComponent(new AnnotatorFilePanel<T>());
@@ -224,10 +224,9 @@ public class DialogComponentAnnotator<T extends RealType<T> & NativeType<T>>
 	@Override
 	protected void validateSettingsBeforeSave() throws InvalidSettingsException {
 		try {
-			((SettingsModelAnnotator) getModel())
-					.setOverlayMapAndComponents(
-							m_annotator.getComponentConfiguration(),
-							m_manager.getOverlayMap());
+			((SettingsModelAnnotator) getModel()).setOverlayMapAndComponents(
+					m_annotator.getComponentConfiguration(),
+					m_manager.getOverlayMap());
 
 		} catch (final IOException e) {
 			logger.error("Error while saving Annotations", e);

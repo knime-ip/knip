@@ -71,8 +71,8 @@ import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
  */
 /**
  * Manages overlays and overlay elements ...
- *
- *
+ * 
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -165,9 +165,9 @@ public class AnnotatorManager<T extends RealType<T>> extends AbstractAnnotatorMa
     }
 
     /**
-     * Converter to extract the source name from a dummy rowColKey helps to keep the old
-     * none interactive annotator working.
-     *
+     * Converter to extract the source name from a dummy rowColKey helps to keep the old none interactive annotator
+     * working.
+     * 
      * @param rowColKey created with {@link #toRowColKey(String)}
      * @return the source name.
      */
@@ -178,6 +178,7 @@ public class AnnotatorManager<T extends RealType<T>> extends AbstractAnnotatorMa
 
     /**
      * converter that creates pseudo row col keys for the old file loading based annotator.
+     * 
      * @param sourceName image source name
      * @return a dummy row col key based on the source name
      */

@@ -87,11 +87,10 @@ import org.slf4j.LoggerFactory;
  * 
  * @author dietzc, hornm
  * 
- * @param 
+ * @param
  */
 @Deprecated
-public class SettingsModelAnnotator extends
-		SettingsModel {
+public class SettingsModelAnnotator extends SettingsModel {
 
 	public static <T extends RealType<T> & NativeType<T>> ImgPlus<T> loadImgPlus(
 			final String key) throws Exception {
@@ -214,7 +213,8 @@ public class SettingsModelAnnotator extends
 			final ObjectInputStream in = new ObjectInputStream(bais);
 
 			for (int i = 0; i < settings.getInt("numOverlayEntries"); i++) {
-				m_overlayMap.put(AnnotatorManager.toRowColKey(in.readUTF()), (Overlay) in.readObject());
+				m_overlayMap.put(AnnotatorManager.toRowColKey(in.readUTF()),
+						(Overlay) in.readObject());
 			}
 
 			in.close();

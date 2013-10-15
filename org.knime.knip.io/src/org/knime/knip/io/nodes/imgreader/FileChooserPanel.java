@@ -439,20 +439,20 @@ public class FileChooserPanel extends JPanel {
 		right.setLayout(new BorderLayout());
 		center.setLayout(new BoxLayout(center, BoxLayout.Y_AXIS));
 
-		final JPanel buttonPan = new JPanel();
-		buttonPan.setLayout(new BoxLayout(buttonPan, BoxLayout.X_AXIS));
-		buttonPan.add(Box.createVerticalStrut(20));
+		final JPanel buttonPane = new JPanel();
+		buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.X_AXIS));
+		buttonPane.add(Box.createVerticalStrut(20));
 		final JPanel delButtonPan = new JPanel();
 		delButtonPan.setLayout(new BoxLayout(delButtonPan, BoxLayout.X_AXIS));
 		delButtonPan.add(Box.createVerticalStrut(20));
 		m_addButton.setMaximumSize(new Dimension(150, 25));
 		m_addButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-		buttonPan.add(m_addButton);
-		buttonPan.add(Box.createVerticalStrut(20));
+		buttonPane.add(m_addButton);
+		buttonPane.add(Box.createVerticalStrut(20));
 		m_addAllButton.setMaximumSize(new Dimension(150, 25));
 		m_addAllButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-		buttonPan.add(m_addAllButton);
-		buttonPan.add(Box.createVerticalStrut(20));
+		buttonPane.add(m_addAllButton);
+		buttonPane.add(Box.createVerticalStrut(20));
 		m_remButton.setMaximumSize(new Dimension(150, 25));
 		m_remButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 		delButtonPan.add(m_remButton);
@@ -492,7 +492,7 @@ public class FileChooserPanel extends JPanel {
 		enterHack(m_fileChooser.getComponents());
 		right.add(rightTab);
 		left.add(browsePane);
-		browsePane.add(buttonPan);
+		browsePane.add(buttonPane);
 
 		final JPanel selectedPane = new JPanel();
 		selectedPane.setLayout(new BoxLayout(selectedPane, BoxLayout.Y_AXIS));
@@ -509,7 +509,7 @@ public class FileChooserPanel extends JPanel {
 		add(right);
 		m_fileChooser.setComponentPopupMenu(popup);
 
-		final JMenuItem add = new JMenuItem("Add selected File", new ImageIcon(
+		final JMenuItem add = new JMenuItem("Add Selected File", new ImageIcon(
 				getClass().getResource("button_ok.png")));
 		add.addActionListener(new ActionListener() {
 
@@ -521,7 +521,7 @@ public class FileChooserPanel extends JPanel {
 
 		});
 
-		final JMenuItem addAll = new JMenuItem("Add all visible files",
+		final JMenuItem addAll = new JMenuItem("Add all Visible Files",
 				new ImageIcon(getClass().getResource("edit_add.png")));
 		addAll.addActionListener(new ActionListener() {
 
@@ -612,40 +612,42 @@ public class FileChooserPanel extends JPanel {
 
 			@Override
 			public void mouseClicked(final MouseEvent arg0) {
-				if (arg0.getClickCount() == 2) {
+				// Special shortcut to go to directory
+				if (arg0.isControlDown()) {
 
+					if (m_selectedFileList.getSelectedIndices().length == 0) {
+						return;
+					}
 					final File dir = new File(m_selectedFileListModel
 							.getAbsolutePathAt(m_selectedFileList
 									.getSelectedIndices()[0]));
 					m_fileChooser.setCurrentDirectory(dir);
 					m_selectedFileList.clearSelection();
 
+				} else if (arg0.getClickCount() == 2) {
+					onRemove();
 				}
 
 			}
 
 			@Override
 			public void mouseEntered(final MouseEvent arg0) {
-				// TODO Auto-generated method stub
-
+				// Nothing to do here
 			}
 
 			@Override
 			public void mouseExited(final MouseEvent arg0) {
-				// TODO Auto-generated method stub
-
+				// Nothing to do here
 			}
 
 			@Override
 			public void mousePressed(final MouseEvent arg0) {
-				// TODO Auto-generated method stub
-
+				// Nothing to do here
 			}
 
 			@Override
 			public void mouseReleased(final MouseEvent arg0) {
-				// TODO Auto-generated method stub
-
+				// Nothing to do here
 			}
 		});
 

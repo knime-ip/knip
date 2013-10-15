@@ -62,13 +62,13 @@ import org.knime.knip.core.features.SharesObjects;
 import org.knime.knip.core.util.PolygonTools;
 
 /**
- *
+ * 
  * Calculates the distance of the points on the contour to the centroid and transforms them into the fourier space. The
  * resulting features are additionally normalized by the first FD-component.
- *
+ * 
  * The contour points are extracted by an contour tracing algorithm (
  * {@link PolygonTools#extractPolygon(net.imglib2.RandomAccessibleInterval, int[])}).
- *
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>

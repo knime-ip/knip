@@ -116,6 +116,7 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
 	private TableContentModel m_tableContentModel;
 
 	private int m_currentRow = -1;
+
 	private int m_currentCol = -1;
 
 	public OverlayAnnotatorView() {

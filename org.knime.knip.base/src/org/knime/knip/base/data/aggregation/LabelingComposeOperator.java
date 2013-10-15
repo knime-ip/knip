@@ -82,12 +82,15 @@ import net.imglib2.view.Views;
 import org.knime.base.data.aggregation.AggregationOperator;
 import org.knime.base.data.aggregation.GlobalSettings;
 import org.knime.base.data.aggregation.OperatorColumnSettings;
+import org.knime.core.data.BooleanValue;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.DataValue;
 import org.knime.core.data.DoubleValue;
+import org.knime.core.data.IntValue;
+import org.knime.core.data.LongValue;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeSettingsRO;
@@ -111,12 +114,13 @@ import org.knime.knip.core.util.EnumListProvider;
 import org.knime.knip.core.util.Triple;
 
 /**
- *
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>> extends LabelingAggregrationOperation {
+public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>, L extends Comparable<L>> extends
+        LabelingAggregrationOperation {
 
     private static final NodeLogger LOGGER = NodeLogger.getLogger(LabelingComposeOperator.class);
 
@@ -142,7 +146,7 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>> e
 
     // fields needed, if the result interval is not known in advance, i.e.
     // if the default settings are used
-    private List<Triple<ImgPlusValue<BitType>, String, Double>> m_bitMaskList = null;
+    private List<Triple<ImgPlusValue<BitType>, L, Double>> m_bitMaskList = null;
 
     private DialogComponent m_dcAvoidOverlapCol;
 
@@ -167,12 +171,12 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>> e
 
     private long[] m_maxDims = null;
 
-    private RandomAccess<LabelingType<String>> m_resAccess = null;
+    private RandomAccess<LabelingType<L>> m_resAccess = null;
 
     private T m_resType;
 
     // field for the labeling generation
-    private Labeling<String> m_resultLab = null;
+    private Labeling<L> m_resultLab = null;
 
     private LabelingMetadata m_resultMetadata = null;
 
@@ -230,7 +234,7 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>> e
      * adds the bitmask to the labeling and return true, if it was
      * successfull
      */
-    private boolean addToLabeling(final ImgPlusValue<BitType> val, String label) {
+    private boolean addToLabeling(final ImgPlusValue<BitType> val, L label) {
         final Img<BitType> img = val.getImgPlus();
         final long[] min = val.getMinimum();
 
@@ -238,7 +242,7 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>> e
             return false;
         }
         if (label == null) {
-            label = "" + m_labelGenerator.nextLabel();
+            label = (L)("" + m_labelGenerator.nextLabel());
         }
 
         // Set segmented pixels to label
@@ -261,7 +265,7 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>> e
             if (m_resAccess.get().getLabeling().isEmpty()) {
                 m_resAccess.get().setLabel(label);
             } else {
-                final ArrayList<String> tmp = new ArrayList<String>(m_resAccess.get().getLabeling());
+                final ArrayList<L> tmp = new ArrayList<L>(m_resAccess.get().getLabeling());
                 tmp.add(label);
                 m_resAccess.get().setLabeling(tmp);
             }
@@ -291,14 +295,24 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>> e
             return true;
         }
 
-        String label = null;
+        L label = null;
         final int labelColIdx = getGlobalSettings().findColumnIndex(m_labelCol);
         if (labelColIdx != -1) {
-            label = row.getCell(labelColIdx).toString();
+            DataCell labelCell = row.getCell(labelColIdx);
+            if (labelCell instanceof BooleanValue) {
+                label = (L)new Boolean(((BooleanValue)labelCell).getBooleanValue());
+            } else if (labelCell instanceof IntValue) {
+                label = (L)new Integer(((IntValue)labelCell).getIntValue());
+            } else if (labelCell instanceof LongValue) {
+                label = (L)new Long(((LongValue)labelCell).getLongValue());
+            } else if (labelCell instanceof DoubleValue) {
+                label = (L)new Double(((DoubleValue)labelCell).getDoubleValue());
+            } else {
+                label = (L)labelCell.toString();
+            }
         }
 
         final int intervalColIdx = getGlobalSettings().findColumnIndex(m_intervalCol);
-
         final int avoidOverlapColIdx = getGlobalSettings().findColumnIndex(m_smAvoidOverlapCol.getStringValue());
 
         // create result labeling, if the interval is known
@@ -311,9 +325,9 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>> e
             // todo make the generation of the result
             // labeling configurable
             final Interval i = new FinalInterval(iv.getMinimum(), iv.getMaximum());
-            m_resultLab = new NativeImgLabeling<String, T>(m_factory.create(i, m_resType));
+            m_resultLab = new NativeImgLabeling<L, T>(m_factory.create(i, m_resType));
             m_resAccess =
-                    Views.extendValue(m_resultLab, (LabelingType<String>)new ConstantLabelingType<String>(""))
+                    Views.extendValue(m_resultLab, (LabelingType<L>)new ConstantLabelingType<String>(""))
                             .randomAccess();
             m_resultMetadata = new DefaultLabelingMetadata(iv.getCalibratedSpace(), iv.getName(), iv.getSource(), null);
 
@@ -324,7 +338,7 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>> e
         // filtered or add them directly to the labeling
         if ((intervalColIdx == -1) || (avoidOverlapColIdx != -1)) {
             if (m_bitMaskList == null) {
-                m_bitMaskList = new ArrayList<Triple<ImgPlusValue<BitType>, String, Double>>();
+                m_bitMaskList = new ArrayList<Triple<ImgPlusValue<BitType>, L, Double>>();
             }
             final ImgPlusValue<BitType> imgVal = (ImgPlusValue<BitType>)cell;
             final long[] dims = imgVal.getDimensions();
@@ -343,7 +357,7 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>> e
                 if (avoidOverlapColIdx != -1) {
                     order = ((DoubleValue)row.getCell(avoidOverlapColIdx)).getDoubleValue();
                 }
-                m_bitMaskList.add(new Triple<ImgPlusValue<BitType>, String, Double>(imgVal, label, order));
+                m_bitMaskList.add(new Triple<ImgPlusValue<BitType>, L, Double>(imgVal, label, order));
             }
 
         } else {
@@ -423,10 +437,10 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>> e
      */
     private void filterBitMaskList() {
         // sort bitmask list
-        Collections.sort(m_bitMaskList, new Comparator<Triple<ImgPlusValue<BitType>, String, Double>>() {
+        Collections.sort(m_bitMaskList, new Comparator<Triple<ImgPlusValue<BitType>, L, Double>>() {
             @Override
-            public int compare(final Triple<ImgPlusValue<BitType>, String, Double> o1,
-                               final Triple<ImgPlusValue<BitType>, String, Double> o2) {
+            public int compare(final Triple<ImgPlusValue<BitType>, L, Double> o1,
+                               final Triple<ImgPlusValue<BitType>, L, Double> o2) {
                 return o2.getThird().compareTo(o1.getThird());
             }
         });
@@ -490,7 +504,7 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>> e
 
         if (m_intervalCol.length() == 0) {
             // compose result and return
-            m_resultLab = new NativeImgLabeling<String, T>(m_factory.create(m_maxDims, m_resType));
+            m_resultLab = new NativeImgLabeling<L, T>(m_factory.create(m_maxDims, m_resType));
             m_resultMetadata =
                     new DefaultLabelingMetadata(new DefaultCalibratedSpace(m_maxDims.length), new DefaultNamed(
                             "Unknown"), new DefaultSourced("Unknown"), null);
@@ -499,7 +513,7 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>> e
         }
 
         if ((m_intervalCol.length() == 0) || (m_smAvoidOverlapCol.getStringValue().length() != 0)) {
-            for (final Triple<ImgPlusValue<BitType>, String, Double> p : m_bitMaskList) {
+            for (final Triple<ImgPlusValue<BitType>, L, Double> p : m_bitMaskList) {
                 if (p != null) {
                     addToLabeling(p.getFirst(), p.getSecond());
                 }

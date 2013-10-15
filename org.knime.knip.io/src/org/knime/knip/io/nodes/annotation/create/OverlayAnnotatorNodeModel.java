@@ -160,7 +160,7 @@ public class OverlayAnnotatorNodeModel<T extends RealType<T> & NativeType<T>>
 
 		Map<RowColKey, Overlay> overlayMap = m_annotationsSM.getOverlayMap();
 		ImgPlus<?> imgPlus = cellValue.getImgPlus();
-	
+
 		// calculate key
 		String rowName = m_currentRow.getKey().getString();
 		String colName = m_inSpec.getColumnNames()[m_currentCellIdx];

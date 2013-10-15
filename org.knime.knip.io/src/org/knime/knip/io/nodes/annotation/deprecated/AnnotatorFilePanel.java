@@ -228,9 +228,11 @@ public class AnnotatorFilePanel<T extends RealType<T> & NativeType<T>> extends
 			@SuppressWarnings("unchecked")
 			final ImgPlus<T> imgPlus = (ImgPlus<T>) source.getImg(ref, 0);
 
-			//replacement code to allow soft migration to new interactive annotator
-			m_eventService.publish(new AnnotatorImgWithMetadataChgEvent<T>(imgPlus.getImg(),
-					imgPlus, AnnotatorManager.toRowColKey(imgPlus.getSource())));
+			// replacement code to allow soft migration to new interactive
+			// annotator
+			m_eventService.publish(new AnnotatorImgWithMetadataChgEvent<T>(
+					imgPlus.getImg(), imgPlus, AnnotatorManager
+							.toRowColKey(imgPlus.getSource())));
 		} catch (final IncompatibleTypeException e) {
 			logger.warn("Failed to load image");
 			m_eventService.publish(new ImgViewerTextMessageChgEvent(

@@ -90,8 +90,7 @@ public interface AnnotatorView {
 
 	/**
 	 * @param key
-	 *            table based image identifier for an
-	 *            associated {@link Overlay}
+	 *            table based image identifier for an associated {@link Overlay}
 	 * @return the {@link Overlay} that is associated with the image source name
 	 *         or <code>null</code> if no such Overlay exists.
 	 */
@@ -99,8 +98,8 @@ public interface AnnotatorView {
 
 	/**
 	 * Adds an already existing overlay to the AnnotatorView. An image with the
-	 * given key (table based identifier) has to exist in the inputTable. This method exist to
-	 * allow recreation after serialization.
+	 * given key (table based identifier) has to exist in the inputTable. This
+	 * method exist to allow recreation after serialization.
 	 * 
 	 * @param key
 	 *            table identifier of the associated image.

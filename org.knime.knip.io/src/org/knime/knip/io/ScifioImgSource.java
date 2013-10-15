@@ -73,7 +73,6 @@ import net.imglib2.meta.AxisType;
 import net.imglib2.meta.CalibratedAxis;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.meta.TypedAxis;
-import net.imglib2.meta.axis.LinearAxis;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.knip.core.types.NativeTypes;
@@ -187,7 +186,7 @@ public class ScifioImgSource implements ImgSource {
 				&& axisSelectionConstraints.length > 0) {
 
 			withCropping = true;
-			// WRONG WRONG WRONG only 5d support
+			// TODO: Still WRONG WRONG WRONG only 5d support?
 			DimRange[] ranges = new DimRange[axisSelectionConstraints.length];
 			AxisType[] axes = new AxisType[axisSelectionConstraints.length];
 			for (int i = 0; i < ranges.length; i++) {

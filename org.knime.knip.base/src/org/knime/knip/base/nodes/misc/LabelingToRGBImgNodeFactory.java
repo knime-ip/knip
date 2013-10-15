@@ -90,7 +90,7 @@ import org.knime.knip.core.awt.labelingcolortable.LabelingColorTable;
 import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableUtils;
 
 /**
- *
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -273,7 +273,7 @@ public class LabelingToRGBImgNodeFactory<T extends RealType<T>, L extends Compar
             }
 
             /**
-             *
+             * 
              * @param labelRed 0..255
              * @param imgValue 0..255
              * @param transFactor label value * trans + imgValue * (1-trans)

@@ -80,7 +80,7 @@ import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
 
 /**
  * TODO Auto-generated
- *
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -211,7 +211,7 @@ public abstract class ImgPlusAddDimConvolverExt<T extends RealType<T>, K extends
 
             /**
              * Transfers the current value from the component into the model.
-             *
+             * 
              * @throws InvalidSettingsException if the string was not accepted.
              */
             private void updateModel() throws InvalidSettingsException {

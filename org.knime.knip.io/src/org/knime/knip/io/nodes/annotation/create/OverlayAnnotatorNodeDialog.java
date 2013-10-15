@@ -90,8 +90,10 @@ public class OverlayAnnotatorNodeDialog<T extends RealType<T> & NativeType<T>>
 	private static final String APPEND_DEFAULT = "_Label";
 
 	private DialogComponentOverlayAnnotator<T> m_dialogComponentAnnotator;
+
 	private SettingsModelString m_smColCreationMode = ValueToCellNodeModel
 			.createColCreationModeModel();
+
 	private SettingsModelString m_smColumnSuffix = ValueToCellNodeModel
 			.createColSuffixNodeModel();
 

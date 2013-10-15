@@ -2,36 +2,35 @@ package org.knime.knip.core.ui.imgviewer.annotator;
 
 import java.io.Serializable;
 
-
 /**
  * Unique identifier for table entries based on their row and column name.
- *
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
- *         Zinsmaier</a>
+ * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 public class RowColKey implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     private String m_rowName;
+
     private String m_colName;
 
-	public RowColKey(final String rowName, final String colName) {
-	    m_rowName = rowName;
-	    m_colName = colName;
-	}
+    public RowColKey(final String rowName, final String colName) {
+        m_rowName = rowName;
+        m_colName = colName;
+    }
 
-	public String getRowName() {
-		return m_rowName;
-	}
+    public String getRowName() {
+        return m_rowName;
+    }
 
-	public String getColName() {
-		return m_colName;
-	}
+    public String getColName() {
+        return m_colName;
+    }
 
-	//auto generated member based hashCode and equals
+    //auto generated member based hashCode and equals
 
     @Override
     public int hashCode() {

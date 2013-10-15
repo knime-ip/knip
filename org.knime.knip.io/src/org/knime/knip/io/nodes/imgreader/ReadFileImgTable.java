@@ -58,8 +58,6 @@ import java.util.Vector;
 import loci.formats.FormatException;
 import net.imglib2.Pair;
 import net.imglib2.img.ImgFactory;
-import net.imglib2.meta.Axes;
-import net.imglib2.meta.AxisType;
 import net.imglib2.meta.CalibratedAxis;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.meta.TypedAxis;

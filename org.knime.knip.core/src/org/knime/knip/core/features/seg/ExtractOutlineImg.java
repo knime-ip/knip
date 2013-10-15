@@ -62,8 +62,8 @@ import net.imglib2.type.logic.BitType;
  * as all pixels, which are next to the pixels which are on the border of the connected component. Please be aware that
  * for a correct calculation of the Perimeter only one connected component should be contained in the {@link Img} of
  * {@link BitType}
- *
- *
+ * 
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>

@@ -167,8 +167,6 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
 
 	private static final String AXES_SUFFIX = "axes";
 
-	private static final String CALIBRATION_SUFFIX = "cal";
-
 	private static final String DIM_SUFFIX = "dim";
 
 	private static final String IMG_SUFFIX = "img";
@@ -489,7 +487,7 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
 
 			@Override
 			public double averageScale(int d) {
-				return axis(d).averageScale(0, getDimensions()[d] - 1);
+				return axis(d).averageScale(0, 1);
 			}
 
 			@Override
@@ -630,4 +628,5 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
 	public String toString() {
 		return m_imgRef;
 	}
+
 }

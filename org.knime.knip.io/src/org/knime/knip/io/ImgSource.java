@@ -93,7 +93,6 @@ public interface ImgSource {
 	public List<CalibratedAxis> getAxes(String imgRef, int currentSeries)
 			throws Exception;
 
-
 	/**
 	 * 
 	 * @param currentSeries

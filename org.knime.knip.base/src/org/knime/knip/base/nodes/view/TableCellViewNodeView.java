@@ -129,7 +129,7 @@ import org.knime.node2012.ViewsDocument.Views;
  */
 
 /**
- *
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -140,7 +140,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     /**
      * Add the description of the view.
-     *
+     * 
      * @param views
      */
     public static void addViewDescriptionTo(final Views views) {

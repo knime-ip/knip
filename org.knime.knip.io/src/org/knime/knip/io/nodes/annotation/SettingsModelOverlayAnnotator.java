@@ -82,8 +82,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @param <L>
  */
-public class SettingsModelOverlayAnnotator extends
-		SettingsModel {
+public class SettingsModelOverlayAnnotator extends SettingsModel {
 
 	/* Logger */
 	private final Logger LOGGER = LoggerFactory

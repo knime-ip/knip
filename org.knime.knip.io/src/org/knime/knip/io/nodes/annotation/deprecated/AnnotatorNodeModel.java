@@ -208,15 +208,14 @@ public class AnnotatorNodeModel<T extends RealType<T> & NativeType<T>, L extends
 		final BufferedDataContainer labelCon = exec
 				.createDataContainer(m_labelsOutSpec);
 
-		final Map<RowColKey, Overlay> map = m_annotatorModel
-				.getOverlayMap();
+		final Map<RowColKey, Overlay> map = m_annotatorModel.getOverlayMap();
 		final Set<String> labels = new HashSet<String>();
 		final ImgPlusCellFactory imgCellFactory = new ImgPlusCellFactory(exec);
 		final LabelingCellFactory labCellFactory = new LabelingCellFactory(exec);
 		for (final Entry<RowColKey, Overlay> entry : map.entrySet()) {
 
-			final ImgPlus<T> imgPlus = SettingsModelAnnotator.loadImgPlus(AnnotatorManager.fromRowColKey(entry
-					.getKey()));
+			final ImgPlus<T> imgPlus = SettingsModelAnnotator
+					.loadImgPlus(AnnotatorManager.fromRowColKey(entry.getKey()));
 
 			final long[] dimensions = new long[imgPlus.numDimensions()];
 			imgPlus.dimensions(dimensions);
@@ -229,12 +228,11 @@ public class AnnotatorNodeModel<T extends RealType<T> & NativeType<T>, L extends
 								m_factoryType.getStringValue(), imgPlus),
 						m_addSegmentID.getBooleanValue(), NativeTypes
 								.valueOf(m_labelingType.getStringValue()));
-				imgCon.addRowToTable(new DefaultRow(new RowKey(AnnotatorManager.fromRowColKey(entry.getKey())),
-						imgCellFactory.createCell(imgPlus),
-						labCellFactory.createCell(labeling,
-								new DefaultLabelingMetadata(imgPlus, imgPlus,
-										imgPlus,
-										new DefaultLabelingColorTable()))));
+				imgCon.addRowToTable(new DefaultRow(new RowKey(AnnotatorManager
+						.fromRowColKey(entry.getKey())), imgCellFactory
+						.createCell(imgPlus), labCellFactory.createCell(
+						labeling, new DefaultLabelingMetadata(imgPlus, imgPlus,
+								imgPlus, new DefaultLabelingColorTable()))));
 
 				for (final String s : labeling.firstElement().getMapping()
 						.getLabels()) {
