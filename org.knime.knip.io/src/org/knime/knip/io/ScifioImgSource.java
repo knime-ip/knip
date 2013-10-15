@@ -89,258 +89,265 @@ import org.scijava.InstantiableException;
  */
 public class ScifioImgSource implements ImgSource {
 
-	/* ID of the source */
-	private static final String SOURCE_ID = "Scifio Image Source";
+    /* ID of the source */
+    private static final String SOURCE_ID = "Scifio Image Source";
 
-	private Reader m_reader;
+    private Reader m_reader;
 
-	private final ImgOpener m_imgOpener;
+    private final ImgOpener m_imgOpener;
 
-	private final ImgFactory m_imgFactory;
+    private final ImgFactory m_imgFactory;
 
-	private final boolean m_isGroupFiles;
+    private final boolean m_isGroupFiles;
 
-	private ImgUtilityService m_imgUtilsService;
+    private ImgUtilityService m_imgUtilsService;
 
-	private boolean m_checkFileFormat;
+    private boolean m_checkFileFormat;
 
-	/*
-	 * helps do decide if the checkFileFormat option could have been set to
-	 * false.
-	 */
-	private boolean m_usedDifferentReaders;
+    /*
+     * helps do decide if the checkFileFormat option could have been set to
+     * false.
+     */
+    private boolean m_usedDifferentReaders;
 
-	public ScifioImgSource() {
-		this(true);
-	}
+    public ScifioImgSource() {
+        this(true);
+    }
 
-	public ScifioImgSource(boolean checkFileFormat) {
-		this(new ArrayImgFactory(), checkFileFormat, true);
-	}
+    public ScifioImgSource(boolean checkFileFormat) {
+        this(new ArrayImgFactory(), checkFileFormat, true);
+    }
 
-	public ScifioImgSource(final ImgFactory imgFactory,
-			boolean checkFileFormat, final boolean isGroupFiles) {
-		m_isGroupFiles = isGroupFiles;
-		m_checkFileFormat = checkFileFormat;
-		m_imgOpener = new ImgOpener();
-		m_imgFactory = imgFactory;
-		m_usedDifferentReaders = false;
-	}
+    public ScifioImgSource(final ImgFactory imgFactory,
+            boolean checkFileFormat, final boolean isGroupFiles) {
+        m_isGroupFiles = isGroupFiles;
+        m_checkFileFormat = checkFileFormat;
+        m_imgOpener = new ImgOpener();
+        m_imgFactory = imgFactory;
+        m_usedDifferentReaders = false;
+    }
 
-	@Override
-	public void close() {
-		if (m_reader != null) {
-			try {
-				m_reader.close();
-			} catch (IOException e) {
-			}
-		}
-	}
+    @Override
+    public void close() {
+        if (m_reader != null) {
+            try {
+                m_reader.close();
+            } catch (IOException e) {
+            }
+        }
+    }
 
-	@Override
-	public String getSource(final String imgRef) throws Exception {
-		return SOURCE_ID;
-	}
+    @Override
+    public String getSource(final String imgRef) throws Exception {
+        return SOURCE_ID;
+    }
 
-	/**
-	 * @param ref
-	 * @return number of images contained in the specified file
-	 * @throws Exception
-	 */
-	public int getSeriesCount(final String imgRef) throws Exception {
-		return getReader(imgRef).getImageCount();
-	}
+    /**
+     * @param ref
+     * @return number of images contained in the specified file
+     * @throws Exception
+     */
+    public int getSeriesCount(final String imgRef) throws Exception {
+        return getReader(imgRef).getImageCount();
+    }
 
-	/**
-	 * @param ref
-	 * @return
-	 * @throws Exception
-	 */
-	public String getOMEXMLMetadata(final String imgRef) throws Exception {
-		Metadata meta = getReader(imgRef).getMetadata();
-		OMEMetadata omexml = new OMEMetadata(ScifioGateway.getSCIFIO()
-				.getContext());
+    /**
+     * @param ref
+     * @return
+     * @throws Exception
+     */
+    public String getOMEXMLMetadata(final String imgRef) throws Exception {
+        Metadata meta = getReader(imgRef).getMetadata();
+        OMEMetadata omexml =
+                new OMEMetadata(ScifioGateway.getSCIFIO().getContext());
 
-		ScifioGateway.getSCIFIO().translator().translate(meta, omexml, true);
-		String xml = omexml.getRoot().dumpXML();
-		return xml;
-	}
+        ScifioGateway.getSCIFIO().translator().translate(meta, omexml, true);
+        String xml = omexml.getRoot().dumpXML();
+        return xml;
+    }
 
-	@Override
-	public ImgPlus<RealType> getImg(final String imgRef, final int currentSeries)
-			throws Exception {
-		return getImg(imgRef, currentSeries, null);
-	}
+    @Override
+    public ImgPlus<RealType> getImg(final String imgRef, final int currentSeries)
+            throws Exception {
+        return getImg(imgRef, currentSeries, null);
+    }
 
-	@Override
-	public ImgPlus<RealType> getImg(final String imgRef,
-			final int currentSeries,
-			final Pair<TypedAxis, long[]>[] axisSelectionConstraints)
-			throws Exception {
-		ImgOptions options = new ImgOptions();
-		options.setComputeMinMax(false);
+    @Override
+    public ImgPlus<RealType> getImg(final String imgRef,
+            final int currentSeries,
+            final Pair<TypedAxis, long[]>[] axisSelectionConstraints)
+            throws Exception {
+        ImgOptions options = new ImgOptions();
+        options.setComputeMinMax(false);
 
-		boolean withCropping = false;
+        boolean withCropping = false;
 
-		if (axisSelectionConstraints != null
-				&& axisSelectionConstraints.length > 0) {
+        if (axisSelectionConstraints != null
+                && axisSelectionConstraints.length > 0) {
 
-			withCropping = true;
-			// WRONG WRONG WRONG only 5d support
-			DimRange[] ranges = new DimRange[axisSelectionConstraints.length];
-			AxisType[] axes = new AxisType[axisSelectionConstraints.length];
-			for (int i = 0; i < ranges.length; i++) {
-				ranges[i] = new DimRange(axisSelectionConstraints[i].getB());
-				axes[i] = axisSelectionConstraints[i].getA().type();
-			}
+            withCropping = true;
+            // WRONG WRONG WRONG only 5d support
+            DimRange[] ranges = new DimRange[axisSelectionConstraints.length];
+            AxisType[] axes = new AxisType[axisSelectionConstraints.length];
+            for (int i = 0; i < ranges.length; i++) {
+                ranges[i] = new DimRange(axisSelectionConstraints[i].getB());
+                axes[i] = axisSelectionConstraints[i].getA().type();
+            }
 
-			options.setRegion(new SubRegion(axes, ranges));
-		}
+            options.setRegion(new SubRegion(axes, ranges));
+        }
 
-		ImgPlus<RealType> ret = m_imgOpener.openImg(getReader(imgRef),
-				getPixelType(imgRef, currentSeries), m_imgFactory, options);
+        ImgPlus<RealType> ret =
+                m_imgOpener.openImg(getReader(imgRef),
+                        getPixelType(imgRef, currentSeries), m_imgFactory,
+                        options);
 
-		// TODO remove this as soon as calibration is set in ImgPlus by SCIFIO.
-		// Since now: this is not done automatically
-		double[] calibration = getCalibration(imgRef, currentSeries);
-		ret.setCalibration(calibration);
+        // TODO remove this as soon as calibration is set in ImgPlus by SCIFIO.
+        // Since now: this is not done automatically
+        double[] calibration = getCalibration(imgRef, currentSeries);
+        ret.setCalibration(calibration);
 
-		if (withCropping) {
-			ret = MiscViews.cleanImgPlus(ret);
-		}
+        if (withCropping) {
+            ret = MiscViews.cleanImgPlus(ret);
+        }
 
-		return ret;
-	}
+        return ret;
+    }
 
-	// Remove this
-	private double[] getCalibration(final String imgRef, final int currentSeries)
-			throws Exception {
+    // Remove this
+    private double[] getCalibration(final String imgRef, final int currentSeries)
+            throws Exception {
 
-		Metadata meta = ScifioGateway.getSCIFIO().initializer()
-				.parseMetadata(imgRef, true);
+        Metadata meta =
+                ScifioGateway.getSCIFIO().initializer()
+                        .parseMetadata(imgRef, true);
 
-		// translate to ome metadata to get access to calibration values
-		OMEMetadata omexml = new OMEMetadata(ScifioGateway.getSCIFIO()
-				.getContext());
-		ScifioGateway.getSCIFIO().translator().translate(meta, omexml, false);
+        // translate to ome metadata to get access to calibration values
+        OMEMetadata omexml =
+                new OMEMetadata(ScifioGateway.getSCIFIO().getContext());
+        ScifioGateway.getSCIFIO().translator().translate(meta, omexml, false);
 
-		double[] calib = new double[getDimensions(imgRef, currentSeries).length];
+        double[] calib =
+                new double[getDimensions(imgRef, currentSeries).length];
 
-		// TODO: remove completely after scifio has adopted to new calibrated
-		// axis structure
-		int i = 0;
-		for (CalibratedAxis axes : omexml.getAxes(currentSeries)) {
-			calib[i] = axes.averageScale(0, 0);
-			i++;
-		}
+        // TODO: remove completely after scifio has adopted to new calibrated
+        // axis structure
+        int i = 0;
+        for (CalibratedAxis axes : omexml.getAxes(currentSeries)) {
+            calib[i] = axes.averageScale(0, 0);
+            i++;
+        }
 
-		return calib;
-	}
+        return calib;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public BufferedImage getThumbnail(final String imgRef, final int planeNo)
-			throws Exception {
-		Reader r = getReader(imgRef);
-		int sizeX = (int) r.getMetadata().getThumbSizeX(0);
-		int sizeY = (int) r.getMetadata().getThumbSizeY(0);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BufferedImage getThumbnail(final String imgRef, final int planeNo)
+            throws Exception {
+        Reader r = getReader(imgRef);
+        int sizeX = (int)r.getMetadata().getThumbSizeX(0);
+        int sizeY = (int)r.getMetadata().getThumbSizeY(0);
 
-		// image index / plane index
-		Plane pl = r.openThumbPlane(0, 0);
+        // image index / plane index
+        Plane pl = r.openThumbPlane(0, 0);
 
-		return AWTImageTools.makeImage(pl.getBytes(), sizeX, sizeY, NativeTypes
-				.getPixelType(getPixelType(imgRef, 0)).isSigned());
-	}
+        return AWTImageTools.makeImage(pl.getBytes(), sizeX, sizeY, NativeTypes
+                .getPixelType(getPixelType(imgRef, 0)).isSigned());
+    }
 
-	// META DATA
+    // META DATA
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<CalibratedAxis> getAxes(final String imgRef,
-			final int currentSeries) throws Exception {
-		return getReader(imgRef).getMetadata().getAxes(currentSeries);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<CalibratedAxis> getAxes(final String imgRef,
+            final int currentSeries) throws Exception {
+        return getReader(imgRef).getMetadata().getAxes(currentSeries);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public long[] getDimensions(final String imgRef, final int currentSeries)
-			throws Exception {
-		long[] tmp = getReader(imgRef).getMetadata().getAxesLengths(
-				currentSeries);
-		long[] ret = new long[tmp.length];
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long[] getDimensions(final String imgRef, final int currentSeries)
+            throws Exception {
+        long[] tmp =
+                getReader(imgRef).getMetadata().getAxesLengths(currentSeries);
+        long[] ret = new long[tmp.length];
 
-		for (int i = 0; i < tmp.length; i++) {
-			ret[i] = tmp[i];
-		}
+        for (int i = 0; i < tmp.length; i++) {
+            ret[i] = tmp[i];
+        }
 
-		return ret;
-	}
+        return ret;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getName(final String imgRef) throws Exception {
-		return getReader(imgRef).getMetadata().getDatasetName();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getName(final String imgRef) throws Exception {
+        return getReader(imgRef).getMetadata().getDatasetName();
+    }
 
-	public boolean usedDifferentReaders() {
-		return m_usedDifferentReaders;
-	}
+    public boolean usedDifferentReaders() {
+        return m_usedDifferentReaders;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @throws IOException
-	 * @throws FormatException
-	 */
-	@Override
-	public RealType getPixelType(final String imgRef, final int currentSeries)
-			throws IOException, FormatException {
+    /**
+     * {@inheritDoc}
+     * 
+     * @throws IOException
+     * @throws FormatException
+     */
+    @Override
+    public RealType getPixelType(final String imgRef, final int currentSeries)
+            throws IOException, FormatException {
 
-		if (m_imgUtilsService == null) {
-			m_imgUtilsService = ScifioGateway.getSCIFIO().getContext()
-					.getService(ImgUtilityService.class);
-		}
+        if (m_imgUtilsService == null) {
+            m_imgUtilsService =
+                    ScifioGateway.getSCIFIO().getContext()
+                            .getService(ImgUtilityService.class);
+        }
 
-		RealType type = m_imgUtilsService.makeType(getReader(imgRef)
-				.getMetadata().getPixelType(currentSeries));
-		return type;
-	}
+        RealType type =
+                m_imgUtilsService.makeType(getReader(imgRef).getMetadata()
+                        .getPixelType(currentSeries));
+        return type;
+    }
 
-	private Reader getReader(final String imgRef) throws FormatException,
-			IOException {
-		if (m_reader == null
-				|| (!m_reader.getCurrentFile().equals(imgRef) && m_checkFileFormat)) {
-			ReaderFilter r = ScifioGateway.getSCIFIO().initializer()
-					.initializeReader(imgRef, true);
-			try {
-				r.enable(PlaneSeparator.class);
-			} catch (InstantiableException e) {
-				throw new FormatException(e);
-			}
-			r.setGroupFiles(m_isGroupFiles);
+    private Reader getReader(final String imgRef) throws FormatException,
+            IOException {
+        if (m_reader == null
+                || (!m_reader.getCurrentFile().equals(imgRef) && m_checkFileFormat)) {
+            ReaderFilter r =
+                    ScifioGateway.getSCIFIO().initializer()
+                            .initializeReader(imgRef, true);
+            try {
+                r.enable(PlaneSeparator.class);
+            } catch (InstantiableException e) {
+                throw new FormatException(e);
+            }
+            r.setGroupFiles(m_isGroupFiles);
 
-			if (m_reader != null
-					&& !(m_reader.getFormat().getClass().equals(r.getFormat()
-							.getClass()))) {
-				// more than one reader (class) has been used
-				m_usedDifferentReaders = true;
-			}
-			m_reader = r;
-		}
+            if (m_reader != null
+                    && !(m_reader.getFormat().getClass().equals(r.getFormat()
+                            .getClass()))) {
+                // more than one reader (class) has been used
+                m_usedDifferentReaders = true;
+            }
+            m_reader = r;
+        }
 
-		if (!m_checkFileFormat) {
-			m_reader.setSource(imgRef);
-		}
+        if (!m_checkFileFormat) {
+            m_reader.setSource(imgRef);
+        }
 
-		return m_reader;
-	}
+        return m_reader;
+    }
 
 }

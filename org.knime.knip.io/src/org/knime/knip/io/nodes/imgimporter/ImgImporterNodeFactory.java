@@ -80,84 +80,86 @@ import org.knime.knip.io.ImgSourcePool;
  *         Zinsmaier</a>
  */
 public class ImgImporterNodeFactory<T extends RealType<T> & NativeType<T>>
-		extends ValueToCellNodeFactory<ImgRefValue> {
+        extends ValueToCellNodeFactory<ImgRefValue> {
 
-	private static SettingsModelString createFactorySelectionModel() {
-		return new SettingsModelString("factory_selection",
-				ImgFactoryTypes.ARRAY_IMG_FACTORY.name());
-	}
+    private static SettingsModelString createFactorySelectionModel() {
+        return new SettingsModelString("factory_selection",
+                ImgFactoryTypes.ARRAY_IMG_FACTORY.name());
+    }
 
-	private static SettingsModelSubsetSelection createSubsetSelectionModel() {
-		return new SettingsModelSubsetSelection("subsetselection");
-	}
+    private static SettingsModelSubsetSelection createSubsetSelectionModel() {
+        return new SettingsModelSubsetSelection("subsetselection");
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected ValueToCellNodeDialog<ImgRefValue> createNodeDialog() {
-		return new ValueToCellNodeDialog<ImgRefValue>() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected ValueToCellNodeDialog<ImgRefValue> createNodeDialog() {
+        return new ValueToCellNodeDialog<ImgRefValue>() {
 
-			@Override
-			public void addDialogComponents() {
+            @Override
+            public void addDialogComponents() {
 
-				addDialogComponent("Options", "Options",
-						new DialogComponentSubsetSelection(
-								createSubsetSelectionModel(), true, true));
+                addDialogComponent("Options", "Options",
+                        new DialogComponentSubsetSelection(
+                                createSubsetSelectionModel(), true, true));
 
-				addDialogComponent(
-						"Options",
-						"Factory selection",
-						new DialogComponentStringSelection(
-								createFactorySelectionModel(), "",
-								EnumListProvider.getStringList(ImgFactoryTypes
-										.values())));
+                addDialogComponent(
+                        "Options",
+                        "Factory selection",
+                        new DialogComponentStringSelection(
+                                createFactorySelectionModel(), "",
+                                EnumListProvider.getStringList(ImgFactoryTypes
+                                        .values())));
 
-			}
-		};
-	}
+            }
+        };
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ValueToCellNodeModel<ImgRefValue, ImgPlusCell<T>> createNodeModel() {
-		return new ValueToCellNodeModel<ImgRefValue, ImgPlusCell<T>>() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ValueToCellNodeModel<ImgRefValue, ImgPlusCell<T>> createNodeModel() {
+        return new ValueToCellNodeModel<ImgRefValue, ImgPlusCell<T>>() {
 
-			private final SettingsModelString m_factorySelect = createFactorySelectionModel();
+            private final SettingsModelString m_factorySelect =
+                    createFactorySelectionModel();
 
-			private ImgPlusCellFactory m_imgCellFactory;
+            private ImgPlusCellFactory m_imgCellFactory;
 
-			private final SettingsModelSubsetSelection m_subsetSelect = createSubsetSelectionModel();
+            private final SettingsModelSubsetSelection m_subsetSelect =
+                    createSubsetSelectionModel();
 
-			@Override
-			protected void addSettingsModels(
-					final List<SettingsModel> settingsModels) {
-				settingsModels.add(m_subsetSelect);
-				settingsModels.add(m_factorySelect);
-			}
+            @Override
+            protected void addSettingsModels(
+                    final List<SettingsModel> settingsModels) {
+                settingsModels.add(m_subsetSelect);
+                settingsModels.add(m_factorySelect);
+            }
 
-			@SuppressWarnings("unchecked")
-			@Override
-			protected ImgPlusCell<T> compute(final ImgRefValue cellValue)
-					throws Exception {
-				final String ref = cellValue.getImageReference();
-				final String source = cellValue.getSource();
+            @SuppressWarnings("unchecked")
+            @Override
+            protected ImgPlusCell<T> compute(final ImgRefValue cellValue)
+                    throws Exception {
+                final String ref = cellValue.getImageReference();
+                final String source = cellValue.getSource();
 
-				final ImgSource imgSource = ImgSourcePool.getImgSource(source);
+                final ImgSource imgSource = ImgSourcePool.getImgSource(source);
 
-				return m_imgCellFactory.createCell((ImgPlus<T>) imgSource
-						.getImg(ref, 0));
-			}
+                return m_imgCellFactory.createCell((ImgPlus<T>)imgSource
+                        .getImg(ref, 0));
+            }
 
-			/**
-			 * {@inheritDoc}
-			 */
-			@Override
-			protected void prepareExecute(final ExecutionContext exec) {
-				m_imgCellFactory = new ImgPlusCellFactory(exec);
-			}
-		};
-	}
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected void prepareExecute(final ExecutionContext exec) {
+                m_imgCellFactory = new ImgPlusCellFactory(exec);
+            }
+        };
+    }
 
 }

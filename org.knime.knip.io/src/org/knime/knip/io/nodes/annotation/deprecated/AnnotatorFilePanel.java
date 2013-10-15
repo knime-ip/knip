@@ -95,205 +95,209 @@ import org.slf4j.LoggerFactory;
  */
 @Deprecated
 public class AnnotatorFilePanel<T extends RealType<T> & NativeType<T>> extends
-		ViewerComponent {
+        ViewerComponent {
 
-	/* */
-	public static final String IMAGE_SOURCE_ID = "ANNOTATOR_IMAGE_SOURCE";
+    /* */
+    public static final String IMAGE_SOURCE_ID = "ANNOTATOR_IMAGE_SOURCE";
 
-	/* */
-	private static final long serialVersionUID = 1L;
+    /* */
+    private static final long serialVersionUID = 1L;
 
-	/* Logger */
-	private final Logger logger = LoggerFactory
-			.getLogger(AnnotatorFilePanel.class);
+    /* Logger */
+    private final Logger logger = LoggerFactory
+            .getLogger(AnnotatorFilePanel.class);
 
-	/* */
-	private FileAssociation[] m_allFiles;
+    /* */
+    private FileAssociation[] m_allFiles;
 
-	/* */
-	private EventService m_eventService;
+    /* */
+    private EventService m_eventService;
 
-	/* */
-	private JList m_fileList;
+    /* */
+    private JList m_fileList;
 
-	/* */
-	private boolean m_isAdjusting;
+    /* */
+    private boolean m_isAdjusting;
 
-	public AnnotatorFilePanel() {
-		super("Selected files", false);
-		m_isAdjusting = false;
-		m_fileList = new JList();
-		m_fileList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		m_fileList.addListSelectionListener(new ListSelectionListener() {
-			@Override
-			public void valueChanged(final ListSelectionEvent e) {
-				if (m_isAdjusting) {
-					return;
-				}
+    public AnnotatorFilePanel() {
+        super("Selected files", false);
+        m_isAdjusting = false;
+        m_fileList = new JList();
+        m_fileList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        m_fileList.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(final ListSelectionEvent e) {
+                if (m_isAdjusting) {
+                    return;
+                }
 
-				onListSelection(e);
-			}
-		});
+                onListSelection(e);
+            }
+        });
 
-		setLayout(new BorderLayout());
-		setPreferredSize(new Dimension(150, getPreferredSize().height));
-		add(new JScrollPane(m_fileList), BorderLayout.CENTER);
+        setLayout(new BorderLayout());
+        setPreferredSize(new Dimension(150, getPreferredSize().height));
+        add(new JScrollPane(m_fileList), BorderLayout.CENTER);
 
-		final JButton browse = new JButton("Browse ...");
-		browse.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				m_isAdjusting = true;
-				final String[] files = FileChooserPanel.showFileChooserDialog(
-						ImgReaderNodeDialog.FILEFILTER,
-						FileAssociation.getPaths(m_allFiles));
-				if (files != null) {
+        final JButton browse = new JButton("Browse ...");
+        browse.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                m_isAdjusting = true;
+                final String[] files =
+                        FileChooserPanel.showFileChooserDialog(
+                                ImgReaderNodeDialog.FILEFILTER,
+                                FileAssociation.getPaths(m_allFiles));
+                if (files != null) {
 
-					m_allFiles = FileAssociation.createAssociations(files);
-					m_fileList.setListData(m_allFiles);
-					m_eventService
-							.publish(new AnnotatorFilelistChgEvent(files));
+                    m_allFiles = FileAssociation.createAssociations(files);
+                    m_fileList.setListData(m_allFiles);
+                    m_eventService
+                            .publish(new AnnotatorFilelistChgEvent(files));
 
-					if (m_fileList != null) {
-						m_fileList.setSelectedIndex(0);
-						sendFileSelected();
-					}
+                    if (m_fileList != null) {
+                        m_fileList.setSelectedIndex(0);
+                        sendFileSelected();
+                    }
 
-				}
-				m_isAdjusting = false;
-				updateUI();
-			}
-		});
-		add(browse, BorderLayout.SOUTH);
-	}
+                }
+                m_isAdjusting = false;
+                updateUI();
+            }
+        });
+        add(browse, BorderLayout.SOUTH);
+    }
 
-	@Override
-	public Position getPosition() {
-		return Position.WEST;
-	}
+    @Override
+    public Position getPosition() {
+        return Position.WEST;
+    }
 
-	@Override
-	public void loadComponentConfiguration(final ObjectInput in)
-			throws IOException {
+    @Override
+    public void loadComponentConfiguration(final ObjectInput in)
+            throws IOException {
 
-		final int num = in.readInt();
-		m_allFiles = new FileAssociation[num];
-		for (int i = 0; i < num; i++) {
-			m_allFiles[i] = new FileAssociation(in.readUTF());
-		}
-		m_isAdjusting = true;
-		m_fileList.setListData(m_allFiles);
-		m_isAdjusting = false;
-		m_fileList.updateUI();
-	}
+        final int num = in.readInt();
+        m_allFiles = new FileAssociation[num];
+        for (int i = 0; i < num; i++) {
+            m_allFiles[i] = new FileAssociation(in.readUTF());
+        }
+        m_isAdjusting = true;
+        m_fileList.setListData(m_allFiles);
+        m_isAdjusting = false;
+        m_fileList.updateUI();
+    }
 
-	private void onListSelection(final ListSelectionEvent e2) {
-		if (e2.getValueIsAdjusting()) {
-			return;
-		}
-		sendFileSelected();
-	}
+    private void onListSelection(final ListSelectionEvent e2) {
+        if (e2.getValueIsAdjusting()) {
+            return;
+        }
+        sendFileSelected();
+    }
 
-	@EventListener
-	public void reset(final AnnotatorResetEvent e) {
-		m_allFiles = new FileAssociation[0];
-		m_isAdjusting = true;
-		m_fileList.setListData(m_allFiles);
-		m_isAdjusting = false;
-	}
+    @EventListener
+    public void reset(final AnnotatorResetEvent e) {
+        m_allFiles = new FileAssociation[0];
+        m_isAdjusting = true;
+        m_fileList.setListData(m_allFiles);
+        m_isAdjusting = false;
+    }
 
-	@Override
-	public void saveComponentConfiguration(final ObjectOutput out)
-			throws IOException {
-		out.writeInt(m_allFiles.length);
-		for (int i = 0; i < m_allFiles.length; i++) {
-			out.writeUTF(m_allFiles[i].m_path);
-		}
-	}
+    @Override
+    public void saveComponentConfiguration(final ObjectOutput out)
+            throws IOException {
+        out.writeInt(m_allFiles.length);
+        for (int i = 0; i < m_allFiles.length; i++) {
+            out.writeUTF(m_allFiles[i].m_path);
+        }
+    }
 
-	private void sendFileSelected() {
-		try {
-			if (ImgSourcePool.getImgSource(IMAGE_SOURCE_ID) == null) {
-				ImgSourcePool.addImgSource(IMAGE_SOURCE_ID,
-						new ScifioImgSource());
-			}
-			final ImgSource source = ImgSourcePool
-					.getImgSource(IMAGE_SOURCE_ID);
+    private void sendFileSelected() {
+        try {
+            if (ImgSourcePool.getImgSource(IMAGE_SOURCE_ID) == null) {
+                ImgSourcePool.addImgSource(IMAGE_SOURCE_ID,
+                        new ScifioImgSource());
+            }
+            final ImgSource source =
+                    ImgSourcePool.getImgSource(IMAGE_SOURCE_ID);
 
-			final String ref = ((FileAssociation) m_fileList.getSelectedValue()).m_path;
+            final String ref =
+                    ((FileAssociation)m_fileList.getSelectedValue()).m_path;
 
-			m_eventService.publish(new ImgViewerTextMessageChgEvent(
-					"Load img ... " + ref));
+            m_eventService.publish(new ImgViewerTextMessageChgEvent(
+                    "Load img ... " + ref));
 
-			@SuppressWarnings("unchecked")
-			final ImgPlus<T> imgPlus = (ImgPlus<T>) source.getImg(ref, 0);
+            @SuppressWarnings("unchecked")
+            final ImgPlus<T> imgPlus = (ImgPlus<T>)source.getImg(ref, 0);
 
-			//replacement code to allow soft migration to new interactive annotator
-			m_eventService.publish(new AnnotatorImgWithMetadataChgEvent<T>(imgPlus.getImg(),
-					imgPlus, AnnotatorManager.toRowColKey(imgPlus.getSource())));
-		} catch (final IncompatibleTypeException e) {
-			logger.warn("Failed to load image");
-			m_eventService.publish(new ImgViewerTextMessageChgEvent(
-					"Failed to load image"));
-		} catch (final Exception e) {
-			logger.warn("Failed to load image");
-			e.printStackTrace();
-		}
+            // replacement code to allow soft migration to new interactive
+            // annotator
+            m_eventService.publish(new AnnotatorImgWithMetadataChgEvent<T>(
+                    imgPlus.getImg(), imgPlus, AnnotatorManager
+                            .toRowColKey(imgPlus.getSource())));
+        } catch (final IncompatibleTypeException e) {
+            logger.warn("Failed to load image");
+            m_eventService.publish(new ImgViewerTextMessageChgEvent(
+                    "Failed to load image"));
+        } catch (final Exception e) {
+            logger.warn("Failed to load image");
+            e.printStackTrace();
+        }
 
-	}
+    }
 
-	@Override
-	public void setEventService(final EventService eventService) {
-		m_eventService = eventService;
-		eventService.subscribe(this);
-	}
+    @Override
+    public void setEventService(final EventService eventService) {
+        m_eventService = eventService;
+        eventService.subscribe(this);
+    }
 
 }
 
 class FileAssociation {
 
-	static FileAssociation[] createAssociations(final String[] filePaths) {
-		final FileAssociation[] ret = new FileAssociation[filePaths.length];
-		int i = 0;
-		for (final String path : filePaths) {
-			ret[i] = new FileAssociation(path);
-			i++;
-		}
+    static FileAssociation[] createAssociations(final String[] filePaths) {
+        final FileAssociation[] ret = new FileAssociation[filePaths.length];
+        int i = 0;
+        for (final String path : filePaths) {
+            ret[i] = new FileAssociation(path);
+            i++;
+        }
 
-		return ret;
-	}
+        return ret;
+    }
 
-	static String[] getNames(final FileAssociation[] assocs) {
-		final String[] names = new String[assocs.length];
-		for (int i = 0; i < assocs.length; i++) {
-			names[i] = assocs[i].m_name;
-		}
-		return names;
-	}
+    static String[] getNames(final FileAssociation[] assocs) {
+        final String[] names = new String[assocs.length];
+        for (int i = 0; i < assocs.length; i++) {
+            names[i] = assocs[i].m_name;
+        }
+        return names;
+    }
 
-	static String[] getPaths(final FileAssociation[] assocs) {
-		final String[] paths = new String[assocs.length];
-		for (int i = 0; i < assocs.length; i++) {
-			paths[i] = assocs[i].m_path;
-		}
-		return paths;
-	}
+    static String[] getPaths(final FileAssociation[] assocs) {
+        final String[] paths = new String[assocs.length];
+        for (int i = 0; i < assocs.length; i++) {
+            paths[i] = assocs[i].m_path;
+        }
+        return paths;
+    }
 
-	String m_name;
+    String m_name;
 
-	String m_path;
+    String m_path;
 
-	FileAssociation(final String path) {
-		this.m_path = path;
-		m_name = new File(path).getName();
-	}
+    FileAssociation(final String path) {
+        this.m_path = path;
+        m_name = new File(path).getName();
+    }
 
-	public String getPath() {
-		return m_path;
-	}
+    public String getPath() {
+        return m_path;
+    }
 
-	@Override
-	public String toString() {
-		return m_name;
-	}
+    @Override
+    public String toString() {
+        return m_name;
+    }
 }

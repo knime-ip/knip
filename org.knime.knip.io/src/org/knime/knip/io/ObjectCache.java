@@ -66,90 +66,91 @@ import org.slf4j.LoggerFactory;
  */
 public class ObjectCache {
 
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(ObjectCache.class);
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(ObjectCache.class);
 
-	private static Map<String, ObjectCache> m_caches = new HashMap<String, ObjectCache>();
+    private static Map<String, ObjectCache> m_caches =
+            new HashMap<String, ObjectCache>();
 
-	/**
-	 * Adds a new object to the cache specified by the cacheID. If the cache
-	 * doesn't exist yet, it will be created.
-	 * 
-	 * @param cacheID
-	 * @param objID
-	 * @param obj
-	 */
-	public static void addObject(final String cacheID, final String objID,
-			final Object obj) {
-		LOGGER.debug("Caching object " + objID + " in cache " + cacheID + ".");
-		getCache(cacheID).m_cachedObjects.put(objID, new SoftReference<Object>(
-				obj));
-	}
+    /**
+     * Adds a new object to the cache specified by the cacheID. If the cache
+     * doesn't exist yet, it will be created.
+     * 
+     * @param cacheID
+     * @param objID
+     * @param obj
+     */
+    public static void addObject(final String cacheID, final String objID,
+            final Object obj) {
+        LOGGER.debug("Caching object " + objID + " in cache " + cacheID + ".");
+        getCache(cacheID).m_cachedObjects.put(objID, new SoftReference<Object>(
+                obj));
+    }
 
-	/**
-	 * Clears the whole image cache.
-	 */
-	public static void clearCache(final String cacheID) {
-		final ObjectCache c = m_caches.get(cacheID);
-		if (c != null) {
-			c.m_cachedObjects.clear();
-		}
-	}
+    /**
+     * Clears the whole image cache.
+     */
+    public static void clearCache(final String cacheID) {
+        final ObjectCache c = m_caches.get(cacheID);
+        if (c != null) {
+            c.m_cachedObjects.clear();
+        }
+    }
 
-	/*
-	 * Adds a new source to the list of available image factories.
-	 * 
-	 * @param cacheID a unique ID for that specific cache
-	 * 
-	 * @return
-	 */
-	private static void createCache(final String cacheID) {
-		final ObjectCache c = new ObjectCache();
-		m_caches.put(cacheID, c);
+    /*
+     * Adds a new source to the list of available image factories.
+     * 
+     * @param cacheID a unique ID for that specific cache
+     * 
+     * @return
+     */
+    private static void createCache(final String cacheID) {
+        final ObjectCache c = new ObjectCache();
+        m_caches.put(cacheID, c);
 
-	}
+    }
 
-	/*
-	 * Returns the cache with the specified ID. If the cache doesn't exist, yet,
-	 * it will be created.
-	 * 
-	 * @param cacheID
-	 * 
-	 * @return
-	 */
-	private static ObjectCache getCache(final String cacheID) {
-		ObjectCache c = m_caches.get(cacheID);
-		if (c == null) {
-			createCache(cacheID);
-			c = m_caches.get(cacheID);
-		}
-		return c;
-	}
+    /*
+     * Returns the cache with the specified ID. If the cache doesn't exist, yet,
+     * it will be created.
+     * 
+     * @param cacheID
+     * 
+     * @return
+     */
+    private static ObjectCache getCache(final String cacheID) {
+        ObjectCache c = m_caches.get(cacheID);
+        if (c == null) {
+            createCache(cacheID);
+            c = m_caches.get(cacheID);
+        }
+        return c;
+    }
 
-	/**
-	 * Returns a cached object for the cache specified by the cacheID. If the
-	 * cache doesn't exist yet, it will be created.
-	 * 
-	 * @param cacheID
-	 * @param objID
-	 * @return can be <code>null</code> if the object wasn't cached yet, or was
-	 *         removed from the cache.
-	 */
-	public static Object getCachedObject(final String cacheID,
-			final String objID) {
-		final SoftReference<Object> res = getCache(cacheID).m_cachedObjects
-				.get(objID);
-		if (res != null) {
-			return res.get();
-		}
-		return null;
-	}
+    /**
+     * Returns a cached object for the cache specified by the cacheID. If the
+     * cache doesn't exist yet, it will be created.
+     * 
+     * @param cacheID
+     * @param objID
+     * @return can be <code>null</code> if the object wasn't cached yet, or was
+     *         removed from the cache.
+     */
+    public static Object getCachedObject(final String cacheID,
+            final String objID) {
+        final SoftReference<Object> res =
+                getCache(cacheID).m_cachedObjects.get(objID);
+        if (res != null) {
+            return res.get();
+        }
+        return null;
+    }
 
-	/*---------some functions regarding the caching mechanism*/
+    /*---------some functions regarding the caching mechanism*/
 
-	private final int m_cacheSize = 100;
+    private final int m_cacheSize = 100;
 
-	private final LRUCache<String, SoftReference<Object>> m_cachedObjects = new LRUCache<String, SoftReference<Object>>(
-			m_cacheSize);
+    private final LRUCache<String, SoftReference<Object>> m_cachedObjects =
+            new LRUCache<String, SoftReference<Object>>(m_cacheSize);
 
 }

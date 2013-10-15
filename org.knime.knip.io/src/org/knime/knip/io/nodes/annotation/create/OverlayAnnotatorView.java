@@ -100,154 +100,156 @@ import org.knime.knip.core.ui.imgviewer.panels.providers.OverlayRU;
  *         Zinsmaier</a>
  */
 public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
-		implements AnnotatorView, ListSelectionListener {
+        implements AnnotatorView, ListSelectionListener {
 
-	private final JPanel m_mainPanel = new JPanel();
+    private final JPanel m_mainPanel = new JPanel();
 
-	/*
-	 * does not listen to events of the event service but may trigger them.
-	 */
-	private EventService m_eventService;
+    /*
+     * does not listen to events of the event service but may trigger them.
+     */
+    private EventService m_eventService;
 
-	private OverlayAnnotatorManager<T> m_manager;
+    private OverlayAnnotatorManager<T> m_manager;
 
-	private TableContentView m_tableContentView;
+    private TableContentView m_tableContentView;
 
-	private TableContentModel m_tableContentModel;
+    private TableContentModel m_tableContentModel;
 
-	private int m_currentRow = -1;
-	private int m_currentCol = -1;
+    private int m_currentRow = -1;
 
-	public OverlayAnnotatorView() {
-		createAnnotator();
-	}
+    private int m_currentCol = -1;
 
-	@Override
-	public JPanel getAnnotatorPanel() {
-		return m_mainPanel;
-	}
+    public OverlayAnnotatorView() {
+        createAnnotator();
+    }
 
-	@Override
-	public Overlay getOverlay(RowColKey key) {
-		return m_manager.getOverlay(key);
-	}
+    @Override
+    public JPanel getAnnotatorPanel() {
+        return m_mainPanel;
+    }
 
-	@Override
-	public void setOverlay(RowColKey key, Overlay overlay) {
-		// assumption overlays that should be added like this come from
-		// serialization => they belong to the input table and they need a
-		// reference to the event service
-		overlay.setEventService(m_eventService);
-		m_manager.addOverlay(key, overlay);
-	}
+    @Override
+    public Overlay getOverlay(RowColKey key) {
+        return m_manager.getOverlay(key);
+    }
 
-	@Override
-	public void reset() {
-		m_eventService.publish(new AnnotatorResetEvent());
-		m_currentRow = -1;
-		m_currentCol = -1;
-	}
+    @Override
+    public void setOverlay(RowColKey key, Overlay overlay) {
+        // assumption overlays that should be added like this come from
+        // serialization => they belong to the input table and they need a
+        // reference to the event service
+        overlay.setEventService(m_eventService);
+        m_manager.addOverlay(key, overlay);
+    }
 
-	@Override
-	public List<RowColKey> getOverlayKeys() {
-		LinkedList<RowColKey> ret = new LinkedList<RowColKey>();
-		Map<RowColKey, Overlay> map = m_manager.getOverlayMap();
+    @Override
+    public void reset() {
+        m_eventService.publish(new AnnotatorResetEvent());
+        m_currentRow = -1;
+        m_currentCol = -1;
+    }
 
-		// add all none empty overlays
-		for (RowColKey key : map.keySet()) {
-			if (map.get(key).getElements().length > 0) {
-				ret.add(key);
-			}
-		}
+    @Override
+    public List<RowColKey> getOverlayKeys() {
+        LinkedList<RowColKey> ret = new LinkedList<RowColKey>();
+        Map<RowColKey, Overlay> map = m_manager.getOverlayMap();
 
-		return ret;
-	}
+        // add all none empty overlays
+        for (RowColKey key : map.keySet()) {
+            if (map.get(key).getElements().length > 0) {
+                ret.add(key);
+            }
+        }
 
-	@Override
-	public void setInputTable(DataTable inputTable) {
-		m_tableContentModel = new TableContentModel(inputTable);
-		m_tableContentView.setModel(m_tableContentModel);
-		// Scale to thumbnail size
-		m_tableContentView.validate();
-		m_tableContentView.repaint();
-	}
+        return ret;
+    }
 
-	private void createAnnotator() {
-		// table viewer
-		m_tableContentView = new TableContentView();
-		m_tableContentView.getSelectionModel().setSelectionMode(
-				ListSelectionModel.SINGLE_SELECTION);
-		m_tableContentView.getSelectionModel().addListSelectionListener(this);
-		m_tableContentView.getColumnModel().getSelectionModel()
-				.addListSelectionListener(this);
-		TableView tableView = new TableView(m_tableContentView);
+    @Override
+    public void setInputTable(DataTable inputTable) {
+        m_tableContentModel = new TableContentModel(inputTable);
+        m_tableContentView.setModel(m_tableContentModel);
+        // Scale to thumbnail size
+        m_tableContentView.validate();
+        m_tableContentView.repaint();
+    }
 
-		// annotator
-		m_manager = new OverlayAnnotatorManager<T>();
-		ImgViewer annotator = new ImgViewer();
+    private void createAnnotator() {
+        // table viewer
+        m_tableContentView = new TableContentView();
+        m_tableContentView.getSelectionModel().setSelectionMode(
+                ListSelectionModel.SINGLE_SELECTION);
+        m_tableContentView.getSelectionModel().addListSelectionListener(this);
+        m_tableContentView.getColumnModel().getSelectionModel()
+                .addListSelectionListener(this);
+        TableView tableView = new TableView(m_tableContentView);
 
-		annotator.addViewerComponent(new AWTImageProvider(0,
-				new OverlayRU<String>(new ImageRU<T>())));
-		annotator.addViewerComponent(m_manager);
-		annotator.addViewerComponent(new AnnotatorLabelPanel());
-		annotator.addViewerComponent(AnnotatorToolbar.createStandardToolbar());
-		annotator.addViewerComponent(new AnnotatorMinimapPanel());
-		annotator.addViewerComponent(new ImgNormalizationPanel<T, Img<T>>());
-		annotator.addViewerComponent(new PlaneSelectionPanel<T, Img<T>>());
-		annotator.addViewerComponent(new RendererSelectionPanel<T>());
-		annotator.addViewerComponent(new TransparencyPanel());
-		annotator.addViewerComponent(new ImgViewInfoPanel<T>());
-		annotator.addViewerComponent(new AnnotatorImgCanvas<T>());
+        // annotator
+        m_manager = new OverlayAnnotatorManager<T>();
+        ImgViewer annotator = new ImgViewer();
 
-		m_eventService = annotator.getEventService();
+        annotator.addViewerComponent(new AWTImageProvider(0,
+                new OverlayRU<String>(new ImageRU<T>())));
+        annotator.addViewerComponent(m_manager);
+        annotator.addViewerComponent(new AnnotatorLabelPanel());
+        annotator.addViewerComponent(AnnotatorToolbar.createStandardToolbar());
+        annotator.addViewerComponent(new AnnotatorMinimapPanel());
+        annotator.addViewerComponent(new ImgNormalizationPanel<T, Img<T>>());
+        annotator.addViewerComponent(new PlaneSelectionPanel<T, Img<T>>());
+        annotator.addViewerComponent(new RendererSelectionPanel<T>());
+        annotator.addViewerComponent(new TransparencyPanel());
+        annotator.addViewerComponent(new ImgViewInfoPanel<T>());
+        annotator.addViewerComponent(new AnnotatorImgCanvas<T>());
 
-		// split pane
-		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-		splitPane.add(tableView);
-		splitPane.add(annotator);
-		splitPane.setDividerLocation(300);
+        m_eventService = annotator.getEventService();
 
-		m_mainPanel.setLayout(new GridBagLayout());
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.weightx = 1.0;
-		gbc.weighty = 1.0;
-		gbc.fill = GridBagConstraints.BOTH;
+        // split pane
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        splitPane.add(tableView);
+        splitPane.add(annotator);
+        splitPane.setDividerLocation(300);
 
-		m_mainPanel.add(splitPane, gbc);
-	}
+        m_mainPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.BOTH;
 
-	@Override
-	public void valueChanged(ListSelectionEvent e) {
-		final int row = m_tableContentView.getSelectionModel()
-				.getLeadSelectionIndex();
-		final int col = m_tableContentView.getColumnModel().getSelectionModel()
-				.getLeadSelectionIndex();
+        m_mainPanel.add(splitPane, gbc);
+    }
 
-		if ((row == m_currentRow && col == m_currentCol)
-				|| e.getValueIsAdjusting()) {
-			return;
-		}
+    @Override
+    public void valueChanged(ListSelectionEvent e) {
+        final int row =
+                m_tableContentView.getSelectionModel().getLeadSelectionIndex();
+        final int col =
+                m_tableContentView.getColumnModel().getSelectionModel()
+                        .getLeadSelectionIndex();
 
-		m_currentRow = row;
-		m_currentCol = col;
+        if ((row == m_currentRow && col == m_currentCol)
+                || e.getValueIsAdjusting()) {
+            return;
+        }
 
-		try {
-			final DataCell currentImgCell = m_tableContentView
-					.getContentModel().getValueAt(m_currentRow, m_currentCol);
+        m_currentRow = row;
+        m_currentCol = col;
 
-			ImgPlus<T> imgPlus = ((ImgPlusValue<T>) currentImgCell)
-					.getImgPlus();
+        try {
+            final DataCell currentImgCell =
+                    m_tableContentView.getContentModel().getValueAt(
+                            m_currentRow, m_currentCol);
 
-			String colKey = m_tableContentModel.getColumnName(m_currentCol);
-			String rowKey = m_tableContentModel.getRowKey(m_currentRow)
-					.getString();
+            ImgPlus<T> imgPlus = ((ImgPlusValue<T>)currentImgCell).getImgPlus();
 
-			m_eventService.publish(new AnnotatorImgWithMetadataChgEvent<T>(
-					imgPlus.getImg(), imgPlus, new RowColKey(rowKey, colKey)));
-			m_eventService.publish(new ImgRedrawEvent());
-		} catch (final IndexOutOfBoundsException e2) {
-			return;
-		}
-	}
+            String colKey = m_tableContentModel.getColumnName(m_currentCol);
+            String rowKey =
+                    m_tableContentModel.getRowKey(m_currentRow).getString();
+
+            m_eventService.publish(new AnnotatorImgWithMetadataChgEvent<T>(
+                    imgPlus.getImg(), imgPlus, new RowColKey(rowKey, colKey)));
+            m_eventService.publish(new ImgRedrawEvent());
+        } catch (final IndexOutOfBoundsException e2) {
+            return;
+        }
+    }
 
 }
