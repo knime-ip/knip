@@ -167,7 +167,7 @@ public class ImgPropertiesNodeFactory<T extends RealType<T>> extends ValueToCell
                             for (int i = 0; i < (axes.length - 1); i++) {
                                 buf.append(axes[i].type().getLabel() + ";");
                             }
-                            buf.append(axes[axes.length - 1]);
+                            buf.append(axes[axes.length - 1].type().getLabel());
                             cells[ctr++] = new StringCell(buf.toString());
                             break;
                         case 6:
@@ -181,7 +181,7 @@ public class ImgPropertiesNodeFactory<T extends RealType<T>> extends ValueToCell
                             final List<DoubleCell> calibration =
                                     new ArrayList<DoubleCell>(imgPlusValue.getMetadata().numDimensions());
                             for (int i = 0; i < imgPlusValue.getMetadata().numDimensions(); i++) {
-                                calibration.add(new DoubleCell(imgPlusValue.getMetadata().axis(i).averageScale(0, 0)));
+                                calibration.add(new DoubleCell(imgPlusValue.getMetadata().axis(i).averageScale(0, 1)));
                             }
                             cells[ctr++] = CollectionCellFactory.createListCell(calibration);
                             break;

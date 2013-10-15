@@ -489,7 +489,7 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
 
 			@Override
 			public double averageScale(int d) {
-				return axis(d).averageScale(0, getDimensions()[d] - 1);
+				return axis(d).averageScale(0, 1);
 			}
 
 			@Override

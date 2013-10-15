@@ -116,7 +116,7 @@ public class DefaultLinearSpaceExt0 implements Externalizer<DefaultLinearSpace> 
             out.writeInt(label.length);
             out.write(label);
 
-            double scale = obj.axis(d).averageScale(0, 0);
+            double scale = obj.axis(d).averageScale(0, 1);
             if (Double.isNaN(scale)) {
                 out.writeDouble(0.0d);
             } else {
