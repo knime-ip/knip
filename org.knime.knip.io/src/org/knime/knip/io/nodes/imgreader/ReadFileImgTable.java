@@ -52,6 +52,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 
 import loci.formats.FormatException;
@@ -339,7 +340,9 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 						currentFile = fileIterator.next().trim();
 
 						// replace relative file pathes knime://knime.workflow
-						currentFile = DialogComponentMultiFileChooser.convertToFilePath(currentFile, m_workflowCanonicalPath); 
+						currentFile = DialogComponentMultiFileChooser
+								.convertToFilePath(currentFile,
+										m_workflowCanonicalPath);
 
 						seriesCount = m_imgSource.getSeriesCount(currentFile);
 						currentSeries = m_selectedSeries == -1 ? 0
@@ -353,21 +356,22 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 								+ " selected. File skipped!");
 					}
 
-					CalibratedAxis[] calibAxes = m_imgSource.getAxes(
+					List<CalibratedAxis> calibAxes = m_imgSource.getAxes(
 							currentFile, currentSeries);
 
 					final Pair<TypedAxis, long[]>[] axisSelectionConstraints = m_sel
-							.createSelectionConstraints(m_imgSource
-									.getDimensions(currentFile, currentSeries),
-									calibAxes);
+							.createSelectionConstraints(
+									m_imgSource.getDimensions(currentFile,
+											currentSeries),
+									calibAxes
+											.toArray(new CalibratedAxis[calibAxes
+													.size()]));
 
 					// One _can_ be sure that if and only if
 					// some dims are removed (as they are of
 					// size 1) a optimized iterable interval
 					// is created
-					
-					AxisType a = Axes.X;
-					
+
 					final ImgPlus<T> resImgPlus = (ImgPlus<T>) m_imgSource
 							.getImg(currentFile, currentSeries,
 									axisSelectionConstraints);
@@ -427,12 +431,15 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 		};
 
 	}
-	
+
 	private void initCanonicalWorkflowPath() {
 		m_workflowCanonicalPath = null;
 		try {
-			m_workflowCanonicalPath = ResolverUtil.resolveURItoLocalFile(
-					new URI(DialogComponentMultiFileChooser.KNIME_WORKFLOW_RELPATH)).getCanonicalPath();
+			m_workflowCanonicalPath = ResolverUtil
+					.resolveURItoLocalFile(
+							new URI(
+									DialogComponentMultiFileChooser.KNIME_WORKFLOW_RELPATH))
+					.getCanonicalPath();
 		} catch (URISyntaxException e) {
 			LOGGER.warn("could not resolve the workflow directory as local file");
 		} catch (IOException e) {

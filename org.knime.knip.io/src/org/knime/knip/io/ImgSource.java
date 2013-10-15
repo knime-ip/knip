@@ -52,6 +52,7 @@ import io.scif.FormatException;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.List;
 
 import net.imglib2.Pair;
 import net.imglib2.img.Img;
@@ -89,24 +90,9 @@ public interface ImgSource {
 	 * @return
 	 * @throws Exception
 	 */
-	public CalibratedAxis[] getAxes(String imgRef, int currentSeries)
+	public List<CalibratedAxis> getAxes(String imgRef, int currentSeries)
 			throws Exception;
 
-	// TODO upgrade to a broader callibration support as soon as possible
-	// (imglib / sicifio)
-	/**
-	 * The Calibration of the {@link Img}
-	 * 
-	 * @param m_imgRef
-	 *            description of the exact image source (URL, ...)
-	 * @param currentSeries
-	 *            image number in a dataset with multiple images
-	 * @return calibration values for the image currently only x,y,z calibration
-	 *         for OMEmetadata compatible images is supported
-	 * @throws Exception
-	 */
-	public double[] getCalibration(String m_imgRef, int currentSeries)
-			throws Exception;
 
 	/**
 	 * 

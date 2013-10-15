@@ -52,7 +52,7 @@ import io.scif.FormatException;
 import io.scif.Metadata;
 import io.scif.Plane;
 import io.scif.Reader;
-import io.scif.filters.ChannelSeparator;
+import io.scif.filters.PlaneSeparator;
 import io.scif.filters.ReaderFilter;
 import io.scif.gui.AWTImageTools;
 import io.scif.img.DimRange;
@@ -64,6 +64,7 @@ import io.scif.ome.xml.meta.OMEMetadata;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.List;
 
 import net.imglib2.Pair;
 import net.imglib2.img.ImgFactory;
@@ -197,14 +198,8 @@ public class ScifioImgSource implements ImgSource {
 			options.setRegion(new SubRegion(axes, ranges));
 		}
 
-		// TODO remove calibration hack as soon as the returned imgplus has
-		// calibration values
 		ImgPlus<RealType> ret = m_imgOpener.openImg(getReader(imgRef),
 				getPixelType(imgRef, currentSeries), m_imgFactory, options);
-		double[] calib = getCalibration(imgRef, currentSeries);
-		for (int d = 0; d < ret.numDimensions(); d++) {
-			((LinearAxis) ret.axis(d)).setScale(calib[d]);
-		}
 
 		if (withCropping) {
 			ret = MiscViews.cleanImgPlus(ret);
@@ -220,8 +215,8 @@ public class ScifioImgSource implements ImgSource {
 	public BufferedImage getThumbnail(final String imgRef, final int planeNo)
 			throws Exception {
 		Reader r = getReader(imgRef);
-		int sizeX = r.getMetadata().getThumbSizeX(0);
-		int sizeY = r.getMetadata().getThumbSizeY(0);
+		int sizeX = (int) r.getMetadata().getThumbSizeX(0);
+		int sizeY = (int) r.getMetadata().getThumbSizeY(0);
 
 		// image index / plane index
 		Plane pl = r.openThumbPlane(0, 0);
@@ -236,37 +231,9 @@ public class ScifioImgSource implements ImgSource {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public CalibratedAxis[] getAxes(final String imgRef, final int currentSeries)
-			throws Exception {
+	public List<CalibratedAxis> getAxes(final String imgRef,
+			final int currentSeries) throws Exception {
 		return getReader(imgRef).getMetadata().getAxes(currentSeries);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public double[] getCalibration(final String imgRef, final int currentSeries)
-			throws Exception {
-
-		Metadata meta = ScifioGateway.getSCIFIO().initializer()
-				.parseMetadata(imgRef, true);
-
-		// translate to ome metadata to get access to calibration values
-		OMEMetadata omexml = new OMEMetadata(ScifioGateway.getSCIFIO()
-				.getContext());
-		ScifioGateway.getSCIFIO().translator().translate(meta, omexml, false);
-
-		double[] calib = new double[getDimensions(imgRef, currentSeries).length];
-
-		// TODO: remove completely after scifio has adopted to new calibrated
-		// axis structure
-		int i = 0;
-		for (CalibratedAxis axes : omexml.getAxes(currentSeries)) {
-			calib[i] = axes.averageScale(0, 0);
-			i++;
-		}
-
-		return calib;
 	}
 
 	/**
@@ -275,7 +242,7 @@ public class ScifioImgSource implements ImgSource {
 	@Override
 	public long[] getDimensions(final String imgRef, final int currentSeries)
 			throws Exception {
-		int[] tmp = getReader(imgRef).getMetadata().getAxesLengths(
+		long[] tmp = getReader(imgRef).getMetadata().getAxesLengths(
 				currentSeries);
 		long[] ret = new long[tmp.length];
 
@@ -325,7 +292,7 @@ public class ScifioImgSource implements ImgSource {
 			ReaderFilter r = ScifioGateway.getSCIFIO().initializer()
 					.initializeReader(imgRef, true);
 			try {
-				r.enable(ChannelSeparator.class);
+				r.enable(PlaneSeparator.class);
 			} catch (InstantiableException e) {
 				throw new FormatException(e);
 			}
