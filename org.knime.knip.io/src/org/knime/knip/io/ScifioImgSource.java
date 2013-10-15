@@ -201,11 +201,40 @@ public class ScifioImgSource implements ImgSource {
 		ImgPlus<RealType> ret = m_imgOpener.openImg(getReader(imgRef),
 				getPixelType(imgRef, currentSeries), m_imgFactory, options);
 
+		// TODO remove this as soon as calibration is set in image per default
+		getCalibration(imgRef, currentSeries);
+		
+		
 		if (withCropping) {
 			ret = MiscViews.cleanImgPlus(ret);
 		}
 
 		return ret;
+	}
+
+	// Remove this
+	private double[] getCalibration(final String imgRef, final int currentSeries)
+			throws Exception {
+
+		Metadata meta = ScifioGateway.getSCIFIO().initializer()
+				.parseMetadata(imgRef, true);
+
+		// translate to ome metadata to get access to calibration values
+		OMEMetadata omexml = new OMEMetadata(ScifioGateway.getSCIFIO()
+				.getContext());
+		ScifioGateway.getSCIFIO().translator().translate(meta, omexml, false);
+
+		double[] calib = new double[getDimensions(imgRef, currentSeries).length];
+
+		// TODO: remove completely after scifio has adopted to new calibrated
+		// axis structure
+		int i = 0;
+		for (CalibratedAxis axes : omexml.getAxes(currentSeries)) {
+			calib[i] = axes.averageScale(0, 0);
+			i++;
+		}
+
+		return calib;
 	}
 
 	/**
