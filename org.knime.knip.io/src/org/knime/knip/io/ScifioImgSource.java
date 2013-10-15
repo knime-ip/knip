@@ -73,7 +73,6 @@ import net.imglib2.meta.AxisType;
 import net.imglib2.meta.CalibratedAxis;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.meta.TypedAxis;
-import net.imglib2.meta.axis.LinearAxis;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.knip.core.types.NativeTypes;
@@ -201,10 +200,11 @@ public class ScifioImgSource implements ImgSource {
 		ImgPlus<RealType> ret = m_imgOpener.openImg(getReader(imgRef),
 				getPixelType(imgRef, currentSeries), m_imgFactory, options);
 
-		// TODO remove this as soon as calibration is set in ImgPlus by SCIFIO. Since now: this is not done automatically
+		// TODO remove this as soon as calibration is set in ImgPlus by SCIFIO.
+		// Since now: this is not done automatically
 		double[] calibration = getCalibration(imgRef, currentSeries);
 		ret.setCalibration(calibration);
-		
+
 		if (withCropping) {
 			ret = MiscViews.cleanImgPlus(ret);
 		}
