@@ -89,102 +89,103 @@ import org.knime.knip.io.nodes.annotation.SettingsModelOverlayAnnotator;
  *         Zinsmaier</a>
  */
 public class OverlayAnnotatorNodeModel<T extends RealType<T> & NativeType<T>>
-		extends ValueToCellNodeModel<ImgPlusValue<T>, LabelingCell<String>>
-		implements BufferedDataTableHolder {
+        extends ValueToCellNodeModel<ImgPlusValue<T>, LabelingCell<String>>
+        implements BufferedDataTableHolder {
 
-	static String LABEL_SETTINGS_KEY = "annotatedLabels";
+    static String LABEL_SETTINGS_KEY = "annotatedLabels";
 
-	static SettingsModelOverlayAnnotator createAnnotatorSM() {
-		return new SettingsModelOverlayAnnotator(LABEL_SETTINGS_KEY);
-	}
+    static SettingsModelOverlayAnnotator createAnnotatorSM() {
+        return new SettingsModelOverlayAnnotator(LABEL_SETTINGS_KEY);
+    }
 
-	static SettingsModelBoolean createWithSegmentidSM() {
-		return new SettingsModelBoolean("add_segment_id", true);
-	}
+    static SettingsModelBoolean createWithSegmentidSM() {
+        return new SettingsModelBoolean("add_segment_id", true);
+    }
 
-	static SettingsModelString creatFactoryTypeSM() {
-		return new SettingsModelString("factory_type",
-				ImgFactoryTypes.NTREE_IMG_FACTORY.toString());
-	}
+    static SettingsModelString creatFactoryTypeSM() {
+        return new SettingsModelString("factory_type",
+                ImgFactoryTypes.NTREE_IMG_FACTORY.toString());
+    }
 
-	static SettingsModelString createLabelingTypeSM() {
-		return new SettingsModelString("labeling_type",
-				NativeTypes.SHORTTYPE.toString());
-	}
+    static SettingsModelString createLabelingTypeSM() {
+        return new SettingsModelString("labeling_type",
+                NativeTypes.SHORTTYPE.toString());
+    }
 
-	private SettingsModelOverlayAnnotator m_annotationsSM = createAnnotatorSM();
+    private SettingsModelOverlayAnnotator m_annotationsSM = createAnnotatorSM();
 
-	private final SettingsModelBoolean m_addSegmentID = createWithSegmentidSM();
+    private final SettingsModelBoolean m_addSegmentID = createWithSegmentidSM();
 
-	private final SettingsModelString m_factoryType = creatFactoryTypeSM();
+    private final SettingsModelString m_factoryType = creatFactoryTypeSM();
 
-	private final SettingsModelString m_labelingType = createLabelingTypeSM();
+    private final SettingsModelString m_labelingType = createLabelingTypeSM();
 
-	private LabelingCellFactory m_labelingCellFactory;
+    private LabelingCellFactory m_labelingCellFactory;
 
-	private DataRow m_currentRow;
+    private DataRow m_currentRow;
 
-	private DataTableSpec m_inSpec;
+    private DataTableSpec m_inSpec;
 
-	@Override
-	protected void addSettingsModels(List<SettingsModel> settingsModels) {
-		settingsModels.add(m_annotationsSM);
-		settingsModels.add(m_addSegmentID);
-		settingsModels.add(m_factoryType);
-		settingsModels.add(m_labelingType);
-	}
+    @Override
+    protected void addSettingsModels(List<SettingsModel> settingsModels) {
+        settingsModels.add(m_annotationsSM);
+        settingsModels.add(m_addSegmentID);
+        settingsModels.add(m_factoryType);
+        settingsModels.add(m_labelingType);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs)
-			throws InvalidSettingsException {
-		m_inSpec = (DataTableSpec) inSpecs[0];
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs)
+            throws InvalidSettingsException {
+        m_inSpec = (DataTableSpec)inSpecs[0];
 
-		return super.configure(inSpecs);
-	}
+        return super.configure(inSpecs);
+    }
 
-	@Override
-	protected void prepareExecute(ExecutionContext exec) {
-		m_labelingCellFactory = new LabelingCellFactory(exec);
-	}
+    @Override
+    protected void prepareExecute(ExecutionContext exec) {
+        m_labelingCellFactory = new LabelingCellFactory(exec);
+    }
 
-	protected void computeDataRow(final DataRow row) {
-		m_currentRow = row;
-	}
+    protected void computeDataRow(final DataRow row) {
+        m_currentRow = row;
+    }
 
-	@Override
-	protected LabelingCell<String> compute(ImgPlusValue<T> cellValue)
-			throws Exception {
+    @Override
+    protected LabelingCell<String> compute(ImgPlusValue<T> cellValue)
+            throws Exception {
 
-		Map<RowColKey, Overlay> overlayMap = m_annotationsSM.getOverlayMap();
-		ImgPlus<?> imgPlus = cellValue.getImgPlus();
+        Map<RowColKey, Overlay> overlayMap = m_annotationsSM.getOverlayMap();
+        ImgPlus<?> imgPlus = cellValue.getImgPlus();
 
-		// calculate key
-		String rowName = m_currentRow.getKey().getString();
-		String colName = m_inSpec.getColumnNames()[m_currentCellIdx];
+        // calculate key
+        String rowName = m_currentRow.getKey().getString();
+        String colName = m_inSpec.getColumnNames()[m_currentCellIdx];
 
-		final Overlay overlay = overlayMap.get(new RowColKey(rowName, colName));
+        final Overlay overlay = overlayMap.get(new RowColKey(rowName, colName));
 
-		if ((overlay != null) && (overlay.getElements().length > 0)) {
-			final Labeling<String> labeling = overlay.renderSegmentationImage(
-					(NativeImgFactory<?>) ImgFactoryTypes.getImgFactory(
-							m_factoryType.getStringValue(), imgPlus),
-					m_addSegmentID.getBooleanValue(), NativeTypes
-							.valueOf(m_labelingType.getStringValue()));
+        if ((overlay != null) && (overlay.getElements().length > 0)) {
+            final Labeling<String> labeling =
+                    overlay.renderSegmentationImage(
+                            (NativeImgFactory<?>)ImgFactoryTypes.getImgFactory(
+                                    m_factoryType.getStringValue(), imgPlus),
+                            m_addSegmentID.getBooleanValue(), NativeTypes
+                                    .valueOf(m_labelingType.getStringValue()));
 
-			try {
-				return m_labelingCellFactory.createCell(labeling,
-						new DefaultLabelingMetadata(imgPlus, imgPlus, imgPlus,
-								new DefaultLabelingColorTable()));
-			} catch (IOException e) {
-				throw new KNIPRuntimeException(
-						"error while creating new labeling", e);
-			}
-		} else {
-			// => missing cell
-			return null;
-		}
-	}
+            try {
+                return m_labelingCellFactory.createCell(labeling,
+                        new DefaultLabelingMetadata(imgPlus, imgPlus, imgPlus,
+                                new DefaultLabelingColorTable()));
+            } catch (IOException e) {
+                throw new KNIPRuntimeException(
+                        "error while creating new labeling", e);
+            }
+        } else {
+            // => missing cell
+            return null;
+        }
+    }
 }

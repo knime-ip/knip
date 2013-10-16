@@ -98,243 +98,241 @@ import org.slf4j.LoggerFactory;
  */
 @Deprecated
 public class DialogComponentAnnotator<T extends RealType<T> & NativeType<T>>
-		extends DialogComponent {
+        extends DialogComponent {
 
-	/* Logger */
-	private final Logger logger = LoggerFactory
-			.getLogger(DialogComponentAnnotator.class);
+    /* Logger */
+    private final Logger logger = LoggerFactory
+            .getLogger(DialogComponentAnnotator.class);
 
-	/* Img viewer in which the img/labeling is displayed */
-	private AnnotatorImgViewer m_annotator;
+    /* Img viewer in which the img/labeling is displayed */
+    private AnnotatorImgViewer m_annotator;
 
-	/* AnnotatorManager to manage the annotations and annotation tools */
-	private AnnotatorManager<T> m_manager;
+    /* AnnotatorManager to manage the annotations and annotation tools */
+    private AnnotatorManager<T> m_manager;
 
-	/**
-	 * Constructor
-	 * 
-	 * @param model
-	 *            SettingsModel to load previous made annotations
-	 * 
-	 */
-	public DialogComponentAnnotator(final SettingsModelAnnotator model) {
-		super(model);
-		createAnnotator();
+    /**
+     * Constructor
+     * 
+     * @param model SettingsModel to load previous made annotations
+     * 
+     */
+    public DialogComponentAnnotator(final SettingsModelAnnotator model) {
+        super(model);
+        createAnnotator();
 
-	}
+    }
 
-	/**
-	 * Constructor
-	 * 
-	 * @param model
-	 *            SettingsModel to load previous made annotations
-	 * @param initialClasses
-	 *            init classes
-	 * 
-	 */
-	public DialogComponentAnnotator(final SettingsModelAnnotator model,
-			final String... initialClasses) {
-		super(model);
-		createAnnotator(initialClasses);
+    /**
+     * Constructor
+     * 
+     * @param model SettingsModel to load previous made annotations
+     * @param initialClasses init classes
+     * 
+     */
+    public DialogComponentAnnotator(final SettingsModelAnnotator model,
+            final String... initialClasses) {
+        super(model);
+        createAnnotator(initialClasses);
 
-	}
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void checkConfigurabilityBeforeLoad(final PortObjectSpec[] specs)
-			throws NotConfigurableException {
-		// Empty Block
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void checkConfigurabilityBeforeLoad(final PortObjectSpec[] specs)
+            throws NotConfigurableException {
+        // Empty Block
+    }
 
-	public void close() {
-		m_annotator.getEventService().publish(new ViewClosedEvent());
-	}
+    public void close() {
+        m_annotator.getEventService().publish(new ViewClosedEvent());
+    }
 
-	/* Annotator is constructed from various ViewerComponents */
-	private void createAnnotator(final String... defaultLabels) {
-		m_manager = new AnnotatorManager<T>();
+    /* Annotator is constructed from various ViewerComponents */
+    private void createAnnotator(final String... defaultLabels) {
+        m_manager = new AnnotatorManager<T>();
 
-		m_annotator = new AnnotatorImgViewer();
+        m_annotator = new AnnotatorImgViewer();
 
-		m_annotator.addViewerComponent(new AWTImageProvider(0,
-				new OverlayRU<String>(new ImageRU<T>())));
-		m_annotator.addViewerComponent(m_manager);
+        m_annotator.addViewerComponent(new AWTImageProvider(0,
+                new OverlayRU<String>(new ImageRU<T>())));
+        m_annotator.addViewerComponent(m_manager);
 
-		m_annotator.addViewerComponent(new AnnotatorFilePanel<T>());
-		m_annotator.addViewerComponent(new AnnotatorLabelPanel(defaultLabels));
-		m_annotator
-				.addViewerComponent(AnnotatorToolbar.createStandardToolbar());
-		m_annotator.addViewerComponent(new MinimapPanel());
-		m_annotator.addViewerComponent(new ImgNormalizationPanel<T, Img<T>>());
-		m_annotator.addViewerComponent(new PlaneSelectionPanel<T, Img<T>>());
-		m_annotator.addViewerComponent(new RendererSelectionPanel<T>());
-		m_annotator.addViewerComponent(new TransparencyPanel());
-		m_annotator.addViewerComponent(new ImgViewInfoPanel<T>());
-		m_annotator.addViewerComponent(new AnnotatorImgCanvas<T>());
-		updateComponent();
+        m_annotator.addViewerComponent(new AnnotatorFilePanel<T>());
+        m_annotator.addViewerComponent(new AnnotatorLabelPanel(defaultLabels));
+        m_annotator
+                .addViewerComponent(AnnotatorToolbar.createStandardToolbar());
+        m_annotator.addViewerComponent(new MinimapPanel());
+        m_annotator.addViewerComponent(new ImgNormalizationPanel<T, Img<T>>());
+        m_annotator.addViewerComponent(new PlaneSelectionPanel<T, Img<T>>());
+        m_annotator.addViewerComponent(new RendererSelectionPanel<T>());
+        m_annotator.addViewerComponent(new TransparencyPanel());
+        m_annotator.addViewerComponent(new ImgViewInfoPanel<T>());
+        m_annotator.addViewerComponent(new AnnotatorImgCanvas<T>());
+        updateComponent();
 
-		getComponentPanel().setLayout(
-				new BoxLayout(getComponentPanel(), BoxLayout.X_AXIS));
-		getComponentPanel().add(m_annotator);
-		// m_annotator.setParent(canvas);
-	}
+        getComponentPanel().setLayout(
+                new BoxLayout(getComponentPanel(), BoxLayout.X_AXIS));
+        getComponentPanel().add(m_annotator);
+        // m_annotator.setParent(canvas);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void setEnabledComponents(final boolean enabled) {
-		// Empty Block
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void setEnabledComponents(final boolean enabled) {
+        // Empty Block
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setToolTipText(final String text) {
-		// Nothing to do here
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setToolTipText(final String text) {
+        // Nothing to do here
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	protected void updateComponent() {
-		try {
-			m_annotator.reset();
-			m_annotator
-					.setComponentConfiguration(((SettingsModelAnnotator) getModel())
-							.getBase64CodedImgViewer());
-		} catch (final IOException e) {
-			logger.error("IOError while loading annotator");
-			e.printStackTrace();
-		} catch (final ClassNotFoundException e) {
-			logger.error("ClassCast exception while loading annotator");
-			e.printStackTrace();
-		}
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void updateComponent() {
+        try {
+            m_annotator.reset();
+            m_annotator
+                    .setComponentConfiguration(((SettingsModelAnnotator)getModel())
+                            .getBase64CodedImgViewer());
+        } catch (final IOException e) {
+            logger.error("IOError while loading annotator");
+            e.printStackTrace();
+        } catch (final ClassNotFoundException e) {
+            logger.error("ClassCast exception while loading annotator");
+            e.printStackTrace();
+        }
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	protected void validateSettingsBeforeSave() throws InvalidSettingsException {
-		try {
-			((SettingsModelAnnotator) getModel()).setOverlayMapAndComponents(
-					m_annotator.getComponentConfiguration(),
-					m_manager.getOverlayMap());
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void validateSettingsBeforeSave() throws InvalidSettingsException {
+        try {
+            ((SettingsModelAnnotator)getModel()).setOverlayMapAndComponents(
+                    m_annotator.getComponentConfiguration(),
+                    m_manager.getOverlayMap());
 
-		} catch (final IOException e) {
-			logger.error("Error while saving Annotations", e);
-		}
-	}
+        } catch (final IOException e) {
+            logger.error("Error while saving Annotations", e);
+        }
+    }
 
-	private class AnnotatorImgViewer extends ImgViewer {
-		public void reset() {
-			m_eventService.publish(new AnnotatorResetEvent());
-		}
+    private class AnnotatorImgViewer extends ImgViewer {
+        public void reset() {
+            m_eventService.publish(new AnnotatorResetEvent());
+        }
 
-		/**
-		 * Save the current settings/state of an ImgViewer to a base64 coded
-		 * String
-		 * 
-		 * @return base64 coded String of the current settings/state of the
-		 *         viewer
-		 * @throws IOException
-		 */
-		public String getComponentConfiguration() throws IOException {
-			String res = "";
-			try {
-				final ByteArrayOutputStream totalBytes = new ByteArrayOutputStream();
-				final ObjectOutputStream totalOut = new ObjectOutputStream(
-						totalBytes);
+        /**
+         * Save the current settings/state of an ImgViewer to a base64 coded
+         * String
+         * 
+         * @return base64 coded String of the current settings/state of the
+         *         viewer
+         * @throws IOException
+         */
+        public String getComponentConfiguration() throws IOException {
+            String res = "";
+            try {
+                final ByteArrayOutputStream totalBytes =
+                        new ByteArrayOutputStream();
+                final ObjectOutputStream totalOut =
+                        new ObjectOutputStream(totalBytes);
 
-				totalOut.writeInt(m_viewerComponents.size());
+                totalOut.writeInt(m_viewerComponents.size());
 
-				ByteArrayOutputStream componentBytes;
-				ObjectOutput componentOutput;
-				for (final ViewerComponent c : m_viewerComponents) {
+                ByteArrayOutputStream componentBytes;
+                ObjectOutput componentOutput;
+                for (final ViewerComponent c : m_viewerComponents) {
 
-					componentBytes = new ByteArrayOutputStream();
-					componentOutput = new ObjectOutputStream(componentBytes);
-					c.saveComponentConfiguration(componentOutput);
-					componentOutput.close();
-					totalOut.writeUTF(c.getClass().getSimpleName());
+                    componentBytes = new ByteArrayOutputStream();
+                    componentOutput = new ObjectOutputStream(componentBytes);
+                    c.saveComponentConfiguration(componentOutput);
+                    componentOutput.close();
+                    totalOut.writeUTF(c.getClass().getSimpleName());
 
-					totalOut.writeInt(componentBytes.size());
-					totalOut.write(componentBytes.toByteArray());
-					totalOut.flush();
+                    totalOut.writeInt(componentBytes.size());
+                    totalOut.write(componentBytes.toByteArray());
+                    totalOut.flush();
 
-				}
-				totalOut.close();
-				res = new String(new Base64().encode(totalBytes.toByteArray()));
+                }
+                totalOut.close();
+                res = new String(new Base64().encode(totalBytes.toByteArray()));
 
-			} catch (final IOException e) {
-				e.printStackTrace();
-			}
+            } catch (final IOException e) {
+                e.printStackTrace();
+            }
 
-			return res;
+            return res;
 
-		}
+        }
 
-		/**
-		 * Loading settings of the viewer from a base64Coded String produced by
-		 * {@link ImgViewer#getComponentConfiguration()}
-		 * 
-		 * @param base64coded
-		 *            the base64 representation of the viewer state
-		 * @throws IOException
-		 * @throws ClassNotFoundException
-		 */
-		public void setComponentConfiguration(final String base64coded)
-				throws IOException, ClassNotFoundException {
-			final Map<String, ObjectInput> configMap = new HashMap<String, ObjectInput>();
+        /**
+         * Loading settings of the viewer from a base64Coded String produced by
+         * {@link ImgViewer#getComponentConfiguration()}
+         * 
+         * @param base64coded the base64 representation of the viewer state
+         * @throws IOException
+         * @throws ClassNotFoundException
+         */
+        public void setComponentConfiguration(final String base64coded)
+                throws IOException, ClassNotFoundException {
+            final Map<String, ObjectInput> configMap =
+                    new HashMap<String, ObjectInput>();
 
-			if (base64coded.equals("")) {
-				return;
-			}
+            if (base64coded.equals("")) {
+                return;
+            }
 
-			try {
-				final byte[] bytes = new Base64()
-						.decode(base64coded.getBytes());
-				final ObjectInputStream totalIn = new ObjectInputStream(
-						new ByteArrayInputStream(bytes));
+            try {
+                final byte[] bytes =
+                        new Base64().decode(base64coded.getBytes());
+                final ObjectInputStream totalIn =
+                        new ObjectInputStream(new ByteArrayInputStream(bytes));
 
-				final int num = totalIn.readInt();
+                final int num = totalIn.readInt();
 
-				String title = null;
-				byte[] buf;
-				for (int i = 0; i < num; i++) {
-					title = totalIn.readUTF();
-					final int len = totalIn.readInt();
-					buf = new byte[len];
+                String title = null;
+                byte[] buf;
+                for (int i = 0; i < num; i++) {
+                    title = totalIn.readUTF();
+                    final int len = totalIn.readInt();
+                    buf = new byte[len];
 
-					for (int b = 0; b < len; b++) {
-						buf[b] = totalIn.readByte();
-					}
-					configMap.put(title, new ObjectInputStream(
-							new ByteArrayInputStream(buf)));
-				}
+                    for (int b = 0; b < len; b++) {
+                        buf[b] = totalIn.readByte();
+                    }
+                    configMap.put(title, new ObjectInputStream(
+                            new ByteArrayInputStream(buf)));
+                }
 
-				totalIn.close();
-			} catch (final IOException e) {
-				LoggerFactory.getLogger(ImgViewer.class).error("error", e);
-				return;
-			}
+                totalIn.close();
+            } catch (final IOException e) {
+                LoggerFactory.getLogger(ImgViewer.class).error("error", e);
+                return;
+            }
 
-			for (final ViewerComponent c : m_viewerComponents) {
-				final ObjectInput oi = configMap.get(c.getClass()
-						.getSimpleName());
-				if (oi != null) {
-					c.loadComponentConfiguration(oi);
-				}
-			}
-		}
+            for (final ViewerComponent c : m_viewerComponents) {
+                final ObjectInput oi =
+                        configMap.get(c.getClass().getSimpleName());
+                if (oi != null) {
+                    c.loadComponentConfiguration(oi);
+                }
+            }
+        }
 
-	}
+    }
 
 }
