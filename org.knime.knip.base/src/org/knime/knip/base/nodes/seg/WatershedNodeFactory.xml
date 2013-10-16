@@ -9,7 +9,7 @@
 	<shortDescription>
 		Seeded Watershed algorithm. The catchment basins of
 		the watershed algorithms are determined by seeding points.
-  </shortDescription>
+	</shortDescription>
 
 	<fullDescription>
 		<intro>
@@ -21,15 +21,15 @@
 				bodies of water label the landscape's
 				pixels. Here is the reference
 				for the original paper:
-		</p>
+			</p>
 			<p>
 				Lee Vincent, Pierre Soille, Watersheds in digital spaces: An
 				efficient
 				algorithm based on immersion simulations, IEEE Trans.
 				Pattern Anal.
 				Machine Intell., 13(6) 583-598 (1991)
-				
-				</p>
+
+			</p>
 
 			<p> Watersheds are often performed on the gradient of an intensity
 				image or one
@@ -38,12 +38,15 @@
 				resulting image has a depressed object interior and a
 				ridge which
 				constrains the watershed boundary.
-				
 
-    </p>
+
+			</p>
 
 		</intro>
 		<tab name="Options">
+			<option name="With Watersheds">If checked, the watersheds (i.e. the pixels where
+				two regions touch each other) are labeled extra with 'Watershed'.
+				The 'Use Threshold'-option will then be not available anymore.</option>
 			<option name="Use Threshold">If the specified threshold value should be used.
 			</option>
 			<option name="Threshold Value">Set the threshold where the watershed should stop
