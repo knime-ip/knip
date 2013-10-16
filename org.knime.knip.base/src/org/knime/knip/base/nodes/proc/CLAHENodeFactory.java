@@ -50,6 +50,8 @@ package org.knime.knip.base.nodes.proc;
 
 import java.util.List;
 
+import net.imglib2.IterableInterval;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.UnaryOutputOperation;
@@ -72,8 +74,9 @@ import org.knime.knip.core.util.ImgPlusFactory;
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @param <K>
  */
-public class CLAHENodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
+public class CLAHENodeFactory<T extends RealType<T>, K extends RandomAccessibleInterval<T> & IterableInterval<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
 
     private static SettingsModelInteger createCtxRegionXModel() {
         return new SettingsModelInteger("number_context_regions_X", 8);
@@ -133,9 +136,11 @@ public class CLAHENodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNod
             @Override
             protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> op(final ImgPlus<T> imgPlus) {
 
-                CLAHE<T> clahe =
-                        new CLAHE<T>(m_ctxRegionsX.getIntValue(), m_ctxRegionsY.getIntValue(),
-                                m_enableClipping.getBooleanValue());
+//                CLAHE<T, K> clahe =
+//                        new CLAHE<T, K>(m_ctxRegionsX.getIntValue(), m_ctxRegionsY.getIntValue(),
+//                                m_enableClipping.getBooleanValue());
+
+                Clahe_new<T> clahe = new Clahe_new<T>(127, 255, 3);
 
                 return Operations.wrap(new ImgPlusToImgPlusWrapperOp<T, T>(clahe, imgPlus.firstElement()
                         .createVariable()), ImgPlusFactory.<T, T> get(imgPlus.firstElement()));
