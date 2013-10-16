@@ -57,10 +57,8 @@ import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.type.numeric.RealType;
 
-import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
-import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
@@ -78,16 +76,16 @@ import org.knime.knip.core.util.ImgPlusFactory;
  */
 public class CLAHENodeFactory<T extends RealType<T>, K extends RandomAccessibleInterval<T> & IterableInterval<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
 
-    private static SettingsModelInteger createCtxRegionXModel() {
-        return new SettingsModelInteger("number_context_regions_X", 8);
+    private static SettingsModelInteger createCtxBlockSize() {
+        return new SettingsModelInteger("blocksize", 127);
     }
 
-    private static SettingsModelInteger createCtxRegionYModel() {
-        return new SettingsModelInteger("number_context_regions_Y", 8);
+    private static SettingsModelInteger createCtxNumberOfBins() {
+        return new SettingsModelInteger("nrbins", 256);
     }
 
-    private static SettingsModelBoolean createEnableClippingModel() {
-        return new SettingsModelBoolean("enable_clipping", true);
+    private static SettingsModelInteger createCtxSlope() {
+        return new SettingsModelInteger("slope", 3);
     }
 
     /**
@@ -100,14 +98,14 @@ public class CLAHENodeFactory<T extends RealType<T>, K extends RandomAccessibleI
             @Override
             public void addDialogComponents() {
 
-                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxRegionXModel(),
-                        "Number of contextual regions in X direction.", 1));
+                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxBlockSize(),
+                        "Blocksize", 1));
 
-                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxRegionYModel(),
-                        "Number of contextual regions in Y direction.", 1));
+                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxNumberOfBins(),
+                        "Number of bins", 1));
 
-                addDialogComponent("Options", "CLAHE options", new DialogComponentBoolean(createEnableClippingModel(),
-                        "Clipping"));
+                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxSlope(),
+                        "Slope", 1));
 
             }
         };
@@ -120,27 +118,23 @@ public class CLAHENodeFactory<T extends RealType<T>, K extends RandomAccessibleI
     public ImgPlusToImgPlusNodeModel<T, T> createNodeModel() {
         return new ImgPlusToImgPlusNodeModel<T, T>("X", "Y") {
 
-            private final SettingsModelInteger m_ctxRegionsX = createCtxRegionXModel();
+            private final SettingsModelInteger m_blocksize = createCtxBlockSize();
 
-            private final SettingsModelInteger m_ctxRegionsY = createCtxRegionYModel();
+            private final SettingsModelInteger m_numberOfBins = createCtxNumberOfBins();
 
-            private final SettingsModelBoolean m_enableClipping = createEnableClippingModel();
+            private final SettingsModelInteger m_slope = createCtxSlope();
 
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
-                settingsModels.add(m_ctxRegionsX);
-                settingsModels.add(m_ctxRegionsY);
-                settingsModels.add(m_enableClipping);
+                settingsModels.add(m_blocksize);
+                settingsModels.add(m_numberOfBins);
+                settingsModels.add(m_slope);
             }
 
             @Override
             protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> op(final ImgPlus<T> imgPlus) {
 
-//                CLAHE<T, K> clahe =
-//                        new CLAHE<T, K>(m_ctxRegionsX.getIntValue(), m_ctxRegionsY.getIntValue(),
-//                                m_enableClipping.getBooleanValue());
-
-                Clahe_new<T> clahe = new Clahe_new<T>(127, 255, 3);
+                Clahe_new<T> clahe = new Clahe_new<T>(m_blocksize.getIntValue(), m_numberOfBins.getIntValue(), m_slope.getIntValue());
 
                 return Operations.wrap(new ImgPlusToImgPlusWrapperOp<T, T>(clahe, imgPlus.firstElement()
                         .createVariable()), ImgPlusFactory.<T, T> get(imgPlus.firstElement()));
