@@ -180,12 +180,12 @@ public class ScifioImgSource implements ImgSource {
         ImgOptions options = new ImgOptions();
         options.setComputeMinMax(false);
 
-        boolean withCropping = false;
+        // boolean withCropping = false;
 
         if (axisSelectionConstraints != null
                 && axisSelectionConstraints.length > 0) {
 
-            withCropping = true;
+            // withCropping = true;
             // TODO: Still WRONG WRONG WRONG only 5d support?
             DimRange[] ranges = new DimRange[axisSelectionConstraints.length];
             AxisType[] axes = new AxisType[axisSelectionConstraints.length];
