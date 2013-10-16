@@ -32,9 +32,9 @@ import org.knime.core.node.NodeLogger;
 
 /**
  * Repository to manage arbitrary objects to cache them
- *
+ * 
  * @author Martin Horn, Christian Dietz, Michael Zinsmaier, University of Konstanz
- *
+ * 
  */
 public class ObjectRepository {
 
@@ -76,7 +76,7 @@ public class ObjectRepository {
 
     /**
      * Caches an object. Can be retrieved by {@link #getCachedObject(MemoryReleasable)}, if not deleted.
-     *
+     * 
      * @param obj
      */
     public final void cacheObject(final Object obj) {
@@ -90,7 +90,7 @@ public class ObjectRepository {
 
     /**
      * Get cached object. Returns null if object was released due to certain memory management conditions.
-     *
+     * 
      * @param obj
      * @return
      */
@@ -104,7 +104,7 @@ public class ObjectRepository {
 
     /**
      * Singleton on Object Repository
-     *
+     * 
      * @return
      */
     public final static ObjectRepository getInstance() {

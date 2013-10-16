@@ -74,48 +74,52 @@ import org.knime.knip.io.nodes.annotation.DialogComponentOverlayAnnotator;
  */
 public interface AnnotatorView {
 
-    /**
-     * @return a panel that holds all components and functionality to annotate
-     *         images
-     */
-    public JPanel getAnnotatorPanel();
+	/**
+	 * @return a panel that holds all components and functionality to annotate
+	 *         images
+	 */
+	public JPanel getAnnotatorPanel();
 
-    /**
-     * @return a list of table based image keys. Each key identifies an
-     *         {@link Overlay} that is managed by this component. The
-     *         {@link Overlay} annotates the associated image from the input
-     *         table.
-     */
-    public List<RowColKey> getOverlayKeys();
+	/**
+	 * @return a list of table based image keys. Each key identifies an
+	 *         {@link Overlay} that is managed by this component. The
+	 *         {@link Overlay} annotates the associated image from the input
+	 *         table.
+	 */
+	public List<RowColKey> getOverlayKeys();
 
-    /**
-     * @param key table based image identifier for an associated {@link Overlay}
-     * @return the {@link Overlay} that is associated with the image source name
-     *         or <code>null</code> if no such Overlay exists.
-     */
-    public Overlay getOverlay(RowColKey key);
+	/**
+	 * @param key
+	 *            table based image identifier for an associated {@link Overlay}
+	 * @return the {@link Overlay} that is associated with the image source name
+	 *         or <code>null</code> if no such Overlay exists.
+	 */
+	public Overlay getOverlay(RowColKey key);
 
-    /**
-     * Adds an already existing overlay to the AnnotatorView. An image with the
-     * given key (table based identifier) has to exist in the inputTable. This
-     * method exist to allow recreation after serialization.
-     * 
-     * @param key table identifier of the associated image.
-     * @param overlay the overlay that should be set for the image.
-     */
-    public void setOverlay(RowColKey key, Overlay overlay);
+	/**
+	 * Adds an already existing overlay to the AnnotatorView. An image with the
+	 * given key (table based identifier) has to exist in the inputTable. This
+	 * method exist to allow recreation after serialization.
+	 * 
+	 * @param key
+	 *            table identifier of the associated image.
+	 * @param overlay
+	 *            the overlay that should be set for the image.
+	 */
+	public void setOverlay(RowColKey key, Overlay overlay);
 
-    /**
-     * Deletes all managed overlays.
-     */
-    public void reset();
+	/**
+	 * Deletes all managed overlays.
+	 */
+	public void reset();
 
-    /**
-     * Sets the input table. The input table holds the images that can be
-     * annotated using this component.
-     * 
-     * @param inputTable a table that contains some image columns.
-     */
-    public void setInputTable(final DataTable inputTable);
+	/**
+	 * Sets the input table. The input table holds the images that can be
+	 * annotated using this component.
+	 * 
+	 * @param inputTable
+	 *            a table that contains some image columns.
+	 */
+	public void setInputTable(final DataTable inputTable);
 
 }

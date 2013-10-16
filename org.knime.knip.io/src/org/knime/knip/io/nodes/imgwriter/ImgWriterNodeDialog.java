@@ -78,132 +78,127 @@ import org.knime.knip.base.data.img.ImgPlusValue;
  */
 public class ImgWriterNodeDialog extends DefaultNodeSettingsPane {
 
-    private final DialogComponentStringSelection m_compression;
+	private final DialogComponentStringSelection m_compression;
 
-    private final DialogComponentColumnNameSelection m_filenameColumn;
+	private final DialogComponentColumnNameSelection m_filenameColumn;
 
-    private final DialogComponentStringSelection m_formats;
+	private final DialogComponentStringSelection m_formats;
 
-    // private DialogComponentColumnNameSelection m_omexmlColumn;
+	// private DialogComponentColumnNameSelection m_omexmlColumn;
 
-    private final ImgWriter m_writer;
+	private final ImgWriter m_writer;
 
-    /**
-     * Dialog with Column Selection.
-     * 
-     */
-    @SuppressWarnings("unchecked")
-    public ImgWriterNodeDialog() {
-        super();
+	/**
+	 * Dialog with Column Selection.
+	 * 
+	 */
+	@SuppressWarnings("unchecked")
+	public ImgWriterNodeDialog() {
+		super();
 
-        // image column selection
-        createNewGroup("Image column to save:");
-        addDialogComponent(new DialogComponentColumnNameSelection(
-                new SettingsModelString(ImgWriterNodeModel.CFG_IMG_COLUMN_KEY,
-                        ""), "", 0, ImgPlusValue.class));
-        closeCurrentGroup();
+		// image column selection
+		createNewGroup("Image column to save:");
+		addDialogComponent(new DialogComponentColumnNameSelection(
+				new SettingsModelString(ImgWriterNodeModel.CFG_IMG_COLUMN_KEY,
+						""), "", 0, ImgPlusValue.class));
+		closeCurrentGroup();
 
-        // directory selection
-        addDialogComponent(new DialogComponentFileChooser(
-                new SettingsModelString(ImgWriterNodeModel.CFG_DIRECTORY_KEY,
-                        ""), "imagewriterdirhistory", JFileChooser.OPEN_DIALOG,
-                true));
+		// directory selection
+		addDialogComponent(new DialogComponentFileChooser(
+				new SettingsModelString(ImgWriterNodeModel.CFG_DIRECTORY_KEY,
+						""), "imagewriterdirhistory", JFileChooser.OPEN_DIALOG,
+				true));
 
-        // filename column selection
-        createNewGroup("File names:");
-        final SettingsModelString fcol =
-                new SettingsModelString(
-                        ImgWriterNodeModel.CFG_FILENAME_COLUMN_KEY, "");
-        fcol.setEnabled(false);
-        m_filenameColumn =
-                new DialogComponentColumnNameSelection(fcol, "Column:", 0,
-                        false, true, StringValue.class);
-        addDialogComponent(m_filenameColumn);
-        addDialogComponent(new DialogComponentLabel(
-                "Select '<none>' to use the rowID as filename."));
-        closeCurrentGroup();
+		// filename column selection
+		createNewGroup("File names:");
+		final SettingsModelString fcol = new SettingsModelString(
+				ImgWriterNodeModel.CFG_FILENAME_COLUMN_KEY, "");
+		fcol.setEnabled(false);
+		m_filenameColumn = new DialogComponentColumnNameSelection(fcol,
+				"Column:", 0, false, true, StringValue.class);
+		addDialogComponent(m_filenameColumn);
+		addDialogComponent(new DialogComponentLabel(
+				"Select '<none>' to use the rowID as filename."));
+		closeCurrentGroup();
 
-        // format and compression selection
-        m_writer = new ImgWriter();
-        m_formats =
-                new DialogComponentStringSelection(new SettingsModelString(
-                        ImgWriterNodeModel.CFG_FORMAT_KEY,
-                        m_writer.getWriters()[0]), "File format:",
-                        Arrays.asList(m_writer.getWriters()));
-        m_formats.getModel().addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(final ChangeEvent e) {
-                onFormatSelectionChanged();
-            }
-        });
-        String[] compr =
-                m_writer.getCompressionTypes(((SettingsModelString)m_formats
-                        .getModel()).getStringValue());
-        if (compr == null) {
-            compr = new String[]{""};
-        }
-        m_compression =
-                new DialogComponentStringSelection(new SettingsModelString(
-                        ImgWriterNodeModel.CFG_COMPRESSION_KEY, compr[0]),
-                        "Compression type", Arrays.asList(compr));
-        if (!compr[0].isEmpty()) {
-            m_compression.getModel().setEnabled(true);
-        } else {
-            m_compression.getModel().setEnabled(false);
-        }
+		// format and compression selection
+		m_writer = new ImgWriter();
+		m_formats = new DialogComponentStringSelection(new SettingsModelString(
+				ImgWriterNodeModel.CFG_FORMAT_KEY, m_writer.getWriters()[0]),
+				"File format:", Arrays.asList(m_writer.getWriters()));
+		m_formats.getModel().addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(final ChangeEvent e) {
+				onFormatSelectionChanged();
+			}
+		});
+		String[] compr = m_writer
+				.getCompressionTypes(((SettingsModelString) m_formats
+						.getModel()).getStringValue());
+		if (compr == null) {
+			compr = new String[] { "" };
+		}
+		m_compression = new DialogComponentStringSelection(
+				new SettingsModelString(ImgWriterNodeModel.CFG_COMPRESSION_KEY,
+						compr[0]), "Compression type", Arrays.asList(compr));
+		if (!compr[0].isEmpty()) {
+			m_compression.getModel().setEnabled(true);
+		} else {
+			m_compression.getModel().setEnabled(false);
+		}
 
-        // m_omexmlColumn =
-        // new DialogComponentColumnNameSelection(new
-        // SettingsModelString(
-        // ImageWriterNodeModel.OME_XML_COLUMN, ""),
-        // "OME-XML Metadata column:", 0, false, true,
-        // StringValue.class);
-        createNewGroup("Format selection:");
-        addDialogComponent(m_formats);
-        addDialogComponent(m_compression);
-        // addDialogComponent(m_omexmlColumn);
-        closeCurrentGroup();
+		// m_omexmlColumn =
+		// new DialogComponentColumnNameSelection(new
+		// SettingsModelString(
+		// ImageWriterNodeModel.OME_XML_COLUMN, ""),
+		// "OME-XML Metadata column:", 0, false, true,
+		// StringValue.class);
+		createNewGroup("Format selection:");
+		addDialogComponent(m_formats);
+		addDialogComponent(m_compression);
+		// addDialogComponent(m_omexmlColumn);
+		closeCurrentGroup();
 
-        // additional writer options
-        createNewGroup("Writer options:");
-        addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
-                ImgWriterNodeModel.CFG_OVERWRITE_KEY, false),
-                "Overwrite existing files?"));
-        closeCurrentGroup();
+		// additional writer options
+		createNewGroup("Writer options:");
+		addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
+				ImgWriterNodeModel.CFG_OVERWRITE_KEY, false),
+				"Overwrite existing files?"));
+		closeCurrentGroup();
 
-        createNewTab("Dimension Mapping");
-        final String[] labels = KNIMEKNIPPlugin.parseDimensionLabels();
-        addDialogComponent(new DialogComponentStringSelection(
-                new SettingsModelString(ImgWriterNodeModel.CFG_Z_DIM_MAPPING,
-                        "Z"), "Z label", Arrays.asList(labels)));
-        addDialogComponent(new DialogComponentStringSelection(
-                new SettingsModelString(ImgWriterNodeModel.CFG_C_DIM_MAPPING,
-                        "Channel"), "Channel label (max. 3 channels used)",
-                Arrays.asList(labels)));
-        addDialogComponent(new DialogComponentStringSelection(
-                new SettingsModelString(ImgWriterNodeModel.CFG_T_DIM_MAPPING,
-                        "Time"), "Time label", Arrays.asList(labels)));
+		createNewTab("Dimension Mapping");
+		final String[] labels = KNIMEKNIPPlugin.parseDimensionLabels();
+		addDialogComponent(new DialogComponentStringSelection(
+				new SettingsModelString(ImgWriterNodeModel.CFG_Z_DIM_MAPPING,
+						"Z"), "Z label", Arrays.asList(labels)));
+		addDialogComponent(new DialogComponentStringSelection(
+				new SettingsModelString(ImgWriterNodeModel.CFG_C_DIM_MAPPING,
+						"Channel"), "Channel label (max. 3 channels used)",
+				Arrays.asList(labels)));
+		addDialogComponent(new DialogComponentStringSelection(
+				new SettingsModelString(ImgWriterNodeModel.CFG_T_DIM_MAPPING,
+						"Time"), "Time label", Arrays.asList(labels)));
 
-        createNewTab("More Writer Options");
-        addDialogComponent(new DialogComponentNumber(new SettingsModelInteger(
-                ImgWriterNodeModel.CFG_FRAMERATE_KEY, 10),
-                "Frames per second (if applicable)", 1));
+		createNewTab("More Writer Options");
+		addDialogComponent(new DialogComponentNumber(new SettingsModelInteger(
+				ImgWriterNodeModel.CFG_FRAMERATE_KEY, 10),
+				"Frames per second (if applicable)", 1));
 
-    }
+	}
 
-    /* called, when another format was selected */
-    private void onFormatSelectionChanged() {
-        final String[] compr =
-                m_writer.getCompressionTypes(((SettingsModelString)m_formats
-                        .getModel()).getStringValue());
+	/* called, when another format was selected */
+	private void onFormatSelectionChanged() {
+		final String[] compr = m_writer
+				.getCompressionTypes(((SettingsModelString) m_formats
+						.getModel()).getStringValue());
 
-        if (compr != null) {
-            m_compression.replaceListItems(Arrays.asList(compr), compr[0]);
-            m_compression.getModel().setEnabled(true);
-        } else {
-            m_compression.getModel().setEnabled(false);
-        }
+		if (compr != null) {
+			m_compression.replaceListItems(Arrays.asList(compr), compr[0]);
+			m_compression.getModel().setEnabled(true);
+		} else {
+			m_compression.getModel().setEnabled(false);
+		}
 
-    }
+	}
 
 }

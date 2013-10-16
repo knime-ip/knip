@@ -110,7 +110,7 @@ import org.knime.knip.core.util.MiscViews;
 
 /**
  * TODO Auto-generated
- *
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -126,7 +126,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
     /**
      * Helper
-     *
+     * 
      * @return SettingsModel to store img column
      */
     public static SettingsModelBoolean createSMAddDependency() {
@@ -135,7 +135,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
     /**
      * Helper
-     *
+     * 
      * @return SettingsModel to store factory selection
      */
     public static SettingsModelString createSMFactorySelection() {
@@ -144,7 +144,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
     /**
      * Helper
-     *
+     * 
      * @return SettingsModel to store img column
      */
     public static SettingsModelString createSMImgColumnSelection() {
@@ -160,7 +160,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
     /**
      * Helper
-     *
+     * 
      * @return SettingsModelFilterSelection to store left filter selection
      */
     public static <LL extends Comparable<LL>> SettingsModelFilterSelection<LL> createSMLabelFilterLeft() {
@@ -169,7 +169,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
     /**
      * Helper
-     *
+     * 
      * @return SettingsModelFilterSelection to store right filter selection
      */
     public static <LL extends Comparable<LL>> SettingsModelFilterSelection<LL>
@@ -181,7 +181,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
     /**
      * Helper
-     *
+     * 
      * @return SettingsModel to store labeling column
      */
     public static SettingsModelString createSMLabelingColumnSelection() {

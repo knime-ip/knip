@@ -64,11 +64,11 @@ import org.knime.knip.core.ui.imgviewer.panels.MinimapPanel;
  */
 public class AnnotatorMinimapPanel extends MinimapPanel {
 
-    /** */
-    private static final long serialVersionUID = 1L;
+	/** */
+	private static final long serialVersionUID = 1L;
 
-    @EventListener
-    public void onAnnotatorReset(AnnotatorResetEvent e) {
-        m_img = null;
-    }
+	@EventListener
+	public void onAnnotatorReset(AnnotatorResetEvent e) {
+		m_img = null;
+	}
 }

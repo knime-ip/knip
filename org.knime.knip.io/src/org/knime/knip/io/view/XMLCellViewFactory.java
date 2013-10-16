@@ -126,132 +126,132 @@ import org.w3c.dom.Document;
  */
 public class XMLCellViewFactory implements TableCellViewFactory {
 
-    @Override
-    public TableCellView[] createTableCellViews() {
-        return new TableCellView[]{new TableCellView() {
+	@Override
+	public TableCellView[] createTableCellViews() {
+		return new TableCellView[] { new TableCellView() {
 
-            // private Document m_doc;
-            private JPanel m_panel;
+			// private Document m_doc;
+			private JPanel m_panel;
 
-            {
-                m_panel = new JPanel(new BorderLayout());
-            }
+			{
+				m_panel = new JPanel(new BorderLayout());
+			}
 
-            // -- XMLPanel methods --
+			// -- XMLPanel methods --
 
-            // /** Displays XML from the given string. */
-            // public void setXML(final String xml)
-            // throws ParserConfigurationException, SAXException,
-            // IOException {
-            //
-            // setDocument(null);
-            // // parse XML from string into DOM structure
-            // DocumentBuilderFactory docFact =
-            // DocumentBuilderFactory
-            // .newInstance();
-            // DocumentBuilder db = docFact.newDocumentBuilder();
-            // ByteArrayInputStream is = new ByteArrayInputStream(
-            // xml.getBytes());
-            // Document doc = db.parse(is);
-            // is.close();
-            //
-            // setDocument(doc);
-            // }
+			// /** Displays XML from the given string. */
+			// public void setXML(final String xml)
+			// throws ParserConfigurationException, SAXException,
+			// IOException {
+			//
+			// setDocument(null);
+			// // parse XML from string into DOM structure
+			// DocumentBuilderFactory docFact =
+			// DocumentBuilderFactory
+			// .newInstance();
+			// DocumentBuilder db = docFact.newDocumentBuilder();
+			// ByteArrayInputStream is = new ByteArrayInputStream(
+			// xml.getBytes());
+			// Document doc = db.parse(is);
+			// is.close();
+			//
+			// setDocument(doc);
+			// }
 
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            public String getDescription() {
-                return "XML tree";
-            }
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			public String getDescription() {
+				return "XML tree";
+			}
 
-            // /**
-            // * Gets the XML document currently being displayed
-            // within the
-            // * window.
-            // */
-            // public Document getDocument() {
-            // return m_doc;
-            // }
+			// /**
+			// * Gets the XML document currently being displayed
+			// within the
+			// * window.
+			// */
+			// public Document getDocument() {
+			// return m_doc;
+			// }
 
-            @Override
-            public String getName() {
-                return "XML";
-            }
+			@Override
+			public String getName() {
+				return "XML";
+			}
 
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            public Component getViewComponent() {
-                return m_panel;
-            }
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			public Component getViewComponent() {
+				return m_panel;
+			}
 
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            public void loadConfigurationFrom(final ConfigRO config) {
-                //
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			public void loadConfigurationFrom(final ConfigRO config) {
+				//
 
-            }
+			}
 
-            @Override
-            public void onClose() {
-                //
-            }
+			@Override
+			public void onClose() {
+				//
+			}
 
-            @Override
-            public void onReset() {
+			@Override
+			public void onReset() {
 
-            }
+			}
 
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            public void saveConfigurationTo(final ConfigWO config) {
-                //
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			public void saveConfigurationTo(final ConfigWO config) {
+				//
 
-            }
+			}
 
-            /** Displays XML from the given document. */
-            public void setDocument(final Document doc) {
-                // m_doc = doc;
-                m_panel.removeAll();
-                // populate metadata window and size
-                // intelligently
-                final JTree tree = XMLCellRenderer.makeJTree(doc);
-                for (int i = 0; i < tree.getRowCount(); i++) {
-                    tree.expandRow(i);
-                }
+			/** Displays XML from the given document. */
+			public void setDocument(final Document doc) {
+				// m_doc = doc;
+				m_panel.removeAll();
+				// populate metadata window and size
+				// intelligently
+				final JTree tree = XMLCellRenderer.makeJTree(doc);
+				for (int i = 0; i < tree.getRowCount(); i++) {
+					tree.expandRow(i);
+				}
 
-                m_panel.add(new JScrollPane(tree), BorderLayout.CENTER);
-                // JFrame test = new JFrame("test");
-                // test.add(tree);
-                // test.pack();
-                // test.setVisible(true);
-                // setVisible(true);
+				m_panel.add(new JScrollPane(tree), BorderLayout.CENTER);
+				// JFrame test = new JFrame("test");
+				// test.add(tree);
+				// test.pack();
+				// test.setVisible(true);
+				// setVisible(true);
 
-            }
+			}
 
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            public void updateComponent(final DataValue valueToView) {
-                setDocument(((XMLValue)valueToView).getDocument());
-                m_panel.repaint();
-                return;
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			public void updateComponent(final DataValue valueToView) {
+				setDocument(((XMLValue) valueToView).getDocument());
+				m_panel.repaint();
+				return;
 
-            }
-        }};
-    }
+			}
+		} };
+	}
 
-    @Override
-    public Class<? extends DataValue> getDataValueClass() {
-        return XMLValue.class;
-    }
+	@Override
+	public Class<? extends DataValue> getDataValueClass() {
+		return XMLValue.class;
+	}
 
 }

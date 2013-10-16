@@ -98,10 +98,10 @@ import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 
 /**
  * Allows the user to select a plane in a multdimensional space.
- *
+ * 
  * Publishes {@link PlaneSelectionEvent}
- *
- *
+ * 
+ * 
  * @param <T> image type
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -285,7 +285,7 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
     }
 
     /**
-     *
+     * 
      * @param e
      * @param id
      */
@@ -408,7 +408,7 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
     }
 
     /**
-     *
+     * 
      * @return the coordinates of the currently selected image (a newly generated array)
      */
     protected long[] getImageCoordinate() {

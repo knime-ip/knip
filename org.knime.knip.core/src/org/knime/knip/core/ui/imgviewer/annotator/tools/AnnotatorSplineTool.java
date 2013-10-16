@@ -56,7 +56,7 @@ import org.knime.knip.core.ui.imgviewer.overlay.elements.SplineOverlayElement;
 
 /**
  * TODO Auto-generated
- *
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -75,8 +75,7 @@ public class AnnotatorSplineTool extends AnnotationDrawingTool<SplineOverlayElem
     }
 
     @Override
-    public void onMouseDoubleClickLeft(final ImgViewerMouseEvent e,
-                                       final SplineOverlayElement currentOverlayElement,
+    public void onMouseDoubleClickLeft(final ImgViewerMouseEvent e, final SplineOverlayElement currentOverlayElement,
                                        final PlaneSelectionEvent selection, final Overlay overlay,
                                        final String... labels) {
 
@@ -89,8 +88,7 @@ public class AnnotatorSplineTool extends AnnotationDrawingTool<SplineOverlayElem
     @SuppressWarnings("unchecked")
     @Override
     public void onMousePressedLeft(final ImgViewerMouseEvent e, SplineOverlayElement currentOverlayElement,
-                                   final PlaneSelectionEvent selection, final Overlay overlay,
-                                   final String... labels) {
+                                   final PlaneSelectionEvent selection, final Overlay overlay, final String... labels) {
         if ((currentOverlayElement == null) || (currentOverlayElement.getStatus() != OverlayElementStatus.DRAWING)) {
             currentOverlayElement =
                     new SplineOverlayElement(selection.getPlanePos(e.getPosX(), e.getPosY()),
@@ -104,18 +102,14 @@ public class AnnotatorSplineTool extends AnnotationDrawingTool<SplineOverlayElem
     }
 
     @Override
-    public void onMouseReleasedLeft(final ImgViewerMouseEvent e,
-                                    final SplineOverlayElement currentOverlayElement,
-                                    final PlaneSelectionEvent selection, final Overlay overlay,
-                                    final String... labels) {
+    public void onMouseReleasedLeft(final ImgViewerMouseEvent e, final SplineOverlayElement currentOverlayElement,
+                                    final PlaneSelectionEvent selection, final Overlay overlay, final String... labels) {
         // Nothing to do here
     }
 
     @Override
-    public void onMouseDraggedLeft(final ImgViewerMouseEvent e,
-                                   final SplineOverlayElement currentOverlayElement,
-                                   final PlaneSelectionEvent selection, final Overlay overlay,
-                                   final String... labels) {
+    public void onMouseDraggedLeft(final ImgViewerMouseEvent e, final SplineOverlayElement currentOverlayElement,
+                                   final PlaneSelectionEvent selection, final Overlay overlay, final String... labels) {
         // Nothing to do here
     }
 

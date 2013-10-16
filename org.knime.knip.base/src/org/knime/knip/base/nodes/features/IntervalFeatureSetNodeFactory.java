@@ -74,7 +74,7 @@ import org.knime.knip.base.nodes.features.providers.FeatureSetProvider;
  * Abstract node model to calculate various features (arbitrary {@link DataCell}s) on an {@link IterableInterval}. The
  * {@link IterableInterval} stems either from a complete image, a labeling (multiple {@link IterableInterval}s, aka.
  * ROIs) or a labeling and an image (multiple {@link IterableInterval}s, aka ROIs).
- *
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>

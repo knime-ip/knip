@@ -67,46 +67,46 @@ import org.knime.knip.base.nodes.view.TableCellViewNodeView;
  */
 @Deprecated
 public class AnnotatorNodeFactory<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
-        extends NodeFactory<AnnotatorNodeModel<T, L>> {
+		extends NodeFactory<AnnotatorNodeModel<T, L>> {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeDialogPane createNodeDialogPane() {
-        return new AnnotatorNodeDialog<T, L>();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeDialogPane createNodeDialogPane() {
+		return new AnnotatorNodeDialog<T, L>();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public AnnotatorNodeModel<T, L> createNodeModel() {
-        return new AnnotatorNodeModel<T, L>();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public AnnotatorNodeModel<T, L> createNodeModel() {
+		return new AnnotatorNodeModel<T, L>();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeView<AnnotatorNodeModel<T, L>> createNodeView(final int i,
-            final AnnotatorNodeModel<T, L> nodeModel) {
-        return new TableCellViewNodeView(nodeModel);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeView<AnnotatorNodeModel<T, L>> createNodeView(final int i,
+			final AnnotatorNodeModel<T, L> nodeModel) {
+		return new TableCellViewNodeView(nodeModel);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getNrNodeViews() {
-        return 1;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getNrNodeViews() {
+		return 1;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean hasDialog() {
-        return true;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean hasDialog() {
+		return true;
+	}
 }

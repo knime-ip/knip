@@ -94,346 +94,354 @@ import org.knime.knip.io.node.dialog.DialogComponentMultiFileChooser;
  *         Zinsmaier</a>
  */
 public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
-        DataTable {
+		DataTable {
 
-    /**
-     * Core meta data keys.
-     */
-    public static final String[] CORE_METADATA = new String[]{"SizeX", "SizeY",
-            "SizeZ", "SizeT", "SizeC", "IsRGB", "PixelType", "LittleEndian",
-            "DimensionsOrder", "IsInterleaved"};
+	/**
+	 * Core meta data keys.
+	 */
+	public static final String[] CORE_METADATA = new String[] { "SizeX",
+			"SizeY", "SizeZ", "SizeT", "SizeC", "IsRGB", "PixelType",
+			"LittleEndian", "DimensionsOrder", "IsInterleaved" };
 
-    /** The row header prefix that is used if nothing else is specified. */
-    public static final String STANDARD_ROW_PREFIX = "SAMPLE_";
+	/** The row header prefix that is used if nothing else is specified. */
+	public static final String STANDARD_ROW_PREFIX = "SAMPLE_";
 
-    /** Suffix of image files. */
-    public static final String SUFFIX = ".tif";
+	/** Suffix of image files. */
+	public static final String SUFFIX = ".tif";
 
-    /* Standard node logger */
-    private final NodeLogger LOGGER = NodeLogger
-            .getLogger(ReadFileImgTable.class);
+	/* Standard node logger */
+	private final NodeLogger LOGGER = NodeLogger
+			.getLogger(ReadFileImgTable.class);
 
-    private boolean m_completePathRowKey;
+	private boolean m_completePathRowKey;
 
-    /*
-     * Indicates weather an error occured in the current run or not
-     */
-    private boolean m_error = false;
+	/*
+	 * Indicates weather an error occured in the current run or not
+	 */
+	private boolean m_error = false;
 
-    /*
-     * Reference to the execution context to set the progress.
-     */
-    private ExecutionContext m_exec;
+	/*
+	 * Reference to the execution context to set the progress.
+	 */
+	private ExecutionContext m_exec;
 
-    /*
-     * points to the files to be read
-     */
-    private Iterable<String> m_fileList;
+	/*
+	 * points to the files to be read
+	 */
+	private Iterable<String> m_fileList;
 
-    /*
-     * The image factory to read the image files.
-     */
-    private ScifioImgSource m_imgSource = null;
+	/*
+	 * The image factory to read the image files.
+	 */
+	private ScifioImgSource m_imgSource = null;
 
-    /*
-     * Number of files to be read
-     */
-    private long m_numberOfFiles;
+	/*
+	 * Number of files to be read
+	 */
+	private long m_numberOfFiles;
 
-    /*
-     * The option whether to add an ome-xml colmn or not
-     */
-    private final boolean m_omexml;
+	/*
+	 * The option whether to add an ome-xml colmn or not
+	 */
+	private final boolean m_omexml;
 
-    /*
-     * An array encoding the selected image planes in the 3-dimensional space
-     * (Z,C,T).
-     */
-    private SettingsModelSubsetSelection m_sel;
+	/*
+	 * An array encoding the selected image planes in the 3-dimensional space
+	 * (Z,C,T).
+	 */
+	private SettingsModelSubsetSelection m_sel;
 
-    /*
-     * the selected series to be read
-     */
-    private int m_selectedSeries = -1;
+	/*
+	 * the selected series to be read
+	 */
+	private int m_selectedSeries = -1;
 
-    private String m_workflowCanonicalPath;
+	private String m_workflowCanonicalPath;
 
-    /**
-     * Creates an new and empty ImageTable and is useful to get the table
-     * specification without actually knowing the content.
-     * 
-     * @param omexml if true, a omexml column will be appended to the table
-     * 
-     */
-    public ReadFileImgTable(final boolean omexml) {
-        initCanonicalWorkflowPath();
-        m_omexml = omexml;
-    }
+	/**
+	 * Creates an new and empty ImageTable and is useful to get the table
+	 * specification without actually knowing the content.
+	 * 
+	 * @param omexml
+	 *            if true, a omexml column will be appended to the table
+	 * 
+	 */
+	public ReadFileImgTable(final boolean omexml) {
+		initCanonicalWorkflowPath();
+		m_omexml = omexml;
+	}
 
-    /**
-     * Constructor for an ImageTable.
-     * 
-     * @param exec the execution context (for the progress bar)
-     * @param fileList the files to be opened
-     * @param numberOfFiles the number of files
-     * @param sel the subset selection
-     * @param omexml if true, a ome-xml column will be appended to the table
-     * @param checkFileFormat checks the file format newly for each single file
-     *            (might be a bit slower)
-     * @param completePathRowKey if true, the complete path will be used as row
-     *            key, else only the file name
-     * @param isGroupFiles if true all files which are referenced from the
-     *            current file will also be loaded (e.g. in flex files, files
-     *            from one experiment link each other in the header of the file
-     *            format).
-     * @param selectedSeries the series to be read, if an image file contains
-     *            multiple series, if -1 all series will be read
-     * @param imgFactory the image factory used to create the individual images
-     * 
-     * 
-     */
-    public ReadFileImgTable(final ExecutionContext exec,
-            final Iterable<String> fileList, final long numberOfFiles,
-            final SettingsModelSubsetSelection sel, final boolean omexml,
-            final boolean checkFileFormat, final boolean completePathRowKey,
-            final boolean isGroupFiles, final int selectedSeries,
-            final ImgFactory<T> imgFactory) {
+	/**
+	 * Constructor for an ImageTable.
+	 * 
+	 * @param exec
+	 *            the execution context (for the progress bar)
+	 * @param fileList
+	 *            the files to be opened
+	 * @param numberOfFiles
+	 *            the number of files
+	 * @param sel
+	 *            the subset selection
+	 * @param omexml
+	 *            if true, a ome-xml column will be appended to the table
+	 * @param checkFileFormat
+	 *            checks the file format newly for each single file (might be a
+	 *            bit slower)
+	 * @param completePathRowKey
+	 *            if true, the complete path will be used as row key, else only
+	 *            the file name
+	 * @param isGroupFiles
+	 *            if true all files which are referenced from the current file
+	 *            will also be loaded (e.g. in flex files, files from one
+	 *            experiment link each other in the header of the file format).
+	 * @param selectedSeries
+	 *            the series to be read, if an image file contains multiple
+	 *            series, if -1 all series will be read
+	 * @param imgFactory
+	 *            the image factory used to create the individual images
+	 * 
+	 * 
+	 */
+	public ReadFileImgTable(final ExecutionContext exec,
+			final Iterable<String> fileList, final long numberOfFiles,
+			final SettingsModelSubsetSelection sel, final boolean omexml,
+			final boolean checkFileFormat, final boolean completePathRowKey,
+			final boolean isGroupFiles, final int selectedSeries,
+			final ImgFactory<T> imgFactory) {
 
-        initCanonicalWorkflowPath();
-        m_completePathRowKey = completePathRowKey;
-        m_fileList = fileList;
-        m_numberOfFiles = numberOfFiles;
-        m_sel = sel;
-        m_exec = exec;
-        m_omexml = omexml;
-        m_selectedSeries = selectedSeries;
-        m_imgSource =
-                new ScifioImgSource(imgFactory, checkFileFormat, isGroupFiles);
-    }
+		initCanonicalWorkflowPath();
+		m_completePathRowKey = completePathRowKey;
+		m_fileList = fileList;
+		m_numberOfFiles = numberOfFiles;
+		m_sel = sel;
+		m_exec = exec;
+		m_omexml = omexml;
+		m_selectedSeries = selectedSeries;
+		m_imgSource = new ScifioImgSource(imgFactory, checkFileFormat,
+				isGroupFiles);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public DataTableSpec getDataTableSpec() {
-        final int col = 0;
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public DataTableSpec getDataTableSpec() {
+		final int col = 0;
 
-        DataColumnSpecCreator creator;
-        final DataColumnSpec[] cspecs =
-                new DataColumnSpec[1 + (m_omexml ? 1 : 0)];
-        creator = new DataColumnSpecCreator("Image", ImgPlusCell.TYPE);
-        cspecs[col] = creator.createSpec();
+		DataColumnSpecCreator creator;
+		final DataColumnSpec[] cspecs = new DataColumnSpec[1 + (m_omexml ? 1
+				: 0)];
+		creator = new DataColumnSpecCreator("Image", ImgPlusCell.TYPE);
+		cspecs[col] = creator.createSpec();
 
-        if (m_omexml) {
-            creator =
-                    new DataColumnSpecCreator("OME-XML Metadata", XMLCell.TYPE);
-            cspecs[cspecs.length - 1] = creator.createSpec();
-        }
+		if (m_omexml) {
+			creator = new DataColumnSpecCreator("OME-XML Metadata",
+					XMLCell.TYPE);
+			cspecs[cspecs.length - 1] = creator.createSpec();
+		}
 
-        return new DataTableSpec(cspecs);
-    }
+		return new DataTableSpec(cspecs);
+	}
 
-    /**
-     * 
-     * @return true, if an error occurred while iterating through the filelist
-     *         to open the images.
-     */
-    public boolean hasAnErrorOccured() {
-        return m_error;
-    }
+	/**
+	 * 
+	 * @return true, if an error occurred while iterating through the filelist
+	 *         to open the images.
+	 */
+	public boolean hasAnErrorOccured() {
+		return m_error;
+	}
 
-    /**
-     * @return true if more than one reader class was necessary to open the
-     *         files
-     */
-    public boolean usedDifferentReaders() {
-        return m_imgSource.usedDifferentReaders();
-    }
+	/**
+	 * @return true if more than one reader class was necessary to open the
+	 *         files
+	 */
+	public boolean usedDifferentReaders() {
+		return m_imgSource.usedDifferentReaders();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public RowIterator iterator() {
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public RowIterator iterator() {
 
-        if (m_fileList == null) {
-            return new RowIterator() {
-                @Override
-                public boolean hasNext() {
-                    return false;
-                }
+		if (m_fileList == null) {
+			return new RowIterator() {
+				@Override
+				public boolean hasNext() {
+					return false;
+				}
 
-                @Override
-                public DataRow next() {
-                    return null;
-                }
+				@Override
+				public DataRow next() {
+					return null;
+				}
 
-            };
-        }
+			};
+		}
 
-        /* Cellfactory to create image cells */
-        final ImgPlusCellFactory cellFactory = new ImgPlusCellFactory(m_exec);
+		/* Cellfactory to create image cells */
+		final ImgPlusCellFactory cellFactory = new ImgPlusCellFactory(m_exec);
 
-        /*
-         * Iterate over the row
-         */
-        return new RowIterator() {
+		/*
+		 * Iterate over the row
+		 */
+		return new RowIterator() {
 
-            /* id of the current file */
-            private String currentFile;
+			/* id of the current file */
+			private String currentFile;
 
-            /* current image of the series contained in one file */
-            private int currentSeries = m_selectedSeries == -1 ? 0
-                    : m_selectedSeries;
+			/* current image of the series contained in one file */
+			private int currentSeries = m_selectedSeries == -1 ? 0
+					: m_selectedSeries;
 
-            /* iterator over filelist */
-            private final Iterator<String> fileIterator = m_fileList.iterator();
+			/* iterator over filelist */
+			private final Iterator<String> fileIterator = m_fileList.iterator();
 
-            /* the current iterator position */
-            private int idx = 0;
+			/* the current iterator position */
+			private int idx = 0;
 
-            private int progressCount = 0;
+			private int progressCount = 0;
 
-            /* number of series */
-            private int seriesCount = 0;
+			/* number of series */
+			private int seriesCount = 0;
 
-            {
-                m_error = false;
-            }
+			{
+				m_error = false;
+			}
 
-            @Override
-            public boolean hasNext() {
-                if (m_selectedSeries == -1 && (currentSeries + 1) < seriesCount) {
-                    return true;
-                } else {
-                    return fileIterator.hasNext();
-                }
-            }
+			@Override
+			public boolean hasNext() {
+				if (m_selectedSeries == -1 && (currentSeries + 1) < seriesCount) {
+					return true;
+				} else {
+					return fileIterator.hasNext();
+				}
+			}
 
-            @SuppressWarnings("unchecked")
-            @Override
-            public DataRow next() {
-                String rowKey = null;
-                final Vector<DataCell> row = new Vector<DataCell>();
+			@SuppressWarnings("unchecked")
+			@Override
+			public DataRow next() {
+				String rowKey = null;
+				final Vector<DataCell> row = new Vector<DataCell>();
 
-                final DataCell[] result = new DataCell[m_omexml ? 2 : 1];
-                try {
-                    progressCount++;
-                    if ((currentSeries + 1) < seriesCount
-                            && m_selectedSeries == -1) {
-                        // if there still is a series left and ALL series are
-                        // selected to be read (m_selectedSeries!=-1)
-                        currentSeries++;
-                    } else {
-                        currentFile = fileIterator.next().trim();
+				final DataCell[] result = new DataCell[m_omexml ? 2 : 1];
+				try {
+					progressCount++;
+					if ((currentSeries + 1) < seriesCount
+							&& m_selectedSeries == -1) {
+						// if there still is a series left and ALL series are
+						// selected to be read (m_selectedSeries!=-1)
+						currentSeries++;
+					} else {
+						currentFile = fileIterator.next().trim();
 
-                        // replace relative file pathes knime://knime.workflow
-                        currentFile =
-                                DialogComponentMultiFileChooser
-                                        .convertToFilePath(currentFile,
-                                                m_workflowCanonicalPath);
+						// replace relative file pathes knime://knime.workflow
+						currentFile = DialogComponentMultiFileChooser
+								.convertToFilePath(currentFile,
+										m_workflowCanonicalPath);
 
-                        seriesCount = m_imgSource.getSeriesCount(currentFile);
-                        currentSeries =
-                                m_selectedSeries == -1 ? 0 : m_selectedSeries;
+						seriesCount = m_imgSource.getSeriesCount(currentFile);
+						currentSeries = m_selectedSeries == -1 ? 0
+								: m_selectedSeries;
 
-                        idx++;
-                    }
-                    if (currentSeries >= seriesCount) {
-                        LOGGER.warn("Image file only contains " + seriesCount
-                                + " series, but series number " + currentSeries
-                                + " selected. File skipped!");
-                    }
+						idx++;
+					}
+					if (currentSeries >= seriesCount) {
+						LOGGER.warn("Image file only contains " + seriesCount
+								+ " series, but series number " + currentSeries
+								+ " selected. File skipped!");
+					}
 
-                    List<CalibratedAxis> calibAxes =
-                            m_imgSource.getAxes(currentFile, currentSeries);
+					List<CalibratedAxis> calibAxes = m_imgSource.getAxes(
+							currentFile, currentSeries);
 
-                    final Pair<TypedAxis, long[]>[] axisSelectionConstraints =
-                            m_sel.createSelectionConstraints(
-                                    m_imgSource.getDimensions(currentFile,
-                                            currentSeries),
-                                    calibAxes
-                                            .toArray(new CalibratedAxis[calibAxes
-                                                    .size()]));
+					final Pair<TypedAxis, long[]>[] axisSelectionConstraints = m_sel
+							.createSelectionConstraints(
+									m_imgSource.getDimensions(currentFile,
+											currentSeries),
+									calibAxes
+											.toArray(new CalibratedAxis[calibAxes
+													.size()]));
 
-                    // One _can_ be sure that if and only if
-                    // some dims are removed (as they are of
-                    // size 1) a optimized iterable interval
-                    // is created
+					// One _can_ be sure that if and only if
+					// some dims are removed (as they are of
+					// size 1) an optimized iterable interval
+					// is created
 
-                    final ImgPlus<T> resImgPlus =
-                            (ImgPlus<T>)m_imgSource.getImg(currentFile,
-                                    currentSeries, axisSelectionConstraints);
+					final ImgPlus<T> resImgPlus = (ImgPlus<T>) m_imgSource
+							.getImg(currentFile, currentSeries,
+									axisSelectionConstraints);
 
-                    result[0] = cellFactory.createCell(resImgPlus);
+					result[0] = cellFactory.createCell(resImgPlus);
 
-                    // set row key
-                    if (m_completePathRowKey) {
-                        rowKey = resImgPlus.getSource();
-                    } else {
-                        rowKey = resImgPlus.getName();
-                    }
+					// set row key
+					if (m_completePathRowKey) {
+						rowKey = resImgPlus.getSource();
+					} else {
+						rowKey = resImgPlus.getName();
+					}
 
-                    if (seriesCount > 1) {
-                        rowKey += "_" + currentSeries;
-                    }
+					if (seriesCount > 1) {
+						rowKey += "_" + currentSeries;
+					}
 
-                    // reads the ome xml metadata
-                    if (m_omexml) {
-                        result[result.length - 1] =
-                                XMLCellFactory.create(m_imgSource
-                                        .getOMEXMLMetadata(currentFile));
-                    }
+					// reads the ome xml metadata
+					if (m_omexml) {
+						result[result.length - 1] = XMLCellFactory
+								.create(m_imgSource
+										.getOMEXMLMetadata(currentFile));
+					}
 
-                } catch (final FormatException e) {
-                    LOGGER.warn("Format not supported for file " + currentFile
-                            + " (" + e.getMessage() + ")");
-                    m_error = true;
+				} catch (final FormatException e) {
+					LOGGER.warn("Format not supported for file " + currentFile
+							+ " (" + e.getMessage() + ")");
+					m_error = true;
 
-                } catch (final IOException e) {
-                    LOGGER.error("An IO problem occured while opening the file "
-                            + currentFile + " (" + e.getMessage() + ")");
-                    m_error = true;
-                } catch (final Exception e) {
-                    LOGGER.error(e);
-                    m_error = true;
-                }
+				} catch (final IOException e) {
+					LOGGER.error("An IO problem occured while opening the file "
+							+ currentFile + " (" + e.getMessage() + ")");
+					m_error = true;
+				} catch (final Exception e) {
+					LOGGER.error(e);
+					m_error = true;
+				}
 
-                for (final DataCell cell : result) {
-                    if (cell == null) {
-                        row.add(DataType.getMissingCell());
-                        rowKey = currentFile;
-                    } else {
+				for (final DataCell cell : result) {
+					if (cell == null) {
+						row.add(DataType.getMissingCell());
+						rowKey = currentFile;
+					} else {
 
-                        row.add(cell);
-                    }
-                }
+						row.add(cell);
+					}
+				}
 
-                DataCell[] rowvalues = new DataCell[row.size()];
-                rowvalues = row.toArray(rowvalues);
-                m_exec.setProgress((double)progressCount / m_numberOfFiles);
+				DataCell[] rowvalues = new DataCell[row.size()];
+				rowvalues = row.toArray(rowvalues);
+				m_exec.setProgress((double) progressCount / m_numberOfFiles);
 
-                return new DefaultRow(new RowKey(rowKey), rowvalues);
+				return new DefaultRow(new RowKey(rowKey), rowvalues);
 
-            }
+			}
 
-        };
+		};
 
-    }
+	}
 
-    private void initCanonicalWorkflowPath() {
-        m_workflowCanonicalPath = null;
-        try {
-            m_workflowCanonicalPath =
-                    ResolverUtil
-                            .resolveURItoLocalFile(
-                                    new URI(
-                                            DialogComponentMultiFileChooser.KNIME_WORKFLOW_RELPATH))
-                            .getCanonicalPath();
-        } catch (URISyntaxException e) {
-            LOGGER.warn("could not resolve the workflow directory as local file");
-        } catch (IOException e) {
-            LOGGER.warn("could not resolve the workflow directory as local file");
-        }
-    }
+	private void initCanonicalWorkflowPath() {
+		m_workflowCanonicalPath = null;
+		try {
+			m_workflowCanonicalPath = ResolverUtil
+					.resolveURItoLocalFile(
+							new URI(
+									DialogComponentMultiFileChooser.KNIME_WORKFLOW_RELPATH))
+					.getCanonicalPath();
+		} catch (URISyntaxException e) {
+			LOGGER.warn("could not resolve the workflow directory as local file");
+		} catch (IOException e) {
+			LOGGER.warn("could not resolve the workflow directory as local file");
+		}
+	}
 }

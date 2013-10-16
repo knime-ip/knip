@@ -119,70 +119,69 @@ import org.knime.core.node.NodeLogger;
  */
 public class ScifioFormatReaderExtPointManager {
 
-    private static final NodeLogger LOGGER = NodeLogger
-            .getLogger(ScifioFormatReaderExtPointManager.class);
+	private static final NodeLogger LOGGER = NodeLogger
+			.getLogger(ScifioFormatReaderExtPointManager.class);
 
-    private ScifioFormatReaderExtPointManager() {
-        // utility class
-    }
+	private ScifioFormatReaderExtPointManager() {
+		// utility class
+	}
 
-    /** The id of the IFormatReaderExtPoint extension point. */
-    public static final String EXT_POINT_ID = "org.knime.knip.io.ScifioFormat";
+	/** The id of the IFormatReaderExtPoint extension point. */
+	public static final String EXT_POINT_ID = "org.knime.knip.io.ScifioFormat";
 
-    /**
-     * The attribute of the iformatreader view extension point pointing to the
-     * factory class
-     */
-    public static final String EXT_POINT_ATTR_DF = "ScifioFormat";
+	/**
+	 * The attribute of the iformatreader view extension point pointing to the
+	 * factory class
+	 */
+	public static final String EXT_POINT_ATTR_DF = "ScifioFormat";
 
-    public static List<Format> getFormats() {
+	public static List<Format> getFormats() {
 
-        List<Format> formats = new ArrayList<Format>();
+		List<Format> formats = new ArrayList<Format>();
 
-        try {
-            final IExtensionRegistry registry = Platform.getExtensionRegistry();
-            final IExtensionPoint point =
-                    registry.getExtensionPoint(EXT_POINT_ID);
-            if (point == null) {
-                LOGGER.error("Invalid extension point: " + EXT_POINT_ID);
-                throw new IllegalStateException("ACTIVATION ERROR: "
-                        + " --> Invalid extension point: " + EXT_POINT_ID);
-            }
-            for (final IConfigurationElement elem : point
-                    .getConfigurationElements()) {
-                final String operator = elem.getAttribute(EXT_POINT_ATTR_DF);
-                final String decl =
-                        elem.getDeclaringExtension().getUniqueIdentifier();
+		try {
+			final IExtensionRegistry registry = Platform.getExtensionRegistry();
+			final IExtensionPoint point = registry
+					.getExtensionPoint(EXT_POINT_ID);
+			if (point == null) {
+				LOGGER.error("Invalid extension point: " + EXT_POINT_ID);
+				throw new IllegalStateException("ACTIVATION ERROR: "
+						+ " --> Invalid extension point: " + EXT_POINT_ID);
+			}
+			for (final IConfigurationElement elem : point
+					.getConfigurationElements()) {
+				final String operator = elem.getAttribute(EXT_POINT_ATTR_DF);
+				final String decl = elem.getDeclaringExtension()
+						.getUniqueIdentifier();
 
-                if (operator == null || operator.isEmpty()) {
-                    LOGGER.error("The extension '" + decl
-                            + "' doesn't provide the required attribute '"
-                            + EXT_POINT_ATTR_DF + "'");
-                    LOGGER.error("Extension " + decl + " ignored.");
-                    continue;
-                }
+				if (operator == null || operator.isEmpty()) {
+					LOGGER.error("The extension '" + decl
+							+ "' doesn't provide the required attribute '"
+							+ EXT_POINT_ATTR_DF + "'");
+					LOGGER.error("Extension " + decl + " ignored.");
+					continue;
+				}
 
-                try {
-                    final Format format =
-                            (Format)elem
-                                    .createExecutableExtension(EXT_POINT_ATTR_DF);
-                    formats.add(format);
-                } catch (final Throwable t) {
-                    LOGGER.error("Problems during initialization of "
-                            + "ScifioFormatExtensionPoint (with id '"
-                            + operator + "'.)");
-                    if (decl != null) {
-                        LOGGER.error("Extension " + decl + " ignored.", t);
-                    }
-                }
-            }
-        } catch (final Exception e) {
-            LOGGER.error("Exception while registering "
-                    + "ScifioFormat extensions");
-        }
+				try {
+					final Format format = (Format) elem
+							.createExecutableExtension(EXT_POINT_ATTR_DF);
+					formats.add(format);
+				} catch (final Throwable t) {
+					LOGGER.error("Problems during initialization of "
+							+ "ScifioFormatExtensionPoint (with id '"
+							+ operator + "'.)");
+					if (decl != null) {
+						LOGGER.error("Extension " + decl + " ignored.", t);
+					}
+				}
+			}
+		} catch (final Exception e) {
+			LOGGER.error("Exception while registering "
+					+ "ScifioFormat extensions");
+		}
 
-        return formats;
+		return formats;
 
-    }
+	}
 
 }

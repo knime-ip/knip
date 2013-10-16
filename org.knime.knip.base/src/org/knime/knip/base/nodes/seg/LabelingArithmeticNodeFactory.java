@@ -163,7 +163,7 @@ public final class LabelingArithmeticNodeFactory<L extends Comparable<L>> extend
                 if (lab1.firstElement().getMapping().getLabels().size() > 0
                         && lab2.firstElement().getMapping().getLabels().size() > 0) {
                     if (!(lab1.firstElement().getMapping().getLabels().get(0).getClass().isAssignableFrom(lab2
-                            .firstElement().getLabeling().get(0).getClass()))) {
+                            .firstElement().getMapping().getLabels().get(0).getClass()))) {
                         throw new KNIPException(
                                 "The types of the incoming labelings are not compatible! Use e.g. \"Labeling to String Based Labeling\" to transform then into a common format!");
                     }
