@@ -50,26 +50,27 @@
 package org.knime.knip.base.nodes.proc;
 
 import net.imglib2.Cursor;
-import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 
 /**
- * Modified version of the Fiji CLAHE Plugin to work with ImgLib.
- * For further information see <a href="http://fiji.sc/wiki/index.php/Enhance_Local_Contrast_(CLAHE)"> Fiji Wiki <a>
+ * Modified version of the Fiji CLAHE Plugin from Stephan Saalfeld to work with ImgLib. For further information see <a
+ * href="http://fiji.sc/wiki/index.php/Enhance_Local_Contrast_(CLAHE)"> Fiji Wiki <a>
  *
  * @author Daniel Seebacher, University of Konstanz
+ *
+ * @param <T>
  */
 public class Clahe_new<T extends RealType<T>> implements
         UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> {
 
-    private final int blockRadius;
+    private final int m_blockradius;
 
-    private final int nrBins;
+    private final int m_bins;
 
-    private final float slope;
+    private final float m_slope;
 
     /**
      * @param blockSize
@@ -78,9 +79,9 @@ public class Clahe_new<T extends RealType<T>> implements
      */
     public Clahe_new(final int blockSize, final int bins, final float slope) {
         //blockRadius is half of the blockSize
-        this.blockRadius = (blockSize - 1) / 2;
-        this.nrBins = bins;
-        this.slope = slope;
+        this.m_blockradius = (blockSize - 1) / 2;
+        this.m_bins = bins;
+        this.m_slope = slope;
 
     }
 
@@ -91,57 +92,72 @@ public class Clahe_new<T extends RealType<T>> implements
     public RandomAccessibleInterval<T> compute(final RandomAccessibleInterval<T> input,
                                                final RandomAccessibleInterval<T> output) {
 
-        RandomAccess<T> inputAccess = input.randomAccess();
+        Cursor<T> inputAccess = Views.flatIterable(input).cursor();
         Cursor<T> outputCursor = Views.flatIterable(output).cursor();
 
         final int width = (int)input.dimension(0);
         final int height = (int)input.dimension(1);
 
-        for (int y = 0; y < height; ++y) {
-            final int yMin = Math.max(0, y - blockRadius);
-            final int yMax = Math.min(height, y + blockRadius + 1);
-            final int h = yMax - yMin;
 
-            final int xMin0 = Math.max(0, -blockRadius);
-            final int xMax0 = Math.min(width - 1, blockRadius);
+        for (int y = 0; y < height; ++y) {
+            // min and max y coordinate of the block as well as its height
+            final int blockYMin = Math.max(0, y - m_blockradius);
+            final int blockYMax = Math.min(height, y + m_blockradius + 1);
+            final int blockHeight = blockYMax - blockYMin;
+
+            // min and max x coordinate of the first block to initialize histogram
+            final int initialBlockXMin = Math.max(0, -m_blockradius);
+            final int initialBlockXMax = Math.min(width - 1, m_blockradius);
 
             // initially fill histogram
-            final int[] hist = new int[nrBins + 1];
-            for (int yi = yMin; yi < yMax; ++yi) {
-                for (int xi = xMin0; xi < xMax0; ++xi) {
-                    inputAccess.setPosition(new int[]{xi, yi});
-                    ++hist[roundPositive(inputAccess.get().getRealFloat() / 255.0f * nrBins)];
+            final int[] hist = new int[m_bins + 1];
+            for (int yi = blockYMin; yi < blockYMax; ++yi) {
+                inputAccess.reset();
+                inputAccess.jumpFwd(initialBlockXMin + (yi * width));
+                for (int xi = initialBlockXMin; xi < initialBlockXMax; ++xi) {
+                    inputAccess.next();
+                    ++hist[roundPositive(inputAccess.get().getRealFloat() / 255.0f * m_bins)];
                 }
             }
 
+            // now create a moving block (by deleting the column on the left and adding the column on the right)
             for (int x = 0; x < width; ++x) {
-                inputAccess.setPosition(new int[]{x, y});
-                final int oldValue = roundPositive(inputAccess.get().getRealFloat() / 255.0f * nrBins);
 
-                final int xMin = Math.max(0, x - blockRadius);
-                final int xMax = x + blockRadius + 1;
-                final int w = Math.min(width, xMax) - xMin;
-                final int n = h * w;
+                // jump to start position and get the old value
+                inputAccess.reset();
+                inputAccess.jumpFwd(x + (y * width));
+                inputAccess.next();
+                final int oldValue = roundPositive(inputAccess.get().getRealFloat() / 255.0f * m_bins);
 
-                final int limit = (int)(slope * n / nrBins + 0.5f);
+                // min and max x coordinate of the moving block as well as its width and the area of the block
+                final int blockXMin = Math.max(0, x - m_blockradius);
+                final int blockXMax = x + m_blockradius + 1;
+                final int blockWidth = Math.min(width, blockXMax) - blockXMin;
+                final int blockArea = blockHeight * blockWidth;
+
+                final int limit = (int)(m_slope * blockArea / m_bins + 0.5f);
 
                 // remove left behind values from histogram
-                if (xMin > 0) {
-                    final int xMin1 = xMin - 1;
-                    inputAccess.setPosition(new int[]{xMin1, yMin - 1});
-                    for (int yi = yMin; yi < yMax; ++yi) {
-                        inputAccess.move(1, 1);
-                        --hist[roundPositive(inputAccess.get().getRealFloat() / 255.0f * nrBins)];
+                inputAccess.reset();
+                if (blockXMin > 0) {
+                    final int xMin1 = blockXMin - 1;
+                    inputAccess.jumpFwd(xMin1 + width * blockYMin);
+                    inputAccess.next();
+                    for (int yi = blockYMin; yi < blockYMax; ++yi) {
+                        --hist[roundPositive(inputAccess.get().getRealFloat() / 255.0f * m_bins)];
+                        inputAccess.jumpFwd(width);
                     }
                 }
 
                 // add newly included values to histogram
-                if (xMax <= width) {
-                    final int xMax1 = xMax - 1;
-                    inputAccess.setPosition(new int[]{xMax1, yMin - 1});
-                    for (int yi = yMin; yi < yMax; ++yi) {
-                        inputAccess.move(1, 1);
-                        ++hist[roundPositive(inputAccess.get().getRealFloat() / 255.0f * nrBins)];
+                inputAccess.reset();
+                if (blockXMax <= width) {
+                    final int xMax1 = blockXMax - 1;
+                    inputAccess.jumpFwd(xMax1 + width * blockYMin);
+                    inputAccess.next();
+                    for (int yi = blockYMin; yi < blockYMax; ++yi) {
+                        ++hist[roundPositive(inputAccess.get().getRealFloat() / 255.0f * m_bins)];
+                        inputAccess.jumpFwd(width);
                     }
                 }
 
@@ -149,12 +165,12 @@ public class Clahe_new<T extends RealType<T>> implements
                 int[] clippedHistogram = clipHistogram(hist, limit);
 
                 // build cdf of clipped histogram
-                int newValue = cdf(clippedHistogram, oldValue);
+                int newValue = buildCDF(clippedHistogram, oldValue);
 
                 outputCursor.next();
                 outputCursor.get().setReal(newValue);
-            }
-        }
+            } // end for each cell in row
+        } // end for each row
 
         return output;
     }
@@ -174,7 +190,7 @@ public class Clahe_new<T extends RealType<T>> implements
         do {
             clippedEntriesBefore = clippedEntries;
             clippedEntries = 0;
-            for (int i = 0; i <= nrBins; ++i) {
+            for (int i = 0; i <= m_bins; ++i) {
                 final int d = clippedHistogram[i] - limit;
                 if (d > 0) {
                     clippedEntries += d;
@@ -182,15 +198,15 @@ public class Clahe_new<T extends RealType<T>> implements
                 }
             }
 
-            final int d = clippedEntries / (nrBins + 1);
-            final int m = clippedEntries % (nrBins + 1);
-            for (int i = 0; i <= nrBins; ++i) {
+            final int d = clippedEntries / (m_bins + 1);
+            final int m = clippedEntries % (m_bins + 1);
+            for (int i = 0; i <= m_bins; ++i) {
                 clippedHistogram[i] += d;
             }
 
             if (m != 0) {
-                final int s = nrBins / m;
-                for (int i = 0; i <= nrBins; i += s) {
+                final int s = m_bins / m;
+                for (int i = 0; i <= m_bins; i += s) {
                     ++clippedHistogram[i];
                 }
             }
@@ -206,8 +222,8 @@ public class Clahe_new<T extends RealType<T>> implements
      * @param oldValue the old value at a position in the input image.
      * @return the newValue which gets written in the ouput image.
      */
-    private int cdf(final int[] clippedHistogram, final int oldValue) {
-        int hMin = nrBins;
+    private int buildCDF(final int[] clippedHistogram, final int oldValue) {
+        int hMin = m_bins;
         for (int i = 0; i < hMin; ++i) {
             if (clippedHistogram[i] != 0) {
                 hMin = i;
@@ -220,7 +236,7 @@ public class Clahe_new<T extends RealType<T>> implements
         }
 
         int cdfMax = cdf;
-        for (int i = oldValue + 1; i <= nrBins; ++i) {
+        for (int i = oldValue + 1; i <= m_bins; ++i) {
             cdfMax += clippedHistogram[i];
         }
 
@@ -242,6 +258,6 @@ public class Clahe_new<T extends RealType<T>> implements
      */
     @Override
     public UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> copy() {
-        return new Clahe_new(blockRadius, nrBins, slope);
+        return new Clahe_new<T>(m_blockradius, m_bins, m_slope);
     }
 }
