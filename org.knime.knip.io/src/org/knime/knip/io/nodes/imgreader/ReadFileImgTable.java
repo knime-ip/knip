@@ -367,7 +367,7 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 
 					// One _can_ be sure that if and only if
 					// some dims are removed (as they are of
-					// size 1) a optimized iterable interval
+					// size 1) an optimized iterable interval
 					// is created
 
 					final ImgPlus<T> resImgPlus = (ImgPlus<T>) m_imgSource

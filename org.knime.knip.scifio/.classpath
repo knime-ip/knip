@@ -3,7 +3,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/scifio-0.7.0.jar" sourcepath="lib/mvn-scifio-source-collection.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/scifio-0.7.0.jar" sourcepath="/scifio"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/jai_imageio-1.0.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/mapdb-0.9.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/serializer-2.7.1.jar"/>
