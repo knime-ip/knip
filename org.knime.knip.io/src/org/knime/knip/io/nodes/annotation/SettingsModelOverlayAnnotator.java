@@ -84,141 +84,143 @@ import org.slf4j.LoggerFactory;
  */
 public class SettingsModelOverlayAnnotator extends SettingsModel {
 
-	/* Logger */
-	private final Logger LOGGER = LoggerFactory
-			.getLogger(SettingsModelOverlayAnnotator.class);
+    /* Logger */
+    private final Logger LOGGER = LoggerFactory
+            .getLogger(SettingsModelOverlayAnnotator.class);
 
-	private final String m_configName;
+    private final String m_configName;
 
-	private HashMap<RowColKey, Overlay> m_labelingMap = new HashMap<RowColKey, Overlay>();
+    private HashMap<RowColKey, Overlay> m_labelingMap =
+            new HashMap<RowColKey, Overlay>();
 
-	public SettingsModelOverlayAnnotator(String configName) {
-		m_configName = configName;
-	}
+    public SettingsModelOverlayAnnotator(String configName) {
+        m_configName = configName;
+    }
 
-	public void setOverlayMap(HashMap<RowColKey, Overlay> map) {
-		m_labelingMap = map;
-	}
+    public void setOverlayMap(HashMap<RowColKey, Overlay> map) {
+        m_labelingMap = map;
+    }
 
-	public Map<RowColKey, Overlay> getOverlayMap() {
-		return m_labelingMap;
-	}
+    public Map<RowColKey, Overlay> getOverlayMap() {
+        return m_labelingMap;
+    }
 
-	//
-	// helpers
-	//
+    //
+    // helpers
+    //
 
-	private void saveSettings(NodeSettingsWO settings) {
-		// save the labeling hashmap
-		try {
-			settings.addInt("numOverlayEntries", m_labelingMap.size());
+    private void saveSettings(NodeSettingsWO settings) {
+        // save the labeling hashmap
+        try {
+            settings.addInt("numOverlayEntries", m_labelingMap.size());
 
-			// save drawings
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ObjectOutputStream out = new ObjectOutputStream(baos);
+            // save drawings
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream out = new ObjectOutputStream(baos);
 
-			for (Entry<RowColKey, Overlay> entry : m_labelingMap.entrySet()) {
-				// write key
-				out.writeObject(entry.getKey());
-				// write value
-				out.writeObject(entry.getValue());
-			}
-			out.flush();
+            for (Entry<RowColKey, Overlay> entry : m_labelingMap.entrySet()) {
+                // write key
+                out.writeObject(entry.getKey());
+                // write value
+                out.writeObject(entry.getValue());
+            }
+            out.flush();
 
-			settings.addString("labeling",
-					new String(Base64.encode(baos.toByteArray())));
-			out.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+            settings.addString("labeling",
+                    new String(Base64.encode(baos.toByteArray())));
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-	private void loadSettings(NodeSettingsRO settings) {
-		// load the labeling hashmap
-		try {
-			int numOverlays = settings.getInt("numOverlayEntries");
+    private void loadSettings(NodeSettingsRO settings) {
+        // load the labeling hashmap
+        try {
+            int numOverlays = settings.getInt("numOverlayEntries");
 
-			// load drawings
-			m_labelingMap = new HashMap<RowColKey, Overlay>();
+            // load drawings
+            m_labelingMap = new HashMap<RowColKey, Overlay>();
 
-			ByteArrayInputStream bais = new ByteArrayInputStream(
-					Base64.decode(settings.getString("labeling").getBytes()));
-			ObjectInputStream in = new ObjectInputStream(bais);
+            ByteArrayInputStream bais =
+                    new ByteArrayInputStream(Base64.decode(settings.getString(
+                            "labeling").getBytes()));
+            ObjectInputStream in = new ObjectInputStream(bais);
 
-			for (int i = 0; i < numOverlays; i++) {
-				// read key
-				RowColKey key = (RowColKey) in.readObject();
-				// read value
-				Overlay value = (Overlay) in.readObject();
+            for (int i = 0; i < numOverlays; i++) {
+                // read key
+                RowColKey key = (RowColKey)in.readObject();
+                // read value
+                Overlay value = (Overlay)in.readObject();
 
-				m_labelingMap.put(key, value);
-			}
-			in.close();
+                m_labelingMap.put(key, value);
+            }
+            in.close();
 
-		} catch (IOException e) {
-			LOGGER.error("IOError while loading annotator", e);
-		} catch (ClassNotFoundException e) {
-			LOGGER.error("ClassNotFound while loading annotator", e);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+        } catch (IOException e) {
+            LOGGER.error("IOError while loading annotator", e);
+        } catch (ClassNotFoundException e) {
+            LOGGER.error("ClassNotFound while loading annotator", e);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-	//
-	// standard methods
-	//
+    //
+    // standard methods
+    //
 
-	@Override
-	protected void loadSettingsForDialog(NodeSettingsRO settings,
-			PortObjectSpec[] specs) throws NotConfigurableException {
-		loadSettings(settings);
-	}
+    @Override
+    protected void loadSettingsForDialog(NodeSettingsRO settings,
+            PortObjectSpec[] specs) throws NotConfigurableException {
+        loadSettings(settings);
+    }
 
-	@Override
-	protected void saveSettingsForDialog(NodeSettingsWO settings)
-			throws InvalidSettingsException {
-		saveSettings(settings);
-	}
+    @Override
+    protected void saveSettingsForDialog(NodeSettingsWO settings)
+            throws InvalidSettingsException {
+        saveSettings(settings);
+    }
 
-	@Override
-	protected void loadSettingsForModel(NodeSettingsRO settings)
-			throws InvalidSettingsException {
-		loadSettings(settings);
-	}
+    @Override
+    protected void loadSettingsForModel(NodeSettingsRO settings)
+            throws InvalidSettingsException {
+        loadSettings(settings);
+    }
 
-	@Override
-	protected void saveSettingsForModel(NodeSettingsWO settings) {
-		saveSettings(settings);
-	}
+    @Override
+    protected void saveSettingsForModel(NodeSettingsWO settings) {
+        saveSettings(settings);
+    }
 
-	@Override
-	protected <T extends SettingsModel> T createClone() {
-		SettingsModelOverlayAnnotator clone = new SettingsModelOverlayAnnotator(
-				m_configName);
-		clone.setOverlayMap((HashMap<RowColKey, Overlay>) m_labelingMap.clone());
-		return (T) clone;
-	}
+    @Override
+    protected <T extends SettingsModel> T createClone() {
+        SettingsModelOverlayAnnotator clone =
+                new SettingsModelOverlayAnnotator(m_configName);
+        clone.setOverlayMap((HashMap<RowColKey, Overlay>)m_labelingMap.clone());
+        return (T)clone;
+    }
 
-	@Override
-	protected String getModelTypeID() {
-		return "SMID_overlayannotation";
-	}
+    @Override
+    protected String getModelTypeID() {
+        return "SMID_overlayannotation";
+    }
 
-	@Override
-	protected String getConfigName() {
-		return m_configName;
-	}
+    @Override
+    protected String getConfigName() {
+        return m_configName;
+    }
 
-	@Override
-	public String toString() {
-		return m_configName;
-	}
+    @Override
+    public String toString() {
+        return m_configName;
+    }
 
-	@Override
-	protected void validateSettingsForModel(NodeSettingsRO settings)
-			throws InvalidSettingsException {
-		// Nothing to do here
-	}
+    @Override
+    protected void validateSettingsForModel(NodeSettingsRO settings)
+            throws InvalidSettingsException {
+        // Nothing to do here
+    }
 }

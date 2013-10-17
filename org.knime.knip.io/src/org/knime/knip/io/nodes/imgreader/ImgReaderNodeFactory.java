@@ -65,47 +65,47 @@ import org.knime.knip.base.nodes.view.TableCellViewNodeView;
  *         Zinsmaier</a>
  */
 public class ImgReaderNodeFactory<T extends NativeType<T> & RealType<T>>
-		extends NodeFactory<ImgReaderNodeModel<T>> {
+        extends NodeFactory<ImgReaderNodeModel<T>> {
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public NodeDialogPane createNodeDialogPane() {
-		return new ImgReaderNodeDialog();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public NodeDialogPane createNodeDialogPane() {
+        return new ImgReaderNodeDialog();
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ImgReaderNodeModel<T> createNodeModel() {
-		return new ImgReaderNodeModel<T>();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ImgReaderNodeModel<T> createNodeModel() {
+        return new ImgReaderNodeModel<T>();
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public NodeView<ImgReaderNodeModel<T>> createNodeView(final int i,
-			final ImgReaderNodeModel<T> nodeModel) {
-		return new TableCellViewNodeView<ImgReaderNodeModel<T>>(nodeModel);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public NodeView<ImgReaderNodeModel<T>> createNodeView(final int i,
+            final ImgReaderNodeModel<T> nodeModel) {
+        return new TableCellViewNodeView<ImgReaderNodeModel<T>>(nodeModel);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int getNrNodeViews() {
-		return 1;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getNrNodeViews() {
+        return 1;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean hasDialog() {
-		return true;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean hasDialog() {
+        return true;
+    }
 
 }

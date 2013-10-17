@@ -78,82 +78,84 @@ import org.knime.knip.io.nodes.annotation.create.OverlayAnnotatorView;
  *         Zinsmaier</a>
  */
 public class DialogComponentOverlayAnnotator<T extends RealType<T> & NativeType<T>>
-		extends DialogComponent {
+        extends DialogComponent {
 
-	/* wrapped by this component */
-	private AnnotatorView m_annotatorView = new OverlayAnnotatorView<T>();
+    /* wrapped by this component */
+    private AnnotatorView m_annotatorView = new OverlayAnnotatorView<T>();
 
-	public DialogComponentOverlayAnnotator(
-			final SettingsModelOverlayAnnotator model) {
-		super(model);
+    public DialogComponentOverlayAnnotator(
+            final SettingsModelOverlayAnnotator model) {
+        super(model);
 
-		// set the view panel
-		getComponentPanel().setLayout(new GridBagLayout());
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.fill = GridBagConstraints.BOTH;
-		gbc.weightx = 1.0d;
-		gbc.weighty = 1.0d;
+        // set the view panel
+        getComponentPanel().setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 1.0d;
+        gbc.weighty = 1.0d;
 
-		getComponentPanel().add(m_annotatorView.getAnnotatorPanel(), gbc);
-	}
+        getComponentPanel().add(m_annotatorView.getAnnotatorPanel(), gbc);
+    }
 
-	public void updateDataTable(DataTable inputTable) {
-		// note that the order in which updateDataTable and updateComponent are
-		// called should
-		// ideally be the other way around. However the forgiving implementation
-		// of the OverlayAnnotatorView
-		// makes it possible to add the overlays before the input table.
-		m_annotatorView.setInputTable(inputTable);
-	}
+    public void updateDataTable(DataTable inputTable) {
+        // note that the order in which updateDataTable and updateComponent are
+        // called should
+        // ideally be the other way around. However the forgiving implementation
+        // of the OverlayAnnotatorView
+        // makes it possible to add the overlays before the input table.
+        m_annotatorView.setInputTable(inputTable);
+    }
 
-	@Override
-	protected void updateComponent() {
-		// note that the order in which updateDataTable and updateComponent are
-		// called should
-		// ideally be the other way around. However the forgiving implementation
-		// of the OverlayAnnotatorView
-		// makes it possible to add the overlays before the input table.
-		SettingsModelOverlayAnnotator model = (SettingsModelOverlayAnnotator) getModel();
-		Map<RowColKey, Overlay> map = model.getOverlayMap();
+    @Override
+    protected void updateComponent() {
+        // note that the order in which updateDataTable and updateComponent are
+        // called should
+        // ideally be the other way around. However the forgiving implementation
+        // of the OverlayAnnotatorView
+        // makes it possible to add the overlays before the input table.
+        SettingsModelOverlayAnnotator model =
+                (SettingsModelOverlayAnnotator)getModel();
+        Map<RowColKey, Overlay> map = model.getOverlayMap();
 
-		m_annotatorView.reset();
-		for (RowColKey key : map.keySet()) {
-			m_annotatorView.setOverlay(key, map.get(key));
-		}
-	}
+        m_annotatorView.reset();
+        for (RowColKey key : map.keySet()) {
+            m_annotatorView.setOverlay(key, map.get(key));
+        }
+    }
 
-	@Override
-	protected void validateSettingsBeforeSave() throws InvalidSettingsException {
-		SettingsModelOverlayAnnotator model = (SettingsModelOverlayAnnotator) getModel();
+    @Override
+    protected void validateSettingsBeforeSave() throws InvalidSettingsException {
+        SettingsModelOverlayAnnotator model =
+                (SettingsModelOverlayAnnotator)getModel();
 
-		HashMap<RowColKey, Overlay> map = new HashMap<RowColKey, Overlay>();
-		for (RowColKey key : m_annotatorView.getOverlayKeys()) {
-			map.put(key, m_annotatorView.getOverlay(key));
-		}
+        HashMap<RowColKey, Overlay> map = new HashMap<RowColKey, Overlay>();
+        for (RowColKey key : m_annotatorView.getOverlayKeys()) {
+            map.put(key, m_annotatorView.getOverlay(key));
+        }
 
-		model.setOverlayMap(map);
-	}
+        model.setOverlayMap(map);
+    }
 
-	@Override
-	protected void checkConfigurabilityBeforeLoad(PortObjectSpec[] specs)
-			throws NotConfigurableException {
-		// TODO Auto-generated method stub
+    @Override
+    protected void checkConfigurabilityBeforeLoad(PortObjectSpec[] specs)
+            throws NotConfigurableException {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	protected void setEnabledComponents(boolean enabled) {
-		// TODO Auto-generated method stub
+    @Override
+    protected void setEnabledComponents(boolean enabled) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public void setToolTipText(String text) {
-		// TODO Auto-generated method stub
-	}
+    @Override
+    public void setToolTipText(String text) {
+        // TODO Auto-generated method stub
+    }
 
-	public void reset() {
-		m_annotatorView.reset();
-	}
+    public void reset() {
+        m_annotatorView.reset();
+    }
 
 }

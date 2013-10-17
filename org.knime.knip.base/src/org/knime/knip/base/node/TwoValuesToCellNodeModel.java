@@ -92,9 +92,9 @@ import org.knime.knip.base.exceptions.KNIPRuntimeException;
 import org.knime.knip.base.exceptions.LoggerHelper;
 
 /**
- * 
+ *
  * Node Model to process table cells separately.
- * 
+ *
  * @param <VIN1> type of the first input value
  * @param <VIN2> type of the second input value
  * @param <COUT> the type of the output values
@@ -204,7 +204,7 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
 
     /**
      * @param colSuffix suffix to be appended to the resulting column names
-     * 
+     *
      */
     protected TwoValuesToCellNodeModel() {
         super(1, 1);
@@ -215,13 +215,13 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
     /**
      * Contructor to add additional in-ports to the node. The data table port used within this model has index 0! Hence,
      * all additionally added ports will have a index > 0.
-     * 
+     *
      * If you want to overwrite the configure/execute-methods and still want to use the functionality provided by this
      * model, then make sure to overwrite the right methods:
-     * 
+     *
      * {@link #configure(PortObjectSpec[])} and {@link #execute(PortObject[], ExecutionContext)}, and don't forget to
      * call super.... .
-     * 
+     *
      * @param additionalPorts specifies additional ports
      */
     protected TwoValuesToCellNodeModel(final PortType[] additionalPorts) {
@@ -232,13 +232,13 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
     /**
      * Contructor to add additional in-ports and out-ports to the node. The data table port used within this model has
      * index 0! Hence, all additionally added ports will have a index > 0.
-     * 
+     *
      * If you want to overwrite the configure/execute-methods and still want to use the functionality provided by this
      * model, then make sure to overwrite the right methods:
-     * 
+     *
      * {@link #configure(PortObjectSpec[])} and {@link #execute(PortObject[], ExecutionContext)}, and don't forget to
      * call super.... .
-     * 
+     *
      * @param additionalInPorts specifies additional in-ports
      * @param additionalOutPorts specifies additional out-ports
      */
@@ -249,7 +249,7 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
 
     /**
      * Adds the settings model to be saved, load and validated.
-     * 
+     *
      * @param settingsModels
      */
     protected abstract void addSettingsModels(List<SettingsModel> settingsModels);
@@ -271,10 +271,10 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
 
     /**
      * Processes two cells in combination.
-     * 
+     *
      * @param cellValue1
      * @param cellValue2
-     * 
+     *
      * @return
      * @throws Exception
      */
@@ -311,7 +311,7 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
 
     /**
      * Creates the cell factory
-     * 
+     *
      * @param inSpec
      * @param colIndices selected column indices
      * @return the cell factory
@@ -484,7 +484,7 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
     /**
      * Returns the {@link ExecutorService} which will be reseted after cancelation of the node. Use this
      * {@link ExecutorService} to submit new futures in your node.
-     * 
+     *
      * @return
      */
     public ExecutorService getExecutorService() {
@@ -501,7 +501,7 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
 
     /**
      * The cell type that is stored if the out-cell is a ListCell
-     * 
+     *
      * @return
      */
     protected DataType getOutDataCellListCellType() {
@@ -553,7 +553,12 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
         collectSettingsModels();
         for (final SettingsModel sm : m_settingsModels) {
-            sm.loadSettingsFrom(settings);
+            try {
+                sm.loadSettingsFrom(settings);
+            } catch (final InvalidSettingsException e) {
+                LOGGER.warn("Problems occurred loading the settings " + sm.toString() + ": " + e.getLocalizedMessage());
+                setWarningMessage("Problems occurred while loading settings.");
+            }
         }
 
     }
