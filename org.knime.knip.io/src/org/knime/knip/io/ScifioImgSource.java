@@ -233,31 +233,6 @@ public class ScifioImgSource implements ImgSource {
         return getReader(imgRef).getMetadata().get(currentSeries).getAxes();
     }
 
-    // private double[] getCalibration(final String imgRef, final int
-    // currentSeries)
-    // throws Exception {
-    //
-    // Metadata meta = ScifioGateway.getSCIFIO().initializer()
-    // .parseMetadata(imgRef, true);
-    //
-    // // translate to ome metadata to get access to calibration values
-    // OMEMetadata omexml = new OMEMetadata(ScifioGateway.getSCIFIO()
-    // .getContext());
-    // ScifioGateway.getSCIFIO().translator().translate(meta, omexml, false);
-    //
-    // double[] calib = new double[omexml.get(currentSeries).getAxes().size()];
-    //
-    // // TODO: remove completely after scifio has adopted to new calibrated
-    // // axis structure
-    // int i = 0;
-    // for (CalibratedAxis axes : omexml.get(currentSeries).getAxes()) {
-    // calib[i] = axes.averageScale(0, 1);
-    // i++;
-    // }
-    //
-    // return calib;
-    // }
-
     /**
      * {@inheritDoc}
      */
