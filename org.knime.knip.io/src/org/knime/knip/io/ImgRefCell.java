@@ -496,55 +496,6 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
             public double averageScale(int d) {
                 return axis(d).averageScale(0, 1);
             }
-
-            @Override
-            public double calibration(int d) {
-                throw new UnsupportedOperationException(
-                        "Operation not supported anymore (deprecation)");
-            }
-
-            @Override
-            public void calibration(double[] cal) {
-                throw new UnsupportedOperationException(
-                        "Operation not supported anymore (deprecation)");
-            }
-
-            @Override
-            public void calibration(float[] cal) {
-                throw new UnsupportedOperationException(
-                        "Operation not supported anymore (deprecation)");
-            }
-
-            @Override
-            public void setCalibration(double cal, int d) {
-                throw new UnsupportedOperationException(
-                        "Operation not supported anymore (deprecation)");
-            }
-
-            @Override
-            public void setCalibration(double[] cal) {
-                throw new UnsupportedOperationException(
-                        "Operation not supported anymore (deprecation)");
-            }
-
-            @Override
-            public void setCalibration(float[] cal) {
-                throw new UnsupportedOperationException(
-                        "Operation not supported anymore (deprecation)");
-            }
-
-            @Override
-            public String unit(int d) {
-                throw new UnsupportedOperationException(
-                        "Operation not supported anymore (deprecation)");
-            }
-
-            @Override
-            public void setUnit(String unit, int d) {
-                throw new UnsupportedOperationException(
-                        "Operation not supported anymore (deprecation)");
-            }
-
         };
 
     }
