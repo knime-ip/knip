@@ -74,7 +74,7 @@ import org.knime.knip.base.node.ValueToCellsNodeFactory;
 import org.knime.knip.base.node.ValueToCellsNodeModel;
 
 /**
- *
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -83,10 +83,11 @@ public class ImgPropertiesNodeFactory<T extends RealType<T>> extends ValueToCell
 
     private static final DataType[] FEATURE_DATA_TYPES = new DataType[]{IntCell.TYPE,
             ListCell.getCollectionType(LongCell.TYPE), IntCell.TYPE, StringCell.TYPE, StringCell.TYPE, StringCell.TYPE,
-            StringCell.TYPE, StringCell.TYPE, ListCell.getCollectionType(DoubleCell.TYPE)};
+            StringCell.TYPE, StringCell.TYPE, ListCell.getCollectionType(DoubleCell.TYPE),
+            ListCell.getCollectionType(LongCell.TYPE)};
 
     private static final String[] FEATURE_NAMES = new String[]{"Number of Dimensions", "Dimensions",
-            "Number of Pixels", "Type", "Factory Type", "Axes", "Name", "Source", "Calibration"};
+            "Number of Pixels", "Type", "Factory Type", "Axes", "Name", "Source", "Calibration", "Offsets"};
 
     private static SettingsModelStringArray createFeatSelectionModel() {
         return new SettingsModelStringArray("feature_seleciton", new String[]{});
@@ -167,7 +168,7 @@ public class ImgPropertiesNodeFactory<T extends RealType<T>> extends ValueToCell
                             for (int i = 0; i < (axes.length - 1); i++) {
                                 buf.append(axes[i].type().getLabel() + ";");
                             }
-                            buf.append(axes[axes.length - 1]);
+                            buf.append(axes[axes.length - 1].type().getLabel());
                             cells[ctr++] = new StringCell(buf.toString());
                             break;
                         case 6:
@@ -181,11 +182,18 @@ public class ImgPropertiesNodeFactory<T extends RealType<T>> extends ValueToCell
                             final List<DoubleCell> calibration =
                                     new ArrayList<DoubleCell>(imgPlusValue.getMetadata().numDimensions());
                             for (int i = 0; i < imgPlusValue.getMetadata().numDimensions(); i++) {
-                                calibration.add(new DoubleCell(imgPlusValue.getMetadata().axis(i).averageScale(0, 0)));
+                                calibration.add(new DoubleCell(imgPlusValue.getMetadata().axis(i).averageScale(0, 1)));
                             }
                             cells[ctr++] = CollectionCellFactory.createListCell(calibration);
                             break;
-
+                        case 9:
+                            long[] offsets = imgPlusValue.getMinimum();
+                            final List<LongCell> offsetCells = new ArrayList<LongCell>(offsets.length);
+                            for (int i = 0; i < offsets.length; i++) {
+                                offsetCells.add(new LongCell(offsets[i]));
+                            }
+                            cells[ctr++] = CollectionCellFactory.createListCell(offsetCells);
+                            break;
                         default:
                             cells[ctr++] = DataType.getMissingCell();
                     }

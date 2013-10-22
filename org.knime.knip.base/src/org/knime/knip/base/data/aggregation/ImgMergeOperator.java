@@ -74,9 +74,9 @@ import org.knime.knip.core.data.img.DefaultImgMetadata;
 
 /**
  * Aggregation operator which merges images.
- *
+ * 
  * @author Martin Horn, University of Konstanz
- *
+ * 
  */
 public class ImgMergeOperator<T extends RealType<T> & NativeType<T>, A, ADA extends ArrayDataAccess<ADA>> extends
         ImgAggregrationOperation {

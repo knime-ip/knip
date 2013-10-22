@@ -49,7 +49,6 @@
 package org.knime.knip.core.ops.interval;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 
 import net.imglib2.Cursor;
@@ -103,10 +102,12 @@ public class MaximumFinder<T extends RealType<T>> implements
 
         pList = new ArrayList<AnalyticPoint>();
 
-        Cursor<T> cur = Views.iterable(input).localizingCursor();
+        Cursor<T> cur = Views.iterable(input).cursor();
         RandomAccess<T> ra = input.randomAccess(input);
 
-        m_structEl = NeighborhoodUtils.reworkStructuringElement(NeighborhoodUtils.get8ConStructuringElement(input.numDimensions()));
+        m_structEl =
+                NeighborhoodUtils.reworkStructuringElement(NeighborhoodUtils.get8ConStructuringElement(input
+                        .numDimensions()));
 
         boolean candidate;
         double act;
@@ -187,7 +188,10 @@ public class MaximumFinder<T extends RealType<T>> implements
         RandomAccess<BitType> raProc = processed.randomAccess();
 
 
-        int numDimensions = dimensions.numDimensions(); //frequently used shortcut
+        while (it.hasNext()) {
+            AnalyticPoint p = it.next();
+            raProc.setPosition(p.getPosition());
+            raStat.setPosition(p.getPosition());
 
         for (AnalyticPoint p : pList) {
             /*
@@ -211,9 +215,15 @@ public class MaximumFinder<T extends RealType<T>> implements
             act.setPosition(p.getPosition());
             raInput.setPosition(p.getPosition());
 
-            for (long[] offset : m_structEl) {
-                raInput.move(offset);
+            int[] myPos = new int[numDimensions];
+            act.localize(myPos);
 
+            p.setMax(true);
+            int indexOfp = pList.indexOf(p);
+
+            for (long[] offset : m_strucEl) {
+                raInput.move(offset);
+                act.setPosition(p.getPosition());
                 if (isWithin(raInput, dimensions)) {
                     if (Math.abs(act.get().getRealDouble() - raInput.get().getRealDouble()) <= m_noise) {
 
@@ -229,6 +239,7 @@ public class MaximumFinder<T extends RealType<T>> implements
                             }
 
                             long mindist = 10000;
+                            int minPos = indexOfp;
 
                             long d, v;
 
@@ -236,7 +247,7 @@ public class MaximumFinder<T extends RealType<T>> implements
                             for (AnalyticPoint k : pList) {
                                 d = 0;
                                 for (int i = 0; i < newPos.length; ++i) {
-                                    v = newPos[i] - k.getPosition()[i];
+                                    v = newPos[i] - pList.get(k).getPosition()[i];
                                     d += v * v;
                                 }
                                 if (d <= mindist) {
@@ -252,21 +263,57 @@ public class MaximumFinder<T extends RealType<T>> implements
                              * most likely not the real local max within the region.
                              * Mark it, so that it will not be set as a local max.
                              * The real max is set 3 lines above and could still
-                             * be the candidate.
+                             * be the candidate. We will leave p isMax as default false.
                              */
-                            p.setMax(false);
                             break;
                         }
                     }
                 }
-
             }
-        }
-        for (AnalyticPoint p : pList) {
-            raOutput.setPosition(p.getPosition());
-            raOutput.get().setReal(255);
+
+            raProc.setPosition(p.getPosition());
+            raProc.get().set(true);
         }
 
+        /*
+         * Create a list of only the maxima
+         */
+        ArrayList<AnalyticPoint> maxList = new ArrayList<AnalyticPoint>();
+
+        /* Optimization: When we don't do suppression, we can need to iterate through
+         * our list only once. This makes maximum finding a lot faster without suppression.
+         */
+
+        if(m_suppression > 0) {
+            //Put maxima into maxList
+            for (AnalyticPoint p : pList) {
+                if (p.isMax()) {
+                    maxList.add(p);
+                }
+            }
+
+            pList = maxList; //drop the old list
+
+            doSuppression();
+
+            /*
+             * Mark all single maximum points.
+             */
+            for (AnalyticPoint p : pList) {
+                raOutput.setPosition(p.getPosition());
+                raOutput.get().setReal(255);
+            }
+        } else {
+            for (AnalyticPoint p : pList) {
+                if (p.isMax()) {
+                    maxList.add(p);
+                    raOutput.setPosition(p.getPosition());
+                    raOutput.get().setReal(255); //mark the point on the output
+                }
+            }
+
+            pList = maxList;
+        }
     }
 
     /**
@@ -274,9 +321,7 @@ public class MaximumFinder<T extends RealType<T>> implements
      */
     protected void doSuppression() {
 
-        Collections.sort(pList);
-
-        /*Build a distance Matrix (To avoid running
+        /* Build a distance Matrix (To avoid running
          * over everything more often than we need to
          */
 
@@ -296,8 +341,8 @@ public class MaximumFinder<T extends RealType<T>> implements
 
     /**
      * Analyze the Neighbor candidates. Find Plateaus, compute Center.
-     * @param rndAccessibleInterval
      *
+     * @param img - The Input Image.
      * @param status - The 3 dimensional Status Structure.
      * @param processed
      * @param ra - The Random access (Position) within the original image.
@@ -375,7 +420,7 @@ public class MaximumFinder<T extends RealType<T>> implements
                                 mpos = new int[numDimensions];
                                 for (int i = 0; i < numDimensions; ++i) {
                                     retVal[i] += ra.getIntPosition(i);
-                                    mpos[i]    = ra.getIntPosition(i);
+                                    mpos[i] = ra.getIntPosition(i);
                                 }
                                 retVal[numDimensions]++;
 
@@ -423,8 +468,7 @@ public class MaximumFinder<T extends RealType<T>> implements
     }
 
     /**
-     * Check if a given Position is within our bounds.
-     * Optimized for dimensions.
+     * Check if a given Position is within our bounds. Optimized for dimensions.
      *
      * @param ra - Random access on the Position.
      * @param dimensions - The dimensions of our given view as Dimension.
@@ -443,8 +487,7 @@ public class MaximumFinder<T extends RealType<T>> implements
     }
 
     /**
-     * Check if a given Position is within our bounds.
-     * Optimized for long arrays.
+     * Check if a given Position is within our bounds. Optimized for long arrays.
      *
      * @param ra - Random access on the Position.
      * @param dimensions - The dimensions of our given view as long[]

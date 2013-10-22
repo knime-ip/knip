@@ -68,8 +68,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Renders the real values of a X,Y slice as ScreenImage. The position in the colorDim defines which of the provided
  * color tables is used.
- *
- *
+ * 
+ * 
  * @param <R>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>

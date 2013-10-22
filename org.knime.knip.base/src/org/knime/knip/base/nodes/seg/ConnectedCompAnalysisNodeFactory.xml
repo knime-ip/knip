@@ -2,18 +2,18 @@
 <knimeNode icon="icons/connectedcompanalysis.png" type="Manipulator">
 	<name>Connected Component Analysis</name>
 	<shortDescription>
-		Identifies connected components in a image.
+		Identifies connected components in an image.
   </shortDescription>
 
 	<fullDescription>
 		<intro>
 			<p>
-				Identifies connected components in a image.
+				Identifies connected components in an image.
     </p>
 			<p>
 				Connected component labeling (alternatively connected component analysis)
 				is an algorithmic application of graph theory, where subsets of
-				connected
+				connected 
 				components are uniquely labeled. Connected component labeling is used in
 				computer vision to detect connected regions in binary digital
 				images.
