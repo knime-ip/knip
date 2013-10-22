@@ -114,7 +114,7 @@ import org.knime.knip.core.util.EnumListProvider;
 import org.knime.knip.core.util.Triple;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -134,6 +134,10 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>, L
 
     private static SettingsModelString createLabelColumnModel() {
         return new SettingsModelString("label_column", "");
+    }
+
+    private static SettingsModelString createLabelColorColumnModel() {
+        return new SettingsModelString("label_color_col_model", "");
     }
 
     private static SettingsModelString createLabelingFactoryModel() {
