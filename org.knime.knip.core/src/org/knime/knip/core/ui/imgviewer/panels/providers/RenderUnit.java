@@ -54,14 +54,15 @@ import java.awt.Image;
 import org.knime.knip.core.ui.event.EventService;
 
 /**
- * Encapsulates a (parameter) state and allows to create an image from a given state. Parameters
- * (normalization / source /...) are retrieved by listening to the {@link EventService} and can change.
- * A {@link RenderUnit} listens to changes of all parameters that are important for the creation of its
- * {@link Image}, creates a {@link Image} if asked and provides a hashCode that summarizes its sate.<br>
+ * Encapsulates a (parameter) state and allows to create an image from a given state. Parameters (normalization / source
+ * /...) are retrieved by listening to the {@link EventService} and can change. A {@link RenderUnit} listens to changes
+ * of all parameters that are important for the creation of its {@link Image}, creates a {@link Image} if asked and
+ * provides a hashCode that summarizes its sate.<br>
  * <br>
- * The contract is that if the {@link #generateHashCode() hashCode} changes {@link #createImage()
- * createImage} will return a different image. <br><br>
- *
+ * The contract is that if the {@link #generateHashCode() hashCode} changes {@link #createImage() createImage} will
+ * return a different image. <br>
+ * <br>
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -69,20 +70,21 @@ import org.knime.knip.core.ui.event.EventService;
 public interface RenderUnit {
 
     /**
-     * Renders something (e.g. a labeling) into a {@link Image}. White will be treated as
-     * transparent color during blending!
+     * Renders something (e.g. a labeling) into a {@link Image}. White will be treated as transparent color during
+     * blending!
+     * 
      * @return the created image.
      */
     public Image createImage();
 
     /**
-     * Returns a hashCode that represents the complete state that leads to the image
-     * created by {@link #createImage}. (I.e. if the hashCode is the same the resulting image is the same) <br>
+     * Returns a hashCode that represents the complete state that leads to the image created by {@link #createImage}.
+     * (I.e. if the hashCode is the same the resulting image is the same) <br>
      * <br>
-     * the hashCode should be created like this:  super.hashCode + object1.hashCode * 31 + object2.hashCode * 31<br>
+     * the hashCode should be created like this: super.hashCode + object1.hashCode * 31 + object2.hashCode * 31<br>
      * <br>
      * IMPORTANT: hashCode generation has to be fast! (the hashCode is used for caching decisions)
-     *
+     * 
      * @return hashCode that identifies the image created by {@link #createImage()}
      */
     public int generateHashCode();

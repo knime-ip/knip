@@ -67,7 +67,7 @@ import org.knime.knip.core.util.NeighborhoodUtils;
 
 /**
  * Operation to Compute local maxima within a given image. Maxima computation can be done in any dimensionality desired.
- *
+ * 
  * @author Tino Klingebiel, University of Konstanz
  */
 
@@ -323,7 +323,7 @@ public class MaximumFinder<T extends RealType<T>> implements
 
     /**
      * Analyze the Neighbor candidates. Find Plateaus, compute Center.
-     *
+     * 
      * @param img - The Input Image.
      * @param status - The 3 dimensional Status Structure.
      * @param status - The 3 dimensional processing Status Structure.
@@ -441,7 +441,7 @@ public class MaximumFinder<T extends RealType<T>> implements
 
     /**
      * Check if a given Position is within our bounds. Optimized for dimensions.
-     *
+     * 
      * @param ra - Random access on the Position.
      * @param dimensions - The dimensions of our given view as Dimension.
      * @return - true if the Position is within bounds, false otherwise.
@@ -460,7 +460,7 @@ public class MaximumFinder<T extends RealType<T>> implements
 
     /**
      * Check if a given Position is within our bounds. Optimized for long arrays.
-     *
+     * 
      * @param ra - Random access on the Position.
      * @param dimensions - The dimensions of our given view as long[]
      * @return - true if the Position is within bounds, false otherwise.

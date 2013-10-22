@@ -57,7 +57,7 @@ import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
 import org.knime.knip.core.io.externalization.Externalizer;
 
 /**
- *
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -116,7 +116,7 @@ public class DefaultLinearSpaceExt0 implements Externalizer<DefaultLinearSpace> 
             out.writeInt(label.length);
             out.write(label);
 
-            double scale = obj.axis(d).averageScale(0, 0);
+            double scale = obj.axis(d).averageScale(0, 1);
             if (Double.isNaN(scale)) {
                 out.writeDouble(0.0d);
             } else {

@@ -82,11 +82,13 @@ import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
 import org.knime.knip.core.data.img.DefaultLabelingMetadata;
+import org.knime.knip.core.ops.labeling.WatershedWithSheds;
 import org.knime.knip.core.ops.labeling.WatershedWithThreshold;
 import org.knime.knip.core.util.MiscViews;
+import org.knime.knip.core.util.NeighborhoodUtils;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -94,11 +96,11 @@ import org.knime.knip.core.util.MiscViews;
 public class WatershedNodeFactory<T extends RealType<T>, L extends Comparable<L>> extends
         TwoValuesToCellNodeFactory<ImgPlusValue<T>, LabelingValue<L>> {
 
-    private final class WatershedOperationWrapper implements BinaryOperation<Img<T>, Labeling<L>, Labeling<L>> {
+    private final class WatershedOperationWrapper1 implements BinaryOperation<Img<T>, Labeling<L>, Labeling<L>> {
 
         private final WatershedWithThreshold<T, L> m_ws;
 
-        public WatershedOperationWrapper(final WatershedWithThreshold<T, L> ws) {
+        public WatershedOperationWrapper1(final WatershedWithThreshold<T, L> ws) {
             m_ws = ws;
         }
 
@@ -126,7 +128,7 @@ public class WatershedNodeFactory<T extends RealType<T>, L extends Comparable<L>
          */
         @Override
         public BinaryOperation<Img<T>, Labeling<L>, Labeling<L>> copy() {
-            return new WatershedOperationWrapper(m_ws);
+            return new WatershedOperationWrapper1(m_ws);
         }
 
     }
@@ -147,6 +149,10 @@ public class WatershedNodeFactory<T extends RealType<T>, L extends Comparable<L>
         return new SettingsModelBoolean("virtual_extend", true);
     }
 
+    private static SettingsModelBoolean createWithWatershedsModel() {
+        return new SettingsModelBoolean("with_watersheds", false);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -155,6 +161,10 @@ public class WatershedNodeFactory<T extends RealType<T>, L extends Comparable<L>
         return new TwoValuesToCellNodeDialog<ImgPlusValue<T>, LabelingValue<L>>() {
             @Override
             public void addDialogComponents() {
+
+                final SettingsModelBoolean withWatersheds = createWithWatershedsModel();
+                addDialogComponent("Options", "", new DialogComponentBoolean(withWatersheds, "With Watersheds"));
+
                 final SettingsModelBoolean useThreshold = createUseThresholdModel();
                 addDialogComponent("Options", "", new DialogComponentBoolean(useThreshold, "Use Threshold"));
 
@@ -168,6 +178,16 @@ public class WatershedNodeFactory<T extends RealType<T>, L extends Comparable<L>
                         thresholdValue.setEnabled(useThreshold.getBooleanValue());
                     }
                 });
+
+                withWatersheds.addChangeListener(new ChangeListener() {
+
+                    @Override
+                    public void stateChanged(final ChangeEvent e) {
+                        useThreshold.setEnabled(!withWatersheds.getBooleanValue());
+                        thresholdValue.setEnabled(!withWatersheds.getBooleanValue());
+                    }
+                });
+
                 addDialogComponent("Options", "", new DialogComponentBoolean(createVirtualExtendModel(),
                         "Virtually extend labeling"));
 
@@ -191,8 +211,8 @@ public class WatershedNodeFactory<T extends RealType<T>, L extends Comparable<L>
      * {@inheritDoc}
      */
     @Override
-    public TwoValuesToCellNodeModel<ImgPlusValue<T>, LabelingValue<L>, LabelingCell<L>> createNodeModel() {
-        return new TwoValuesToCellNodeModel<ImgPlusValue<T>, LabelingValue<L>, LabelingCell<L>>() {
+    public TwoValuesToCellNodeModel<ImgPlusValue<T>, LabelingValue<L>, LabelingCell<?>> createNodeModel() {
+        return new TwoValuesToCellNodeModel<ImgPlusValue<T>, LabelingValue<L>, LabelingCell<?>>() {
 
             private final SettingsModelDimSelection m_dimSelection = createDimSelectionModel();
 
@@ -204,6 +224,8 @@ public class WatershedNodeFactory<T extends RealType<T>, L extends Comparable<L>
 
             private final SettingsModelBoolean m_virtualExtend = createVirtualExtendModel();
 
+            private final SettingsModelBoolean m_withWatersheds = createWithWatershedsModel();
+
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
 
@@ -213,16 +235,16 @@ public class WatershedNodeFactory<T extends RealType<T>, L extends Comparable<L>
                 settingsModels.add(m_thresholdValue);
                 settingsModels.add(m_virtualExtend);
                 settingsModels.add(m_dimSelection);
+                settingsModels.add(m_withWatersheds);
 
             }
 
             @Override
-            protected LabelingCell<L> compute(final ImgPlusValue<T> cellValue1, final LabelingValue<L> cellValue2)
+            protected LabelingCell<?> compute(final ImgPlusValue<T> cellValue1, final LabelingValue<L> cellValue2)
                     throws Exception {
                 Labeling<L> lab = cellValue2.getLabeling();
                 final ImgPlus<T> img = cellValue1.getImgPlus();
-                final Labeling<L> out =
-                        new NativeImgLabeling<L, IntType>(new ArrayImgFactory<IntType>().create(img, new IntType()));
+                final Labeling<?> out;
 
                 if (m_virtualExtend.getBooleanValue()) {
                     lab =
@@ -236,14 +258,31 @@ public class WatershedNodeFactory<T extends RealType<T>, L extends Comparable<L>
                             + img.numDimensions() + ")");
                 }
 
-                final WatershedWithThreshold<T, L> ws = new WatershedWithThreshold<T, L>();
-                if (m_useThreshold.getBooleanValue()) {
-                    ws.setThreshold(m_thresholdValue.getDoubleValue());
-                }
+                if (m_withWatersheds.getBooleanValue()) {
+                    WatershedWithSheds<T, L> ws =
+                            new WatershedWithSheds<T, L>(NeighborhoodUtils.get4ConStructuringElement(img
+                                    .numDimensions()));
+                    Labeling<String> tmp =
+                            new NativeImgLabeling<String, IntType>(new ArrayImgFactory<IntType>().create(img,
+                                                                                                         new IntType()));
+                    SubsetOperations.iterate(ws, m_dimSelection.getSelectedDimIndices(cellValue1.getMetadata()), img,
+                                             lab, tmp);
+                    out = tmp;
+                } else {
+                    final WatershedWithThreshold<T, L> ws = new WatershedWithThreshold<T, L>();
 
-                final BinaryOperation<Img<T>, Labeling<L>, Labeling<L>> operation = new WatershedOperationWrapper(ws);
-                SubsetOperations.iterate(operation, m_dimSelection.getSelectedDimIndices(cellValue1.getMetadata()),
-                                         img, lab, out);
+                    Labeling<L> tmp =
+                            new NativeImgLabeling<L, IntType>(new ArrayImgFactory<IntType>().create(img, new IntType()));
+                    if (m_useThreshold.getBooleanValue()) {
+                        ws.setThreshold(m_thresholdValue.getDoubleValue());
+                    }
+
+                    final BinaryOperation<Img<T>, Labeling<L>, Labeling<L>> operation =
+                            new WatershedOperationWrapper1(ws);
+                    SubsetOperations.iterate(operation, m_dimSelection.getSelectedDimIndices(cellValue1.getMetadata()),
+                                             img, lab, tmp);
+                    out = tmp;
+                }
 
                 return m_labCellFactory.createCell(out, new DefaultLabelingMetadata(cellValue1.getMetadata(),
                         cellValue1.getMetadata(), cellValue1.getMetadata(), new DefaultLabelingColorTable()));
@@ -259,5 +298,4 @@ public class WatershedNodeFactory<T extends RealType<T>, L extends Comparable<L>
 
         };
     }
-
 }

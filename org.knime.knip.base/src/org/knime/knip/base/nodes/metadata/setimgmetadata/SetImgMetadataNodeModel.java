@@ -90,7 +90,7 @@ import org.knime.knip.base.node.NodeTools;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
 
 /**
- *
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -226,7 +226,7 @@ public class SetImgMetadataNodeModel<T extends RealType<T>> extends NodeModel im
                         calibration[i] = m_calibrations[i].getDoubleValue();
                     } else {
                         //TODO: what about arbitrary calibrated spaces?
-                        calibration[i] = imgPlus.axis(i).averageScale(0, 0);
+                        calibration[i] = imgPlus.axis(i).averageScale(0, 1);
                     }
                 }
 

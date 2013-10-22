@@ -76,8 +76,8 @@ import org.knime.knip.core.ui.imgviewer.panels.HiddenViewerComponent;
 
 /**
  * Manages overlays and overlay elements ...
- *
- *
+ * 
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>

@@ -74,7 +74,7 @@ import org.knime.knip.base.node.ValueToCellsNodeFactory;
 import org.knime.knip.base.node.ValueToCellsNodeModel;
 
 /**
- *
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -184,7 +184,7 @@ public class LabelingPropertiesNodeFactory<L extends Comparable<L>> extends Valu
                             for (int i = 0; i < (axes.length - 1); i++) {
                                 buf.append(axes[i].type().getLabel() + ";");
                             }
-                            buf.append(axes[axes.length - 1]);
+                            buf.append(axes[axes.length - 1].type().getLabel());
                             cells[ctr++] = new StringCell(buf.toString());
                             break;
                         case 7:
@@ -198,7 +198,7 @@ public class LabelingPropertiesNodeFactory<L extends Comparable<L>> extends Valu
                             final List<DoubleCell> calibration = new ArrayList<DoubleCell>(dimsArray.length);
                             for (int i = 0; i < dimsArray.length; i++) {
                                 calibration.add(new DoubleCell(cellValue.getLabelingMetadata().axis(i)
-                                        .averageScale(0, 0)));
+                                        .averageScale(0, 1)));
                             }
                             cells[ctr++] = CollectionCellFactory.createListCell(calibration);
                             break;

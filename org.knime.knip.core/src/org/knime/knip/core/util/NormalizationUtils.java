@@ -56,7 +56,7 @@ import net.imglib2.util.ValuePair;
 
 /**
  * TODO Auto-generated
- *
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -65,7 +65,7 @@ public class NormalizationUtils {
 
     /**
      * Determines the minimum and factory for scaling according to the given saturation
-     *
+     * 
      * @param <T>
      * @param interval
      * @param saturation the percentage of pixels in the lower and upper domain to be ignored in the normalization

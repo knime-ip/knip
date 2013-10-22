@@ -61,7 +61,7 @@ import org.knime.knip.core.ui.imgviewer.overlay.OverlayElement2D;
 import org.knime.knip.core.ui.imgviewer.overlay.OverlayElementStatus;
 
 /**
- *
+ * 
  * @param <O>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -87,8 +87,7 @@ public abstract class AnnotatorTool<O extends OverlayElement2D> {
      * @param labels
      */
     public abstract void onMouseDoubleClickLeft(ImgViewerMouseEvent e, O currentOverlayElement,
-                                                PlaneSelectionEvent selection, Overlay overlay,
-                                                String... labels);
+                                                PlaneSelectionEvent selection, Overlay overlay, String... labels);
 
     /**
      * @param e
@@ -128,8 +127,7 @@ public abstract class AnnotatorTool<O extends OverlayElement2D> {
      * @param labels
      */
     public abstract void onMouseDoubleClickRight(ImgViewerMouseEvent e, O currentOverlayElement,
-                                                 PlaneSelectionEvent selection, Overlay overlay,
-                                                 String... labels);
+                                                 PlaneSelectionEvent selection, Overlay overlay, String... labels);
 
     /**
      * @param e
@@ -168,9 +166,8 @@ public abstract class AnnotatorTool<O extends OverlayElement2D> {
      * @param overlay
      * @param labels
      */
-    public abstract void
-            onMouseDoubleClickMid(ImgViewerMouseEvent e, O currentOverlayElement, PlaneSelectionEvent selection,
-                                  Overlay overlay, String... labels);
+    public abstract void onMouseDoubleClickMid(ImgViewerMouseEvent e, O currentOverlayElement,
+                                               PlaneSelectionEvent selection, Overlay overlay, String... labels);
 
     /**
      * @param e
@@ -242,8 +239,8 @@ public abstract class AnnotatorTool<O extends OverlayElement2D> {
      * @param overlay
      * @param labels
      */
-    public void onMousePressed(final ImgViewerMouseEvent e, final PlaneSelectionEvent selection,
-                               final Overlay overlay, final String... labels) {
+    public void onMousePressed(final ImgViewerMouseEvent e, final PlaneSelectionEvent selection, final Overlay overlay,
+                               final String... labels) {
         m_dragPoint = selection.getPlanePos(e.getPosX(), e.getPosY());
 
         if (!e.isInside()) {
@@ -293,8 +290,8 @@ public abstract class AnnotatorTool<O extends OverlayElement2D> {
      * @param overlay
      * @param labels
      */
-    public void onMouseDragged(final ImgViewerMouseEvent e, final PlaneSelectionEvent selection,
-                               final Overlay overlay, final String... labels) {
+    public void onMouseDragged(final ImgViewerMouseEvent e, final PlaneSelectionEvent selection, final Overlay overlay,
+                               final String... labels) {
         if (!e.isInside()) {
             return;
         }

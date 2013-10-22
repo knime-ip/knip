@@ -50,7 +50,7 @@ package org.knime.knip.base.nodes.seg.local;
 
 /**
  * Enum with the possible Local Thresholding Methods used by {@link LocalThresholderNodeModel2}
- *
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>

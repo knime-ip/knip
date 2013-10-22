@@ -50,23 +50,23 @@ package org.knime.knip.core.data.graphtheory;
 
 /**
  * Class to represent a pixel as a node in a graph.
- *
+ * 
  * This implementation was <b>heavily</b> inspired by the implementation provided by Kolmogorov and Boykov: MAXFLOW
  * version 3.01.
- *
+ * 
  * From the README of the library:
- *
+ * 
  * This software library implements the maxflow algorithm described in
- *
+ * 
  * "An Experimental Comparison of Min-Cut/Max-Flow Algorithms for Energy Minimization in Vision." Yuri Boykov and
  * Vladimir Kolmogorov. In IEEE Transactions on Pattern Analysis and Machine Intelligence (PAMI), September 2004
- *
+ * 
  * This algorithm was developed by Yuri Boykov and Vladimir Kolmogorov at Siemens Corporate Research. To make it
  * available for public use, it was later reimplemented by Vladimir Kolmogorov based on open publications.
- *
+ * 
  * If you use this software for research purposes, you should cite the aforementioned paper in any resulting
  * publication.
- *
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -120,7 +120,7 @@ public class Node {
 
     /**
      * Gets the first outgoing node of this node.
-     *
+     * 
      * @return The first outgoing node
      */
     public Edge getFirstOutgoing() {
@@ -129,7 +129,7 @@ public class Node {
 
     /**
      * Sets the firstOutgoing for this instance.
-     *
+     * 
      * @param firstOutgoing The firstOutgoing.
      */
     public void setFirstOutgoing(final Edge firstOutgoing) {
@@ -138,7 +138,7 @@ public class Node {
 
     /**
      * Gets the parent of this node in the tree structure
-     *
+     * 
      * @return The parent of this node.
      */
     public Edge getParent() {
@@ -147,7 +147,7 @@ public class Node {
 
     /**
      * Sets the parent for this node.
-     *
+     * 
      * @param parent The new parent.
      */
     public void setParent(final Edge parent) {
@@ -156,7 +156,7 @@ public class Node {
 
     /**
      * Gets the next active node.
-     *
+     * 
      * @return The next active node.
      */
     public Node getNext() {
@@ -165,7 +165,7 @@ public class Node {
 
     /**
      * Sets the next node for this node.
-     *
+     * 
      * @param next The next node.
      */
     public void setNext(final Node next) {
@@ -174,7 +174,7 @@ public class Node {
 
     /**
      * Gets the timestamp for this node.
-     *
+     * 
      * @return The timestamp.
      */
     public int getTimestamp() {
@@ -183,7 +183,7 @@ public class Node {
 
     /**
      * Sets the timestamp for this instance.
-     *
+     * 
      * @param timestamp The timestamp.
      */
     public void setTimestamp(final int timestamp) {
@@ -192,7 +192,7 @@ public class Node {
 
     /**
      * Gets the distance of this node to source/sink.
-     *
+     * 
      * @return The distance.
      */
     public int getDistance() {
@@ -201,7 +201,7 @@ public class Node {
 
     /**
      * Sets the distance of this node to source/sink.
-     *
+     * 
      * @param distance The distance.
      */
     public void setDistance(final int distance) {
@@ -210,7 +210,7 @@ public class Node {
 
     /**
      * Determines if this node is connected to the sink.
-     *
+     * 
      * @return <tt>true</tt>, if this node is connected to the sink.
      */
     public boolean isInSink() {
@@ -219,7 +219,7 @@ public class Node {
 
     /**
      * Sets whether or not this instance is connected to the sink.
-     *
+     * 
      * @param inSink <tt>true</tt>, if this node is connected to the sink.
      */
     public void setInSink(final boolean inSink) {
@@ -228,7 +228,7 @@ public class Node {
 
     /**
      * Determines if this node is marked.
-     *
+     * 
      * @return <tt>true</tt>, if this node is marked.
      */
     public boolean isMarked() {
@@ -237,7 +237,7 @@ public class Node {
 
     /**
      * Sets whether or not this instance is marked.
-     *
+     * 
      * @param marked <tt>true</tt> to mark this node
      */
     public void setMarked(final boolean marked) {
@@ -246,7 +246,7 @@ public class Node {
 
     /**
      * Sets the residualCapacity for this node.
-     *
+     * 
      * @param residualCapacity The residual capacity.
      */
     public void setResidualCapacity(final float residualCapacity) {
@@ -255,7 +255,7 @@ public class Node {
 
     /**
      * Determines if this instance is in changedNodes.
-     *
+     * 
      * @return <tt>true</tt>, if this node is in changedNodes.
      */
     public boolean isInChangedList() {
@@ -264,7 +264,7 @@ public class Node {
 
     /**
      * Sets whether or not this instance is in changedNodes.
-     *
+     * 
      * @param inChangedList <tt>true</tt>, if this node is in changedNodes
      */
     public void setInChangedList(final boolean inChangedList) {
@@ -273,7 +273,7 @@ public class Node {
 
     /**
      * Gets the residual capacity for this node.
-     *
+     * 
      * @return The residual capacity.
      */
     public float getResidualCapacity() {
