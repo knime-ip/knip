@@ -48,50 +48,64 @@
  */
 package org.knime.knip.core.ops.img;
 
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.img.UnaryObjectFactory;
+import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.util.ValuePair;
 
 import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
- * TODO Auto-generated
+ * Simple wrapper class to wrap UnaryOperations to UnaryOutputOperations which run on ImgPlus basis
  * 
+ * @param <T> input type
+ * @param <V> output type
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class ImgPlusNormalize<T extends RealType<T>> implements UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> {
+public class ImgPlusToImgPlusRAIWrapperOp<T extends RealType<T>, V extends RealType<V>> implements
+        UnaryOutputOperation<ImgPlus<T>, ImgPlus<V>> {
 
-    private final IterableIntervalNormalize<T> m_op;
+    private UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<V>> m_op;
 
-    private final T m_val;
+    private V m_outType;
 
-    public ImgPlusNormalize(final double saturation, final T val, final ValuePair<T, T> minmax, final boolean isTarget) {
-        m_val = val;
-        m_op = new IterableIntervalNormalize<T>(saturation, val, minmax, isTarget);
-    }
-
-    protected ImgPlusNormalize(final IterableIntervalNormalize<T> op, final T val) {
+    /**
+     * @param op
+     * @param outType
+     */
+    public ImgPlusToImgPlusRAIWrapperOp(final UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<V>> op,
+                                     final V outType) {
         m_op = op;
-        m_val = val;
+        m_outType = outType;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public ImgPlus<T> compute(final ImgPlus<T> input, final ImgPlus<T> output) {
+    public ImgPlus<V> compute(final ImgPlus<T> input, final ImgPlus<V> output) {
         m_op.compute(input, output);
         return output;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public UnaryObjectFactory<ImgPlus<T>, ImgPlus<T>> bufferFactory() {
-        return new ImgPlusFactory<T, T>(m_val);
+    public UnaryObjectFactory<ImgPlus<T>, ImgPlus<V>> bufferFactory() {
+        return ImgPlusFactory.<T, V> get(m_outType);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> copy() {
-        return new ImgPlusNormalize<T>((IterableIntervalNormalize<T>)m_op.copy(), m_val.createVariable());
+    public UnaryOutputOperation<ImgPlus<T>, ImgPlus<V>> copy() {
+        return new ImgPlusToImgPlusRAIWrapperOp<T, V>(m_op.copy(), m_outType);
     }
+
 }

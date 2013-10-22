@@ -64,13 +64,13 @@ import org.knime.knip.core.ops.misc.FindThreshold;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public final class AutoThreshold<T extends RealType<T>, I extends IterableInterval<T>, K extends IterableInterval<BitType>>
-        implements UnaryOperation<I, K> {
+public final class AutoThreshold<T extends RealType<T>> implements
+        UnaryOperation<IterableInterval<T>, IterableInterval<BitType>> {
 
     private final ThresholdingType m_thresholdType;
 
@@ -80,7 +80,7 @@ public final class AutoThreshold<T extends RealType<T>, I extends IterableInterv
 
     //might throw a runtime exception (see FindThreshold)
     @Override
-    public K compute(final I op, final K r) {
+    public IterableInterval<BitType> compute(final IterableInterval<T> op, final IterableInterval<BitType> r) {
 
         final Histogram1d<T> hist = Operations.compute(new MakeHistogram<T>(true), op);
         final T thresh = op.firstElement().createVariable();
@@ -91,7 +91,7 @@ public final class AutoThreshold<T extends RealType<T>, I extends IterableInterv
     }
 
     @Override
-    public UnaryOperation<I, K> copy() {
-        return new AutoThreshold<T, I, K>(m_thresholdType);
+    public UnaryOperation<IterableInterval<T>, IterableInterval<BitType>> copy() {
+        return new AutoThreshold<T>(m_thresholdType);
     }
 }

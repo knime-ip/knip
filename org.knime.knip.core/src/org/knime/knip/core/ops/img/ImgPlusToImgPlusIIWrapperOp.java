@@ -48,92 +48,63 @@
  */
 package org.knime.knip.core.ops.img;
 
-import net.imglib2.img.Img;
+import net.imglib2.IterableInterval;
+import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.img.UnaryObjectFactory;
-import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.ops.operation.UnaryOutputOperation;
-import net.imglib2.ops.operation.iterableinterval.unary.MinMaxWithSaturation;
-import net.imglib2.ops.operation.real.unary.Normalize;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.util.ValuePair;
+
+import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
- * TODO Auto-generated
- * 
+ * Simple wrapper class to wrap UnaryOperations to UnaryOutputOperations which run on ImgPlus basis
+ *
+ * @param <T> input type
+ * @param <V> output type
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class ImgNormalize<T extends RealType<T>> implements UnaryOutputOperation<Img<T>, Img<T>> {
+public class ImgPlusToImgPlusIIWrapperOp<T extends RealType<T>, V extends RealType<V>> implements
+        UnaryOutputOperation<ImgPlus<T>, ImgPlus<V>> {
 
-    private final double m_saturation;
+    private UnaryOperation<IterableInterval<T>, IterableInterval<V>> m_op;
 
-    private final T m_val;
+    private V m_outType;
 
-    private ValuePair<T, T> m_minmaxtarget, m_minmaxsource;
-
-    private final boolean m_isManual;
-
-    private final boolean m_isTarget;
-
-    public ImgNormalize(final double saturation, final T val, final ValuePair<T, T> minmax, final boolean isTarget) {
-        m_saturation = saturation;
-        m_val = val;
-        m_isTarget = isTarget;
-        if (isTarget) {
-            m_minmaxtarget = minmax;
-        } else {
-            m_minmaxsource = minmax;
-        }
-
-        m_isManual = minmax != null;
-
+    /**
+     * @param op
+     * @param outType
+     */
+    public ImgPlusToImgPlusIIWrapperOp(final UnaryOperation<IterableInterval<T>, IterableInterval<V>> op, final V outType) {
+        m_op = op;
+        m_outType = outType;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Img<T> compute(final Img<T> input, final Img<T> output) {
-
-        if (m_minmaxtarget == null) {
-            final T min = m_val.createVariable();
-            final T max = m_val.createVariable();
-            min.setReal(m_val.getMinValue());
-            max.setReal(m_val.getMaxValue());
-
-            m_minmaxtarget = new ValuePair<T, T>(min, max);
-        }
-
-        if (m_minmaxsource == null) {
-            m_minmaxsource = Operations.compute(new MinMaxWithSaturation<T>(m_saturation, m_val), input);
-        }
-
-        Operations.map(new Normalize<T>(m_minmaxsource.a, m_minmaxsource.b, m_minmaxtarget.a, m_minmaxtarget.b))
-                .compute(input, output);
-
-        if (!m_isManual) {
-            m_minmaxsource = null;
-            m_minmaxtarget = null;
-        } else if (m_isTarget) {
-            m_minmaxsource = null;
-        } else {
-            m_minmaxtarget = null;
-        }
-
+    public ImgPlus<V> compute(final ImgPlus<T> input, final ImgPlus<V> output) {
+        m_op.compute(input, output);
         return output;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public UnaryObjectFactory<Img<T>, Img<T>> bufferFactory() {
-        return new UnaryObjectFactory<Img<T>, Img<T>>() {
-            @Override
-            public Img<T> instantiate(final Img<T> a) {
-                return a.factory().create(a, a.firstElement().createVariable());
-            }
-        };
+    public UnaryObjectFactory<ImgPlus<T>, ImgPlus<V>> bufferFactory() {
+        return ImgPlusFactory.<T, V> get(m_outType);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public UnaryOutputOperation<Img<T>, Img<T>> copy() {
-        return new ImgNormalize<T>(m_saturation, m_val.createVariable(), m_isTarget ? m_minmaxtarget : m_minmaxsource,
-                m_isTarget);
+    public UnaryOutputOperation<ImgPlus<T>, ImgPlus<V>> copy() {
+        return new ImgPlusToImgPlusIIWrapperOp<T, V>(m_op.copy(), m_outType);
     }
+
 }
