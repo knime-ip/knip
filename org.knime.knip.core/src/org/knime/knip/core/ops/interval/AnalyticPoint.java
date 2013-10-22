@@ -1,137 +1,221 @@
 package org.knime.knip.core.ops.interval;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 
-public class AnalyticPoint implements Comparable {
+import net.imglib2.Localizable;
+import net.imglib2.type.numeric.RealType;
 
-    private double m_colValue;
+public class AnalyticPoint<T extends RealType<T>> implements Comparable<AnalyticPoint<T>>, Localizable {
+
+    private T m_value;
 
     private int[] m_coords;
 
-    private boolean m_processed = false;
+    private boolean m_isMax; //is maxmimum flag
+    private boolean m_proc; //processed flag
 
-    private boolean m_analyzed = false;
 
-    private boolean m_isMax = false;
+    /**
+     * Contructor of AnalyticPoint
+     * isMax defaults to false
+     * processed defaults to false
+     *
+     * @param pos Position of the point
+     * @param val the value
+     */
+    public AnalyticPoint(final Localizable pos, final T val) {
+        m_value = val;
 
-    public AnalyticPoint() {
-        m_colValue = 0;
-        m_coords = null;
-    }
+        m_coords = new int[pos.numDimensions()];
+        pos.localize(m_coords);
 
-    public AnalyticPoint(int[] coords, double val) {
-        m_colValue = val;
-        m_coords = coords;
-    }
-
-    public void setMax(boolean bool) {
-        m_isMax = bool;
-    }
-
-    public void setProcessed(boolean bool) {
-        m_processed = bool;
-    }
-
-    public boolean isProcessed() {
-        return m_processed;
-    }
-
-    public void setAnalyzed(boolean bool) {
-        m_analyzed = bool;
-    }
-
-    public boolean isAnalyzed() {
-        return m_analyzed;
-    }
-
-    public boolean isMax() {
-        return m_isMax;
+        m_isMax = false;
+        m_proc = false;
     }
 
     public int[] getPosition() {
         return m_coords;
     }
 
-    public int compareTo(Object p) {
-        if (p instanceof AnalyticPoint) {
-            return (int)((((AnalyticPoint)p).getValue() - m_colValue) * 255);
-        } else {
-            return 0;
+    /**
+     * Set the flag which describes this as a maximum or not.
+     * @param b
+     */
+    public void setMax(final boolean b) {
+        m_isMax = b;
+    }
+
+    /**
+     * Get the flag which describes this as a maximum or not.
+     * @return
+     */
+    public boolean isMax() {
+        return m_isMax;
+    }
+
+    /**
+     * Tell this point that it was processed
+     */
+    public void setProccessed() {
+        m_proc = true;
+    }
+
+    /**
+     * Check whether this point was processed yet
+     * @return
+     */
+    public boolean isProcessed() {
+        return m_proc;
+    }
+
+    /**
+     * Calculate distance to another AnalyticPoint
+     *
+     * Equivalent to Math.sqrt(distanceToSq(p));
+     * @param p
+     * @return distance
+     */
+    public double distanceTo(final AnalyticPoint<T> p) {
+        return Math.sqrt(distanceToSq(p));
+    }
+
+    /**
+     * Squared distance for speed
+     * @param p
+     * @return
+     */
+    public int distanceToSq(final AnalyticPoint<T> p) {
+        int[] pPos = new int[numDimensions()];
+
+        int dist = 0;
+        for (int i = 0; i < numDimensions(); ++i) {
+            int tmp = (pPos[i] - m_coords[i]);
+            dist += tmp * tmp;
+        }
+
+        return dist;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * TODO: Necessary?
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((m_value == null) ? 0 : m_value.hashCode());
+        result = prime * result + Arrays.hashCode(m_coords);
+        result = prime * result + (m_isMax ? 1231 : 1237);
+        return result;
+    }
+
+    /**
+     * Returns a copy of this point
+     * @return
+     */
+    public AnalyticPoint<T> copy() {
+        return new AnalyticPoint<T>(this, this.m_value);
+    }
+
+    /**
+     * Get the value of this point
+     * @return
+     */
+    public T getValue() {
+        return m_value;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void localize(final float[] pos) {
+        int n = numDimensions();
+        for ( int d = 0; d < n; d++ ) {
+            pos[ d ] = this.m_coords[ d ];
         }
     }
 
-    public double distanceTo(AnalyticPoint p) {
-        int[] pPos = p.getPosition();
-        int[] qPos = this.getPosition();
-
-        double dist = 0;
-        for (int i = 0; i < pPos.length && i < qPos.length; ++i) {
-            dist += (double)(pPos[i] - qPos[i]) * (double)(pPos[i] - qPos[i]);
-        }
-
-        return Math.abs(Math.sqrt((double)dist));
-    }
-
-    public boolean equals(Object p) {
-        if (p instanceof AnalyticPoint) {
-            boolean eq = true;
-            for (int i = 0; i < m_coords.length; ++i) {
-                if (((AnalyticPoint)p).getPosition()[i] == m_coords[i]) {
-
-                } else {
-                    eq = false;
-                }
-            }
-            return eq;
-        } else if (p instanceof long[]) {
-            boolean eq = true;
-            for (int i = 0; i < m_coords.length; ++i) {
-                if (((long[])p)[i] == m_coords[i]) {
-
-                } else {
-                    eq = false;
-                }
-            }
-            return eq;
-        } else {
-            return false;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void localize(final double[] pos) {
+        int n = numDimensions();
+        for ( int d = 0; d < n; d++ ) {
+            pos[ d ] = this.m_coords[ d ];
         }
     }
 
-    public int hashCode(long[] dim) {
-        int ret = 0;
-        long[] r = new long[dim.length];
-        for (int i = 0; i < dim.length - 1; ++i) {
-            r[i] = dim[i];
-            for (int j = i + 1; j < dim.length; ++j) {
-                r[i] *= dim[j];
-            }
-            ret += r[i] * m_coords[i];
+    /**sition
+     * {@inheritDoc}
+     */
+    @Override
+    public float getFloatPosition(final int d) {
+        return getIntPosition(d);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getDoublePosition(final int d) {
+        return getIntPosition(d);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int numDimensions() {
+        return m_coords.length;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void localize(final int[] pos) {
+        int n = numDimensions();
+        for ( int d = 0; d < n; d++ ) {
+            pos[ d ] = this.m_coords[ d ];
         }
-        ret += m_coords[dim.length - 1];
-        return ret;
     }
 
-    public AnalyticPoint copy() {
-        return new AnalyticPoint(this.m_coords, this.m_colValue);
-    }
-
-    public ArrayList<int[]> getNeighborPositions(long[][] mover) {
-        ArrayList<int[]> retList = new ArrayList<int[]>();
-
-        int[] pos = new int[m_coords.length];
-        pos = m_coords.clone();
-        for (int j = 0; j < mover.length; ++j) {
-            for (int i = 0; i < m_coords.length; ++i) {
-                pos[i] += (int)mover[j][i];
-            }
-            retList.add(pos.clone());
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void localize(final long[] pos) {
+        int n = numDimensions();
+        for ( int d = 0; d < n; d++ ) {
+            pos[ d ] = this.m_coords[ d ];
         }
-
-        return retList;
     }
 
-    public double getValue() {
-        return m_colValue;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getIntPosition(final int d) {
+        return m_coords[d];
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getLongPosition(final int d) {
+        return getIntPosition(d);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int compareTo(final AnalyticPoint<T> p) {
+        return (int)((p.getValue().getRealDouble() - m_value.getRealDouble()) * 255);
     }
 }
