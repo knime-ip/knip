@@ -51,7 +51,6 @@ package org.knime.knip.core.ops.interval;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 
 import net.imglib2.Cursor;
 import net.imglib2.Dimensions;
@@ -60,6 +59,7 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.ops.operation.UnaryOperation;
+import net.imglib2.ops.operation.randomaccessibleinterval.unary.morph.StructuringElementCursor;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
@@ -70,6 +70,8 @@ import org.knime.knip.core.util.NeighborhoodUtils;
  * Operation to Compute local maxima within a given image. Maxima computation can be done in any dimensionality desired.
  *
  * @author Tino Klingebiel, University of Konstanz
+ * @author Jonathan Hale, University of Konstanz
+ * @param <T>
  */
 
 public class MaximumFinder<T extends RealType<T>> implements
@@ -79,10 +81,14 @@ public class MaximumFinder<T extends RealType<T>> implements
 
     private final double m_suppression;
 
-    private long[][] m_strucEl;
+    private long[][] m_structEl;
 
     private ArrayList<AnalyticPoint> pList;
 
+    /**
+     * @param noise
+     * @param suppression
+     */
     public MaximumFinder(final double noise, final double suppression) {
         m_noise = noise;
         m_suppression = suppression;
@@ -91,6 +97,7 @@ public class MaximumFinder<T extends RealType<T>> implements
     /**
      * {@inheritDoc}
      */
+    @Override
     public RandomAccessibleInterval<BitType> compute(final RandomAccessibleInterval<T> input,
                                                      final RandomAccessibleInterval<BitType> output) {
 
@@ -99,33 +106,34 @@ public class MaximumFinder<T extends RealType<T>> implements
         Cursor<T> cur = Views.iterable(input).localizingCursor();
         RandomAccess<T> ra = input.randomAccess(input);
 
-        m_strucEl =
-                NeighborhoodUtils.reworkStructuringElement(NeighborhoodUtils.get8ConStructuringElement(input.numDimensions()));
-
+        m_structEl = NeighborhoodUtils.reworkStructuringElement(NeighborhoodUtils.get8ConStructuringElement(input.numDimensions()));
 
         boolean candidate;
         double act;
+
+        final T v = Views.iterable(input).firstElement().createVariable();
+        final StructuringElementCursor<T> strelCursor = new StructuringElementCursor<T>(Views.extendValue( input, v ).randomAccess(), m_structEl);
+
         //iterate through the image
         while (cur.hasNext()) {
             cur.fwd();
-            ra.setPosition(cur);
 
             candidate = true;
-            act = ra.get().getRealDouble();
+            act = cur.get().getRealDouble();
 
-            for (int i = 0; i < m_strucEl.length; ++i) {
-                ra.move(m_strucEl[i]); //m_strucEl[i] is the "offset"
+            strelCursor.relocate( cur );
 
-                if (isWithin(ra, input)) {
-                    if (ra.get().getRealDouble() > act) {
-                        /*
-                         * A candidate has no higher intensity pixels in his
-                         * neighborhood. When reaching this point, this
-                         * condition dows not hold and this is no candidate.
-                         */
-                        candidate = false;
-                        break;
-                    }
+            while (strelCursor.hasNext()) {
+                strelCursor.next();
+
+                if (strelCursor.get().getRealDouble() > act) {
+                    /*
+                     * A candidate has no higher intensity pixels in his
+                     * neighborhood. When reaching this point, this
+                     * condition does not hold and this is no candidate.
+                     */
+                    candidate = false;
+                    break;
                 }
             }
 
@@ -133,7 +141,7 @@ public class MaximumFinder<T extends RealType<T>> implements
                 int[] coordinates = new int[input.numDimensions()];
                 cur.localize(coordinates);
 
-                AnalyticPoint p = new AnalyticPoint(coordinates, cur.get().getRealDouble());
+                AnalyticPoint p = new AnalyticPoint(coordinates, act);
                 pList.add(p);
             }
         }
@@ -177,39 +185,40 @@ public class MaximumFinder<T extends RealType<T>> implements
         RandomAccess<BitType> raOutput = output.randomAccess();
         RandomAccess<BitType> raStat = status.randomAccess();
         RandomAccess<BitType> raProc = processed.randomAccess();
-        Iterator<AnalyticPoint> it = pList.iterator();
+
 
         int numDimensions = dimensions.numDimensions(); //frequently used shortcut
 
-        while (it.hasNext()) {
-            boolean error = false;
-            AnalyticPoint p = it.next();
-            raProc.setPosition(p.getPosition());
-            raStat.setPosition(p.getPosition());
-
+        for (AnalyticPoint p : pList) {
             /*
-             * The actual candidate was reached by previous steps.
-             * Thus it is either a member of a plateau or connected
+             * check if the actual candidate was reached by previous steps.
+             * If it was, it is either a member of a plateau or connected
              * to a real max and thus no real local max. Ignore it.
              */
-            if (raStat.get().get() || raProc.get().get()) {
+
+            raStat.setPosition(p.getPosition());
+
+            if (raStat.get().get()) {
+                continue;
+            }
+
+            raProc.setPosition(p.getPosition());
+
+            if(raProc.get().get()) {
                 continue;
             }
 
             act.setPosition(p.getPosition());
             raInput.setPosition(p.getPosition());
 
-            int[] myPos = new int[numDimensions];
-            act.localize(myPos);
-
-            for (long[] offset : m_strucEl) {
+            for (long[] offset : m_structEl) {
                 raInput.move(offset);
+
                 if (isWithin(raInput, dimensions)) {
                     if (Math.abs(act.get().getRealDouble() - raInput.get().getRealDouble()) <= m_noise) {
 
                         long[] myPosi =
-                                analyzeneighborhood(input, status, processed, act, dimensions, act.get()
-                                        .getRealDouble());
+                                analyzeneighborhood(input, status, processed, act, dimensions);
 
                         if (myPosi != null) {
                             long[] newPos = new long[numDimensions];
@@ -220,81 +229,39 @@ public class MaximumFinder<T extends RealType<T>> implements
                             }
 
                             long mindist = 10000;
-                            int minPos = pList.indexOf(p);
 
                             long d, v;
 
-                            for (int k = 0; k < pList.size(); ++k) {
+                            AnalyticPoint minPoint = pList.get(0);
+                            for (AnalyticPoint k : pList) {
                                 d = 0;
                                 for (int i = 0; i < newPos.length; ++i) {
-                                    v = newPos[i] - pList.get(k).getPosition()[i];
-                                    d += v*v;
+                                    v = newPos[i] - k.getPosition()[i];
+                                    d += v * v;
                                 }
                                 if (d <= mindist) {
-                                    minPos = k;
+                                    minPoint = k;
                                     mindist = d;
                                 }
                             }
 
-                            pList.get(minPos).setMax(true);
-                            raProc.setPosition(pList.get(minPos).getPosition());
-                            raProc.get().set(true);
+                            minPoint.setMax(true);
                         } else {
                             /*
                              * When we reach this point the initial candidate is
                              * most likely not the real local max within the region.
                              * Mark it, so that it will not be set as a local max.
                              * The real max is set 3 lines above and could still
-                             * be the candidate. If so, there will be no error.
+                             * be the candidate.
                              */
-                            error = true;
+                            p.setMax(false);
                             break;
                         }
                     }
                 }
 
             }
-            if (error) {
-                raProc.setPosition(p.getPosition());
-                raProc.get().set(true);
-            } else {
-                /*
-                 * We did not reach the neighborhoodethod, so there is
-                 * no connected point within 8-con-neighborhood in noise tolerance.
-                 * Since a candidate has no higher intensity pixels around all neighbors
-                 * must haveintensitys smaller than actual - noise.
-                 * Thus we have a real local max and can mark.
-                 */
-                p.setMax(true);
-                raProc.setPosition(p.getPosition());
-                raProc.get().set(true);
-            }
         }
-
-        /* Remove every Point from the List that  is no max.
-         * Useful for all later operations on the list.
-         */
-        @SuppressWarnings("unchecked")
-        ArrayList<AnalyticPoint> cpList = (ArrayList<AnalyticPoint>) pList.clone();
-        for (AnalyticPoint p : cpList) {
-            if (!p.isMax()) {
-                pList.remove(p);
-            }
-        }
-
-        if (m_suppression > 0) {
-            doSuppression();
-        }
-
-        /*
-         * Mark all single maximum points.
-         */
-        /*for (int i = 0; i < pList.size(); ++i) {
-            if (pList.get(i).isMax()) {
-                raOutput.setPosition(pList.get(i).getPosition());
-                raOutput.get().setReal(255);
-            }
-        } */
         for (AnalyticPoint p : pList) {
             raOutput.setPosition(p.getPosition());
             raOutput.get().setReal(255);
@@ -313,6 +280,8 @@ public class MaximumFinder<T extends RealType<T>> implements
          * over everything more often than we need to
          */
 
+        //TODO: This code removes all maxima which have a bigger maxima
+        // in suppression range. Use iterators please.
         int size = pList.size();
         for (int i = 0; i < size; ++i) {
             for (int j = i + 1; j < size; ++j) {
@@ -327,26 +296,31 @@ public class MaximumFinder<T extends RealType<T>> implements
 
     /**
      * Analyze the Neighbor candidates. Find Plateaus, compute Center.
+     * @param rndAccessibleInterval
      *
-     * @param img - The Input Image.
      * @param status - The 3 dimensional Status Structure.
-     * @param status - The 3 dimensional processing Status Structure.
+     * @param processed
      * @param ra - The Random access (Position) within the original image.
      * @param dimensions - Dimensions of the Image.
+     * @param initialIntensity
      * @return null when the random access was not on a real maximum or the computed real max.
      */
     protected long[] analyzeneighborhood(final RandomAccessibleInterval<T> rndAccessibleInterval,
                                          final RandomAccessibleInterval<BitType> status,
-                                         final RandomAccessibleInterval<BitType> processed, final RandomAccess<T> ra,
-                                         final Dimensions dimensions, final double initialIntensity) {
+                                         final RandomAccessibleInterval<BitType> processed,
+                                         final RandomAccess<T> ra,
+                                         final Dimensions dimensions) {
 
         int numDimensions = dimensions.numDimensions(); //frequently used shortcut
 
-        long[] retVal = new long[numDimensions + 1];
+        double initialIntensity = ra.get().getRealDouble();
+
         RandomAccess<BitType> raStat = status.randomAccess();
         RandomAccess<BitType> raProc = processed.randomAccess();
         HashSet<int[]> next = new HashSet<int[]>();
         HashSet<int[]> all = new HashSet<int[]>();
+
+        long[] retVal = new long[numDimensions+1]; //TODO why +1?
         int[] mpos = new int[numDimensions];
 
         ra.localize(retVal);
@@ -358,6 +332,7 @@ public class MaximumFinder<T extends RealType<T>> implements
 
         while (next.size() > 0) {
             HashSet<int[]> newNext = new HashSet<int[]>();
+
             for (int[] act : next) {
                 ra.setPosition(act);
                 raStat.setPosition(act);
@@ -379,8 +354,10 @@ public class MaximumFinder<T extends RealType<T>> implements
                     }
                     return null;
                 }
+
                 raStat.get().set(true);
-                for (long[] offset : m_strucEl) {
+
+                for (long[] offset : m_structEl) {
                     ra.move(offset);
                     if (isWithin(ra, dimensions)) {
 
@@ -427,6 +404,7 @@ public class MaximumFinder<T extends RealType<T>> implements
             }
             next = newNext;
         }
+
         for (int[] act : all) {
             /*
              * Computing done. Mark all pixels traversed (pixels within
@@ -440,6 +418,7 @@ public class MaximumFinder<T extends RealType<T>> implements
             raProc.setPosition(act);
             raProc.get().set(true);
         }
+
         return retVal;
     }
 
@@ -488,6 +467,7 @@ public class MaximumFinder<T extends RealType<T>> implements
     /**
      * {@inheritDoc}
      */
+    @Override
     public UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<BitType>> copy() {
         return new MaximumFinder<T>(m_noise, m_suppression);
     }

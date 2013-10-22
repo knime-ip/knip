@@ -49,12 +49,13 @@
  */
 package org.knime.knip.base.nodes.seg.waehlby;
 
+
 import net.imglib2.Cursor;
+import net.imglib2.Interval;
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.algorithm.gauss3.Gauss3;
-import net.imglib2.algorithm.labeling.Watershed;
 import net.imglib2.combiner.read.CombinedRandomAccessible;
 import net.imglib2.converter.Converter;
 import net.imglib2.converter.read.ConvertedRandomAccessible;
@@ -77,7 +78,9 @@ import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.Ab
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.CCA;
 import net.imglib2.ops.operation.real.unary.RealUnaryOperation;
 import net.imglib2.ops.operation.subset.views.ImgView;
+import net.imglib2.roi.BinaryMaskRegionOfInterest;
 import net.imglib2.roi.EllipseRegionOfInterest;
+import net.imglib2.type.Type;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.ShortType;
@@ -85,6 +88,7 @@ import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.view.Views;
 
 import org.knime.knip.core.ops.interval.MaximumFinder;
+import org.knime.knip.core.ops.labeling.WatershedWithThreshold;
 
 //TODO: Make Integer more generic
 public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> implements
@@ -128,7 +132,13 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         return array;
     }
 
-    //TODO: Make Integer more generic
+
+    private ArrayImgFactory<FloatType> m_floatFactory = new ArrayImgFactory<FloatType>();
+    private RandomAccessibleInterval<FloatType> createBorderedImg(final Interval interval) {
+        Img<FloatType> img = m_floatFactory.create(interval, new FloatType());
+        return Views.interval(Views.extendBorder(img), interval);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -137,20 +147,20 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
                                      final Labeling<Integer> outLab) {
 
         int maxima_size = 4;
-        //        Labeling<LongType> outLabeling = new NativeImgLabeling<LongType, LongType>(new ArrayImgFactory<LongType>().create(getDimensions(img), new LongType()));
-        Img<FloatType> tmp = new ArrayImgFactory<FloatType>().create(img, new FloatType());
-        Img<FloatType> tmp2 = new ArrayImgFactory<FloatType>().create(img, new FloatType());
+        RandomAccessibleInterval<FloatType> tmp = createBorderedImg(img);
+        RandomAccessibleInterval<FloatType> tmp2 = createBorderedImg(img);
+
+        RandomAccessibleInterval<BitType> imgBin = createLabelingMask(inLab);
 
         if (m_segType == SEG_TYPE.SHAPE_BASED_SEGMENTATION) {
 
             /* Start with distance transform */
-            new DistanceMap<T, RandomAccessibleInterval<T>, RandomAccessibleInterval<FloatType>>().compute(img, tmp2);
+            new DistanceMap< T >().compute(imgBin, tmp2);
             /* Gaussian smoothing */
             try {
-                //new GaussNativeType<T>(sigma, input);
-                Gauss3.gauss(m_gaussSize, Views.extendBorder(tmp2), tmp);
+                Gauss3.gauss(m_gaussSize, tmp2, tmp);
             } catch (IncompatibleTypeException e) {
-                // TODO Auto-generated catch block
+                System.out.println("Incompatible Type Exception in Gauss.");
             }
         } else {
             /* Gaussian smoothing */
@@ -162,7 +172,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         }
 
         /* Disc dilation */
-        new DilateGray<FloatType, Img<FloatType>>(createDiscStructuringElement(maxima_size))
+        new DilateGray<FloatType>(createDiscStructuringElement(maxima_size))
                 .compute(new ImgView<FloatType>(Views.interval(Views.extendBorder(tmp), tmp), new ArrayImgFactory<FloatType>()), tmp2);
 
         RandomAccessible<BitType> mask =
@@ -196,8 +206,8 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
 
         long[][] structuringElement = AbstractRegionGrowing.get4ConStructuringElement(img.numDimensions()); /* TODO: Cecog uses 8con */
 
-        final CCA<BitType, Img<BitType>, Labeling<Integer>> cca =
-                new CCA<BitType, Img<BitType>, Labeling<Integer>>(structuringElement, new BitType(false));
+        final CCA<BitType> cca =
+                new CCA<BitType>(structuringElement, new BitType(false));
 
         Labeling<Integer> seeds = inLab.<Integer> factory().create(inLab);
         new NativeImgLabeling<Integer, ShortType>(new ArrayImgFactory<ShortType>().create(getDimensions(img),
@@ -205,7 +215,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         cca.compute(tmp3, seeds);
 
         /* Seeded Watershed */
-        Watershed<FloatType, Integer> watershed = new Watershed<FloatType, Integer>();
+        WatershedWithThreshold<FloatType, Integer> watershed = new WatershedWithThreshold<FloatType, Integer>();
         watershed.setSeeds(seeds);
         watershed.setOutputLabeling(outLab);
         watershed.setIntensityImage(tmp);
@@ -242,6 +252,13 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
 
         //...
         return outLab;
+    }
+
+    /**
+     * @return
+     */
+    private RandomAccessibleInterval<BitType> createLabelingMask(final Labeling<L> inLab) {
+        return new BinaryMaskRegionOfInterest(new ConvertedRandomAccessible(inLab, new LabelingToMaskConverter()));
     }
 
     /**
@@ -355,7 +372,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         }
     }
 
-    private class MaskOp<X> implements BinaryOperation<X, BitType, X> {
+    private class MaskOp<X extends Type<X>> implements BinaryOperation<X, BitType, X> {
 
         private X m_bg;
 
@@ -367,11 +384,11 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
          * {@inheritDoc}
          */
         @Override
-        public X compute(final X inputA, final BitType inputB, X output) {
+        public X compute(final X inputA, final BitType inputB, final X output) {
             if (inputB.get()) {
-                output = inputA;
+                output.set(inputA);
             } else {
-                output = m_bg;
+                output.set(m_bg);
             }
 
             return output;
@@ -388,19 +405,13 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
     }
 
     // TODO: Make Integer more generic
-    private class LabelingToMaskConverter<T extends LabelingType> implements Converter<T, BitType> {
-
+    private class LabelingToMaskConverter<T extends LabelingType<?>> implements Converter<T, BitType> {
         /**
          * {@inheritDoc}
          */
         @Override
-        public void convert(final T input, BitType output) {
-            if (input.getLabeling().isEmpty()) {
-                output = new BitType(false);
-            } else {
-                output = new BitType(true);
-            }
-
+        public void convert(final T input, final BitType output) {
+            output.set(!input.getLabeling().isEmpty());
         }
 
     }

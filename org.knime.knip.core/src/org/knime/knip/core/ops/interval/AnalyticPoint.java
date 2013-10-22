@@ -2,7 +2,11 @@ package org.knime.knip.core.ops.interval;
 
 import java.util.ArrayList;
 
-public class AnalyticPoint implements Comparable {
+/**
+ * AnalyticsPoint is a Utility class for MaximumFinder. It stores basic maximum and value information for a point.
+ * @author squareys
+ */
+public class AnalyticPoint implements Comparable<Object> {
 
     private double m_colValue;
 
@@ -14,45 +18,90 @@ public class AnalyticPoint implements Comparable {
 
     private boolean m_isMax = false;
 
+    /**
+     * Default constructor of AnalyticPoint. Sets all to default false or null/0
+     */
     public AnalyticPoint() {
         m_colValue = 0;
         m_coords = null;
     }
 
-    public AnalyticPoint(int[] coords, double val) {
+    /**
+     * Initialize the AnalyticPoint with position (coord) and a value
+     * @param coords the coordinations/position of the point
+     * @param val value of the point
+     */
+    public AnalyticPoint(final int[] coords, final double val) {
         m_colValue = val;
         m_coords = coords;
     }
 
-    public void setMax(boolean bool) {
+    /**
+     * Set whether this point is concidered a maximum
+     * @param bool
+     */
+    public void setMax(final boolean bool) {
         m_isMax = bool;
     }
 
-    public void setProcessed(boolean bool) {
-        m_processed = bool;
-    }
-
-    public boolean isProcessed() {
-        return m_processed;
-    }
-
-    public void setAnalyzed(boolean bool) {
-        m_analyzed = bool;
-    }
-
-    public boolean isAnalyzed() {
-        return m_analyzed;
-    }
-
+    /**
+     * Check whether this point is a maximum
+     * @return
+     */
     public boolean isMax() {
         return m_isMax;
     }
 
+    /**
+     * Set whether this point was processed
+     * @param bool
+     */
+    public void setProcessed(final boolean bool) {
+        m_processed = bool;
+    }
+
+    /**
+     * Check whether this point was processed or not
+     * @return
+     */
+    public boolean isProcessed() {
+        return m_processed;
+    }
+
+    /**
+     * Set whether this point was analyzed
+     * @param bool
+     */
+    public void setAnalyzed(final boolean bool) {
+        m_analyzed = bool;
+    }
+
+    /**
+     * Check whether this point was analyzed
+     * @return
+     */
+    public boolean isAnalyzed() {
+        return m_analyzed;
+    }
+
+    /**
+     * Get the position of this point
+     * @return
+     */
     public int[] getPosition() {
         return m_coords;
     }
 
-    public int compareTo(Object p) {
+    /**
+     * @return value of the point
+     */
+    public double getValue() {
+        return m_colValue;
+    }
+
+
+    @Override
+    public int compareTo(final Object p) {
         if (p instanceof AnalyticPoint) {
             return (int)((((AnalyticPoint)p).getValue() - m_colValue) * 255);
         } else {
@@ -60,7 +109,12 @@ public class AnalyticPoint implements Comparable {
         }
     }
 
-    public double distanceTo(AnalyticPoint p) {
+    /**
+     * Calculate distance from this point to another
+     * @param p
+     * @return
+     */
+    public double distanceTo(final AnalyticPoint p) {
         int[] pPos = p.getPosition();
         int[] qPos = this.getPosition();
 
@@ -69,10 +123,11 @@ public class AnalyticPoint implements Comparable {
             dist += (double)(pPos[i] - qPos[i]) * (double)(pPos[i] - qPos[i]);
         }
 
-        return Math.abs(Math.sqrt((double)dist));
+        return Math.abs(Math.sqrt(dist));
     }
 
-    public boolean equals(Object p) {
+    @Override
+    public boolean equals(final Object p) {
         if (p instanceof AnalyticPoint) {
             boolean eq = true;
             for (int i = 0; i < m_coords.length; ++i) {
@@ -98,7 +153,11 @@ public class AnalyticPoint implements Comparable {
         }
     }
 
-    public int hashCode(long[] dim) {
+    /**
+     * @param dim
+     * @return
+     */
+    public int hashCode(final long[] dim) {
         int ret = 0;
         long[] r = new long[dim.length];
         for (int i = 0; i < dim.length - 1; ++i) {
@@ -112,11 +171,18 @@ public class AnalyticPoint implements Comparable {
         return ret;
     }
 
+    /**
+     * @return
+     */
     public AnalyticPoint copy() {
         return new AnalyticPoint(this.m_coords, this.m_colValue);
     }
 
-    public ArrayList<int[]> getNeighborPositions(long[][] mover) {
+    /**
+     * @param mover
+     * @return
+     */
+    public ArrayList<int[]> getNeighborPositions(final long[][] mover) {
         ArrayList<int[]> retList = new ArrayList<int[]>();
 
         int[] pos = new int[m_coords.length];
@@ -131,7 +197,4 @@ public class AnalyticPoint implements Comparable {
         return retList;
     }
 
-    public double getValue() {
-        return m_colValue;
-    }
 }
