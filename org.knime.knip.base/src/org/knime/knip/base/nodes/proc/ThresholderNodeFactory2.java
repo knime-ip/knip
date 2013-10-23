@@ -85,6 +85,7 @@ import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.algorithm.types.ThresholdingType;
+import org.knime.knip.core.ops.img.ImgPlusToImgPlusIIWrapperOp;
 import org.knime.knip.core.ops.interval.AutoThreshold;
 import org.knime.knip.core.util.EnumListProvider;
 import org.knime.knip.core.util.ImgUtils;
@@ -92,7 +93,7 @@ import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 
 /**
  * New global thresholder
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -232,13 +233,13 @@ public class ThresholderNodeFactory2<T extends RealType<T>> extends ValueToCellN
                         LOGGER.warn("MINIMUM, INTERMODES and ISODATA are currently not supported because their implementation can result in incorrect results. A missing cell has been created.");
                         return m_imgCellFactory.createCell(imgPlus, imgPlus, ((ImgPlusValue)cellValue).getMinimum());
                     } else {
-                        final AutoThreshold<T, Img<T>, Img<BitType>> op =
-                                new AutoThreshold<T, Img<T>, Img<BitType>>(thresholders[i]);
+                        ImgPlusToImgPlusIIWrapperOp<T, BitType> op =
+                                new ImgPlusToImgPlusIIWrapperOp<T, BitType>(new AutoThreshold<T>(thresholders[i]),
+                                        new BitType());
 
                         final Img<BitType> out;
 
                         try {
-                            //the different thresholding methods can fail and throw a runtime exception in these cases
                             out =
                                     SubsetOperations.iterate(op, m_dimSelection.getSelectedDimIndices(imgPlus),
                                                              imgPlus, res, getExecutorService());
