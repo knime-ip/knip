@@ -50,12 +50,10 @@ package org.knime.knip.base.nodes.misc.dimswap;
 
 import java.util.List;
 
-import net.imglib2.meta.Axes;
-import net.imglib2.meta.AxisType;
+import net.imglib2.meta.CalibratedAxis;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.meta.TypedAxis;
-import net.imglib2.meta.axis.DefaultLinearAxis;
-import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.operation.subset.views.ImgPlusView;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.node.ExecutionContext;
@@ -128,25 +126,16 @@ public class DimensionSwapperNodeFactory<T extends RealType<T>> extends ValueToC
                     size[i] = m_mapping.getSize(i);
                 }
 
-                // swap metadata
-                final double[] calibration = new double[img.numDimensions()];
-                final double[] tmpCalibration = new double[img.numDimensions()];
-                img.calibration(tmpCalibration);
-                final AxisType[] axes = new AxisType[img.numDimensions()];
-                for (int i = 0; i < axes.length; i++) {
-                    calibration[i] = tmpCalibration[mapping[i]];
-                    axes[i] = Axes.get(img.axis(mapping[i]).type().getLabel());
-                }
                 final ImgPlus<T> res =
-                        new ImgPlus<T>(Operations.compute(new DimSwapper<T>(mapping, offset, size), img), img);
-                for (int i = 0; i < axes.length; i++) {
-                    res.setAxis(new DefaultLinearAxis(axes[i]), i);
-                    res.setCalibration(calibration[i], i);
+                        new ImgPlusView<T>(DimSwapper.compute(img, mapping, offset, size), img.factory(), img);
+
+                // swap metadata
+                for (int i = 0; i < img.numDimensions(); i++) {
+                    res.setAxis((CalibratedAxis)img.axis(i).copy(), mapping[i]);
                 }
 
                 return m_imgCellFactory.createCell(res);
             }
-
 
             @Override
             protected void prepareExecute(final ExecutionContext exec) {
