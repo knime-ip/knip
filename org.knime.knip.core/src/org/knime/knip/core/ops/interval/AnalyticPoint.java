@@ -69,13 +69,13 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
     }
 
     /**
-     * Calculate distance to another AnalyticPoint
+     * Calculate distance to a Localizable
      *
      * Equivalent to Math.sqrt(distanceToSq(p));
      * @param p
      * @return distance
      */
-    public double distanceTo(final AnalyticPoint<T> p) {
+    public double distanceTo(final Localizable p) {
         return Math.sqrt(distanceToSq(p));
     }
 
@@ -84,12 +84,36 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
      * @param p
      * @return
      */
-    public int distanceToSq(final AnalyticPoint<T> p) {
-        int[] pPos = new int[numDimensions()];
-
+    public int distanceToSq(final Localizable p) {
         int dist = 0;
         for (int i = 0; i < numDimensions(); ++i) {
-            int tmp = (pPos[i] - m_coords[i]);
+            int tmp = (p.getIntPosition(i) - m_coords[i]);
+            dist += tmp * tmp;
+        }
+
+        return dist;
+    }
+
+    /**
+     * Calculate distance to a long[]
+     *
+     * Equivalent to Math.sqrt(distanceToSq(p));
+     * @param p
+     * @return distance
+     */
+    public double distanceTo(final long[] l) {
+        return Math.sqrt(distanceToSq(l));
+    }
+
+    /**
+     * Squared distance for speed
+     * @param p
+     * @return
+     */
+    public long distanceToSq(final long[] l) {
+        long dist = 0;
+        for (int i = 0; i < numDimensions(); ++i) {
+            long tmp = (l[i] - m_coords[i]);
             dist += tmp * tmp;
         }
 

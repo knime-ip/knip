@@ -59,15 +59,22 @@ import net.imglib2.algorithm.region.localneighborhood.Neighborhood;
 import net.imglib2.algorithm.region.localneighborhood.RectangleShape;
 import net.imglib2.algorithm.region.localneighborhood.RectangleShape.NeighborhoodsAccessible;
 import net.imglib2.algorithm.stats.ComputeMinMax;
+import net.imglib2.img.Img;
+import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.ops.operation.UnaryOperation;
+import net.imglib2.outofbounds.OutOfBoundsBorderFactory;
+import net.imglib2.outofbounds.OutOfBoundsFactory;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.type.numeric.integer.IntType;
+import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 
 /**
  * Operation to compute local Maxima on a RandomAccessibleInterval.
  *
  * @author Jonathan Hale, University of Konstanz
+ * @param <T> Type of Input
  */
 
 public class MaximumFinder<T extends RealType<T>> implements
@@ -77,13 +84,19 @@ public class MaximumFinder<T extends RealType<T>> implements
 
     private final double m_suppression;
 
-    private long[][] m_strucEl;
-
     private ArrayList<AnalyticPoint<T>> pList;
 
-    public MaximumFinder(final double noise, final double suppression) {
-        m_tolerance = noise;
+    private OutOfBoundsFactory<T, RandomAccessibleInterval<T>> m_outOfBounds;
+
+    /**
+     * @param tolerance
+     * @param suppression
+     */
+    public MaximumFinder(final double tolerance, final double suppression) {
+        m_tolerance = tolerance;
         m_suppression = suppression;
+
+        m_outOfBounds = new OutOfBoundsBorderFactory<T, RandomAccessibleInterval<T>>();
     }
 
     private NeighborhoodsAccessible<T> m_neighborhoods;
@@ -91,9 +104,11 @@ public class MaximumFinder<T extends RealType<T>> implements
     /**
      * {@inheritDoc}
      */
+    @Override
     public RandomAccessibleInterval<BitType> compute(final RandomAccessibleInterval<T> input,
                                                      final RandomAccessibleInterval<BitType> output) {
 
+        IntervalView<T> extInput = Views.interval(Views.extend(input, m_outOfBounds), input);
         pList = new ArrayList<AnalyticPoint<T>>();
 
         //find global min and max for optimization TODO: Constructor not necessarily available anymore.
@@ -163,6 +178,23 @@ public class MaximumFinder<T extends RealType<T>> implements
     protected void analyzeAndMarkMaxima(final RandomAccessibleInterval<T> input, final Dimensions dimensions,
                                         final RandomAccessibleInterval<BitType> output) {
 
+        final int numDimensions = input.numDimensions(); //shortcut
+
+        //TODO:
+        final float maxSortingError = 1.0f;
+
+        final int IS_MAX_AREA = 0x01;
+        final int IS_PROCESSED = 0x02;
+        final int IS_EQUAL = 0x04;
+        final int IS_LISTED = 0x08;
+
+        boolean sortingError = false;
+
+
+        Img<IntType> metaImg = new ArrayImgFactory<IntType>().create(input, new IntType());
+        RandomAccess<IntType> raMeta = metaImg.randomAccess();
+
+
         RandomAccess<Neighborhood<T>> raNeigh = m_neighborhoods.randomAccess();
         for (AnalyticPoint<T> p : pList) {
             /*
@@ -176,69 +208,87 @@ public class MaximumFinder<T extends RealType<T>> implements
 
             raNeigh.setPosition(p);
 
-            double realValue = p.getValue().getRealDouble();
+            double realValue = p.getValue().getRealDouble(); //shortcut
 
             boolean maxPossible = true;
-            for (T pixel : raNeigh.get()) {
+            Cursor<T> cNeigh = raNeigh.get().localizingCursor();
+
+            long[] equal = new long[numDimensions]; // sum of all positions of equal points
+            p.localize(equal);
+            int nEqual = 1;
+
+
+            while (cNeigh.hasNext()) { //iterate through our ROI/the structuring element
+                T pixel = cNeigh.get();
                 double realPixel = pixel.getRealDouble();
-                if (processed) { //TODO
+
+                raMeta.setPosition(cNeigh);
+
+                IntType meta = raMeta.get(); //shortcut
+
+                if ((meta.getInteger() & IS_PROCESSED) != 0) {
                     maxPossible = false; //we have reached a point processed previously, thus it is no maximum now
                     break;
                 }
-                if (realPixel > realValue + maxSortingError) { //TODO
+                if (realPixel > realValue + maxSortingError) {
                     maxPossible = false; //we have reached a higher point, thus it is no maximum
                     break;
-                } else if (realPixel >= realValue - m_tolerance) { //TODO
+                } else if (realPixel >= realValue - m_tolerance) {
                     if (pixel.compareTo(p.getValue()) > 0) { //maybe this point should have been treated earlier
-                        //sortingError = true; //TODO
+                        sortingError = true;
                     }
-                    pList.add(new AnalyticPoint<T>(null, pixel)); //TODO: need position of cursor here.
+                    pList.add(new AnalyticPoint<T>(cNeigh, pixel));
+
                     if (pixel == p.getValue()) { //prepare finding center of equal points (in case single point needed)
-                        //set an EQUAL flag to the new point.
+                        meta.set(meta.getInteger() | IS_EQUAL);
+
+                        //add to equal:
+                        for (int i = 0; i < numDimensions; ++i){
+                            equal[i] += cNeigh.getIntPosition(i);
+                        }
+
+                        ++nEqual; //we found one more equal point
                     }
                 }
             }
-            //Code of ImageJ1
-            if (!sortingError) { //TODO: Sorting Error stuff
-                int resetMask = ~(maxPossible ? LISTED : (LISTED | EQUAL));
-                xEqual /= nEqual;
-                yEqual /= nEqual;
-                double minDist2 = 1e20;
-                int nearestI = 0;
-                for (listI = 0; listI < listLen; listI++) {
-                    int offset = pList[listI];
-                    int x = offset % width;
-                    int y = offset / width;
-                    types[offset] &= resetMask; //reset attributes no longer needed
-                    types[offset] |= PROCESSED; //mark as processed
+
+            if (!sortingError) {
+                int resetMask = ~(maxPossible ? IS_LISTED : (IS_LISTED | IS_EQUAL));
+
+                // calculate center of equal points
+                for (int i = 0; i < numDimensions; ++i) {
+                    equal[i] /= nEqual;
+                }
+
+                long minDist = 200; //minimal distance to the calculated center
+                AnalyticPoint<T> nearestPoint = null;
+
+
+                for (AnalyticPoint<T> pt : pList) {
+                    raMeta.setPosition(pt);
+                    IntType meta = raMeta.get();
+                    meta.set((meta.getInteger() & resetMask) | IS_PROCESSED | (maxPossible ? IS_MAX_AREA : 0)); //reset attributes no longer needed
                     if (maxPossible) {
-                        types[offset] |= MAX_AREA;
-                        if ((types[offset] & EQUAL) != 0) {
-                            double dist2 = (xEqual - x) * (xEqual - x) + (yEqual - y) * (yEqual - y);
-                            if (dist2 < minDist2) {
-                                minDist2 = dist2; //this could be the best "single maximum" point
-                                nearestI = listI;
+                        if ((meta.getInteger() & IS_EQUAL) != 0) {
+                            long dist = pt.distanceToSq(equal);
+                            if (dist < minDist) {
+                                minDist = dist; //this could be the best "single maximum" point
+                                nearestPoint = pt;
                             }
                         }
                     }
-                } // for listI
-                if (maxPossible) {
-                    int offset = pList[nearestI];
-                    types[offset] |= MAX_POINT;
-                    if (displayOrCount && !(MaximumFinder.excludeOnEdges && isEdgeMaximum)) {
-                        int x = offset % width;
-                        int y = offset / width;
-                        if (roi == null || roi.contains(x, y)) {
-                            xyVector.addElement(new int[]{x, y});
-                        }
-                    }
+                } //iteration through pList (2)
+
+                if ( nearestPoint != null) { //TODO: Analyze whether this is needed.
+                    nearestPoint.setMax(maxPossible);
                 }
-            }
-        }
+            } // if (!sortingError)
+        } //iteration through pList (1)
 
         /* Remove every Point from the List that  is no max.
          * Useful for all later operations on the list.
          */
+        @SuppressWarnings("unchecked")
         ArrayList<AnalyticPoint<T>> cpList = (ArrayList<AnalyticPoint<T>>)pList.clone();
         for (AnalyticPoint<T> p : cpList) {
             if (!p.isMax()) {
