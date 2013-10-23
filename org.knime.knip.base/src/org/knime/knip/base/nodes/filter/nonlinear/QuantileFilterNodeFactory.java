@@ -73,7 +73,7 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
-import org.knime.knip.core.ops.img.ImgPlusToImgPlusWrapperOp;
+import org.knime.knip.core.ops.img.ImgPlusToImgPlusRAIWrapperOp;
 
 /**
  * 
@@ -179,8 +179,8 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
 
                 ImgPlus<UnsignedByteType> wrappedImgPlus = new ImgPlus<UnsignedByteType>(unsignedByteTypeImg, inImg);
 
-                ImgPlusToImgPlusWrapperOp<UnsignedByteType, UnsignedByteType> wrappedOp =
-                        new ImgPlusToImgPlusWrapperOp<UnsignedByteType, UnsignedByteType>(
+                ImgPlusToImgPlusRAIWrapperOp<UnsignedByteType, UnsignedByteType> wrappedOp =
+                        new ImgPlusToImgPlusRAIWrapperOp<UnsignedByteType, UnsignedByteType>(
                                 new QuantileFilter<UnsignedByteType>(m_smRadius.getIntValue(),
                                         m_smQuantile.getIntValue()), new UnsignedByteType());
 
