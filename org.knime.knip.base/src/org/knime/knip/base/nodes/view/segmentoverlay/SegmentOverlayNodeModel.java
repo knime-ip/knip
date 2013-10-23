@@ -200,9 +200,7 @@ public class SegmentOverlayNodeModel<T extends RealType<T>, L extends Comparable
 
         int imgColIdx = -1;
         if (m_imgCol.getStringValue() != null) {
-            imgColIdx =
-                    NodeTools.autoColumnSelection(inData[0].getDataTableSpec(), m_imgCol, ImgPlusValue.class,
-                                                  this.getClass());
+            imgColIdx = inData[0].getDataTableSpec().findColumnIndex(m_imgCol.getStringValue());
         }
 
         int labelingColIdx = -1;
