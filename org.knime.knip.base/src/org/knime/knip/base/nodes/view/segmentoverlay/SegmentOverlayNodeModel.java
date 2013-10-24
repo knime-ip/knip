@@ -83,7 +83,7 @@ import org.knime.knip.base.node.NodeTools;
 import org.knime.knip.core.util.StringTransformer;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -168,7 +168,9 @@ public class SegmentOverlayNodeModel<T extends RealType<T>, L extends Comparable
     @Override
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
 
-        NodeTools.autoColumnSelection(inSpecs[0], m_labelingCol, LabelingValue.class, this.getClass());
+        if (m_labelingCol.getStringValue() != null) {
+            NodeTools.autoColumnSelection(inSpecs[0], m_labelingCol, LabelingValue.class, this.getClass());
+        }
 
         if (m_imgCol.getStringValue() == null || m_imgCol.getStringValue().length() == 0) {
             NodeTools.autoOptionalColumnSelection(inSpecs[0], m_imgCol, ImgPlusValue.class);
@@ -196,8 +198,17 @@ public class SegmentOverlayNodeModel<T extends RealType<T>, L extends Comparable
         m_imgTable = inData[PORT_IMG];
         m_segTable = inData[PORT_SEG];
 
-        final int imgColIdx = inData[0].getDataTableSpec().findColumnIndex(m_imgCol.getStringValue());
-        final int labelingColIdx = inData[0].getDataTableSpec().findColumnIndex(m_labelingCol.getStringValue());
+        int imgColIdx = -1;
+        if (m_imgCol.getStringValue() != null) {
+            imgColIdx = inData[0].getDataTableSpec().findColumnIndex(m_imgCol.getStringValue());
+        }
+
+        int labelingColIdx = -1;
+        if (m_labelingCol.getStringValue() != null) {
+            labelingColIdx =
+                    NodeTools.autoColumnSelection(inData[0].getDataTableSpec(), m_labelingCol, LabelingValue.class,
+                                                  this.getClass());
+        }
 
         DataTableSpec spec;
         if (imgColIdx != -1) {
