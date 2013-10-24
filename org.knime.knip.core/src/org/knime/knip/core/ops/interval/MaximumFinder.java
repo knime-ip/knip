@@ -52,7 +52,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import net.imglib2.Cursor;
-import net.imglib2.Dimensions;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.algorithm.region.localneighborhood.Neighborhood;
@@ -62,6 +61,7 @@ import net.imglib2.algorithm.stats.ComputeMinMax;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.ops.operation.UnaryOperation;
+import net.imglib2.outofbounds.OutOfBounds;
 import net.imglib2.outofbounds.OutOfBoundsBorderFactory;
 import net.imglib2.outofbounds.OutOfBoundsFactory;
 import net.imglib2.type.logic.BitType;
@@ -112,7 +112,7 @@ public class MaximumFinder<T extends RealType<T>> implements
         pList = new ArrayList<AnalyticPoint<T>>();
 
         //find global min and max for optimization TODO: Constructor not necessarily available anymore.
-        ComputeMinMax<T> mm = new ComputeMinMax<T>(input);
+        ComputeMinMax<T> mm = new ComputeMinMax<T>((RandomAccessibleInterval<T>) extInput);
         mm.process();
 
         T globMin = mm.getMin();
@@ -121,10 +121,10 @@ public class MaximumFinder<T extends RealType<T>> implements
         RectangleShape shape = new RectangleShape(1, true); //"true" skips middle point
 
         //TODO: extend input by something (e.g. given factory in constructor...)
-        m_neighborhoods = shape.neighborhoods(input);
+        m_neighborhoods = shape.neighborhoods(extInput);
 
         Cursor<Neighborhood<T>> cursor = m_neighborhoods.cursor();
-        Cursor<T> inputCursor = Views.iterable(input).cursor();
+        Cursor<T> inputCursor = extInput.cursor();
 
         while (cursor.hasNext() && inputCursor.hasNext()) {
             cursor.fwd();
@@ -143,7 +143,6 @@ public class MaximumFinder<T extends RealType<T>> implements
 
                 // iterate over currently defined pixels
                 for (T cur : cursor.get()) {
-
                     if (value.compareTo(cur) < 0) {
                         // a surrounding pixel has a higher value.
                         maxCandidate = false;
@@ -161,7 +160,7 @@ public class MaximumFinder<T extends RealType<T>> implements
         /*
          * Analyze the maxima candidates. Find out wich ones are real local maxima.
          */
-        analyzeAndMarkMaxima(input, input /* dimensions */, output);
+        analyzeAndMarkMaxima(extInput, output);
         return output;
     }
 
@@ -175,7 +174,7 @@ public class MaximumFinder<T extends RealType<T>> implements
      * @param output
      */
 
-    protected void analyzeAndMarkMaxima(final RandomAccessibleInterval<T> input, final Dimensions dimensions,
+    protected void analyzeAndMarkMaxima(final RandomAccessibleInterval<T> input,
                                         final RandomAccessibleInterval<BitType> output) {
 
         final int numDimensions = input.numDimensions(); //shortcut
@@ -192,7 +191,7 @@ public class MaximumFinder<T extends RealType<T>> implements
 
 
         Img<IntType> metaImg = new ArrayImgFactory<IntType>().create(input, new IntType());
-        RandomAccess<IntType> raMeta = metaImg.randomAccess();
+        OutOfBounds<IntType> raMeta = Views.extendValue(metaImg, new IntType(IS_PROCESSED)).randomAccess();
 
 
         RandomAccess<Neighborhood<T>> raNeigh = m_neighborhoods.randomAccess();
@@ -289,10 +288,10 @@ public class MaximumFinder<T extends RealType<T>> implements
          * Useful for all later operations on the list.
          */
         @SuppressWarnings("unchecked")
-        ArrayList<AnalyticPoint<T>> cpList = (ArrayList<AnalyticPoint<T>>)pList.clone();
-        for (AnalyticPoint<T> p : cpList) {
-            if (!p.isMax()) {
-                pList.remove(p);
+        ArrayList<AnalyticPoint<T>> cpList = new ArrayList<AnalyticPoint<T>>();
+        for (AnalyticPoint<T> p : pList) {
+            if (p.isMax()) {
+                cpList.add(p);
             }
         }
 
@@ -305,7 +304,7 @@ public class MaximumFinder<T extends RealType<T>> implements
          */
 
         RandomAccess<BitType> raOutput = output.randomAccess();
-        for (AnalyticPoint<T> p : pList) {
+        for (AnalyticPoint<T> p : cpList) {
             raOutput.setPosition(p.getPosition());
             raOutput.get().setReal(255);
         }
