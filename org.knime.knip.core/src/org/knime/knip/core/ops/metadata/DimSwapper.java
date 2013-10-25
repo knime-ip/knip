@@ -75,7 +75,7 @@ public class DimSwapper {
      * @param backMapping
      * @param srcOffset Offset in source coordinates.
      * @param srcSize Size in source coordinates.
-     * @return
+     * @return image with swapped dimensions
      */
     public static <T> RandomAccessibleInterval<T> compute(final RandomAccessibleInterval<T> op,
                                                           final int[] backMapping, final long[] srcOffset,
@@ -110,20 +110,5 @@ public class DimSwapper {
             }
 
         return permuted;
-    }
-
-    /**
-     * checks if mapping is ordered
-     *
-     * @param mapping
-     * @return true if ordered
-     */
-    private static boolean inOrder(final int[] mapping) {
-        for (int i = 0; i < mapping.length; i++) {
-            if (mapping[i] != i) {
-                return false;
-            }
-        }
-        return true;
     }
 }
