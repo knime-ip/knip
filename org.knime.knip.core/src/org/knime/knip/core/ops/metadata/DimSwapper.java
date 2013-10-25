@@ -48,6 +48,9 @@
  */
 package org.knime.knip.core.ops.metadata;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.view.Views;
 
@@ -59,16 +62,6 @@ import net.imglib2.view.Views;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 public class DimSwapper {
-
-    /**
-     * <pre>
-     * mapping[0] = 1; // X &lt;- Y, Y becomes X
-     * mapping[1] = 2; // Y &lt;- C, C becomes Y
-     * mapping[2] = 0; // C &lt;- X, X becomes C
-     * </pre>
-     *
-     * @param backMapping
-     */
 
     /**
      * <pre>
@@ -101,18 +94,20 @@ public class DimSwapper {
         RandomAccessibleInterval<T> permuted = op;
         int[] mapping = m_backMapping.clone();
 
-        while (!(inOrder(mapping))) {
+        //Swapping state indication list used for comparison ([0,1,2,...nDims])
+        ArrayList<Integer> swappingState = new ArrayList<Integer>(nDims);
+        for (int i = 0; i < nDims; i++) {
+            swappingState.add(i);
+        }
             for (int d = 0; d < nDims; d++) {
-                if (mapping[d] == d) {
+                if (mapping[d] == swappingState.get(d)) {
                     continue;
                 }
-                permuted = Views.permute(permuted, d, mapping[d]);
-                int temp = mapping[mapping[d]];
-                mapping[mapping[d]] = mapping[d];
-                mapping[d] = temp;
-                break;
+
+                int dimIndex = swappingState.indexOf(mapping[d]);
+                permuted = Views.permute(permuted, d, dimIndex);
+                Collections.swap(swappingState, d, dimIndex);
             }
-        }
 
         return permuted;
     }
