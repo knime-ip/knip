@@ -56,10 +56,11 @@ import net.imglib2.view.Views;
 
 /**
  *
- * @param <T>
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
  */
 public class DimSwapper {
 
@@ -71,7 +72,6 @@ public class DimSwapper {
      * </pre>
      *
      * @param op
-     * @param <T>
      * @param backMapping
      * @param srcOffset Offset in source coordinates.
      * @param srcSize Size in source coordinates.
@@ -81,8 +81,6 @@ public class DimSwapper {
                                                           final int[] backMapping, final long[] srcOffset,
                                                           final long[] srcSize) {
         int[] m_backMapping = backMapping.clone();
-        long[] m_srcOffset = srcOffset.clone();
-        long[] m_srcSize = srcSize.clone();
 
         final int nDims = op.numDimensions();
         for (int i = 0; i < nDims; i++) {
@@ -94,7 +92,7 @@ public class DimSwapper {
         RandomAccessibleInterval<T> permuted = op;
         int[] mapping = m_backMapping.clone();
 
-        //Swapping state indication list used for comparison ([0,1,2,...nDims])
+        // Swapping of Dimensions to fulfil the mapping resulting in an ordered RandomAccessibleInterval
         ArrayList<Integer> swappingState = new ArrayList<Integer>(nDims);
         for (int i = 0; i < nDims; i++) {
             swappingState.add(i);
