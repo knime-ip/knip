@@ -49,11 +49,18 @@
  */
 package org.knime.knip.base.nodes.proc;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
+
+import org.apache.commons.math3.util.FastMath;
 
 /**
  * Modified version of the Fiji CLAHE Plugin from Stephan Saalfeld to work with ImgLib. For further information see <a
@@ -72,6 +79,10 @@ public class Clahe_new<T extends RealType<T>> implements
 
     private final float m_slope;
 
+    private int m_histX;
+
+    private int m_histY;
+
     /**
      * @param blockSize
      * @param bins
@@ -86,18 +97,45 @@ public class Clahe_new<T extends RealType<T>> implements
     }
 
     /**
+     * @param histX
+     * @param histY
+     * @param blockSize
+     * @param bins
+     * @param slope
+     */
+    public Clahe_new(final int histX, final int histY, final int blockSize, final int bins, final float slope) {
+        //blockRadius is half of the blockSize
+        this.m_histX = histX;
+        this.m_histY = histY;
+        this.m_blockradius = (blockSize - 1) / 2;
+        this.m_bins = bins;
+        this.m_slope = slope;
+
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
     public RandomAccessibleInterval<T> compute(final RandomAccessibleInterval<T> input,
                                                final RandomAccessibleInterval<T> output) {
 
+        //if m_histX and m_histY were set and are sensible use the fast version
+        if (m_histX > 0 && m_histY > 0) {
+            return claheFast(input, output);
+        } else {
+            return claheDefault(input, output);
+        }
+
+    }
+
+    private RandomAccessibleInterval<T> claheDefault(final RandomAccessibleInterval<T> input,
+                                                     final RandomAccessibleInterval<T> output) {
         Cursor<T> inputAccess = Views.flatIterable(input).cursor();
         Cursor<T> outputCursor = Views.flatIterable(output).cursor();
 
         final int width = (int)input.dimension(0);
         final int height = (int)input.dimension(1);
-
 
         for (int y = 0; y < height; ++y) {
             // min and max y coordinate of the block as well as its height
@@ -173,6 +211,94 @@ public class Clahe_new<T extends RealType<T>> implements
         } // end for each row
 
         return output;
+    }
+
+    private RandomAccessibleInterval<T> claheFast(final RandomAccessibleInterval<T> input,
+                                                  final RandomAccessibleInterval<T> output) {
+
+        // calculate the centers of the context regions
+        List<Point> histogramCenters = new ArrayList<Point>();
+        int xOffset = (int)(input.dimension(0) / m_histX);
+        int yOffset = (int)(input.dimension(1) / m_histY);
+        for(int yi = yOffset; yi < input.dimension(1); yi += yOffset){
+            for(int xi = xOffset; xi < input.dimension(0); xi += xOffset){
+                histogramCenters.add(new Point(xi, yi));
+            }
+        }
+
+        //create the histograms for each of the context regions
+        Map<Point, int[]> histograms = new HashMap<Point, int[]>();
+        Cursor<T> inputCursor = Views.iterable(input).localizingCursor();
+        int[] pos = new int[2];
+
+        while(inputCursor.hasNext()){
+            inputCursor.next();
+            inputCursor.localize(pos);
+
+            Point p = getNearestPoint(pos, histogramCenters);
+
+            // if the distance is zero we are at a context region center, save the value
+            if(p.distance(pos) == 0){
+                p.oldValue = inputCursor.get().getRealFloat();
+            }
+
+            int[] hist = histograms.get(p);
+            if(hist == null){
+                hist = new int[m_bins];
+            }
+
+            ++hist[roundPositive(inputCursor.get().getRealFloat() / 255.0f * m_bins)];
+            histograms.put(p, hist);
+        }
+
+
+        // after creation of the histograms, clip them
+        int limit = (int)(m_slope * ((yOffset * xOffset) / m_bins));
+        for (Point p : histograms.keySet()) {
+            int[] hist = histograms.get(p);
+            int[] clippedHist = clipHistogram(hist, limit);
+            histograms.put(p, clippedHist);
+        }
+
+        // last step, apply CLAHE
+        inputCursor.reset();
+        while(inputCursor.hasNext()){
+            inputCursor.next();
+            inputCursor.localize(pos);
+
+            //check for special case 0 / 0 (problem with modulo function)
+            if(pos[0] == 0 && pos[1] == 0){
+
+            } else {
+                int modX = pos[0] % xOffset;
+                int modY = pos[1] % yOffset;
+
+                // if the modulo of both positions is zero we have to be at a previously calculated histogram center
+                if(modX == 0 && modY == 0){
+
+//                    int oldValue = roundPositive(inputAccess.get().getRealFloat() / 255.0f * m_bins);
+                }
+            }
+        }
+
+
+        return null;
+    }
+
+
+    private Point getNearestPoint(final int[] pos, final List<Point> points){
+        Point nearestPoint = null;
+        double minDistance = Double.MAX_VALUE;
+
+        for (Point point : points) {
+            double distance = point.distance(pos);
+            if(distance < minDistance){
+                nearestPoint = point;
+                minDistance = distance;
+            }
+        }
+
+        return nearestPoint;
     }
 
     /**
@@ -259,5 +385,52 @@ public class Clahe_new<T extends RealType<T>> implements
     @Override
     public UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> copy() {
         return new Clahe_new<T>(m_blockradius, m_bins, m_slope);
+    }
+
+    private class Point {
+
+        public final int x;
+        public final int y;
+        public float oldValue = -1;
+
+        /**
+         * @param x
+         * @param y
+         * @param oldValue
+         */
+        public Point(final int x, final int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        public double distance(final int[] pos){
+            return FastMath.sqrt(FastMath.pow(this.x - pos[0], 2) + FastMath.pow(this.y, pos[1]));
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean equals(final Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+
+            Point other = (Point)obj;
+
+            if (x != other.x) {
+                return false;
+            }
+            if (y != other.y) {
+                return false;
+            }
+            return true;
+        }
     }
 }
