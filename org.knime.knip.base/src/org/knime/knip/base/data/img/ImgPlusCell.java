@@ -104,9 +104,9 @@ import org.knime.knip.core.io.externalization.ExternalizerManager;
 import org.knime.knip.core.util.ImgUtils;
 
 /**
- * 
+ *
  * File cell keeping {@link ImgPlus}.
- * 
+ *
  * @param <T> Type of cell
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -158,7 +158,7 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
 
     /**
      * Preferred value class of this cell implementation is ImageValue.class.
-     * 
+     *
      * @return ImageValue.class
      */
     public static Class<? extends DataValue> getPreferredValueClass() {
@@ -191,7 +191,7 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
     /**
      * Creates a new img plus cell using the given file store, i.e. writes the image data into the file provided by the
      * file store.
-     * 
+     *
      * @param img
      * @param metadata
      * @param fileStore
@@ -204,11 +204,11 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
     /**
      * Creates a new img plus cell using the given file store, i.e. writes the image data into the file provided by the
      * file store.
-     * 
+     *
      * @param img
      * @param metadata
      * @param min
-     * 
+     *
      * @param fileStore
      */
     protected ImgPlusCell(final Img<T> img, final ImgPlusMetadata metadata, final long[] min, final FileStore fileStore) {
@@ -231,9 +231,9 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
     /**
      * Creates a new img plus cell using the given file store, i.e. writes the image data into the file provided by the
      * file store.
-     * 
+     *
      * @param imgPlus
-     * 
+     *
      * @param fileStore
      */
     protected ImgPlusCell(final ImgPlus<T> imgPlus, final FileStore fileStore) {
@@ -363,8 +363,14 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
     public synchronized long[] getMaximum() {
         readImgData(m_fileMetadata.getOffset(), true);
         final long[] max = new long[m_imgMetadata.getDimensions().length];
-        for (int i = 0; i < max.length; i++) {
-            max[i] = m_imgMetadata.getDimensions()[i] - 1;
+        if (m_imgMetadata.getMinimum() == null) {
+            for (int i = 0; i < max.length; i++) {
+                max[i] = m_imgMetadata.getDimensions()[i] - 1;
+            }
+        } else {
+            for (int i = 0; i < max.length; i++) {
+                max[i] = m_imgMetadata.getMinimum()[i] + m_imgMetadata.getDimensions()[i] - 1;
+            }
         }
         return max;
     }
@@ -522,7 +528,7 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
 
     /**
      * Loads the cell content. To be called after the {@link #FileImgPlusCell(DataCellDataInput)} constructor.
-     * 
+     *
      * @param input
      * @throws IOException
      */
