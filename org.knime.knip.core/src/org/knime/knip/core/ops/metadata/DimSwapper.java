@@ -92,7 +92,7 @@ public class DimSwapper {
         RandomAccessibleInterval<T> permuted = op;
         int[] mapping = m_backMapping.clone();
 
-        // Swapping of Dimensions to fulfil the mapping resulting in an ordered RandomAccessibleInterval
+        // Swapping of Dimensions to fulfill the mapping resulting in an ordered RandomAccessibleInterval
         ArrayList<Integer> swappingState = new ArrayList<Integer>(nDims);
         for (int i = 0; i < nDims; i++) {
             swappingState.add(i);
