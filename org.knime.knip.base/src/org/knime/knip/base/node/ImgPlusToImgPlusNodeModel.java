@@ -64,7 +64,7 @@ import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -72,7 +72,7 @@ import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 public abstract class ImgPlusToImgPlusNodeModel<T extends RealType<T>, V extends RealType<V>> extends
         ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<V>> {
 
-    private final static NodeLogger LOGGER = NodeLogger.getLogger(ImgPlusToImgPlusNodeModel.class);
+    protected final static NodeLogger LOGGER = NodeLogger.getLogger(ImgPlusToImgPlusNodeModel.class);
 
     protected static SettingsModelDimSelection createDimSelectionModel(final String... axes) {
         return new SettingsModelDimSelection("dim_selection", axes);
@@ -80,7 +80,7 @@ public abstract class ImgPlusToImgPlusNodeModel<T extends RealType<T>, V extends
 
     protected SettingsModelDimSelection m_dimSelection;
 
-    private ImgPlusCellFactory m_imgCellFactory;
+    protected ImgPlusCellFactory m_imgCellFactory;
 
     protected ImgPlusToImgPlusNodeModel(final boolean isEnabled, final String... axes) {
         m_dimSelection = createDimSelectionModel(axes);
@@ -131,7 +131,7 @@ public abstract class ImgPlusToImgPlusNodeModel<T extends RealType<T>, V extends
 
     /**
      * UnaryOperation is needed here
-     * 
+     *
      * @return
      */
     protected abstract UnaryOutputOperation<ImgPlus<T>, ImgPlus<V>> op(ImgPlus<T> imgPlus);

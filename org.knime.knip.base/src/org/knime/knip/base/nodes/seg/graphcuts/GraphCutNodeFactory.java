@@ -85,9 +85,9 @@ import org.knime.knip.core.ops.seg.GraphCut2DLab;
 import org.knime.knip.core.util.ImgUtils;
 
 /**
- * 
+ *
  * Node to perform a graph cut where the sink and source a derived from a labeling.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -265,7 +265,7 @@ public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
 
-                if (m_colIndices[1] == -1) {
+                if (m_colIndices == null || m_colIndices[1] == -1) {
                     m_fgLabel.setEnabled(false);
                     m_bgLabel.setEnabled(false);
                     m_lambdaSelection.setEnabled(false);
