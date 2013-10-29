@@ -114,23 +114,23 @@ public class DimensionSwapperNodeFactory<T extends RealType<T>> extends ValueToC
             @Override
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
                 final ImgPlus<T> img = cellValue.getImgPlus();
-                int[] mapping = new int[img.numDimensions()];
-
                 long[] minimum = cellValue.getMinimum();
+                long[] permutedMinimum = new long[minimum.length];
 
+                int[] mapping = new int[img.numDimensions()];
                 for (int i = 0; i < mapping.length; i++) {
                     mapping[i] = m_mapping.getBackDimensionLookup(i);
-                    //                    offset[i] = m_mapping.getOffset(i);
                 }
 
-                final ImgPlus<T> res = new ImgPlusView<T>(DimSwapper.swap(img, mapping, minimum), img.factory(), img);
+                final ImgPlus<T> res = new ImgPlusView<T>(DimSwapper.swap(img, mapping), img.factory(), img);
 
                 // swap metadata
                 for (int i = 0; i < img.numDimensions(); i++) {
                     res.setAxis(img.axis(i).copy(), mapping[i]);
+                    permutedMinimum[i] = minimum[mapping[i]];
                 }
 
-                return m_imgCellFactory.createCell(res);
+                return m_imgCellFactory.createCell(res, permutedMinimum);
             }
 
             @Override

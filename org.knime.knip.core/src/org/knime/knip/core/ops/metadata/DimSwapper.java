@@ -59,7 +59,6 @@ import net.imglib2.view.Views;
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
  */
 public class DimSwapper {
@@ -77,7 +76,7 @@ public class DimSwapper {
      * @return image with swapped dimensions
      */
     public synchronized static <T> RandomAccessibleInterval<T> swap(final RandomAccessibleInterval<T> op,
-                                                                    final int[] backMapping, final long[] minimum) {
+                                                                    final int[] backMapping) {
 
         final int nDims = op.numDimensions();
         for (int i = 0; i < nDims; i++) {
@@ -86,11 +85,7 @@ public class DimSwapper {
             }
         }
 
-        int[] backMappingCopy = backMapping.clone();
-        long[] permutedMinimum = minimum.clone();
-
         RandomAccessibleInterval<T> permuted = op;
-        int[] mapping = backMappingCopy.clone();
 
         // Swapping of Dimensions to fulfill the mapping resulting in an ordered RandomAccessibleInterval
         ArrayList<Integer> swappingState = new ArrayList<Integer>(nDims);
@@ -98,31 +93,16 @@ public class DimSwapper {
             swappingState.add(i);
         }
         for (int d = 0; d < nDims; d++) {
-            if (mapping[d] == swappingState.get(d)) {
+            if (backMapping[d] == swappingState.get(d)) {
                 continue;
             }
 
-            int dimIndex = swappingState.indexOf(mapping[d]);
+            int dimIndex = swappingState.indexOf(backMapping[d]);
             permuted = Views.permute(permuted, d, dimIndex);
 
-            //TODO: Please test @gab1one
-            permutedMinimum = swap(permutedMinimum, d, dimIndex);
             Collections.swap(swappingState, d, dimIndex);
         }
 
         return permuted;
-    }
-
-    /**
-     * @param permutedMinimum
-     * @param d
-     * @param dimIndex
-     * @return
-     */
-    private synchronized static long[] swap(final long[] permutedMinimum, final int d, final int dimIndex) {
-        long tmp = permutedMinimum[d];
-        permutedMinimum[d] = permutedMinimum[dimIndex];
-        permutedMinimum[dimIndex] = tmp;
-        return permutedMinimum;
     }
 }
