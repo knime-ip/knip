@@ -59,7 +59,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.port.PortObjectSpec;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -69,27 +69,15 @@ public class SettingsModelDimensionSwappingSelect extends SettingsModel {
 
     private static final String CFG_DIM_LUT = "cfg-dim-lut";
 
-    private static final String CFG_OFFSET = "cfg-offset";
-
-    private static final String CFG_SIZE = "cfg-size";
-
     private int[] m_backDimensionLookup;
 
     private final String m_configName;
 
-    private int[] m_offset;
-
-    private int[] m_size;
-
     public SettingsModelDimensionSwappingSelect(final String configName, final int numDimensions) {
         m_configName = configName;
         m_backDimensionLookup = new int[numDimensions];
-        m_offset = new int[numDimensions];
-        m_size = new int[numDimensions];
         for (int i = 0; i < numDimensions; i++) {
             m_backDimensionLookup[i] = i;
-            m_offset[i] = 0;
-            m_size[i] = -1;
         }
     }
 
@@ -101,8 +89,6 @@ public class SettingsModelDimensionSwappingSelect extends SettingsModel {
         final SettingsModelDimensionSwappingSelect copy =
                 new SettingsModelDimensionSwappingSelect(m_configName, getNumDimensions());
         copy.m_backDimensionLookup = m_backDimensionLookup.clone();
-        copy.m_offset = m_offset.clone();
-        copy.m_size = m_size.clone();
         return (T)copy;
     }
 
@@ -139,14 +125,6 @@ public class SettingsModelDimensionSwappingSelect extends SettingsModel {
         return m_backDimensionLookup.length;
     }
 
-    public int getOffset(final int from) {
-        return m_offset[from];
-    }
-
-    public int getSize(final int from) {
-        return m_size[from];
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -167,8 +145,6 @@ public class SettingsModelDimensionSwappingSelect extends SettingsModel {
     protected void loadSettingsForModel(final NodeSettingsRO settings) throws InvalidSettingsException {
         final Config c = settings.getConfig(m_configName);
         m_backDimensionLookup = c.getIntArray(CFG_DIM_LUT);
-        m_offset = c.getIntArray(CFG_OFFSET);
-        m_size = c.getIntArray(CFG_SIZE);
     }
 
     /**
@@ -186,8 +162,6 @@ public class SettingsModelDimensionSwappingSelect extends SettingsModel {
     protected void saveSettingsForModel(final NodeSettingsWO settings) {
         final Config c = settings.addConfig(m_configName);
         c.addIntArray(CFG_DIM_LUT, m_backDimensionLookup);
-        c.addIntArray(CFG_OFFSET, m_offset);
-        c.addIntArray(CFG_SIZE, m_size);
     }
 
     public void setBackDimensionLookup(final int to, final int from) {
@@ -196,14 +170,6 @@ public class SettingsModelDimensionSwappingSelect extends SettingsModel {
 
     public void setFwdDimensionLookup(final int to, final int from) {
         m_backDimensionLookup[to] = from;
-    }
-
-    public void setOffset(final int offset, final int from) {
-        m_offset[from] = offset;
-    }
-
-    public void setSize(final int offset, final int from) {
-        m_size[from] = offset;
     }
 
     /**
