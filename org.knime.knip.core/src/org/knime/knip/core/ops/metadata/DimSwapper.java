@@ -73,37 +73,56 @@ public class DimSwapper {
      *
      * @param op
      * @param backMapping
+     * @param minimum the minimum of the according cell (the offset of the given cell)
      * @return image with swapped dimensions
      */
-    public static <T> RandomAccessibleInterval<T> swap(final RandomAccessibleInterval<T> op,
-                                                          final int[] backMapping) {
-        int[] m_backMapping = backMapping.clone();
+    public synchronized static <T> RandomAccessibleInterval<T> swap(final RandomAccessibleInterval<T> op,
+                                                                    final int[] backMapping, final long[] minimum) {
 
         final int nDims = op.numDimensions();
         for (int i = 0; i < nDims; i++) {
-            if (m_backMapping[i] >= nDims) {
-                throw new IllegalArgumentException("Channel mapping is out of bounds");
+            if (backMapping[i] >= nDims) {
+                throw new IllegalArgumentException("Dimension Mapping is out of bounds");
             }
         }
 
+        int[] backMappingCopy = backMapping.clone();
+        long[] permutedMinimum = minimum.clone();
+
         RandomAccessibleInterval<T> permuted = op;
-        int[] mapping = m_backMapping.clone();
+        int[] mapping = backMappingCopy.clone();
 
         // Swapping of Dimensions to fulfill the mapping resulting in an ordered RandomAccessibleInterval
         ArrayList<Integer> swappingState = new ArrayList<Integer>(nDims);
         for (int i = 0; i < nDims; i++) {
             swappingState.add(i);
         }
-            for (int d = 0; d < nDims; d++) {
-                if (mapping[d] == swappingState.get(d)) {
-                    continue;
-                }
-
-                int dimIndex = swappingState.indexOf(mapping[d]);
-                permuted = Views.permute(permuted, d, dimIndex);
-                Collections.swap(swappingState, d, dimIndex);
+        for (int d = 0; d < nDims; d++) {
+            if (mapping[d] == swappingState.get(d)) {
+                continue;
             }
 
+            int dimIndex = swappingState.indexOf(mapping[d]);
+            permuted = Views.permute(permuted, d, dimIndex);
+
+            //TODO: Please test @gab1one
+            permutedMinimum = swap(permutedMinimum, d, dimIndex);
+            Collections.swap(swappingState, d, dimIndex);
+        }
+
         return permuted;
+    }
+
+    /**
+     * @param permutedMinimum
+     * @param d
+     * @param dimIndex
+     * @return
+     */
+    private synchronized static long[] swap(final long[] permutedMinimum, final int d, final int dimIndex) {
+        long tmp = permutedMinimum[d];
+        permutedMinimum[d] = permutedMinimum[dimIndex];
+        permutedMinimum[dimIndex] = tmp;
+        return permutedMinimum;
     }
 }

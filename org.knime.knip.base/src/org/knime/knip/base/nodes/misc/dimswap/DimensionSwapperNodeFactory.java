@@ -116,12 +116,14 @@ public class DimensionSwapperNodeFactory<T extends RealType<T>> extends ValueToC
                 final ImgPlus<T> img = cellValue.getImgPlus();
                 int[] mapping = new int[img.numDimensions()];
 
+                long[] minimum = cellValue.getMinimum();
+
                 for (int i = 0; i < mapping.length; i++) {
                     mapping[i] = m_mapping.getBackDimensionLookup(i);
+                    //                    offset[i] = m_mapping.getOffset(i);
                 }
 
-                final ImgPlus<T> res =
-                        new ImgPlusView<T>(DimSwapper.swap(img, mapping), img.factory(), img);
+                final ImgPlus<T> res = new ImgPlusView<T>(DimSwapper.swap(img, mapping, minimum), img.factory(), img);
 
                 // swap metadata
                 for (int i = 0; i < img.numDimensions(); i++) {
