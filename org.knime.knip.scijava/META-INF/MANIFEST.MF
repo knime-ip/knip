@@ -12,7 +12,7 @@ Bundle-ClassPath: scijava.jar,
  lib/mvn/scijava-common-2.2.0.jar,
  lib/mvn/eventbus-1.4.jar,
  lib/mvn/sezpoz-1.9-imagej.jar,
- lib/mvn/scijava-common-2.3.0.jar
+ lib/mvn/scijava-common-2.3.1.jar
 Export-Package: org.scijava,
  org.scijava.app,
  org.scijava.app.event,
