@@ -134,7 +134,9 @@ public class CLAHENodeFactory<T extends RealType<T>, K extends RandomAccessibleI
             @Override
             protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> op(final ImgPlus<T> imgPlus) {
 
-                Clahe_new<T> clahe = new Clahe_new<T>(m_blocksize.getIntValue(), m_numberOfBins.getIntValue(), m_slope.getIntValue());
+//                Clahe_new<T> clahe = new Clahe_new<T>(m_blocksize.getIntValue(), m_numberOfBins.getIntValue(), m_slope.getIntValue());
+
+                FastCLAHE<T> clahe = new FastCLAHE<T>(64, 64, 256, m_slope.getIntValue());
 
                 return Operations.wrap(new ImgPlusToImgPlusWrapperOp<T, T>(clahe, imgPlus.firstElement()
                         .createVariable()), ImgPlusFactory.<T, T> get(imgPlus.firstElement()));
