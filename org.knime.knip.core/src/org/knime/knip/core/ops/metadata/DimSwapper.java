@@ -73,13 +73,10 @@ public class DimSwapper {
      *
      * @param op
      * @param backMapping
-     * @param srcOffset Offset in source coordinates.
-     * @param srcSize Size in source coordinates.
      * @return image with swapped dimensions
      */
-    public static <T> RandomAccessibleInterval<T> compute(final RandomAccessibleInterval<T> op,
-                                                          final int[] backMapping, final long[] srcOffset,
-                                                          final long[] srcSize) {
+    public static <T> RandomAccessibleInterval<T> swap(final RandomAccessibleInterval<T> op,
+                                                          final int[] backMapping) {
         int[] m_backMapping = backMapping.clone();
 
         final int nDims = op.numDimensions();

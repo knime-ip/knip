@@ -50,7 +50,6 @@ package org.knime.knip.base.nodes.misc.dimswap;
 
 import java.util.List;
 
-import net.imglib2.meta.CalibratedAxis;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.meta.TypedAxis;
 import net.imglib2.ops.operation.subset.views.ImgPlusView;
@@ -68,7 +67,7 @@ import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.core.ops.metadata.DimSwapper;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -117,21 +116,16 @@ public class DimensionSwapperNodeFactory<T extends RealType<T>> extends ValueToC
                 final ImgPlus<T> img = cellValue.getImgPlus();
                 int[] mapping = new int[img.numDimensions()];
 
-                final long[] offset = new long[img.numDimensions()];
-                final long[] size = new long[img.numDimensions()];
-
                 for (int i = 0; i < mapping.length; i++) {
                     mapping[i] = m_mapping.getBackDimensionLookup(i);
-                    offset[i] = m_mapping.getOffset(i);
-                    size[i] = m_mapping.getSize(i);
                 }
 
                 final ImgPlus<T> res =
-                        new ImgPlusView<T>(DimSwapper.compute(img, mapping, offset, size), img.factory(), img);
+                        new ImgPlusView<T>(DimSwapper.swap(img, mapping), img.factory(), img);
 
                 // swap metadata
                 for (int i = 0; i < img.numDimensions(); i++) {
-                    res.setAxis((CalibratedAxis)img.axis(i).copy(), mapping[i]);
+                    res.setAxis(img.axis(i).copy(), mapping[i]);
                 }
 
                 return m_imgCellFactory.createCell(res);
