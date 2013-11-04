@@ -515,7 +515,12 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
     }
 
     private int getThumbnailWidth(final int height) {
-        return (int)(((double)m_img.dimension(0) / m_img.dimension(1)) * height);
+        if (m_img.numDimensions() == 1) {
+            return (int)m_img.dimension(0);
+        } else {
+            return (int)(((double)m_img.dimension(0) / m_img.dimension(1)) * height);
+        }
+
     }
 
     /**

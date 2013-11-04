@@ -99,9 +99,9 @@ import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
 import org.knime.knip.core.io.externalization.ExternalizerManager;
 
 /**
- * 
+ *
  * Cell holding a labeling and some metadata.
- * 
+ *
  * @param <L> image type
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -132,7 +132,7 @@ public class LabelingCell<L extends Comparable<L>> extends FileStoreCell impleme
 
     /**
      * Image cells need not to be compressed.
-     * 
+     *
      * @see BlobDataCell#USE_COMPRESSION
      */
     public static final boolean USE_COMPRESSION = false;
@@ -140,7 +140,7 @@ public class LabelingCell<L extends Comparable<L>> extends FileStoreCell impleme
     /**
      * Returns the factory to read/write DataCells of this class from/to a DataInput/DataOutput. This method is called
      * via reflection.
-     * 
+     *
      * @return A serializer for reading/writing cells of this kind.
      * @see DataCell
      */
@@ -165,7 +165,7 @@ public class LabelingCell<L extends Comparable<L>> extends FileStoreCell impleme
 
     /**
      * Preferred value class of this cell implementation is ImageValue.class.
-     * 
+     *
      * @return ImageValue.class
      */
     public static Class<? extends DataValue> getPreferredValueClass() {
@@ -427,7 +427,11 @@ public class LabelingCell<L extends Comparable<L>> extends FileStoreCell impleme
     }
 
     private int getThumbnailWidth(final int height) {
-        return (int)(((double)m_lab.dimension(0) / m_lab.dimension(1)) * height);
+        if (m_lab.numDimensions() == 1) {
+            return (int)m_lab.dimension(0);
+        } else {
+            return (int)(((double)m_lab.dimension(0) / m_lab.dimension(1)) * height);
+        }
     }
 
     /**
@@ -440,7 +444,7 @@ public class LabelingCell<L extends Comparable<L>> extends FileStoreCell impleme
 
     /**
      * Loads the cell content. To be called after the {@link #FileImgPlusCell(DataCellDataInput)} constructor.
-     * 
+     *
      * @param input
      * @throws IOException
      */
