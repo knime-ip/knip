@@ -58,7 +58,6 @@ import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
 import net.imglib2.interpolation.randomaccess.NearestNeighborInterpolatorFactory;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.iterableinterval.unary.Resample;
-import net.imglib2.ops.operation.iterableinterval.unary.Resample.Mode;
 import net.imglib2.ops.operation.subset.views.ImgView;
 import net.imglib2.realtransform.RealViews;
 import net.imglib2.type.numeric.RealType;
@@ -89,6 +88,10 @@ import org.knime.knip.core.util.EnumListProvider;
  */
 public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFactory<ImgPlusValue<T>> {
 
+    private enum Mode {
+        LINEAR, NEAREST_NEIGHBOR, PERIODICAL, LANCZOS;
+    }
+
     private static SettingsModelString createInterpolationModel() {
         return new SettingsModelString("interpolation_mode", Resample.Mode.NEAREST_NEIGHBOR.toString());
     }
@@ -112,7 +115,6 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
             public void addDialogComponents() {
                 addDialogComponent("Options", "Interpolation mode", new DialogComponentStringSelection(
                         createInterpolationModel(), "", EnumListProvider.getStringList(Resample.Mode.values())));
-
                 addDialogComponent("Options", "New Dimension Sizes", new DialogComponentScalingValues(
                         createScalingModel()));
                 addDialogComponent("Options", "New Dimension Sizes", new DialogComponentBoolean(createRelDimsModel(),
@@ -165,10 +167,10 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
                     }
                 }
 
-                return m_imgCellFactory.createCell(resample(img, Resample.Mode.valueOf(m_interpolationSettings
-                                                                    .getStringValue()),
-                                                            new FinalInterval(newDimensions),
-                                                            scaleFactors), cellValue.getMetadata());
+                return m_imgCellFactory.createCell(resample(img,
+                                                            Mode.valueOf(m_interpolationSettings.getStringValue()),
+                                                            new FinalInterval(newDimensions), scaleFactors), cellValue
+                                                           .getMetadata());
             }
 
             /**
