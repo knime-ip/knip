@@ -50,7 +50,6 @@
 package org.knime.knip.base.nodes.proc;
 
 import java.awt.Point;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,6 +62,7 @@ import net.imglib2.view.Views;
 /**
  *
  * @author Daniel
+ * @param <T> extends RealType<T>
  */
 public class FastCLAHE<T extends RealType<T>> implements
         UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> {
@@ -103,21 +103,14 @@ public class FastCLAHE<T extends RealType<T>> implements
     public RandomAccessibleInterval<T> compute(final RandomAccessibleInterval<T> input,
                                                final RandomAccessibleInterval<T> output) {
 
-        Cursor<T> inputCursor = Views.iterable(input).localizingCursor();
-        Cursor<T> outputCursor = Views.iterable(output).cursor();
-
-        int width = (int)input.dimension(0);
-        int height = (int)input.dimension(1);
+        Cursor<T> inputCursor = Views.flatIterable(input).localizingCursor();
+        Cursor<T> outputCursor = Views.flatIterable(output).cursor();
 
         int xOffset = (int)(input.dimension(0) / m_ctxNumberX);
         int yOffset = (int)(input.dimension(1) / m_ctxNumberY);
 
-        System.out.println(xOffset);
-        System.out.println(yOffset);
-
         //create the histograms for each of the context regions
-        Map<Point, int[]> ctxHistograms = new HashMap<Point, int[]>();
-        Map<Point, Float> ctxCenterValues = new HashMap<Point, Float>();
+        Map<Point, Histogram> ctxHistograms = new HashMap<Point, Histogram>();
         int[] pos = new int[2];
 
         while (inputCursor.hasNext()) {
@@ -125,31 +118,20 @@ public class FastCLAHE<T extends RealType<T>> implements
             inputCursor.localize(pos);
 
             // calculate the center in x direction
-            Point center =
-                    new Point(getNextContextRegionValue(pos[0], xOffset, width), getNextContextRegionValue(pos[1],
-                                                                                                           yOffset,
-                                                                                                           height));
+            Point center = getNearestCenter(pos[0], xOffset, pos[1], yOffset);
 
-            // last step, if we are at a center, save the image value at this position
-            if (center.x == pos[0] && center.y == pos[1]) {
-                ctxCenterValues.put(center, inputCursor.get().getRealFloat());
-            }
-
-            int[] hist = ctxHistograms.get(center);
+            Histogram hist = ctxHistograms.get(center);
             if (hist == null) {
-                hist = new int[m_bins + 1];
+                hist = new Histogram(m_bins);
+                ctxHistograms.put(center, hist);
             }
 
-            ++hist[roundPositive(inputCursor.get().getRealFloat() / 255.0f * m_bins)];
-            ctxHistograms.put(center, hist);
+            ctxHistograms.get(center).add(inputCursor.get().getRealFloat());
         }
 
         // after creation of the histograms, clip them
-        int limit = (int)(m_slope * ((yOffset * xOffset) / m_bins));
         for (Point center : ctxHistograms.keySet()) {
-            int[] hist = ctxHistograms.get(center);
-            int[] clippedHist = clipHistogram(hist, limit);
-            ctxHistograms.put(center, clippedHist);
+            ctxHistograms.get(center).clip(m_slope);
         }
 
         // last step, apply CLAHE
@@ -161,166 +143,120 @@ public class FastCLAHE<T extends RealType<T>> implements
 
             outputCursor.next();
 
-            int oldValue = roundPositive(inputCursor.get().getRealFloat() / 255.0f * m_bins);
+            int oldValue = Math.round(inputCursor.get().getRealFloat() / 255f * m_bins);
 
-            try {
-                // first check the four cases where we are in the corners of the image, no interpolation here
-                // 1. upper left corner
-                if (pos[0] <= xOffset && pos[1] <= yOffset) {
-                    Point p = new Point(xOffset, yOffset);
-                    float newValue = buildCDF(ctxHistograms.get(p), oldValue);
-                    outputCursor.get().setReal(newValue);
-                    continue;
-                }
-                // 2. bottom left corner
-                else if (pos[0] <= xOffset && pos[1] >= (input.dimension(1) - yOffset)) {
-                    Point p = new Point(xOffset, getNextContextRegionValue(pos[1], yOffset, height));
-
-                    float newValue = buildCDF(ctxHistograms.get(p), oldValue);
-                    outputCursor.get().setReal(newValue);
-                    continue;
-                }
-                // 3. top right corner
-                else if (pos[0] >= (input.dimension(0) - xOffset) && pos[1] <= yOffset) {
-                    Point p = new Point(getNextContextRegionValue(pos[0], xOffset, width), yOffset);
-
-                    float newValue = buildCDF(ctxHistograms.get(p), oldValue);
-                    outputCursor.get().setReal(newValue);
-                    continue;
-                }
-                // 4. bottom right corner
-                else if (pos[0] >= (input.dimension(0) - xOffset) && pos[1] >= (input.dimension(1) - yOffset)) {
-                    Point p =
-                            new Point(getNextContextRegionValue(pos[0], xOffset, width),
-                                    getNextContextRegionValue(pos[1], yOffset, height));
-
-                    float newValue = buildCDF(ctxHistograms.get(p), oldValue);
-                    outputCursor.get().setReal(newValue);
-                    continue;
+            if ((pos[0] <= xOffset && (pos[1] <= xOffset || pos[1] > input.dimension(1) - yOffset))
+                    || (pos[0] >= (input.dimension(0) - xOffset) && (pos[1] <= xOffset || pos[1] > input.dimension(1)
+                            - yOffset))) {
+                Point p = getNearestCenter(pos[0], xOffset, pos[1], yOffset);
+                outputCursor.get().setReal(ctxHistograms.get(p).buildCDF(oldValue));
+            } else if (pos[0] < xOffset / 2 || pos[0] >= (input.dimension(0) - xOffset / 2 - 1)) {
+                // get the x coordinate and the two y coordinates
+                Point nextCenter = getNearestCenter(pos[0], xOffset, pos[1], yOffset);
+                int ctxY1;
+                int ctxY2;
+                if (nextCenter.y < pos[1]) {
+                    ctxY1 = nextCenter.y;
+                    ctxY2 = ctxY1 + yOffset;
+                } else {
+                    ctxY2 = nextCenter.y;
+                    ctxY1 = ctxY2 - yOffset;
                 }
 
-                // check if were at the center of a context region
-                if (getNextContextRegionValue(pos[0], xOffset, width) == pos[0]
-                        && getNextContextRegionValue(pos[1], yOffset, height) == pos[1]) {
+                // calculate weights for y
+                float weightY1 = (1 - ((float)pos[1] - ctxY1) / (ctxY2 - ctxY1));
+                float weightY2 = (1 - (ctxY2 - (float)pos[1]) / (ctxY2 - ctxY1));
 
-                    float newValue = buildCDF(ctxHistograms.get(new Point(pos[0], pos[1])), oldValue);
-                    outputCursor.get().setReal(newValue);
-                    continue;
-                }
-
-                // again 4 special cases, if we're at the edges of the image
-                // 1. left edge
-                if (pos[0] <= xOffset) {
-                    // get the x coordinate and the two y coordinates
-                    int ctxX = xOffset;
-                    int ctxY1 = pos[1] - pos[1] % yOffset;
-                    int ctxY2 = ctxY1 + yOffset;
-
-                    // calculate weights for y
-                    float weightY1 = ((float)pos[1] - ctxY1) / (ctxY2 - ctxY1);
-                    float weightY2 = (ctxY2 - (float)pos[1]) / (ctxY2 - ctxY1);
-
-                    Point center1 = new Point(ctxX, ctxY1);
-                    Point center2 = new Point(ctxX, ctxY2);
-
-                    float newValue =
-                            (buildCDF(ctxHistograms.get(center1), oldValue) * weightY1)
-                                    + (buildCDF(ctxHistograms.get(center2), oldValue) * weightY2);
-
-                    outputCursor.get().setReal(newValue);
-
-                    continue;
-                }
-                // 2. right edge
-                else if (pos[0] >= (input.dimension(0) - xOffset)) {
-                    // get the x coordinate and the two y coordinates
-                    int ctxX = getNextContextRegionValue(pos[0], xOffset, width);
-                    int ctxY1 = pos[1] - pos[1] % yOffset;
-                    int ctxY2 = ctxY1 + yOffset;
-
-                    // calculate weights for y
-                    float weightY1 = ((float)pos[1] - ctxY1) / (ctxY2 - ctxY1);
-                    float weightY2 = (ctxY2 - (float)pos[1]) / (ctxY2 - ctxY1);
-
-                    Point center1 = new Point(ctxX, ctxY1);
-                    Point center2 = new Point(ctxX, ctxY2);
-
-                    float newValue =
-                            (buildCDF(ctxHistograms.get(center1), oldValue) * weightY1)
-                                    + (buildCDF(ctxHistograms.get(center2), oldValue) * weightY2);
-
-                    outputCursor.get().setReal(newValue);
-                    continue;
-                }
-                // 3. top edge
-                else if (pos[1] < yOffset) {
-
-                    // get the x coordinate and the two y coordinates
-                    int ctxY = yOffset;
-                    int ctxX1 = pos[0] - pos[0] % xOffset;
-                    int ctxX2 = ctxX1 + xOffset;
-
-                    // calculate weights for y
-                    float weightX1 = ((float)pos[0] - ctxX1) / (ctxX2 - ctxX1);
-                    float weightX2 = (ctxX2 - (float)pos[0]) / (ctxX2 - ctxX1);
-
-                    Point center1 = new Point(ctxX1, ctxY);
-                    Point center2 = new Point(ctxX2, ctxY);
-
-                    float newValue =
-                            (buildCDF(ctxHistograms.get(center1), oldValue) * weightX1)
-                                    + (buildCDF(ctxHistograms.get(center2), oldValue) * weightX2);
-
-                    outputCursor.get().setReal(newValue);
-
-                    continue;
-                }
-                // 4. bottom edge
-                else if (pos[1] >= (input.dimension(1) - yOffset)) {
-                    // get the x coordinate and the two y coordinates
-                    int ctxY = getNextContextRegionValue(pos[1], yOffset, height);
-                    int ctxX1 = pos[0] - pos[0] % xOffset;
-                    int ctxX2 = ctxX1 + xOffset;
-
-                    // calculate weights for y
-                    float weightX1 = ((float)pos[0] - ctxX1) / (ctxX2 - ctxX1);
-                    float weightX2 = (ctxX2 - (float)pos[0]) / (ctxX2 - ctxX1);
-
-                    Point center1 = new Point(ctxX1, ctxY);
-                    Point center2 = new Point(ctxX2, ctxY);
-
-                    float newValue =
-                            (buildCDF(ctxHistograms.get(center1), oldValue) * weightX1)
-                                    + (buildCDF(ctxHistograms.get(center2), oldValue) * weightX2);
-
-                    outputCursor.get().setReal(newValue);
-                    continue;
-                }
-
-                // otherwise we're somewhere at the center of the image and can make the default interpolation with the 4 context regions
-                int ctxX0 = pos[0] - pos[0] % xOffset;
-                int ctxX1 = ctxX0 + xOffset;
-                int ctxY0 = pos[1] - pos[1] % yOffset;
-                int ctxY1 = ctxY0 + yOffset;
-
-                Point center00 = new Point(ctxX0, ctxY0);
-                Point center01 = new Point(ctxX0, ctxY1);
-                Point center10 = new Point(ctxX1, ctxY0);
-                Point center11 = new Point(ctxX1, ctxY1);
-
-                float weightX = ((float)pos[0] - ctxX0) / (ctxX1 - ctxX0);
-                float weightY = ((float)pos[1] - ctxY0) / (ctxY1 - ctxY0);
+                Point center1 = new Point(nextCenter.x, ctxY1);
+                Point center2 = new Point(nextCenter.x, ctxY2);
 
                 float newValue =
-                        weightY
-                                * (weightX * buildCDF(ctxHistograms.get(center00), oldValue) + (1 - weightX)
-                                        * buildCDF(ctxHistograms.get(center10), oldValue))
-                                + (1 - weightY)
-                                * (weightX * buildCDF(ctxHistograms.get(center01), oldValue) + (1 - weightX)
-                                        * buildCDF(ctxHistograms.get(center11), oldValue));
+                        (ctxHistograms.get(center1).buildCDF(oldValue) * weightY1)
+                                + (ctxHistograms.get(center2).buildCDF(oldValue) * weightY2);
+
                 outputCursor.get().setReal(newValue);
-            } catch (NullPointerException e) {
-                System.err.println(Arrays.toString(pos));
+
+            } else if (pos[1] < yOffset / 2 || pos[1] >= (input.dimension(1) - yOffset / 2 - 1)) {
+
+                // get the x coordinate and the two y coordinates
+                Point nextCenter = getNearestCenter(pos[0], xOffset, pos[1], yOffset);
+                int ctxX1;
+                int ctxX2;
+
+                if (nextCenter.x < pos[0]) {
+                    ctxX1 = nextCenter.x;
+                    ctxX2 = ctxX1 + xOffset;
+                } else {
+                    ctxX2 = nextCenter.x;
+                    ctxX1 = ctxX2 - xOffset;
+                }
+
+                // calculate weights for y
+                float weightX1 = (1 - ((float)pos[0] - ctxX1) / (ctxX2 - ctxX1));
+                float weightX2 = (1 - (ctxX2 - (float)pos[0]) / (ctxX2 - ctxX1));
+
+                Point center1 = new Point(ctxX1, nextCenter.y);
+                Point center2 = new Point(ctxX2, nextCenter.y);
+
+                float newValue =
+                        ctxHistograms.get(center1).buildCDF(oldValue) * weightX1
+                                + ctxHistograms.get(center2).buildCDF(oldValue) * weightX2;
+
+                outputCursor.get().setReal(newValue);
+            } else {
+
+                Point currentPosition = new Point(pos[0], pos[1]);
+                if (ctxHistograms.containsKey(currentPosition)) {
+                    outputCursor.get().setReal(ctxHistograms.get(currentPosition).buildCDF(oldValue));
+                } else {
+
+                    // otherwise we're somewhere at the center of the image and can make the default interpolation with the 4 context regions
+                    Point nearestCenter = getNearestCenter(currentPosition.x, xOffset, currentPosition.y, yOffset);
+
+                    Point center00;
+                    Point center01;
+                    Point center10;
+                    Point center11;
+
+                    if (nearestCenter.x <= pos[0]) {
+                        if (nearestCenter.y <= pos[1]) {
+                            center00 = nearestCenter;
+                            center01 = new Point(nearestCenter.x, nearestCenter.y + yOffset);
+                            center10 = new Point(nearestCenter.x + xOffset, nearestCenter.y);
+                            center11 = new Point(nearestCenter.x + xOffset, nearestCenter.y + yOffset);
+                        } else {
+                            center00 = new Point(nearestCenter.x, nearestCenter.y - yOffset);
+                            center01 = nearestCenter;
+                            center10 = new Point(nearestCenter.x + xOffset, nearestCenter.y - yOffset);
+                            center11 = new Point(nearestCenter.x + xOffset, nearestCenter.y);
+                        }
+                    } else {
+                        if (nearestCenter.y <= pos[1]) {
+                            center00 = new Point(nearestCenter.x - xOffset, nearestCenter.y);
+                            center01 = new Point(nearestCenter.x - xOffset, nearestCenter.y + yOffset);
+                            center10 = nearestCenter;
+                            center11 = new Point(nearestCenter.x, nearestCenter.y + yOffset);
+                        } else {
+                            center00 = new Point(nearestCenter.x - xOffset, nearestCenter.y - yOffset);
+                            center01 = new Point(nearestCenter.x - xOffset, nearestCenter.y);
+                            center10 = new Point(nearestCenter.x, nearestCenter.y - yOffset);
+                            center11 = nearestCenter;
+                        }
+                    }
+
+                    float weightX = (1 - ((float)pos[0] - center00.x) / (center10.x - center00.x));
+                    float weightY = (1 - ((float)pos[1] - center00.y) / (center01.y - center00.y));
+
+                    float newValue =
+                            weightY
+                                    * (weightX * ctxHistograms.get(center00).buildCDF(oldValue) + (1 - weightX)
+                                            * ctxHistograms.get(center10).buildCDF(oldValue))
+                                    + (1 - weightY)
+                                    * (weightX * ctxHistograms.get(center01).buildCDF(oldValue) + (1 - weightX)
+                                            * ctxHistograms.get(center11).buildCDF(oldValue));
+                    outputCursor.get().setReal(newValue);
+                }
+
             }
 
         }
@@ -328,98 +264,125 @@ public class FastCLAHE<T extends RealType<T>> implements
         return output;
     }
 
-    private int getNextContextRegionValue(final int coordinate, final int offset, final int limit) {
+    private Point getNearestCenter(final int xCoord, final int xOffset, final int yCoord, final int yOffset) {
+        return new Point(getNextContextRegionValue(xCoord, xOffset), getNextContextRegionValue(yCoord, yOffset));
+    }
 
-        if (coordinate < offset) {
-            return offset;
-        }
+    private int getNextContextRegionValue(final int coordinate, final int offset) {
 
-        int times = offset * (coordinate / offset);
-        int ctxValue = (coordinate % offset < offset / 2) ? times : times + offset;
-
-        // check that we aren't over the boundary
-        if (ctxValue >= limit) {
-            ctxValue -= offset;
-        }
+        int times = coordinate / offset;
+        int ctxValue = times * offset + offset / 2;
 
         return ctxValue;
     }
 
-    /**
-     * Clip the histogram to avoid over amplificiation when building the cumulative distribution function
-     *
-     * @param histogram with the number of occurences of grey values.
-     * @param limit the limit
-     * @return the new clipped histogram
-     */
-    private int[] clipHistogram(final int[] histogram, final int limit) {
-        int[] clippedHistogram = new int[histogram.length];
-        System.arraycopy(histogram, 0, clippedHistogram, 0, histogram.length);
-        int clippedEntries = 0;
-        int clippedEntriesBefore;
-        do {
-            clippedEntriesBefore = clippedEntries;
-            clippedEntries = 0;
-            for (int i = 0; i <= m_bins; ++i) {
-                final int d = clippedHistogram[i] - limit;
-                if (d > 0) {
-                    clippedEntries += d;
-                    clippedHistogram[i] = limit;
+    private class Histogram {
+
+        private int m_valueNumber;
+
+        private int[] m_values;
+
+        private int m_valueCount;
+
+        public Histogram(final int bins) {
+            this.m_valueNumber = bins;
+            this.m_values = new int[bins + 1];
+            this.m_valueCount = 0;
+        }
+
+        public void add(final float pixel) {
+            int value = Math.round((pixel / 255.0f) * m_valueNumber);
+            ++m_values[value];
+            ++m_valueCount;
+
+        }
+
+        public void clip(final float slope) {
+            int limit = (int)(m_slope * (m_valueCount / m_valueNumber));
+            int[] clippedHistogram = new int[m_values.length];
+            System.arraycopy(m_values, 0, clippedHistogram, 0, m_values.length);
+            int clippedEntries = 0;
+            int clippedEntriesBefore;
+            do {
+                clippedEntriesBefore = clippedEntries;
+                clippedEntries = 0;
+                for (int i = 0; i <= m_valueNumber; ++i) {
+                    final int d = clippedHistogram[i] - limit;
+                    if (d > 0) {
+                        clippedEntries += d;
+                        clippedHistogram[i] = limit;
+                    }
+                }
+
+                final int d = clippedEntries / (m_valueNumber + 1);
+                final int m = clippedEntries % (m_valueNumber + 1);
+                for (int i = 0; i <= m_valueNumber; ++i) {
+                    clippedHistogram[i] += d;
+                }
+
+                if (m != 0) {
+                    final int s = m_valueNumber / m;
+                    for (int i = 0; i <= m_valueNumber; i += s) {
+                        ++clippedHistogram[i];
+                    }
+                }
+            } while (clippedEntries != clippedEntriesBefore);
+
+            m_values = clippedHistogram;
+        }
+
+        /**
+         * Build the cumulative distribution function to calculate the new value.
+         *
+         * @param clippedHistogram clipped histogram.
+         * @param oldValue the old value at a position in the input image.
+         * @return the newValue which gets written in the ouput image.
+         */
+        private float buildCDF(final float oldValue) {
+            int hMin = m_valueNumber;
+            for (int i = 0; i < hMin; ++i) {
+                if (m_values[i] != 0) {
+                    hMin = i;
                 }
             }
 
-            final int d = clippedEntries / (m_bins + 1);
-            final int m = clippedEntries % (m_bins + 1);
-            for (int i = 0; i <= m_bins; ++i) {
-                clippedHistogram[i] += d;
+            int cdf = 0;
+            for (int i = hMin; i <= oldValue; ++i) {
+                cdf += m_values[i];
             }
 
-            if (m != 0) {
-                final int s = m_bins / m;
-                for (int i = 0; i <= m_bins; i += s) {
-                    ++clippedHistogram[i];
-                }
+            int cdfMax = cdf;
+            for (int i = (int)(oldValue + 1); i <= m_valueNumber; ++i) {
+                cdfMax += m_values[i];
             }
-        } while (clippedEntries != clippedEntriesBefore);
 
-        return clippedHistogram;
+            final int cdfMin = m_values[hMin];
+
+            return Math.round((cdf - cdfMin) / (float)(cdfMax - cdfMin) * 255.0f);
+        }
     }
 
-    /**
-     * Build the cumulative distribution function to calculate the new value.
-     *
-     * @param clippedHistogram clipped histogram.
-     * @param oldValue the old value at a position in the input image.
-     * @return the newValue which gets written in the ouput image.
-     */
-    private int buildCDF(final int[] clippedHistogram, final int oldValue) {
-        int hMin = m_bins;
-        for (int i = 0; i < hMin; ++i) {
-            if (clippedHistogram[i] != 0) {
-                hMin = i;
-            }
+    private class ClahePoint {
+
+        private int[] coordinates;
+
+        /**
+         * @param coordinates
+         */
+        public ClahePoint(final int[] coordinates) {
+            this.coordinates = coordinates;
         }
 
-        int cdf = 0;
-        for (int i = hMin; i <= oldValue; ++i) {
-            cdf += clippedHistogram[i];
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public int hashCode() {
+            // TODO Auto-generated method stub
+            return super.hashCode();
         }
 
-        int cdfMax = cdf;
-        for (int i = oldValue + 1; i <= m_bins; ++i) {
-            cdfMax += clippedHistogram[i];
-        }
+        Point
 
-        final int cdfMin = clippedHistogram[hMin];
-
-        return roundPositive((cdf - cdfMin) / (float)(cdfMax - cdfMin) * 255.0f);
-    }
-
-    /**
-     * @param f
-     * @return
-     */
-    private int roundPositive(final float f) {
-        return (int)(f + 0.5f);
     }
 }

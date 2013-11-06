@@ -76,8 +76,12 @@ import org.knime.knip.core.util.ImgPlusFactory;
  */
 public class CLAHENodeFactory<T extends RealType<T>, K extends RandomAccessibleInterval<T> & IterableInterval<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
 
-    private static SettingsModelInteger createCtxBlockSize() {
-        return new SettingsModelInteger("blocksize", 127);
+    private static SettingsModelInteger createCtxNumberX() {
+        return new SettingsModelInteger("ctxX", 8);
+    }
+
+    private static SettingsModelInteger createCtxNumberY() {
+        return new SettingsModelInteger("ctxY", 8);
     }
 
     private static SettingsModelInteger createCtxNumberOfBins() {
@@ -98,8 +102,11 @@ public class CLAHENodeFactory<T extends RealType<T>, K extends RandomAccessibleI
             @Override
             public void addDialogComponents() {
 
-                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxBlockSize(),
-                        "Blocksize", 1));
+                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxNumberX(),
+                        "Number of contextual regions in X direction", 1));
+
+                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxNumberY(),
+                                                                                         "Number of contextual regions in Y direction", 1));
 
                 addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxNumberOfBins(),
                         "Number of bins", 1));
@@ -118,7 +125,9 @@ public class CLAHENodeFactory<T extends RealType<T>, K extends RandomAccessibleI
     public ImgPlusToImgPlusNodeModel<T, T> createNodeModel() {
         return new ImgPlusToImgPlusNodeModel<T, T>("X", "Y") {
 
-            private final SettingsModelInteger m_blocksize = createCtxBlockSize();
+            private final SettingsModelInteger m_ctxX = createCtxNumberX();
+
+            private final SettingsModelInteger m_ctxY = createCtxNumberX();
 
             private final SettingsModelInteger m_numberOfBins = createCtxNumberOfBins();
 
@@ -126,7 +135,8 @@ public class CLAHENodeFactory<T extends RealType<T>, K extends RandomAccessibleI
 
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
-                settingsModels.add(m_blocksize);
+                settingsModels.add(m_ctxX);
+                settingsModels.add(m_ctxY);
                 settingsModels.add(m_numberOfBins);
                 settingsModels.add(m_slope);
             }
@@ -134,9 +144,7 @@ public class CLAHENodeFactory<T extends RealType<T>, K extends RandomAccessibleI
             @Override
             protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> op(final ImgPlus<T> imgPlus) {
 
-//                Clahe_new<T> clahe = new Clahe_new<T>(m_blocksize.getIntValue(), m_numberOfBins.getIntValue(), m_slope.getIntValue());
-
-                FastCLAHE<T> clahe = new FastCLAHE<T>(64, 64, 256, m_slope.getIntValue());
+                FastCLAHE<T> clahe = new FastCLAHE<T>(m_ctxX.getIntValue(), m_ctxY.getIntValue(), m_numberOfBins.getIntValue(), m_slope.getIntValue());
 
                 return Operations.wrap(new ImgPlusToImgPlusWrapperOp<T, T>(clahe, imgPlus.firstElement()
                         .createVariable()), ImgPlusFactory.<T, T> get(imgPlus.firstElement()));
