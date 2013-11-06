@@ -57,7 +57,6 @@ import net.imglib2.interpolation.randomaccess.LanczosInterpolatorFactory;
 import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
 import net.imglib2.interpolation.randomaccess.NearestNeighborInterpolatorFactory;
 import net.imglib2.meta.ImgPlus;
-import net.imglib2.ops.operation.iterableinterval.unary.Resample;
 import net.imglib2.ops.operation.subset.views.ImgView;
 import net.imglib2.realtransform.RealViews;
 import net.imglib2.type.numeric.RealType;
@@ -93,7 +92,7 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
     }
 
     private static SettingsModelString createInterpolationModel() {
-        return new SettingsModelString("interpolation_mode", Resample.Mode.NEAREST_NEIGHBOR.toString());
+        return new SettingsModelString("interpolation_mode", Mode.NEAREST_NEIGHBOR.toString());
     }
 
     private static SettingsModelBoolean createRelDimsModel() {
@@ -114,7 +113,7 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
             @Override
             public void addDialogComponents() {
                 addDialogComponent("Options", "Interpolation mode", new DialogComponentStringSelection(
-                        createInterpolationModel(), "", EnumListProvider.getStringList(Resample.Mode.values())));
+                        createInterpolationModel(), "", EnumListProvider.getStringList(Mode.values())));
                 addDialogComponent("Options", "New Dimension Sizes", new DialogComponentScalingValues(
                         createScalingModel()));
                 addDialogComponent("Options", "New Dimension Sizes", new DialogComponentBoolean(createRelDimsModel(),

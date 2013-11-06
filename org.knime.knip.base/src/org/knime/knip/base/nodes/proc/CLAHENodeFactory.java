@@ -64,11 +64,12 @@ import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
+import org.knime.knip.core.ops.img.ImgPlusToImgPlusRAIWrapperOp;
 import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
  * Factory class to produce an image inverter node.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -131,9 +132,9 @@ public class CLAHENodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNod
 
             @Override
             protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> op(final ImgPlus<T> imgPlus) {
-                return Operations.wrap(new CLAHE<T, ImgPlus<T>>(m_ctxRegionsX.getIntValue(), m_ctxRegionsY
-                                               .getIntValue(), m_enableClipping.getBooleanValue()), ImgPlusFactory
-                                               .<T, T> get(imgPlus.firstElement()));
+                return Operations.wrap(new ImgPlusToImgPlusRAIWrapperOp<T, T>(new CLAHE<T>(m_ctxRegionsX.getIntValue(),
+                        m_ctxRegionsY.getIntValue(), m_enableClipping.getBooleanValue()), imgPlus.firstElement()
+                        .createVariable()), ImgPlusFactory.<T, T> get(imgPlus.firstElement()));
             }
 
             @Override

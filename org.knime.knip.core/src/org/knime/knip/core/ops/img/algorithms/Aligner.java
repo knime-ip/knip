@@ -63,13 +63,13 @@ import net.imglib2.ops.operation.BinaryObjectFactory;
 import net.imglib2.ops.operation.BinaryOutputOperation;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.img.unary.ImgCopyOperation;
-import net.imglib2.ops.operation.imgplus.unary.ImgPlusCrop;
+import net.imglib2.ops.operation.img.unary.ImgCrop;
 import net.imglib2.ops.operation.subset.views.ImgView;
 import net.imglib2.type.numeric.RealType;
 
 /**
  * Image projection.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -426,7 +426,7 @@ public class Aligner<T extends RealType<T>, V extends RealType<V>> implements
             // Crop the resulting image...
             final ImgPlus<T> iplusres = new ImgPlus<T>(res);
             final ImgPlus<T> iplus = new ImgPlus<T>(res2);
-            new ImgPlusCrop<T>(m_offset, m_size).compute(iplus, iplusres);
+            new ImgCrop<T>(m_offset, m_size).compute(iplus, iplusres);
         } else {
             new ImgCopyOperation<T>().compute(res2, res);
         }

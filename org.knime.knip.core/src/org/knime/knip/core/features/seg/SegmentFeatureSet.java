@@ -92,7 +92,7 @@ public class SegmentFeatureSet implements FeatureSet, SharesObjects {
 
     private final CalculatePerimeter m_calculatePerimeter;
 
-    private final ConvexHull2D<Img<BitType>> m_convexityOp;
+    private final ConvexHull2D m_convexityOp;
 
     private final CalculateDiameter m_calculateDiameter;
 
@@ -119,7 +119,7 @@ public class SegmentFeatureSet implements FeatureSet, SharesObjects {
         super();
         m_calculatePerimeter = new CalculatePerimeter();
         m_outlineOp = new ExtractOutlineImg(false);
-        m_convexityOp = new ConvexHull2D<Img<BitType>>(0, 1, false);
+        m_convexityOp = new ConvexHull2D(0, 1, false);
         m_calculateDiameter = new CalculateDiameter();
         m_defaultAxis = defaultAxes.clone();
         m_features = getFeatures(defaultAxes);

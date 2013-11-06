@@ -61,10 +61,11 @@ import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
+import org.knime.knip.core.ops.img.ImgPlusToImgPlusRAIWrapperOp;
 import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -99,8 +100,8 @@ public class DistanceMapNodeFactory<T extends RealType<T>> extends ImgPlusToImgP
             @Override
             protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<FloatType>> op(final ImgPlus<T> imgPlus) {
 
-                return Operations.wrap(new DistanceMap<T, ImgPlus<T>, ImgPlus<FloatType>>(),
-                                       ImgPlusFactory.<T, FloatType> get(new FloatType()));
+                return Operations.wrap(new ImgPlusToImgPlusRAIWrapperOp<T, FloatType>(new DistanceMap<T>(),
+                        new FloatType()), ImgPlusFactory.<T, FloatType> get(new FloatType()));
             }
 
             @Override

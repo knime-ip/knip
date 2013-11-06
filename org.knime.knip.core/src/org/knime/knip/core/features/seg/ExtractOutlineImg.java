@@ -48,6 +48,7 @@
  */
 package org.knime.knip.core.features.seg;
 
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.ops.img.BinaryOperationAssignment;
 import net.imglib2.ops.operation.UnaryOperation;
@@ -62,8 +63,8 @@ import net.imglib2.type.logic.BitType;
  * as all pixels, which are next to the pixels which are on the border of the connected component. Please be aware that
  * for a correct calculation of the Perimeter only one connected component should be contained in the {@link Img} of
  * {@link BitType}
- * 
- * 
+ *
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -72,7 +73,7 @@ public class ExtractOutlineImg implements UnaryOperation<Img<BitType>, Img<BitTy
 
     private final BinaryOperationAssignment<BitType, BitType, BitType> m_imgManWith;
 
-    private final UnaryOperation<Img<BitType>, Img<BitType>> m_op;
+    private final UnaryOperation<RandomAccessibleInterval<BitType>, RandomAccessibleInterval<BitType>> m_op;
 
     private final boolean m_outlineInsideSegment;
 

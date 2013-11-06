@@ -56,7 +56,6 @@ import java.util.Map;
 
 import net.imglib2.Cursor;
 import net.imglib2.FinalInterval;
-import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccess;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
@@ -110,7 +109,7 @@ import org.knime.knip.core.util.MiscViews;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -126,7 +125,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
     /**
      * Helper
-     * 
+     *
      * @return SettingsModel to store img column
      */
     public static SettingsModelBoolean createSMAddDependency() {
@@ -135,7 +134,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
     /**
      * Helper
-     * 
+     *
      * @return SettingsModel to store factory selection
      */
     public static SettingsModelString createSMFactorySelection() {
@@ -144,7 +143,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
     /**
      * Helper
-     * 
+     *
      * @return SettingsModel to store img column
      */
     public static SettingsModelString createSMImgColumnSelection() {
@@ -160,7 +159,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
     /**
      * Helper
-     * 
+     *
      * @return SettingsModelFilterSelection to store left filter selection
      */
     public static <LL extends Comparable<LL>> SettingsModelFilterSelection<LL> createSMLabelFilterLeft() {
@@ -169,7 +168,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
     /**
      * Helper
-     * 
+     *
      * @return SettingsModelFilterSelection to store right filter selection
      */
     public static <LL extends Comparable<LL>> SettingsModelFilterSelection<LL>
@@ -181,7 +180,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
     /**
      * Helper
-     * 
+     *
      * @return SettingsModel to store labeling column
      */
     public static SettingsModelString createSMLabelingColumnSelection() {
@@ -353,11 +352,11 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
                     Cursor<O> roiCursor = (Cursor<O>)roi.getIterableIntervalOverROI(img).cursor();
                     RandomAccess<O> ra = res.randomAccess();
 
-                    Fill<O, IterableInterval<O>> fill = new Fill<O, IterableInterval<O>>();
+                    Fill<O> fill = new Fill<O>();
                     if (m_backgroundSelection.getStringValue().equals(BACKGROUND_OPTIONS[BACKGROUND.MIN.ordinal()])) {
-                        fill.compute(minType, res);
+                        fill.compute(minType, res.iterator());
                     } else {
-                        fill.compute(maxType, res);
+                        fill.compute(maxType, res.iterator());
                     }
 
                     long[] pos = new long[img.numDimensions()];
