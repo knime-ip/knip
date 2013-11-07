@@ -229,7 +229,7 @@ public class ConvertImgNodeFactory<T extends RealType<T> & NativeType<T>> extend
                 @SuppressWarnings("unchecked")
                 final Img<O> res =
                         ImgUtils.<T, O> createEmptyCopy(img, ImgFactoryTypes.<T> getImgFactory(facType, img), outType);
-
+                imgConvert.compute(img, res);
                 return res;
             }
 
