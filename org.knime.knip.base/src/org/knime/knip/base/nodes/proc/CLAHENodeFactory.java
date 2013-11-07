@@ -51,6 +51,7 @@ package org.knime.knip.base.nodes.proc;
 import java.util.List;
 
 import net.imglib2.meta.ImgPlus;
+import net.imglib2.ops.operation.ImgOperations;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.CLAHE;
@@ -64,7 +65,6 @@ import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
-import org.knime.knip.core.ops.img.ImgPlusToImgPlusRAIWrapperOp;
 import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
@@ -132,9 +132,11 @@ public class CLAHENodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNod
 
             @Override
             protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> op(final ImgPlus<T> imgPlus) {
-                return Operations.wrap(new ImgPlusToImgPlusRAIWrapperOp<T, T>(new CLAHE<T>(m_ctxRegionsX.getIntValue(),
-                        m_ctxRegionsY.getIntValue(), m_enableClipping.getBooleanValue()), imgPlus.firstElement()
-                        .createVariable()), ImgPlusFactory.<T, T> get(imgPlus.firstElement()));
+                return Operations
+                        .wrap(ImgOperations.wrapRA(new CLAHE<T>(m_ctxRegionsX.getIntValue(), m_ctxRegionsY
+                                                           .getIntValue(), m_enableClipping.getBooleanValue()), imgPlus
+                                                           .firstElement().createVariable()), ImgPlusFactory
+                                .<T, T> get(imgPlus.firstElement()));
             }
 
             @Override

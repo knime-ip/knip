@@ -52,6 +52,7 @@ import java.util.List;
 
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.meta.ImgPlus;
+import net.imglib2.ops.operation.ImgOperations;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.ops.operation.UnaryOutputOperation;
@@ -67,7 +68,6 @@ import org.knime.knip.base.exceptions.ImageTypeNotCompatibleException;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
-import org.knime.knip.core.ops.img.ImgPlusToImgPlusRAIWrapperOp;
 import org.knime.knip.core.util.EnumListProvider;
 import org.knime.knip.core.util.ImgPlusFactory;
 
@@ -120,8 +120,8 @@ public final class FillHolesNodeFactory extends ImgPlusToImgPlusNodeFactory<BitT
                     throw new ImageTypeNotCompatibleException("fill holes", imgPlus.firstElement(), BitType.class);
                 }
 
-                return Operations.wrap(new ImgPlusToImgPlusRAIWrapperOp<BitType, BitType>(m_op, new BitType()),
-                                       new ImgPlusFactory<BitType, BitType>(new BitType()));
+                return Operations.wrap(ImgOperations.wrapRA(m_op, new BitType()), new ImgPlusFactory<BitType, BitType>(
+                        new BitType()));
             }
 
             /**

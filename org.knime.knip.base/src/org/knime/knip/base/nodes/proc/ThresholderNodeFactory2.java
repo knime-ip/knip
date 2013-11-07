@@ -57,7 +57,9 @@ import javax.swing.event.ChangeListener;
 import net.imglib2.img.Img;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.img.UnaryRelationAssigment;
+import net.imglib2.ops.operation.ImgOperations;
 import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.ops.relation.real.unary.RealGreaterThanConstant;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
@@ -85,7 +87,6 @@ import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.algorithm.types.ThresholdingType;
-import org.knime.knip.core.ops.img.ImgPlusToImgPlusIIWrapperOp;
 import org.knime.knip.core.ops.interval.AutoThreshold;
 import org.knime.knip.core.util.EnumListProvider;
 import org.knime.knip.core.util.ImgUtils;
@@ -233,9 +234,8 @@ public class ThresholderNodeFactory2<T extends RealType<T>> extends ValueToCellN
                         LOGGER.warn("MINIMUM, INTERMODES and ISODATA are currently not supported because their implementation can result in incorrect results. A missing cell has been created.");
                         return m_imgCellFactory.createCell(imgPlus, imgPlus, ((ImgPlusValue)cellValue).getMinimum());
                     } else {
-                        ImgPlusToImgPlusIIWrapperOp<T, BitType> op =
-                                new ImgPlusToImgPlusIIWrapperOp<T, BitType>(new AutoThreshold<T>(thresholders[i]),
-                                        new BitType());
+                        UnaryOutputOperation<ImgPlus<T>, ImgPlus<BitType>> op =
+                                ImgOperations.wrapII(new AutoThreshold<T>(thresholders[i]), new BitType());
 
                         final Img<BitType> out;
 

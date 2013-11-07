@@ -55,6 +55,7 @@ import javax.swing.event.ChangeListener;
 
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.img.UnaryRelationAssigment;
+import net.imglib2.ops.operation.ImgOperations;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.relation.real.unary.RealGreaterThanConstant;
 import net.imglib2.type.logic.BitType;
@@ -76,7 +77,6 @@ import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.algorithm.types.ThresholdingType;
-import org.knime.knip.core.ops.img.ImgPlusToImgPlusIIWrapperOp;
 import org.knime.knip.core.ops.interval.AutoThreshold;
 import org.knime.knip.core.util.EnumListProvider;
 import org.knime.knip.core.util.ImgUtils;
@@ -189,12 +189,10 @@ public class ThresholderNodeFactory<T extends RealType<T>> extends ValueToCellNo
                     return m_imgCellFactory.createCell(res, cellValue.getMetadata());
                 }
 
-                ImgPlusToImgPlusIIWrapperOp<T, BitType> op =
-                        new ImgPlusToImgPlusIIWrapperOp<T, BitType>(new AutoThreshold<T>(thresholder), new BitType());
-
                 try {
                     //the different thresholding methods can fail and throw a runtime exception in these cases
-                    SubsetOperations.iterate(op, m_dimSelection.getSelectedDimIndices(imgPlus), cellValue.getImgPlus(),
+                    SubsetOperations.iterate(ImgOperations.wrapII(new AutoThreshold<T>(thresholder), new BitType()),
+                                             m_dimSelection.getSelectedDimIndices(imgPlus), cellValue.getImgPlus(),
                                              res, getExecutorService());
                 } catch (Exception e) {
 
