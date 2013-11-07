@@ -51,6 +51,7 @@ package org.knime.knip.base.nodes.proc;
 import java.io.IOException;
 import java.util.List;
 
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.exception.IncompatibleTypeException;
 import net.imglib2.img.Img;
 import net.imglib2.meta.ImgPlus;
@@ -229,7 +230,7 @@ public class ConvertImgNodeFactory<T extends RealType<T> & NativeType<T>> extend
                 @SuppressWarnings("unchecked")
                 final Img<O> res =
                         ImgUtils.<T, O> createEmptyCopy(img, ImgFactoryTypes.<T> getImgFactory(facType, img), outType);
-                imgConvert.compute(img, res);
+                imgConvert.compute((RandomAccessibleInterval<T>)img, res);
                 return res;
             }
 
