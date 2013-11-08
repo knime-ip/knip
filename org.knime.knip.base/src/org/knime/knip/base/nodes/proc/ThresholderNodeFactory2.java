@@ -57,7 +57,9 @@ import javax.swing.event.ChangeListener;
 import net.imglib2.img.Img;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.img.UnaryRelationAssigment;
+import net.imglib2.ops.operation.ImgOperations;
 import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.ops.relation.real.unary.RealGreaterThanConstant;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
@@ -92,7 +94,7 @@ import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 
 /**
  * New global thresholder
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -232,13 +234,12 @@ public class ThresholderNodeFactory2<T extends RealType<T>> extends ValueToCellN
                         LOGGER.warn("MINIMUM, INTERMODES and ISODATA are currently not supported because their implementation can result in incorrect results. A missing cell has been created.");
                         return m_imgCellFactory.createCell(imgPlus, imgPlus, ((ImgPlusValue)cellValue).getMinimum());
                     } else {
-                        final AutoThreshold<T, Img<T>, Img<BitType>> op =
-                                new AutoThreshold<T, Img<T>, Img<BitType>>(thresholders[i]);
+                        UnaryOutputOperation<ImgPlus<T>, ImgPlus<BitType>> op =
+                                ImgOperations.wrapII(new AutoThreshold<T>(thresholders[i]), new BitType());
 
                         final Img<BitType> out;
 
                         try {
-                            //the different thresholding methods can fail and throw a runtime exception in these cases
                             out =
                                     SubsetOperations.iterate(op, m_dimSelection.getSelectedDimIndices(imgPlus),
                                                              imgPlus, res, getExecutorService());

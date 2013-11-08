@@ -48,27 +48,20 @@
  */
 package org.knime.knip.core.ops.metadata;
 
-import net.imglib2.Cursor;
-import net.imglib2.RandomAccess;
-import net.imglib2.img.Img;
-import net.imglib2.ops.img.UnaryObjectFactory;
-import net.imglib2.ops.operation.UnaryOutputOperation;
-import net.imglib2.type.Type;
+import java.util.ArrayList;
+import java.util.Collections;
+
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.view.Views;
 
 /**
- * 
- * @param <T>
+ *
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
  */
-public class DimSwapper<T extends Type<T>> implements UnaryOutputOperation<Img<T>, Img<T>> {
-
-    private final int[] m_backMapping;
-
-    private final long[] m_srcOffset;
-
-    private final long[] m_srcSize;
+public class DimSwapper {
 
     /**
      * <pre>
@@ -76,70 +69,40 @@ public class DimSwapper<T extends Type<T>> implements UnaryOutputOperation<Img<T
      * mapping[1] = 2; // Y &lt;- C, C becomes Y
      * mapping[2] = 0; // C &lt;- X, X becomes C
      * </pre>
-     * 
+     *
+     * @param op
      * @param backMapping
+     * @param minimum the minimum of the according cell (the offset of the given cell)
+     * @return image with swapped dimensions
      */
-    public DimSwapper(final int[] backMapping) {
-        m_backMapping = backMapping.clone();
-        m_srcOffset = new long[backMapping.length];
-        m_srcSize = new long[backMapping.length];
-    }
+    public synchronized static <T> RandomAccessibleInterval<T> swap(final RandomAccessibleInterval<T> op,
+                                                                    final int[] backMapping) {
 
-    /**
-     * 
-     * @param backMapping
-     * @param srcOffset Offset in source coordinates.
-     * @param srcSize Size in source coordinates.
-     */
-    public DimSwapper(final int[] backMapping, final long[] srcOffset, final long[] srcSize) {
-        m_backMapping = backMapping.clone();
-        m_srcOffset = srcOffset.clone();
-        m_srcSize = srcSize.clone();
-    }
-
-    @Override
-    public Img<T> compute(final Img<T> op, final Img<T> r) {
-        if (r.numDimensions() != op.numDimensions()) {
-            throw new IllegalArgumentException("Intervals not compatible");
-        }
-        final int nDims = r.numDimensions();
+        final int nDims = op.numDimensions();
         for (int i = 0; i < nDims; i++) {
-            if (m_backMapping[i] >= nDims) {
-                throw new IllegalArgumentException("Channel mapping is out of bounds");
+            if (backMapping[i] >= nDims) {
+                throw new IllegalArgumentException("Dimension Mapping is out of bounds");
             }
         }
-        final RandomAccess<T> opc = op.randomAccess();
-        final Cursor<T> rc = r.localizingCursor();
-        while (rc.hasNext()) {
-            rc.fwd();
-            for (int i = 0; i < nDims; i++) {
-                opc.setPosition(rc.getLongPosition(i) + m_srcOffset[i], m_backMapping[i]);
+
+        RandomAccessibleInterval<T> permuted = op;
+
+        // Swapping of Dimensions to fulfill the mapping resulting in an ordered RandomAccessibleInterval
+        ArrayList<Integer> swappingState = new ArrayList<Integer>(nDims);
+        for (int i = 0; i < nDims; i++) {
+            swappingState.add(i);
+        }
+        for (int d = 0; d < nDims; d++) {
+            if (backMapping[d] == swappingState.get(d)) {
+                continue;
             }
-            rc.get().set(opc.get());
+
+            int dimIndex = swappingState.indexOf(backMapping[d]);
+            permuted = Views.permute(permuted, d, dimIndex);
+
+            Collections.swap(swappingState, d, dimIndex);
         }
 
-        return r;
-    }
-
-    @Override
-    public UnaryOutputOperation<Img<T>, Img<T>> copy() {
-        return new DimSwapper<T>(m_backMapping.clone(), m_srcOffset, m_srcSize);
-    }
-
-    @Override
-    public UnaryObjectFactory<Img<T>, Img<T>> bufferFactory() {
-        return new UnaryObjectFactory<Img<T>, Img<T>>() {
-
-            @Override
-            public Img<T> instantiate(final Img<T> op) {
-                final long[] size = m_srcSize.clone();
-                for (int i = 0; i < size.length; i++) {
-                    if (size[i] <= 0) {
-                        size[i] = op.dimension(m_backMapping[i]);
-                    }
-                }
-                return op.factory().create(size, op.firstElement().createVariable());
-            }
-        };
+        return permuted;
     }
 }

@@ -49,6 +49,7 @@
 package org.knime.knip.core.ops.spotdetection;
 
 import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
 
 import net.imglib2.FinalInterval;
 import net.imglib2.IterableInterval;
@@ -68,8 +69,8 @@ import net.imglib2.view.Views;
 
 /**
  * Op to create a a trous wavelet decomposition of a 2D image as stack on the z axis.
- * 
- * 
+ *
+ *
  * @param <T>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -79,9 +80,11 @@ public class ATrousWaveletCreator<T extends RealType<T>> implements
         UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<FloatType>> {
 
     private final Integer[] m_skipLevels;
+    private ExecutorService m_service;
 
-    public ATrousWaveletCreator() {
+    public ATrousWaveletCreator(final ExecutorService service) {
         m_skipLevels = new Integer[]{};
+        m_service = service;
     }
 
     /**
@@ -151,7 +154,7 @@ public class ATrousWaveletCreator<T extends RealType<T>> implements
 
             final double[][] halfKernels = createHalfKernel(i);
             SeparableSymmetricConvolution.convolve(halfKernels, extendedInput,
-                                                   SubsetOperations.subsetview(outputStack, outputSlice), 1);
+                                                   SubsetOperations.subsetview(outputStack, outputSlice), m_service);
 
             extendedInput = Views.extendMirrorDouble(SubsetOperations.subsetview(outputStack, outputSlice));
 

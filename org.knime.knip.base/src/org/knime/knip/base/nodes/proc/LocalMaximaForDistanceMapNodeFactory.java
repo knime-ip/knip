@@ -73,7 +73,7 @@ import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
  * LocalMaxima for DistanceMap Node Factory
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -84,7 +84,7 @@ public class LocalMaximaForDistanceMapNodeFactory<T extends RealType<T>> extends
 
     private class CombinedLocalMaximaOp implements UnaryOutputOperation<ImgPlus<T>, ImgPlus<BitType>> {
 
-        private final LocalMaximaForDistanceMap<T, ImgPlus<T>> m_localMaximaOp;
+        private final LocalMaximaForDistanceMap<T> m_localMaximaOp;
 
         private final NeighborhoodType m_neighborhood;
 
@@ -92,7 +92,7 @@ public class LocalMaximaForDistanceMapNodeFactory<T extends RealType<T>> extends
 
         public CombinedLocalMaximaOp(final NeighborhoodType neighborhood) {
             m_neighborhood = neighborhood;
-            m_localMaximaOp = new LocalMaximaForDistanceMap<T, ImgPlus<T>>(neighborhood);
+            m_localMaximaOp = new LocalMaximaForDistanceMap<T>(neighborhood);
             m_posToBitType = new PositionsToBitTypeImage();
         }
 

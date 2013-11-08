@@ -61,7 +61,7 @@ import org.knime.knip.core.util.EnumListProvider;
 
 /**
  * The Dialog for the Segment Creator Node.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -76,13 +76,13 @@ public class SegmentOverlayNodeDialog extends DefaultNodeSettingsPane {
         super();
 
         addDialogComponent(new DialogComponentColumnNameSelection(new SettingsModelString(
-                SegmentOverlayNodeModel.CFG_IMG_COL, ""), "Img column", 0, false, false, ImgPlusValue.class));
+                SegmentOverlayNodeModel.CFG_IMG_COL, ""), "Img Column", 0, false, false, ImgPlusValue.class));
 
         addDialogComponent(new DialogComponentColumnNameSelection(new SettingsModelString(
-                SegmentOverlayNodeModel.CFG_LABELING_COL, ""), "Labeling column", 0, true, LabelingValue.class));
+                SegmentOverlayNodeModel.CFG_LABELING_COL, ""), "Labeling Column", 0, true, LabelingValue.class));
 
         addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
-                SegmentOverlayNodeModel.CFG_ADJUST_VIRTUALLY, true), "Virtually extend labeling or img?"));
+                SegmentOverlayNodeModel.CFG_ADJUST_VIRTUALLY, true), "Virtually Extend Labeling or Img?"));
 
         createNewTab("Label Transformation");
         final DialogComponentStringTransformer dialogComponentStringTransformer =
