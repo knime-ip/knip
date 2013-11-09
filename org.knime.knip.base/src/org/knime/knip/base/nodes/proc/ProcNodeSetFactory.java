@@ -60,6 +60,7 @@ import org.knime.knip.base.nodes.misc.dimswap.DimensionSwapperNodeFactory;
 import org.knime.knip.base.nodes.misc.merger.MergerNodeFactory;
 import org.knime.knip.base.nodes.misc.splitter.SplitterNodeFactory;
 import org.knime.knip.base.nodes.misc.splitter.UCSplitterNodeFactory;
+import org.knime.knip.base.nodes.proc.clahe.FastClaheNDNodeFactory;
 import org.knime.knip.base.nodes.proc.imgjep.ImgJEPNodeFactory;
 import org.knime.knip.base.nodes.proc.multilvlthresholding.MultilevelThresholderNodeFactory;
 import org.knime.knip.base.nodes.proc.resampler.ResamplerNodeFactory;
@@ -68,7 +69,7 @@ import org.knime.knip.base.nodes.proc.spotdetection.WaveletSpotDetectionNodeFact
 import org.knime.knip.base.nodes.seg.local.LocalThresholderNodeFactory2;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -129,6 +130,8 @@ public class ProcNodeSetFactory implements NodeSetFactory {
         m_nodeFactories.put(InvertNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(LocalMaximaForDistanceMapNodeFactory.class.getCanonicalName(),
                             "/community/knip/image/process");
+
+        m_nodeFactories.put(FastClaheNDNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
 
         // TODO: Review code of jens and add description
         // m_nodeFactories.put(LocalMaximaFinderNodeFactory.class
