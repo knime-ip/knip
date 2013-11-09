@@ -50,7 +50,6 @@
 package org.knime.knip.base.nodes.proc;
 
 import java.awt.Point;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -75,8 +74,6 @@ public class FastCLAHE<T extends RealType<T>> implements
     private final int m_bins;
 
     private final float m_slope;
-
-    private long[] m_ctxNumberDims;
 
     /**
      * @param ctxNumberX
@@ -105,13 +102,6 @@ public class FastCLAHE<T extends RealType<T>> implements
     @Override
     public RandomAccessibleInterval<T> compute(final RandomAccessibleInterval<T> input,
                                                final RandomAccessibleInterval<T> output) {
-
-
-        long[] offsets = new long[input.numDimensions()];
-        for(int i = 0; i < input.numDimensions(); i++){
-            offsets[i] = input.dimension(1) / m_ctxNumberDims[i];
-        }
-
 
         Cursor<T> inputCursor = Views.flatIterable(input).localizingCursor();
         Cursor<T> outputCursor = Views.flatIterable(output).cursor();
@@ -211,7 +201,6 @@ public class FastCLAHE<T extends RealType<T>> implements
                 float newValue =
                         ctxHistograms.get(center1).buildCDF(oldValue) * weightX1
                                 + ctxHistograms.get(center2).buildCDF(oldValue) * weightX2;
-
                 outputCursor.get().setReal(newValue);
             } else {
 
@@ -275,16 +264,8 @@ public class FastCLAHE<T extends RealType<T>> implements
     }
 
     private Point getNearestCenter(final int xCoord, final int xOffset, final int yCoord, final int yOffset) {
-        return new Point( (int) getNextContextRegionValue(xCoord, xOffset), (int) getNextContextRegionValue(yCoord, yOffset));
-    }
-
-    private ClahePoint getNearestCenter(final long[] coordinates, final long[] offsets){
-        long[] newCoordinates = new long[coordinates.length];
-        for(int i = 0; i < coordinates.length; i++){
-            newCoordinates[i] = getNextContextRegionValue(coordinates[i], offsets[i]);
-        }
-
-        return new ClahePoint(newCoordinates);
+        return new Point((int)getNextContextRegionValue(xCoord, xOffset), (int)getNextContextRegionValue(yCoord,
+                                                                                                         yOffset));
     }
 
     private long getNextContextRegionValue(final long coordinate, final long offset) {
@@ -378,41 +359,5 @@ public class FastCLAHE<T extends RealType<T>> implements
 
             return Math.round((cdf - cdfMin) / (float)(cdfMax - cdfMin) * 255.0f);
         }
-    }
-
-    private class ClahePoint {
-
-        private long[] coordinates;
-
-        /**
-         * @param coordinates
-         */
-        public ClahePoint(final long[] coordinates) {
-            this.coordinates = coordinates;
-        }
-
-        /**
-         * @return the coordinates in all dimensions
-         */
-        public long[] getCoordinates(){
-            return this.coordinates;
-        }
-
-        /**
-         * @param i the dimension
-         * @return the coordinate value in the given dimension
-         */
-        public long dim(final int i){
-            return this.coordinates[i];
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public int hashCode() {
-            return Arrays.hashCode(coordinates);
-        }
-
     }
 }
