@@ -64,8 +64,17 @@ import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 
 /**
+ * This class is an extension of the CLAHE algorithm to work with n-dimensional images. It divides the image into
+ * context regions, for each context region a histogram is built which stores the number of unique pixel values. After
+ * that new values are assigned by building a cumulative distribution function for each histogram and then by
+ * interpolation between these resulting values.
  *
- * @author Daniel
+ *
+ * @param <T> extends RealType<T>
+ * @see <a href="http://en.wikipedia.org/wiki/Adaptive_histogram_equalization">[1] Adaptive histogram equalization</a>
+ * @see "[2] K. Zuiderveld: Contrast Limited Adaptive Histogram Equalization. In: P. Heckbert: Graphics Gems IV, Academic Press 1994, ISBN 0-12-336155-9"
+ *
+ * @author Daniel Seebacher, University of Konstanz
  */
 public class FastClaheND<T extends RealType<T>> implements
         UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> {
@@ -77,11 +86,13 @@ public class FastClaheND<T extends RealType<T>> implements
     private final float m_slope;
 
     /**
-     * @param bins
-     * @param slope
+     *
+     * @param ctxNumberDims number of context regions for each dimension
+     * @param bins number of bins used by the histograms
+     * @param slope slope used for the clipping function
      */
-    public FastClaheND(final long[] m_ctxNumberDims, final int bins, final float slope) {
-        this.m_ctxNumberDims = m_ctxNumberDims;
+    public FastClaheND(final long[] ctxNumberDims, final int bins, final float slope) {
+        this.m_ctxNumberDims = ctxNumberDims;
         this.m_bins = bins;
         this.m_slope = slope;
     }
@@ -101,28 +112,33 @@ public class FastClaheND<T extends RealType<T>> implements
     public RandomAccessibleInterval<T> compute(final RandomAccessibleInterval<T> input,
                                                final RandomAccessibleInterval<T> output) {
 
+        // create image cursors, flatIterable to achieve same iteration order for both images.
         Cursor<T> inputCursor = Views.flatIterable(input).localizingCursor();
         Cursor<T> outputCursor = Views.flatIterable(output).cursor();
 
+        // store image dimensions
         long[] imageDimensions = new long[input.numDimensions()];
         for (int i = 0; i < imageDimensions.length; i++) {
             imageDimensions[i] = input.dimension(i);
         }
 
+        // calculate offsets of the context centers in each dimensions
         long[] offsets = new long[imageDimensions.length];
         for (int i = 0; i < imageDimensions.length; i++) {
             offsets[i] = imageDimensions[i] / m_ctxNumberDims[i];
         }
 
+        // first iteration through the image to build the context histograms
         Map<ClahePoint, ClaheHistogram> ctxHistograms = new HashMap<ClahePoint, ClaheHistogram>();
         long[] pos = new long[input.numDimensions()];
-
         while (inputCursor.hasNext()) {
             inputCursor.next();
             inputCursor.localize(pos);
 
+            // calculate position of nearest center
             ClahePoint center = getNearestCenter(pos, offsets);
 
+            // add point to according context histogram (create it, if it doesn't exist yet)
             ClaheHistogram hist = ctxHistograms.get(center);
             if (hist == null) {
                 hist = new ClaheHistogram(m_bins);
@@ -137,39 +153,45 @@ public class FastClaheND<T extends RealType<T>> implements
             ctxHistograms.get(center).clip(m_slope);
         }
 
+        // second iteration, calculate the new value for each position by using the context histograms
         inputCursor.reset();
         while (inputCursor.hasNext()) {
             inputCursor.next();
             inputCursor.localize(pos);
-            ClahePoint currentPoint = new ClahePoint(pos);
-
             outputCursor.next();
 
+            // get current position and the old value at this position
+            ClahePoint currentPoint = new ClahePoint(pos);
             int oldValue = Math.round(inputCursor.get().getRealFloat() / 255f * m_bins);
 
-
+            // find all neighboring context centers
             List<ClahePoint> neighbors = getNeighbors(currentPoint, offsets, imageDimensions);
 
+            // calculate the new value through interpolation
             float newValue = interpolate(currentPoint, oldValue, neighbors, ctxHistograms);
             outputCursor.get().setReal(newValue);
         }
 
-        return null;
+        return output;
     }
 
     /**
-     * @param currentPoint
-     * @param neighbors
-     * @param ctxHistograms
-     * @return
+     * Calculates a new value by interpolation between the neighboring context regions.
+     *
+     * @param currentPoint the current point
+     * @param neighbors the neighboring context centers
+     * @param ctxHistograms the context histograms
+     * @return the new value for this position
      */
     private float interpolate(final ClahePoint currentPoint, final float oldValue, final List<ClahePoint> neighbors,
                               final Map<ClahePoint, ClaheHistogram> ctxHistograms) {
 
-
+        // if the number of neighbors is one no interpolation is necessary
         if (neighbors.size() == 1) {
             return ctxHistograms.get(neighbors.get(0)).buildCDF(oldValue);
-        } else if(neighbors.size() == 2){
+        }
+        // if the size of neighbors is two make a straight forward linear interpolation
+        else if (neighbors.size() == 2) {
 
             float distanceOne = currentPoint.distance(neighbors.get(0));
             float distanceTwo = currentPoint.distance(neighbors.get(1));
@@ -178,24 +200,26 @@ public class FastClaheND<T extends RealType<T>> implements
             float weightOne = 1 - distanceOne / completeDistance;
             float weightTwo = 1 - distanceTwo / completeDistance;
 
-            return ctxHistograms.get(neighbors.get(0)).buildCDF(oldValue) * weightOne + ctxHistograms.get(neighbors.get(1)).buildCDF(oldValue) * weightTwo;
-        } else if(neighbors.size() == 4){
+            return ctxHistograms.get(neighbors.get(0)).buildCDF(oldValue) * weightOne
+                    + ctxHistograms.get(neighbors.get(1)).buildCDF(oldValue) * weightTwo;
+        } else if (neighbors.size() == 4) {
             ClahePoint topLeft = null;
             ClahePoint topRight = null;
             ClahePoint bottomLeft = null;
             ClahePoint bottomRight = null;
             for (ClahePoint clahePoint : neighbors) {
-                if(clahePoint.dim(0) <= currentPoint.dim(0) && clahePoint.dim(1) <= currentPoint.dim(1)){
+                if (clahePoint.dim(0) <= currentPoint.dim(0) && clahePoint.dim(1) <= currentPoint.dim(1)) {
                     topLeft = clahePoint;
-                } else if(clahePoint.dim(0) > currentPoint.dim(0) && clahePoint.dim(1) <= currentPoint.dim(1)){
+                } else if (clahePoint.dim(0) > currentPoint.dim(0) && clahePoint.dim(1) <= currentPoint.dim(1)) {
                     topRight = clahePoint;
-                } else if(clahePoint.dim(0) <= currentPoint.dim(0) && clahePoint.dim(1) > currentPoint.dim(1)){
+                } else if (clahePoint.dim(0) <= currentPoint.dim(0) && clahePoint.dim(1) > currentPoint.dim(1)) {
                     bottomLeft = clahePoint;
                 } else {
                     bottomRight = clahePoint;
                 }
             }
 
+            @SuppressWarnings("null")
             float weightX = (1 - ((float)currentPoint.dim(0) - topLeft.dim(0)) / (topLeft.distance(topRight)));
             float weightY = (1 - ((float)currentPoint.dim(1) - topLeft.dim(1)) / (topLeft.distance(bottomLeft)));
 
@@ -261,7 +285,6 @@ public class FastClaheND<T extends RealType<T>> implements
             // we created every combination of indices, just increment the position add the indices by their offset to get all of neighbors
             for (List<Integer> indicesList : indicesCombinations) {
 
-
                 long[] temp = Arrays.copyOf(topLeftCenter, topLeftCenter.length);
                 for (int index : indicesList) {
                     temp[index] += offsets[index];
@@ -279,8 +302,8 @@ public class FastClaheND<T extends RealType<T>> implements
     }
 
     /**
-     * This method creates all combinations of a given input. E.g. for {1, 2, 3} => {1} {2} {3} {1, 2} {1, 3} {2, 3} {1, 2,
-     * 3}
+     * This method creates all combinations of a given input. E.g. for {1, 2, 3} => {1} {2} {3} {1, 2} {1, 3} {2, 3} {1,
+     * 2, 3}
      *
      * @param values the values
      * @param size the size of the subset
@@ -316,6 +339,11 @@ public class FastClaheND<T extends RealType<T>> implements
         return combination;
     }
 
+    /**
+     * @param coordinates coordinates of a point
+     * @param offsets the offsets of the context centers
+     * @return The center of the nearest context region for a given point.
+     */
     private ClahePoint getNearestCenter(final long[] coordinates, final long[] offsets) {
         long[] newCoordinates = new long[coordinates.length];
         for (int i = 0; i < coordinates.length; i++) {
@@ -325,10 +353,20 @@ public class FastClaheND<T extends RealType<T>> implements
         return new ClahePoint(newCoordinates);
     }
 
+    /**
+     * @param coordinates coordinates of a point
+     * @param offsets the offsets of the context centers
+     * @return The center of the nearest context region for a given point.
+     */
     private ClahePoint getNearestCenter(final ClahePoint cp, final long[] offsets) {
         return getNearestCenter(cp.getCoordinates(), offsets);
     }
 
+    /**
+     * @param coordinate the coordinate in any dimension
+     * @param offset the offset in the according dimension
+     * @return the position of the next context center in this dimension
+     */
     private long getNextContextRegionValue(final long coordinate, final long offset) {
         long times = coordinate / offset;
         long ctxValue = times * offset + offset / 2;
