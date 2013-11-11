@@ -186,55 +186,30 @@ public class FastClaheND<T extends RealType<T>> implements
     private float interpolate(final ClahePoint currentPoint, final float oldValue, final List<ClahePoint> neighbors,
                               final Map<ClahePoint, ClaheHistogram> ctxHistograms) {
 
-        // if the number of neighbors is one no interpolation is necessary
-        if (neighbors.size() == 1) {
+
+
+        int numNeighbors = neighbors.size();
+
+        if(numNeighbors == 1){
             return ctxHistograms.get(neighbors.get(0)).buildCDF(oldValue);
         }
-        // if the size of neighbors is two make a straight forward linear interpolation
-        else if (neighbors.size() == 2) {
 
-            float distanceOne = currentPoint.distance(neighbors.get(0));
-            float distanceTwo = currentPoint.distance(neighbors.get(1));
-            float completeDistance = distanceOne + distanceTwo;
-
-            float weightOne = 1 - distanceOne / completeDistance;
-            float weightTwo = 1 - distanceTwo / completeDistance;
-
-            return ctxHistograms.get(neighbors.get(0)).buildCDF(oldValue) * weightOne
-                    + ctxHistograms.get(neighbors.get(1)).buildCDF(oldValue) * weightTwo;
-        } else if (neighbors.size() == 4) {
-            ClahePoint topLeft = null;
-            ClahePoint topRight = null;
-            ClahePoint bottomLeft = null;
-            ClahePoint bottomRight = null;
-            for (ClahePoint clahePoint : neighbors) {
-                if (clahePoint.dim(0) <= currentPoint.dim(0) && clahePoint.dim(1) <= currentPoint.dim(1)) {
-                    topLeft = clahePoint;
-                } else if (clahePoint.dim(0) > currentPoint.dim(0) && clahePoint.dim(1) <= currentPoint.dim(1)) {
-                    topRight = clahePoint;
-                } else if (clahePoint.dim(0) <= currentPoint.dim(0) && clahePoint.dim(1) > currentPoint.dim(1)) {
-                    bottomLeft = clahePoint;
-                } else {
-                    bottomRight = clahePoint;
-                }
-            }
-
-            @SuppressWarnings("null")
-            float weightX = (1 - ((float)currentPoint.dim(0) - topLeft.dim(0)) / (topLeft.distance(topRight)));
-            float weightY = (1 - ((float)currentPoint.dim(1) - topLeft.dim(1)) / (topLeft.distance(bottomLeft)));
-
-            float newValue =
-                    weightY
-                            * (weightX * ctxHistograms.get(topLeft).buildCDF(oldValue) + (1 - weightX)
-                                    * ctxHistograms.get(topRight).buildCDF(oldValue))
-                            + (1 - weightY)
-                            * (weightX * ctxHistograms.get(bottomLeft).buildCDF(oldValue) + (1 - weightX)
-                                    * ctxHistograms.get(bottomRight).buildCDF(oldValue));
-
-            return newValue;
+        float[] distance = new float[numNeighbors];
+        float sumDistances = 0;
+        for (int i = 0; i < numNeighbors; i++) {
+            distance[i] = currentPoint.distance(neighbors.get(i));
+            sumDistances += distance[i];
         }
+        float[] weight = new float[numNeighbors];
+        for (int i = 0; i < numNeighbors; i++) {
+            weight[i] = 1 - distance[i] / sumDistances;
+        }
+        float interpolatedDistance = 0;
+        for (int i = 0; i < numNeighbors; i++) {
+            interpolatedDistance += ctxHistograms.get(neighbors.get(i)).buildCDF(oldValue) * weight[i];
+        }
+        return interpolatedDistance;
 
-        return oldValue;
     }
 
     /**
