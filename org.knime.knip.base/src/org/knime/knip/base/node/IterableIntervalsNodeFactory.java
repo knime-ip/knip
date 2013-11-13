@@ -54,10 +54,29 @@ import net.imglib2.type.numeric.RealType;
 import org.knime.knip.base.data.img.ImgPlusValue;
 
 /**
- * 
- * @author Christian Dietz
+ * NodeFactory for {@link IterableIntervalsNodeModel}
+ *
+ * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
+ * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
+ * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <T> Type of Input
+ * @param <V> Type of Output
+ * @param <L> Type of Labeling
  */
-public abstract class IterableIntervalsNodeFactory<T extends RealType<T>> extends
-        ValueToCellsNodeFactory<ImgPlusValue<T>> {
+public abstract class IterableIntervalsNodeFactory<T extends RealType<T>, V extends RealType<V>, L extends Comparable<L>>
+        extends ValueToCellNodeFactory<ImgPlusValue<T>> {
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected abstract IterableIntervalsNodeDialog<T> createNodeDialog();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public abstract IterableIntervalsNodeModel<T, V, L> createNodeModel();
 
 }

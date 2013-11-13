@@ -54,19 +54,11 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import net.imglib2.IterableInterval;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.meta.ImgPlus;
-import net.imglib2.ops.operation.BinaryObjectFactory;
-import net.imglib2.ops.operation.BinaryOutputOperation;
-import net.imglib2.ops.operation.ImgOperations;
-import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.ops.operation.iterableinterval.unary.EqualizeHistogram;
-import net.imglib2.roi.IterableRegionOfInterest;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.ValuePair;
 
-import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
@@ -75,18 +67,11 @@ import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
 import org.knime.core.node.defaultnodesettings.SettingsModelDoubleBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.knime.knip.base.data.img.ImgPlusCell;
-import org.knime.knip.base.data.img.ImgPlusCellFactory;
-import org.knime.knip.base.data.img.ImgPlusValue;
-import org.knime.knip.base.data.labeling.LabelingValue;
-import org.knime.knip.base.node.TwoValuesToCellNodeDialog;
-import org.knime.knip.base.node.TwoValuesToCellNodeFactory;
-import org.knime.knip.base.node.TwoValuesToCellNodeModel;
-import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
-import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
+import org.knime.knip.base.node.IterableIntervalsNodeDialog;
+import org.knime.knip.base.node.IterableIntervalsNodeFactory;
+import org.knime.knip.base.node.IterableIntervalsNodeModel;
 import org.knime.knip.core.ops.img.IterableIntervalNormalize;
 import org.knime.knip.core.util.EnumListProvider;
-import org.knime.knip.core.util.ImgUtils;
 
 /**
  * Factory class to produce an contrast enhancer node.
@@ -99,7 +84,7 @@ import org.knime.knip.core.util.ImgUtils;
  * @param <L>
  */
 public class ImgNormalizerNodeFactory<T extends RealType<T>, L extends Comparable<L>> extends
-        TwoValuesToCellNodeFactory<ImgPlusValue<T>, LabelingValue<L>> {
+        IterableIntervalsNodeFactory<T, T, L> {
 
     private enum ContrastEnhancementMode {
         EQUALIZE, MANUALNORMALIZE, NORMALIZE;
@@ -107,10 +92,6 @@ public class ImgNormalizerNodeFactory<T extends RealType<T>, L extends Comparabl
 
     private SettingsModelBoolean createSetMinMaxOfNewImage() {
         return new SettingsModelBoolean("min_max_of_new_image", false);
-    }
-
-    private static SettingsModelDimSelection createDimSelectionModel() {
-        return new SettingsModelDimSelection("dimselection", "X", "Y");
     }
 
     private static SettingsModelDouble createManualMaxModel() {
@@ -133,8 +114,8 @@ public class ImgNormalizerNodeFactory<T extends RealType<T>, L extends Comparabl
      * {@inheritDoc}
      */
     @Override
-    protected TwoValuesToCellNodeDialog<ImgPlusValue<T>, LabelingValue<L>> createNodeDialog() {
-        return new TwoValuesToCellNodeDialog<ImgPlusValue<T>, LabelingValue<L>>() {
+    protected IterableIntervalsNodeDialog<T> createNodeDialog() {
+        return new IterableIntervalsNodeDialog<T>() {
 
             private SettingsModelDouble max;
 
@@ -144,8 +125,6 @@ public class ImgNormalizerNodeFactory<T extends RealType<T>, L extends Comparabl
 
             private SettingsModelDouble saturation;
 
-            private SettingsModelDimSelection dimSelection;
-
             private SettingsModelString type;
 
             /**
@@ -154,8 +133,9 @@ public class ImgNormalizerNodeFactory<T extends RealType<T>, L extends Comparabl
             @Override
             public void addDialogComponents() {
 
-                // Settings Models
+                super.addDialogComponents();
 
+                // Settings Models
                 type = createModeModel();
 
                 min = createManualMinModel();
@@ -166,16 +146,11 @@ public class ImgNormalizerNodeFactory<T extends RealType<T>, L extends Comparabl
 
                 minMaxOfNewImage = createSetMinMaxOfNewImage();
 
-                dimSelection = createDimSelectionModel();
-
-                addDialogComponent("Options", "Dimension Selection", new DialogComponentDimSelection(dimSelection, "",
-                        1, Integer.MAX_VALUE));
-
                 minMaxOfNewImage.addChangeListener(new ChangeListener() {
 
                     @Override
                     public void stateChanged(final ChangeEvent e) {
-                        dimSelection.setEnabled(((SettingsModelBoolean)e.getSource()).getBooleanValue());
+                        m_dimSelectionModel.setEnabled(((SettingsModelBoolean)e.getSource()).getBooleanValue());
                     }
                 });
 
@@ -215,40 +190,32 @@ public class ImgNormalizerNodeFactory<T extends RealType<T>, L extends Comparabl
                         max.setEnabled(true);
                         minMaxOfNewImage.setEnabled(true);
                         saturation.setEnabled(false);
-                        dimSelection.setEnabled(minMaxOfNewImage.getBooleanValue());
+                        m_dimSelectionModel.setEnabled(minMaxOfNewImage.getBooleanValue());
                         break;
                     case EQUALIZE:
                         min.setEnabled(false);
                         max.setEnabled(false);
                         saturation.setEnabled(false);
                         minMaxOfNewImage.setEnabled(false);
-                        dimSelection.setEnabled(true);
+                        m_dimSelectionModel.setEnabled(true);
                         break;
                     case NORMALIZE:
                         min.setEnabled(false);
                         max.setEnabled(false);
                         minMaxOfNewImage.setEnabled(false);
                         saturation.setEnabled(true);
-                        dimSelection.setEnabled(true);
+                        m_dimSelectionModel.setEnabled(true);
                         break;
                     default:
                         throw new RuntimeException("Illegal state in contrast enhancer");
                 }
             }
-
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            public boolean isSecondColumnRequired() {
-                return false;
-            }
         };
     }
 
     @Override
-    public TwoValuesToCellNodeModel<ImgPlusValue<T>, LabelingValue<L>, ImgPlusCell<T>> createNodeModel() {
-        return new TwoValuesToCellNodeModel<ImgPlusValue<T>, LabelingValue<L>, ImgPlusCell<T>>() {
+    public IterableIntervalsNodeModel<T, T, L> createNodeModel() {
+        return new IterableIntervalsNodeModel<T, T, L>() {
 
             private final SettingsModelDouble m_smManualMax = createManualMaxModel();
 
@@ -259,10 +226,6 @@ public class ImgNormalizerNodeFactory<T extends RealType<T>, L extends Comparabl
             private final SettingsModelString m_smMode = createModeModel();
 
             private final SettingsModelDouble m_smSaturation = createSaturationModel();
-
-            private final SettingsModelDimSelection m_dimSelectionModel = createDimSelectionModel();
-
-            private ImgPlusCellFactory m_imgPlusCellFactory;
 
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
@@ -287,20 +250,10 @@ public class ImgNormalizerNodeFactory<T extends RealType<T>, L extends Comparabl
             }
 
             @Override
-            protected void prepareExecute(final ExecutionContext exec) {
-                m_imgPlusCellFactory = new ImgPlusCellFactory(exec);
-            }
-
-            @Override
-            protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue1, final LabelingValue<L> cellValue2)
-                    throws Exception {
-
-                ImgPlus<T> res =
-                        new ImgPlus<T>(ImgUtils.createEmptyCopy(cellValue1.getImgPlus()), cellValue1.getImgPlus());
-                ImgPlus<T> inputA = cellValue1.getImgPlus();
+            public UnaryOperation<IterableInterval<T>, IterableInterval<T>> operation(final IterableInterval<T> input) {
 
                 UnaryOperation<IterableInterval<T>, IterableInterval<T>> op;
-                final T val = inputA.firstElement().createVariable();
+                final T val = input.firstElement().createVariable();
 
                 switch (ContrastEnhancementMode.valueOf(m_smMode.getStringValue())) {
 
@@ -327,60 +280,15 @@ public class ImgNormalizerNodeFactory<T extends RealType<T>, L extends Comparabl
                         throw new RuntimeException("Illegal state in contrast enhancer");
                 }
 
-                // No labeling set
-                if (cellValue2 == null) {
-                    SubsetOperations.iterate(ImgOperations.wrapII(op, res.firstElement().createVariable()),
-                                             m_dimSelectionModel.getSelectedDimIndices(cellValue1.getImgPlus()),
-                                             cellValue1.getImgPlus(), res);
-                } else {
-                    SubsetOperations.iterate(new ROIIterableIntervalOp(op),
-                                             m_dimSelectionModel.getSelectedDimIndices(cellValue1.getImgPlus()),
-                                             cellValue1.getImgPlus(), cellValue2.getLabeling(), res);
-                }
+                return op;
+            }
 
-                return m_imgPlusCellFactory.createCell(res);
+            @Override
+            protected T getOutType(final IterableInterval<T> input) {
+                return input.firstElement().createVariable();
             }
 
         };
 
-    }
-
-    class ROIIterableIntervalOp implements BinaryOutputOperation<ImgPlus<T>, Labeling<L>, ImgPlus<T>> {
-
-        private UnaryOperation<IterableInterval<T>, IterableInterval<T>> m_op;
-
-        public ROIIterableIntervalOp(final UnaryOperation<IterableInterval<T>, IterableInterval<T>> op) {
-            m_op = op;
-        }
-
-        @Override
-        public ImgPlus<T> compute(final ImgPlus<T> inputA, final Labeling<L> inputB, final ImgPlus<T> output) {
-
-            for (L label : inputB.getLabels()) {
-                IterableRegionOfInterest roi = inputB.getIterableRegionOfInterest(label);
-
-                m_op.compute(roi.getIterableIntervalOverROI(inputA), roi.getIterableIntervalOverROI(output));
-
-            }
-            return output;
-        }
-
-        @Override
-        public BinaryOutputOperation<ImgPlus<T>, Labeling<L>, ImgPlus<T>> copy() {
-            return new ROIIterableIntervalOp(m_op.copy());
-        }
-
-        @Override
-        public BinaryObjectFactory<ImgPlus<T>, Labeling<L>, ImgPlus<T>> bufferFactory() {
-            return new BinaryObjectFactory<ImgPlus<T>, Labeling<L>, ImgPlus<T>>() {
-
-                @Override
-                public ImgPlus<T> instantiate(final ImgPlus<T> inputA, final Labeling<L> inputB) {
-                    return new ImgPlus<T>(inputA.factory().create(inputA, inputA.firstElement().createVariable()),
-                            inputA);
-                }
-
-            };
-        }
     }
 }

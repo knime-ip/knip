@@ -50,10 +50,11 @@
 package org.knime.knip.base.node;
 
 import net.imglib2.IterableInterval;
-import net.imglib2.RandomAccessible;
-import net.imglib2.algorithm.region.localneighborhood.Neighborhood;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.meta.ImgPlus;
+import net.imglib2.ops.operation.ImgOperations;
+import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.roi.IterableRegionOfInterest;
 import net.imglib2.type.numeric.RealType;
 
@@ -64,6 +65,7 @@ import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.port.PortObject;
+import org.knime.core.node.port.PortObjectSpec;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
@@ -72,8 +74,15 @@ import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.util.ImgUtils;
 
 /**
- * Remark: Note this class has some redundant implemenations to {@link ImgPlusToImgPlusNodeModel}. Anyway, the
+ * Remark: Note this class has some redundant implementations to {@link ImgPlusToImgPlusNodeModel}. Anyway, the
  * functionality provided by this class differs a lot.
+ *
+ * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
+ * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
+ *
+ * @param <T> Type of Input
+ * @param <V> Type of Output
+ * @param <L> Type of Labeling
  *
  */
 public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extends RealType<V>, L extends Comparable<L>>
@@ -83,7 +92,7 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
      * Create the {@link SettingsModelDimSelection}
      *
      * @param axes
-     * @return
+     * @return {@link SettingsModelDimSelection}
      */
     protected static SettingsModelDimSelection createDimSelectionModel(final String... axes) {
         return new SettingsModelDimSelection("dim_selection", axes);
@@ -92,7 +101,7 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
     /**
      * Create the optional column model (here: labeling)
      *
-     * @return
+     * @return {@link SettingsModelString}
      */
     protected static SettingsModelString createOptionalColumnModel() {
         return new SettingsModelString("optinal_column_selection", "");
@@ -130,6 +139,24 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
     protected PortObject[] execute(final PortObject[] inObjects, final ExecutionContext exec) throws Exception {
         m_optionalColIdx = getOptionalColumnIdx(((BufferedDataTable)inObjects[0]).getDataTableSpec());
         return super.execute(inObjects, exec);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
+
+        // for consistency with the GUI we need to disable our dim selection if a labeling is set (which absolutely makes sense)
+        int idx = getOptionalColumnIdx((DataTableSpec)inSpecs[0]);
+
+        if (idx == -1) {
+            m_dimSelectionModel.setEnabled(true);
+        } else {
+            m_dimSelectionModel.setEnabled(false);
+        }
+
+        return super.configure(inSpecs);
     }
 
     /**
@@ -189,14 +216,21 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
         ImgPlus<T> in = cellValue.getImgPlus();
         ImgPlus<V> res = createResultImage(cellValue.getImgPlus());
 
+        UnaryOperation<IterableInterval<T>, IterableInterval<V>> operation = operation(in);
+
+        int[] selectedDimIndices = m_dimSelectionModel.getSelectedDimIndices(in);
+
         if (m_currentLabeling == null) {
-            compute(in.getImg(), res.getImg(), in.getImg());
+            SubsetOperations.iterate(ImgOperations.wrapII(operation, getOutType(in)), selectedDimIndices, in, res,
+                                     getExecutorService());
         } else {
             for (L label : m_currentLabeling.getLabels()) {
                 IterableRegionOfInterest iterableRegionOfInterest =
                         m_currentLabeling.getIterableRegionOfInterest(label);
-                compute(iterableRegionOfInterest.getIterableIntervalOverROI(in),
-                        iterableRegionOfInterest.getIterableIntervalOverROI(res), in.getImg());
+
+                // TODO parallelize over ROIs (tbd)
+                operation.compute(iterableRegionOfInterest.getIterableIntervalOverROI(in),
+                                  iterableRegionOfInterest.getIterableIntervalOverROI(res));
             }
 
         }
@@ -213,24 +247,25 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
      * @return
      */
     private ImgPlus<V> createResultImage(final ImgPlus<T> in) {
-        return new ImgPlus<V>(ImgUtils.createEmptyCopy(in, getOutType()), in);
+        return new ImgPlus<V>(ImgUtils.createEmptyCopy(in, getOutType(in)), in);
     }
 
     /**
-     * Compute the result and write it into out. You may use the src {@link RandomAccessible} to access
-     * {@link Neighborhood}s, but you need to extend it on your own, to make sure that it is defined at any location.
+     * Type of the output. Must be of type {@link RealType}
      *
-     * @param in incoming {@link IterableInterval}
-     * @param out {@link IterableInterval} containing the result of the computation
-     * @param src {@link RandomAccessible} representation of the source
+     * @param input the incoming {@link IterableInterval}
+     *
+     * @return the type of the output
      */
-    public abstract void compute(final IterableInterval<T> in, final IterableInterval<V> out,
-                                 final RandomAccessible<T> src);
+    protected abstract V getOutType(final IterableInterval<T> input);
 
     /**
-     * The {@link RealType} of the outgoing {@link IterableInterval}.
+     * The {@link UnaryOperation} which will be used to compute the output {@link IterableInterval} of type V given the
+     * input {@link IterableInterval} of type T
      *
-     * @return the type of the outgoing {@link IterableInterval}
+     * @return the {@link UnaryOperation} which will be utilized for processing
+     *
      */
-    public abstract V getOutType();
+    public abstract UnaryOperation<IterableInterval<T>, IterableInterval<V>> operation(IterableInterval<T> input);
+
 }

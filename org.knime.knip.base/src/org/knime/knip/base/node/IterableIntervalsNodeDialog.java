@@ -49,22 +49,35 @@
  */
 package org.knime.knip.base.node;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
+import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
+import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 
 /**
  * This dialogs adds the possibility to optionally select a column containing a labeling which restricts the computation
  * of the underlying operation to certain regions of interest in the image.
  *
- * @param <T>
+ * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
+ * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
+ *
+ * @param <T> the type of the input
  *
  */
-public abstract class IterableIntervalsNodeDialog<T extends RealType<T>> extends
-        ValueToCellsNodeDialog<ImgPlusValue<T>> {
+public abstract class IterableIntervalsNodeDialog<T extends RealType<T>> extends ValueToCellNodeDialog<ImgPlusValue<T>> {
+
+
+    /**
+     * To disable/enable from child classes
+     */
+    protected SettingsModelDimSelection m_dimSelectionModel;
 
     /**
      * Override this method and call super.addDialogComponents() to add additional dialog components.
@@ -74,15 +87,27 @@ public abstract class IterableIntervalsNodeDialog<T extends RealType<T>> extends
     @SuppressWarnings("unchecked")
     @Override
     public void addDialogComponents() {
-        addDialogComponent("Column Selection", "Choose", new DialogComponentColumnNameSelection(
-                IterableIntervalsNodeModel.createOptionalColumnModel(), getFirstColumnSelectionLabel(), 0, false, true,
-                LabelingValue.class));
+        final SettingsModelString optionalColumn = IterableIntervalsNodeModel.createOptionalColumnModel();
+        m_dimSelectionModel = IterableIntervalsNodeModel.createDimSelectionModel("X", "Y");
+
+        optionalColumn.addChangeListener(new ChangeListener() {
+
+            @Override
+            public void stateChanged(final ChangeEvent e) {
+                if (optionalColumn.getStringValue() == null || optionalColumn.getStringValue().equalsIgnoreCase("")) {
+                    m_dimSelectionModel.setEnabled(true);
+                } else {
+                    m_dimSelectionModel.setEnabled(false);
+                }
+            }
+        });
+
+        addDialogComponent("Column Selection", "Choose", new DialogComponentColumnNameSelection(optionalColumn,
+                getFirstColumnSelectionLabel(), 0, false, true, LabelingValue.class));
 
         // IterableIntervals don't rely on dimensions. Should be working for any selection
-        addDialogComponent("Options", "Dimension Selection",
-                           new DialogComponentDimSelection(
-                                   IterableIntervalsNodeModel.createDimSelectionModel("X", "Y"), "", 1,
-                                   Integer.MAX_VALUE));
+        addDialogComponent("Options", "Dimension Selection", new DialogComponentDimSelection(m_dimSelectionModel, "", 1,
+                Integer.MAX_VALUE));
     }
 
     /**
