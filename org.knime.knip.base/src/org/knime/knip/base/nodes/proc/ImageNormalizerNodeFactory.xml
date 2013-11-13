@@ -5,8 +5,9 @@
 	IBM Corporation - initial API and implementation -->
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="icons/contrastenhancer.png" type="Manipulator">
-	<name>Image Normalizer</name>
+	<name>Image Normalizer (Deprecated)</name>
 	<shortDescription>
+		Deprecated. Please use the new Image Normalizer node.
 		Enhances the image contrast by either normalizing or
 		equalizing it.
 	</shortDescription>
