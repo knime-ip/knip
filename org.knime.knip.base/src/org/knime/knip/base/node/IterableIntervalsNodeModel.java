@@ -189,7 +189,7 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
     /*
      * Factory to create cells
      */
-    private ImgPlusCellFactory m_cellFactory;
+    protected ImgPlusCellFactory m_cellFactory;
 
     /**
      * {@inheritDoc}
@@ -286,7 +286,7 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
 
         int[] selectedDimIndices = m_dimSelectionModel.getSelectedDimIndices(in);
 
-        if (m_currentLabeling == null) {
+        if (isLabelingPresent()) {
             SubsetOperations.iterate(ImgOperations.wrapII(operation, outType), selectedDimIndices, in, res,
                                      getExecutorService());
         } else {
@@ -305,10 +305,10 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
             switch (mode) {
                 case NOFILLING:
                     break;
-                case RESMAX:
+                case RESMIN:
                     fill(res, outType.getMinValue());
                     break;
-                case RESMIN:
+                case RESMAX:
                     fill(res, outType.getMaxValue());
                     break;
                 case SOURCE:
@@ -354,6 +354,13 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
      */
     private ImgPlus<V> createResultImage(final ImgPlus<T> in) {
         return new ImgPlus<V>(ImgUtils.createEmptyCopy(in, getOutType(in)), in);
+    }
+
+    /**
+     * @return true if labeling is selected by user
+     */
+    protected boolean isLabelingPresent() {
+        return m_currentCellIdx > -1;
     }
 
     /**

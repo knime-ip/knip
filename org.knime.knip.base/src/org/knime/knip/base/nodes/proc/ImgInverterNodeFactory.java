@@ -50,22 +50,22 @@ package org.knime.knip.base.nodes.proc;
 
 import java.util.List;
 
+import net.imglib2.IterableInterval;
 import net.imglib2.converter.read.ConvertedRandomAccessibleInterval;
-import net.imglib2.img.Img;
+import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.img.UnaryOperationBasedConverter;
+import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.ops.operation.real.unary.RealUnaryOperation;
-import net.imglib2.ops.operation.subset.views.ImgView;
+import net.imglib2.ops.operation.subset.views.ImgPlusView;
 import net.imglib2.type.numeric.RealType;
 
-import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.knip.base.data.img.ImgPlusCell;
-import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
-import org.knime.knip.base.node.ValueToCellNodeDialog;
-import org.knime.knip.base.node.ValueToCellNodeFactory;
-import org.knime.knip.base.node.ValueToCellNodeModel;
+import org.knime.knip.base.node.IterableIntervalsNodeDialog;
+import org.knime.knip.base.node.IterableIntervalsNodeFactory;
+import org.knime.knip.base.node.IterableIntervalsNodeModel;
 import org.knime.node2012.FullDescriptionDocument.FullDescription;
 import org.knime.node2012.KnimeNodeDocument;
 import org.knime.node2012.KnimeNodeDocument.KnimeNode;
@@ -73,14 +73,14 @@ import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 /**
  * Factory class to produce an image inverter node.
  *
- * Use ImgInverterNodeFactory
- *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @param <T>
+ * @param <L>
  */
-@Deprecated
-public class InvertNodeFactory<T extends RealType<T>> extends ValueToCellNodeFactory<ImgPlusValue<T>> {
+public class ImgInverterNodeFactory<T extends RealType<T>, L extends Comparable<L>> extends
+        IterableIntervalsNodeFactory<T, T, L> {
 
     private class SignedRealInvert<I extends RealType<I>, O extends RealType<O>> implements RealUnaryOperation<I, O> {
 
@@ -104,7 +104,6 @@ public class InvertNodeFactory<T extends RealType<T>> extends ValueToCellNodeFac
         /**
          * Constructor.
          *
-         * @param specifiedMin - minimum value of the range to invert about
          * @param specifiedMax - maximum value of the range to invert about
          */
         public UnsignedRealInvert(final double specifiedMax) {
@@ -143,38 +142,48 @@ public class InvertNodeFactory<T extends RealType<T>> extends ValueToCellNodeFac
      * {@inheritDoc}
      */
     @Override
-    public ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<T>> createNodeModel() {
-        return new ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<T>>() {
-
-            private ImgPlusCellFactory m_imgCellFactory;
+    public IterableIntervalsNodeModel<T, T, L> createNodeModel() {
+        return new IterableIntervalsNodeModel<T, T, L>() {
 
             @Override
-            protected void addSettingsModels(final List<SettingsModel> settingsModels) {
-
-            }
-
-            @Override
-            protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
-                final Img<T> img = cellValue.getImgPlus();
-                UnaryOperation<T, T> invert;
-                if (img.firstElement().getMinValue() < 0) {
-                    invert = new SignedRealInvert<T, T>();
-                } else {
-                    invert = new UnsignedRealInvert<T, T>(img.firstElement().getMaxValue());
-                }
-
-                return m_imgCellFactory.createCell(new ImgView<T>(new ConvertedRandomAccessibleInterval<T, T>(img,
-                                                           new UnaryOperationBasedConverter<T, T>(invert), img
-                                                                   .firstElement().createVariable()), img.factory()),
-                                                   cellValue.getMetadata(), ((ImgPlusValue)cellValue).getMinimum());
+            protected T getOutType(final IterableInterval<T> input) {
+                return input.firstElement().createVariable();
             }
 
             /**
              * {@inheritDoc}
              */
             @Override
-            protected void prepareExecute(final ExecutionContext exec) {
-                m_imgCellFactory = new ImgPlusCellFactory(exec);
+            protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
+                if (isLabelingPresent()) {
+                    // here we really can't optimize using converters
+                    return super.compute(cellValue);
+                } else {
+                    // this can be done faster
+                    ImgPlus<T> in = cellValue.getImgPlus();
+                    return m_cellFactory.createCell(new ImgPlusView<T>(new ConvertedRandomAccessibleInterval<T, T>(in,
+                            new UnaryOperationBasedConverter<T, T>(createOp(in)), getOutType(in)), in.factory(), in));
+                }
+            }
+
+            @Override
+            public UnaryOperation<IterableInterval<T>, IterableInterval<T>> operation(final IterableInterval<T> input) {
+                return Operations.map(createOp(input));
+            }
+
+            private UnaryOperation<T, T> createOp(final IterableInterval<T> input) {
+                UnaryOperation<T, T> invert;
+                if (input.firstElement().getMinValue() < 0) {
+                    invert = new SignedRealInvert<T, T>();
+                } else {
+                    invert = new UnsignedRealInvert<T, T>(input.firstElement().getMaxValue());
+                }
+                return invert;
+            }
+
+            @Override
+            protected void addSettingsModels(final List<SettingsModel> settingsModels) {
+                //
             }
         };
     }
@@ -183,8 +192,8 @@ public class InvertNodeFactory<T extends RealType<T>> extends ValueToCellNodeFac
      * {@inheritDoc}
      */
     @Override
-    protected ValueToCellNodeDialog<ImgPlusValue<T>> createNodeDialog() {
-        return new ValueToCellNodeDialog<ImgPlusValue<T>>() {
+    protected IterableIntervalsNodeDialog<T> createNodeDialog() {
+        return new IterableIntervalsNodeDialog<T>(false) {
 
             /**
              * {@inheritDoc}

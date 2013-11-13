@@ -82,15 +82,18 @@ public abstract class IterableIntervalsNodeDialog<T extends RealType<T>> extends
     protected SettingsModelDimSelection m_dimSelectionModel = IterableIntervalsNodeModel.createDimSelectionModel("X",
                                                                                                                  "Y");
 
-    private boolean hasDimSelection;
+    // indicator whether dim selection should be added to dialog or not
+    private boolean m_hasDimSelection;
 
     /**
      * Lazily initialize the super constructor
+     *
+     * @param hasDimSelection true if {@link DialogComponentDimSelection} should be added to dialog
      */
     public IterableIntervalsNodeDialog(final boolean hasDimSelection) {
         super(true);
 
-        this.hasDimSelection = hasDimSelection;
+        this.m_hasDimSelection = hasDimSelection;
         this.addOwnDcs();
 
         super.init();
@@ -109,12 +112,12 @@ public abstract class IterableIntervalsNodeDialog<T extends RealType<T>> extends
             @Override
             public void stateChanged(final ChangeEvent e) {
                 if (optionalColumn.getStringValue() == null || optionalColumn.getStringValue().equalsIgnoreCase("")) {
-                    if (hasDimSelection) {
+                    if (m_hasDimSelection) {
                         m_dimSelectionModel.setEnabled(true);
                     }
                     fillingModeModel.setEnabled(false);
                 } else {
-                    if (hasDimSelection) {
+                    if (m_hasDimSelection) {
                         m_dimSelectionModel.setEnabled(false);
                     }
                     fillingModeModel.setEnabled(true);
@@ -127,13 +130,13 @@ public abstract class IterableIntervalsNodeDialog<T extends RealType<T>> extends
                                    false, true, LabelingValue.class));
 
         // IterableIntervals don't rely on dimensions. Should be working for any selection
-        if (hasDimSelection) {
+        if (m_hasDimSelection) {
             addDialogComponent("Options", "Dimension Selection", new DialogComponentDimSelection(m_dimSelectionModel,
                     "", 1, Integer.MAX_VALUE));
         }
 
         addDialogComponent("Options", "Filling Mode", new DialogComponentStringSelection(fillingModeModel,
-                "Filling Strategy", EnumUtils.getStringCollectionFromName(FillingMode.values())));
+                "Filling Strategy", EnumUtils.getStringCollectionFromToString(FillingMode.values())));
     }
 
     /**
