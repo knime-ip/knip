@@ -340,6 +340,7 @@ public class ImgNormalizerNodeFactory<T extends RealType<T>, L extends Comparabl
 
                 return m_imgPlusCellFactory.createCell(res);
             }
+
         };
 
     }
