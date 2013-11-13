@@ -93,12 +93,13 @@ import org.knime.knip.core.util.ImgUtils;
 import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 
 /**
- * New global thresholder
+ * Deprecated. Use ROI based GlobalThresholder (ImgThresholder)
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
+@Deprecated
 public class ThresholderNodeFactory2<T extends RealType<T>> extends ValueToCellNodeFactory {
 
     private static final NodeLogger LOGGER = NodeLogger.getLogger(ThresholderNodeFactory2.class);

@@ -135,7 +135,6 @@ public class ProcNodeSetFactory implements NodeSetFactory {
 
         m_nodeFactories.put(ProjectorNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(Rotation2DNodeFactory.class.getCanonicalName(), "/community/knip/image");
-        m_nodeFactories.put(ThresholderNodeFactory2.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(ResamplerNodeFactory.class.getCanonicalName(), "/community/knip/image");
         m_nodeFactories.put(UCSplitterNodeFactory.class.getCanonicalName(), "/community/knip/image");
         m_nodeFactories.put(DimensionSwapperNodeFactory.class.getCanonicalName(), "/community/knip/image");
@@ -156,6 +155,7 @@ public class ProcNodeSetFactory implements NodeSetFactory {
         // ROI based nodes (which deprecated the old implementations)
         m_nodeFactories.put(ImgNormalizerNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(ImgInverterNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
+        m_nodeFactories.put(ImgThresholderNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
 
         return m_nodeFactories.keySet();
     }

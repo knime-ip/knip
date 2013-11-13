@@ -143,11 +143,13 @@ public class ImgInverterNodeFactory<T extends RealType<T>, L extends Comparable<
      */
     @Override
     public IterableIntervalsNodeModel<T, T, L> createNodeModel() {
-        return new IterableIntervalsNodeModel<T, T, L>() {
+        return new IterableIntervalsNodeModel<T, T, L>(false) {
+
+            private UnaryOperation<T, T> m_preparedOp;
 
             @Override
-            protected T getOutType(final IterableInterval<T> input) {
-                return input.firstElement().createVariable();
+            protected T getOutType(final T input) {
+                return input.createVariable();
             }
 
             /**
@@ -162,21 +164,28 @@ public class ImgInverterNodeFactory<T extends RealType<T>, L extends Comparable<
                     // this can be done faster
                     ImgPlus<T> in = cellValue.getImgPlus();
                     return m_cellFactory.createCell(new ImgPlusView<T>(new ConvertedRandomAccessibleInterval<T, T>(in,
-                            new UnaryOperationBasedConverter<T, T>(createOp(in)), getOutType(in)), in.factory(), in));
+                                                            new UnaryOperationBasedConverter<T, T>(m_preparedOp),
+                                                            getOutType(in.firstElement())), in.factory(), in),
+                                                    cellValue.getMinimum());
                 }
             }
 
             @Override
-            public UnaryOperation<IterableInterval<T>, IterableInterval<T>> operation(final IterableInterval<T> input) {
-                return Operations.map(createOp(input));
+            public void prepareOperation(final T input) {
+                m_preparedOp = createOp(input);
             }
 
-            private UnaryOperation<T, T> createOp(final IterableInterval<T> input) {
+            @Override
+            public UnaryOperation<IterableInterval<T>, IterableInterval<T>> operation() {
+                return Operations.map(m_preparedOp);
+            }
+
+            private UnaryOperation<T, T> createOp(final T input) {
                 UnaryOperation<T, T> invert;
-                if (input.firstElement().getMinValue() < 0) {
+                if (input.getMinValue() < 0) {
                     invert = new SignedRealInvert<T, T>();
                 } else {
-                    invert = new UnsignedRealInvert<T, T>(input.firstElement().getMaxValue());
+                    invert = new UnsignedRealInvert<T, T>(input.getMaxValue());
                 }
                 return invert;
             }

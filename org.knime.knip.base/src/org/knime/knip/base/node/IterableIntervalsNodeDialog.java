@@ -125,9 +125,11 @@ public abstract class IterableIntervalsNodeDialog<T extends RealType<T>> extends
             }
         });
 
-        addDialogComponent("Column Selection", "Choose Labeling Column (optional)",
-                           new DialogComponentColumnNameSelection(optionalColumn, getFirstColumnSelectionLabel(), 0,
-                                   false, true, LabelingValue.class));
+        addDialogComponent("ROI Options", "Choose Labeling Column (optional)", new DialogComponentColumnNameSelection(
+                optionalColumn, getFirstColumnSelectionLabel(), 0, false, true, LabelingValue.class));
+
+        addDialogComponent("ROI Options", "Filling Mode", new DialogComponentStringSelection(fillingModeModel,
+                "Filling Strategy", EnumUtils.getStringCollectionFromToString(FillingMode.values())));
 
         // IterableIntervals don't rely on dimensions. Should be working for any selection
         if (m_hasDimSelection) {
@@ -135,8 +137,6 @@ public abstract class IterableIntervalsNodeDialog<T extends RealType<T>> extends
                     "", 1, Integer.MAX_VALUE));
         }
 
-        addDialogComponent("Options", "Filling Mode", new DialogComponentStringSelection(fillingModeModel,
-                "Filling Strategy", EnumUtils.getStringCollectionFromToString(FillingMode.values())));
     }
 
     /**

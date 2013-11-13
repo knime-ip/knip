@@ -58,7 +58,6 @@ import net.imglib2.ops.operation.real.unary.RealUnaryOperation;
 import net.imglib2.ops.operation.subset.views.ImgView;
 import net.imglib2.type.numeric.RealType;
 
-import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
@@ -133,7 +132,7 @@ public class InvertNodeFactory<T extends RealType<T>> extends ValueToCellNodeFac
         final KnimeNode node = doc.addNewKnimeNode();
         node.setIcon("icons/inverter.png");
         node.setType(KnimeNode.Type.MANIPULATOR);
-        node.setName("Inverter");
+        node.setName("Inverter (Deprecated)");
         node.setShortDescription("Inverts Images");
         final FullDescription desc = node.addNewFullDescription();
         desc.addNewIntro().addNewP().newCursor().setTextValue("Inverts Images");
@@ -167,14 +166,6 @@ public class InvertNodeFactory<T extends RealType<T>> extends ValueToCellNodeFac
                                                            new UnaryOperationBasedConverter<T, T>(invert), img
                                                                    .firstElement().createVariable()), img.factory()),
                                                    cellValue.getMetadata(), ((ImgPlusValue)cellValue).getMinimum());
-            }
-
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            protected void prepareExecute(final ExecutionContext exec) {
-                m_imgCellFactory = new ImgPlusCellFactory(exec);
             }
         };
     }

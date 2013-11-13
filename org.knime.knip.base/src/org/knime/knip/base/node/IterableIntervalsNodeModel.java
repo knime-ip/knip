@@ -167,11 +167,6 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
     private final SettingsModelString m_optionalColumnModel = createOptionalColumnModel();
 
     /*
-     * Stores the dimension selection.
-     */
-    private final SettingsModelDimSelection m_dimSelectionModel = createDimSelectionModel("X", "Y");
-
-    /*
      * Store the settings model for outside roi pixel filling
      */
     private final SettingsModelString m_fillNonROIPixels = createFillingModeModel();
@@ -187,9 +182,34 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
     private Labeling<L> m_currentLabeling;
 
     /**
+     * Stores the dimension selection. Can be null.
+     */
+    protected SettingsModelDimSelection m_dimSelectionModel = null;
+
+    /**
      * Factory to create cells
      */
     protected ImgPlusCellFactory m_cellFactory;
+
+    // indicator whether dimension selection should be added
+    private boolean hasDimSelection;
+
+    /**
+     * Convienience constructor. If you want to avoid dimension selection, you can do so using the other constructor.
+     */
+    public IterableIntervalsNodeModel() {
+        this(true);
+    }
+
+    /**
+     * @param hasDimSelection set false if you don't want to use dimension selection
+     */
+    public IterableIntervalsNodeModel(@SuppressWarnings("hiding") final boolean hasDimSelection) {
+        this.hasDimSelection = hasDimSelection;
+        if (hasDimSelection) {
+            m_dimSelectionModel = createDimSelectionModel("X", "Y");
+        }
+    }
 
     /**
      * {@inheritDoc}
@@ -211,10 +231,14 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
         int idx = getOptionalColumnIdx((DataTableSpec)inSpecs[0]);
 
         if (idx == -1) {
-            m_dimSelectionModel.setEnabled(true);
+            if (hasDimSelection) {
+                m_dimSelectionModel.setEnabled(true);
+            }
             m_fillNonROIPixels.setEnabled(false);
         } else {
-            m_dimSelectionModel.setEnabled(false);
+            if (hasDimSelection) {
+                m_dimSelectionModel.setEnabled(false);
+            }
             m_fillNonROIPixels.setEnabled(true);
         }
 
@@ -247,7 +271,10 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
     protected void collectSettingsModels() {
         super.collectSettingsModels();
         m_settingsModels.add(m_optionalColumnModel);
-        m_settingsModels.add(m_dimSelectionModel);
+
+        if (hasDimSelection) {
+            m_settingsModels.add(m_dimSelectionModel);
+        }
         m_settingsModels.add(m_fillNonROIPixels);
     }
 
@@ -280,13 +307,23 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
         ImgPlus<T> in = cellValue.getImgPlus();
         ImgPlus<V> res = createResultImage(cellValue.getImgPlus());
 
-        V outType = getOutType(in);
+        V outType = getOutType(in.firstElement());
 
-        UnaryOperation<IterableInterval<T>, IterableInterval<V>> operation = operation(in);
+        int[] selectedDimIndices = null;
+        if (hasDimSelection) {
+            selectedDimIndices = m_dimSelectionModel.getSelectedDimIndices(in);
+        } else {
+            // set all as selected
+            selectedDimIndices = new int[in.numDimensions()];
+            for (int i = 0; i < selectedDimIndices.length; i++) {
+                selectedDimIndices[i] = i;
+            }
+        }
 
-        int[] selectedDimIndices = m_dimSelectionModel.getSelectedDimIndices(in);
+        prepareOperation(in.firstElement());
 
         if (!isLabelingPresent()) {
+            UnaryOperation<IterableInterval<T>, IterableInterval<V>> operation = operation();
             SubsetOperations.iterate(ImgOperations.wrapII(operation, outType), selectedDimIndices, in, res,
                                      getExecutorService());
         } else {
@@ -294,9 +331,13 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
                 IterableRegionOfInterest iterableRegionOfInterest =
                         m_currentLabeling.getIterableRegionOfInterest(label);
 
+                IterableInterval<T> inII = iterableRegionOfInterest.getIterableIntervalOverROI(in);
+                IterableInterval<V> outII = iterableRegionOfInterest.getIterableIntervalOverROI(res);
+
+                UnaryOperation<IterableInterval<T>, IterableInterval<V>> operation = operation();
+
                 // TODO parallelize over ROIs (tbd)
-                operation.compute(iterableRegionOfInterest.getIterableIntervalOverROI(in),
-                                  iterableRegionOfInterest.getIterableIntervalOverROI(res));
+                operation.compute(inII, outII);
             }
 
             // TODO can we speed this up (or is it even slower if we would have empty pixel information?)
@@ -327,7 +368,7 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
                     break;
             }
         }
-        return m_cellFactory.createCell(res);
+        return m_cellFactory.createCell(res, cellValue.getMinimum());
     }
 
     // fills the res with val if labeling contains no labels at a certain position
@@ -353,34 +394,36 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
      * @return
      */
     private ImgPlus<V> createResultImage(final ImgPlus<T> in) {
-        return new ImgPlus<V>(ImgUtils.createEmptyCopy(in, getOutType(in)), in);
+        return new ImgPlus<V>(ImgUtils.createEmptyCopy(in, getOutType(in.firstElement())), in);
     }
 
     /**
      * @return true if labeling is selected by user
      */
     protected boolean isLabelingPresent() {
-        return m_currentCellIdx > -1;
+        return m_optionalColIdx > -1;
     }
 
     /**
      * Type of the output. Must be of type {@link RealType}
      *
-     * @param input the incoming {@link IterableInterval}
+     * @param inType the type of the incoming {@link IterableInterval}
      *
      * @return the type of the output
      */
-    protected abstract V getOutType(final IterableInterval<T> input);
+    protected abstract V getOutType(final T inType);
 
     /**
      * The {@link UnaryOperation} which will be used to compute the output {@link IterableInterval} of type V given the
      * input {@link IterableInterval} of type T
      *
-     * @param input the input interval
-     *
      * @return the {@link UnaryOperation} which will be utilized for processing
      *
      */
-    public abstract UnaryOperation<IterableInterval<T>, IterableInterval<V>> operation(IterableInterval<T> input);
+    public abstract UnaryOperation<IterableInterval<T>, IterableInterval<V>> operation();
 
+    /**
+     * @param inputType of input {@link IterableInterval}
+     */
+    public abstract void prepareOperation(final T inputType);
 }

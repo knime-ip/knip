@@ -220,6 +220,8 @@ public class ImgNormalizerNodeFactory<T extends RealType<T>, L extends Comparabl
 
             private final SettingsModelDouble m_smSaturation = createSaturationModel();
 
+            private T m_currentVal;
+
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
 
@@ -243,22 +245,21 @@ public class ImgNormalizerNodeFactory<T extends RealType<T>, L extends Comparabl
             }
 
             @Override
-            public UnaryOperation<IterableInterval<T>, IterableInterval<T>> operation(final IterableInterval<T> input) {
+            public UnaryOperation<IterableInterval<T>, IterableInterval<T>> operation() {
 
                 UnaryOperation<IterableInterval<T>, IterableInterval<T>> op;
-                final T val = input.firstElement().createVariable();
 
                 switch (ContrastEnhancementMode.valueOf(m_smMode.getStringValue())) {
 
                     case MANUALNORMALIZE:
-                        final T min = val.createVariable();
-                        final T max = val.createVariable();
+                        final T min = m_currentVal.createVariable();
+                        final T max = m_currentVal.createVariable();
 
                         min.setReal(m_smManualMin.getDoubleValue());
                         max.setReal(m_smManualMax.getDoubleValue());
 
                         op =
-                                new IterableIntervalNormalize<T>(0, val, new ValuePair<T, T>(min, max),
+                                new IterableIntervalNormalize<T>(0, m_currentVal, new ValuePair<T, T>(min, max),
                                         m_smMinMaxOfNewImage.getBooleanValue());
                         break;
                     case EQUALIZE:
@@ -266,7 +267,7 @@ public class ImgNormalizerNodeFactory<T extends RealType<T>, L extends Comparabl
                         break;
                     case NORMALIZE:
                         op =
-                                new IterableIntervalNormalize<T>(m_smSaturation.getDoubleValue(), val, null,
+                                new IterableIntervalNormalize<T>(m_smSaturation.getDoubleValue(), m_currentVal, null,
                                         m_smMinMaxOfNewImage.getBooleanValue());
                         break;
                     default:
@@ -277,8 +278,13 @@ public class ImgNormalizerNodeFactory<T extends RealType<T>, L extends Comparabl
             }
 
             @Override
-            protected T getOutType(final IterableInterval<T> input) {
-                return input.firstElement().createVariable();
+            protected T getOutType(final T input) {
+                return input.createVariable();
+            }
+
+            @Override
+            public void prepareOperation(final T firstElement) {
+                m_currentVal = firstElement.createVariable();
             }
 
         };
