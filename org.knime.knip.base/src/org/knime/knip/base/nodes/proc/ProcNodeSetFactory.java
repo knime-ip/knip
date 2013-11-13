@@ -125,7 +125,6 @@ public class ProcNodeSetFactory implements NodeSetFactory {
         m_nodeFactories.put(CLAHENodeFactory.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(ImgJEPNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(ConvertImgNodeFactory.class.getCanonicalName(), "/community/knip/image");
-        m_nodeFactories.put(InvertNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(LocalMaximaForDistanceMapNodeFactory.class.getCanonicalName(),
                             "/community/knip/image/process");
 
@@ -156,6 +155,7 @@ public class ProcNodeSetFactory implements NodeSetFactory {
 
         // ROI based nodes (which deprecated the old implementations)
         m_nodeFactories.put(ImgNormalizerNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
+        m_nodeFactories.put(ImgInverterNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
 
         return m_nodeFactories.keySet();
     }

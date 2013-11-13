@@ -23,6 +23,7 @@ public class EnumUtils {
      * Retrieve {@link Enum} for name
      *
      * @param name
+     * @param values
      *
      * @return {@link Enum} with the given name
      */
@@ -40,7 +41,7 @@ public class EnumUtils {
      * Provide nicer names and use toString methods
      *
      * @param enums
-     * @return
+     * @return enum as String[] array based on names()
      */
     @Deprecated
     public static String[] getStringListFromName(final Enum<?>... enums) {
@@ -59,17 +60,22 @@ public class EnumUtils {
      * use from to string and provide nice names
      *
      * @param enums
-     * @return
+     * @return Collection<String> based on name()
      */
     @Deprecated
     public static Collection<String> getStringCollectionFromName(final Enum<?>[] enums) {
         final ArrayList<String> s = new ArrayList<String>();
         for (final Enum<?> e : enums) {
-            s.add(e.toString());
+            s.add(e.name());
         }
         return s;
     }
 
+    /**
+     * @param enums
+     *
+     * @return enum as String[] based on toString
+     */
     public static String[] getStringListFromToString(final Enum<?>... enums) {
 
         final String[] s = new String[enums.length];
@@ -82,10 +88,14 @@ public class EnumUtils {
         return s;
     }
 
+    /**
+     * @param enums
+     * @return Collection<String> of enum based on toString
+     */
     public static Collection<String> getStringCollectionFromToString(final Enum<?>[] enums) {
         final ArrayList<String> s = new ArrayList<String>();
         for (final Enum<?> e : enums) {
-            s.add(e.name());
+            s.add(e.toString());
         }
         return s;
     }

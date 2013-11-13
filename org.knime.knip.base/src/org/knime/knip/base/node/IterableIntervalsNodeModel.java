@@ -186,7 +186,7 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
      */
     private Labeling<L> m_currentLabeling;
 
-    /*
+    /**
      * Factory to create cells
      */
     protected ImgPlusCellFactory m_cellFactory;
@@ -286,7 +286,7 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
 
         int[] selectedDimIndices = m_dimSelectionModel.getSelectedDimIndices(in);
 
-        if (isLabelingPresent()) {
+        if (!isLabelingPresent()) {
             SubsetOperations.iterate(ImgOperations.wrapII(operation, outType), selectedDimIndices, in, res,
                                      getExecutorService());
         } else {
