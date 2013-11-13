@@ -72,7 +72,7 @@ import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter.Operator;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -149,7 +149,7 @@ public class BoundingBoxLabelRenderer<L extends Comparable<L> & Type<L>> impleme
         for (final L label : subLab.getLabels()) {
 
             // test hilite
-            if ((m_hilitedLabels != null) && m_hilitedLabels.contains(label)) {
+            if ((m_hilitedLabels != null) && m_hilitedLabels.contains(label.toString())) {
                 g.setColor(HILITED_RGB_COLOR);
             } else {
                 g.setColor(getBOX_RGB_COLOR());
@@ -163,7 +163,7 @@ public class BoundingBoxLabelRenderer<L extends Comparable<L> & Type<L>> impleme
             }
 
             // test active labels (null = all active)
-            if ((activeLabels == null) || activeLabels.contains(label)) {
+            if ((activeLabels == null) || activeLabels.contains(label.toString())) {
 
                 final IterableRegionOfInterest roi = subLab.getIterableRegionOfInterest(label);
                 final Interval ii = roi.getIterableIntervalOverROI(subLab);
@@ -219,8 +219,8 @@ public class BoundingBoxLabelRenderer<L extends Comparable<L> & Type<L>> impleme
      * explicitly defines a color for labelings and bounding boxes instead of using the color defined in the
      * SegmentColorTable. This is useful if e.g. the color has been defined during config time and should not depend the
      * SegmentColorTable.
-     * 
-     * 
+     *
+     *
      * @param bbColor a color for bounding boxes and labels or <code>null</code> to restore the default behavior (
      *            <code>SegmentColorTable.getBoundingBoxColor()</code>)
      */
