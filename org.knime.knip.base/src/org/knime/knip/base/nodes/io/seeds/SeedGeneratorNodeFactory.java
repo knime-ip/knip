@@ -82,7 +82,7 @@ import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.ops.labeling.ImgProbabilitySeeds;
 import org.knime.knip.core.ops.labeling.RandomSeeds;
 import org.knime.knip.core.ops.labeling.RegularGridSeeds;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgUtils;
 import org.knime.knip.core.util.NeighborhoodUtils;
 
@@ -121,7 +121,7 @@ public class SeedGeneratorNodeFactory<T extends RealType<T>> extends ValueToCell
             @Override
             public void addDialogComponents() {
                 addDialogComponent("Options", "Seeds", new DialogComponentStringSelection(createSeedGeneratorModel(),
-                        "Seeding method", EnumListProvider.getStringList(SeedGenerator.values())));
+                        "Seeding method", EnumUtils.getStringListFromName(SeedGenerator.values())));
 
                 addDialogComponent(new DialogComponentNumber(createDistanceModel(), "Average distance", 1));
 

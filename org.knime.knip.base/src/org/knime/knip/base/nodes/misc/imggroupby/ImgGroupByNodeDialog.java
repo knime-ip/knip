@@ -69,7 +69,7 @@ import org.knime.core.node.util.ColumnFilter;
 import org.knime.knip.base.data.IntervalValue;
 import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.types.NativeTypes;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * The node dialog of the image group by node
@@ -159,7 +159,7 @@ public class ImgGroupByNodeDialog extends GroupByNodeDialog {
 
         m_labelingType =
                 new DialogComponentStringSelection(ImgGroupByNodeModel.createLabelingTypeModel(),
-                        "Result labeling type", EnumListProvider.getStringList(NativeTypes.SHORTTYPE,
+                        "Result labeling type", EnumUtils.getStringListFromName(NativeTypes.SHORTTYPE,
                                                                                NativeTypes.BITTYPE,
                                                                                NativeTypes.BYTETYPE,
                                                                                NativeTypes.INTTYPE,
@@ -169,7 +169,7 @@ public class ImgGroupByNodeDialog extends GroupByNodeDialog {
 
         m_labelingFactory =
                 new DialogComponentStringSelection(ImgGroupByNodeModel.createLabelingFactoryModel(),
-                        "Result labeling factory", EnumListProvider.getStringList(ImgFactoryTypes.ARRAY_IMG_FACTORY,
+                        "Result labeling factory", EnumUtils.getStringListFromName(ImgFactoryTypes.ARRAY_IMG_FACTORY,
                                                                                   ImgFactoryTypes.CELL_IMG_FACTORY,
                                                                                   ImgFactoryTypes.NTREE_IMG_FACTORY,
                                                                                   ImgFactoryTypes.PLANAR_IMG_FACTORY));
@@ -190,7 +190,7 @@ public class ImgGroupByNodeDialog extends GroupByNodeDialog {
                         "Interval (the size of the result image)", 0, false, true, m_columnFilter);
         m_imgTypeComponent =
                 new DialogComponentStringSelection(ImgGroupByNodeModel.createImgTypeModel(), "Result image type",
-                        EnumListProvider.getStringList(NativeTypes.values()));
+                        EnumUtils.getStringListFromName(NativeTypes.values()));
 
         final JPanel imgComposeOptionPanel = new JPanel(new FlowLayout());
         imgComposeOptionPanel.add(m_intervalColImgComponent.getComponentPanel());

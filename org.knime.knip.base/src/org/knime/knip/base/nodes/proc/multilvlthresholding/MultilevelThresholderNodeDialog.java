@@ -54,7 +54,7 @@ import net.imglib2.type.numeric.RealType;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * TODO Auto-generated
@@ -73,7 +73,7 @@ public class MultilevelThresholderNodeDialog<T extends RealType<T>> extends ImgP
     public void addDialogComponents() {
         addDialogComponent("Options", "Thresholding Method",
                            new DialogComponentStringSelection(MultilevelThresholderNodeModel.createThresholderModel(),
-                                   "", EnumListProvider.getStringList(MultilevelThresholderType.values())));
+                                   "", EnumUtils.getStringListFromName(MultilevelThresholderType.values())));
 
         addDialogComponent("Options", "Parameters",
                            new DialogComponentNumber(MultilevelThresholderNodeModel.createNumberOfLevels(),

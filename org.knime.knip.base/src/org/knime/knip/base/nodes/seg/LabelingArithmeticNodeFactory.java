@@ -74,7 +74,7 @@ import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.node.TwoValuesToCellNodeDialog;
 import org.knime.knip.base.node.TwoValuesToCellNodeFactory;
 import org.knime.knip.base.node.TwoValuesToCellNodeModel;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgUtils;
 import org.knime.knip.core.util.MiscViews;
 
@@ -112,7 +112,7 @@ public final class LabelingArithmeticNodeFactory<L extends Comparable<L>> extend
                                    new DialogComponentStringSelection(
                                            createMethodNameModel(),
                                            "Method",
-                                           EnumListProvider.getStringList(LabelingArithmeticNodeFactory.Method.values())));
+                                           EnumUtils.getStringListFromName(LabelingArithmeticNodeFactory.Method.values())));
 
                 addDialogComponent("Options", "", new DialogComponentBoolean(createVirtuallySynchronizeModel(),
                         "Virtually Extend?"));

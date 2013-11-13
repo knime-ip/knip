@@ -49,8 +49,10 @@
  */
 package org.knime.knip.base.node;
 
+import net.imglib2.Cursor;
 import net.imglib2.IterableInterval;
 import net.imglib2.labeling.Labeling;
+import net.imglib2.labeling.LabelingType;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.ImgOperations;
 import net.imglib2.ops.operation.SubsetOperations;
@@ -63,6 +65,7 @@ import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
@@ -71,6 +74,7 @@ import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
+import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgUtils;
 
 /**
@@ -87,6 +91,47 @@ import org.knime.knip.core.util.ImgUtils;
  */
 public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extends RealType<V>, L extends Comparable<L>>
         extends ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<V>> {
+
+    /**
+     * Filling Mode. How areas outside the rois are treated
+     *
+     * @author Christian Dietz
+     */
+    protected enum FillingMode {
+        /**
+         * fill with the value of the source img
+         */
+        SOURCE("Value of Source"),
+
+        /**
+         * fill with the minimum of the resulting type
+         */
+        RESMIN("Minimum of Result Type"),
+
+        /**
+         * fill with the maximum of the resulting type
+         */
+        RESMAX("Maximum of Result Type"),
+
+        /**
+         * Keep as is (in most cases it's default zero)
+         */
+        NOFILLING("No Filling");
+
+        private String name;
+
+        private FillingMode(@SuppressWarnings("hiding") final String name) {
+            this.name = name;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
 
     /**
      * Create the {@link SettingsModelDimSelection}
@@ -107,6 +152,15 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
         return new SettingsModelString("optinal_column_selection", "");
     }
 
+    /**
+     * Create model to store whether pixels outside the ROIs should be filled with the values of the source img
+     *
+     * @return {@link SettingsModelBoolean}
+     */
+    protected static SettingsModelString createFillingModeModel() {
+        return new SettingsModelString("fill_non_roi_pixels", FillingMode.NOFILLING.toString());
+    }
+
     /*
      * Stores the first selected column.
      */
@@ -116,6 +170,11 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
      * Stores the dimension selection.
      */
     private final SettingsModelDimSelection m_dimSelectionModel = createDimSelectionModel("X", "Y");
+
+    /*
+     * Store the settings model for outside roi pixel filling
+     */
+    private final SettingsModelString m_fillNonROIPixels = createFillingModeModel();
 
     /*
      * The optional column (here: labeling)
@@ -148,12 +207,15 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
     protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
 
         // for consistency with the GUI we need to disable our dim selection if a labeling is set (which absolutely makes sense)
+        // if there exists a labeling, we need to decide what we do with the pixels outside the ROIs
         int idx = getOptionalColumnIdx((DataTableSpec)inSpecs[0]);
 
         if (idx == -1) {
             m_dimSelectionModel.setEnabled(true);
+            m_fillNonROIPixels.setEnabled(false);
         } else {
             m_dimSelectionModel.setEnabled(false);
+            m_fillNonROIPixels.setEnabled(true);
         }
 
         return super.configure(inSpecs);
@@ -185,6 +247,8 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
     protected void collectSettingsModels() {
         super.collectSettingsModels();
         m_settingsModels.add(m_optionalColumnModel);
+        m_settingsModels.add(m_dimSelectionModel);
+        m_settingsModels.add(m_fillNonROIPixels);
     }
 
     /**
@@ -216,12 +280,14 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
         ImgPlus<T> in = cellValue.getImgPlus();
         ImgPlus<V> res = createResultImage(cellValue.getImgPlus());
 
+        V outType = getOutType(in);
+
         UnaryOperation<IterableInterval<T>, IterableInterval<V>> operation = operation(in);
 
         int[] selectedDimIndices = m_dimSelectionModel.getSelectedDimIndices(in);
 
         if (m_currentLabeling == null) {
-            SubsetOperations.iterate(ImgOperations.wrapII(operation, getOutType(in)), selectedDimIndices, in, res,
+            SubsetOperations.iterate(ImgOperations.wrapII(operation, outType), selectedDimIndices, in, res,
                                      getExecutorService());
         } else {
             for (L label : m_currentLabeling.getLabels()) {
@@ -233,8 +299,48 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
                                   iterableRegionOfInterest.getIterableIntervalOverROI(res));
             }
 
+            // TODO can we speed this up (or is it even slower if we would have empty pixel information?)
+            FillingMode mode = EnumUtils.valueForName(m_fillNonROIPixels.getStringValue(), FillingMode.values());
+
+            switch (mode) {
+                case NOFILLING:
+                    break;
+                case RESMAX:
+                    fill(res, outType.getMinValue());
+                    break;
+                case RESMIN:
+                    fill(res, outType.getMaxValue());
+                    break;
+                case SOURCE:
+                    // here we need to do something special
+                    Cursor<LabelingType<L>> cursor = m_currentLabeling.cursor();
+                    Cursor<V> outCursor = res.cursor();
+                    Cursor<T> inCursor = in.cursor();
+                    while (cursor.hasNext()) {
+                        if (cursor.next().getLabeling().isEmpty()) {
+                            outCursor.next().setReal(inCursor.next().getRealDouble());
+                        } else {
+                            outCursor.fwd();
+                            inCursor.fwd();
+                        }
+                    }
+                    break;
+            }
         }
         return m_cellFactory.createCell(res);
+    }
+
+    // fills the res with val if labeling contains no labels at a certain position
+    private void fill(final IterableInterval<V> res, final double val) {
+        Cursor<LabelingType<L>> cursor = m_currentLabeling.cursor();
+        Cursor<V> outCursor = res.cursor();
+        while (cursor.hasNext()) {
+            if (cursor.next().getLabeling().isEmpty()) {
+                outCursor.next().setReal(val);
+            } else {
+                outCursor.fwd();
+            }
+        }
     }
 
     /**
@@ -262,6 +368,8 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
     /**
      * The {@link UnaryOperation} which will be used to compute the output {@link IterableInterval} of type V given the
      * input {@link IterableInterval} of type T
+     *
+     * @param input the input interval
      *
      * @return the {@link UnaryOperation} which will be utilized for processing
      *

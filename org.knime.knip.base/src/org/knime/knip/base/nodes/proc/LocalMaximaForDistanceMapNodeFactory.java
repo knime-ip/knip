@@ -68,7 +68,7 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
 import org.knime.knip.core.ops.bittype.PositionsToBitTypeImage;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
@@ -136,7 +136,7 @@ public class LocalMaximaForDistanceMapNodeFactory<T extends RealType<T>> extends
             public void addDialogComponents() {
 
                 addDialogComponent("Options", "Options", new DialogComponentStringSelection(createNeighborhoodModel(),
-                        "Neighboorhood", EnumListProvider.getStringList(NeighborhoodType.values())));
+                        "Neighboorhood", EnumUtils.getStringListFromName(NeighborhoodType.values())));
 
             }
         };

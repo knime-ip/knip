@@ -72,7 +72,7 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.types.NativeTypes;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * NodeFactory for the image to segmentation Node that converts double to integer values.
@@ -105,10 +105,10 @@ public class LabelingToImgNodeFactory<L extends Comparable<L>, V extends Integer
             public void addDialogComponents() {
 
                 addDialogComponent("Options", "", new DialogComponentStringSelection(createFactoryTypeModel(), "",
-                        EnumListProvider.getStringList(ImgFactoryTypes.values())));
+                        EnumUtils.getStringListFromName(ImgFactoryTypes.values())));
 
                 addDialogComponent("Options", "", new DialogComponentStringSelection(createOutputImgModel(),
-                        "Img output selection", EnumListProvider.getStringList(NativeTypes.values())));
+                        "Img output selection", EnumUtils.getStringListFromName(NativeTypes.values())));
             }
         };
     }

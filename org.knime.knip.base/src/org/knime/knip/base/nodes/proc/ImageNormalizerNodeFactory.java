@@ -75,7 +75,7 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.ops.img.ImgPlusNormalize;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
@@ -191,7 +191,7 @@ public class ImageNormalizerNodeFactory<T extends RealType<T>> extends ImgPlusTo
 
                 // Dialog Components
                 addDialogComponent("Options", "Mode", new DialogComponentStringSelection(type, "Enhancement Type",
-                        EnumListProvider.getStringList(ContrastEnhancementMode.values())));
+                        EnumUtils.getStringListFromName(ContrastEnhancementMode.values())));
 
                 addDialogComponent("Options", "Manual Settings", new DialogComponentNumber(smMin, "Min", 1.0));
 

@@ -87,7 +87,7 @@ import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
 import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.types.ImgFactoryTypes;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * NodeFactory for the Lab2Table Node
@@ -132,7 +132,7 @@ public class ImgToLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>, 
 
                 addDialogComponent("Labeling Settings", "",
                                    new DialogComponentStringSelection(createFactoryTypeModel(), "Labeling factory",
-                                           EnumListProvider.getStringList(ImgFactoryTypes.values())));
+                                           EnumUtils.getStringListFromName(ImgFactoryTypes.values())));
 
                 addDialogComponent("Options", "Background", new DialogComponentBoolean(createSetBackgroundModel(),
                         "Use Background value as background?"));

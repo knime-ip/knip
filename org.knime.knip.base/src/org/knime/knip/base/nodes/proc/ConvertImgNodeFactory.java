@@ -84,7 +84,7 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.types.NativeTypes;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgUtils;
 
 /**
@@ -122,12 +122,12 @@ public class ConvertImgNodeFactory<T extends RealType<T> & NativeType<T>> extend
             @Override
             public void addDialogComponents() {
                 addDialogComponent("Options", "Target Type", new DialogComponentStringSelection(
-                        createTargetTypeModel(), "Target type", EnumListProvider.getStringList(NativeTypes.values())));
+                        createTargetTypeModel(), "Target type", EnumUtils.getStringListFromName(NativeTypes.values())));
                 addDialogComponent("Options", "Target Type", new DialogComponentStringSelection(
                         createConversionTypeModel(), "Conversion method", ImgConversionTypes.labelsAsStringArray()));
                 addDialogComponent("Options", "Factory Selection",
                                    new DialogComponentStringSelection(createFactorySelectionModel(), "Factory Type",
-                                           EnumListProvider.getStringList(ImgFactoryTypes.values())));
+                                           EnumUtils.getStringListFromName(ImgFactoryTypes.values())));
             }
         };
     }

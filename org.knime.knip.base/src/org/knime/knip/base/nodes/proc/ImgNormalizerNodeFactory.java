@@ -71,7 +71,7 @@ import org.knime.knip.base.node.IterableIntervalsNodeDialog;
 import org.knime.knip.base.node.IterableIntervalsNodeFactory;
 import org.knime.knip.base.node.IterableIntervalsNodeModel;
 import org.knime.knip.core.ops.img.IterableIntervalNormalize;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * Factory class to produce an contrast enhancer node.
@@ -115,7 +115,7 @@ public class ImgNormalizerNodeFactory<T extends RealType<T>, L extends Comparabl
      */
     @Override
     protected IterableIntervalsNodeDialog<T> createNodeDialog() {
-        return new IterableIntervalsNodeDialog<T>() {
+        return new IterableIntervalsNodeDialog<T>(true) {
 
             private SettingsModelDouble max;
 
@@ -132,9 +132,6 @@ public class ImgNormalizerNodeFactory<T extends RealType<T>, L extends Comparabl
              */
             @Override
             public void addDialogComponents() {
-
-                super.addDialogComponents();
-
                 // Settings Models
                 type = createModeModel();
 
@@ -165,7 +162,7 @@ public class ImgNormalizerNodeFactory<T extends RealType<T>, L extends Comparabl
 
                 // Dialog Components
                 addDialogComponent("Options", "Mode", new DialogComponentStringSelection(type, "Enhancement Type",
-                        EnumListProvider.getStringList(ContrastEnhancementMode.values())));
+                        EnumUtils.getStringListFromName(ContrastEnhancementMode.values())));
 
                 addDialogComponent("Options", "Manual Settings", new DialogComponentNumber(min, "Min", 1.0));
 
@@ -176,10 +173,6 @@ public class ImgNormalizerNodeFactory<T extends RealType<T>, L extends Comparabl
 
                 addDialogComponent("Options", "Saturation (%)", new DialogComponentNumber(saturation, "Saturation ", 1));
 
-                initDialog();
-            }
-
-            protected void initDialog() {
                 initDialog(ContrastEnhancementMode.valueOf(type.getStringValue()));
             }
 

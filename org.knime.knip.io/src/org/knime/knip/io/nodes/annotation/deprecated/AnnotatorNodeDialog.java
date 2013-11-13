@@ -58,7 +58,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.types.NativeTypes;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * Dialog for the Point Picker Node.
@@ -97,12 +97,12 @@ public class AnnotatorNodeDialog<T extends RealType<T> & NativeType<T>, L extend
         addDialogComponent(new DialogComponentStringSelection(
                 new SettingsModelString(AnnotatorNodeModel.CFG_FACTORY_TYPE,
                         ImgFactoryTypes.ARRAY_IMG_FACTORY.toString()),
-                "Factory Type", EnumListProvider.getStringList(ImgFactoryTypes
+                "Factory Type", EnumUtils.getStringListFromName(ImgFactoryTypes
                         .values())));
         addDialogComponent(new DialogComponentStringSelection(
                 new SettingsModelString(AnnotatorNodeModel.CFG_LABELING_TYPE,
                         NativeTypes.SHORTTYPE.toString()), "Storage Img Type",
-                EnumListProvider.getStringList(NativeTypes.intTypeValues())));
+                EnumUtils.getStringListFromName(NativeTypes.intTypeValues())));
 
         closeCurrentGroup();
     }

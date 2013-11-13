@@ -78,7 +78,7 @@ import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.algorithm.types.ThresholdingType;
 import org.knime.knip.core.ops.interval.AutoThreshold;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgUtils;
 
 /**
@@ -116,7 +116,7 @@ public class ThresholderNodeFactory<T extends RealType<T>> extends ValueToCellNo
                         "Threshold value", .01));
                 final SettingsModelString method = createThresholderSelectionModel();
                 addDialogComponent("Options", "Thresholding method", new DialogComponentStringSelection(method,
-                        "Method", EnumListProvider.getStringList(ThresholdingType.values())));
+                        "Method", EnumUtils.getStringListFromName(ThresholdingType.values())));
                 addDialogComponent("Options", "Dim selection", new DialogComponentDimSelection(
                         createDimSelectionModel(), "", 2, 5));
 

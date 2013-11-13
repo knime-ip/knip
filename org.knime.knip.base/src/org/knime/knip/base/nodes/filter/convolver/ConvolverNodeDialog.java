@@ -66,7 +66,7 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * TODO Auto-generated
@@ -125,7 +125,7 @@ public class ConvolverNodeDialog<T extends RealType<T>> extends ValueToCellNodeD
 
         addDialogComponent("Options", "Out of Bounds Strategy",
                            new DialogComponentStringSelection(ConvolverNodeModel.createOutOfBoundsModel(), "",
-                                   EnumListProvider.getStringList(OutOfBoundsStrategyEnum.values())));
+                                   EnumUtils.getStringListFromName(OutOfBoundsStrategyEnum.values())));
 
         addDialogComponent("Convolution Settings", "Implementation & Settings", new DialogComponentStringSelection(
                 smMode, "Implementation", MultiKernelImageConvolverManager.getConvolverNames()));

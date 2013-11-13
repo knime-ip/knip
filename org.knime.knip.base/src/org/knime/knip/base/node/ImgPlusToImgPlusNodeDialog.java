@@ -55,7 +55,7 @@ import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -74,11 +74,7 @@ public abstract class ImgPlusToImgPlusNodeDialog<T extends RealType<T>> extends 
         addDialogComponent("Options", "Dimension Selection", new DialogComponentDimSelection(m_dimSelectionModel, "",
                 minDims, maxDims));
 
-        // Finally build it
-        super.buildDialog();
-
-        initDialog();
-
+        super.init();
     }
 
     @Override

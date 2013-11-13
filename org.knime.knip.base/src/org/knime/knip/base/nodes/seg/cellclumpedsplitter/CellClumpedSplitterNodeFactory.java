@@ -72,7 +72,7 @@ import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.ops.labeling.CellClumpedSplitter;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * Cell Clump Splitter.
@@ -123,7 +123,7 @@ public class CellClumpedSplitterNodeFactory<T extends RealType<T>, L extends Com
 
                 addDialogComponent("Options", "Splitter", new DialogComponentStringSelection(
 
-                createNeighborhoodModel(), "Neighboorhood", EnumListProvider.getStringList(NeighborhoodType.values())));
+                createNeighborhoodModel(), "Neighboorhood", EnumUtils.getStringListFromName(NeighborhoodType.values())));
 
                 addDialogComponent("Options", "Splitter", new DialogComponentNumber(createMaxIterationsModel(),
                         "Max iterations:", 10));

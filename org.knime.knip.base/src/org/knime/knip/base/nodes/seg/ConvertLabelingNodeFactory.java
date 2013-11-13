@@ -132,7 +132,7 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.types.NativeTypes;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgUtils;
 
 /**
@@ -167,10 +167,10 @@ public class ConvertLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>
             public void addDialogComponents() {
                 addDialogComponent("Options", "Target Type",
                                    new DialogComponentStringSelection(createTargetTypeModel(), "Target format",
-                                           EnumListProvider.getStringList(NativeTypes.intTypeValues())));
+                                           EnumUtils.getStringListFromName(NativeTypes.intTypeValues())));
                 addDialogComponent("Options", "Factory Selection",
                                    new DialogComponentStringSelection(createFactorySelectionModel(), "Factory Type",
-                                           EnumListProvider.getStringList(ImgFactoryTypes.values())));
+                                           EnumUtils.getStringListFromName(ImgFactoryTypes.values())));
             }
         };
     }
