@@ -68,30 +68,60 @@ import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
+import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.util.ImgUtils;
 
 /**
+ * Remark: Note this class has some redundant implemenations to {@link ImgPlusToImgPlusNodeModel}. Anyway, the
+ * functionality provided by this class differs a lot.
  *
- * @author Christian Dietz
  */
 public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extends RealType<V>, L extends Comparable<L>>
         extends ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<V>> {
 
+    /**
+     * Create the {@link SettingsModelDimSelection}
+     *
+     * @param axes
+     * @return
+     */
+    protected static SettingsModelDimSelection createDimSelectionModel(final String... axes) {
+        return new SettingsModelDimSelection("dim_selection", axes);
+    }
+
+    /**
+     * Create the optional column model (here: labeling)
+     *
+     * @return
+     */
+    protected static SettingsModelString createOptionalColumnModel() {
+        return new SettingsModelString("optinal_column_selection", "");
+    }
+
     /*
      * Stores the first selected column.
      */
-    private final SettingsModelString m_optionalColumn = createOptionalColumnModel();
+    private final SettingsModelString m_optionalColumnModel = createOptionalColumnModel();
 
+    /*
+     * Stores the dimension selection.
+     */
+    private final SettingsModelDimSelection m_dimSelectionModel = createDimSelectionModel("X", "Y");
+
+    /*
+     * The optional column (here: labeling)
+     */
     private int m_optionalColIdx;
 
-    @SuppressWarnings("rawtypes")
+    /*
+     * Labeling of the current {@link DataRow}. Can be null if no column with labeling is selected by the user.
+     */
     private Labeling<L> m_currentLabeling;
 
+    /*
+     * Factory to create cells
+     */
     private ImgPlusCellFactory m_cellFactory;
-
-    static SettingsModelString createOptionalColumnModel() {
-        return new SettingsModelString("optinal_column_selection", "");
-    }
 
     /**
      * {@inheritDoc}
@@ -127,7 +157,7 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
     @Override
     protected void collectSettingsModels() {
         super.collectSettingsModels();
-        m_settingsModels.add(m_optionalColumn);
+        m_settingsModels.add(m_optionalColumnModel);
     }
 
     /**
@@ -141,9 +171,10 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
     protected int getOptionalColumnIdx(final DataTableSpec inSpec) throws InvalidSettingsException {
 
         int optionalColIdx = -1;
-        if (m_optionalColumn.getStringValue() != null && !m_optionalColumn.getStringValue().equalsIgnoreCase("")) {
+        if (m_optionalColumnModel.getStringValue() != null
+                && !m_optionalColumnModel.getStringValue().equalsIgnoreCase("")) {
             optionalColIdx =
-                    NodeTools.autoColumnSelection(inSpec, m_optionalColumn, LabelingValue.class, this.getClass());
+                    NodeTools.autoColumnSelection(inSpec, m_optionalColumnModel, LabelingValue.class, this.getClass());
         }
 
         return optionalColIdx;
@@ -160,7 +191,6 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
 
         if (m_currentLabeling == null) {
             compute(in.getImg(), res.getImg(), in.getImg());
-            return m_cellFactory.createCell(res);
         } else {
             for (L label : m_currentLabeling.getLabels()) {
                 IterableRegionOfInterest iterableRegionOfInterest =
@@ -170,6 +200,7 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
             }
 
         }
+        return m_cellFactory.createCell(res);
     }
 
     /**
@@ -191,6 +222,7 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
      *
      * @param in incoming {@link IterableInterval}
      * @param out {@link IterableInterval} containing the result of the computation
+     * @param src {@link RandomAccessible} representation of the source
      */
     public abstract void compute(final IterableInterval<T> in, final IterableInterval<V> out,
                                  final RandomAccessible<T> src);
@@ -198,7 +230,7 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
     /**
      * The {@link RealType} of the outgoing {@link IterableInterval}.
      *
-     * @return
+     * @return the type of the outgoing {@link IterableInterval}
      */
     public abstract V getOutType();
 }

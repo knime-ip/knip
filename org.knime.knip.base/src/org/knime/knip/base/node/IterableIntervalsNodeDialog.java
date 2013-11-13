@@ -54,6 +54,7 @@ import net.imglib2.type.numeric.RealType;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
+import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 
 /**
  * This dialogs adds the possibility to optionally select a column containing a labeling which restricts the computation
@@ -62,7 +63,8 @@ import org.knime.knip.base.data.labeling.LabelingValue;
  * @param <T>
  *
  */
-public class IterableIntervalsNodeDialog<T extends RealType<T>> extends ValueToCellsNodeDialog<ImgPlusValue<T>> {
+public abstract class IterableIntervalsNodeDialog<T extends RealType<T>> extends
+        ValueToCellsNodeDialog<ImgPlusValue<T>> {
 
     /**
      * Override this method and call super.addDialogComponents() to add additional dialog components.
@@ -76,6 +78,11 @@ public class IterableIntervalsNodeDialog<T extends RealType<T>> extends ValueToC
                 IterableIntervalsNodeModel.createOptionalColumnModel(), getFirstColumnSelectionLabel(), 0, false, true,
                 LabelingValue.class));
 
+        // IterableIntervals don't rely on dimensions. Should be working for any selection
+        addDialogComponent("Options", "Dimension Selection",
+                           new DialogComponentDimSelection(
+                                   IterableIntervalsNodeModel.createDimSelectionModel("X", "Y"), "", 1,
+                                   Integer.MAX_VALUE));
     }
 
     /**
