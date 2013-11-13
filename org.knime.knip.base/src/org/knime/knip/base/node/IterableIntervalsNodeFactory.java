@@ -52,6 +52,10 @@ package org.knime.knip.base.node;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
+import org.knime.node2012.KnimeNodeDocument.KnimeNode;
+import org.knime.node2012.OptionDocument.Option;
+import org.knime.node2012.TabDocument.Tab;
 
 /**
  * NodeFactory for {@link IterableIntervalsNodeModel}
@@ -79,4 +83,37 @@ public abstract class IterableIntervalsNodeFactory<T extends RealType<T>, V exte
     @Override
     public abstract IterableIntervalsNodeModel<T, V, L> createNodeModel();
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void addNodeDescriptionContent(final KnimeNode node) {
+        DialogComponentDimSelection.createNodeDescription(node.getFullDescription().getTabList().get(0).addNewOption());
+
+        Tab tab = node.getFullDescription().addNewTab();
+        tab.setName("ROI Options");
+
+        createLabelingColumnSelectionDescription(tab.addNewOption());
+        createFillingModeDescription(tab.addNewOption());
+    }
+
+    /**
+     * @param addNewOption
+     */
+    private void createFillingModeDescription(final Option opt) {
+        opt.setName("Filling Mode");
+        opt.addNewP()
+                .newCursor()
+                .setTextValue("The FillingMode determines how all values, which lie outside your defined region of interest, will be set. This option is only needed if you choose a labeling column, such that the node operates on ROIs instead of the entire image. ");
+    }
+
+    /**
+     * @param addNewOption
+     */
+    private void createLabelingColumnSelectionDescription(final Option opt) {
+        opt.setName("Labeling Column");
+        opt.addNewP()
+                .newCursor()
+                .setTextValue("If you choose a column with a labeling here, the node will only operate on the Regions of Interests (ROIs) which are defined by the incoming labeling!");
+    }
 }

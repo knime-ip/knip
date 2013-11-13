@@ -131,6 +131,10 @@ public abstract class IterableIntervalsNodeDialog<T extends RealType<T>> extends
         addDialogComponent("ROI Options", "Filling Mode", new DialogComponentStringSelection(fillingModeModel,
                 "Filling Strategy", EnumUtils.getStringCollectionFromToString(FillingMode.values())));
 
+        // TODO add labeling filters (DialogComponentFilterSelection)
+        // But before that, we need to make sure that this component and its corresponding settings model behave correctly when they are enabled/disabled
+        // Furthermore we need a proper description for them
+
         // IterableIntervals don't rely on dimensions. Should be working for any selection
         if (m_hasDimSelection) {
             addDialogComponent("Options", "Dimension Selection", new DialogComponentDimSelection(m_dimSelectionModel,

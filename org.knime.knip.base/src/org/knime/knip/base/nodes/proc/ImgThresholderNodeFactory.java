@@ -70,11 +70,9 @@ import org.knime.knip.base.exceptions.KNIPRuntimeException;
 import org.knime.knip.base.node.IterableIntervalsNodeDialog;
 import org.knime.knip.base.node.IterableIntervalsNodeFactory;
 import org.knime.knip.base.node.IterableIntervalsNodeModel;
-import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.core.algorithm.types.ThresholdingType;
 import org.knime.knip.core.ops.interval.AutoThreshold;
 import org.knime.knip.core.util.EnumUtils;
-import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 
 /**
  * New global thresholder which supports ROI calculation
@@ -94,14 +92,6 @@ public class ImgThresholderNodeFactory<T extends RealType<T>, L extends Comparab
 
     private static SettingsModelString createThresholderSelectionModel() {
         return new SettingsModelString("thresholder", ThresholdingType.MANUAL.name());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void addNodeDescriptionContent(final KnimeNode node) {
-        DialogComponentDimSelection.createNodeDescription(node.getFullDescription().getTabList().get(0).addNewOption());
     }
 
     /**
