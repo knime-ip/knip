@@ -74,10 +74,11 @@ import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
  */
 public abstract class AbstractSlidingWindowOperationNodeModel<T extends RealType<T>, V extends RealType<V>> extends
         ImgPlusToImgPlusNodeModel<T, V> {
@@ -111,7 +112,7 @@ public abstract class AbstractSlidingWindowOperationNodeModel<T extends RealType
 
     /**
      * simplifies the usage of {@link #getSlidingOperation(ImgPlus, RealType, Shape, OutOfBoundsFactory)}
-     * 
+     *
      * @param op
      * @param type
      * @param neighborhood
@@ -130,7 +131,7 @@ public abstract class AbstractSlidingWindowOperationNodeModel<T extends RealType
 
     /**
      * simplifies the usage of {@link #getSlidingOperation(ImgPlus, RealType, Shape, OutOfBoundsFactory)}
-     * 
+     *
      * @param op
      * @param type
      * @param neighborhood
@@ -149,7 +150,7 @@ public abstract class AbstractSlidingWindowOperationNodeModel<T extends RealType
      * Returns a var of the output type. in the case that the operation is used as SlindingWindow<T,T> just return
      * inType.createVariable(). In the case that you use it as <T,V> return the appropriate V e.g. BitType for local
      * thresholding operations.
-     * 
+     *
      * @param inType
      * @return
      */
