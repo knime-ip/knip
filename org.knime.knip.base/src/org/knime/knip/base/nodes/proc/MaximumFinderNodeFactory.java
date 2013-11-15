@@ -73,7 +73,7 @@ import org.knime.knip.core.ops.interval.MaximumFinder;
 import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 
 /**
- * 
+ *
  * @author Tino Klingebiel, University of Konstanz
  */
 public class MaximumFinderNodeFactory<T extends RealType<T> & NativeType<T>> extends
@@ -128,7 +128,6 @@ public class MaximumFinderNodeFactory<T extends RealType<T> & NativeType<T>> ext
                 ImgPlus<BitType> output =
                         new ImgPlus<BitType>(new ArrayImgFactory<BitType>().create(cellValue.getDimensions(),
                                                                                    new BitType()), img);
-
                 // We iterate (according to the dim selection) over each plane,
                 // cube, hypercube or whatever and run our operation. Results is
                 // written into the according position of the plane, cube,

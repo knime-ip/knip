@@ -107,20 +107,23 @@ public class MaximumFinder<T extends RealType<T>> implements
     public RandomAccessibleInterval<BitType> compute(final RandomAccessibleInterval<T> input,
                                                      final RandomAccessibleInterval<BitType> output) {
 
-        IntervalView<T> extInput = Views.interval(Views.extend(input, m_outOfBounds), input);
-        ArrayList<AnalyticPoint<T>> pList = new ArrayList<AnalyticPoint<T>>();
-
         //find global min and max for optimization TODO: Constructor not necessarily available anymore.
         T t = Views.iterable(input).firstElement();
         T min = t.createVariable();
         min.setReal(t.getMinValue());
         T max = t.createVariable();
         max.setReal(t.getMaxValue());
-        ComputeMinMax<T> mm = new ComputeMinMax<T>(Views.iterable(extInput), max, min);
+
+        ComputeMinMax<T> mm = new ComputeMinMax<T>(Views.iterable(input), max, min);
         mm.process();
 
         T globMin = mm.getMin();
         T globMax = mm.getMax();
+
+        //IntervalView<T> extInput = Views.interval(Views.extend(input, m_outOfBounds), input);
+        IntervalView<T> extInput = Views.interval(Views.extendValue(input, globMin), input);
+        ArrayList<AnalyticPoint<T>> pList = new ArrayList<AnalyticPoint<T>>();
+
 
         RectangleShape shape = new RectangleShape(1, true); //"true" skips middle point
 
@@ -168,6 +171,15 @@ public class MaximumFinder<T extends RealType<T>> implements
         return output;
     }
 
+    // META Constants
+    private final static int IS_MAX_AREA = 0x01;
+
+    private final static int IS_PROCESSED = 0x02;
+
+    private final static int IS_EQUAL = 0x04;
+
+    private final static int IS_LISTED = 0x08;
+
     /*
      * Status Image Type should not be
      * anything higher than ByteType
@@ -176,27 +188,25 @@ public class MaximumFinder<T extends RealType<T>> implements
      * @param input
      * @param dimensions
      * @param output
+     * @param maxPoints
      */
     protected void analyzeAndMarkMaxima(final RandomAccessibleInterval<T> input,
                                         final RandomAccessibleInterval<BitType> output,
                                         final ArrayList<AnalyticPoint<T>> maxPoints) {
+
 
         final int numDimensions = input.numDimensions(); //shortcut
 
         //TODO:
         final float maxSortingError = 1.0f;
 
-        final int IS_MAX_AREA = 0x01;
-        final int IS_PROCESSED = 0x02;
-        final int IS_EQUAL = 0x04;
-        final int IS_LISTED = 0x08;
-
         ArrayList<AnalyticPoint<T>> pList = new ArrayList<AnalyticPoint<T>>();
         ArrayList<AnalyticPoint<T>> trueMaxima = new ArrayList<AnalyticPoint<T>>();
         Collections.sort(maxPoints, Collections.reverseOrder());
 
         Img<IntType> metaImg = new ArrayImgFactory<IntType>().create(input, new IntType());
-        OutOfBounds<IntType> raMeta = Views.extendValue(metaImg, new IntType(IS_PROCESSED)).randomAccess();
+
+        OutOfBounds<IntType> raMeta = Views.extendValue(metaImg, new IntType(IS_PROCESSED|IS_LISTED)).randomAccess();
 
         RandomAccess<Neighborhood<T>> raNeigh = m_neighborhoods.randomAccess();
         for (AnalyticPoint<T> maxPoint : maxPoints) {
@@ -205,7 +215,9 @@ public class MaximumFinder<T extends RealType<T>> implements
              * Thus it is either a member of a plateau or connected
              * to a real max and thus no real local max. Ignore it.
              */
-            if (maxPoint.isProcessed()) {
+            raMeta.setPosition(maxPoint);
+
+            if (isSet(raMeta.get(), IS_PROCESSED)) {
                 continue;
             }
 
@@ -221,10 +233,9 @@ public class MaximumFinder<T extends RealType<T>> implements
                 int nEqual = 1;
                 boolean maxPossible = true;
 
-                //set meta of current point to be IS_LISTED and IS_EQUAL (to itself)
+                //set meta of current point to be IS_LISTED and IS_EQUAL (to itself)+
                 raMeta.setPosition(maxPoint);
                 IntType maxPointMeta = raMeta.get();
-
                 maxPointMeta.set(maxPointMeta.get() | IS_LISTED | IS_EQUAL);
 
                 pList.clear();
@@ -237,19 +248,18 @@ public class MaximumFinder<T extends RealType<T>> implements
                     while (cNeigh.hasNext()) { //iterate through our ROI/the structuring element
                         T pixel = cNeigh.next();
 
-                        if ((maxPointMeta.getInteger() & IS_LISTED) == 0) {
+                        raMeta.setPosition(cNeigh);
+                        IntType meta = raMeta.get(); //shortcut
+
+                        if (!isSet(meta, IS_LISTED)) { //if this point isn't listed already
                             //double value of the current pixel in struct el.
                             double realPixel = pixel.getRealDouble();
 
-                            raMeta.setPosition(cNeigh);
-
-                            IntType meta = raMeta.get(); //shortcut
-
-                            if ((meta.getInteger() & IS_PROCESSED) != 0) {
+                            if (isSet(meta, IS_PROCESSED)) {
                                 maxPossible = false; //we have reached a point processed previously, thus it is no maximum now
                                 break;
                             }
-                            //TODO: generalize with .add()
+
                             if (realPixel > realValue + maxSortingError) {
                                 maxPossible = false; //we have reached a higher point, thus it is no maximum
                                 break;
@@ -258,12 +268,12 @@ public class MaximumFinder<T extends RealType<T>> implements
                                     sortingError = true;
                                 }
 
-                                pList.add(new AnalyticPoint<T>(cNeigh, pixel));
+                                AnalyticPoint<T> point = new AnalyticPoint<T>(cNeigh, pixel);
+                                setBit(meta, IS_LISTED);
+                                pList.add(point);
 
-                                meta.set(meta.getInteger() | IS_LISTED);
-
-                                if (pixel == maxPoint.getValue()) { //prepare finding center of equal points (in case single point needed)
-                                    meta.set(meta.getInteger() | IS_EQUAL);
+                                if (pixel.equals(maxPoint.getValue())) { //prepare finding center of equal points (in case single point needed)
+                                    point.setEqual(true);
 
                                     //add to equal:
                                     for (int i = 0; i < numDimensions; ++i) {
@@ -293,10 +303,10 @@ public class MaximumFinder<T extends RealType<T>> implements
                     for (AnalyticPoint<T> p : pList) {
                         raMeta.setPosition(p);
                         IntType meta = raMeta.get();
-                        meta.set((meta.getInteger() & resetMask) | IS_PROCESSED | (maxPossible ? IS_MAX_AREA : 0)); //reset no longer needed attributes
+                        meta.set((meta.getInteger() & resetMask) | IS_PROCESSED | (maxPossible ? IS_MAX_AREA : 0)); //reset the no longer needed attributes
 
                         if (maxPossible) {
-                            if ((meta.getInteger() & IS_EQUAL) != 0) {
+                            if (p.isEqual()) {
                                 long dist = p.distanceToSq(equal);
                                 if (dist < minDist) {
                                     minDist = dist; //this could be the best "single maximum" point
@@ -308,6 +318,7 @@ public class MaximumFinder<T extends RealType<T>> implements
 
                     if (nearestPoint != null) {
                         if (maxPossible) {
+                            nearestPoint.setMax(true);
                             trueMaxima.add(nearestPoint);
                         }
                     }
@@ -319,12 +330,10 @@ public class MaximumFinder<T extends RealType<T>> implements
          * Useful for all later operations on the list.
          */
         //TODO: optimize for no suppression and suppression. Only one iteration over list for no suppression!
-        ArrayList<AnalyticPoint<T>> cpList = new ArrayList<AnalyticPoint<T>>();
         RandomAccess<BitType> raOutput = output.randomAccess();
         for (AnalyticPoint<T> p : trueMaxima) {
-                cpList.add(p);
-                raOutput.setPosition(p.getPosition());
-                raOutput.get().setReal(255);
+            raOutput.setPosition(p);
+            raOutput.get().setOne();
         }
 
         /*
@@ -335,6 +344,14 @@ public class MaximumFinder<T extends RealType<T>> implements
          * Mark all single maximum points.
          */
 
+    }
+
+    static void setBit(final IntType type, final int bit) {
+        type.setInteger(type.getInteger() | bit);
+    }
+
+    static boolean isSet(final IntType type, final int bit) {
+        return (type.get() & bit) != 0;
     }
 
     /**

@@ -12,8 +12,8 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
     private int[] m_coords;
 
     private boolean m_isMax; //is maxmimum flag
-    private boolean m_proc; //processed flag
 
+    private boolean m_equal;
 
     /**
      * Contructor of AnalyticPoint
@@ -30,7 +30,7 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
         pos.localize(m_coords);
 
         m_isMax = false;
-        m_proc = false;
+        m_equal = false;
     }
 
     public int[] getPosition() {
@@ -53,20 +53,13 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
         return m_isMax;
     }
 
-    /**
-     * Tell this point that it was processed
-     */
-    public void setProccessed() {
-        m_proc = true;
+    public void setEqual(final boolean b) {
+        m_equal = b;
+    }
+    public boolean isEqual() {
+        return m_equal;
     }
 
-    /**
-     * Check whether this point was processed yet
-     * @return
-     */
-    public boolean isProcessed() {
-        return m_proc;
-    }
 
     /**
      * Calculate distance to a Localizable
@@ -240,6 +233,6 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
      */
     @Override
     public int compareTo(final AnalyticPoint<T> p) {
-        return (int)((p.getValue().getRealDouble() - m_value.getRealDouble()) * 255);
+        return p.getValue().compareTo(m_value);
     }
 }
