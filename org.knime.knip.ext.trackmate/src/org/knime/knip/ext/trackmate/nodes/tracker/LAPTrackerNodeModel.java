@@ -280,12 +280,14 @@ public class LAPTrackerNodeModel extends NodeModel implements
 				ImgPlus<BitType> bitMask = node.bitMask();
 				Cursor<BitType> bitMaskCursor = bitMask.cursor();
 				while (bitMaskCursor.hasNext()) {
+					bitMaskCursor.fwd();
 					for (int d = 0; d < numDims; d++) {
 						resAccess.setPosition(bitMaskCursor.getLongPosition(d)
-								- node.offset(d), d);
+								+ node.offset(d), d);
 
 						// set all the important information
-						List<String> labeling = resAccess.get().getLabeling();
+						List<String> labeling = new ArrayList<String>(resAccess
+								.get().getLabeling());
 						labeling.add(node.label());
 						labeling.add("Track: " + trackCtr);
 						resAccess.get().setLabeling(labeling);
