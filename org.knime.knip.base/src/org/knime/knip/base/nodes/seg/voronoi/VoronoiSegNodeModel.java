@@ -380,6 +380,12 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
         m_threshold.loadSettingsFrom(settings);
         m_fillHoles.loadSettingsFrom(settings);
         m_resultCols.loadSettingsFrom(settings);
+        //TODO remove with 2.0.
+        try {
+            m_dimSelectionModel.loadSettingsFrom(settings);
+        } catch (InvalidSettingsException e1) {
+            // we simply ignore this exception
+        }
 
     }
 
@@ -442,7 +448,12 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
         m_threshold.validateSettings(settings);
         m_fillHoles.validateSettings(settings);
         m_resultCols.validateSettings(settings);
-        m_dimSelectionModel.validateSettings(settings);
+
+        try {
+            m_dimSelectionModel.validateSettings(settings);
+        } catch (InvalidSettingsException e1) {
+            // we simply ignore this exception
+        }
 
     }
 
