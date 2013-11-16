@@ -4,7 +4,7 @@
      <extension
          point="org.knime.workbench.repository.nodes">
         <node
-              category-path="/community/knip/tracking/"
+              category-path="/community/knip/tracking"
               expert-flag="false"
               factory-class="org.knime.knip.ext.trackmate.nodes.tracker.LAPTrackerNodeFactory"
               id="org.knime.knip.ext.trackmate.nodes.tracker.LAPTrackerNodeFactory">
