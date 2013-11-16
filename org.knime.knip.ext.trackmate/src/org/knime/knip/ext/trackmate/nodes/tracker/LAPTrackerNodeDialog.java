@@ -6,6 +6,7 @@ import javax.swing.event.ChangeListener;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.StringValue;
+import org.knime.core.data.def.DoubleCell;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnFilter;
@@ -114,8 +115,8 @@ public class LAPTrackerNodeDialog extends DefaultNodeSettingsPane {
 
 					@Override
 					public boolean includeColumn(DataColumnSpec colSpec) {
-						
-						return colSpec.getType().isAdaptable(DoubleValue.class);
+						return colSpec.getType()
+								.isCompatible(DoubleValue.class);
 					}
 
 					@Override
