@@ -81,7 +81,6 @@ public class LAPTrackerNodeDialog extends DefaultNodeSettingsPane {
 
 	public LAPTrackerNodeDialog() {
 
-		this.createNewTab("Tracking Settings");
 		this.createNewGroup("Basic");
 		addBasicOptions();
 		this.closeCurrentGroup();
@@ -98,6 +97,7 @@ public class LAPTrackerNodeDialog extends DefaultNodeSettingsPane {
 		addGapClosingOptions();
 		this.closeCurrentGroup();
 
+		this.createNewTab("Advanced");
 		this.createNewGroup("Advanced Tracking Settings");
 		addAdvancedSettings();
 		this.closeCurrentGroup();
@@ -114,6 +114,7 @@ public class LAPTrackerNodeDialog extends DefaultNodeSettingsPane {
 
 					@Override
 					public boolean includeColumn(DataColumnSpec colSpec) {
+						
 						return colSpec.getType().isAdaptable(DoubleValue.class);
 					}
 

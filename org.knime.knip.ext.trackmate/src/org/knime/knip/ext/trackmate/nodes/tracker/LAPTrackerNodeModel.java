@@ -54,7 +54,6 @@ import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
 import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.knime.core.node.util.filter.NameFilterConfiguration.EnforceOption;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingCellFactory;
@@ -160,7 +159,7 @@ public class LAPTrackerNodeModel extends NodeModel implements
 		getSelectedColumnIndices(inSpecs[0]);
 		getColIndices(
 				m_labelColumnModel,
-				ImgPlusValue.class,
+				StringValue.class,
 				inSpecs[0],
 				getColIndices(m_bitMaskColumnModel, ImgPlusValue.class,
 						inSpecs[0]));
