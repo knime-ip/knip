@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+     <extension
+         point="org.knime.workbench.repository.nodes">
+     </extension>
+     <extension
+           point="org.knime.workbench.repository.categories">
+        <category
+              level-id="tracking"
+              name="Tracking"
+              path="/community/knip/">
+        </category>
+     </extension>
+</plugin>
