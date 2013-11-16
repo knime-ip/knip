@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./default.png" type="Other">
+	<name>LAPTracker (TrackMate)</name>
+
+	<shortDescription>
+		Tracking based on the TrackMate (see http://fiji.sc/TrackMate).
+		Hier: http://fiji.sc/TrackMate_algorithms#cite_note-1 rein basteln.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>The Linear Assignment Problem (LAP) trackers implemented here
+			follow a stripped down version of the renowned method contributed by
+			Jaqaman and colleagues[1]. We repeat here the ideas found in the
+			reference paper, then stresses the differences with the nominal
+			implementation. Particle-linking happens in two step: track segments
+			creation from frame-to-frame particle linking, then track segments
+			linking to achieve gap closing. The mathematical formulation used for
+			both steps is linear assignment problem (LAP): a cost matrix is
+			assembled contained all possible assignment costs. Actual assignments
+			are retrieved by solving this matrix for minimal total cost. We
+			describe first how cost matrices are arranged, then how individual
+			costs are calculated (from http://fiji.sc/TrackMate).
+		</intro>
+
+
+		<option name="Maximum Distance">Maximum Distance between two objects</option>
+		<option name="Method">Hungarian Distance or FastLAP (etc)</option>
+		<option name="gap closing"> Choose whether gap closing is wanted.</option>
+
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Graph"> a KPartite Graph</inPort>
+
+		<outPort index="0" name="Graph">a KPartite Graph</outPort>
+
+	</ports>
+</knimeNode>
