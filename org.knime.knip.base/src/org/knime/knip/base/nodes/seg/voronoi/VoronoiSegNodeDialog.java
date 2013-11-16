@@ -55,10 +55,11 @@ import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
+import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 
 /**
  * Dialog for the Connected Component Analysis.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -67,7 +68,7 @@ public class VoronoiSegNodeDialog extends DefaultNodeSettingsPane {
 
     /**
      * Dialog with Column Selection.
-     * 
+     *
      */
     @SuppressWarnings("unchecked")
     public VoronoiSegNodeDialog() {
@@ -85,6 +86,9 @@ public class VoronoiSegNodeDialog extends DefaultNodeSettingsPane {
 
         addDialogComponent(new DialogComponentStringSelection(VoronoiSegNodeModel.createResultColumnsModel(),
                 "Result column", VoronoiSegNodeModel.RESULT_COLUMNS));
+
+        addDialogComponent(new DialogComponentDimSelection(VoronoiSegNodeModel.createDimSelectionModel(),
+                "Dimension Selection"));
 
     }
 }
