@@ -281,6 +281,9 @@ public class LAPTrackerNodeModel extends NodeModel implements
 				Cursor<BitType> bitMaskCursor = bitMask.cursor();
 				while (bitMaskCursor.hasNext()) {
 					bitMaskCursor.fwd();
+					if (!bitMaskCursor.get().get())
+						continue;
+
 					for (int d = 0; d < numDims; d++) {
 						resAccess.setPosition(bitMaskCursor.getLongPosition(d)
 								+ node.offset(d), d);
@@ -288,8 +291,13 @@ public class LAPTrackerNodeModel extends NodeModel implements
 						// set all the important information
 						List<String> labeling = new ArrayList<String>(resAccess
 								.get().getLabeling());
-						labeling.add(node.label());
-						labeling.add("Track: " + trackCtr);
+						if (!labeling.contains(node.label())) {
+							labeling.add(node.label());
+						}
+						String trackName = "Track: " + trackCtr;
+						if (!labeling.contains(trackName)) {
+							labeling.add(trackName);
+						}
 						resAccess.get().setLabeling(labeling);
 					}
 				}
