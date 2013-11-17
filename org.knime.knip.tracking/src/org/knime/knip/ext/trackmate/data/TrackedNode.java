@@ -4,7 +4,6 @@ import java.util.Map;
 
 import net.imglib2.RealPoint;
 import net.imglib2.meta.ImgPlus;
-import net.imglib2.ops.operation.iterableinterval.unary.Centroid;
 import net.imglib2.type.logic.BitType;
 import fiji.plugin.trackmate.tracking.TrackableObject;
 
