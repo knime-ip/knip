@@ -79,7 +79,7 @@ import net.imglib2.view.Views;
 public class FastClaheND<T extends RealType<T>> implements
         UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> {
 
-    private final long[] m_ctxNumberDims;
+    private final long m_ctxNumberDims;
 
     private final int m_bins;
 
@@ -87,12 +87,12 @@ public class FastClaheND<T extends RealType<T>> implements
 
     /**
      *
-     * @param ctxNumberDims number of context regions for each dimension
+     * @param i number of context regions for each dimension
      * @param bins number of bins used by the histograms
      * @param slope slope used for the clipping function
      */
-    public FastClaheND(final long[] ctxNumberDims, final int bins, final float slope) {
-        this.m_ctxNumberDims = ctxNumberDims;
+    public FastClaheND(final long i, final int bins, final float slope) {
+        this.m_ctxNumberDims = i;
         this.m_bins = bins;
         this.m_slope = slope;
     }
@@ -112,6 +112,8 @@ public class FastClaheND<T extends RealType<T>> implements
     public RandomAccessibleInterval<T> compute(final RandomAccessibleInterval<T> input,
                                                final RandomAccessibleInterval<T> output) {
 
+        System.out.println(input.numDimensions());
+
         // create image cursors, flatIterable to achieve same iteration order for both images.
         Cursor<T> inputCursor = Views.flatIterable(input).localizingCursor();
         Cursor<T> outputCursor = Views.flatIterable(output).cursor();
@@ -125,7 +127,7 @@ public class FastClaheND<T extends RealType<T>> implements
         // calculate offsets of the context centers in each dimensions
         long[] offsets = new long[imageDimensions.length];
         for (int i = 0; i < imageDimensions.length; i++) {
-            offsets[i] = imageDimensions[i] / m_ctxNumberDims[i];
+            offsets[i] = imageDimensions[i] / m_ctxNumberDims;
         }
 
         // first iteration through the image to build the context histograms
@@ -148,7 +150,7 @@ public class FastClaheND<T extends RealType<T>> implements
             ctxHistograms.get(center).add(inputCursor.get().getRealFloat());
         }
 
-        // after creation of the histograms, clip them
+//        // after creation of the histograms, clip them
         for (ClahePoint center : ctxHistograms.keySet()) {
             ctxHistograms.get(center).clip(m_slope);
         }
@@ -172,7 +174,7 @@ public class FastClaheND<T extends RealType<T>> implements
             outputCursor.get().setReal(newValue);
         }
 
-        return output;
+        return input;
     }
 
     /**
@@ -186,30 +188,74 @@ public class FastClaheND<T extends RealType<T>> implements
     private float interpolate(final ClahePoint currentPoint, final float oldValue, final List<ClahePoint> neighbors,
                               final Map<ClahePoint, ClaheHistogram> ctxHistograms) {
 
-
-
-        int numNeighbors = neighbors.size();
-
-        if(numNeighbors == 1){
+        // if the number of neighbors is one no interpolation is necessary
+        if (neighbors.size() == 1) {
             return ctxHistograms.get(neighbors.get(0)).buildCDF(oldValue);
-        }
+        } else {
+            float[] histValues = new float[neighbors.size()];
+            for (int i = 0; i < neighbors.size(); i++) {
+                histValues[i] = ctxHistograms.get(neighbors.get(i)).buildCDF(oldValue);
+            }
 
-        float[] distance = new float[numNeighbors];
-        float sumDistances = 0;
-        for (int i = 0; i < numNeighbors; i++) {
-            distance[i] = currentPoint.distance(neighbors.get(i));
-            sumDistances += distance[i];
+            return NDLinearInterpolation.interpolate(currentPoint, neighbors, oldValue, histValues);
         }
-        float[] weight = new float[numNeighbors];
-        for (int i = 0; i < numNeighbors; i++) {
-            weight[i] = 1 - distance[i] / sumDistances;
-        }
-        float interpolatedDistance = 0;
-        for (int i = 0; i < numNeighbors; i++) {
-            interpolatedDistance += ctxHistograms.get(neighbors.get(i)).buildCDF(oldValue) * weight[i];
-        }
-        return interpolatedDistance;
-
+        //        // if the size of neighbors is two make a straight forward linear interpolation
+        //        else if (neighbors.size() == 2) {
+        //
+        //            float distanceOne = currentPoint.distance(neighbors.get(0));
+        //            float distanceTwo = currentPoint.distance(neighbors.get(1));
+        //            float completeDistance = distanceOne + distanceTwo;
+        //
+        //            float weightOne = 1 - distanceOne / completeDistance;
+        //            float weightTwo = 1 - distanceTwo / completeDistance;
+        //
+        //            return ctxHistograms.get(neighbors.get(0)).buildCDF(oldValue) * weightOne
+        //                    + ctxHistograms.get(neighbors.get(1)).buildCDF(oldValue) * weightTwo;
+        //        } else if (neighbors.size() == 4) {
+        //            ClahePoint topLeft = null;
+        //            ClahePoint topRight = null;
+        //            ClahePoint bottomLeft = null;
+        //            ClahePoint bottomRight = null;
+        //            for (ClahePoint clahePoint : neighbors) {
+        //                if (clahePoint.dim(0) <= currentPoint.dim(0) && clahePoint.dim(1) <= currentPoint.dim(1)) {
+        //                    topLeft = clahePoint;
+        //                } else if (clahePoint.dim(0) > currentPoint.dim(0) && clahePoint.dim(1) <= currentPoint.dim(1)) {
+        //                    topRight = clahePoint;
+        //                } else if (clahePoint.dim(0) <= currentPoint.dim(0) && clahePoint.dim(1) > currentPoint.dim(1)) {
+        //                    bottomLeft = clahePoint;
+        //                } else {
+        //                    bottomRight = clahePoint;
+        //                }
+        //            }
+        //
+        //            @SuppressWarnings("null")
+        //            float weightX = (1 - ((float)currentPoint.dim(0) - topLeft.dim(0)) / (topLeft.distance(topRight)));
+        //            float weightY = (1 - ((float)currentPoint.dim(1) - topLeft.dim(1)) / (topLeft.distance(bottomLeft)));
+        //
+        //            float newValue =
+        //                    weightY
+        //                            * (weightX * ctxHistograms.get(topLeft).buildCDF(oldValue) + (1 - weightX)
+        //                                    * ctxHistograms.get(topRight).buildCDF(oldValue))
+        //                            + (1 - weightY)
+        //                            * (weightX * ctxHistograms.get(bottomLeft).buildCDF(oldValue) + (1 - weightX)
+        //                                    * ctxHistograms.get(bottomRight).buildCDF(oldValue));
+        //
+        //
+        //            float[] histValues = new float[neighbors.size()];
+        //            for(int i = 0; i < neighbors.size(); i++){
+        //                histValues[i] = ctxHistograms.get(neighbors.get(i)).buildCDF(oldValue);
+        //            }
+        //
+        //            if(currentPoint.dim(0) == 500 && currentPoint.dim(1) == 500){
+        //                System.out.println("test");
+        //                InterpolationTree.interpolate(currentPoint, neighbors, oldValue, histValues);
+        //                System.out.println("test 1");
+        //            }
+        //
+        //            return newValue;
+        //        }
+        //
+        //        return oldValue;
     }
 
     /**

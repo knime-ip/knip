@@ -63,6 +63,8 @@ import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
+import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
+import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.ops.img.ImgPlusToImgPlusWrapperOp;
 import org.knime.knip.core.util.ImgPlusFactory;
 
@@ -72,7 +74,8 @@ import org.knime.knip.core.util.ImgPlusFactory;
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
- * @param <K>
+ * @param <T> extends RealType<T>
+ * @param <K> extends RandomAccessibleInterval<T> & IterableInterval<T>
  */
 public class FastClaheNDNodeFactory<T extends RealType<T>, K extends RandomAccessibleInterval<T> & IterableInterval<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
 
@@ -90,6 +93,10 @@ public class FastClaheNDNodeFactory<T extends RealType<T>, K extends RandomAcces
 
     private static SettingsModelInteger createCtxSlope() {
         return new SettingsModelInteger("slope", 3);
+    }
+
+    private static SettingsModelDimSelection createCtxDimSelect() {
+        return new SettingsModelDimSelection("test");
     }
 
     /**
@@ -114,6 +121,7 @@ public class FastClaheNDNodeFactory<T extends RealType<T>, K extends RandomAcces
                 addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxSlope(),
                         "Slope", 1));
 
+                addDialogComponent("Options", "CLAHE options", new DialogComponentDimSelection(createCtxDimSelect(), "What", 2, 3));
             }
         };
     }
@@ -133,18 +141,22 @@ public class FastClaheNDNodeFactory<T extends RealType<T>, K extends RandomAcces
 
             private final SettingsModelInteger m_slope = createCtxSlope();
 
+            private final SettingsModelInteger m_dim = createCtxNumberOfBins();
+
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
                 settingsModels.add(m_ctxX);
                 settingsModels.add(m_ctxY);
                 settingsModels.add(m_numberOfBins);
                 settingsModels.add(m_slope);
+                settingsModels.add(m_dim);
+
             }
 
             @Override
             protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> op(final ImgPlus<T> imgPlus) {
 
-                FastClaheND<T> clahe = new FastClaheND<T>(new long[]{8, 8}, m_numberOfBins.getIntValue(), m_slope.getIntValue());
+                FastClaheND<T> clahe = new FastClaheND<T>(10, m_numberOfBins.getIntValue(), m_slope.getIntValue());
 
                 return Operations.wrap(new ImgPlusToImgPlusWrapperOp<T, T>(clahe, imgPlus.firstElement()
                         .createVariable()), ImgPlusFactory.<T, T> get(imgPlus.firstElement()));

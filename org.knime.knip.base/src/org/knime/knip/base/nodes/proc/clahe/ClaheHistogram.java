@@ -58,7 +58,7 @@ public class ClaheHistogram {
 
     private int m_valueNumber;
 
-    private int[] m_values;
+    private long[] m_values;
 
     private int m_valueCount;
 
@@ -67,7 +67,7 @@ public class ClaheHistogram {
      */
     public ClaheHistogram(final int bins) {
         this.m_valueNumber = bins;
-        this.m_values = new int[bins + 1];
+        this.m_values = new long[bins + 1];
         this.m_valueCount = 0;
     }
 
@@ -88,7 +88,7 @@ public class ClaheHistogram {
      */
     public void clip(final float slope) {
         int limit = (int)(slope * (m_valueCount / m_valueNumber));
-        int[] clippedHistogram = new int[m_values.length];
+        long[] clippedHistogram = new long[m_values.length];
         System.arraycopy(m_values, 0, clippedHistogram, 0, m_values.length);
         int clippedEntries = 0;
         int clippedEntriesBefore;
@@ -96,7 +96,7 @@ public class ClaheHistogram {
             clippedEntriesBefore = clippedEntries;
             clippedEntries = 0;
             for (int i = 0; i <= m_valueNumber; ++i) {
-                final int d = clippedHistogram[i] - limit;
+                final long d = clippedHistogram[i] - limit;
                 if (d > 0) {
                     clippedEntries += d;
                     clippedHistogram[i] = limit;
@@ -144,7 +144,7 @@ public class ClaheHistogram {
             cdfMax += m_values[i];
         }
 
-        final int cdfMin = m_values[hMin];
+        final long cdfMin = m_values[hMin];
 
         return Math.round((cdf - cdfMin) / (float)(cdfMax - cdfMin) * 255.0f);
     }
