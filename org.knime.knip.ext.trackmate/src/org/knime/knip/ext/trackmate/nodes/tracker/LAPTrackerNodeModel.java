@@ -218,7 +218,14 @@ public class LAPTrackerNodeModel extends NodeModel implements
 			final ImgPlus<BitType> bitMask = bitMaskValue.getImgPlus();
 			final String label = ((StringValue) row.getCell(labelIdx))
 					.getStringValue();
+
+			// get time dimension
 			final int timeIdx = bitMask.dimensionIndex(timeAxis);
+
+			if (timeIdx == -1) {
+				throw new IllegalArgumentException(
+						"Tracking dimension doesn't exist in your BitMask. Please choose the correct tracking dimension!");
+			}
 
 			// here: if source labeling is null set it. only one source is
 			// allowed since now
@@ -291,7 +298,7 @@ public class LAPTrackerNodeModel extends NodeModel implements
 					List<String> labeling = new ArrayList<String>(resAccess
 							.get().getLabeling());
 
-					labeling.add(node.label());
+					// labeling.add(node.label());
 					labeling.add("Track: " + trackCtr);
 					resAccess.get().setLabeling(labeling);
 
