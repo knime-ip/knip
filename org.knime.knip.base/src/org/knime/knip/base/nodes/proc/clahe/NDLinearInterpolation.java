@@ -84,31 +84,32 @@ public class NDLinearInterpolation {
     }
 
     /**
-     *
-     * @param currentPoint
-     * @param ips
-     * @param dim
+     * This method makes a linear interpolation in every dimension.
+     * @param currentPoint the point for which a new value should be calculated
+     * @param ips the points used for the interpolation
+     * @param dim the dimension in which the interpolation is made
      * @return
      */
     private static float interpolate(final ClahePoint currentPoint, final List<InterpolationPoint> ips, final int dim) {
 
+        // because the points were sorted beforehand the values for an interpolation are always at i and i+1
         List<InterpolationPoint> newIPS = new ArrayList<NDLinearInterpolation.InterpolationPoint>();
         for (int i = 0; i < ips.size(); i += 2) {
+            // calculate the distances in the dimension i
             float distanceOne = Math.abs(ips.get(i).dim(dim) - currentPoint.dim(dim));
             float distanceTwo = Math.abs(ips.get(i + 1).dim(dim) - currentPoint.dim(dim));
             float completeDistance = distanceOne + distanceTwo;
 
-
-
+            // calculate the weights
             float weightOne = 1 - distanceOne / completeDistance;
             float weightTwo = 1 - distanceTwo / completeDistance;
 
-
+            // calculate the new value
             float val = (ips.get(i).getValue() * weightOne)
                     + (ips.get(i + 1).getValue() * weightTwo);
 
+            // check if it is a number (could happen if there are no values in a dimension)
             if(Float.isNaN(val)){
-                System.out.println(currentPoint+"\t"+distanceOne+"\t"+distanceTwo);
                 newIPS.add(new InterpolationPoint(ips.get(i).getCoordinates(), 0));
             } else {
                 newIPS.add(new InterpolationPoint(ips.get(i).getCoordinates(), val));
@@ -125,7 +126,7 @@ public class NDLinearInterpolation {
     /**
      * Used to sort the array of interpolation points by their values in the different dimensions (think about a reversed lexicographic order).
      * For example: {0, 1, 2} < {0, 10, 2} < {0, 1, 3}
-     * @return
+     * @return Comparator
      */
     private static Comparator<InterpolationPoint> getDimensionComparator() {
         return new Comparator<InterpolationPoint>() {
