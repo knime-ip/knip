@@ -112,8 +112,6 @@ public class FastClaheND<T extends RealType<T>> implements
     public RandomAccessibleInterval<T> compute(final RandomAccessibleInterval<T> input,
                                                final RandomAccessibleInterval<T> output) {
 
-        System.out.println(input.numDimensions());
-
         // create image cursors, flatIterable to achieve same iteration order for both images.
         Cursor<T> inputCursor = Views.flatIterable(input).localizingCursor();
         Cursor<T> outputCursor = Views.flatIterable(output).cursor();
@@ -127,6 +125,9 @@ public class FastClaheND<T extends RealType<T>> implements
         // calculate offsets of the context centers in each dimensions
         long[] offsets = new long[imageDimensions.length];
         for (int i = 0; i < imageDimensions.length; i++) {
+            if(imageDimensions[i] < m_ctxNumberDims){
+                throw new IllegalArgumentException("The number of context regions must be smaller than the size of the dimension ["+i+"]");
+            }
             offsets[i] = imageDimensions[i] / m_ctxNumberDims;
         }
 
@@ -150,7 +151,7 @@ public class FastClaheND<T extends RealType<T>> implements
             ctxHistograms.get(center).add(inputCursor.get().getRealFloat());
         }
 
-//        // after creation of the histograms, clip them
+        // after creation of the histograms, clip them
         for (ClahePoint center : ctxHistograms.keySet()) {
             ctxHistograms.get(center).clip(m_slope);
         }
@@ -199,63 +200,6 @@ public class FastClaheND<T extends RealType<T>> implements
 
             return NDLinearInterpolation.interpolate(currentPoint, neighbors, oldValue, histValues);
         }
-        //        // if the size of neighbors is two make a straight forward linear interpolation
-        //        else if (neighbors.size() == 2) {
-        //
-        //            float distanceOne = currentPoint.distance(neighbors.get(0));
-        //            float distanceTwo = currentPoint.distance(neighbors.get(1));
-        //            float completeDistance = distanceOne + distanceTwo;
-        //
-        //            float weightOne = 1 - distanceOne / completeDistance;
-        //            float weightTwo = 1 - distanceTwo / completeDistance;
-        //
-        //            return ctxHistograms.get(neighbors.get(0)).buildCDF(oldValue) * weightOne
-        //                    + ctxHistograms.get(neighbors.get(1)).buildCDF(oldValue) * weightTwo;
-        //        } else if (neighbors.size() == 4) {
-        //            ClahePoint topLeft = null;
-        //            ClahePoint topRight = null;
-        //            ClahePoint bottomLeft = null;
-        //            ClahePoint bottomRight = null;
-        //            for (ClahePoint clahePoint : neighbors) {
-        //                if (clahePoint.dim(0) <= currentPoint.dim(0) && clahePoint.dim(1) <= currentPoint.dim(1)) {
-        //                    topLeft = clahePoint;
-        //                } else if (clahePoint.dim(0) > currentPoint.dim(0) && clahePoint.dim(1) <= currentPoint.dim(1)) {
-        //                    topRight = clahePoint;
-        //                } else if (clahePoint.dim(0) <= currentPoint.dim(0) && clahePoint.dim(1) > currentPoint.dim(1)) {
-        //                    bottomLeft = clahePoint;
-        //                } else {
-        //                    bottomRight = clahePoint;
-        //                }
-        //            }
-        //
-        //            @SuppressWarnings("null")
-        //            float weightX = (1 - ((float)currentPoint.dim(0) - topLeft.dim(0)) / (topLeft.distance(topRight)));
-        //            float weightY = (1 - ((float)currentPoint.dim(1) - topLeft.dim(1)) / (topLeft.distance(bottomLeft)));
-        //
-        //            float newValue =
-        //                    weightY
-        //                            * (weightX * ctxHistograms.get(topLeft).buildCDF(oldValue) + (1 - weightX)
-        //                                    * ctxHistograms.get(topRight).buildCDF(oldValue))
-        //                            + (1 - weightY)
-        //                            * (weightX * ctxHistograms.get(bottomLeft).buildCDF(oldValue) + (1 - weightX)
-        //                                    * ctxHistograms.get(bottomRight).buildCDF(oldValue));
-        //
-        //
-        //            float[] histValues = new float[neighbors.size()];
-        //            for(int i = 0; i < neighbors.size(); i++){
-        //                histValues[i] = ctxHistograms.get(neighbors.get(i)).buildCDF(oldValue);
-        //            }
-        //
-        //            if(currentPoint.dim(0) == 500 && currentPoint.dim(1) == 500){
-        //                System.out.println("test");
-        //                InterpolationTree.interpolate(currentPoint, neighbors, oldValue, histValues);
-        //                System.out.println("test 1");
-        //            }
-        //
-        //            return newValue;
-        //        }
-        //
-        //        return oldValue;
     }
 
     /**
@@ -281,9 +225,17 @@ public class FastClaheND<T extends RealType<T>> implements
             // calculate the point on the top left (x,y,z,... coordinates are all smaller)
             long[] topLeftCenter = Arrays.copyOf(nearestCenter.getCoordinates(), nearestCenter.numDim());
             for (int i = 0; i < topLeftCenter.length; i++) {
-                if (topLeftCenter[i] > currentPoint.dim(i)) {
-                    topLeftCenter[i] -= offsets[i];
+                // rather dirty hack but it works
+                if(currentPoint.dim(i) > imageDimensions[i]/2){
+                    if (topLeftCenter[i] >= currentPoint.dim(i)) {
+                        topLeftCenter[i] -= offsets[i];
+                    }
+                } else {
+                    if (topLeftCenter[i] > currentPoint.dim(i)) {
+                        topLeftCenter[i] -= offsets[i];
+                    }
                 }
+
             }
 
             // create every possible combination of the indices (needed to get all neighbors);
