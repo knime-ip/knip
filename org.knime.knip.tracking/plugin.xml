@@ -13,6 +13,7 @@
      <extension
            point="org.knime.workbench.repository.categories">
         <category
+              icon="icons/cube.png"
               level-id="tracking"
               name="Tracking"
               path="/community/knip/">
