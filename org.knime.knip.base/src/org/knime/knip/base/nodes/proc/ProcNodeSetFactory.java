@@ -65,7 +65,6 @@ import org.knime.knip.base.nodes.proc.multilvlthresholding.MultilevelThresholder
 import org.knime.knip.base.nodes.proc.resampler.ResamplerNodeFactory;
 import org.knime.knip.base.nodes.proc.spotdetection.LoGDetectorFactory;
 import org.knime.knip.base.nodes.proc.spotdetection.WaveletSpotDetectionNodeFactory;
-import org.knime.knip.base.nodes.proc.ucm.UCMNodeFactory;
 import org.knime.knip.base.nodes.seg.local.LocalThresholderNodeFactory2;
 
 /**
@@ -155,8 +154,6 @@ public class ProcNodeSetFactory implements NodeSetFactory {
 
         m_nodeFactories.put(WaveletSpotDetectionNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(LoGDetectorFactory.class.getCanonicalName(), "/community/knip/image/process");
-
-        m_nodeFactories.put(UCMNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
 
         return m_nodeFactories.keySet();
     }
