@@ -1,4 +1,4 @@
-package org.knime.knip.ext.trackmate.nodes.tracker;
+package org.knime.knip.tracking.nodes.laptracker;
 
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
@@ -6,7 +6,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
 import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
 import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.knime.knip.ext.trackmate.nodes.tracker.LAPTrackerNodeModel.LAPTrackerAlgorithm;
+import org.knime.knip.tracking.nodes.laptracker.LAPTrackerNodeModel.LAPTrackerAlgorithm;
 
 import fiji.plugin.trackmate.tracking.TrackerKeys;
 

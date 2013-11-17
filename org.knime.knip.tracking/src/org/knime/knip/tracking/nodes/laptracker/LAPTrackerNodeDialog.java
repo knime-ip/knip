@@ -1,4 +1,4 @@
-package org.knime.knip.ext.trackmate.nodes.tracker;
+package org.knime.knip.tracking.nodes.laptracker;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -22,7 +22,7 @@ import org.knime.knip.base.KNIMEKNIPPlugin;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.core.util.EnumUtils;
-import org.knime.knip.ext.trackmate.nodes.tracker.LAPTrackerNodeModel.LAPTrackerAlgorithm;
+import org.knime.knip.tracking.nodes.laptracker.LAPTrackerNodeModel.LAPTrackerAlgorithm;
 
 public class LAPTrackerNodeDialog extends DefaultNodeSettingsPane {
 

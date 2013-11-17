@@ -35,7 +35,7 @@
  * #L%
  */
 
-package org.knime.knip.ext.trackmate.data;
+package org.knime.knip.tracking.data;
 
 import net.imglib2.Cursor;
 import net.imglib2.IterableInterval;

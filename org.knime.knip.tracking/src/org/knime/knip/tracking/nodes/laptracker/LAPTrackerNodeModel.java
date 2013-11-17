@@ -1,4 +1,4 @@
-package org.knime.knip.ext.trackmate.nodes.tracker;
+package org.knime.knip.tracking.nodes.laptracker;
 
 import static fiji.plugin.trackmate.tracking.TrackerKeys.KEY_ALLOW_GAP_CLOSING;
 import static fiji.plugin.trackmate.tracking.TrackerKeys.KEY_ALLOW_TRACK_MERGING;
@@ -61,8 +61,7 @@ import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.NodeTools;
 import org.knime.knip.core.data.img.LabelingMetadata;
 import org.knime.knip.core.util.EnumUtils;
-import org.knime.knip.ext.trackmate.data.GenericLapTracker;
-import org.knime.knip.ext.trackmate.data.TrackedNode;
+import org.knime.knip.tracking.data.TrackedNode;
 
 import fiji.plugin.trackmate.TrackableObjectCollection;
 import fiji.plugin.trackmate.tracking.LAPUtils;

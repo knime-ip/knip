@@ -1,8 +1,9 @@
-package org.knime.knip.ext.trackmate.data;
+package org.knime.knip.tracking.nodes.laptracker;
 
 import java.util.Map;
 
-import org.knime.knip.ext.trackmate.nodes.tracker.LAPTrackerNodeModel.LAPTrackerAlgorithm;
+import org.knime.knip.tracking.data.TrackedNode;
+import org.knime.knip.tracking.nodes.laptracker.LAPTrackerNodeModel.LAPTrackerAlgorithm;
 
 import fiji.plugin.trackmate.FeatureHolderUtils;
 import fiji.plugin.trackmate.tracking.LAPTracker;

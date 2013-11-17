@@ -1,4 +1,4 @@
-package org.knime.knip.ext.trackmate.nodes.tracker;
+package org.knime.knip.tracking.nodes.laptracker;
 
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
