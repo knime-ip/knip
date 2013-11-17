@@ -290,9 +290,9 @@ public class LAPTrackerNodeModel extends NodeModel implements
 					// set all the important information
 					List<String> labeling = new ArrayList<String>(resAccess
 							.get().getLabeling());
-					// labeling.add(node.label());
-					String trackName = "Track: " + trackCtr;
-					labeling.add(trackName);
+
+					labeling.add(node.label());
+					labeling.add("Track: " + trackCtr);
 					resAccess.get().setLabeling(labeling);
 
 				}
