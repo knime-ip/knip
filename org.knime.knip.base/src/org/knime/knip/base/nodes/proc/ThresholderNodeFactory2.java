@@ -95,10 +95,13 @@ import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 /**
  * New global thresholder
  *
+ * @param <T>
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
+@SuppressWarnings("rawtypes")
 public class ThresholderNodeFactory2<T extends RealType<T>> extends ValueToCellNodeFactory {
 
     private static final NodeLogger LOGGER = NodeLogger.getLogger(ThresholderNodeFactory2.class);
@@ -189,6 +192,7 @@ public class ThresholderNodeFactory2<T extends RealType<T>> extends ValueToCellN
             /**
              * {@inheritDoc}
              */
+            @SuppressWarnings("unchecked")
             @Override
             protected void addSettingsModels(final List settingsModels) {
                 m_manualThreshold.setEnabled(true);
@@ -200,6 +204,7 @@ public class ThresholderNodeFactory2<T extends RealType<T>> extends ValueToCellN
             @Override
             protected DataCell compute(final DataValue cellValue) throws Exception {
 
+                @SuppressWarnings("unchecked")
                 final ImgPlusValue<T> imgPlusValue = (ImgPlusValue<T>)cellValue;
                 final ImgPlus<T> imgPlus = imgPlusValue.getImgPlus();
 
@@ -264,6 +269,7 @@ public class ThresholderNodeFactory2<T extends RealType<T>> extends ValueToCellN
             /**
              * {@inheritDoc}
              */
+            @SuppressWarnings("unchecked")
             @Override
             protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
                 m_inValueClass = ImgPlusValue.class;

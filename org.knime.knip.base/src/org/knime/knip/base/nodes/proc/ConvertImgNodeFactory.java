@@ -90,9 +90,10 @@ import org.knime.knip.core.util.ImgUtils;
 /**
  * Factory class to produce the Histogram Operations Node.
  *
+ * @param <T>
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 public class ConvertImgNodeFactory<T extends RealType<T> & NativeType<T>> extends
         ValueToCellNodeFactory<ImgPlusValue<T>> {

@@ -74,6 +74,8 @@ import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 /**
  * Factory class to produce an image inverter node.
  *
+ * @param <T>
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -108,6 +110,7 @@ public class InvertNodeFactory<T extends RealType<T>> extends ValueToCellNodeFac
 
             }
 
+            @SuppressWarnings({"unchecked", "rawtypes"})
             @Override
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
                 final Img<T> img = cellValue.getImgPlus();
@@ -185,7 +188,6 @@ public class InvertNodeFactory<T extends RealType<T>> extends ValueToCellNodeFac
         /**
          * Constructor.
          *
-         * @param specifiedMin - minimum value of the range to invert about
          * @param specifiedMax - maximum value of the range to invert about
          */
         public UnsignedIntegerInvert(final long specifiedMax) {

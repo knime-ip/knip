@@ -75,10 +75,13 @@ import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
 import org.knime.knip.core.ops.img.algorithms.Aligner;
 
 /**
- * 
+ * AlignerNodeFactory
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <T>
+ * @param <V>
  */
 public class AlignerNodeFactory<T extends RealType<T>, V extends RealType<V>> extends
         TwoValuesToCellNodeFactory<ImgPlusValue<T>, ImgPlusValue<V>> {

@@ -65,10 +65,11 @@ import org.knime.knip.base.nodes.proc.multilvlthresholding.MultilevelThresholder
 import org.knime.knip.base.nodes.proc.resampler.ResamplerNodeFactory;
 import org.knime.knip.base.nodes.proc.spotdetection.LoGDetectorFactory;
 import org.knime.knip.base.nodes.proc.spotdetection.WaveletSpotDetectionNodeFactory;
+import org.knime.knip.base.nodes.proc.ucm.UCMNodeFactory;
 import org.knime.knip.base.nodes.seg.local.LocalThresholderNodeFactory2;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -150,13 +151,12 @@ public class ProcNodeSetFactory implements NodeSetFactory {
                             "/community/knip/image/process");
 
         m_nodeFactories.put(HDomeNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
-        //deprecated:
-        //        m_nodeFactories.put(ImgPeaksNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
-        //replaced by:
         m_nodeFactories.put(MaximumFinderNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
 
         m_nodeFactories.put(WaveletSpotDetectionNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(LoGDetectorFactory.class.getCanonicalName(), "/community/knip/image/process");
+
+        m_nodeFactories.put(UCMNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
 
         return m_nodeFactories.keySet();
     }
