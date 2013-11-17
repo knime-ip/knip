@@ -68,12 +68,13 @@ import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
- * 
- * 
+ * Multi-Level OTSU Thresholding
+ *
  * @param <T> the pixel type of the input and output image
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
  * @author friedrichm, University of Konstanz
  */
 public class MultilevelThresholderNodeModel<T extends RealType<T>> extends ImgPlusToImgPlusNodeModel<T, T> {
@@ -101,7 +102,7 @@ public class MultilevelThresholderNodeModel<T extends RealType<T>> extends ImgPl
     private final SettingsModelString m_thresholder = createThresholderModel();
 
     /**
-     * @param colSuffix
+     * Constructor
      */
     protected MultilevelThresholderNodeModel() {
         super(createDimSelectionModel());
