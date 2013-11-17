@@ -1,3 +1,4 @@
+
 /*
  * ------------------------------------------------------------------------
  *
@@ -46,72 +47,98 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.base.nodes.testing;
+package org.knime.knip.core.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.knime.core.node.NodeFactory;
-import org.knime.core.node.NodeModel;
-import org.knime.core.node.NodeSetFactory;
-import org.knime.core.node.config.ConfigRO;
 
 /**
+ * TODO Auto-generated
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class TestingNodeSetFactory implements NodeSetFactory {
-
-    private final Map<String, String> m_nodeFactories = new HashMap<String, String>();
+public class EnumUtils {
 
     /**
-     * {@inheritDoc}
+     * Retrieve {@link Enum} for name
+     *
+     * @param name
+     * @param values
+     *
+     * @return {@link Enum} with the given name
      */
-    @Override
-    public Collection<String> getNodeFactoryIds() {
-        m_nodeFactories.put(ImgComparatorNodeFactory.class.getCanonicalName(), "/community/knip/kniptesting");
-        m_nodeFactories.put(LabelingComparatorNodeFactory.class.getCanonicalName(), "/community/knip/kniptesting");
-        return m_nodeFactories.keySet();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @SuppressWarnings("unchecked")
-    @Override
-    public Class<? extends NodeFactory<? extends NodeModel>> getNodeFactory(final String id) {
-        try {
-            return (Class<? extends NodeFactory<? extends NodeModel>>)Class.forName(id);
-        } catch (final ClassNotFoundException e) {
+    public static <E extends Enum<?>> E valueForName(final String name, final E[] values) {
+        for (E mode : values) {
+            if (mode.toString().equalsIgnoreCase(name)) {
+                return mode;
+            }
         }
-        return null;
+
+        throw new IllegalArgumentException("Unknown filling mode");
     }
 
     /**
-     * {@inheritDoc}
+     * Provide nicer names and use toString methods
+     *
+     * @param enums
+     * @return enum as String[] array based on names()
      */
-    @Override
-    public String getCategoryPath(final String id) {
-        return m_nodeFactories.get(id);
+    @Deprecated
+    public static String[] getStringListFromName(final Enum<?>... enums) {
+
+        final String[] s = new String[enums.length];
+
+        int i = 0;
+        for (final Enum<?> e : enums) {
+            s[i++] = e.name();
+        }
+
+        return s;
     }
 
     /**
-     * {@inheritDoc}
+     * use from to string and provide nice names
+     *
+     * @param enums
+     * @return Collection<String> based on name()
      */
-    @Override
-    public String getAfterID(final String id) {
-        return "/";
+    @Deprecated
+    public static Collection<String> getStringCollectionFromName(final Enum<?>[] enums) {
+        final ArrayList<String> s = new ArrayList<String>();
+        for (final Enum<?> e : enums) {
+            s.add(e.name());
+        }
+        return s;
     }
 
     /**
-     * {@inheritDoc}
+     * @param enums
+     *
+     * @return enum as String[] based on toString
      */
-    @Override
-    public ConfigRO getAdditionalSettings(final String id) {
-        return null;
+    public static String[] getStringListFromToString(final Enum<?>... enums) {
+
+        final String[] s = new String[enums.length];
+
+        int i = 0;
+        for (final Enum<?> e : enums) {
+            s[i++] = e.toString();
+        }
+
+        return s;
     }
 
+    /**
+     * @param enums
+     * @return Collection<String> of enum based on toString
+     */
+    public static Collection<String> getStringCollectionFromToString(final Enum<?>[] enums) {
+        final ArrayList<String> s = new ArrayList<String>();
+        for (final Enum<?> e : enums) {
+            s.add(e.toString());
+        }
+        return s;
+    }
 }
