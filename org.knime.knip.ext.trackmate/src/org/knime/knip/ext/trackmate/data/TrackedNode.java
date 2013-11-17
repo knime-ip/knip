@@ -4,6 +4,7 @@ import java.util.Map;
 
 import net.imglib2.RealPoint;
 import net.imglib2.meta.ImgPlus;
+import net.imglib2.ops.operation.iterableinterval.unary.Centroid;
 import net.imglib2.type.logic.BitType;
 import fiji.plugin.trackmate.tracking.TrackableObject;
 
@@ -24,9 +25,13 @@ public class TrackedNode<L extends Comparable<L>> implements
 		m_timeIdx = timeIdx;
 		m_bitMask = bitMask;
 		m_offset = offset;
-		
+
 		double[] centroid = new BitMaskCentroid(offset).compute(bitMask,
 				new double[bitMask.numDimensions()]);
+
+		for (int d = 0; d < centroid.length; d++) {
+			centroid[d] += offset[d];
+		}
 
 		m_point = new RealPoint(centroid);
 	}

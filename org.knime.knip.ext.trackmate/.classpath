@@ -4,7 +4,7 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry exported="true" kind="lib" path="lib/legacy-imglib1-2.0.0-20130818.134407-7.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/TrackMate_-2.1.1-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/TrackMate_-2.1.1-SNAPSHOT.jar" sourcepath="/TrackMate_"/>
 	<classpathentry exported="true" kind="lib" path="lib/jgrapht_0.8.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
