@@ -140,7 +140,7 @@ public class LAPTrackerNodeDialog extends DefaultNodeSettingsPane {
 				"Alternative Linking Cost Factor", 0.05));
 
 		this.addDialogComponent(new DialogComponentNumber(
-				m_cutoffPercentileModel, "Cutoff Percentile", 2.5));
+				m_cutoffPercentileModel, "Cutoff Percentile", 0.05));
 	}
 
 	private void addBasicOptions() {
