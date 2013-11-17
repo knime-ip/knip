@@ -6,7 +6,6 @@ import javax.swing.event.ChangeListener;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.StringValue;
-import org.knime.core.data.def.DoubleCell;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnFilter;
@@ -22,7 +21,6 @@ import org.knime.core.node.util.ColumnFilter;
 import org.knime.knip.base.KNIMEKNIPPlugin;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
-import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.ext.trackmate.nodes.tracker.LAPTrackerNodeModel.LAPTrackerAlgorithm;
 

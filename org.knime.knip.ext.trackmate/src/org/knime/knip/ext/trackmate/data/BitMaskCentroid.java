@@ -49,7 +49,7 @@ import net.imglib2.type.logic.BitType;
 public final class BitMaskCentroid implements
 		UnaryOperation<IterableInterval<BitType>, double[]> {
 
-	private long[] offset;
+	private final long[] offset;
 
 	public BitMaskCentroid(long[] offset) {
 		this.offset = offset;
@@ -59,23 +59,17 @@ public final class BitMaskCentroid implements
 	public final double[] compute(final IterableInterval<BitType> op,
 			final double[] r) {
 
-		if (r.length != op.numDimensions()) {
-			throw new IllegalArgumentException(
-					"Number of dimensions in result array do not fit (Centroid)");
-		}
+		final Cursor<BitType> c = op.cursor();
 
-		Cursor<BitType> c = op.cursor();
-
-		int ctr=0;
+		int ctr = 0;
 		while (c.hasNext()) {
-			c.fwd();
-			if (!c.get().get())
+			if (!c.next().get())
 				continue;
 
 			for (int i = 0; i < r.length; i++) {
-				r[i] += c.getDoublePosition(i) + offset[i];
+				r[i] += (c.getDoublePosition(i) + offset[i]);
 			}
-			
+
 			ctr++;
 		}
 
