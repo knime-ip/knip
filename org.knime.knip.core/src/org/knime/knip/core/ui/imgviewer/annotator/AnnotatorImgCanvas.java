@@ -54,7 +54,6 @@ import net.imglib2.type.numeric.RealType;
 
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.imgviewer.ImgCanvas;
-import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorResetEvent;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorToolChgEvent;
 import org.knime.knip.core.ui.imgviewer.annotator.tools.AnnotatorNoTool;
 
@@ -65,34 +64,32 @@ import org.knime.knip.core.ui.imgviewer.annotator.tools.AnnotatorNoTool;
  * @param <T>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
- *         Zinsmaier</a>
+ * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class AnnotatorImgCanvas<T extends RealType<T> & NativeType<T>> extends
-		ImgCanvas<T, Img<T>> {
+public class AnnotatorImgCanvas<T extends RealType<T> & NativeType<T>> extends ImgCanvas<T, Img<T>> {
 
-	/**
+    /**
      * 
      */
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public AnnotatorImgCanvas() {
-		// set initial panning on
-		onAnnotatorToolChgEvent(new AnnotatorToolChgEvent(new AnnotatorNoTool()));
-	}
+    public AnnotatorImgCanvas() {
+        // set initial panning on
+        onAnnotatorToolChgEvent(new AnnotatorToolChgEvent(new AnnotatorNoTool()));
+    }
 
-	@EventListener
-	public void onAnnotatorToolChgEvent(final AnnotatorToolChgEvent e) {
-		// in case we are coupled to an annotator
-		if (e.getTool().getClass().equals(AnnotatorNoTool.class)) {
-			blockPanning(false);
-		} else {
-			blockPanning(true);
-		}
-	}
+    @EventListener
+    public void onAnnotatorToolChgEvent(final AnnotatorToolChgEvent e) {
+        // in case we are coupled to an annotator
+        if (e.getTool().getClass().equals(AnnotatorNoTool.class)) {
+            blockPanning(false);
+        } else {
+            blockPanning(true);
+        }
+    }
 
-	@EventListener
-	public void onAnnotatorReset(AnnotatorResetEvent e) {
-		m_image = null;
-	}
+    @EventListener
+    public void onAnnotatorReset(AnnotatorResetEvent e) {
+        m_image = null;
+    }
 };

@@ -53,9 +53,9 @@ import java.util.List;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.imglib2.img.Img;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.img.UnaryRelationAssigment;
+import net.imglib2.ops.operation.ImgOperations;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.relation.real.unary.RealGreaterThanConstant;
 import net.imglib2.type.logic.BitType;
@@ -83,7 +83,9 @@ import org.knime.knip.core.util.ImgUtils;
 
 /**
  * Factory class to produce an image thresholder node.
- * 
+ *
+ * @param <T>
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -174,8 +176,10 @@ public class ThresholderNodeFactory<T extends RealType<T>> extends ValueToCellNo
                 final ThresholdingType thresholder =
                         Enum.valueOf(ThresholdingType.class, m_thresholderSettings.getStringValue());
                 final ImgPlus<T> imgPlus = cellValue.getImgPlus();
-                final Img<BitType> res =
-                        ImgUtils.createEmptyCopy(imgPlus, imgPlus.factory().imgFactory(new BitType()), new BitType());
+                final ImgPlus<BitType> res =
+                        new ImgPlus<BitType>(ImgUtils.createEmptyCopy(imgPlus,
+                                                                      imgPlus.factory().imgFactory(new BitType()),
+                                                                      new BitType()), imgPlus);
                 if (thresholder == ThresholdingType.MANUAL) {
 
                     final T type = cellValue.getImgPlus().firstElement().createVariable();
@@ -186,18 +190,18 @@ public class ThresholderNodeFactory<T extends RealType<T>> extends ValueToCellNo
 
                     return m_imgCellFactory.createCell(res, cellValue.getMetadata());
                 }
-                final AutoThreshold<T, Img<T>, Img<BitType>> op =
-                        new AutoThreshold<T, Img<T>, Img<BitType>>(thresholder);
 
                 try {
                     //the different thresholding methods can fail and throw a runtime exception in these cases
-                    SubsetOperations.iterate(op, m_dimSelection.getSelectedDimIndices(imgPlus), cellValue.getImgPlus(),
+                    SubsetOperations.iterate(ImgOperations.wrapII(new AutoThreshold<T>(thresholder), new BitType()),
+                                             m_dimSelection.getSelectedDimIndices(imgPlus), cellValue.getImgPlus(),
                                              res, getExecutorService());
                 } catch (Exception e) {
+
                     throw new KNIPRuntimeException(e.getMessage(), e);
                 }
 
-                return m_imgCellFactory.createCell(res, cellValue.getImgPlus());
+                return m_imgCellFactory.createCell(res);
             }
 
             /**

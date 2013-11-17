@@ -77,18 +77,12 @@ import org.knime.knip.core.util.ImgUtils;
 
 /**
  * Cell containing a Polygon.
- *
- * @author hornm, University of Konstanz
- * @param <T> image type
- * @deprecated Will be removed in future releases
- */
-
-/**
- * TODO Auto-generated
  * 
+ * @param <T> image type
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @deprecated Will be removed in future releases
  */
 @Deprecated
 @SuppressWarnings("serial")

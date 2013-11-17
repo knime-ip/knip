@@ -67,16 +67,11 @@ package org.knime.knip.core.data.graphtheory;
  * If you use this software for research purposes, you should cite the aforementioned paper in any resulting
  * publication.
  * 
- * @author Jan Funke <jan.funke@inf.tu-dresden.de>
- * @version 0.1
- */
-
-/**
- * TODO Auto-generated
- * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author Jan Funke <jan.funke@inf.tu-dresden.de>
+ * @version 0.1
  */
 public class Node {
 

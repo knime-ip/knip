@@ -40,10 +40,10 @@ import net.imglib2.img.basictypeaccess.array.ShortArray;
 import net.imglib2.img.planar.PlanarImg;
 import net.imglib2.meta.Axes;
 import net.imglib2.meta.CalibratedAxis;
-import net.imglib2.meta.DefaultCalibratedAxis;
 import net.imglib2.meta.DefaultCalibratedSpace;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.meta.ImgPlusMetadata;
+import net.imglib2.meta.axis.DefaultLinearAxis;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.ByteType;
@@ -558,7 +558,9 @@ public class ImgMergeOperator<T extends RealType<T> & NativeType<T>, A, ADA exte
             for (int i = 0; i < 2; i++) {
                 newAxes[i] = axes[i];
             }
-            newAxes[2] = new DefaultCalibratedAxis(Axes.get(m_axisLabel));
+
+            //TODO: How to support different types of calibrates spaces/axis.
+            newAxes[2] = new DefaultLinearAxis(Axes.get(m_axisLabel));
             m_metadata = new DefaultImgMetadata(new DefaultCalibratedSpace(newAxes), img, img, img);
             m_dims = new long[3];
             m_dims[0] = img.dimension(0);

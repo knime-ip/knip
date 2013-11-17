@@ -56,7 +56,6 @@ import java.util.Map;
 
 import net.imglib2.Cursor;
 import net.imglib2.FinalInterval;
-import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccess;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
@@ -353,11 +352,11 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
                     Cursor<O> roiCursor = (Cursor<O>)roi.getIterableIntervalOverROI(img).cursor();
                     RandomAccess<O> ra = res.randomAccess();
 
-                    Fill<O, IterableInterval<O>> fill = new Fill<O, IterableInterval<O>>();
+                    Fill<O> fill = new Fill<O>();
                     if (m_backgroundSelection.getStringValue().equals(BACKGROUND_OPTIONS[BACKGROUND.MIN.ordinal()])) {
-                        fill.compute(minType, res);
+                        fill.compute(minType, res.iterator());
                     } else {
-                        fill.compute(maxType, res);
+                        fill.compute(maxType, res.iterator());
                     }
 
                     long[] pos = new long[img.numDimensions()];

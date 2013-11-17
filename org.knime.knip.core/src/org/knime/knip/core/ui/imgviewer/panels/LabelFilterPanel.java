@@ -364,6 +364,7 @@ public class LabelFilterPanel<L extends Comparable<L>> extends ViewerComponent {
 
             m_eventService.publish(new ImgRedrawEvent());
             Collections.sort(m_activeLabels);
+
             m_jLabelList.setListData(m_activeLabels);
         }
 

@@ -48,9 +48,9 @@
  */
 package org.knime.knip.core.data.img;
 
+import net.imglib2.meta.AbstractCalibratedSpace;
 import net.imglib2.meta.CalibratedAxis;
 import net.imglib2.meta.CalibratedSpace;
-import net.imglib2.meta.DefaultCalibratedSpace;
 import net.imglib2.meta.DefaultNamed;
 import net.imglib2.meta.DefaultSourced;
 import net.imglib2.meta.MetadataUtil;
@@ -64,7 +64,7 @@ import net.imglib2.meta.Sourced;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-abstract class AbstractGeneralMetadata extends DefaultCalibratedSpace implements Sourced, Named {
+abstract class AbstractGeneralMetadata extends AbstractCalibratedSpace<CalibratedAxis> implements Sourced, Named {
 
     private final Named m_named;
 

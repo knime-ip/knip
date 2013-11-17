@@ -69,7 +69,7 @@ import org.knime.knip.base.nodes.io.kernel.SerializableSetting;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -183,7 +183,7 @@ class BoxSetting extends SerializableSetting<Img<BitType>[]> {
         Arrays.fill(dim, (2 * m_radius) + 1);
         final ArrayImgFactory<BitType> fac = new ArrayImgFactory<BitType>();
         final Img<BitType> img = fac.create(dim, new BitType());
-        new Fill<BitType, Img<BitType>>().compute(new BitType(true), img);
+        new Fill<BitType>().compute(new BitType(true), img.iterator());
         return new Img[]{img};
     }
 }

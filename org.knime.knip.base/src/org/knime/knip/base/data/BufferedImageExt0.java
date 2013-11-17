@@ -58,7 +58,7 @@ import java.awt.image.Raster;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 
-import net.imglib2.display.ARGBScreenImage;
+import net.imglib2.display.projectors.screenimages.ARGBScreenImage;
 import net.imglib2.display.projectors.screenimages.ByteScreenImage;
 import net.imglib2.display.projectors.screenimages.ShortScreenImage;
 

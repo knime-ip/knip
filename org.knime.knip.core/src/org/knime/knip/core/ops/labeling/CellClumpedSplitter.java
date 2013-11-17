@@ -98,7 +98,7 @@ import org.knime.knip.core.ops.bittype.PositionsToBitTypeImage;
  * final CellClumpedSplitter<T, L> op = new CellClumpedSplitter<T, L>(NeighborhoodType.SIXTEEN, m_executor, ...);<br>
  * m_executor.shutdown();<br>
  * </code>
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -106,7 +106,7 @@ import org.knime.knip.core.ops.bittype.PositionsToBitTypeImage;
  */
 public class CellClumpedSplitter<L extends Comparable<L>> implements UnaryOperation<Labeling<L>, Labeling<Integer>> {
 
-    private final LocalMaximaForDistanceMap<FloatType, Img<FloatType>> m_localMaximaOp;
+    private final LocalMaximaForDistanceMap<FloatType> m_localMaximaOp;
 
     private final ExecutorService m_executor;
 
@@ -122,7 +122,7 @@ public class CellClumpedSplitter<L extends Comparable<L>> implements UnaryOperat
 
     private final Converter<LabelingType<L>, BitType> m_converter;
 
-    private final DistanceMap<BitType, RandomAccessibleInterval<BitType>, Img<FloatType>> m_distanceMap;
+    private final DistanceMap<BitType> m_distanceMap;
 
     /**
      * @param neighborhood
@@ -139,7 +139,7 @@ public class CellClumpedSplitter<L extends Comparable<L>> implements UnaryOperat
         minBitType.setReal(minBitType.getMinValue());
 
         m_neighborhood = neighborhood;
-        m_localMaximaOp = new LocalMaximaForDistanceMap<FloatType, Img<FloatType>>(neighborhood);
+        m_localMaximaOp = new LocalMaximaForDistanceMap<FloatType>(neighborhood);
 
         m_converter = new Converter<LabelingType<L>, BitType>() {
 
@@ -149,7 +149,7 @@ public class CellClumpedSplitter<L extends Comparable<L>> implements UnaryOperat
 
             }
         };
-        m_distanceMap = new DistanceMap<BitType, RandomAccessibleInterval<BitType>, Img<FloatType>>();
+        m_distanceMap = new DistanceMap<BitType>();
         m_executor = executor;
         m_minMaximaSize = minMaximaSize;
         m_maxInterations = maxInterations;
@@ -195,7 +195,7 @@ public class CellClumpedSplitter<L extends Comparable<L>> implements UnaryOperat
          */
         final Queue<L> cellsQueue = new LinkedList<L>(cellLabeling.getLabels());
 
-        final Img<FloatType> distanceMap =
+        final RandomAccessibleInterval<FloatType> distanceMap =
                 m_distanceMap.compute(bitMask, new ArrayImgFactory<FloatType>().create(bitMask, new FloatType()));
 
         /*
@@ -211,8 +211,8 @@ public class CellClumpedSplitter<L extends Comparable<L>> implements UnaryOperat
         final Labeling<Integer> lab =
                 new NativeImgLabeling<Integer, IntType>(new NtreeImgFactory<IntType>().create(cellLabeling,
                                                                                               new IntType()));
-        new CCA<BitType, Img<BitType>, Labeling<Integer>>(AbstractRegionGrowing.get8ConStructuringElement(maxima
-                .numDimensions()), new BitType()).compute(maxima, lab);
+        new CCA<BitType>(AbstractRegionGrowing.get8ConStructuringElement(maxima.numDimensions()), new BitType())
+                .compute(maxima, lab);
 
         final Collection<Integer> labels = lab.firstElement().getMapping().getLabels();
         final ArrayList<long[]> centroidsList = new ArrayList<long[]>();
@@ -369,14 +369,14 @@ public class CellClumpedSplitter<L extends Comparable<L>> implements UnaryOperat
 
         /**
          * Constructor
-         * 
+         *
          * @param roi target
          * @param distanceMap distance map
          * @param localMaxima local maxima of distance map
          * @param res
          * @param dimension boundaries of source image
          */
-        public ClusterThread(final IterableRegionOfInterest roi, final Img<FloatType> distanceMap,
+        public ClusterThread(final IterableRegionOfInterest roi, final RandomAccessibleInterval<FloatType> distanceMap,
                              final Img<BitType> localMaxima, final Labeling<Integer> res, final long[] dimension) {
             m_numDim = distanceMap.numDimensions();
             m_localMaximaAccess = localMaxima.randomAccess();
@@ -493,7 +493,7 @@ public class CellClumpedSplitter<L extends Comparable<L>> implements UnaryOperat
 
         /**
          * Performs EM Algorithm
-         * 
+         *
          * @param seedPoints seed points
          * @return result of EM Algorithm
          */
@@ -527,7 +527,7 @@ public class CellClumpedSplitter<L extends Comparable<L>> implements UnaryOperat
 
         /**
          * build cluster size via nearest Neighbor to seeding points
-         * 
+         *
          * @return
          */
         private int[] clusterSizesByNearestNeighbor() {
@@ -558,7 +558,7 @@ public class CellClumpedSplitter<L extends Comparable<L>> implements UnaryOperat
 
         /**
          * gets new cluster centers from a finished em
-         * 
+         *
          * @param extendedEM result of EM
          * @return cluster centers
          */
@@ -657,7 +657,7 @@ public class CellClumpedSplitter<L extends Comparable<L>> implements UnaryOperat
 
         /**
          * after h maxima transformation calculate centroids. uses old seeding points for "caa" flooding points
-         * 
+         *
          * @param lambda given depth
          * @return predicted center points
          */
@@ -762,7 +762,7 @@ public class CellClumpedSplitter<L extends Comparable<L>> implements UnaryOperat
 
         /**
          * construct new seeding points
-         * 
+         *
          * @return Instance of seeding points
          */
         private InstancesTmp prepareSeedingPointsForEM() {
@@ -779,7 +779,7 @@ public class CellClumpedSplitter<L extends Comparable<L>> implements UnaryOperat
 
         /**
          * calculate the separation of given clustering
-         * 
+         *
          * @param extendedEM result of finished EM
          * @param emClusterCenters new calculated cluster centers
          * @return separation of given clustering
@@ -806,7 +806,7 @@ public class CellClumpedSplitter<L extends Comparable<L>> implements UnaryOperat
 
         /**
          * calculate the compactness of given clustering
-         * 
+         *
          * @param extendedEM result of finished EM
          * @param emClusterCenters new calculated cluster centers
          * @return compactness of given clustering

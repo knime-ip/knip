@@ -54,7 +54,7 @@ import java.util.Arrays;
 
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.display.ColorTable;
-import net.imglib2.display.ScreenImage;
+import net.imglib2.display.projectors.screenimages.ScreenImage;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.RealType;
 
@@ -81,11 +81,11 @@ import org.knime.knip.core.ui.imgviewer.panels.transfunc.LookupTableChgEvent;
 /**
  * Combined image renderer. Supports basic rendering of pure images with grey, color, color table renderers as well as
  * pure grey rendering (e.g. as background for labels) and rendering using transfer functions.
- *
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
- *
+ * 
  * @param <T> number based type of the rendered image
  */
 public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
@@ -114,8 +114,9 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
     /** caches the last rendered image. */
     private Image m_lastImage;
 
-    /** true if all images should be rendered using a greyScale renderer
-     *  (independent of the renderer selection).*/
+    /**
+     * true if all images should be rendered using a greyScale renderer (independent of the renderer selection).
+     */
     private final boolean m_enforceGreyScale;
 
     /** used for all grey rendering mode. */
@@ -127,7 +128,7 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
 
     private NormalizationParametersChgEvent m_normalizationParameters = new NormalizationParametersChgEvent(0, false);
 
-    private ColorTable[] m_colorTables = new ColorTable[] {};
+    private ColorTable[] m_colorTables = new ColorTable[]{};
 
     private RandomAccessibleInterval<T> m_src;
 
@@ -138,15 +139,13 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
 
     /**
      * Creates a {@link RenderUnit} for image data.
-     *
+     * 
      * @param enforceGreyScale false => depends on renderer selection <br>
      *            true => always uses a {@link Real2GreyRenderer}
      */
     public ImageRU(final boolean enforceGreyScale) {
         m_enforceGreyScale = enforceGreyScale;
     }
-
-
 
     @SuppressWarnings("unchecked")
     @Override
@@ -217,7 +216,7 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
 
     /**
      * stores normalization parameters into a member.
-     *
+     * 
      * @param normalizationParameters saturation ... used for rendering.
      */
     @EventListener
@@ -228,6 +227,7 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
     /**
      * {@link EventListener} for {@link LookupTableChgEvent}. The {@link LookupTable} is stored in a member and is used
      * for transfer function handling.
+     * 
      * @param event holds a lookup table
      */
     @EventListener
@@ -237,6 +237,7 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
 
     /**
      * changes the stored image (for rendering) additionally updates the color table member.
+     * 
      * @param e image and MetaData
      */
     @EventListener
@@ -253,6 +254,7 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
 
     /**
      * changes the stored image (for rendering).
+     * 
      * @param e contains a image.
      */
     @EventListener
@@ -262,6 +264,7 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
 
     /**
      * set all members that could hold expensive references to null or resets them to allow storage clean ups.
+     * 
      * @param event marker event
      */
     @EventListener
@@ -271,11 +274,11 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
         m_greyRenderer = new Real2GreyRenderer<T>();
         m_lookupTable = new SimpleTable();
         m_normalizationParameters = new NormalizationParametersChgEvent(0, false);
-        m_colorTables = new ColorTable[] {};
+        m_colorTables = new ColorTable[]{};
     }
 
     /**
-     * @param event  {@link #onClose2()}
+     * @param event {@link #onClose2()}
      */
     @EventListener
     public void onAnnotatorReset(final AnnotatorResetEvent event) {

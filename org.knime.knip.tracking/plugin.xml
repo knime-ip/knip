@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+     <extension
+         point="org.knime.workbench.repository.nodes">
+        <node
+              category-path="/community/knip/tracking"
+              expert-flag="false"
+              factory-class="org.knime.knip.tracking.nodes.laptracker.LAPTrackerNodeFactory"
+              id="org.knime.knip.ext.trackmate.nodes.tracker.LAPTrackerNodeFactory">
+        </node>
+     </extension>
+     <extension
+           point="org.knime.workbench.repository.categories">
+        <category
+              icon="icons/cube.png"
+              level-id="tracking"
+              name="Tracking"
+              path="/community/knip/">
+        </category>
+     </extension>
+</plugin>

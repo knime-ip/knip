@@ -68,11 +68,12 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
 import org.knime.knip.core.algorithm.logtrackmate.LoGDetectorOp;
 
 /**
- * TODO Auto-generated
- * 
+ * NodeFactory for {@link LoGDetectorFactory}
+ *
+ * @param <T>
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 public class LoGDetectorFactory<T extends RealType<T> & NativeType<T>> extends ImgPlusToImgPlusNodeFactory<T, BitType> {
 
@@ -115,13 +116,13 @@ public class LoGDetectorFactory<T extends RealType<T> & NativeType<T>> extends I
             private SettingsModelBoolean m_doSubPixel = createDoSubPixelModel();
 
             @Override
-            protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<BitType>> op(ImgPlus<T> imgPlus) {
+            protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<BitType>> op(final ImgPlus<T> imgPlus) {
                 return new LoGDetectorOp<T>(m_radius.getIntValue() / 2, m_threshold.getIntValue(),
                         m_doSubPixel.getBooleanValue());
             }
 
             @Override
-            protected void addSettingsModels(List<SettingsModel> settingsModels) {
+            protected void addSettingsModels(final List<SettingsModel> settingsModels) {
                 settingsModels.add(m_radius);
                 settingsModels.add(m_threshold);
                 settingsModels.add(m_doSubPixel);

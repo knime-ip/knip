@@ -71,88 +71,88 @@ import org.knime.knip.io.extensionpoint.ScifioFormatReaderExtPointManager;
  */
 public class ScifioGateway {
 
-	private static ScifioGateway m_instance;
+    private static ScifioGateway m_instance;
 
-	/** the scifio instance. */
-	private final SCIFIO m_scifio;
+    /** the scifio instance. */
+    private final SCIFIO m_scifio;
 
-	/** a set of supported formats. */
-	private final Set<Format> FORMATS;
+    /** a set of supported formats. */
+    private final Set<Format> FORMATS;
 
-	/**
-	 * load supported formats and create the SCIFIO instance.
-	 */
-	private ScifioGateway() {
-		// set log level
-		System.setProperty("scijava.log.level", "error");
+    /**
+     * load supported formats and create the SCIFIO instance.
+     */
+    private ScifioGateway() {
+        // set log level
+        System.setProperty("scijava.log.level", "error");
 
-		// add old IFormatReaders
-		addIFormatReaders();
+        // add old IFormatReaders
+        addIFormatReaders();
 
-		// create a scifio context with required Scifio and Scijava Services
-		m_scifio = new SCIFIO();
+        // create a scifio context with required Scifio and Scijava Services
+        m_scifio = new SCIFIO();
 
-		// add readers from the ScifioFormat extension point as Format
-		final List<Format> customFormats = ScifioFormatReaderExtPointManager
-				.getFormats();
-		for (final Format f : customFormats) {
-			m_scifio.format().addFormat(f);
-		}
+        // add readers from the ScifioFormat extension point as Format
+        final List<Format> customFormats =
+                ScifioFormatReaderExtPointManager.getFormats();
+        for (final Format f : customFormats) {
+            m_scifio.format().addFormat(f);
+        }
 
-		FORMATS = m_scifio.format().getAllFormats();
-	}
+        FORMATS = m_scifio.format().getAllFormats();
+    }
 
-	/**
-	 * @deprecated
-	 */
-	private void addIFormatReaders() {
-		// add readers from the IFormatReader extension point as default reader
-		// classes
-		// adding them to the BioFormatsFormat would also be possible but not
-		// support the reordering
-		// m_scifio.format().getFormatFromClass(BioFormatsFormat.class)..addReader(rClass);
+    /**
+     * @deprecated
+     */
+    private void addIFormatReaders() {
+        // add readers from the IFormatReader extension point as default reader
+        // classes
+        // adding them to the BioFormatsFormat would also be possible but not
+        // support the reordering
+        // m_scifio.format().getFormatFromClass(BioFormatsFormat.class)..addReader(rClass);
 
-		// remove all that have been already added (add them at the end)
-		Class<? extends IFormatReader>[] oldClasses = ImageReader
-				.getDefaultReaderClasses().getClasses();
-		for (Class<? extends IFormatReader> clazz : oldClasses) {
-			ImageReader.getDefaultReaderClasses().removeClass(clazz);
-		}
+        // remove all that have been already added (add them at the end)
+        Class<? extends IFormatReader>[] oldClasses =
+                ImageReader.getDefaultReaderClasses().getClasses();
+        for (Class<? extends IFormatReader> clazz : oldClasses) {
+            ImageReader.getDefaultReaderClasses().removeClass(clazz);
+        }
 
-		// add old + new such that the last added reader is first in the list
-		final List<IFormatReader> customReaders = IFormatReaderExtPointManager
-				.getIFormatReaders();
-		Collections.reverse(customReaders);
+        // add old + new such that the last added reader is first in the list
+        final List<IFormatReader> customReaders =
+                IFormatReaderExtPointManager.getIFormatReaders();
+        Collections.reverse(customReaders);
 
-		for (IFormatReader r : customReaders) {
-			@SuppressWarnings("unchecked")
-			Class<IFormatReader> rClass = (Class<IFormatReader>) r.getClass();
-			ImageReader.getDefaultReaderClasses().addClass(rClass);
-		}
+        for (IFormatReader r : customReaders) {
+            @SuppressWarnings("unchecked")
+            Class<IFormatReader> rClass = (Class<IFormatReader>)r.getClass();
+            ImageReader.getDefaultReaderClasses().addClass(rClass);
+        }
 
-		for (Class<? extends IFormatReader> or : oldClasses) {
-			ImageReader.getDefaultReaderClasses().addClass(or);
-		}
-	}
+        for (Class<? extends IFormatReader> or : oldClasses) {
+            ImageReader.getDefaultReaderClasses().addClass(or);
+        }
+    }
 
-	private static synchronized ScifioGateway getInstance() {
-		if (m_instance == null) {
-			m_instance = new ScifioGateway();
-		}
-		return m_instance;
-	}
+    private static synchronized ScifioGateway getInstance() {
+        if (m_instance == null) {
+            m_instance = new ScifioGateway();
+        }
+        return m_instance;
+    }
 
-	/**
-	 * @return the single SCIFIO instance
-	 */
-	public static SCIFIO getSCIFIO() {
-		return getInstance().m_scifio;
-	}
+    /**
+     * @return the single SCIFIO instance
+     */
+    public static SCIFIO getSCIFIO() {
+        return getInstance().m_scifio;
+    }
 
-	/**
-	 * @return a list of supported formats for image readers
-	 */
-	public static Set<Format> getFORMATS() {
-		return getInstance().FORMATS;
-	}
+    /**
+     * @return a list of supported formats for image readers
+     */
+    public static Set<Format> getFORMATS() {
+        return getInstance().FORMATS;
+    }
 }

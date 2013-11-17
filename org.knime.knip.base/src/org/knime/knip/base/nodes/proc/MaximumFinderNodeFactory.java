@@ -73,8 +73,9 @@ import org.knime.knip.core.ops.interval.MaximumFinder;
 import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 
 /**
- * 
+ *
  * @author Tino Klingebiel, University of Konstanz
+ * @param <T>
  */
 public class MaximumFinderNodeFactory<T extends RealType<T> & NativeType<T>> extends
         ValueToCellNodeFactory<ImgPlusValue<T>> {
@@ -135,7 +136,7 @@ public class MaximumFinderNodeFactory<T extends RealType<T> & NativeType<T>> ext
                 // hypercube, etc of the output
                 SubsetOperations
                         .iterate(new MaximumFinder<T>(m_noise.getDoubleValue(), m_suppression.getDoubleValue()),
-                                 m_dimSelection.getSelectedDimIndices(img), img, output, getExecutorService());
+                                 m_dimSelection.getSelectedDimIndices(img), img.getImg(), output, getExecutorService());
 
                 // Simply return the output
                 return m_cellFactory.createCell(output);

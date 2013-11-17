@@ -70,6 +70,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingCellFactory;
 import org.knime.knip.base.data.labeling.LabelingValue;
+import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.node.TwoValuesToCellNodeDialog;
 import org.knime.knip.base.node.TwoValuesToCellNodeFactory;
 import org.knime.knip.base.node.TwoValuesToCellNodeModel;
@@ -157,10 +158,20 @@ public final class LabelingArithmeticNodeFactory<L extends Comparable<L>> extend
                     throws Exception {
 
                 final Labeling<L> lab1 = cellValue1.getLabeling();
-                Labeling<L> lab2 = cellValue2.getLabeling();
+                final Labeling<L> lab2 = cellValue2.getLabeling();
 
+                if (lab1.firstElement().getMapping().getLabels().size() > 0
+                        && lab2.firstElement().getMapping().getLabels().size() > 0) {
+                    if (!(lab1.firstElement().getMapping().getLabels().get(0).getClass().isAssignableFrom(lab2
+                            .firstElement().getMapping().getLabels().get(0).getClass()))) {
+                        throw new KNIPException(
+                                "The types of the incoming labelings are not compatible! Use e.g. \"Labeling to String Based Labeling\" to transform then into a common format!");
+                    }
+                }
+
+                Labeling<L> synchronizedLab = lab2;
                 if (m_synchronize.getBooleanValue()) {
-                    lab2 =
+                    synchronizedLab =
                             new LabelingView<L>(MiscViews.synchronizeDimensionality(lab2,
                                                                                     cellValue2.getLabelingMetadata(),
                                                                                     lab1,
@@ -168,7 +179,7 @@ public final class LabelingArithmeticNodeFactory<L extends Comparable<L>> extend
                                     lab1.<L> factory());
                 }
 
-                return m_labelingCellFactory.createCell((Labeling<L>)m_op.compute(lab1, lab2, ImgUtils
+                return m_labelingCellFactory.createCell((Labeling<L>)m_op.compute(lab1, synchronizedLab, ImgUtils
                         .createEmptyCopy(cellValue1.getLabeling())), cellValue1.getLabelingMetadata());
             }
 
@@ -211,5 +222,4 @@ public final class LabelingArithmeticNodeFactory<L extends Comparable<L>> extend
 
         };
     }
-
 }

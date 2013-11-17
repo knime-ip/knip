@@ -50,12 +50,9 @@ package org.knime.knip.base.nodes.misc.dimswap;
 
 import java.util.List;
 
-import net.imglib2.meta.Axes;
-import net.imglib2.meta.AxisType;
-import net.imglib2.meta.DefaultCalibratedAxis;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.meta.TypedAxis;
-import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.operation.subset.views.ImgPlusView;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.node.ExecutionContext;
@@ -70,7 +67,7 @@ import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.core.ops.metadata.DimSwapper;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -117,60 +114,25 @@ public class DimensionSwapperNodeFactory<T extends RealType<T>> extends ValueToC
             @Override
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
                 final ImgPlus<T> img = cellValue.getImgPlus();
+                long[] minimum = cellValue.getMinimum();
+                long[] permutedMinimum = new long[minimum.length];
+
                 int[] mapping = new int[img.numDimensions()];
-
-                final long[] offset = new long[img.numDimensions()];
-                final long[] size = new long[img.numDimensions()];
-
                 for (int i = 0; i < mapping.length; i++) {
                     mapping[i] = m_mapping.getBackDimensionLookup(i);
-                    offset[i] = m_mapping.getOffset(i);
-                    size[i] = m_mapping.getSize(i);
                 }
-                mapping = getCorrectedMapping(mapping);
+
+                final ImgPlus<T> res = new ImgPlusView<T>(DimSwapper.swap(img, mapping), img.factory(), img);
 
                 // swap metadata
-                final double[] calibration = new double[img.numDimensions()];
-                final double[] tmpCalibration = new double[img.numDimensions()];
-                img.calibration(tmpCalibration);
-                final AxisType[] axes = new AxisType[img.numDimensions()];
-                for (int i = 0; i < axes.length; i++) {
-                    calibration[i] = tmpCalibration[mapping[i]];
-                    axes[i] = Axes.get(img.axis(mapping[i]).type().getLabel());
-                }
-                final ImgPlus<T> res =
-                        new ImgPlus<T>(Operations.compute(new DimSwapper<T>(mapping, offset, size), img), img);
-                for (int i = 0; i < axes.length; i++) {
-                    res.setAxis(new DefaultCalibratedAxis(axes[i]), i);
+                for (int i = 0; i < img.numDimensions(); i++) {
+                    res.setAxis(img.axis(i).copy(), mapping[i]);
+                    permutedMinimum[i] = minimum[mapping[i]];
                 }
 
-                return m_imgCellFactory.createCell(res);
+                return m_imgCellFactory.createCell(res, permutedMinimum);
             }
 
-            protected int[] getCorrectedMapping(final int[] mapping) {
-
-                final int[] fixed = new int[mapping.length];
-                int j = 0;
-
-                for (int i = 0; i < mapping.length; i++) {
-                    fixed[i] = -1;
-
-                    while (fixed[i] == -1) {
-                        for (int k = 0; k < mapping.length; k++) {
-                            if (mapping[k] == j) {
-                                fixed[i] = k;
-                            }
-                        }
-
-                        j++;
-                    }
-                }
-                return fixed;
-            }
-
-            /**
-             * {@inheritDoc}
-             */
             @Override
             protected void prepareExecute(final ExecutionContext exec) {
                 m_imgCellFactory = new ImgPlusCellFactory(exec);

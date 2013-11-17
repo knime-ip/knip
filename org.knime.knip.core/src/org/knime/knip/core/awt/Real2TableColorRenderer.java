@@ -49,19 +49,19 @@
 package org.knime.knip.core.awt;
 
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.display.ARGBScreenImage;
 import net.imglib2.display.ColorTable;
 import net.imglib2.display.ColorTable16;
 import net.imglib2.display.ColorTable8;
-import net.imglib2.display.ScreenImage;
-import net.imglib2.display.projectors.Abstract2DProjector;
+import net.imglib2.display.projectors.AbstractProjector2D;
+import net.imglib2.display.projectors.Projector2D;
+import net.imglib2.display.projectors.screenimages.ARGBScreenImage;
+import net.imglib2.display.projectors.screenimages.ScreenImage;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.knip.core.awt.converter.RealTableColorARGBConverter;
 import org.knime.knip.core.awt.parametersupport.RendererWithColorTable;
 import org.knime.knip.core.awt.parametersupport.RendererWithNormalization;
-import org.knime.knip.core.awt.specializedrendering.Projector2D;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,7 +123,7 @@ public class Real2TableColorRenderer<R extends RealType<R>> extends ProjectingRe
     }
 
     @Override
-    protected Abstract2DProjector<R, ARGBType> getProjector(final int dimX, final int dimY,
+    protected AbstractProjector2D<R, ARGBType> getProjector(final int dimX, final int dimY,
                                                             final RandomAccessibleInterval<R> source,
                                                             final ARGBScreenImage target) {
 

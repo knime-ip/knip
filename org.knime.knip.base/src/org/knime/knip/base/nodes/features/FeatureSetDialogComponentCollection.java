@@ -86,10 +86,10 @@ import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
  * {@link DefaultNodeSettingsPane}. But some specific dialog components (@see
  * {@link FeatureSetDialogComponentCollection#addDialogComponent(String, DialogComponent)} will be added to a
  * configuration pane of a feature set (identified by a String).
- *
+ * 
  * PENDING CODE. Subject to changes!
- *
- *
+ * 
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -122,7 +122,7 @@ public class FeatureSetDialogComponentCollection {
 
     /**
      * Adds the Dialog Component to the feature list.
-     *
+     * 
      * @param featureName the name of the feature set
      * @param featureId a unique id of the feature set
      * @param dc
@@ -140,7 +140,7 @@ public class FeatureSetDialogComponentCollection {
 
     /**
      * Adds the {@link DialogComponent} to the specified tab and group.
-     *
+     * 
      * @param tab
      * @param group
      * @param dc
@@ -161,7 +161,7 @@ public class FeatureSetDialogComponentCollection {
 
     /**
      * Checks whether the settings model of the dialog components is different to the given ones.
-     *
+     * 
      * @param settingsModels
      * @return
      */
@@ -178,7 +178,7 @@ public class FeatureSetDialogComponentCollection {
 
     /**
      * Creates the dialog from the previously added {@link DialogComponent}s.
-     *
+     * 
      * @return the newly created dialog
      */
     public NodeDialogPane getDialog() {

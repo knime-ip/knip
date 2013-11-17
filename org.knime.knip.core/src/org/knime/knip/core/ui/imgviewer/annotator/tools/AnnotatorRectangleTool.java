@@ -56,7 +56,7 @@ import org.knime.knip.core.ui.imgviewer.overlay.elements.RectangleOverlayElement
 
 /**
  * TODO Auto-generated
- *
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -79,14 +79,12 @@ public class AnnotatorRectangleTool extends AnnotationDrawingTool<RectangleOverl
 
     @SuppressWarnings("unchecked")
     @Override
-    public void onMousePressedLeft(final ImgViewerMouseEvent e,
-                                   final RectangleOverlayElement currentOverlayElement,
-                                   final PlaneSelectionEvent selection, final Overlay overlay,
-                                   final String... labels) {
+    public void onMousePressedLeft(final ImgViewerMouseEvent e, final RectangleOverlayElement currentOverlayElement,
+                                   final PlaneSelectionEvent selection, final Overlay overlay, final String... labels) {
         m_startPoint = getDragPoint();
         final RectangleOverlayElement element =
-                new RectangleOverlayElement(selection.getPlanePos(e.getPosX(), e.getPosY()),
-                        selection.getDimIndices(), labels);
+                new RectangleOverlayElement(selection.getPlanePos(e.getPosX(), e.getPosY()), selection.getDimIndices(),
+                        labels);
         overlay.addElement(element);
         element.setRectangle(m_startPoint[selection.getPlaneDimIndex1()], m_startPoint[selection.getPlaneDimIndex2()],
                              m_startPoint[selection.getPlaneDimIndex1()], m_startPoint[selection.getPlaneDimIndex2()]);
@@ -96,20 +94,16 @@ public class AnnotatorRectangleTool extends AnnotationDrawingTool<RectangleOverl
     }
 
     @Override
-    public void onMouseReleasedLeft(final ImgViewerMouseEvent e,
-                                    final RectangleOverlayElement currentOverlayElement,
-                                    final PlaneSelectionEvent selection, final Overlay overlay,
-                                    final String... labels) {
+    public void onMouseReleasedLeft(final ImgViewerMouseEvent e, final RectangleOverlayElement currentOverlayElement,
+                                    final PlaneSelectionEvent selection, final Overlay overlay, final String... labels) {
         currentOverlayElement.setStatus(OverlayElementStatus.ACTIVE);
         fireStateChanged();
 
     }
 
     @Override
-    public void onMouseDraggedLeft(final ImgViewerMouseEvent e,
-                                   final RectangleOverlayElement currentOverlayElement,
-                                   final PlaneSelectionEvent selection, final Overlay overlay,
-                                   final String... labels) {
+    public void onMouseDraggedLeft(final ImgViewerMouseEvent e, final RectangleOverlayElement currentOverlayElement,
+                                   final PlaneSelectionEvent selection, final Overlay overlay, final String... labels) {
 
         if (currentOverlayElement.getStatus() == OverlayElementStatus.DRAWING) {
             currentOverlayElement.setRectangle(m_startPoint[selection.getPlaneDimIndex1()],

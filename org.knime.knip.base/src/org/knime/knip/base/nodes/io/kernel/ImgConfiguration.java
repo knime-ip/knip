@@ -67,9 +67,9 @@ import javax.swing.event.ChangeListener;
 
 import net.imglib2.img.Img;
 import net.imglib2.meta.Axes;
-import net.imglib2.meta.DefaultCalibratedAxis;
 import net.imglib2.meta.DefaultCalibratedSpace;
 import net.imglib2.meta.ImgPlus;
+import net.imglib2.meta.axis.DefaultLinearAxis;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.node.InvalidSettingsException;
@@ -85,7 +85,7 @@ import org.knime.knip.core.ui.imgviewer.panels.providers.ImageRU;
 
 /**
  * TODO Auto-generated
- *
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -245,7 +245,7 @@ public abstract class ImgConfiguration<T extends RealType<T>> extends Serializab
         final Img<T> img = m_imgs[index];
         final DefaultCalibratedSpace cs = new DefaultCalibratedSpace(img.numDimensions());
         for (int i = 0; i < img.numDimensions(); i++) {
-            cs.setAxis(new DefaultCalibratedAxis(Axes.get("X" + i)), i);
+            cs.setAxis(new DefaultLinearAxis(Axes.get("X" + i)), i);
         }
         m_view.setImg(new ImgPlus<T>(img));
     }

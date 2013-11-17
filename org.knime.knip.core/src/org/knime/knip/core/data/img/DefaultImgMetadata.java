@@ -48,14 +48,9 @@
  */
 package org.knime.knip.core.data.img;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.imglib2.display.ColorTable;
-import net.imglib2.meta.Axes;
 import net.imglib2.meta.CalibratedAxis;
 import net.imglib2.meta.CalibratedSpace;
-import net.imglib2.meta.DefaultCalibratedAxis;
 import net.imglib2.meta.ImageMetadata;
 import net.imglib2.meta.ImgPlusMetadata;
 import net.imglib2.meta.Named;
@@ -101,18 +96,6 @@ public final class DefaultImgMetadata extends AbstractGeneralMetadata implements
                               final ImageMetadata imageMetadata) {
         super(cs, named, sourced);
         m_imageMetadata = imageMetadata;
-    }
-
-    /**
-     * @param axes
-     * @return
-     */
-    private static List<CalibratedAxis> createCalibratedAxis(final String[] axes) {
-        List<CalibratedAxis> list = new ArrayList<CalibratedAxis>();
-        for (int s = 0; s < axes.length; s++) {
-            list.add(new DefaultCalibratedAxis(Axes.get(axes[s])));
-        }
-        return list;
     }
 
     @Override

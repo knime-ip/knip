@@ -49,7 +49,7 @@
 package org.knime.knip.core.awt.converter;
 
 import net.imglib2.converter.Converter;
-import net.imglib2.display.projectors.ProjectedDimSampler;
+import net.imglib2.display.projectors.sampler.ProjectedSampler;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.RealType;
 
@@ -60,7 +60,7 @@ import net.imglib2.type.numeric.RealType;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class RealColorARGBConverter<R extends RealType<R>> implements Converter<ProjectedDimSampler<R>, ARGBType> {
+public class RealColorARGBConverter<R extends RealType<R>> implements Converter<ProjectedSampler<R>, ARGBType> {
 
     private final double m_localMin;
 
@@ -74,7 +74,7 @@ public class RealColorARGBConverter<R extends RealType<R>> implements Converter<
     }
 
     @Override
-    public void convert(final ProjectedDimSampler<R> input, final ARGBType output) {
+    public void convert(final ProjectedSampler<R> input, final ARGBType output) {
 
         int i = 0;
         final int[] rgb = new int[3];

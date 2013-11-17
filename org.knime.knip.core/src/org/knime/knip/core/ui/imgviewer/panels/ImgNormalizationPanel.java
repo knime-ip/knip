@@ -140,11 +140,19 @@ public class ImgNormalizationPanel<T extends RealType<T>, I extends Img<T>> exte
                 m_eventService.publish(new ImgRedrawEvent());
             }
         });
-        final JLabel saturation = new JLabel("Saturation (%):");
-        m_sat = new JLabel("             " + sat + "%");
-        m_sat.setEnabled(false);
+
         add(m_normalize);
-        add(saturation);
+
+        Box saturationBox = Box.createHorizontalBox();
+        saturationBox.add(Box.createHorizontalGlue());
+        final JLabel saturation = new JLabel("Saturation (%):");
+        m_sat = new JLabel(sat + "%");
+        m_sat.setEnabled(false);
+        saturationBox.add(saturation);
+        saturationBox.add(Box.createHorizontalGlue());
+
+        add(saturationBox);
+
         // DO NOT CHANGE THE SLIDER W
         m_saturationSlider = new JSlider(0, SATURATION_SLIDER_MAX);
         m_saturationSlider.setValue((int)(sat * SATURATION_SLIDER_FACTOR));
@@ -156,7 +164,7 @@ public class ImgNormalizationPanel<T extends RealType<T>, I extends Img<T>> exte
                         / SATURATION_SLIDER_FACTOR, m_normalize.isSelected()));
                 m_eventService.publish(new ImgRedrawEvent());
                 final float percent = m_saturationSlider.getValue() / SATURATION_SLIDER_FACTOR;
-                m_sat.setText("             " + percent + "%");
+                m_sat.setText(percent + "%");
             }
         });
 

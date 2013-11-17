@@ -52,7 +52,7 @@ package org.knime.knip.core.ui.imgviewer.panels.providers;
 import java.awt.Image;
 
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.display.ScreenImage;
+import net.imglib2.display.projectors.screenimages.ScreenImage;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.ops.img.UnaryRelationAssigment;
 import net.imglib2.ops.relation.real.unary.RealGreaterThanConstant;
@@ -71,15 +71,14 @@ import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 
 /**
  * Renders either the original image using a selected renderer or the thresholded image.
- *
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
- *
+ * 
  * @param <T> numeric type of the image that is thresholded.
  */
 public class ThresholdRU<T extends RealType<T>> extends AbstractDefaultRU<BitType> {
-
 
     /** can be used instead of the threshold rendering if the selection is deactivated. */
     private ImageRU<T> m_imageRenderer = new ImageRU<T>();
@@ -91,7 +90,6 @@ public class ThresholdRU<T extends RealType<T>> extends AbstractDefaultRU<BitTyp
     private RandomAccessibleInterval<T> m_src;
 
     private double m_thresholdVal;
-
 
     @Override
     public Image createImage() {
@@ -165,6 +163,7 @@ public class ThresholdRU<T extends RealType<T>> extends AbstractDefaultRU<BitTyp
 
     /**
      * set all members that could hold expensive references to null or resets them to allow storage clean ups.
+     * 
      * @param event marker event
      */
     @EventListener
@@ -181,6 +180,5 @@ public class ThresholdRU<T extends RealType<T>> extends AbstractDefaultRU<BitTyp
         super.setEventService(service);
         m_imageRenderer.setEventService(service);
     }
-
 
 }

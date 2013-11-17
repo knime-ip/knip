@@ -54,8 +54,8 @@ import java.util.List;
 import java.util.Set;
 
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.display.ARGBScreenImage;
-import net.imglib2.display.projectors.Abstract2DProjector;
+import net.imglib2.display.projectors.Projector2D;
+import net.imglib2.display.projectors.screenimages.ARGBScreenImage;
 import net.imglib2.labeling.LabelingMapping;
 import net.imglib2.labeling.LabelingType;
 import net.imglib2.type.numeric.ARGBType;
@@ -67,7 +67,6 @@ import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableRenderer;
 import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableUtils;
 import org.knime.knip.core.awt.parametersupport.RendererWithHilite;
 import org.knime.knip.core.awt.parametersupport.RendererWithLabels;
-import org.knime.knip.core.awt.specializedrendering.Projector2D;
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter.Operator;
 
 /**
@@ -79,6 +78,11 @@ import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter.Operator;
  */
 public class ColorLabelingRenderer<L extends Comparable<L>> extends ProjectingRenderer<LabelingType<L>> implements
         RendererWithLabels<L>, RendererWithHilite, LabelingColorTableRenderer {
+
+    /**
+     * RENDERER_NAME.
+     */
+    public static final String RENDERER_NAME = "Random Color Labeling Renderer";
 
     private static int WHITE_RGB = Color.WHITE.getRGB();
 
@@ -138,7 +142,7 @@ public class ColorLabelingRenderer<L extends Comparable<L>> extends ProjectingRe
     }
 
     @Override
-    protected Abstract2DProjector<LabelingType<L>, ARGBType>
+    protected Projector2D<LabelingType<L>, ARGBType>
             getProjector(final int dimX, final int dimY, final RandomAccessibleInterval<LabelingType<L>> source,
                          final ARGBScreenImage target) {
 

@@ -55,8 +55,8 @@ import java.util.Set;
 import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.display.ARGBScreenImage;
-import net.imglib2.display.ScreenImage;
+import net.imglib2.display.projectors.screenimages.ARGBScreenImage;
+import net.imglib2.display.projectors.screenimages.ScreenImage;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingMapping;
 import net.imglib2.labeling.LabelingType;
@@ -72,13 +72,18 @@ import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter.Operator;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 public class BoundingBoxLabelRenderer<L extends Comparable<L> & Type<L>> implements ImageRenderer<LabelingType<L>>,
         RendererWithLabels<L>, RendererWithHilite {
+
+    /**
+     * RENDERER_NAME.
+     */
+    public static final String RENDERER_NAME = "Bounding Box Renderer";
 
     private final Color HILITED_RGB_COLOR = new Color(LabelingColorTableUtils.HILITED_RGB);
 
@@ -144,7 +149,7 @@ public class BoundingBoxLabelRenderer<L extends Comparable<L> & Type<L>> impleme
         for (final L label : subLab.getLabels()) {
 
             // test hilite
-            if ((m_hilitedLabels != null) && m_hilitedLabels.contains(label)) {
+            if ((m_hilitedLabels != null) && m_hilitedLabels.contains(label.toString())) {
                 g.setColor(HILITED_RGB_COLOR);
             } else {
                 g.setColor(getBOX_RGB_COLOR());
@@ -158,7 +163,7 @@ public class BoundingBoxLabelRenderer<L extends Comparable<L> & Type<L>> impleme
             }
 
             // test active labels (null = all active)
-            if ((activeLabels == null) || activeLabels.contains(label)) {
+            if ((activeLabels == null) || activeLabels.contains(label.toString())) {
 
                 final IterableRegionOfInterest roi = subLab.getIterableRegionOfInterest(label);
                 final Interval ii = roi.getIterableIntervalOverROI(subLab);
@@ -214,8 +219,8 @@ public class BoundingBoxLabelRenderer<L extends Comparable<L> & Type<L>> impleme
      * explicitly defines a color for labelings and bounding boxes instead of using the color defined in the
      * SegmentColorTable. This is useful if e.g. the color has been defined during config time and should not depend the
      * SegmentColorTable.
-     * 
-     * 
+     *
+     *
      * @param bbColor a color for bounding boxes and labels or <code>null</code> to restore the default behavior (
      *            <code>SegmentColorTable.getBoundingBoxColor()</code>)
      */

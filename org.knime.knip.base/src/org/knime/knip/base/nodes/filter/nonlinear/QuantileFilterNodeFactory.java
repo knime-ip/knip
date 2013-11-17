@@ -53,7 +53,9 @@ import java.util.List;
 import net.imglib2.converter.read.ConvertedRandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.meta.ImgPlus;
+import net.imglib2.ops.operation.ImgOperations;
 import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.ops.operation.iterableinterval.unary.QuantileFilter;
 import net.imglib2.ops.operation.real.unary.Convert;
 import net.imglib2.ops.operation.real.unary.Convert.TypeConversionTypes;
@@ -73,10 +75,9 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
-import org.knime.knip.core.ops.img.ImgPlusToImgPlusWrapperOp;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -179,10 +180,9 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
 
                 ImgPlus<UnsignedByteType> wrappedImgPlus = new ImgPlus<UnsignedByteType>(unsignedByteTypeImg, inImg);
 
-                ImgPlusToImgPlusWrapperOp<UnsignedByteType, UnsignedByteType> wrappedOp =
-                        new ImgPlusToImgPlusWrapperOp<UnsignedByteType, UnsignedByteType>(
-                                new QuantileFilter<UnsignedByteType>(m_smRadius.getIntValue(),
-                                        m_smQuantile.getIntValue()), new UnsignedByteType());
+                UnaryOutputOperation<ImgPlus<UnsignedByteType>, ImgPlus<UnsignedByteType>> wrappedOp =
+                        ImgOperations.wrapRA(new QuantileFilter<UnsignedByteType>(m_smRadius.getIntValue(),
+                                m_smQuantile.getIntValue()), new UnsignedByteType());
 
                 final Img<UnsignedByteType> unsignedByteTypeResImg =
                         SubsetOperations.iterate(wrappedOp, m_smDimSel.getSelectedDimIndices(inImg), wrappedImgPlus,

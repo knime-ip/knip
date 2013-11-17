@@ -53,6 +53,7 @@ import java.util.List;
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.meta.ImgPlus;
+import net.imglib2.ops.operation.ImgOperations;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.type.numeric.RealType;
@@ -69,10 +70,17 @@ import org.knime.knip.core.util.ImgPlusFactory;
 /**
  * Factory class to produce an image inverter node.
  *
+<<<<<<< HEAD
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @param <K>
+=======
+ * @param <T>
+ *
+ * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
+ * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
+>>>>>>> origin/master
  */
 public class CLAHENodeFactory<T extends RealType<T>, K extends RandomAccessibleInterval<T> & IterableInterval<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
 
@@ -143,11 +151,19 @@ public class CLAHENodeFactory<T extends RealType<T>, K extends RandomAccessibleI
 
             @Override
             protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> op(final ImgPlus<T> imgPlus) {
+<<<<<<< HEAD
 
                 FastCLAHE<T> clahe = new FastCLAHE<T>(m_ctxX.getIntValue(), m_ctxY.getIntValue(), m_numberOfBins.getIntValue(), m_slope.getIntValue());
 
                 return Operations.wrap(new ImgPlusToImgPlusWrapperOp<T, T>(clahe, imgPlus.firstElement()
                         .createVariable()), ImgPlusFactory.<T, T> get(imgPlus.firstElement()));
+=======
+                return Operations
+                        .wrap(ImgOperations.wrapRA(new CLAHE<T>(m_ctxRegionsX.getIntValue(), m_ctxRegionsY
+                                                           .getIntValue(), m_enableClipping.getBooleanValue()), imgPlus
+                                                           .firstElement().createVariable()), ImgPlusFactory
+                                .<T, T> get(imgPlus.firstElement()));
+>>>>>>> origin/master
             }
 
             @Override

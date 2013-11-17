@@ -65,47 +65,47 @@ import org.knime.knip.base.nodes.view.TableCellViewNodeView;
  *         Zinsmaier</a>
  */
 public class OverlayAnnotatorNodeFactory<T extends RealType<T> & NativeType<T>>
-		extends NodeFactory<OverlayAnnotatorNodeModel<T>> {
+        extends NodeFactory<OverlayAnnotatorNodeModel<T>> {
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public OverlayAnnotatorNodeModel<T> createNodeModel() {
-		return new OverlayAnnotatorNodeModel<T>();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OverlayAnnotatorNodeModel<T> createNodeModel() {
+        return new OverlayAnnotatorNodeModel<T>();
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int getNrNodeViews() {
-		return 1;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getNrNodeViews() {
+        return 1;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	@Override
-	public NodeView<OverlayAnnotatorNodeModel<T>> createNodeView(final int i,
-			final OverlayAnnotatorNodeModel<T> nodeModel) {
-		return new TableCellViewNodeView(nodeModel);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    @Override
+    public NodeView<OverlayAnnotatorNodeModel<T>> createNodeView(final int i,
+            final OverlayAnnotatorNodeModel<T> nodeModel) {
+        return new TableCellViewNodeView(nodeModel);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public NodeDialogPane createNodeDialogPane() {
-		return new OverlayAnnotatorNodeDialog<T>();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public NodeDialogPane createNodeDialogPane() {
+        return new OverlayAnnotatorNodeDialog<T>();
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean hasDialog() {
-		return true;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean hasDialog() {
+        return true;
+    }
 }

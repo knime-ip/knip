@@ -60,12 +60,12 @@ import net.imglib2.roi.RectangleRegionOfInterest;
 import org.knime.knip.core.ui.imgviewer.overlay.OverlayElement2D;
 
 /**
- *
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
- *
- * TODO 2.0.0 move to "elements" package
+ * 
+ *         TODO 2.0.0 move to "elements" package
  */
 public class PointOverlayElement extends OverlayElement2D {
 

@@ -160,10 +160,8 @@ public class LabelingToImgNodeFactory<L extends Comparable<L>, V extends Integer
 
                 convert.compute(lab.getStorageImg(), out);
 
-                // TODO: More general way of copying?
                 for (int a = 0; a < cellValue.getDimensions().length; a++) {
-                    out.setAxis(cellValue.getLabelingMetadata().axis(a), a);
-                    out.setCalibration(cellValue.getLabelingMetadata().calibration(a), a);
+                    out.setAxis(cellValue.getLabelingMetadata().axis(a).copy(), a);
                 }
 
                 out.setSource(cellValue.getLabelingMetadata().getSource());

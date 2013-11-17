@@ -70,7 +70,7 @@ import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
 /**
  * Renders the overlay primitives that affect the currently selected plane in a 2D image on top of a background image.
  * The background image is included to allow live updates during drawing without the need to blend images together.
- *
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -163,7 +163,7 @@ public class OverlayRU<L extends Comparable<L>> extends AbstractDefaultRU<Labeli
 
     /**
      * The transparency value determines how the overlay is rendered on top of the image.
-     *
+     * 
      * @param e transparency value used for blending
      */
     @EventListener
@@ -173,7 +173,7 @@ public class OverlayRU<L extends Comparable<L>> extends AbstractDefaultRU<Labeli
 
     /**
      * set all members that could hold expensive references to null or resets them to allow storage clean ups.
-     *
+     * 
      * @param event marker event
      */
     @EventListener
@@ -183,7 +183,7 @@ public class OverlayRU<L extends Comparable<L>> extends AbstractDefaultRU<Labeli
     }
 
     /**
-     * @param event  {@link #onClose2()}
+     * @param event {@link #onClose2()}
      */
     @EventListener
     public void onAnnotatorReset(final AnnotatorResetEvent event) {

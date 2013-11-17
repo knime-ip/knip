@@ -56,8 +56,8 @@ import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.meta.Axes;
 import net.imglib2.meta.AxisType;
-import net.imglib2.meta.DefaultCalibratedAxis;
 import net.imglib2.meta.ImgPlus;
+import net.imglib2.meta.axis.DefaultLinearAxis;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
@@ -272,7 +272,7 @@ public class ImgGenerator {
 
         int d = 0;
         for (final AxisType a : m_axisList) {
-            imgPlus.setAxis(new DefaultCalibratedAxis(a), d++);
+            imgPlus.setAxis(new DefaultLinearAxis(a), d++);
         }
 
         return imgPlus;

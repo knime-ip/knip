@@ -62,6 +62,7 @@ import org.knime.knip.core.io.externalization.externalizers.CalibratedSpaceExt0;
 import org.knime.knip.core.io.externalization.externalizers.CellImgExt0;
 import org.knime.knip.core.io.externalization.externalizers.ClassExt0;
 import org.knime.knip.core.io.externalization.externalizers.DefaultLabelingColorTableExt0;
+import org.knime.knip.core.io.externalization.externalizers.DefaultLinearSpaceExt0;
 import org.knime.knip.core.io.externalization.externalizers.ImageMetadataExt0;
 import org.knime.knip.core.io.externalization.externalizers.ImageMetadataExt1;
 import org.knime.knip.core.io.externalization.externalizers.ImgExt0;
@@ -131,6 +132,8 @@ public final class ExternalizerManager {
 
         registerExternalizer(new ImageMetadataExt1());
         registerExternalizer(new ImgMetadataExt1());
+
+        registerExternalizer(new DefaultLinearSpaceExt0());
 
         registerExtensionPoints();
 

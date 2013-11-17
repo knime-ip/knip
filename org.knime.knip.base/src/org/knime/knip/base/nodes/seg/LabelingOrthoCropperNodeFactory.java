@@ -54,9 +54,7 @@ import java.util.List;
 import net.imglib2.Interval;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.NativeImgLabeling;
-import net.imglib2.meta.Axes;
 import net.imglib2.meta.CalibratedAxis;
-import net.imglib2.meta.DefaultCalibratedAxis;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.labeling.unary.MergeLabelings;
 import net.imglib2.ops.operation.subset.views.LabelingView;
@@ -168,8 +166,7 @@ public class LabelingOrthoCropperNodeFactory<L extends Comparable<L>> extends Va
                     final List<CalibratedAxis> validAxes = new ArrayList<CalibratedAxis>();
                     for (int d = 0; d < lab.numDimensions(); d++) {
                         if (!mergeOp.getInvalidDims().contains(d)) {
-                            validAxes.add(new DefaultCalibratedAxis(Axes.get(cellValue.getLabelingMetadata().axis(d)
-                                    .toString())));
+                            validAxes.add((CalibratedAxis)cellValue.getLabelingMetadata().axis(d).copy());
                         }
 
                     }

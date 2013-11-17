@@ -73,7 +73,7 @@ import org.knime.knip.core.features.SharesObjects;
 import org.knime.knip.core.util.ImgUtils;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -92,7 +92,7 @@ public class SegmentFeatureSet implements FeatureSet, SharesObjects {
 
     private final CalculatePerimeter m_calculatePerimeter;
 
-    private final ConvexHull2D<Img<BitType>> m_convexityOp;
+    private final ConvexHull2D m_convexityOp;
 
     private final CalculateDiameter m_calculateDiameter;
 
@@ -119,7 +119,7 @@ public class SegmentFeatureSet implements FeatureSet, SharesObjects {
         super();
         m_calculatePerimeter = new CalculatePerimeter();
         m_outlineOp = new ExtractOutlineImg(false);
-        m_convexityOp = new ConvexHull2D<Img<BitType>>(0, 1, false);
+        m_convexityOp = new ConvexHull2D(0, 1, false);
         m_calculateDiameter = new CalculateDiameter();
         m_defaultAxis = defaultAxes.clone();
         m_features = getFeatures(defaultAxes);
@@ -173,13 +173,13 @@ public class SegmentFeatureSet implements FeatureSet, SharesObjects {
         if (m_enabled.get(m_defaultAxis.length + 1) || m_enabled.get(m_defaultAxis.length + 2)
                 || m_enabled.get(m_defaultAxis.length + 3) || m_enabled.get(m_defaultAxis.length + 5)) {
             if (activeDims > 2) {
-                m_solidity = Double.NaN;
-                m_perimeter = Double.NaN;
-                m_circularity = Double.NaN;
-                m_diameter = Double.NaN;
+                m_solidity = 0;
+                m_perimeter = 0;
+                m_circularity = 0;
+                m_diameter = 0;
 
                 throw new IllegalArgumentException(
-                        "Perimeter, Convexity and Circularity and Diameter can only be calculated on two dimensional ROIs containing at least two pixels. Settings them to Double.NaN");
+                        "Perimeter, Convexity and Circularity and Diameter can only be calculated on two dimensional ROIs containing at least two pixels. Setting them to zero");
 
             } else {
 
@@ -205,11 +205,11 @@ public class SegmentFeatureSet implements FeatureSet, SharesObjects {
                         m_solidity = interval.size() / ctr;
 
                     } else {
-                        m_circularity = Double.NaN;
-                        m_solidity = Double.NaN;
+                        m_circularity = 0;
+                        m_solidity = 0;
 
                         throw new IllegalArgumentException(
-                                "Perimeter, Convexity and Circularity and Diameter can only be calculated on two dimensional ROIs containing at least two pixels. Settings them to Double.NaN");
+                                "Perimeter, Convexity and Circularity and Diameter can only be calculated on two dimensional ROIs containing at least two pixels. Setting them to zero");
                     }
 
                 }

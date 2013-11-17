@@ -51,6 +51,7 @@ package org.knime.knip.base.nodes.proc.binary;
 import java.util.List;
 
 import net.imglib2.meta.ImgPlus;
+import net.imglib2.ops.operation.ImgOperations;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.ConvexHull2D;
@@ -117,8 +118,9 @@ public final class ConvexHullNodeFactory extends ImgPlusToImgPlusNodeFactory<Bit
                     throw new ImageTypeNotCompatibleException("fill holes", imgPlus.firstElement(), BitType.class);
                 }
 
-                return Operations.wrap(new ConvexHull2D<ImgPlus<BitType>>(0, 1, m_fillHull.getBooleanValue()),
-                                       ImgPlusFactory.<BitType, BitType> get(imgPlus.firstElement()));
+                return Operations.wrap(ImgOperations.wrapRA(new ConvexHull2D(0, 1,
+                        m_fillHull.getBooleanValue()), new BitType()), ImgPlusFactory.<BitType, BitType> get(imgPlus
+                        .firstElement()));
             }
 
             @Override

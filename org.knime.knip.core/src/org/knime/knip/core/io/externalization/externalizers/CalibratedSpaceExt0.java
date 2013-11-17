@@ -49,7 +49,7 @@
 package org.knime.knip.core.io.externalization.externalizers;
 
 import net.imglib2.meta.Axes;
-import net.imglib2.meta.DefaultCalibratedAxis;
+import net.imglib2.meta.axis.DefaultLinearAxis;
 
 import org.knime.knip.core.data.img.CalibratedAxisSpace;
 import org.knime.knip.core.data.img.DefaultCalibratedAxisSpace;
@@ -59,10 +59,14 @@ import org.knime.knip.core.io.externalization.Externalizer;
 
 /**
  * 
+ * Former serialization of CalibratedSpace. Only supporting de-serialization of DefaultLinearSpace. Use proper
+ * implementations for CalibratedSpaces (see e.g. LinearSpaceExt0.java)
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
+@Deprecated
 public class CalibratedSpaceExt0 implements Externalizer<CalibratedAxisSpace> {
 
     /**
@@ -99,8 +103,9 @@ public class CalibratedSpaceExt0 implements Externalizer<CalibratedAxisSpace> {
         for (int d = 0; d < numDims; d++) {
             final char[] label = new char[in.readInt()];
             in.read(label);
-            res.setAxis(new DefaultCalibratedAxis(Axes.get(String.valueOf(label))), d);
-            res.setCalibration(in.readDouble(), d);
+            DefaultLinearAxis axis = new DefaultLinearAxis(Axes.get(String.valueOf(label)));
+            axis.setScale(in.readDouble());
+            res.setAxis(axis, d);
         }
         return res;
     }
@@ -115,13 +120,13 @@ public class CalibratedSpaceExt0 implements Externalizer<CalibratedAxisSpace> {
             final char[] label = obj.axis(d).type().getLabel().toCharArray();
             out.writeInt(label.length);
             out.write(label);
-            if (Double.isNaN(obj.calibration(d))) {
+
+            double scale = obj.axis(d).averageScale(0, 1);
+            if (Double.isNaN(scale)) {
                 out.writeDouble(0.0d);
             } else {
-                out.writeDouble(obj.calibration(d));
+                out.writeDouble(scale);
             }
         }
-
     }
-
 }

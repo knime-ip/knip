@@ -54,10 +54,7 @@ import java.util.List;
 import net.imglib2.Interval;
 import net.imglib2.IterableInterval;
 import net.imglib2.img.Img;
-import net.imglib2.meta.Axes;
 import net.imglib2.meta.CalibratedAxis;
-import net.imglib2.meta.CalibratedSpace;
-import net.imglib2.meta.DefaultCalibratedAxis;
 import net.imglib2.meta.DefaultCalibratedSpace;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.Operations;
@@ -86,7 +83,10 @@ import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.util.EnumListProvider;
 
 /**
- * 
+ * ImgCropperNodeFactory
+ *
+ * @param <T>
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -199,27 +199,15 @@ public class ImgCropperNodeFactory<T extends RealType<T> & NativeType<T>> extend
 
                     final Img<T> res = Operations.compute(mergeOp, iis);
 
-                    final List<String> validAxes = new ArrayList<String>();
+                    final List<CalibratedAxis> validAxes = new ArrayList<CalibratedAxis>();
                     for (int d = 0; d < img.numDimensions(); d++) {
                         if (!mergeOp.getInvalidDims().contains(d)) {
-                            validAxes.add(cellValue.getMetadata().axis(d).type().getLabel());
+                            validAxes.add(cellValue.getMetadata().axis(d).copy());
                         }
-
                     }
 
-                    int i = 0;
-                    final double[] calibration = new double[validAxes.size()];
-                    CalibratedAxis[] axes = new CalibratedAxis[calibration.length];
-                    for (final String axis : validAxes) {
-                        final int axisIndex = img.dimensionIndex(Axes.get(axis));
-                        calibration[i] = img.calibration(axisIndex);
-                        axes[i++] = new DefaultCalibratedAxis(Axes.get(axis));
-                    }
-
-                    final CalibratedSpace<CalibratedAxis> spaceImpl = new DefaultCalibratedSpace(axes);
-                    spaceImpl.setCalibration(calibration);
-
-                    final DefaultImgMetadata metadata = new DefaultImgMetadata(spaceImpl, img, img, img);
+                    final DefaultImgMetadata metadata =
+                            new DefaultImgMetadata(new DefaultCalibratedSpace(validAxes), img, img, img);
 
                     metadata.setSource(img.getSource());
                     metadata.setName(img.getName());

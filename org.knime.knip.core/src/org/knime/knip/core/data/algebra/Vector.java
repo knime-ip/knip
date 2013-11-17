@@ -42,11 +42,12 @@ public class Vector extends Point implements Cloneable {
      * Length (magnitude)
      */
     public long length() {
-        long l = 0;
-        // TODO overflows???
+        double l = 0;
+
         for (int i = 0; i < numDimensions(); i++) {
             l += getLongPosition(i) * getLongPosition(i);
         }
+
         return (long)Math.sqrt(l);
     }
 

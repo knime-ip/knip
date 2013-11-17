@@ -1,15 +1,18 @@
 package org.knime.knip.core.data.img;
 
+import net.imglib2.meta.AbstractCalibratedSpace;
 import net.imglib2.meta.CalibratedAxis;
 import net.imglib2.meta.CalibratedSpace;
-import net.imglib2.meta.DefaultCalibratedSpace;
 
 /*
  * Simple marker class
  *
+ * Depracted: Use concrete implementations of CalibratedAxisSpace
+ *
  * @author zinsmaie
  */
-public class DefaultCalibratedAxisSpace extends DefaultCalibratedSpace implements CalibratedAxisSpace {
+@Deprecated
+public class DefaultCalibratedAxisSpace extends AbstractCalibratedSpace<CalibratedAxis> implements CalibratedAxisSpace {
 
     public DefaultCalibratedAxisSpace(final int numDims) {
         super(numDims);
@@ -21,9 +24,7 @@ public class DefaultCalibratedAxisSpace extends DefaultCalibratedSpace implement
     public DefaultCalibratedAxisSpace(final CalibratedSpace<CalibratedAxis> obj) {
         super(obj.numDimensions());
         for (int d = 0; d < obj.numDimensions(); d++) {
-            setAxis(obj.axis(d), d);
-            setCalibration(obj.calibration(d), d);
-            setUnit(obj.unit(d), d);
+            setAxis((CalibratedAxis)obj.axis(d).copy(), d);
         }
     }
 }

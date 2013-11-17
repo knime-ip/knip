@@ -59,8 +59,8 @@ import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingType;
 import net.imglib2.meta.Axes;
 import net.imglib2.meta.CalibratedAxis;
-import net.imglib2.meta.DefaultCalibratedAxis;
 import net.imglib2.meta.ImgPlus;
+import net.imglib2.meta.axis.DefaultLinearAxis;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
@@ -262,7 +262,7 @@ public class LabelingToRGBImgNodeFactory<T extends RealType<T>, L extends Compar
 
                 final CalibratedAxis[] axes = new CalibratedAxis[res.numDimensions()];
                 cellValue.getLabelingMetadata().axes(axes);
-                axes[axes.length - 1] = new DefaultCalibratedAxis(Axes.get("Channel"));
+                axes[axes.length - 1] = new DefaultLinearAxis(Axes.get("Channel"));
 
                 ImgPlus<UnsignedByteType> resImgPlus = new ImgPlus<UnsignedByteType>(res);
                 for (int d = 0; d < resImgPlus.numDimensions(); d++) {

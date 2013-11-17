@@ -49,14 +49,13 @@
 package org.knime.knip.core.awt;
 
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.display.ARGBScreenImage;
-import net.imglib2.display.projectors.Abstract2DProjector;
+import net.imglib2.display.projectors.Projector2D;
+import net.imglib2.display.projectors.screenimages.ARGBScreenImage;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.knip.core.awt.lookup.LookupTable;
 import org.knime.knip.core.awt.parametersupport.RendererWithLookupTable;
-import org.knime.knip.core.awt.specializedrendering.Projector2D;
 import org.knime.knip.core.awt.specializedrendering.RealGreyARGBByLookupTableConverter;
 
 /**
@@ -111,9 +110,9 @@ public class Real2ColorByLookupTableRenderer<T extends RealType<T>> extends Proj
     }
 
     @Override
-    protected Abstract2DProjector<T, ARGBType> getProjector(final int dimX, final int dimY,
-                                                            final RandomAccessibleInterval<T> source,
-                                                            final ARGBScreenImage target) {
+    protected Projector2D<T, ARGBType> getProjector(final int dimX, final int dimY,
+                                                    final RandomAccessibleInterval<T> source,
+                                                    final ARGBScreenImage target) {
         return new Projector2D<T, ARGBType>(dimX, dimY, source, target, m_converter);
     }
 }

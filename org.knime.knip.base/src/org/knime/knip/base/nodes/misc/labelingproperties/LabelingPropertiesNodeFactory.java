@@ -184,7 +184,7 @@ public class LabelingPropertiesNodeFactory<L extends Comparable<L>> extends Valu
                             for (int i = 0; i < (axes.length - 1); i++) {
                                 buf.append(axes[i].type().getLabel() + ";");
                             }
-                            buf.append(axes[axes.length - 1]);
+                            buf.append(axes[axes.length - 1].type().getLabel());
                             cells[ctr++] = new StringCell(buf.toString());
                             break;
                         case 7:
@@ -197,7 +197,8 @@ public class LabelingPropertiesNodeFactory<L extends Comparable<L>> extends Valu
                         case 9:
                             final List<DoubleCell> calibration = new ArrayList<DoubleCell>(dimsArray.length);
                             for (int i = 0; i < dimsArray.length; i++) {
-                                calibration.add(new DoubleCell(cellValue.getLabelingMetadata().calibration(i)));
+                                calibration.add(new DoubleCell(cellValue.getLabelingMetadata().axis(i)
+                                        .averageScale(0, 1)));
                             }
                             cells[ctr++] = CollectionCellFactory.createListCell(calibration);
                             break;

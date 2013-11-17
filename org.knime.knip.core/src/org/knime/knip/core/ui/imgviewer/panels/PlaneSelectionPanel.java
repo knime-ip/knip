@@ -80,9 +80,10 @@ import javax.swing.JScrollBar;
 import javax.swing.KeyStroke;
 
 import net.imglib2.Interval;
-import net.imglib2.meta.CalibratedSpace;
+import net.imglib2.meta.LinearSpace;
 import net.imglib2.meta.TypedAxis;
 import net.imglib2.meta.TypedSpace;
+import net.imglib2.meta.axis.LinearAxis;
 import net.imglib2.type.Type;
 
 import org.knime.knip.core.ui.event.EventListener;
@@ -358,7 +359,6 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
         }
     }
 
-    @SuppressWarnings("rawtypes")
     private void fireCalibrationEvent() {
         // calculate calibration values
         final double[] scaleFactors = new double[m_dims.length];
@@ -367,9 +367,13 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
             scaleFactors[i] = 1.0d;
         }
 
-        if (m_useCalibration && (m_calibratedSpace != null) && m_calibratedSpace instanceof CalibratedSpace) {
+        //TODO: Make it possible to use non-linear axis
+        if (m_useCalibration && (m_calibratedSpace != null) && m_calibratedSpace instanceof LinearSpace) {
             final double[] tmpFactors = new double[scaleFactors.length];
-            ((CalibratedSpace)m_calibratedSpace).calibration(tmpFactors);
+
+            for (int d = 0; d < scaleFactors.length; d++) {
+                tmpFactors[d] = ((LinearAxis)m_calibratedSpace.axis(d)).scale();
+            }
 
             double min = Double.MAX_VALUE;
             boolean foundAFactor = false;

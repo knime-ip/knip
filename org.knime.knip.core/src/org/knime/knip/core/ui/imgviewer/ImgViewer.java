@@ -125,7 +125,7 @@ import org.knime.knip.core.ui.imgviewer.events.LabelingWithMetadataChgEvent;
 /**
  * A TableCellViewPane providing another view on image objects. It allows to browser through the individual
  * planes/dimensions, enhance contrast, etc.
- *
+ * 
  * @param <T>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -201,12 +201,12 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
     /**
      * Adds the {@link ViewerComponent} to the {@link ImgViewer}
-     *
+     * 
      * @param panel {@link ViewerComponent} to be set
-     *
+     * 
      * @param setEventService indicates weather the {@link EventService} of the {@link ImgViewer} shall be set to the
      *            {@link ViewerComponent}
-     *
+     * 
      */
     public void addViewerComponent(final ViewerComponent panel, final boolean setEventService) {
 
@@ -247,7 +247,7 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
     /**
      * TODO
-     *
+     * 
      * @param labeling
      * @param metadata
      */
