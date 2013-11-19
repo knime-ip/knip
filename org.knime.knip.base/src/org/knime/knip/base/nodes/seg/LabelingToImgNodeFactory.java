@@ -54,8 +54,7 @@ import java.util.List;
 import net.imglib2.exception.IncompatibleTypeException;
 import net.imglib2.labeling.NativeImgLabeling;
 import net.imglib2.meta.ImgPlus;
-import net.imglib2.ops.operation.img.unary.ImgConvert;
-import net.imglib2.ops.operation.img.unary.ImgConvert.ImgConversionTypes;
+import net.imglib2.ops.operation.labeling.unary.LabelingToImg;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.type.numeric.RealType;
@@ -76,7 +75,7 @@ import org.knime.knip.core.util.EnumListProvider;
 
 /**
  * NodeFactory for the image to segmentation Node that converts double to integer values.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -134,7 +133,7 @@ public class LabelingToImgNodeFactory<L extends Comparable<L>, V extends Integer
 
             /**
              * {@inheritDoc}
-             * 
+             *
              * @throws IncompatibleTypeException
              */
             @SuppressWarnings({"rawtypes", "unchecked"})
@@ -154,11 +153,7 @@ public class LabelingToImgNodeFactory<L extends Comparable<L>, V extends Integer
                         new ImgPlus(ImgFactoryTypes.<NativeType> getImgFactory(facType, lab.getStorageImg())
                                 .imgFactory(outType).create(lab.getStorageImg(), outType));
 
-                final ImgConvert convert =
-                        new ImgConvert(lab.getStorageImg().firstElement().createVariable(), outType,
-                                ImgConversionTypes.DIRECTCLIP);
-
-                convert.compute(lab.getStorageImg(), out);
+                new LabelingToImg<L, V>().compute(lab, out);
 
                 for (int a = 0; a < cellValue.getDimensions().length; a++) {
                     out.setAxis(cellValue.getLabelingMetadata().axis(a).copy(), a);
