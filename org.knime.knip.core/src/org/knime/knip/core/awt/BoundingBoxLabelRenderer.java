@@ -60,8 +60,8 @@ import net.imglib2.display.screenimage.awt.AWTScreenImage;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingMapping;
 import net.imglib2.labeling.LabelingType;
+import net.imglib2.labeling.LabelingView;
 import net.imglib2.ops.operation.SubsetOperations;
-import net.imglib2.ops.operation.subset.views.LabelingView;
 import net.imglib2.roi.IterableRegionOfInterest;
 import net.imglib2.type.Type;
 

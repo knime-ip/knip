@@ -53,11 +53,10 @@ import net.imglib2.RandomAccess;
 import net.imglib2.RealInterval;
 import net.imglib2.img.Img;
 import net.imglib2.meta.ImgPlus;
-import net.imglib2.ops.operation.subset.views.ImgPlusView;
 import net.imglib2.type.Type;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -66,7 +65,7 @@ public class CursorTools {
 
     /**
      * Helper to set positions even though the position-array dimension and cursor dimension don't match.
-     * 
+     *
      * @param pos
      * @param access
      */
@@ -91,13 +90,6 @@ public class CursorTools {
         // If one is not an image
         if (!(a instanceof Img) || !(b instanceof Img)) {
             return a.iterationOrder().equals(b.iterationOrder());
-        }
-        // Cropped, Shifted, SubImg special types must have same
-        // intervals and
-        // source images with equal iteration order
-        if ((a instanceof ImgPlusView) && (b instanceof ImgPlusView)) {
-            return equalInterval(a, b)
-                    && equalIterationOrder(((ImgPlusView<?>)a).getImg(), ((ImgPlusView<?>)b).getImg());
         }
         // If not a pair of special types unpack the image plus type
         if (b instanceof ImgPlus) {

@@ -108,11 +108,11 @@ import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
 import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
 import net.imglib2.labeling.Labeling;
+import net.imglib2.labeling.LabelingView;
 import net.imglib2.meta.DefaultCalibratedSpace;
 import net.imglib2.meta.ImgPlus;
-import net.imglib2.ops.operation.subset.views.ImgPlusView;
-import net.imglib2.ops.operation.subset.views.LabelingView;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 
@@ -275,7 +275,7 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
         // make sure that at least two dimensions exist
         Img<T> img2d = img.getImg();
         if (img.numDimensions() <= 1) {
-            img2d = new ImgPlusView<T>(Views.addDimension(img, 0, 0), img.factory());
+            img2d = new ImgView<T>(Views.addDimension(img, 0, 0), img.factory());
         }
 
         //TODO special case: we have an imgview with an underlying img as source which has the same dimensions

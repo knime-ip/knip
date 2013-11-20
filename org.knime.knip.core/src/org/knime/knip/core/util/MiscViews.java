@@ -56,9 +56,11 @@ import net.imglib2.Interval;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.ImgFactory;
+import net.imglib2.img.ImgView;
 import net.imglib2.img.constant.ConstantCursor;
 import net.imglib2.labeling.LabelingFactory;
 import net.imglib2.labeling.LabelingType;
+import net.imglib2.labeling.LabelingView;
 import net.imglib2.meta.DefaultTypedAxis;
 import net.imglib2.meta.DefaultTypedSpace;
 import net.imglib2.meta.ImgPlus;
@@ -66,9 +68,6 @@ import net.imglib2.meta.MetadataUtil;
 import net.imglib2.meta.TypedAxis;
 import net.imglib2.meta.TypedSpace;
 import net.imglib2.ops.operation.SubsetOperations;
-import net.imglib2.ops.operation.subset.views.ImgPlusView;
-import net.imglib2.ops.operation.subset.views.ImgView;
-import net.imglib2.ops.operation.subset.views.LabelingView;
 import net.imglib2.sampler.special.ConstantRandomAccessible;
 import net.imglib2.type.Type;
 import net.imglib2.util.Intervals;
@@ -119,8 +118,8 @@ public class MiscViews {
             return ret;
         }
 
-        ImgPlusView<T> imgPlusView =
-                new ImgPlusView<T>(SubsetOperations.subsetview(ret.getImg(), ret.getImg()), ret.factory());
+        ImgPlus<T> imgPlusView =
+                new ImgPlus<T>(new ImgView<T>(SubsetOperations.subsetview(ret.getImg(), ret.getImg()), ret.factory()));
         MetadataUtil.copyAndCleanImgPlusMetadata(ret, ret, imgPlusView);
         return imgPlusView;
     }

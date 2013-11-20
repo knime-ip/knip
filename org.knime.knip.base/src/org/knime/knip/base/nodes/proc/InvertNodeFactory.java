@@ -52,10 +52,10 @@ import java.util.List;
 
 import net.imglib2.converter.read.ConvertedRandomAccessibleInterval;
 import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
 import net.imglib2.ops.img.UnaryOperationBasedConverter;
 import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.ops.operation.real.unary.RealUnaryOperation;
-import net.imglib2.ops.operation.subset.views.ImgView;
 import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.type.numeric.RealType;
 

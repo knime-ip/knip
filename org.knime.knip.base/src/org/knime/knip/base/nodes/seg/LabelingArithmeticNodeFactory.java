@@ -52,6 +52,7 @@ import java.util.List;
 
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingType;
+import net.imglib2.labeling.LabelingView;
 import net.imglib2.ops.img.BinaryOperationAssignment;
 import net.imglib2.ops.operation.labeling.binary.LabelingTypeAnd;
 import net.imglib2.ops.operation.labeling.binary.LabelingTypeCongruent;
@@ -59,7 +60,6 @@ import net.imglib2.ops.operation.labeling.binary.LabelingTypeDifference;
 import net.imglib2.ops.operation.labeling.binary.LabelingTypeIntersect;
 import net.imglib2.ops.operation.labeling.binary.LabelingTypeMerge;
 import net.imglib2.ops.operation.labeling.binary.LabelingTypeXOR;
-import net.imglib2.ops.operation.subset.views.LabelingView;
 
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
