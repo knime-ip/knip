@@ -50,7 +50,9 @@ package org.knime.knip.core.ops.interval;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccess;
@@ -124,7 +126,6 @@ public class MaximumFinder<T extends RealType<T>> implements
         IntervalView<T> extInput = Views.interval(Views.extendValue(input, globMin), input);
         ArrayList<AnalyticPoint<T>> pList = new ArrayList<AnalyticPoint<T>>();
 
-
         RectangleShape shape = new RectangleShape(1, true); //"true" skips middle point
 
         //TODO: extend input by something (e.g. given factory in constructor...)
@@ -194,7 +195,6 @@ public class MaximumFinder<T extends RealType<T>> implements
                                         final RandomAccessibleInterval<BitType> output,
                                         final ArrayList<AnalyticPoint<T>> maxPoints) {
 
-
         final int numDimensions = input.numDimensions(); //shortcut
 
         //TODO:
@@ -206,7 +206,7 @@ public class MaximumFinder<T extends RealType<T>> implements
 
         Img<IntType> metaImg = new ArrayImgFactory<IntType>().create(input, new IntType());
 
-        OutOfBounds<IntType> raMeta = Views.extendValue(metaImg, new IntType(IS_PROCESSED|IS_LISTED)).randomAccess();
+        OutOfBounds<IntType> raMeta = Views.extendValue(metaImg, new IntType(IS_PROCESSED | IS_LISTED)).randomAccess();
 
         RandomAccess<Neighborhood<T>> raNeigh = m_neighborhoods.randomAccess();
         for (AnalyticPoint<T> maxPoint : maxPoints) {
@@ -224,6 +224,7 @@ public class MaximumFinder<T extends RealType<T>> implements
             boolean sortingError = false;
             double realValue = maxPoint.getValue().getRealDouble();
 
+            Queue<AnalyticPoint<T>> queue = new LinkedList<AnalyticPoint<T>>();
             do { //while !sortingError
 
                 // double value of the point
@@ -239,9 +240,12 @@ public class MaximumFinder<T extends RealType<T>> implements
                 maxPointMeta.set(maxPointMeta.get() | IS_LISTED | IS_EQUAL);
 
                 pList.clear();
-                pList.add(maxPoint);
+                queue.clear();
+                queue.offer(maxPoint);
 
-                for (AnalyticPoint<T> p : pList) {
+
+                while (!queue.isEmpty()) {
+                    AnalyticPoint<T> p = queue.poll();
                     raNeigh.setPosition(p);
                     Cursor<T> cNeigh = raNeigh.get().localizingCursor();
 
@@ -264,13 +268,15 @@ public class MaximumFinder<T extends RealType<T>> implements
                                 maxPossible = false; //we have reached a higher point, thus it is no maximum
                                 break;
                             } else if (realPixel >= realValue - m_tolerance) {
-                                if (pixel.compareTo(maxPoint.getValue()) > 0) { //maybe this point should have been treated earlier
+                                AnalyticPoint<T> point = new AnalyticPoint<T>(cNeigh, pixel);
+
+                                if (realPixel > realValue) { //maybe this point should have been treated earlier
                                     sortingError = true;
+                                    maxPoint = point;
                                 }
 
-                                AnalyticPoint<T> point = new AnalyticPoint<T>(cNeigh, pixel);
                                 setBit(meta, IS_LISTED);
-                                pList.add(point);
+                                queue.offer(point);
 
                                 if (pixel.equals(maxPoint.getValue())) { //prepare finding center of equal points (in case single point needed)
                                     point.setEqual(true);
@@ -285,10 +291,16 @@ public class MaximumFinder<T extends RealType<T>> implements
                             }
                         }
                     }
+
+                    pList.add(p);
                 }
 
                 if (sortingError) {
-                    new RuntimeException("Sorting Errors do happen!");
+                    for (AnalyticPoint<T> p : pList) {
+                        raMeta.setPosition(p);
+
+                        raMeta.get().set(0);
+                    }
                 } else {
                     int resetMask = ~(maxPossible ? IS_LISTED : (IS_LISTED | IS_EQUAL));
 
