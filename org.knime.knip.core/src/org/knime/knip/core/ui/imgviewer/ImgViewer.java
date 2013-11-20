@@ -107,6 +107,7 @@ import java.util.List;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
+import net.imglib2.img.Img;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.meta.DefaultCalibratedSpace;
 import net.imglib2.meta.ImgPlus;
@@ -125,7 +126,7 @@ import org.knime.knip.core.ui.imgviewer.events.LabelingWithMetadataChgEvent;
 /**
  * A TableCellViewPane providing another view on image objects. It allows to browser through the individual
  * planes/dimensions, enhance contrast, etc.
- * 
+ *
  * @param <T>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -201,12 +202,12 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
     /**
      * Adds the {@link ViewerComponent} to the {@link ImgViewer}
-     * 
+     *
      * @param panel {@link ViewerComponent} to be set
-     * 
+     *
      * @param setEventService indicates weather the {@link EventService} of the {@link ImgViewer} shall be set to the
      *            {@link ViewerComponent}
-     * 
+     *
      */
     public void addViewerComponent(final ViewerComponent panel, final boolean setEventService) {
 
@@ -247,7 +248,7 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
     /**
      * TODO
-     * 
+     *
      * @param labeling
      * @param metadata
      */
@@ -272,12 +273,14 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
     public <T extends RealType<T>> void setImg(final ImgPlus<T> img) {
 
         // make sure that at least two dimensions exist
-        ImgPlus<T> img2d = img;
+        Img<T> img2d = img.getImg();
         if (img.numDimensions() <= 1) {
             img2d = new ImgPlusView<T>(Views.addDimension(img, 0, 0), img.factory());
         }
 
-        m_eventService.publish(new ImgWithMetadataChgEvent<T>(img2d.getImg(), img));
+        //TODO special case: we have an imgview with an underlying img as source which has the same dimensions
+
+        m_eventService.publish(new ImgWithMetadataChgEvent<T>(img2d, img));
         m_eventService.publish(new ImgRedrawEvent());
 
     }

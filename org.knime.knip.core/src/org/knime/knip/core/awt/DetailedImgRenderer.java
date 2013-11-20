@@ -53,8 +53,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.display.projectors.screenimages.ARGBScreenImage;
-import net.imglib2.display.projectors.screenimages.ScreenImage;
+import net.imglib2.display.screenimage.awt.ARGBScreenImage;
+import net.imglib2.display.screenimage.awt.AWTScreenImage;
 import net.imglib2.meta.ImgPlusMetadata;
 import net.imglib2.meta.Named;
 import net.imglib2.meta.Sourced;
@@ -63,7 +63,7 @@ import net.imglib2.meta.TypedSpace;
 import net.imglib2.type.Type;
 
 /**
- * 
+ *
  * @param <T>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -103,8 +103,8 @@ public class DetailedImgRenderer<T extends Type<T>> implements ImageRenderer<T> 
     }
 
     @Override
-    public ScreenImage render(final RandomAccessibleInterval<T> source, final int dimX, final int dimY,
-                              final long[] planePos) {
+    public AWTScreenImage render(final RandomAccessibleInterval<T> source, final int dimX, final int dimY,
+                                 final long[] planePos) {
 
         final long[] orgDims = new long[planePos.length];
         source.dimensions(orgDims);
@@ -136,20 +136,20 @@ public class DetailedImgRenderer<T extends Type<T>> implements ImageRenderer<T> 
         final String[] tmp = sb.toString().split("\n");
 
         // render image and created information string
-        final ScreenImage res = m_projectingRenderer.render(source, dimX, dimY, planePos);
+        final AWTScreenImage res = m_projectingRenderer.render(source, dimX, dimY, planePos);
 
         final int width = (int)(orgDims[dimX] * ((double)m_height / orgDims[dimY]));
 
         if ((width < MIN_SIZE.width) || (m_height < MIN_SIZE.height)) {
             // scale render without text
-            final ScreenImage scaledRes = new ARGBScreenImage(width, m_height);
+            final AWTScreenImage scaledRes = new ARGBScreenImage(width, m_height);
             final Graphics g = scaledRes.image().getGraphics();
             g.drawImage(res.image(), 0, 0, width, m_height, null);
 
             return scaledRes;
         } else {
             // scale render with text
-            final ScreenImage composedRes = new ARGBScreenImage(width, m_height);
+            final AWTScreenImage composedRes = new ARGBScreenImage(width, m_height);
             final Graphics g = composedRes.image().getGraphics();
             g.drawImage(res.image(), 0, 0, width, m_height, null);
             g.setXORMode(Color.black);

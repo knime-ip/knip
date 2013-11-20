@@ -78,7 +78,7 @@ import net.imglib2.view.Views;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -109,11 +109,16 @@ public class MiscViews {
 
     /**
      * removes dimensions of size 1 if any.
-     * 
+     *
      * @param ret
      * @return
      */
-    public static <T extends Type<T>> ImgPlusView<T> cleanImgPlus(final ImgPlus<T> ret) {
+    public static <T extends Type<T>> ImgPlus<T> cleanImgPlus(final ImgPlus<T> ret) {
+
+        if (!hasSizeOneDims(ret)) {
+            return ret;
+        }
+
         ImgPlusView<T> imgPlusView =
                 new ImgPlusView<T>(SubsetOperations.subsetview(ret.getImg(), ret.getImg()), ret.factory());
         MetadataUtil.copyAndCleanImgPlusMetadata(ret, ret, imgPlusView);
@@ -140,7 +145,7 @@ public class MiscViews {
 
     /**
      * {@link RandomAccessibleInterval} with same sice as target is returned
-     * 
+     *
      * @param src {@link RandomAccessibleInterval} to be adjusted
      * @param target {@link Interval} describing the resulting sizes
      * @return Adjusted {@link RandomAccessibleInterval}
@@ -218,7 +223,7 @@ public class MiscViews {
 
     /**
      * {@link RandomAccessibleInterval} with same sice as target is returned
-     * 
+     *
      * @param src {@link RandomAccessibleInterval} to be adjusted
      * @param target {@link Interval} describing the resulting sizes
      * @return Adjusted {@link RandomAccessibleInterval}
@@ -280,5 +285,15 @@ public class MiscViews {
             }
         }
         return delta.toArray(new TypedAxis[delta.size()]);
+    }
+
+    // determine whether an interval has dimensions of size 1
+    private static boolean hasSizeOneDims(final Interval i) {
+        for (int d = 0; d < i.numDimensions(); d++) {
+            if (i.dimension(d) == 1) {
+                return true;
+            }
+        }
+        return false;
     }
 }
