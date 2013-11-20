@@ -90,7 +90,7 @@ public class ProcNodeSetFactory implements NodeSetFactory {
      */
     @Override
     public String getAfterID(final String id) {
-        return "/";
+        return "";
     }
 
     /**
