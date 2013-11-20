@@ -92,56 +92,23 @@ public class ClahePoint {
      * @param otherPoint a different ClahePoint
      * @return the distance between this ClahePoint and another ClahePoint
      */
-    public float distance(final ClahePoint otherPoint) {
+    public double distance(final ClahePoint otherPoint) {
         if (this.numDim() != otherPoint.numDim()) {
             throw new IllegalArgumentException("Can't measure distance between points with different dimensionality");
         }
 
-        float sum = 0;
+        double sum = 0;
         for (int i = 0; i < this.numDim(); i++) {
             sum += Math.pow(this.dim(i) - otherPoint.dim(i), 2);
         }
 
-        return (float)Math.sqrt(sum);
-    }
-
-    /**
-     * @param offsets the offset used by the CLAHE operation
-     * @return if this point is a center
-     */
-    public boolean isCenter(final long[] offsets) {
-        if (this.numDim() != offsets.length) {
-            throw new IllegalArgumentException("Different number of dimensions");
-        }
-
-        for (int i = 0; i < this.numDim(); i++) {
-            if (this.dim(i) % offsets[i] != 0) {
-                return false;
-            }
-        }
-
-        return true;
+        return Math.sqrt(sum);
     }
 
     @Override
     public boolean equals(final Object obj) {
-        if (!(obj instanceof ClahePoint)) {
-            return false;
-        }
-
         ClahePoint otherPoint = (ClahePoint)obj;
-
-        if (this.numDim() != otherPoint.numDim()) {
-            return false;
-        }
-
-        for (int i = 0; i < this.numDim(); i++) {
-            if (this.dim(i) != otherPoint.dim(i)) {
-                return false;
-            }
-        }
-
-        return true;
+        return Arrays.equals(getCoordinates(), otherPoint.getCoordinates());
     }
 
     /**
@@ -157,7 +124,6 @@ public class ClahePoint {
      * @return boolean true or false, whether this point lies inside the image boundaries or not.
      */
     public boolean isInsideImage(final long[] imageDimensions) {
-
         for (int i = 0; i < this.numDim(); i++) {
             if (this.dim(i) < 0 || this.dim(i) >= imageDimensions[i]) {
                 return false;

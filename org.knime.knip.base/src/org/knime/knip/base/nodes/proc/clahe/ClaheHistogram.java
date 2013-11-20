@@ -75,8 +75,8 @@ public class ClaheHistogram {
      * Adds a point to this histogram
      * @param pixel the value of a point
      */
-    public void add(final float pixel) {
-        int value = Math.round((pixel / 255.0f) * m_valueNumber);
+    public void add(final double pixel) {
+        int value = (int) Math.round((pixel / 255.0d) * m_valueNumber);
         ++m_values[value];
         ++m_valueCount;
 
@@ -86,7 +86,7 @@ public class ClaheHistogram {
      * Clips this histogram
      * @param slope the desired slope for clipping
      */
-    public void clip(final float slope) {
+    public void clip(final double slope) {
         int limit = (int)(slope * (m_valueCount / m_valueNumber));
         long[] clippedHistogram = new long[m_values.length];
         System.arraycopy(m_values, 0, clippedHistogram, 0, m_values.length);
@@ -126,7 +126,7 @@ public class ClaheHistogram {
      * @param oldValue the old value at a position in the input image.
      * @return the newValue which gets written in the ouput image.
      */
-    public float buildCDF(final float oldValue) {
+    public double buildCDF(final double oldValue) {
         int hMin = m_valueNumber;
         for (int i = 0; i < hMin; ++i) {
             if (m_values[i] != 0) {
@@ -146,6 +146,6 @@ public class ClaheHistogram {
 
         final long cdfMin = m_values[hMin];
 
-        return Math.round((cdf - cdfMin) / (float)(cdfMax - cdfMin) * 255.0f);
+        return Math.round((cdf - cdfMin) / (double)(cdfMax - cdfMin) * 255.0f);
     }
 }

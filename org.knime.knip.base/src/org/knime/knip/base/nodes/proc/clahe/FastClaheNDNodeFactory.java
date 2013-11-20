@@ -53,20 +53,17 @@ import java.util.List;
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.meta.ImgPlus;
-import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.operation.ImgOperations;
 import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
+import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
-import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
-import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
-import org.knime.knip.core.ops.img.ImgPlusToImgPlusWrapperOp;
-import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
  * Factory class to produce an image inverter node.
@@ -91,12 +88,8 @@ public class FastClaheNDNodeFactory<T extends RealType<T>, K extends RandomAcces
         return new SettingsModelInteger("nrbins", 256);
     }
 
-    private static SettingsModelInteger createCtxSlope() {
-        return new SettingsModelInteger("slope", 3);
-    }
-
-    private static SettingsModelDimSelection createCtxDimSelect() {
-        return new SettingsModelDimSelection("test");
+    private static SettingsModelDouble createCtxSlope() {
+        return new SettingsModelDouble("slope", 3);
     }
 
     /**
@@ -104,7 +97,7 @@ public class FastClaheNDNodeFactory<T extends RealType<T>, K extends RandomAcces
      */
     @Override
     protected ImgPlusToImgPlusNodeDialog<T> createNodeDialog() {
-        return new ImgPlusToImgPlusNodeDialog<T>(2, 2, "X", "Y") {
+        return new ImgPlusToImgPlusNodeDialog<T>(2, Integer.MAX_VALUE, "X", "Y") {
 
             @Override
             public void addDialogComponents() {
@@ -120,8 +113,6 @@ public class FastClaheNDNodeFactory<T extends RealType<T>, K extends RandomAcces
 
                 addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxSlope(),
                         "Slope", 1));
-
-                addDialogComponent("Options", "CLAHE options", new DialogComponentDimSelection(createCtxDimSelect(), "What", 2, 3));
             }
         };
     }
@@ -131,40 +122,28 @@ public class FastClaheNDNodeFactory<T extends RealType<T>, K extends RandomAcces
      */
     @Override
     public ImgPlusToImgPlusNodeModel<T, T> createNodeModel() {
-        return new ImgPlusToImgPlusNodeModel<T, T>("X", "Y") {
 
-            private final SettingsModelInteger m_ctxX = createCtxNumberX();
+        return new ImgPlusToImgPlusNodeModel<T, T>() {
 
-            private final SettingsModelInteger m_ctxY = createCtxNumberX();
-
-            private final SettingsModelInteger m_numberOfBins = createCtxNumberOfBins();
-
-            private final SettingsModelInteger m_slope = createCtxSlope();
-
-            private final SettingsModelInteger m_dim = createCtxNumberOfBins();
-
-            @Override
-            protected void addSettingsModels(final List<SettingsModel> settingsModels) {
-                settingsModels.add(m_ctxX);
-                settingsModels.add(m_ctxY);
-                settingsModels.add(m_numberOfBins);
-                settingsModels.add(m_slope);
-                settingsModels.add(m_dim);
-
-            }
+            private final SettingsModelInteger m_bins = createCtxNumberOfBins();
+            private final SettingsModelDouble m_slope = createCtxSlope();
 
             @Override
             protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> op(final ImgPlus<T> imgPlus) {
+                FastClaheND<T> clahe = new FastClaheND<T>(2, m_bins.getIntValue(), m_slope.getDoubleValue());
 
-                FastClaheND<T> clahe = new FastClaheND<T>(10, m_numberOfBins.getIntValue(), m_slope.getIntValue());
-
-                return Operations.wrap(new ImgPlusToImgPlusWrapperOp<T, T>(clahe, imgPlus.firstElement()
-                        .createVariable()), ImgPlusFactory.<T, T> get(imgPlus.firstElement()));
+                return ImgOperations.wrapRA(clahe, imgPlus.firstElement());
             }
 
             @Override
             protected int getMinDimensions() {
                 return 2;
+            }
+
+            @Override
+            protected void addSettingsModels(final List<SettingsModel> settingsModels) {
+                settingsModels.add(m_bins);
+                settingsModels.add(m_slope);
             }
         };
     }

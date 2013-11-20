@@ -70,8 +70,8 @@ public class NDLinearInterpolation {
      * @param histValues the values of the histograms at the positions of the neighbors
      * @return the new value for this position
      */
-    public static float interpolate(final ClahePoint currentPoint, final List<ClahePoint> neighbors,
-                                    final float oldValue, final float[] histValues) {
+    public static double interpolate(final ClahePoint currentPoint, final List<ClahePoint> neighbors,
+                                    final double oldValue, final double[] histValues) {
 
         // create a list containg all points and their value and sort them using the dimension comparator
         List<InterpolationPoint> ips = new ArrayList<NDLinearInterpolation.InterpolationPoint>();
@@ -79,6 +79,7 @@ public class NDLinearInterpolation {
             ips.add(new InterpolationPoint(neighbors.get(i).getCoordinates(), histValues[i]));
         }
         Collections.sort(ips, getDimensionComparator());
+
 
         return interpolate(currentPoint, ips, 0);
     }
@@ -90,26 +91,26 @@ public class NDLinearInterpolation {
      * @param dim the dimension in which the interpolation is made
      * @return
      */
-    private static float interpolate(final ClahePoint currentPoint, final List<InterpolationPoint> ips, final int dim) {
+    private static double interpolate(final ClahePoint currentPoint, final List<InterpolationPoint> ips, final int dim) {
 
         // because the points were sorted beforehand the values for an interpolation are always at i and i+1
         List<InterpolationPoint> newIPS = new ArrayList<NDLinearInterpolation.InterpolationPoint>();
         for (int i = 0; i < ips.size(); i += 2) {
             // calculate the distances in the dimension i
-            float distanceOne = Math.abs(ips.get(i).dim(dim) - currentPoint.dim(dim));
-            float distanceTwo = Math.abs(ips.get(i + 1).dim(dim) - currentPoint.dim(dim));
-            float completeDistance = distanceOne + distanceTwo;
+            double distanceOne = Math.abs(ips.get(i).dim(dim) - currentPoint.dim(dim));
+            double distanceTwo = Math.abs(ips.get(i + 1).dim(dim) - currentPoint.dim(dim));
+            double completeDistance = distanceOne + distanceTwo;
 
             // calculate the weights
-            float weightOne = 1 - distanceOne / completeDistance;
-            float weightTwo = 1 - distanceTwo / completeDistance;
+            double weightOne = 1 - distanceOne / completeDistance;
+            double weightTwo = 1 - distanceTwo / completeDistance;
 
             // calculate the new value
-            float val = (ips.get(i).getValue() * weightOne)
+            double val = (ips.get(i).getValue() * weightOne)
                     + (ips.get(i + 1).getValue() * weightTwo);
 
             // check if it is a number (could happen if there are no values in a dimension)
-            if(Float.isNaN(val)){
+            if(Double.isNaN(val)){
                 newIPS.add(new InterpolationPoint(ips.get(i).getCoordinates(), 0));
             } else {
                 newIPS.add(new InterpolationPoint(ips.get(i).getCoordinates(), val));
@@ -152,13 +153,13 @@ public class NDLinearInterpolation {
 
         private long[] m_coordinates;
 
-        private float m_value;
+        private double m_value;
 
         /**
          * @param coordinates
          * @param value
          */
-        public InterpolationPoint(final long[] coordinates, final float value) {
+        public InterpolationPoint(final long[] coordinates, final double value) {
             this.m_coordinates = coordinates;
             this.m_value = value;
         }
@@ -185,7 +186,7 @@ public class NDLinearInterpolation {
             return this.m_coordinates[i];
         }
 
-        public float getValue() {
+        public double getValue() {
             return this.m_value;
         }
 

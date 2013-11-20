@@ -55,7 +55,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccessibleInterval;
@@ -83,18 +82,19 @@ public class FastClaheND<T extends RealType<T>> implements
 
     private final int m_bins;
 
-    private final float m_slope;
+    private final double m_slope;
 
     /**
      *
      * @param i number of context regions for each dimension
      * @param bins number of bins used by the histograms
-     * @param slope slope used for the clipping function
+     * @param d slope used for the clipping function
      */
-    public FastClaheND(final long i, final int bins, final float slope) {
+    public FastClaheND(final long i, final int bins, final double d) {
         this.m_ctxNumberDims = i;
         this.m_bins = bins;
-        this.m_slope = slope;
+        this.m_slope = d;
+
     }
 
     /**
@@ -112,177 +112,134 @@ public class FastClaheND<T extends RealType<T>> implements
     public RandomAccessibleInterval<T> compute(final RandomAccessibleInterval<T> input,
                                                final RandomAccessibleInterval<T> output) {
 
+
+
         // create image cursors, flatIterable to achieve same iteration order for both images.
-        Cursor<T> inputCursor = Views.flatIterable(input).localizingCursor();
-        Cursor<T> outputCursor = Views.flatIterable(output).cursor();
+        final Cursor<T> inputCursor = Views.flatIterable(input).localizingCursor();
+        final Cursor<T> outputCursor = Views.flatIterable(output).cursor();
 
-        // store image dimensions
-        long[] imageDimensions = new long[input.numDimensions()];
-        for (int i = 0; i < imageDimensions.length; i++) {
-            imageDimensions[i] = input.dimension(i);
-        }
-
-        // calculate offsets of the context centers in each dimensions
-        long[] offsets = new long[imageDimensions.length];
-        for (int i = 0; i < imageDimensions.length; i++) {
-            if(imageDimensions[i] < m_ctxNumberDims){
-                throw new IllegalArgumentException("The number of context regions must be smaller than the size of the dimension ["+i+"]");
-            }
-            offsets[i] = imageDimensions[i] / m_ctxNumberDims;
-        }
-
-        // first iteration through the image to build the context histograms
-        Map<ClahePoint, ClaheHistogram> ctxHistograms = new HashMap<ClahePoint, ClaheHistogram>();
-        long[] pos = new long[input.numDimensions()];
-        while (inputCursor.hasNext()) {
-            inputCursor.next();
-            inputCursor.localize(pos);
-
-            // calculate position of nearest center
-            ClahePoint center = getNearestCenter(pos, offsets);
-
-            // add point to according context histogram (create it, if it doesn't exist yet)
-            ClaheHistogram hist = ctxHistograms.get(center);
-            if (hist == null) {
-                hist = new ClaheHistogram(m_bins);
-                ctxHistograms.put(center, hist);
+        // 1. calculate some necessary informations
+        final long[] imageDimensions;
+        final long[] offsets;
+        final List<List<Integer>> indexCombinations;
+        {
+            // store image dimensions
+            imageDimensions = new long[input.numDimensions()];
+            for (int i = 0; i < imageDimensions.length; i++) {
+                imageDimensions[i] = input.dimension(i);
             }
 
-            ctxHistograms.get(center).add(inputCursor.get().getRealFloat());
-        }
-
-        // after creation of the histograms, clip them
-        for (ClahePoint center : ctxHistograms.keySet()) {
-            ctxHistograms.get(center).clip(m_slope);
-        }
-
-        // second iteration, calculate the new value for each position by using the context histograms
-        inputCursor.reset();
-        while (inputCursor.hasNext()) {
-            inputCursor.next();
-            inputCursor.localize(pos);
-            outputCursor.next();
-
-            // get current position and the old value at this position
-            ClahePoint currentPoint = new ClahePoint(pos);
-            int oldValue = Math.round(inputCursor.get().getRealFloat() / 255f * m_bins);
-
-            // find all neighboring context centers
-            List<ClahePoint> neighbors = getNeighbors(currentPoint, offsets, imageDimensions);
-
-            // calculate the new value through interpolation
-            float newValue = interpolate(currentPoint, oldValue, neighbors, ctxHistograms);
-            outputCursor.get().setReal(newValue);
-        }
-
-        return input;
-    }
-
-    /**
-     * Calculates a new value by interpolation between the neighboring context regions.
-     *
-     * @param currentPoint the current point
-     * @param neighbors the neighboring context centers
-     * @param ctxHistograms the context histograms
-     * @return the new value for this position
-     */
-    private float interpolate(final ClahePoint currentPoint, final float oldValue, final List<ClahePoint> neighbors,
-                              final Map<ClahePoint, ClaheHistogram> ctxHistograms) {
-
-        // if the number of neighbors is one no interpolation is necessary
-        if (neighbors.size() == 1) {
-            return ctxHistograms.get(neighbors.get(0)).buildCDF(oldValue);
-        } else {
-            float[] histValues = new float[neighbors.size()];
-            for (int i = 0; i < neighbors.size(); i++) {
-                histValues[i] = ctxHistograms.get(neighbors.get(i)).buildCDF(oldValue);
+            // calculate offsets of the context centers in each dimensions
+            offsets = new long[imageDimensions.length];
+            for (int i = 0; i < imageDimensions.length; i++) {
+                offsets[i] = imageDimensions[i] / m_ctxNumberDims;
             }
 
-            return NDLinearInterpolation.interpolate(currentPoint, neighbors, oldValue, histValues);
-        }
-    }
-
-    /**
-     * This method retrieves all nearby centers for a given point. Works in n dimensions.
-     *
-     * @param currentPoint the current point
-     * @param offsets the offsets of the centers
-     * @param imageDimensions the dimensions of the image
-     * @return A List containing all nearby centers
-     */
-    private List<ClahePoint> getNeighbors(final ClahePoint currentPoint, final long[] offsets,
-                                          final long[] imageDimensions) {
-
-        // create output list and find the nearest center (doesn't matter if it lies outside of the image boundaries)
-        List<ClahePoint> neighbors = new ArrayList<ClahePoint>();
-        ClahePoint nearestCenter = getNearestCenter(currentPoint, offsets);
-
-        // if we're at a center we only have to add the nearest center
-        if (currentPoint.isInsideImage(imageDimensions) && currentPoint.equals(nearestCenter)) {
-            neighbors.add(nearestCenter);
-        } else {
-
-            // calculate the point on the top left (x,y,z,... coordinates are all smaller)
-            long[] topLeftCenter = Arrays.copyOf(nearestCenter.getCoordinates(), nearestCenter.numDim());
-            for (int i = 0; i < topLeftCenter.length; i++) {
-                // rather dirty hack but it works
-                if(currentPoint.dim(i) > imageDimensions[i]/2){
-                    if (topLeftCenter[i] >= currentPoint.dim(i)) {
-                        topLeftCenter[i] -= offsets[i];
-                    }
-                } else {
-                    if (topLeftCenter[i] > currentPoint.dim(i)) {
-                        topLeftCenter[i] -= offsets[i];
-                    }
-                }
-
-            }
-
-            // create every possible combination of the indices (needed to get all neighbors);
-            Integer[] indices = new Integer[nearestCenter.numDim()];
+            // power set of the indices (needed to calculate neighbors in n-dimensions)
+            Integer[] indices = new Integer[input.numDimensions()];
             for (int i = 0; i < indices.length; i++) {
                 indices[i] = i;
             }
-
-            List<List<Integer>> indicesCombinations = new ArrayList<List<Integer>>();
+            indexCombinations = new ArrayList<List<Integer>>();
             for (int i = 1; i <= indices.length; i++) {
-                indicesCombinations.addAll(combination(Arrays.asList(indices), i));
+                indexCombinations.addAll(combination(Arrays.asList(indices), i));
             }
-
-            ClahePoint topLeftCenterPoint = new ClahePoint(topLeftCenter);
-            // now we can start adding the neighbors, if the top left one lies inside the image add it
-            if (topLeftCenterPoint.isInsideImage(imageDimensions)) {
-                neighbors.add(topLeftCenterPoint);
-            }
-
-            // we created every combination of indices, just increment the position add the indices by their offset to get all of neighbors
-            for (List<Integer> indicesList : indicesCombinations) {
-
-                long[] temp = Arrays.copyOf(topLeftCenter, topLeftCenter.length);
-                for (int index : indicesList) {
-                    temp[index] += offsets[index];
-                }
-
-                ClahePoint cp = new ClahePoint(temp);
-                if (cp.isInsideImage(imageDimensions)) {
-                    neighbors.add(cp);
-                }
-            }
-
         }
 
-        return neighbors;
+        // 2. create histograms and clip them
+        final HashMap<ClahePoint, ClaheHistogram> ctxHistograms = new HashMap<ClahePoint, ClaheHistogram>();
+        {
+            // first iteration through the image to build the context histograms
+            long[] pos = new long[input.numDimensions()];
+            while (inputCursor.hasNext()) {
+                inputCursor.next();
+                inputCursor.localize(pos);
+
+                // calculate position of nearest center
+                ClahePoint center = getNearestCenter(pos, offsets);
+
+                // add point to according context histogram (create it, if it doesn't exist yet)
+                ClaheHistogram hist = ctxHistograms.get(center);
+                if (hist == null) {
+                    hist = new ClaheHistogram(m_bins);
+                    ctxHistograms.put(center, hist);
+                }
+
+                ctxHistograms.get(center).add(inputCursor.get().getRealDouble());
+            }
+
+            // after creation of the histograms, clip them
+            for (ClahePoint center : ctxHistograms.keySet()) {
+                ctxHistograms.get(center).clip(m_slope);
+            }
+        }
+
+        // 3. for each pixel interpolate the new value
+        {
+            inputCursor.reset();
+            long[] pos = new long[input.numDimensions()];
+            while (inputCursor.hasNext()) {
+                inputCursor.next();
+                inputCursor.localize(pos);
+                outputCursor.next();
+
+                // get current position and the old value at this position
+                ClahePoint currentPoint = new ClahePoint(pos);
+                int oldValue = (int)Math.round(inputCursor.get().getRealDouble() / 255d * m_bins);
+
+                // find all neighboring context centers
+                List<ClahePoint> neighbors = getNeighbors(currentPoint, offsets, imageDimensions, indexCombinations);
+
+                // calculate the new value through interpolation
+                double newValue = interpolate(currentPoint, oldValue, neighbors, ctxHistograms);
+                outputCursor.get().setReal(newValue);
+            }
+        }
+
+        return output;
     }
 
     /**
-     * This method creates all combinations of a given input. E.g. for {1, 2, 3} => {1} {2} {3} {1, 2} {1, 3} {2, 3} {1,
-     * 2, 3}
-     *
-     * @param values the values
-     * @param size the size of the subset
-     * @return All possible combinations of the input set.
+     * @param coordinate the coordinate in any dimension
+     * @param offset the offset in the according dimension
+     * @return the position of the next context center in this dimension
      */
-    public static <L> List<List<L>> combination(final List<L> values, final int size) {
+    private long getNextContextRegionValue(final long coordinate, final long offset) {
+        long times = coordinate / offset;
+        long ctxValue = times * offset + offset / 2;
+
+        return ctxValue;
+    }
+
+    /**
+     * @param coordinates coordinates of a point
+     * @param offsets the offsets of the context centers
+     * @return The center of the nearest context region for a given point.
+     */
+    private ClahePoint getNearestCenter(final long[] coordinates, final long[] offsets) {
+        long[] newCoordinates = new long[coordinates.length];
+        for (int i = 0; i < coordinates.length; i++) {
+            newCoordinates[i] = getNextContextRegionValue(coordinates[i], offsets[i]);
+        }
+
+        return new ClahePoint(newCoordinates);
+    }
+
+    /**
+     * @param coordinates coordinates of a point
+     * @param offsets the offsets of the context centers
+     * @return The center of the nearest context region for a given point.
+     */
+    private ClahePoint getNearestCenter(final ClahePoint cp, final long[] offsets) {
+        return getNearestCenter(cp.getCoordinates(), offsets);
+    }
+
+    /**
+     * @param values some value
+     * @param size the size of the set
+     * @return The power set of the input values
+     */
+    private <L> List<List<L>> combination(final List<L> values, final int size) {
 
         if (0 == size) {
             return Collections.singletonList(Collections.<L> emptyList());
@@ -313,38 +270,89 @@ public class FastClaheND<T extends RealType<T>> implements
     }
 
     /**
-     * @param coordinates coordinates of a point
-     * @param offsets the offsets of the context centers
-     * @return The center of the nearest context region for a given point.
+     * This method retrieves all nearby centers for a given point. Works in n dimensions.
+     *
+     * @param currentPoint the current point
+     * @param offsets the offsets of the centers
+     * @param imageDimensions the dimensions of the image
+     * @param indicesCombinations2
+     * @return A List containing all nearby centers
      */
-    private ClahePoint getNearestCenter(final long[] coordinates, final long[] offsets) {
-        long[] newCoordinates = new long[coordinates.length];
-        for (int i = 0; i < coordinates.length; i++) {
-            newCoordinates[i] = getNextContextRegionValue(coordinates[i], offsets[i]);
+    private List<ClahePoint> getNeighbors(final ClahePoint currentPoint, final long[] offsets,
+                                          final long[] imageDimensions, final List<List<Integer>> indexCombinations) {
+
+        // create output list and find the nearest center (doesn't matter if it lies outside of the image boundaries)
+        List<ClahePoint> neighbors = new ArrayList<ClahePoint>();
+        ClahePoint nearestCenter = getNearestCenter(currentPoint, offsets);
+
+        // if we're at a center we only have to add the nearest center
+        if (currentPoint.equals(nearestCenter) && currentPoint.isInsideImage(imageDimensions)) {
+            neighbors.add(nearestCenter);
+        } else {
+
+            // calculate the point on the top left (x,y,z,... coordinates are all smaller)
+            long[] topLeftCenter = Arrays.copyOf(nearestCenter.getCoordinates(), nearestCenter.numDim());
+            for (int i = 0; i < topLeftCenter.length; i++) {
+                // rather dirty hack but it works
+                if (currentPoint.dim(i) > imageDimensions[i] / 2) {
+                    if (topLeftCenter[i] >= currentPoint.dim(i)) {
+                        topLeftCenter[i] -= offsets[i];
+                    }
+                } else {
+                    if (topLeftCenter[i] > currentPoint.dim(i)) {
+                        topLeftCenter[i] -= offsets[i];
+                    }
+                }
+
+            }
+
+            ClahePoint topLeftCenterPoint = new ClahePoint(topLeftCenter);
+
+            // now we can start adding the neighbors, if the top left one lies inside the image add it
+            if (topLeftCenterPoint.isInsideImage(imageDimensions)) {
+                neighbors.add(topLeftCenterPoint);
+            }
+
+            // we created every combination of indices, just increment the position add the indices by their offset to get all of neighbors
+            for (List<Integer> indicesList : indexCombinations) {
+
+                long[] temp = Arrays.copyOf(topLeftCenter, topLeftCenter.length);
+                for (int index : indicesList) {
+                    temp[index] += offsets[index];
+                }
+
+                ClahePoint cp = new ClahePoint(temp);
+                if (cp.isInsideImage(imageDimensions)) {
+                    neighbors.add(cp);
+                }
+            }
         }
 
-        return new ClahePoint(newCoordinates);
+
+        return neighbors;
     }
 
     /**
-     * @param coordinates coordinates of a point
-     * @param offsets the offsets of the context centers
-     * @return The center of the nearest context region for a given point.
+     * Calculates a new value by interpolation between the neighboring context regions.
+     *
+     * @param currentPoint the current point
+     * @param neighbors the neighboring context centers
+     * @param ctxHistograms the context histograms
+     * @return the new value for this position
      */
-    private ClahePoint getNearestCenter(final ClahePoint cp, final long[] offsets) {
-        return getNearestCenter(cp.getCoordinates(), offsets);
+    private double interpolate(final ClahePoint currentPoint, final double oldValue, final List<ClahePoint> neighbors,
+                               final HashMap<ClahePoint, ClaheHistogram> ctxHistograms) {
+
+        // if the number of neighbors is one, no interpolation is necessary
+        if (neighbors.size() == 1) {
+            return ctxHistograms.get(neighbors.get(0)).buildCDF(oldValue);
+        } else {
+            double[] histValues = new double[neighbors.size()];
+            for (int i = 0; i < neighbors.size(); i++) {
+                histValues[i] = ctxHistograms.get(neighbors.get(i)).buildCDF(oldValue);
+            }
+
+            return NDLinearInterpolation.interpolate(currentPoint, neighbors, oldValue, histValues);
+        }
     }
-
-    /**
-     * @param coordinate the coordinate in any dimension
-     * @param offset the offset in the according dimension
-     * @return the position of the next context center in this dimension
-     */
-    private long getNextContextRegionValue(final long coordinate, final long offset) {
-        long times = coordinate / offset;
-        long ctxValue = times * offset + offset / 2;
-
-        return ctxValue;
-    }
-
 }
