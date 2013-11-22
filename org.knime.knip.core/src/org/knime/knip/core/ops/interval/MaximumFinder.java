@@ -181,6 +181,7 @@ public class MaximumFinder<T extends RealType<T>> implements
 
     private final static int IS_LISTED = 0x08;
 
+    private final static int IS_MAX = 0x10;
     /*
      * Status Image Type should not be
      * anything higher than ByteType
@@ -199,9 +200,12 @@ public class MaximumFinder<T extends RealType<T>> implements
 
         //TODO:
         final float maxSortingError = 1.0f;
+        boolean sortingError = false;
 
+        // create a temporary point list and a true maxima list
         ArrayList<AnalyticPoint<T>> pList = new ArrayList<AnalyticPoint<T>>();
         ArrayList<AnalyticPoint<T>> trueMaxima = new ArrayList<AnalyticPoint<T>>();
+        //sort maxPoints in decending order
         Collections.sort(maxPoints, Collections.reverseOrder());
 
         Img<IntType> metaImg = new ArrayImgFactory<IntType>().create(input, new IntType());
@@ -221,121 +225,119 @@ public class MaximumFinder<T extends RealType<T>> implements
                 continue;
             }
 
-            boolean sortingError = false;
-            double realValue = maxPoint.getValue().getRealDouble();
+            double realMaxValue = maxPoint.getValue().getRealDouble();
 
             Queue<AnalyticPoint<T>> queue = new LinkedList<AnalyticPoint<T>>();
-            do { //while !sortingError
 
-                // double value of the point
-                long[] equal = new long[numDimensions]; // sum of all positions of equal points
-                maxPoint.localize(equal);
+            // double value of the point
+            long[] equal = new long[numDimensions]; // sum of all positions of equal points
+            maxPoint.localize(equal);
 
-                int nEqual = 1;
-                boolean maxPossible = true;
+            int nEqual = 1;
+            boolean maxPossible = true;
 
-                //set meta of current point to be IS_LISTED and IS_EQUAL (to itself)+
-                raMeta.setPosition(maxPoint);
-                IntType maxPointMeta = raMeta.get();
-                maxPointMeta.set(maxPointMeta.get() | IS_LISTED | IS_EQUAL);
+            //set meta of current point to be IS_LISTED and IS_EQUAL (to itself)+
+            raMeta.setPosition(maxPoint);
+            IntType maxPointMeta = raMeta.get();
+            maxPointMeta.set(maxPointMeta.get() | IS_LISTED | IS_EQUAL);
 
-                pList.clear();
-                queue.clear();
-                queue.offer(maxPoint);
+            pList.clear();
 
+            queue.clear();
+            queue.offer(maxPoint);
+            pList.add(maxPoint);
 
-                while (!queue.isEmpty()) {
-                    AnalyticPoint<T> p = queue.poll();
-                    raNeigh.setPosition(p);
-                    Cursor<T> cNeigh = raNeigh.get().localizingCursor();
+            while (!queue.isEmpty()) {
+                AnalyticPoint<T> p = queue.poll();
+                raNeigh.setPosition(p);
+                Cursor<T> cNeigh = raNeigh.get().localizingCursor();
 
-                    while (cNeigh.hasNext()) { //iterate through our ROI/the structuring element
-                        T pixel = cNeigh.next();
+                while (cNeigh.hasNext()) { //iterate through our ROI/the structuring element
+                    T pixel = cNeigh.next();
 
-                        raMeta.setPosition(cNeigh);
-                        IntType meta = raMeta.get(); //shortcut
+                    raMeta.setPosition(cNeigh);
+                    IntType meta = raMeta.get(); //shortcut
 
-                        if (!isSet(meta, IS_LISTED)) { //if this point isn't listed already
-                            //double value of the current pixel in struct el.
-                            double realPixel = pixel.getRealDouble();
+                    if (!isSet(meta, IS_LISTED)) { //if this point isn't listed already
+                        if (isSet(meta, IS_PROCESSED)) {
+                            maxPossible = false; //we have reached a point processed previously, thus it is no maximum now
+                            break;
+                        }
 
-                            if (isSet(meta, IS_PROCESSED)) {
-                                maxPossible = false; //we have reached a point processed previously, thus it is no maximum now
-                                break;
+                        //double value of the current pixel in struct el.
+                        double realPixel = pixel.getRealDouble();
+
+                        if (realPixel > realMaxValue + maxSortingError) {
+                            maxPossible = false; //we have reached a higher point, thus it is no maximum
+                            break;
+                        } else if (realPixel >= realMaxValue - m_tolerance) {
+                            if ( realPixel > realMaxValue) {
+                                sortingError = true;
+
+                                // set Maxpoint to pixel, realMax to realPixel...
                             }
 
-                            if (realPixel > realValue + maxSortingError) {
-                                maxPossible = false; //we have reached a higher point, thus it is no maximum
-                                break;
-                            } else if (realPixel >= realValue - m_tolerance) {
-                                AnalyticPoint<T> point = new AnalyticPoint<T>(cNeigh, pixel);
+                            AnalyticPoint<T> point = new AnalyticPoint<T>(cNeigh, pixel);
 
-                                if (realPixel > realValue) { //maybe this point should have been treated earlier
-                                    sortingError = true;
-                                    maxPoint = point;
+                            setBit(meta, IS_LISTED);
+                            queue.offer(point);
+                            pList.add(point);
+
+                            if (realPixel == realMaxValue) { //prepare finding center of equal points (in case single point needed)
+                                point.setEqual(true); //TODO: may need to remove.
+
+                                setBit(meta, IS_EQUAL);
+
+                                //add to equal:
+                                for (int i = 0; i < numDimensions; ++i) {
+                                    equal[i] += cNeigh.getIntPosition(i);
                                 }
 
-                                setBit(meta, IS_LISTED);
-                                queue.offer(point);
-
-                                if (pixel.equals(maxPoint.getValue())) { //prepare finding center of equal points (in case single point needed)
-                                    point.setEqual(true);
-
-                                    //add to equal:
-                                    for (int i = 0; i < numDimensions; ++i) {
-                                        equal[i] += cNeigh.getIntPosition(i);
-                                    }
-
-                                    ++nEqual; //we found one more equal point
-                                }
+                                ++nEqual; //we found one more equal point
                             }
                         }
                     }
-
-                    pList.add(p);
                 }
 
-                if (sortingError) {
-                    for (AnalyticPoint<T> p : pList) {
-                        raMeta.setPosition(p);
+            }
 
-                        raMeta.get().set(0);
-                    }
-                } else {
-                    int resetMask = ~(maxPossible ? IS_LISTED : (IS_LISTED | IS_EQUAL));
+            int resetMask = ~(maxPossible ? IS_LISTED : (IS_LISTED | IS_EQUAL));
 
-                    // calculate center of equal points
-                    for (int i = 0; i < numDimensions; ++i) {
-                        equal[i] /= nEqual;
-                    }
+            // calculate center of equal points
+            for (int i = 0; i < numDimensions; ++i) {
+                equal[i] /= nEqual;
+            }
 
-                    long minDist = Long.MAX_VALUE; //minimal distance to the calculated center
-                    AnalyticPoint<T> nearestPoint = null;
+            long minDist = Long.MAX_VALUE; //minimal distance to the calculated center
+            AnalyticPoint<T> nearestPoint = pList.get(0);
 
-                    for (AnalyticPoint<T> p : pList) {
-                        raMeta.setPosition(p);
-                        IntType meta = raMeta.get();
-                        meta.set((meta.getInteger() & resetMask) | IS_PROCESSED | (maxPossible ? IS_MAX_AREA : 0)); //reset the no longer needed attributes
+            int maxAreaFlag = maxPossible ? IS_MAX_AREA : 0;
+            for (AnalyticPoint<T> p : pList) {
+                raMeta.setPosition(p);
+                IntType meta = raMeta.get();
+                meta.set((meta.getInteger() & resetMask) | IS_PROCESSED | maxAreaFlag); //reset the no longer needed attributes
 
-                        if (maxPossible) {
-                            if (p.isEqual()) {
-                                long dist = p.distanceToSq(equal);
-                                if (dist < minDist) {
-                                    minDist = dist; //this could be the best "single maximum" point
-                                    nearestPoint = p;
-                                }
-                            }
-                        }
-                    } //iteration through pList
-
-                    if (nearestPoint != null) {
-                        if (maxPossible) {
-                            nearestPoint.setMax(true);
-                            trueMaxima.add(nearestPoint);
+                if (maxPossible) {
+                    if (p.isEqual()) {
+                        long dist = p.distanceToSq(equal);
+                        if (dist < minDist) {
+                            minDist = dist; //this could be the best "single maximum" point
+                            nearestPoint = p;
                         }
                     }
-                } // if (!sortingError)
-            } while (sortingError);
+                }
+            } //iteration through pList
+
+            if (nearestPoint != null) {
+                if (maxPossible) {
+                    nearestPoint.setMax(true);
+
+                    raMeta.setPosition(nearestPoint);
+                    setBit(raMeta.get(), IS_MAX);
+
+                    trueMaxima.add(nearestPoint);
+                }
+            }
         } //iteration through maxPoints
 
         /* Remove every Point from the List that  is no max.
@@ -347,6 +349,13 @@ public class MaximumFinder<T extends RealType<T>> implements
             raOutput.setPosition(p);
             raOutput.get().setOne();
         }
+
+//       Cursor<BitType> outCursor = Views.iterable(output).cursor();
+//       Cursor<IntType> metaCursor = metaImg.cursor();
+//
+//       while(outCursor.hasNext()) {
+//           outCursor.next().set(isSet(metaCursor.next(), IS_MAX_AREA));
+//       }
 
         /*
         if (m_suppression > 0) {
