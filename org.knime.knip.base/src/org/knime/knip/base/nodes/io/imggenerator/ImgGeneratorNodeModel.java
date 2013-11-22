@@ -86,7 +86,7 @@ import org.knime.knip.core.types.NativeTypes;
 
 /**
  * Generates images.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -362,21 +362,9 @@ public class ImgGeneratorNodeModel<T extends NativeType<T> & RealType<T>> extend
      */
     @Override
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
-        //TODO test all settings models
         for (final SettingsModel sm : m_settings) {
-            //temporary remove this later
-            if (sm.equals(m_smSizeX_Min) || sm.equals(m_smSizeY_Min) || sm.equals(m_smSizeZ_Min)
-                    || sm.equals(m_smSizeChannel_Min) || sm.equals(m_smSizeT_Min)) {
-                try {
-                    sm.loadSettingsFrom(settings);
-                } catch (InvalidSettingsException e) {
-                    ((SettingsModelIntegerBounded)sm).setIntValue(0);
-                }
-
-            } else {
                 sm.loadSettingsFrom(settings);
             }
-        }
     }
 
     /**
@@ -419,12 +407,8 @@ public class ImgGeneratorNodeModel<T extends NativeType<T> & RealType<T>> extend
         //TODO test all models not only the old ones
 
         for (final SettingsModel sm : m_settings) {
-            if (sm.equals(m_smSizeX_Min) || sm.equals(m_smSizeY_Min) || sm.equals(m_smSizeZ_Min)
-                    || sm.equals(m_smSizeChannel_Min) || sm.equals(m_smSizeT_Min)) {
-                //do nothing these models are new and might not be there
-            } else {
+
                 sm.validateSettings(settings);
-            }
         }
     }
 }

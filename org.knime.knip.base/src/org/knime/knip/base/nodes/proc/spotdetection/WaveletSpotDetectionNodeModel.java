@@ -72,8 +72,8 @@ import org.knime.knip.core.util.ImgPlusFactory;
  * Jean-Christophe Olivo-Marin<br>
  * <br>
  * Allows the detection of bright spots over dark background using a multiscale wavelet partition of the image.
- * 
- * 
+ *
+ *
  * @param <T>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -111,6 +111,7 @@ public class WaveletSpotDetectionNodeModel<T extends RealType<T>> extends ImgPlu
 
     private final SettingsModelDoubleArray m_scaleModel = createScaleModel();
 
+    @SuppressWarnings("javadoc")
     public WaveletSpotDetectionNodeModel(final String... axes) {
         super(axes);
     }

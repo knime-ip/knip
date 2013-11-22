@@ -53,12 +53,13 @@ import java.util.List;
 import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
 import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
 import net.imglib2.interpolation.randomaccess.LanczosInterpolatorFactory;
 import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
 import net.imglib2.interpolation.randomaccess.NearestNeighborInterpolatorFactory;
 import net.imglib2.meta.ImgPlus;
-import net.imglib2.ops.operation.subset.views.ImgView;
 import net.imglib2.realtransform.RealViews;
+import net.imglib2.realtransform.Scale;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
@@ -150,7 +151,7 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
 
                 ImgPlus<T> img = cellValue.getImgPlus();
 
-                final double[] scaling = m_newDimensions.getNewDimensions(img.numDimensions(), cellValue.getMetadata());
+                final double[] scaling = m_newDimensions.getNewDimensions(cellValue.getMetadata());
                 double[] scaleFactors = new double[scaling.length];
 
                 final long[] newDimensions = new long[scaling.length];
