@@ -86,12 +86,12 @@ public class FastClaheND<T extends RealType<T>> implements
 
     /**
      *
-     * @param i number of context regions for each dimension
+     * @param l number of context regions for each dimension
      * @param bins number of bins used by the histograms
      * @param d slope used for the clipping function
      */
-    public FastClaheND(final long i, final int bins, final double d) {
-        this.m_ctxNumberDims = i;
+    public FastClaheND(final long l, final int bins, final double d) {
+        this.m_ctxNumberDims = l;
         this.m_bins = bins;
         this.m_slope = d;
 
@@ -192,6 +192,7 @@ public class FastClaheND<T extends RealType<T>> implements
 
                 // calculate the new value through interpolation
                 double newValue = interpolate(currentPoint, oldValue, neighbors, ctxHistograms);
+
                 outputCursor.get().setReal(newValue);
             }
         }
@@ -351,7 +352,6 @@ public class FastClaheND<T extends RealType<T>> implements
             for (int i = 0; i < neighbors.size(); i++) {
                 histValues[i] = ctxHistograms.get(neighbors.get(i)).buildCDF(oldValue);
             }
-
             return NDLinearInterpolation.interpolate(currentPoint, neighbors, oldValue, histValues);
         }
     }

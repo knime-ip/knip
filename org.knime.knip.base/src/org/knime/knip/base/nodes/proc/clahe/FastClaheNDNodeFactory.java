@@ -61,6 +61,7 @@ import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
+import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
@@ -74,14 +75,11 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
  * @param <T> extends RealType<T>
  * @param <K> extends RandomAccessibleInterval<T> & IterableInterval<T>
  */
-public class FastClaheNDNodeFactory<T extends RealType<T>, K extends RandomAccessibleInterval<T> & IterableInterval<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
+public class FastClaheNDNodeFactory<T extends RealType<T>, K extends RandomAccessibleInterval<T> & IterableInterval<T>>
+        extends ImgPlusToImgPlusNodeFactory<T, T> {
 
-    private static SettingsModelInteger createCtxNumberX() {
-        return new SettingsModelInteger("ctxX", 8);
-    }
-
-    private static SettingsModelInteger createCtxNumberY() {
-        return new SettingsModelInteger("ctxY", 8);
+    private SettingsModelIntegerBounded createCtxDimValue() {
+        return new SettingsModelIntegerBounded("dimvalues", 8, 1, 64);
     }
 
     private static SettingsModelInteger createCtxNumberOfBins() {
@@ -97,23 +95,21 @@ public class FastClaheNDNodeFactory<T extends RealType<T>, K extends RandomAcces
      */
     @Override
     protected ImgPlusToImgPlusNodeDialog<T> createNodeDialog() {
+
         return new ImgPlusToImgPlusNodeDialog<T>(2, Integer.MAX_VALUE, "X", "Y") {
 
             @Override
             public void addDialogComponents() {
 
-                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxNumberX(),
-                        "Number of contextual regions in X direction", 1));
-
-                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxNumberY(),
-                                                                                         "Number of contextual regions in Y direction", 1));
+                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxDimValue(),
+                        "Number of contextual regions", 1));
 
                 addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxNumberOfBins(),
                         "Number of bins", 1));
 
-                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxSlope(),
-                        "Slope", 1));
+                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxSlope(), "Slope", 1));
             }
+
         };
     }
 
@@ -125,12 +121,17 @@ public class FastClaheNDNodeFactory<T extends RealType<T>, K extends RandomAcces
 
         return new ImgPlusToImgPlusNodeModel<T, T>() {
 
+            private final SettingsModelIntegerBounded m_ctxValues = createCtxDimValue();
+
             private final SettingsModelInteger m_bins = createCtxNumberOfBins();
+
             private final SettingsModelDouble m_slope = createCtxSlope();
 
             @Override
             protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> op(final ImgPlus<T> imgPlus) {
-                FastClaheND<T> clahe = new FastClaheND<T>(2, m_bins.getIntValue(), m_slope.getDoubleValue());
+                super.m_dimSelection.getSelectedDimLabels();
+                FastClaheND<T> clahe =
+                        new FastClaheND<T>(m_ctxValues.getIntValue(), m_bins.getIntValue(), m_slope.getDoubleValue());
 
                 return ImgOperations.wrapRA(clahe, imgPlus.firstElement());
             }
@@ -142,6 +143,7 @@ public class FastClaheNDNodeFactory<T extends RealType<T>, K extends RandomAcces
 
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
+                settingsModels.add(m_ctxValues);
                 settingsModels.add(m_bins);
                 settingsModels.add(m_slope);
             }
