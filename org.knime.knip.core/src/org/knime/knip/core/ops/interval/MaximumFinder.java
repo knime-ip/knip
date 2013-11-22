@@ -160,7 +160,7 @@ public class MaximumFinder<T extends RealType<T>> implements
             }
 
             if (maxCandidate) {
-                AnalyticPoint<T> p = new AnalyticPoint<T>(inputCursor, value);
+                AnalyticPoint<T> p = new AnalyticPoint<T>(inputCursor, value.getRealDouble());
                 pList.add(p);
             }
         }
@@ -225,7 +225,7 @@ public class MaximumFinder<T extends RealType<T>> implements
                 continue;
             }
 
-            double realMaxValue = maxPoint.getValue().getRealDouble();
+            double realMaxValue = maxPoint.getValue();
 
             Queue<AnalyticPoint<T>> queue = new LinkedList<AnalyticPoint<T>>();
 
@@ -277,7 +277,7 @@ public class MaximumFinder<T extends RealType<T>> implements
                                 // set Maxpoint to pixel, realMax to realPixel...
                             }
 
-                            AnalyticPoint<T> point = new AnalyticPoint<T>(cNeigh, pixel);
+                            AnalyticPoint<T> point = new AnalyticPoint<T>(cNeigh, pixel.getRealDouble());
 
                             setBit(meta, IS_LISTED);
                             queue.offer(point);

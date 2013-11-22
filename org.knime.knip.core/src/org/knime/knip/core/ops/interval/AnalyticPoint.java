@@ -7,7 +7,7 @@ import net.imglib2.type.numeric.RealType;
 
 public class AnalyticPoint<T extends RealType<T>> implements Comparable<AnalyticPoint<T>>, Localizable {
 
-    private T m_value;
+    private double m_value;
 
     private int[] m_coords;
 
@@ -23,7 +23,7 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
      * @param pos Position of the point
      * @param val the value
      */
-    public AnalyticPoint(final Localizable pos, final T val) {
+    public AnalyticPoint(final Localizable pos, final double val) {
         m_value = val;
 
         m_coords = new int[pos.numDimensions()];
@@ -122,7 +122,6 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((m_value == null) ? 0 : m_value.hashCode());
         result = prime * result + Arrays.hashCode(m_coords);
         result = prime * result + (m_isMax ? 1231 : 1237);
         return result;
@@ -140,7 +139,7 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
      * Get the value of this point
      * @return
      */
-    public T getValue() {
+    public double getValue() {
         return m_value;
     }
 
@@ -233,6 +232,6 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
      */
     @Override
     public int compareTo(final AnalyticPoint<T> p) {
-        return p.getValue().compareTo(m_value);
+        return new Double(m_value).compareTo(p.getValue());
     }
 }
