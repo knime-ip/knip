@@ -94,7 +94,6 @@ public class FastClaheND<T extends RealType<T>> implements
         this.m_ctxNumberDims = l;
         this.m_bins = bins;
         this.m_slope = d;
-
     }
 
     /**
@@ -112,8 +111,6 @@ public class FastClaheND<T extends RealType<T>> implements
     public RandomAccessibleInterval<T> compute(final RandomAccessibleInterval<T> input,
                                                final RandomAccessibleInterval<T> output) {
 
-
-
         // create image cursors, flatIterable to achieve same iteration order for both images.
         final Cursor<T> inputCursor = Views.flatIterable(input).localizingCursor();
         final Cursor<T> outputCursor = Views.flatIterable(output).cursor();
@@ -123,10 +120,14 @@ public class FastClaheND<T extends RealType<T>> implements
         final long[] offsets;
         final List<List<Integer>> indexCombinations;
         {
-            // store image dimensions
+            // store image dimensions and check if image dimensions are larger than the ctxRegions
             imageDimensions = new long[input.numDimensions()];
             for (int i = 0; i < imageDimensions.length; i++) {
                 imageDimensions[i] = input.dimension(i);
+                if (imageDimensions[i] < m_ctxNumberDims) {
+                    throw new IllegalArgumentException("Can't divide dimension \"" + i + "\" of length "+imageDimensions[i]+" into more than "
+                            + m_ctxNumberDims + " context regions");
+                }
             }
 
             // calculate offsets of the context centers in each dimensions
@@ -328,7 +329,6 @@ public class FastClaheND<T extends RealType<T>> implements
                 }
             }
         }
-
 
         return neighbors;
     }

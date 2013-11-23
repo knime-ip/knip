@@ -107,7 +107,7 @@ public class FastClaheNDNodeFactory<T extends RealType<T>, K extends RandomAcces
                 addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxNumberOfBins(),
                         "Number of bins", 1));
 
-                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxSlope(), "Slope", 1));
+                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxSlope(), "Slope", 0.1));
             }
 
         };
