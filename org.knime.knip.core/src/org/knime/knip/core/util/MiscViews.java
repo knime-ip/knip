@@ -56,9 +56,11 @@ import net.imglib2.Interval;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.ImgFactory;
+import net.imglib2.img.ImgView;
 import net.imglib2.img.constant.ConstantCursor;
 import net.imglib2.labeling.LabelingFactory;
 import net.imglib2.labeling.LabelingType;
+import net.imglib2.labeling.LabelingView;
 import net.imglib2.meta.DefaultTypedAxis;
 import net.imglib2.meta.DefaultTypedSpace;
 import net.imglib2.meta.ImgPlus;
@@ -66,9 +68,6 @@ import net.imglib2.meta.MetadataUtil;
 import net.imglib2.meta.TypedAxis;
 import net.imglib2.meta.TypedSpace;
 import net.imglib2.ops.operation.SubsetOperations;
-import net.imglib2.ops.operation.subset.views.ImgPlusView;
-import net.imglib2.ops.operation.subset.views.ImgView;
-import net.imglib2.ops.operation.subset.views.LabelingView;
 import net.imglib2.sampler.special.ConstantRandomAccessible;
 import net.imglib2.type.Type;
 import net.imglib2.util.Intervals;
@@ -78,7 +77,7 @@ import net.imglib2.view.Views;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -109,13 +108,18 @@ public class MiscViews {
 
     /**
      * removes dimensions of size 1 if any.
-     * 
+     *
      * @param ret
      * @return
      */
-    public static <T extends Type<T>> ImgPlusView<T> cleanImgPlus(final ImgPlus<T> ret) {
-        ImgPlusView<T> imgPlusView =
-                new ImgPlusView<T>(SubsetOperations.subsetview(ret.getImg(), ret.getImg()), ret.factory());
+    public static <T extends Type<T>> ImgPlus<T> cleanImgPlus(final ImgPlus<T> ret) {
+
+        if (!hasSizeOneDims(ret)) {
+            return ret;
+        }
+
+        ImgPlus<T> imgPlusView =
+                new ImgPlus<T>(new ImgView<T>(SubsetOperations.subsetview(ret.getImg(), ret.getImg()), ret.factory()));
         MetadataUtil.copyAndCleanImgPlusMetadata(ret, ret, imgPlusView);
         return imgPlusView;
     }
@@ -140,7 +144,7 @@ public class MiscViews {
 
     /**
      * {@link RandomAccessibleInterval} with same sice as target is returned
-     * 
+     *
      * @param src {@link RandomAccessibleInterval} to be adjusted
      * @param target {@link Interval} describing the resulting sizes
      * @return Adjusted {@link RandomAccessibleInterval}
@@ -218,7 +222,7 @@ public class MiscViews {
 
     /**
      * {@link RandomAccessibleInterval} with same sice as target is returned
-     * 
+     *
      * @param src {@link RandomAccessibleInterval} to be adjusted
      * @param target {@link Interval} describing the resulting sizes
      * @return Adjusted {@link RandomAccessibleInterval}
@@ -280,5 +284,15 @@ public class MiscViews {
             }
         }
         return delta.toArray(new TypedAxis[delta.size()]);
+    }
+
+    // determine whether an interval has dimensions of size 1
+    private static boolean hasSizeOneDims(final Interval i) {
+        for (int d = 0; d < i.numDimensions(); d++) {
+            if (i.dimension(d) == 1) {
+                return true;
+            }
+        }
+        return false;
     }
 }

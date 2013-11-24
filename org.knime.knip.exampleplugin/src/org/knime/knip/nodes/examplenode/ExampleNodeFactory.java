@@ -57,8 +57,8 @@ import net.imglib2.converter.Converter;
 import net.imglib2.converter.Converters;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
+import net.imglib2.img.ImgView;
 import net.imglib2.meta.ImgPlus;
-import net.imglib2.ops.operation.subset.views.ImgView;
 import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.type.numeric.RealType;
 

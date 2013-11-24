@@ -49,15 +49,15 @@
 package org.knime.knip.core.awt;
 
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.display.projectors.AbstractProjector2D;
-import net.imglib2.display.projectors.screenimages.ARGBScreenImage;
-import net.imglib2.display.projectors.screenimages.ScreenImage;
+import net.imglib2.display.projector.AbstractProjector2D;
+import net.imglib2.display.screenimage.awt.ARGBScreenImage;
+import net.imglib2.display.screenimage.awt.AWTScreenImage;
 import net.imglib2.type.Type;
 import net.imglib2.type.numeric.ARGBType;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -65,13 +65,13 @@ import net.imglib2.type.numeric.ARGBType;
 public abstract class ProjectingRenderer<T extends Type<T>> implements ImageRenderer<T> {
 
     @Override
-    public ScreenImage render(final RandomAccessibleInterval<T> source, final int dimX, final int dimY,
+    public AWTScreenImage render(final RandomAccessibleInterval<T> source, final int dimX, final int dimY,
                               final long[] planePos) {
 
         return project2D(source, dimX, dimY, planePos);
     }
 
-    private ScreenImage project2D(final RandomAccessibleInterval<T> source, final int dimX, final int dimY,
+    private AWTScreenImage project2D(final RandomAccessibleInterval<T> source, final int dimX, final int dimY,
                                   final long[] planePos) {
 
         final int width = (int)source.dimension(dimX);

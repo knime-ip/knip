@@ -66,6 +66,7 @@ import net.imglib2.Interval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
+import net.imglib2.img.ImgView;
 import net.imglib2.meta.CalibratedAxis;
 import net.imglib2.meta.CalibratedSpace;
 import net.imglib2.meta.ImgPlus;
@@ -75,7 +76,6 @@ import net.imglib2.meta.Named;
 import net.imglib2.meta.Sourced;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.imgplus.unary.ImgPlusCopy;
-import net.imglib2.ops.operation.subset.views.ImgView;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 
