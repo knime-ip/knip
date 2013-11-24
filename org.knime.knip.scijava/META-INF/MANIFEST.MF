@@ -11,7 +11,7 @@ Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: scijava.jar,
  lib/mvn/eventbus-1.4.jar,
  lib/mvn/sezpoz-1.9-imagej.jar,
- lib/mvn/scijava-common-2.3.2.jar
+ lib/mvn/scijava-common-2.4.0.jar
 Export-Package: org.scijava,
  org.scijava.app,
  org.scijava.app.event,
