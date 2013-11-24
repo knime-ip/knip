@@ -351,8 +351,6 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
                     if ((((colIndices[0] > -1) && (row.getCell(colIndices[0]).isMissing())) || ((colIndices[1] > -1) && row
                             .getCell(colIndices[1]).isMissing()))) {
                         LOGGER.warn("Missing cell was ignored at row " + row.getKey());
-
-                        m_numOccurredErrors++;
                         cells = new DataCell[]{DataType.getMissingCell()};
                     } else {
                         DataCell c =
