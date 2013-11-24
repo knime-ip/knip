@@ -75,7 +75,6 @@ import net.imglib2.meta.MetadataUtil;
 import net.imglib2.meta.Named;
 import net.imglib2.meta.Sourced;
 import net.imglib2.ops.operation.SubsetOperations;
-import net.imglib2.ops.operation.imgplus.unary.ImgPlusCopy;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 
@@ -101,7 +100,6 @@ import org.knime.knip.core.data.img.DefaultImgMetadata;
 import org.knime.knip.core.io.externalization.BufferedDataInputStream;
 import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
 import org.knime.knip.core.io.externalization.ExternalizerManager;
-import org.knime.knip.core.util.ImgUtils;
 
 /**
  *
@@ -353,7 +351,13 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
     @Override
     public synchronized ImgPlus<T> getImgPlusCopy() {
         readImgData(m_fileMetadata.getOffset(), false);
-        return new ImgPlusCopy<T>().compute(getImgPlus(), new ImgPlus<T>(ImgUtils.createEmptyImg(m_img)));
+
+        final ImgPlus<T> source = getImgPlus();
+        final ImgPlus<T> dest = new ImgPlus<T>(source.copy());
+
+        MetadataUtil.copyImageMetadata(source, dest);
+
+        return dest;
     }
 
     /**
