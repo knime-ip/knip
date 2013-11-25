@@ -55,20 +55,49 @@ import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 
 /**
+ * {@link ImgPlusToImgPlusNodeDialog} for {@link ImgPlusToImgPlusNodeModel} providing
+ * {@link DialogComponentDimSelection}
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <T>
  */
 public abstract class ImgPlusToImgPlusNodeDialog<T extends RealType<T>> extends ValueToCellNodeDialog<ImgPlusValue<T>> {
 
+    /**
+     * {@link SettingsModelDimSelection} to store dimension selection
+     */
     protected SettingsModelDimSelection m_dimSelectionModel;
 
+    /**
+     * Dialog for {@link ImgPlusToImgPlusNodeModel} which provides a {@link DialogComponentDimSelection}
+     *
+     * @param minDims Minimum number of selected dimensions in {@link DialogComponentDimSelection}
+     * @param maxDims Maximum number of selected dimensions in {@link DialogComponentDimSelection}#
+     * @param axes default selected axes
+     */
     public ImgPlusToImgPlusNodeDialog(final int minDims, final int maxDims, final String... axes) {
-        this(ImgPlusToImgPlusNodeModel.createDimSelectionModel(axes), minDims, maxDims);
+        super(true);
+        m_dimSelectionModel = ImgPlusToImgPlusNodeModel.createDimSelectionModel(axes);
+        addDialogComponent("Options", "Dimension Selection", new DialogComponentDimSelection(m_dimSelectionModel, "",
+                minDims, maxDims));
+
+        super.init();
     }
 
+    /**
+     * Dialog for {@link ImgPlusToImgPlusNodeModel} which provides a {@link DialogComponentDimSelection}
+     *
+     * Deprecation: SettingsModel shouldn't be passed.
+     *
+     * @param model SettingsModel for the dimension selection (deprecated)
+     * @param minDims Minimum number of selected dimensions in {@link DialogComponentDimSelection}
+     * @param maxDims Maximum number of selected dimensions in {@link DialogComponentDimSelection}
+     */
+    @Deprecated
     public ImgPlusToImgPlusNodeDialog(final SettingsModelDimSelection model, final int minDims, final int maxDims) {
+        super(true);
         m_dimSelectionModel = model;
 
         addDialogComponent("Options", "Dimension Selection", new DialogComponentDimSelection(m_dimSelectionModel, "",
@@ -77,16 +106,11 @@ public abstract class ImgPlusToImgPlusNodeDialog<T extends RealType<T>> extends 
         super.init();
     }
 
-    @Override
-    protected void buildDialog() {
-        // Lazy..
-    }
-
     /**
      * This method can be called after everything is initalized
      */
     protected void initDialog() {
         // nothing to do here
-    };
+    }
 
 }
