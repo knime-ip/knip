@@ -164,9 +164,11 @@ public class InverterNodeFactory<T extends RealType<T>, L extends Comparable<L>>
                     // this can be done faster
                     ImgPlus<T> in = cellValue.getImgPlus();
                     return m_cellFactory.createCell(new ImgPlus<T>(new ImgView<T>(
-                            new ConvertedRandomAccessibleInterval<T, T>(in, new UnaryOperationBasedConverter<T, T>(
-                                    m_preparedOp), getOutType(in.firstElement())), in.factory()), in), cellValue
-                            .getMinimum());
+                                                            new ConvertedRandomAccessibleInterval<T, T>(in,
+                                                                    new UnaryOperationBasedConverter<T, T>(createOp(in
+                                                                            .firstElement().createVariable())),
+                                                                    getOutType(in.firstElement())), in.factory()), in),
+                                                    cellValue.getMinimum());
                 }
             }
 
