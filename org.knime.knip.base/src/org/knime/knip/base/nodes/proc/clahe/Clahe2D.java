@@ -47,7 +47,7 @@
  *
  * Created on Oct 29, 2013 by Daniel
  */
-package org.knime.knip.base.nodes.proc;
+package org.knime.knip.base.nodes.proc.clahe;
 
 import java.awt.Point;
 import java.util.HashMap;
@@ -65,7 +65,7 @@ import net.imglib2.view.Views;
  *
  * @param <T> extends RealType<T>
  */
-public class FastCLAHE<T extends RealType<T>> implements
+public class Clahe2D<T extends RealType<T>> implements
         UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> {
 
     private final int m_ctxNumberX;
@@ -82,7 +82,7 @@ public class FastCLAHE<T extends RealType<T>> implements
      * @param bins
      * @param slope
      */
-    public FastCLAHE(final int ctxNumberX, final int ctxNumberY, final int bins, final float slope) {
+    public Clahe2D(final int ctxNumberX, final int ctxNumberY, final int bins, final float slope) {
         this.m_ctxNumberX = ctxNumberX;
         this.m_ctxNumberY = ctxNumberY;
         this.m_bins = bins;
@@ -94,7 +94,7 @@ public class FastCLAHE<T extends RealType<T>> implements
      */
     @Override
     public UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> copy() {
-        return new FastCLAHE<T>(m_ctxNumberX, m_ctxNumberY, m_bins, m_slope);
+        return new Clahe2D<T>(m_ctxNumberX, m_ctxNumberY, m_bins, m_slope);
     }
 
     /**

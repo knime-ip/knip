@@ -75,7 +75,7 @@ import net.imglib2.view.Views;
  *
  * @author Daniel Seebacher, University of Konstanz
  */
-public class FastClaheND<T extends RealType<T>> implements
+public class ClaheND<T extends RealType<T>> implements
         UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> {
 
     private final long m_ctxNumberDims;
@@ -90,7 +90,7 @@ public class FastClaheND<T extends RealType<T>> implements
      * @param bins number of bins used by the histograms
      * @param d slope used for the clipping function
      */
-    public FastClaheND(final long l, final int bins, final double d) {
+    public ClaheND(final long l, final int bins, final double d) {
         this.m_ctxNumberDims = l;
         this.m_bins = bins;
         this.m_slope = d;
@@ -101,7 +101,7 @@ public class FastClaheND<T extends RealType<T>> implements
      */
     @Override
     public UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> copy() {
-        return new FastClaheND<T>(m_ctxNumberDims, m_bins, m_slope);
+        return new ClaheND<T>(m_ctxNumberDims, m_bins, m_slope);
     }
 
     /**
@@ -352,7 +352,7 @@ public class FastClaheND<T extends RealType<T>> implements
             for (int i = 0; i < neighbors.size(); i++) {
                 histValues[i] = ctxHistograms.get(neighbors.get(i)).buildCDF(oldValue);
             }
-            return CLAHENDLinearInterpolation.interpolate(currentPoint, neighbors, oldValue, histValues);
+            return ClaheInterpolation.interpolate(currentPoint, neighbors, oldValue, histValues);
         }
     }
 }

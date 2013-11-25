@@ -62,10 +62,12 @@ import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
+import org.knime.knip.base.nodes.proc.clahe.Clahe2D;
+import org.knime.knip.base.nodes.proc.clahe.ClaheNodeFactory;
 import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
- * Factory class to produce CLAHE Node
+ * Factory class to produce CLAHE Node. Deprecation: Use {@link ClaheNodeFactory}
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -73,6 +75,7 @@ import org.knime.knip.core.util.ImgPlusFactory;
  * @param <K>
  * @param <T>
  */
+@Deprecated
 public class CLAHENodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
 
     private static SettingsModelInteger createCtxNumberX() {
@@ -143,7 +146,7 @@ public class CLAHENodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNod
             @Override
             protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> op(final ImgPlus<T> imgPlus) {
 
-                FastCLAHE<T> clahe = new FastCLAHE<T>(m_ctxX.getIntValue(), m_ctxY.getIntValue(), m_numberOfBins.getIntValue(), m_slope.getIntValue());
+                Clahe2D<T> clahe = new Clahe2D<T>(m_ctxX.getIntValue(), m_ctxY.getIntValue(), m_numberOfBins.getIntValue(), m_slope.getIntValue());
 
                 return Operations
                         .wrap(ImgOperations.wrapRA(clahe, imgPlus

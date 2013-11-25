@@ -61,7 +61,7 @@ import java.util.List;
  *
  * @author Daniel Seebacher
  */
-public class CLAHENDLinearInterpolation {
+public class ClaheInterpolation {
 
     /**
      * @param currentPoint the current point (somewhere in between the neighbors)
@@ -74,7 +74,7 @@ public class CLAHENDLinearInterpolation {
                                     final double oldValue, final double[] histValues) {
 
         // create a list containg all points and their value and sort them using the dimension comparator
-        List<InterpolationPoint> ips = new ArrayList<CLAHENDLinearInterpolation.InterpolationPoint>();
+        List<InterpolationPoint> ips = new ArrayList<ClaheInterpolation.InterpolationPoint>();
         for (int i = 0; i < neighbors.size(); i++) {
             ips.add(new InterpolationPoint(neighbors.get(i).getCoordinates(), histValues[i]));
         }
@@ -94,7 +94,7 @@ public class CLAHENDLinearInterpolation {
     private static double interpolate(final ClahePoint currentPoint, final List<InterpolationPoint> ips, final int dim) {
 
         // because the points were sorted beforehand the values for an interpolation are always at i and i+1
-        List<InterpolationPoint> newIPS = new ArrayList<CLAHENDLinearInterpolation.InterpolationPoint>();
+        List<InterpolationPoint> newIPS = new ArrayList<ClaheInterpolation.InterpolationPoint>();
         for (int i = 0; i < ips.size(); i += 2) {
             // calculate the distances in the dimension i
             double distanceOne = Math.abs(ips.get(i).dim(dim) - currentPoint.dim(dim));
