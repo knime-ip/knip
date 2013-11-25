@@ -79,7 +79,7 @@ import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
- * Factory class to produce an contrast enhancer node.
+ * Use {@link ImgNormalizerNodeFactory} instead
  *
  * @param <T>
  *
