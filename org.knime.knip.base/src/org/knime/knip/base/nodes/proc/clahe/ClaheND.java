@@ -125,8 +125,8 @@ public class ClaheND<T extends RealType<T>> implements
             for (int i = 0; i < imageDimensions.length; i++) {
                 imageDimensions[i] = input.dimension(i);
                 if (imageDimensions[i] < m_ctxNumberDims) {
-                    throw new IllegalArgumentException("Can't divide dimension \"" + i + "\" of length "+imageDimensions[i]+" into more than "
-                            + m_ctxNumberDims + " context regions");
+                    throw new IllegalArgumentException("Can't divide dimension \"" + i + "\" of length "
+                            + imageDimensions[i] + " into more than " + m_ctxNumberDims + " context regions");
                 }
             }
 

@@ -94,18 +94,18 @@ public class ClaheNodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNod
     @Override
     protected ImgPlusToImgPlusNodeDialog<T> createNodeDialog() {
 
-        return new ImgPlusToImgPlusNodeDialog<T>(2, Integer.MAX_VALUE, "X", "Y") {
+        return new ImgPlusToImgPlusNodeDialog<T>(2, 5, "X", "Y") {
 
             @Override
             public void addDialogComponents() {
 
-                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxDimValue(),
+                addDialogComponent("Options", "CLAHE Options", new DialogComponentNumber(createCtxDimValue(),
                         "Number of contextual regions", 1));
 
-                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxNumberOfBins(),
+                addDialogComponent("Options", "CLAHE Options", new DialogComponentNumber(createCtxNumberOfBins(),
                         "Number of bins", 1));
 
-                addDialogComponent("Options", "CLAHE options",
+                addDialogComponent("Options", "CLAHE Options",
                                    new DialogComponentNumber(createCtxSlope(), "Slope", 0.1));
             }
 
