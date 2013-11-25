@@ -77,6 +77,8 @@ import org.knime.node2012.TabDocument.Tab;
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <VIN>
  */
 public abstract class ValueToCellNodeDialog<VIN extends DataValue> extends LazyNodeDialogPane {
 
@@ -132,21 +134,20 @@ public abstract class ValueToCellNodeDialog<VIN extends DataValue> extends LazyN
     }
 
     /**
-     * If lazy is true
+     * Possible lazy constructor
      *
-     * addDialogComponents(); buildDialog();
+     * If lazy is true addDialogComponents(); buildDialog();
      *
      * Must be called manually!
      *
-     * @param lazyInit indicator whether lazy or not
+     * @param lazy indicator whether lazy or not
      */
-    public ValueToCellNodeDialog(final boolean lazyInit) {
-        if (!lazyInit) {
-            addDCs();
+    public ValueToCellNodeDialog(final boolean lazy) {
+        addDCs();
+        if (!lazy) {
             addDialogComponents();
             buildDialog();
         } else {
-            addDCs();
         }
     }
 

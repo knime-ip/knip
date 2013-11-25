@@ -62,12 +62,12 @@ import org.knime.node2012.KnimeNodeDocument.KnimeNode;
  * registered at a extension point using ONLY the {@link NodeSetFactory} class. Registering this class directly will NOT
  * work so far.
  *
- *
- * @param <VIN>
- * @param <COUT>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <VIN>
+ * @param <M>
  */
 public abstract class GenericValueToCellNodeFactory<VIN extends DataValue, M extends ValueToCellNodeModel<VIN, ? extends DataCell>>
         extends DynamicNodeFactory<M> {
@@ -75,6 +75,7 @@ public abstract class GenericValueToCellNodeFactory<VIN extends DataValue, M ext
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("deprecation")
     @Override
     protected final void addNodeDescription(final KnimeNodeDocument doc) {
         createNodeDescription(doc);
@@ -117,7 +118,6 @@ public abstract class GenericValueToCellNodeFactory<VIN extends DataValue, M ext
      * named after the derived class will not be used.
      *
      * @param doc
-     * @return
      */
     protected void createNodeDescription(final KnimeNodeDocument doc) {
         // May be overwritten

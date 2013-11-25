@@ -67,18 +67,19 @@ import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @param <T>
  */
 public class AverageFilterNodeFactory<T extends RealType<T>> extends SlidingWindowOperationNodeFactory<T, T> {
 
     /**
      * simple helper class that simply returns the mean
-     * 
+     *
      * @author zinsmaie
-     * 
+     *
      */
     private class MeanReturn implements BinaryOperation<DoubleType, T, T> {
 
@@ -116,6 +117,7 @@ public class AverageFilterNodeFactory<T extends RealType<T>> extends SlidingWind
     }
 
     @Override
+    @Deprecated
     public AbstractSlidingWindowOperationNodeModel<T, T> createNodeModel() {
         return new AbstractSlidingWindowOperationNodeModel<T, T>() {
 

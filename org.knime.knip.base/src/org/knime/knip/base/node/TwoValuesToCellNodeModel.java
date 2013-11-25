@@ -65,6 +65,7 @@ import org.knime.core.data.DataType;
 import org.knime.core.data.DataValue;
 import org.knime.core.data.RowIterator;
 import org.knime.core.data.RowKey;
+import org.knime.core.data.collection.ListCell;
 import org.knime.core.data.container.CellFactory;
 import org.knime.core.data.container.ColumnRearranger;
 import org.knime.core.data.def.DefaultRow;
@@ -105,7 +106,7 @@ import org.knime.knip.base.exceptions.LoggerHelper;
 public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 extends DataValue, COUT extends DataCell>
         extends NodeModel implements BufferedDataTableHolder {
 
-    /*
+    /**
      * Column creation modes
      */
     public static final String[] COL_CREATION_MODES = new String[]{"New Table", "Append", "Replace first",
@@ -203,8 +204,17 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
     private List<SettingsModel> m_settingsModels = null;
 
     /**
-     * @param colSuffix suffix to be appended to the resulting column names
-     *
+     * First column idx
+     */
+    private int m_firstColIdx;
+
+    /**
+     * Second column idx
+     */
+    private int m_secondColIdx;
+
+    /**
+     * Default Constructor
      */
     protected TwoValuesToCellNodeModel() {
         super(1, 1);
@@ -275,7 +285,7 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
      * @param cellValue1
      * @param cellValue2
      *
-     * @return
+     * @return COUT the computed {@link DataCell}
      * @throws Exception
      */
     protected abstract COUT compute(VIN1 cellValue1, VIN2 cellValue2) throws Exception;
@@ -288,8 +298,10 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
 
         final DataTableSpec inSpec = (DataTableSpec)inSpecs[IN_TABLE_PORT_INDEX];
 
-        final int[] colIndices = getColIndices(inSpec);
-        final CellFactory cellFac = createCellFactory(inSpec, colIndices);
+        m_firstColIdx = NodeTools.getColumnIndex(m_firstColumn, inSpec, m_firstInValClass, this.getClass());
+        m_secondColIdx = NodeTools.getColumnIndex(m_secondColumn, inSpec, m_secondInValClass, this.getClass());
+
+        final CellFactory cellFac = createCellFactory(inSpec, m_firstColIdx, m_secondColIdx);
         ColumnRearranger colRearranger;
 
         if (m_colCreationMode.getStringValue().equals(COL_CREATION_MODES[0])) {
@@ -300,11 +312,11 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
             return new DataTableSpec[]{colRearranger.createSpec()};
         } else if (m_colCreationMode.getStringValue().equals(COL_CREATION_MODES[2])) {
             colRearranger = new ColumnRearranger(inSpec);
-            colRearranger.replace(cellFac, colIndices[0]);
+            colRearranger.replace(cellFac, m_firstColIdx);
             return new DataTableSpec[]{colRearranger.createSpec()};
         } else {
             colRearranger = new ColumnRearranger(inSpec);
-            colRearranger.replace(cellFac, colIndices[1]);
+            colRearranger.replace(cellFac, m_secondColIdx);
             return new DataTableSpec[]{colRearranger.createSpec()};
         }
     }
@@ -312,11 +324,14 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
     /**
      * Creates the cell factory
      *
-     * @param inSpec
-     * @param colIndices selected column indices
+     * @param inSpec current {@link DataTableSpec}
+     * @param firstColumnIdx column index of first column
+     * @param secondColumnIdx column index of second column
+     *
      * @return the cell factory
      */
-    protected CellFactory createCellFactory(final DataTableSpec inSpec, final int[] colIndices) {
+    protected CellFactory createCellFactory(final DataTableSpec inSpec, final int firstColumnIdx,
+                                            final int secondColumnIdx) {
 
         DataType dt;
         if (getOutDataCellListCellType() != null) {
@@ -328,13 +343,13 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
         DataColumnSpec cs1, cs2;
         String cs1Name = null, cs2Name = null;
 
-        if (colIndices[0] > -1) {
-            cs1 = inSpec.getColumnSpec(colIndices[0]);
+        if (firstColumnIdx > -1) {
+            cs1 = inSpec.getColumnSpec(firstColumnIdx);
             cs1Name = cs1.getName();
         }
 
-        if (colIndices[1] > -1) {
-            cs2 = inSpec.getColumnSpec(colIndices[1]);
+        if (secondColumnIdx > -1) {
+            cs2 = inSpec.getColumnSpec(secondColumnIdx);
             cs2Name = cs2.getName();
         }
 
@@ -348,14 +363,16 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
                 DataCell[] cells;
                 try {
 
-                    if ((((colIndices[0] > -1) && (row.getCell(colIndices[0]).isMissing())) || ((colIndices[1] > -1) && row
-                            .getCell(colIndices[1]).isMissing()))) {
+                    if ((((firstColumnIdx > -1) && (row.getCell(firstColumnIdx).isMissing())) || ((secondColumnIdx > -1) && row
+                            .getCell(secondColumnIdx).isMissing()))) {
                         LOGGER.warn("Missing cell was ignored at row " + row.getKey());
                         cells = new DataCell[]{DataType.getMissingCell()};
                     } else {
                         DataCell c =
-                                compute(colIndices[0] > -1 ? m_firstInValClass.cast(row.getCell(colIndices[0])) : null,
-                                        colIndices[1] > -1 ? m_secondInValClass.cast(row.getCell(colIndices[1])) : null);
+                                compute(firstColumnIdx > -1 ? m_firstInValClass.cast(row.getCell(firstColumnIdx))
+                                                : null,
+                                        secondColumnIdx > -1 ? m_secondInValClass.cast(row.getCell(secondColumnIdx))
+                                                : null);
                         if (c == null) {
                             LOGGER.warn("Node didn't provide an output at row " + row.getKey()
                                     + ". Missing cell has been inserted.");
@@ -414,9 +431,13 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
 
         BufferedDataTable[] res;
 
-        final int[] colIndices = getColIndices(inTable.getDataTableSpec());
+        final int firstColIdx =
+                NodeTools.getColumnIndex(m_firstColumn, inTable.getDataTableSpec(), m_firstInValClass, this.getClass());
+        final int secondColIdx =
+                NodeTools.getColumnIndex(m_secondColumn, inTable.getDataTableSpec(), m_secondInValClass,
+                                         this.getClass(), firstColIdx);
 
-        final CellFactory cellFac = createCellFactory(inTable.getDataTableSpec(), colIndices);
+        final CellFactory cellFac = createCellFactory(inTable.getDataTableSpec(), firstColIdx, secondColIdx);
 
         ColumnRearranger colRearranger;
 
@@ -442,11 +463,11 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
             res = new BufferedDataTable[]{exec.createColumnRearrangeTable(inTable, colRearranger, exec)};
         } else if (m_colCreationMode.getStringValue().equals(COL_CREATION_MODES[2])) {
             colRearranger = new ColumnRearranger(inTable.getDataTableSpec());
-            colRearranger.replace(cellFac, colIndices[0]);
+            colRearranger.replace(cellFac, firstColIdx);
             res = new BufferedDataTable[]{exec.createColumnRearrangeTable(inTable, colRearranger, exec)};
         } else {
             colRearranger = new ColumnRearranger(inTable.getDataTableSpec());
-            colRearranger.replace(cellFac, colIndices[1]);
+            colRearranger.replace(cellFac, secondColIdx);
             res = new BufferedDataTable[]{exec.createColumnRearrangeTable(inTable, colRearranger, exec)};
         }
 
@@ -461,29 +482,11 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
 
     }
 
-    protected int[] getColIndices(final DataTableSpec inSpec) throws InvalidSettingsException {
-
-        int tmpFirstColIdx = -1;
-        if (m_firstColumn.getStringValue() != null && !m_firstColumn.getStringValue().equalsIgnoreCase("")) {
-            tmpFirstColIdx = NodeTools.autoColumnSelection(inSpec, m_firstColumn, m_firstInValClass, this.getClass());
-        }
-
-        int tmpSecondColIdx = -1;
-        if (m_secondColumn.getStringValue() != null && !m_secondColumn.getStringValue().equalsIgnoreCase("") ) {
-            // try to find something in another row
-            tmpSecondColIdx =
-                    NodeTools.autoColumnSelection(inSpec, m_secondColumn, m_secondInValClass, this.getClass(),
-                                                  tmpFirstColIdx);
-        }
-
-        return new int[]{tmpFirstColIdx, tmpSecondColIdx};
-    }
-
     /**
      * Returns the {@link ExecutorService} which will be reseted after cancelation of the node. Use this
      * {@link ExecutorService} to submit new futures in your node.
      *
-     * @return
+     * @return the current {@link ExecutorService}
      */
     public ExecutorService getExecutorService() {
         return m_executor;
@@ -500,7 +503,7 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
     /**
      * The cell type that is stored if the out-cell is a ListCell
      *
-     * @return
+     * @return If not null a {@link ListCell} will be computed
      */
     protected DataType getOutDataCellListCellType() {
         return null;
@@ -564,8 +567,10 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
     /**
      * Will be called before calling the {@link TwoValuesToCellNodeModel#compute(DataValue, DataValue)} multiple times.
      * Has to be overwritten if needed.
+     *
+     * @param exec current ExecutionContext
      */
-    protected void prepareExecute(@SuppressWarnings("unused") final ExecutionContext exec) {
+    protected void prepareExecute(final ExecutionContext exec) {
         //
     }
 
@@ -625,7 +630,20 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
                 setWarningMessage("Problems occurred while validating settings.");
             }
         }
+    }
 
+    /**
+     * @return first column idx
+     */
+    protected int firstColumnIdx() {
+        return m_firstColIdx;
+    }
+
+    /**
+     * @return first column idx
+     */
+    protected int secondColumnIdx() {
+        return m_secondColIdx;
     }
 
 }

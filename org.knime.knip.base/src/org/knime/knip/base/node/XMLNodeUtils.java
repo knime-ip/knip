@@ -57,6 +57,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeLogger;
+import org.knime.node.v28.KnimeNodeDocument.KnimeNode;
 import org.knime.node2012.KnimeNodeDocument;
 
 /**
