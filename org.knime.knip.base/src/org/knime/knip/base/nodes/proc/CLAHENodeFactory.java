@@ -108,13 +108,12 @@ public class CLAHENodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNod
                         "Number of contextual regions in X direction", 1));
 
                 addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxNumberY(),
-                                                                                         "Number of contextual regions in Y direction", 1));
+                        "Number of contextual regions in Y direction", 1));
 
                 addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxNumberOfBins(),
                         "Number of bins", 1));
 
-                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxSlope(),
-                        "Slope", 1));
+                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxSlope(), "Slope", 1));
 
             }
         };
@@ -146,12 +145,11 @@ public class CLAHENodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNod
             @Override
             protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> op(final ImgPlus<T> imgPlus) {
 
-                Clahe2D<T> clahe = new Clahe2D<T>(m_ctxX.getIntValue(), m_ctxY.getIntValue(), m_numberOfBins.getIntValue(), m_slope.getIntValue());
+                ClaheND<T> clahe =
+                        new ClaheND<T>(m_ctxX.getIntValue(), m_numberOfBins.getIntValue(), m_slope.getIntValue());
 
-                return Operations
-                        .wrap(ImgOperations.wrapRA(clahe, imgPlus
-                                                           .firstElement().createVariable()), ImgPlusFactory
-                                .<T, T> get(imgPlus.firstElement()));
+                return Operations.wrap(ImgOperations.wrapRA(clahe, imgPlus.firstElement().createVariable()),
+                                       ImgPlusFactory.<T, T> get(imgPlus.firstElement()));
             }
 
             @Override

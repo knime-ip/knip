@@ -8,7 +8,7 @@
 	<name>CLAHE (deprecated)</name>
 	<shortDescription>
 		Contrast limited adaptive histogram equalization.
-		(DEPRECATION: re-add this node for the newer version.)
+		(DEPRECATION: re-add this node for the newer version)
 	</shortDescription>
 
 	<fullDescription>
