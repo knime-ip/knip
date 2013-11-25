@@ -149,7 +149,7 @@ public class ProcNodeSetFactory implements NodeSetFactory {
 
         // ROI based nodes (which deprecated the old implementations)
         m_nodeFactories.put(ImgNormalizerNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
-        m_nodeFactories.put(InverterNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
+        m_nodeFactories.put(InverterNodeFactory2.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(ThresholderNodeFactory3.class.getCanonicalName(), "/community/knip/image/process");
 
         return m_nodeFactories.keySet();
