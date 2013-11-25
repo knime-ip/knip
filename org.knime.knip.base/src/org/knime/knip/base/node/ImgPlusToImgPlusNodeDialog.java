@@ -81,6 +81,8 @@ public abstract class ImgPlusToImgPlusNodeDialog<T extends RealType<T>> extends 
         m_dimSelectionModel = ImgPlusToImgPlusNodeModel.createDimSelectionModel(axes);
         addDialogComponent("Options", "Dimension Selection", new DialogComponentDimSelection(m_dimSelectionModel, "",
                 minDims, maxDims));
+
+        super.init();
     }
 
     /**
