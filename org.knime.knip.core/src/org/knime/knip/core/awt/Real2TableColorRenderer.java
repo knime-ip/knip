@@ -52,10 +52,10 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.display.ColorTable;
 import net.imglib2.display.ColorTable16;
 import net.imglib2.display.ColorTable8;
-import net.imglib2.display.projectors.AbstractProjector2D;
-import net.imglib2.display.projectors.Projector2D;
-import net.imglib2.display.projectors.screenimages.ARGBScreenImage;
-import net.imglib2.display.projectors.screenimages.ScreenImage;
+import net.imglib2.display.projector.AbstractProjector2D;
+import net.imglib2.display.projector.Projector2D;
+import net.imglib2.display.screenimage.awt.ARGBScreenImage;
+import net.imglib2.display.screenimage.awt.AWTScreenImage;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.RealType;
 
@@ -68,8 +68,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Renders the real values of a X,Y slice as ScreenImage. The position in the colorDim defines which of the provided
  * color tables is used.
- * 
- * 
+ *
+ *
  * @param <R>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -93,7 +93,7 @@ public class Real2TableColorRenderer<R extends RealType<R>> extends ProjectingRe
     }
 
     @Override
-    public ScreenImage render(final RandomAccessibleInterval<R> source, final int dimX, final int dimY,
+    public AWTScreenImage render(final RandomAccessibleInterval<R> source, final int dimX, final int dimY,
                               final long[] planePos) {
 
         // default implementation

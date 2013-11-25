@@ -57,7 +57,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.dialog.DialogComponentOutOfBoundsSelection;
 import org.knime.knip.core.types.NeighborhoodType;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
@@ -79,7 +79,7 @@ public class SigmaFilterNodeDialog<T extends RealType<T>> extends ImgPlusToImgPl
 
         addDialogComponent("Options", "Neighborhood type",
                            new DialogComponentStringSelection(SigmaFilterNodeModel.createNeighborhoodTypeNodeModel(),
-                                   "Neighborhood Type", EnumListProvider.getStringList(NeighborhoodType.values())));
+                                   "Neighborhood Type", EnumUtils.getStringListFromName(NeighborhoodType.values())));
 
         addDialogComponent("Options", "Parameters", new DialogComponentNumber(SigmaFilterNodeModel.createWindowSize(),
                 "Window Span", 1.0));

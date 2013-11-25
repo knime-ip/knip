@@ -53,11 +53,11 @@ import java.util.List;
 import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
 import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
 import net.imglib2.interpolation.randomaccess.LanczosInterpolatorFactory;
 import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
 import net.imglib2.interpolation.randomaccess.NearestNeighborInterpolatorFactory;
 import net.imglib2.meta.ImgPlus;
-import net.imglib2.ops.operation.subset.views.ImgView;
 import net.imglib2.realtransform.RealViews;
 import net.imglib2.realtransform.Scale;
 import net.imglib2.type.numeric.RealType;
@@ -76,7 +76,7 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * Simple Scaling Node
@@ -114,7 +114,7 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
             @Override
             public void addDialogComponents() {
                 addDialogComponent("Options", "Interpolation mode", new DialogComponentStringSelection(
-                        createInterpolationModel(), "", EnumListProvider.getStringList(Mode.values())));
+                        createInterpolationModel(), "", EnumUtils.getStringListFromName(Mode.values())));
                 addDialogComponent("Options", "New Dimension Sizes", new DialogComponentScalingValues(
                         createScalingModel()));
                 addDialogComponent("Options", "New Dimension Sizes", new DialogComponentBoolean(createRelDimsModel(),

@@ -52,8 +52,8 @@ import java.awt.Graphics;
 import java.util.Set;
 
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.display.projectors.screenimages.ARGBScreenImage;
-import net.imglib2.display.projectors.screenimages.ScreenImage;
+import net.imglib2.display.screenimage.awt.ARGBScreenImage;
+import net.imglib2.display.screenimage.awt.AWTScreenImage;
 import net.imglib2.labeling.LabelingMapping;
 import net.imglib2.labeling.LabelingType;
 import net.imglib2.type.Type;
@@ -64,7 +64,7 @@ import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter.Operator;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -95,7 +95,7 @@ public class BoundingBoxRandomColorLabelRenderer<L extends Comparable<L> & Type<
     }
 
     @Override
-    public ScreenImage render(final RandomAccessibleInterval<LabelingType<L>> source, final int dimX, final int dimY,
+    public AWTScreenImage render(final RandomAccessibleInterval<LabelingType<L>> source, final int dimX, final int dimY,
                               final long[] planePos) {
         m_dimX = dimX;
         m_dimY = dimY;
@@ -106,11 +106,11 @@ public class BoundingBoxRandomColorLabelRenderer<L extends Comparable<L> & Type<
     }
 
     @Override
-    protected ScreenImage createCanvas(final int width, final int height) {
+    protected AWTScreenImage createCanvas(final int width, final int height) {
 
-        final ScreenImage ret = new ARGBScreenImage(width, height);
+        final AWTScreenImage ret = new ARGBScreenImage(width, height);
         m_labelRenderer.setLabelingColorTable(m_mapping);
-        final ScreenImage labelRendererResult = m_labelRenderer.render(m_source, m_dimX, m_dimY, m_planePos);
+        final AWTScreenImage labelRendererResult = m_labelRenderer.render(m_source, m_dimX, m_dimY, m_planePos);
         final Graphics g = ret.image().getGraphics();
         g.drawImage(labelRendererResult.image(), 0, 0, width, height, null);
 

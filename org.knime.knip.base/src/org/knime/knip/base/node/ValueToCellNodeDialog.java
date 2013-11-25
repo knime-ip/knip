@@ -73,7 +73,7 @@ import org.knime.node2012.TabDocument.Tab;
 /**
  * Dialog corresponding to the {@link ValueToCellNodeModel} which already contains dialog components, but others can
  * still be added (this {@link #addDialogComponent(String, String, DialogComponent)}.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -82,7 +82,7 @@ public abstract class ValueToCellNodeDialog<VIN extends DataValue> extends LazyN
 
     /**
      * Adds the port description to the node description.
-     * 
+     *
      * @param node
      */
     static void addPortsDescriptionTo(final KnimeNode node) {
@@ -100,7 +100,7 @@ public abstract class ValueToCellNodeDialog<VIN extends DataValue> extends LazyN
 
     /**
      * Adds the description of the column selection tab to the node description.
-     * 
+     *
      * @param desc
      */
     static void addTabsDescriptionTo(final FullDescription desc) {
@@ -124,12 +124,29 @@ public abstract class ValueToCellNodeDialog<VIN extends DataValue> extends LazyN
 
     private SettingsModelString m_smColumnSuffix;
 
+    /**
+    *
+    */
     public ValueToCellNodeDialog() {
+        this(false);
+    }
 
+    /**
+    *
+    */
+    public ValueToCellNodeDialog(final boolean lazyInit) {
+        if (!lazyInit) {
+            init();
+        }
+    }
+
+    /**
+     * Extracted to method, s.t. other can lazly call this
+     */
+    protected void init() {
         addDCs();
         addDialogComponents();
         buildDialog();
-
     }
 
     /*

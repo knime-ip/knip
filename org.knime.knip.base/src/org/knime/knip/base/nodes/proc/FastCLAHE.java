@@ -61,7 +61,8 @@ import net.imglib2.view.Views;
 
 /**
  *
- * @author Daniel
+ * @author Daniel Seebacher
+ *
  * @param <T> extends RealType<T>
  */
 public class FastCLAHE<T extends RealType<T>> implements

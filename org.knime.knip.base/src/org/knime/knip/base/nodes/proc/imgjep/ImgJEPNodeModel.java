@@ -59,10 +59,9 @@ import net.imglib2.Interval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
+import net.imglib2.img.ImgView;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.meta.ImgPlusMetadata;
-import net.imglib2.ops.operation.subset.views.ImgPlusView;
-import net.imglib2.ops.operation.subset.views.ImgView;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.data.DataCell;
@@ -102,7 +101,7 @@ import org.nfunk.jep.Variable;
 
 /**
  * This is the model implementation of JEP. Math expression parser using JEP (http://www.singularsys.com/jep/)
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -270,7 +269,7 @@ public class ImgJEPNodeModel extends NodeModel implements BufferedDataTableHolde
                                                                                 referenceMetadata);
 
                                     img =
-                                            new ImgPlusView(res, img.factory(), new DefaultImgMetadata(
+                                            new ImgPlus(new ImgView(res, img.factory()), new DefaultImgMetadata(
                                                     referenceMetadata));
                                 }
 

@@ -351,8 +351,6 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
                     if ((((colIndices[0] > -1) && (row.getCell(colIndices[0]).isMissing())) || ((colIndices[1] > -1) && row
                             .getCell(colIndices[1]).isMissing()))) {
                         LOGGER.warn("Missing cell was ignored at row " + row.getKey());
-
-                        m_numOccurredErrors++;
                         cells = new DataCell[]{DataType.getMissingCell()};
                     } else {
                         DataCell c =
@@ -466,12 +464,12 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
     protected int[] getColIndices(final DataTableSpec inSpec) throws InvalidSettingsException {
 
         int tmpFirstColIdx = -1;
-        if (m_firstColumn.getStringValue() != null) {
+        if (m_firstColumn.getStringValue() != null && !m_firstColumn.getStringValue().equalsIgnoreCase("")) {
             tmpFirstColIdx = NodeTools.autoColumnSelection(inSpec, m_firstColumn, m_firstInValClass, this.getClass());
         }
 
         int tmpSecondColIdx = -1;
-        if (m_secondColumn.getStringValue() != null) {
+        if (m_secondColumn.getStringValue() != null && !m_secondColumn.getStringValue().equalsIgnoreCase("") ) {
             // try to find something in another row
             tmpSecondColIdx =
                     NodeTools.autoColumnSelection(inSpec, m_secondColumn, m_secondInValClass, this.getClass(),

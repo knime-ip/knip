@@ -50,8 +50,6 @@ package org.knime.knip.base.nodes.proc;
 
 import java.util.List;
 
-import net.imglib2.IterableInterval;
-import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.ImgOperations;
 import net.imglib2.ops.operation.Operations;
@@ -67,7 +65,7 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
 import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
- * Factory class to produce an image inverter node.
+ * Factory class to produce CLAHE Node
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -75,7 +73,7 @@ import org.knime.knip.core.util.ImgPlusFactory;
  * @param <K>
  * @param <T>
  */
-public class CLAHENodeFactory<T extends RealType<T>, K extends RandomAccessibleInterval<T> & IterableInterval<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
+public class CLAHENodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
 
     private static SettingsModelInteger createCtxNumberX() {
         return new SettingsModelInteger("ctxX", 8);

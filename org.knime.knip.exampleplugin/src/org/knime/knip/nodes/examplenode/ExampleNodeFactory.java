@@ -57,8 +57,8 @@ import net.imglib2.converter.Converter;
 import net.imglib2.converter.Converters;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
+import net.imglib2.img.ImgView;
 import net.imglib2.meta.ImgPlus;
-import net.imglib2.ops.operation.subset.views.ImgView;
 import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.type.numeric.RealType;
 
@@ -78,7 +78,7 @@ import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.core.types.NativeTypes;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgUtils;
 import org.knime.knip.ops.ExampleOp;
 import org.knime.knip.ops.PersistentConverter;
@@ -261,7 +261,7 @@ public class ExampleNodeFactory<T extends RealType<T>, K extends IntegerType<K>>
 						"",
 						new DialogComponentStringSelection(
 								createResTypeModel(), "Result Type",
-								EnumListProvider.getStringList(
+								EnumUtils.getStringListFromName(
 										NativeTypes.SHORTTYPE,
 										NativeTypes.BITTYPE,
 										NativeTypes.BYTETYPE,

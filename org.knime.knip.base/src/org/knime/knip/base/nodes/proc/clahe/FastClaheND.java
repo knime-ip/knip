@@ -352,7 +352,7 @@ public class FastClaheND<T extends RealType<T>> implements
             for (int i = 0; i < neighbors.size(); i++) {
                 histValues[i] = ctxHistograms.get(neighbors.get(i)).buildCDF(oldValue);
             }
-            return NDLinearInterpolation.interpolate(currentPoint, neighbors, oldValue, histValues);
+            return CLAHENDLinearInterpolation.interpolate(currentPoint, neighbors, oldValue, histValues);
         }
     }
 }

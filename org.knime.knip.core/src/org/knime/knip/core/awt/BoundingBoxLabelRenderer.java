@@ -55,13 +55,13 @@ import java.util.Set;
 import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.display.projectors.screenimages.ARGBScreenImage;
-import net.imglib2.display.projectors.screenimages.ScreenImage;
+import net.imglib2.display.screenimage.awt.ARGBScreenImage;
+import net.imglib2.display.screenimage.awt.AWTScreenImage;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingMapping;
 import net.imglib2.labeling.LabelingType;
+import net.imglib2.labeling.LabelingView;
 import net.imglib2.ops.operation.SubsetOperations;
-import net.imglib2.ops.operation.subset.views.LabelingView;
 import net.imglib2.roi.IterableRegionOfInterest;
 import net.imglib2.type.Type;
 
@@ -107,12 +107,12 @@ public class BoundingBoxLabelRenderer<L extends Comparable<L> & Type<L>> impleme
     protected boolean m_withLabelStrings = true;
 
     @Override
-    public ScreenImage render(final RandomAccessibleInterval<LabelingType<L>> source, final int dimX, final int dimY,
+    public AWTScreenImage render(final RandomAccessibleInterval<LabelingType<L>> source, final int dimX, final int dimY,
                               final long[] planePos) {
         return render(dimX, dimY, planePos, source, m_activeLabels, m_scale, m_withLabelStrings);
     }
 
-    private ScreenImage render(final int dimX, final int dimY, final long[] planePos,
+    private AWTScreenImage render(final int dimX, final int dimY, final long[] planePos,
                                final RandomAccessibleInterval<LabelingType<L>> labeling,
                                final Set<String> activeLabels, final double scale, final boolean withLabelString) {
         Labeling<L> subLab = null;
@@ -142,7 +142,7 @@ public class BoundingBoxLabelRenderer<L extends Comparable<L> & Type<L>> impleme
         final int width = (int)Math.round(dims[dimX] * scale) + 1;
         final int height = (int)Math.round(dims[dimY] * scale) + 1;
 
-        final ScreenImage res = createCanvas(width, height);
+        final AWTScreenImage res = createCanvas(width, height);
         final Graphics g = res.image().getGraphics();
         g.setColor(Color.black);
 
@@ -182,8 +182,8 @@ public class BoundingBoxLabelRenderer<L extends Comparable<L> & Type<L>> impleme
         return res;
     }
 
-    protected ScreenImage createCanvas(final int width, final int height) {
-        final ScreenImage ret = new ARGBScreenImage(width, height);
+    protected AWTScreenImage createCanvas(final int width, final int height) {
+        final AWTScreenImage ret = new ARGBScreenImage(width, height);
         final Graphics g = ret.image().getGraphics();
         g.setColor(Color.WHITE);
         g.fillRect(0, 0, width, height);

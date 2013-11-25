@@ -71,12 +71,12 @@ import org.knime.knip.core.features.FeatureFactory;
 import org.knime.knip.core.features.FeatureSet;
 import org.knime.knip.core.features.fd.CentroidDistanceFeatureSet;
 import org.knime.knip.core.features.fd.FDCentroidDistanceFeatureSet;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * FeatureFactory Wrapper to calculate shape descriptors
- * 
- * 
+ *
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -167,7 +167,7 @@ public class ShapeDescriptorFeatureSetProvider implements
     public void initAndAddDialogComponents(final List<DialogComponent> components) {
 
         components.add(new DialogComponentStringListSelection(createFeatModel(), "Shape Descriptors", Arrays
-                .asList(EnumListProvider.getStringList(ShapeDescriptors.values())), true, 2));
+                .asList(EnumUtils.getStringListFromName(ShapeDescriptors.values())), true, 2));
 
         components.add(new DialogComponentNumber(createSamplingRateModel(),
                 "Number of contour points (should fit 2^n, if FD used)", 2));

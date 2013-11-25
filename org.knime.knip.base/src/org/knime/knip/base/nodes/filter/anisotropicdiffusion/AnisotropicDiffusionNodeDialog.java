@@ -54,7 +54,7 @@ import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * 
@@ -77,7 +77,7 @@ public class AnisotropicDiffusionNodeDialog<T extends RealType<T>> extends ImgPl
         final DialogComponent fun =
                 new DialogComponentStringSelection(AnisotropicDiffusionNodeModel.createDiffFunModel(),
                         "Diffusion Function",
-                        EnumListProvider.getStringList(AnisotropicDiffusionNodeModel.DiffusionFunctionType.values()));
+                        EnumUtils.getStringListFromName(AnisotropicDiffusionNodeModel.DiffusionFunctionType.values()));
         // Kappa
         final DialogComponent kappa =
                 new DialogComponentNumber(AnisotropicDiffusionNodeModel.createKappaModel(), "Kappa", 1);

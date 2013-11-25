@@ -52,6 +52,7 @@ import java.util.List;
 
 import net.imglib2.converter.read.ConvertedRandomAccessibleInterval;
 import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.ImgOperations;
 import net.imglib2.ops.operation.SubsetOperations;
@@ -59,7 +60,6 @@ import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.ops.operation.iterableinterval.unary.QuantileFilter;
 import net.imglib2.ops.operation.real.unary.Convert;
 import net.imglib2.ops.operation.real.unary.Convert.TypeConversionTypes;
-import net.imglib2.ops.operation.subset.views.ImgPlusView;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 
@@ -172,8 +172,8 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
                                     new UnsignedByteType());
 
                     unsignedByteTypeImg =
-                            new ImgPlusView<UnsignedByteType>(randomAccessibleInterval, inImg.factory()
-                                    .imgFactory(new UnsignedByteType()), inImg);
+                            new ImgPlus<UnsignedByteType>(new ImgView<UnsignedByteType>(randomAccessibleInterval, inImg
+                                    .factory().imgFactory(new UnsignedByteType())), inImg);
                 } else {
                     unsignedByteTypeImg = (ImgPlus<UnsignedByteType>)inImg;
                 }
@@ -198,7 +198,7 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
                             new ConvertedRandomAccessibleInterval<UnsignedByteType, T>(unsignedByteTypeResImg,
                                     convertOp, type);
 
-                    resImg = new ImgPlusView<T>(randomAccessibleInterval, inImg.factory(), inImg);
+                    resImg = new ImgPlus<T>(new ImgView<T>(randomAccessibleInterval, inImg.factory()), inImg);
                 } else {
                     resImg = (Img<T>)unsignedByteTypeResImg;
                 }
