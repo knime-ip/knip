@@ -128,11 +128,6 @@ public class ProcNodeSetFactory implements NodeSetFactory {
         m_nodeFactories.put(LocalMaximaForDistanceMapNodeFactory.class.getCanonicalName(),
                             "/community/knip/image/process");
 
-        // TODO: Review code of jens and add description
-        // m_nodeFactories.put(LocalMaximaFinderNodeFactory.class
-        // .getCanonicalName(),
-        // "/community/knip/image/process");
-
         m_nodeFactories.put(ProjectorNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(Rotation2DNodeFactory.class.getCanonicalName(), "/community/knip/image");
         m_nodeFactories.put(ResamplerNodeFactory.class.getCanonicalName(), "/community/knip/image");
