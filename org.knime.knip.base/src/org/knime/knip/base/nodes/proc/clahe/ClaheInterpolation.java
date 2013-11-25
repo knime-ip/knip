@@ -70,8 +70,8 @@ public class ClaheInterpolation {
      * @param histValues the values of the histograms at the positions of the neighbors
      * @return the new value for this position
      */
-    public static double interpolate(final ClahePoint currentPoint, final List<ClahePoint> neighbors,
-                                    final double oldValue, final double[] histValues) {
+    public final static double interpolate(final ClahePoint currentPoint, final List<ClahePoint> neighbors,
+                                           final double oldValue, final double[] histValues) {
 
         // create a list containg all points and their value and sort them using the dimension comparator
         List<InterpolationPoint> ips = new ArrayList<ClaheInterpolation.InterpolationPoint>();
@@ -80,12 +80,48 @@ public class ClaheInterpolation {
         }
         Collections.sort(ips, getDimensionComparator());
 
-
+        // fall unterscheidung weil: wir schnellere möglichkeiten
+        if (currentPoint.numDim() == 2) {
+            return interpolate2D(currentPoint, neighbors, oldValue, histValues);
+        } else {
+            // naive vierlineare interpolation
+            // here: using imglib
+        }
         return interpolate(currentPoint, ips, 0);
     }
 
     /**
+     * @param currentPoint
+     * @param neighbors
+     * @param oldValue
+     * @param histValues
+     * @return
+     */
+    private final static double interpolate2D(final ClahePoint currentPoint, final List<ClahePoint> neighbors,
+                                              final double oldValue, final double[] histValues) {
+        switch (neighbors.size()) {
+            case 1:
+                return histValues[0];
+            case 2:
+                final double distA = currentPoint.distance(neighbors.get(0));
+
+                final double distB = currentPoint.distance(neighbors.get(1));
+
+                final double totalDist = distA + distB;
+
+                final double factor = 1.0 / totalDist;
+
+                return ((totalDist - distA) * histValues[0] + (totalDist - distB) * histValues[1]) * factor;
+            case 4:
+                // TODO:
+            default:
+                throw new IllegalStateException("Shouldn't happen in ClaheInterpolation. Wrong number of neighbors!");
+        }
+    }
+
+    /**
      * This method makes a linear interpolation in every dimension.
+     *
      * @param currentPoint the point for which a new value should be calculated
      * @param ips the points used for the interpolation
      * @param dim the dimension in which the interpolation is made
@@ -94,26 +130,25 @@ public class ClaheInterpolation {
     private static double interpolate(final ClahePoint currentPoint, final List<InterpolationPoint> ips, final int dim) {
 
         // because the points were sorted beforehand the values for an interpolation are always at i and i+1
-        List<InterpolationPoint> newIPS = new ArrayList<ClaheInterpolation.InterpolationPoint>();
+        final List<InterpolationPoint> newIPS = new ArrayList<ClaheInterpolation.InterpolationPoint>();
         for (int i = 0; i < ips.size(); i += 2) {
             // calculate the distances in the dimension i
-            double distanceOne = Math.abs(ips.get(i).dim(dim) - currentPoint.dim(dim));
-            double distanceTwo = Math.abs(ips.get(i + 1).dim(dim) - currentPoint.dim(dim));
-            double completeDistance = distanceOne + distanceTwo;
+            final double distanceOne = Math.abs(ips.get(i).dim(dim) - currentPoint.dim(dim));
+            final double distanceTwo = Math.abs(ips.get(i + 1).dim(dim) - currentPoint.dim(dim));
+            final double completeDistance = distanceOne + distanceTwo;
 
             // calculate the weights
-            double weightOne = 1 - distanceOne / completeDistance;
-            double weightTwo = 1 - distanceTwo / completeDistance;
+            final double weightOne = 1 - distanceOne / completeDistance;
+            final double weightTwo = 1 - distanceTwo / completeDistance;
 
             // calculate the new value
-            double val = (ips.get(i).getValue() * weightOne)
-                    + (ips.get(i + 1).getValue() * weightTwo);
+            final double val = (ips.get(i).getValue() * weightOne) + (ips.get(i + 1).getValue() * weightTwo);
 
             // check if it is a number (could happen if there are no values in a dimension)
-            if(Double.isNaN(val)){
-                newIPS.add(new InterpolationPoint(ips.get(i).getCoordinates(), 0));
+            if (Double.isNaN(val)) {
+                newIPS.add(new InterpolationPoint(ips.get(i + 1).getCoordinates(), 0));
             } else {
-                newIPS.add(new InterpolationPoint(ips.get(i).getCoordinates(), val));
+                newIPS.add(new InterpolationPoint(ips.get(i + 1).getCoordinates(), val));
             }
         }
 
@@ -125,8 +160,9 @@ public class ClaheInterpolation {
     }
 
     /**
-     * Used to sort the array of interpolation points by their values in the different dimensions (think about a reversed lexicographic order).
-     * For example: {0, 1, 2} < {0, 10, 2} < {0, 1, 3}
+     * Used to sort the array of interpolation points by their values in the different dimensions (think about a
+     * reversed lexicographic order). For example: {0, 1, 2} < {0, 10, 2} < {0, 1, 3}
+     *
      * @return Comparator
      */
     private static Comparator<InterpolationPoint> getDimensionComparator() {
@@ -198,5 +234,4 @@ public class ClaheInterpolation {
             return Arrays.toString(m_coordinates) + "\t" + m_value;
         }
     }
-
 }

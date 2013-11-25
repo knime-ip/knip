@@ -116,24 +116,15 @@ public class ClaheND<T extends RealType<T>> implements
         final Cursor<T> outputCursor = Views.flatIterable(output).cursor();
 
         // 1. calculate some necessary informations
-        final long[] imageDimensions;
-        final long[] offsets;
+        final long[] imageDimensions = new long[input.numDimensions()];
+        final long[] offsets = new long[imageDimensions.length];
         final List<List<Integer>> indexCombinations;
         {
-            // store image dimensions and check if image dimensions are larger than the ctxRegions
-            imageDimensions = new long[input.numDimensions()];
-            for (int i = 0; i < imageDimensions.length; i++) {
-                imageDimensions[i] = input.dimension(i);
-                if (imageDimensions[i] < m_ctxNumberDims) {
-                    throw new IllegalArgumentException("Can't divide dimension \"" + i + "\" of length "
-                            + imageDimensions[i] + " into more than " + m_ctxNumberDims + " context regions");
-                }
-            }
+            input.dimensions(imageDimensions);
 
             // calculate offsets of the context centers in each dimensions
-            offsets = new long[imageDimensions.length];
             for (int i = 0; i < imageDimensions.length; i++) {
-                offsets[i] = imageDimensions[i] / m_ctxNumberDims;
+                offsets[i] = Math.max(imageDimensions[i] / m_ctxNumberDims, 1);
             }
 
             // power set of the indices (needed to calculate neighbors in n-dimensions)
@@ -148,25 +139,25 @@ public class ClaheND<T extends RealType<T>> implements
         }
 
         // 2. create histograms and clip them
-        final HashMap<ClahePoint, ClaheHistogram> ctxHistograms = new HashMap<ClahePoint, ClaheHistogram>();
+        final HashMap<ClahePoint, ClaheHistogram<T>> ctxHistograms = new HashMap<ClahePoint, ClaheHistogram<T>>();
         {
             // first iteration through the image to build the context histograms
             long[] pos = new long[input.numDimensions()];
             while (inputCursor.hasNext()) {
-                inputCursor.next();
+                final T type = inputCursor.next();
                 inputCursor.localize(pos);
 
                 // calculate position of nearest center
                 ClahePoint center = getNearestCenter(pos, offsets);
 
                 // add point to according context histogram (create it, if it doesn't exist yet)
-                ClaheHistogram hist = ctxHistograms.get(center);
+                ClaheHistogram<T> hist = ctxHistograms.get(center);
                 if (hist == null) {
-                    hist = new ClaheHistogram(m_bins);
+                    hist = new ClaheHistogram<T>(m_bins, type);
                     ctxHistograms.put(center, hist);
                 }
 
-                ctxHistograms.get(center).add(inputCursor.get().getRealDouble());
+                ctxHistograms.get(center).add(type);
             }
 
             // after creation of the histograms, clip them
@@ -178,39 +169,33 @@ public class ClaheND<T extends RealType<T>> implements
         // 3. for each pixel interpolate the new value
         {
             inputCursor.reset();
+
             long[] pos = new long[input.numDimensions()];
             while (inputCursor.hasNext()) {
-                inputCursor.next();
+                final T in = inputCursor.next();
+                final T out = outputCursor.next();
+
                 inputCursor.localize(pos);
-                outputCursor.next();
 
                 // get current position and the old value at this position
-                ClahePoint currentPoint = new ClahePoint(pos);
-                int oldValue = (int)Math.round(inputCursor.get().getRealDouble() / 255d * m_bins);
+                final ClahePoint currentPoint = new ClahePoint(pos);
+                final double oldValue = in.getRealDouble();
 
                 // find all neighboring context centers
-                List<ClahePoint> neighbors = getNeighbors(currentPoint, offsets, imageDimensions, indexCombinations);
+                final List<ClahePoint> neighbors =
+                        getNeighbors(currentPoint, offsets, imageDimensions, indexCombinations);
 
                 // calculate the new value through interpolation
-                double newValue = interpolate(currentPoint, oldValue, neighbors, ctxHistograms);
+                final double newValue = interpolate(currentPoint, oldValue, neighbors, ctxHistograms);
+                if (newValue == Float.NEGATIVE_INFINITY) {
+                    System.out.println("arschlecken");
+                }
 
-                outputCursor.get().setReal(newValue);
+                out.setReal(newValue);
             }
         }
 
         return output;
-    }
-
-    /**
-     * @param coordinate the coordinate in any dimension
-     * @param offset the offset in the according dimension
-     * @return the position of the next context center in this dimension
-     */
-    private long getNextContextRegionValue(final long coordinate, final long offset) {
-        long times = coordinate / offset;
-        long ctxValue = times * offset + offset / 2;
-
-        return ctxValue;
     }
 
     /**
@@ -219,9 +204,10 @@ public class ClaheND<T extends RealType<T>> implements
      * @return The center of the nearest context region for a given point.
      */
     private ClahePoint getNearestCenter(final long[] coordinates, final long[] offsets) {
-        long[] newCoordinates = new long[coordinates.length];
+        final long[] newCoordinates = new long[coordinates.length];
         for (int i = 0; i < coordinates.length; i++) {
-            newCoordinates[i] = getNextContextRegionValue(coordinates[i], offsets[i]);
+            final long times = coordinates[i] / offsets[i];
+            newCoordinates[i] = times * offsets[i] + offsets[i] / 2;
         }
 
         return new ClahePoint(newCoordinates);
@@ -342,7 +328,7 @@ public class ClaheND<T extends RealType<T>> implements
      * @return the new value for this position
      */
     private double interpolate(final ClahePoint currentPoint, final double oldValue, final List<ClahePoint> neighbors,
-                               final HashMap<ClahePoint, ClaheHistogram> ctxHistograms) {
+                               final HashMap<ClahePoint, ClaheHistogram<T>> ctxHistograms) {
 
         // if the number of neighbors is one, no interpolation is necessary
         if (neighbors.size() == 1) {

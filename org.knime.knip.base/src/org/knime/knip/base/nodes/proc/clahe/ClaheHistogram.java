@@ -49,53 +49,67 @@
  */
 package org.knime.knip.base.nodes.proc.clahe;
 
+import net.imglib2.histogram.Histogram1d;
+import net.imglib2.histogram.Real1dBinMapper;
+import net.imglib2.type.numeric.RealType;
+
 /**
- * A Histogram used by the CLAHE algorithm, implements different functionalities needed such as clipping or
- * calculating a new value using a cumulative distributed function.
+ * A Histogram used by the CLAHE algorithm, implements different functionalities needed such as clipping or calculating
+ * a new value using a cumulative distributed function.
+ *
  * @author Daniel Seebacher
+ *
+ * @param <T>
  */
-public class ClaheHistogram {
+public class ClaheHistogram<T extends RealType<T>> {
 
-    private int m_valueNumber;
+    private Histogram1d<T> histogram;
 
-    private long[] m_values;
+    private double max;
 
-    private int m_valueCount;
+    private double min;
+
+    private Real1dBinMapper<T> mapper;
+
+    private long[] clippedHistogram;
 
     /**
+     * Constructor
+     *
      * @param bins the number of bins used by this histogram
+     * @param type type of the pixels of the histogram
      */
-    public ClaheHistogram(final int bins) {
-        this.m_valueNumber = bins;
-        this.m_values = new long[bins + 1];
-        this.m_valueCount = 0;
+    public ClaheHistogram(final int bins, final T type) {
+        this.mapper = new Real1dBinMapper<T>(type.getMinValue(), type.getMaxValue(), bins, false);
+        this.histogram = new Histogram1d<T>(mapper);
+        this.min = type.getMinValue();
+        this.max = type.getMaxValue();
+
     }
 
     /**
      * Adds a point to this histogram
-     * @param pixel the value of a point
+     *
+     * @param value pixel value of a point
      */
-    public void add(final double pixel) {
-        int value = (int) Math.round((pixel / 255.0d) * m_valueNumber);
-        ++m_values[value];
-        ++m_valueCount;
-
+    public void add(final T value) {
+        histogram.increment(value);
     }
 
     /**
      * Clips this histogram
+     *
      * @param slope the desired slope for clipping
      */
     public void clip(final double slope) {
-        int limit = (int)(slope * (m_valueCount / m_valueNumber));
-        long[] clippedHistogram = new long[m_values.length];
-        System.arraycopy(m_values, 0, clippedHistogram, 0, m_values.length);
+        final int limit = (int)(slope * (histogram.totalCount() / histogram.getBinCount()));
+        clippedHistogram = histogram.toLongArray();
+        final int numbins = clippedHistogram.length;
+
         int clippedEntries = 0;
-        int clippedEntriesBefore;
         do {
-            clippedEntriesBefore = clippedEntries;
             clippedEntries = 0;
-            for (int i = 0; i <= m_valueNumber; ++i) {
+            for (int i = 0; i < numbins; ++i) {
                 final long d = clippedHistogram[i] - limit;
                 if (d > 0) {
                     clippedEntries += d;
@@ -103,21 +117,19 @@ public class ClaheHistogram {
                 }
             }
 
-            final int d = clippedEntries / (m_valueNumber + 1);
-            final int m = clippedEntries % (m_valueNumber + 1);
-            for (int i = 0; i <= m_valueNumber; ++i) {
+            final int d = clippedEntries / numbins;
+            final int m = clippedEntries % numbins;
+            for (int i = 0; i < numbins; ++i) {
                 clippedHistogram[i] += d;
             }
 
             if (m != 0) {
-                final int s = m_valueNumber / m;
-                for (int i = 0; i <= m_valueNumber; i += s) {
+                final int s = numbins / m;
+                for (int i = 0; i < numbins; i += s) {
                     ++clippedHistogram[i];
                 }
             }
-        } while (clippedEntries != clippedEntriesBefore);
-
-        m_values = clippedHistogram;
+        } while (clippedEntries != 0);
     }
 
     /**
@@ -127,25 +139,27 @@ public class ClaheHistogram {
      * @return the newValue which gets written in the ouput image.
      */
     public double buildCDF(final double oldValue) {
-        int hMin = m_valueNumber;
+        int hMin = clippedHistogram.length - 1;
+        int normalizedOldValue = (int)((oldValue - min) / (max - min) * clippedHistogram.length);
         for (int i = 0; i < hMin; ++i) {
-            if (m_values[i] != 0) {
+            if (clippedHistogram[i] != 0) {
                 hMin = i;
             }
         }
 
-        int cdf = 0;
-        for (int i = hMin; i <= oldValue; ++i) {
-            cdf += m_values[i];
+        long cdf = 0;
+        for (int i = hMin; i < normalizedOldValue; ++i) {
+            cdf += clippedHistogram[i];
         }
 
-        int cdfMax = cdf;
-        for (int i = (int)(oldValue + 1); i <= m_valueNumber; ++i) {
-            cdfMax += m_values[i];
+        long cdfMax = cdf;
+        for (int i = normalizedOldValue; i < clippedHistogram.length; ++i) {
+            cdfMax += clippedHistogram[i];
         }
 
-        final long cdfMin = m_values[hMin];
+        final long cdfMin = clippedHistogram[hMin];
 
-        return Math.round((cdf - cdfMin) / (double)(cdfMax - cdfMin) * 255.0f);
+        return Math.max(min, Math
+                .min(max, (((double)cdf - (double)cdfMin) / ((double)cdfMax - (double)cdfMin) * (max - min)) + min));
     }
 }

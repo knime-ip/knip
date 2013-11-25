@@ -108,7 +108,6 @@ public class ClaheNodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNod
                 addDialogComponent("Options", "CLAHE Options",
                                    new DialogComponentNumber(createCtxSlope(), "Slope", 0.1));
             }
-
         };
     }
 
@@ -128,7 +127,7 @@ public class ClaheNodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNod
 
             @Override
             protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> op(final ImgPlus<T> imgPlus) {
-                super.m_dimSelection.getSelectedDimLabels();
+                // store image dimensions and check if image dimensions are larger than the ctxRegions
                 ClaheND<T> clahe =
                         new ClaheND<T>(m_ctxValues.getIntValue(), m_bins.getIntValue(), m_slope.getDoubleValue());
 
