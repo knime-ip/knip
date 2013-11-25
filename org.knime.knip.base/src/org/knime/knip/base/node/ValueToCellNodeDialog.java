@@ -154,7 +154,7 @@ public abstract class ValueToCellNodeDialog<VIN extends DataValue> extends LazyN
      * Helper add the dialog components needed for the this dialog and the ValueToCellNodeModel, respectively.
      */
     @SuppressWarnings("unchecked")
-    protected void addDCs() {
+    private void addDCs() {
         m_smColCreationMode = ValueToCellNodeModel.createColCreationModeModel();
         addDialogComponent("Column Selection", "Creation Mode", new DialogComponentStringSelection(m_smColCreationMode,
                 "Column Creation Mode", ValueToCellNodeModel.COL_CREATION_MODES));
