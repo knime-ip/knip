@@ -52,10 +52,11 @@ import java.util.List;
 
 import net.imglib2.converter.read.ConvertedRandomAccessibleInterval;
 import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
 import net.imglib2.ops.img.UnaryOperationBasedConverter;
 import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.ops.operation.real.unary.RealUnaryOperation;
-import net.imglib2.ops.operation.subset.views.ImgView;
+import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.node.defaultnodesettings.SettingsModel;
@@ -72,7 +73,9 @@ import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 /**
  * Factory class to produce an image inverter node.
  *
- * Use ImgInverterNodeFactory
+ * Use InverterNodeFactory
+ *
+ * @param <T>
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -80,49 +83,6 @@ import org.knime.node2012.KnimeNodeDocument.KnimeNode;
  */
 @Deprecated
 public class InvertNodeFactory<T extends RealType<T>> extends ValueToCellNodeFactory<ImgPlusValue<T>> {
-
-    private class SignedRealInvert<I extends RealType<I>, O extends RealType<O>> implements RealUnaryOperation<I, O> {
-
-        @Override
-        public O compute(final I x, final O output) {
-            final double value = x.getRealDouble() * -1.0 - 1;
-            output.setReal(value);
-            return output;
-        }
-
-        @Override
-        public SignedRealInvert<I, O> copy() {
-            return new SignedRealInvert<I, O>();
-        }
-
-    }
-
-    private class UnsignedRealInvert<I extends RealType<I>, O extends RealType<O>> implements RealUnaryOperation<I, O> {
-        private final double m_specifiedMax;
-
-        /**
-         * Constructor.
-         *
-         * @param specifiedMin - minimum value of the range to invert about
-         * @param specifiedMax - maximum value of the range to invert about
-         */
-        public UnsignedRealInvert(final double specifiedMax) {
-            this.m_specifiedMax = specifiedMax;
-        }
-
-        @Override
-        public O compute(final I x, final O output) {
-            final double value = m_specifiedMax - x.getRealDouble();
-            output.setReal(value);
-            return output;
-        }
-
-        @Override
-        public UnsignedRealInvert<I, O> copy() {
-            return new UnsignedRealInvert<I, O>(m_specifiedMax);
-        }
-
-    }
 
     /**
      * {@inheritDoc}
@@ -152,14 +112,20 @@ public class InvertNodeFactory<T extends RealType<T>> extends ValueToCellNodeFac
 
             }
 
+            @SuppressWarnings({"unchecked", "rawtypes"})
             @Override
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
                 final Img<T> img = cellValue.getImgPlus();
                 UnaryOperation<T, T> invert;
-                if (img.firstElement().getMinValue() < 0) {
-                    invert = new SignedRealInvert<T, T>();
+                T type = img.firstElement().createVariable();
+                if (type instanceof IntegerType) {
+                    if (img.firstElement().getMinValue() < 0) {
+                        invert = new SignedIntegerInvert();
+                    } else {
+                        invert = new UnsignedIntegerInvert((long)type.getMaxValue());
+                    }
                 } else {
-                    invert = new UnsignedRealInvert<T, T>(img.firstElement().getMaxValue());
+                    invert = new RealInvert<T, T>();
                 }
 
                 return m_imgCellFactory.createCell(new ImgView<T>(new ConvertedRandomAccessibleInterval<T, T>(img,
@@ -190,5 +156,65 @@ public class InvertNodeFactory<T extends RealType<T>> extends ValueToCellNodeFac
                 //
             }
         };
+    }
+
+    private class SignedIntegerInvert<I extends IntegerType<I>, O extends IntegerType<O>> implements
+            RealUnaryOperation<I, O> {
+
+        @Override
+        public O compute(final I x, final O output) {
+            final long value = x.getIntegerLong() * -1L - 1L;
+            output.setInteger(value);
+            return output;
+        }
+
+        @Override
+        public SignedIntegerInvert<I, O> copy() {
+            return new SignedIntegerInvert<I, O>();
+        }
+
+    }
+
+    private class UnsignedIntegerInvert<I extends IntegerType<I>, O extends IntegerType<O>> implements
+            RealUnaryOperation<I, O> {
+        private final long m_specifiedMax;
+
+        /**
+         * Constructor.
+         *
+         * @param specifiedMax - maximum value of the range to invert about
+         */
+        public UnsignedIntegerInvert(final long specifiedMax) {
+            this.m_specifiedMax = specifiedMax;
+        }
+
+        @Override
+        public O compute(final I x, final O output) {
+            final long value = m_specifiedMax - x.getIntegerLong();
+            output.setInteger(value);
+            return output;
+        }
+
+        @Override
+        public UnsignedIntegerInvert<I, O> copy() {
+            return new UnsignedIntegerInvert<I, O>(m_specifiedMax);
+        }
+
+    }
+
+    private class RealInvert<I extends RealType<I>, O extends RealType<O>> implements RealUnaryOperation<I, O> {
+
+        @Override
+        public O compute(final I x, final O output) {
+            final double value = x.getRealDouble() * -1;
+            output.setReal(value);
+            return output;
+        }
+
+        @Override
+        public RealInvert<I, O> copy() {
+            return new RealInvert<I, O>();
+        }
+
     }
 }

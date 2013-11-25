@@ -57,14 +57,18 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.core.util.EnumUtils;
 
 /**
- * TODO Auto-generated
- * 
+ * NodeDialog
+ *
+ * @param <T>
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 public class MultilevelThresholderNodeDialog<T extends RealType<T>> extends ImgPlusToImgPlusNodeDialog<T> {
 
+    /**
+     * Constructor
+     */
     public MultilevelThresholderNodeDialog() {
         super(MultilevelThresholderNodeModel.createDimSelectionModel(), 2, 2);
     }

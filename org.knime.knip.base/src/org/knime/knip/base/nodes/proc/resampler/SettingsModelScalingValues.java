@@ -63,37 +63,27 @@ import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.port.PortObjectSpec;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 public class SettingsModelScalingValues extends SettingsModel {
 
-    /*
-     *
-     */
     private static String CFG_NEWDIMENSION = "new_dimensions";
 
     private static String CFG_NUM_DIMS = "num_dimensions";
 
     private static String CFG_SELECTED_DIM_LABEL = "selected_dim_label";
 
-    /*
-     *
-     */
     private final String m_configName;
 
-    /*
-     *
-     */
     private final Map<String, Double> m_newDimensions;
 
     /**
      * Creates a new plane selection where all planes of each dimension are selected.
-     * 
+     *
      * @param configName
-     * @param dimLables
      */
     public SettingsModelScalingValues(final String configName) {
         m_configName = configName;
@@ -128,13 +118,14 @@ public class SettingsModelScalingValues extends SettingsModel {
     }
 
     /**
-     * 
-     * @param interval an array of the scaling values according to the ImgPlus axes
-     * @return
+     * @param typedSpace which will be rescaled
+     *
+     * @return the new dimensions
+     *
      */
-    public final double[] getNewDimensions(final int numDims, final CalibratedSpace<CalibratedAxis> typedSpace) {
-        final double[] res = new double[numDims];
-        final CalibratedAxis[] axes = new CalibratedAxis[numDims];
+    public final double[] getNewDimensions(final CalibratedSpace<CalibratedAxis> typedSpace) {
+        final double[] res = new double[typedSpace.numDimensions()];
+        final CalibratedAxis[] axes = new CalibratedAxis[typedSpace.numDimensions()];
         typedSpace.axes(axes);
         for (int i = 0; i < res.length; i++) {
             res[i] = getNewDimensions(axes[i].type().getLabel());
@@ -144,8 +135,9 @@ public class SettingsModelScalingValues extends SettingsModel {
     }
 
     /**
-     * 
-     * @return
+     * @param dimLabel
+     *
+     * @return new dimension for dimension label
      */
     public final double getNewDimensions(final String dimLabel) {
         final Double res = m_newDimensions.get(dimLabel);
@@ -232,7 +224,8 @@ public class SettingsModelScalingValues extends SettingsModel {
     }
 
     /**
-     * @param selectedDims
+     * @param dimLabel label of dimension
+     * @param newDimSize new size of this label
      */
     public final void setScalingValue(final String dimLabel, final double newDimSize) {
         m_newDimensions.put(dimLabel, newDimSize);

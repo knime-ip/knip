@@ -49,12 +49,12 @@
 package org.knime.knip.core.awt;
 
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.display.projectors.screenimages.ScreenImage;
+import net.imglib2.display.screenimage.awt.AWTScreenImage;
 import net.imglib2.type.Type;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -64,6 +64,15 @@ public interface ImageRenderer<T extends Type<T>> {
     @Override
     public String toString();
 
-    public ScreenImage render(RandomAccessibleInterval<T> source, int dimX, int dimY, long[] planePos);
+    /**
+     * Renders a plane of the given {@link RandomAccessibleInterval}
+     *
+     * @param source {@link RandomAccessibleInterval} the source to be rendered
+     * @param dimX dimension 0 of the plane
+     * @param dimY dimension 1 of the plane
+     * @param planePos position of the plane
+     * @return
+     */
+    public AWTScreenImage render(RandomAccessibleInterval<T> source, int dimX, int dimY, long[] planePos);
 
 }

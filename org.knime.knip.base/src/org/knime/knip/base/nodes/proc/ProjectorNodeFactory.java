@@ -75,10 +75,11 @@ import org.knime.knip.core.util.EnumUtils;
 
 /**
  * Factory class to produce an image inverter node.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+
+ * @param <T>
  */
 public class ProjectorNodeFactory<T extends RealType<T>> extends ValueToCellNodeFactory<ImgPlusValue<T>> {
 
@@ -133,10 +134,9 @@ public class ProjectorNodeFactory<T extends RealType<T>> extends ValueToCellNode
 
             /**
              * {@inheritDoc}
-             * 
+             *
              * @throws IOException
              */
-            @SuppressWarnings("unchecked")
             @Override
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws IOException {
                 final ImgPlus<T> img = cellValue.getImgPlus();

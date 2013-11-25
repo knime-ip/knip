@@ -58,7 +58,7 @@ import org.knime.core.node.NodeSetFactory;
 import org.knime.core.node.config.ConfigRO;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -72,8 +72,8 @@ public class TestingNodeSetFactory implements NodeSetFactory {
      */
     @Override
     public Collection<String> getNodeFactoryIds() {
-        m_nodeFactories.put(ImgComparatorNodeFactory.class.getCanonicalName(), "/community/knip/testing");
-        m_nodeFactories.put(LabelingComparatorNodeFactory.class.getCanonicalName(), "/community/knip/testing");
+        m_nodeFactories.put(ImgComparatorNodeFactory.class.getCanonicalName(), "/community/knip/kniptesting");
+        m_nodeFactories.put(LabelingComparatorNodeFactory.class.getCanonicalName(), "/community/knip/kniptesting");
         return m_nodeFactories.keySet();
     }
 
@@ -103,7 +103,7 @@ public class TestingNodeSetFactory implements NodeSetFactory {
      */
     @Override
     public String getAfterID(final String id) {
-        return "/";
+        return "";
     }
 
     /**

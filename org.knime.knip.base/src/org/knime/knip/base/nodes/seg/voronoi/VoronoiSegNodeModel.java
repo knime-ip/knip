@@ -53,11 +53,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import net.imglib2.Cursor;
+import net.imglib2.img.Img;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingType;
 import net.imglib2.meta.ImgPlus;
+import net.imglib2.ops.operation.BinaryOperation;
+import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.VoronoiLikeRegionGrowing;
 import net.imglib2.type.numeric.RealType;
 
@@ -88,10 +92,11 @@ import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingCellFactory;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.NodeTools;
+import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 
 /**
- * 
- * 
+ *
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -122,6 +127,10 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
         return new SettingsModelString("result_columns", RESULT_COLUMNS[0]);
     }
 
+    static SettingsModelDimSelection createDimSelectionModel() {
+        return new SettingsModelDimSelection("dim_selection", "X", "Y");
+    }
+
     /**
      * the column name of the labeling containing the seed regions.
      */
@@ -150,6 +159,8 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
     private final SettingsModelString m_srcImgCol = createImgColModel();
 
     private final SettingsModelInteger m_threshold = createThresholdModel();
+
+    private final SettingsModelDimSelection m_dimSelectionModel = createDimSelectionModel();
 
     /**
      * The default constructor.
@@ -204,28 +215,31 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
 
                 }
 
-                // prepare for the segmentation
-                final T type = img.firstElement().createVariable();
-                type.setReal(m_threshold.getIntValue());
-                final VoronoiLikeRegionGrowing<L, T> vrg =
-                        new VoronoiLikeRegionGrowing<L, T>(img, type, m_fillHoles.getBooleanValue());
-                Labeling<L> res = null;
-                // do the segmentation
-                res = vrg.compute(seed, seed.<L> factory().create(seed));
+                // prepare for the segmentation (ready to take off)
+                WrappedVoronoi voro = new WrappedVoronoi(img.firstElement());
+
+                Labeling<L> out = seed.<L> factory().create(seed);
+                try {
+                    SubsetOperations.iterate(voro, m_dimSelectionModel.getSelectedDimIndices(img), img, seed, out);
+                } catch (InterruptedException e1) {
+                    throw new RuntimeException(e1);
+                } catch (ExecutionException e1) {
+                    throw new RuntimeException(e1);
+                }
 
                 DataCell[] cells;
                 if (m_resultCols.getStringValue().equals(RESULT_COLUMNS[0])) {
                     try {
                         cells =
-                                new DataCell[]{m_labCellFactory.createCell(res, ((LabelingValue<L>)row
+                                new DataCell[]{m_labCellFactory.createCell(out, ((LabelingValue<L>)row
                                         .getCell(seedColIdx)).getLabelingMetadata())};
                     } catch (final IOException e) {
                         throw new RuntimeException(e);
                     }
                 } else {
-                    final Labeling<L> resSeedless = res.<L> factory().create(res);
+                    final Labeling<L> resSeedless = out.<L> factory().create(out);
                     final Cursor<LabelingType<L>> srcCur = seed.cursor();
-                    final Cursor<LabelingType<L>> resCur = res.cursor();
+                    final Cursor<LabelingType<L>> resCur = out.cursor();
                     final Cursor<LabelingType<L>> resSeedlessCur = resSeedless.cursor();
                     while (srcCur.hasNext()) {
                         srcCur.fwd();
@@ -245,7 +259,7 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
                         } else {
                             cells =
                                     new DataCell[]{
-                                            m_labCellFactory.createCell(res,
+                                            m_labCellFactory.createCell(out,
                                                                         ((LabelingValue<L>)row.getCell(seedColIdx))
                                                                                 .getLabelingMetadata()),
                                             m_labCellFactory.createCell(resSeedless, ((LabelingValue<L>)row
@@ -343,7 +357,7 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
 
     /**
      * does nothing.
-     * 
+     *
      * @see org.knime.core.node.NodeModel# loadInternals(java.io.File, org.knime.core.node.ExecutionMonitor)
      */
     @Override
@@ -354,7 +368,7 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
 
     /**
      * load settings.
-     * 
+     *
      * @see org.knime.core.node.NodeModel#loadValidatedSettingsFrom (NodeSettingsRO)
      * @param settings where from
      * @throws InvalidSettingsException when sth's wrong
@@ -366,12 +380,18 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
         m_threshold.loadSettingsFrom(settings);
         m_fillHoles.loadSettingsFrom(settings);
         m_resultCols.loadSettingsFrom(settings);
+        //TODO remove with 2.0.
+        try {
+            m_dimSelectionModel.loadSettingsFrom(settings);
+        } catch (InvalidSettingsException e1) {
+            // we simply ignore this exception
+        }
 
     }
 
     /**
      * reset.
-     * 
+     *
      * @see org.knime.core.node.NodeModel#reset()
      */
     @Override
@@ -380,7 +400,7 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
 
     /**
      * does nothing.
-     * 
+     *
      * @see org.knime.core.node.NodeModel# saveInternals(java.io.File, org.knime.core.node.ExecutionMonitor)
      */
     @Override
@@ -391,7 +411,7 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
 
     /**
      * save settings.
-     * 
+     *
      * @see org.knime.core.node.NodeModel#saveSettingsTo (NodeSettingsWO)
      * @param settings where
      */
@@ -402,6 +422,7 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
         m_threshold.saveSettingsTo(settings);
         m_fillHoles.saveSettingsTo(settings);
         m_resultCols.saveSettingsTo(settings);
+        m_dimSelectionModel.saveSettingsTo(settings);
     }
 
     /**
@@ -415,7 +436,7 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
 
     /**
      * validate settings.
-     * 
+     *
      * @see org.knime.core.node.NodeModel#validateSettings (NodeSettingsRO)
      * @param settings settings
      * @throws InvalidSettingsException when sth's wrong
@@ -427,6 +448,43 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
         m_threshold.validateSettings(settings);
         m_fillHoles.validateSettings(settings);
         m_resultCols.validateSettings(settings);
+
+        try {
+            m_dimSelectionModel.validateSettings(settings);
+        } catch (InvalidSettingsException e1) {
+            // we simply ignore this exception
+        }
+
+    }
+
+    class WrappedVoronoi implements BinaryOperation<Img<T>, Labeling<L>, Labeling<L>> {
+
+        private T type;
+
+        private boolean fillHoles;
+
+        public WrappedVoronoi(final T type) {
+            this.type = type.createVariable();
+            this.type.setReal(m_threshold.getIntValue());
+            this.fillHoles = m_fillHoles.getBooleanValue();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Labeling<L> compute(final Img<T> img, final Labeling<L> seed, final Labeling<L> output) {
+
+            return new VoronoiLikeRegionGrowing<L, T>(img, type, fillHoles).compute(seed, output);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public BinaryOperation<Img<T>, Labeling<L>, Labeling<L>> copy() {
+            return new WrappedVoronoi(type);
+        }
 
     }
 

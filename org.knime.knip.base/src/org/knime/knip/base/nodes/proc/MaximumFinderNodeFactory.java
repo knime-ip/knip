@@ -73,8 +73,9 @@ import org.knime.knip.core.ops.interval.MaximumFinder;
 import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 
 /**
- * 
+ *
  * @author Tino Klingebiel, University of Konstanz
+ * @param <T>
  */
 public class MaximumFinderNodeFactory<T extends RealType<T> & NativeType<T>> extends
         ValueToCellNodeFactory<ImgPlusValue<T>> {

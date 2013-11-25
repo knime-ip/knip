@@ -54,10 +54,10 @@ import java.util.List;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.exception.IncompatibleTypeException;
 import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.img.unary.ImgConvert;
 import net.imglib2.ops.operation.img.unary.ImgConvert.ImgConversionTypes;
-import net.imglib2.ops.operation.subset.views.ImgView;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
@@ -90,9 +90,10 @@ import org.knime.knip.core.util.ImgUtils;
 /**
  * Factory class to produce the Histogram Operations Node.
  *
+ * @param <T>
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 public class ConvertImgNodeFactory<T extends RealType<T> & NativeType<T>> extends
         ValueToCellNodeFactory<ImgPlusValue<T>> {

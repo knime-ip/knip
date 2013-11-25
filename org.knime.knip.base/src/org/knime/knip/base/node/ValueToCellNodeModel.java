@@ -369,7 +369,6 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
 
                         if ((row.getCell(colIndices[i]).isMissing())) {
                             LOGGER.warn("Missing cell was ignored at row " + row.getKey());
-                            m_numOccurredErrors++;
                             cells[i] = DataType.getMissingCell();
                         } else {
                             DataCell c = compute(m_inValueClass.cast(row.getCell(colIndices[i])));

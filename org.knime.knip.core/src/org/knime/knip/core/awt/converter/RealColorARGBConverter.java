@@ -49,7 +49,7 @@
 package org.knime.knip.core.awt.converter;
 
 import net.imglib2.converter.Converter;
-import net.imglib2.display.projectors.sampler.ProjectedSampler;
+import net.imglib2.display.projector.sampler.ProjectedSampler;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.RealType;
 

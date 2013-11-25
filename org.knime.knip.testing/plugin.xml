@@ -7,9 +7,10 @@
      <extension point="org.knime.workbench.repository.categories">
         <category
               description="KNIME Image Processing Testing Nodes"
+              icon="icons/cube.png"
               level-id="kniptesting"
               name="Testing"
-              path="/community/knip">
+              path="/community/knip/">
         </category>
      </extension>
      <extension
