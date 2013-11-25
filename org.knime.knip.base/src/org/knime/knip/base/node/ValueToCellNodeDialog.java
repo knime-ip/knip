@@ -125,36 +125,36 @@ public abstract class ValueToCellNodeDialog<VIN extends DataValue> extends LazyN
     private SettingsModelString m_smColumnSuffix;
 
     /**
-    *
-    */
+     * Created and added
+     */
     public ValueToCellNodeDialog() {
         this(false);
     }
 
     /**
-    *
-    */
+     * If lazy is true
+     *
+     * addDialogComponents(); buildDialog();
+     *
+     * Must be called manually!
+     *
+     * @param lazyInit indicator whether lazy or not
+     */
     public ValueToCellNodeDialog(final boolean lazyInit) {
         if (!lazyInit) {
-            init();
+            addDCs();
+            addDialogComponents();
+            buildDialog();
+        } else {
+            addDCs();
         }
     }
 
     /**
-     * Extracted to method, s.t. other can lazly call this
-     */
-    protected void init() {
-        addDCs();
-        addDialogComponents();
-        buildDialog();
-    }
-
-    /*
-     * Helper add the dialog components needed for the this dialog and the
-     * ValueToCellNodeModel, respectively.
+     * Helper add the dialog components needed for the this dialog and the ValueToCellNodeModel, respectively.
      */
     @SuppressWarnings("unchecked")
-    private void addDCs() {
+    protected void addDCs() {
         m_smColCreationMode = ValueToCellNodeModel.createColCreationModeModel();
         addDialogComponent("Column Selection", "Creation Mode", new DialogComponentStringSelection(m_smColCreationMode,
                 "Column Creation Mode", ValueToCellNodeModel.COL_CREATION_MODES));

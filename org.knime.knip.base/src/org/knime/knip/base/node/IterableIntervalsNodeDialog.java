@@ -92,11 +92,11 @@ public abstract class IterableIntervalsNodeDialog<T extends RealType<T>> extends
      */
     public IterableIntervalsNodeDialog(final boolean hasDimSelection) {
         super(true);
+        m_hasDimSelection = hasDimSelection;
 
-        this.m_hasDimSelection = hasDimSelection;
-        this.addOwnDcs();
-
-        super.init();
+        addDialogComponents();
+        addOwnDcs();
+        buildDialog();
     }
 
     /*
