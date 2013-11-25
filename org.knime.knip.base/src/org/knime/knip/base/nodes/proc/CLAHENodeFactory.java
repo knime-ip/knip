@@ -62,7 +62,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
-import org.knime.knip.base.nodes.proc.clahe.Clahe2D;
+import org.knime.knip.base.nodes.proc.clahe.ClaheND;
 import org.knime.knip.base.nodes.proc.clahe.ClaheNodeFactory;
 import org.knime.knip.core.util.ImgPlusFactory;
 
