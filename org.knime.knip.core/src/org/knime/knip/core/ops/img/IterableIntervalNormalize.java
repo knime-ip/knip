@@ -62,6 +62,7 @@ import net.imglib2.util.ValuePair;
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @param <T>
  */
 public class IterableIntervalNormalize<T extends RealType<T>> implements
         UnaryOperation<IterableInterval<T>, IterableInterval<T>> {
@@ -76,6 +77,12 @@ public class IterableIntervalNormalize<T extends RealType<T>> implements
 
     private final boolean m_isTarget;
 
+    /**
+     * @param saturation
+     * @param val
+     * @param minmax
+     * @param isTarget
+     */
     public IterableIntervalNormalize(final double saturation, final T val, final ValuePair<T, T> minmax,
                                      final boolean isTarget) {
         m_saturation = saturation;

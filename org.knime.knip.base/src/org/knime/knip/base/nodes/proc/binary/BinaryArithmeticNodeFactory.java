@@ -75,7 +75,7 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.TwoValuesToCellNodeDialog;
 import org.knime.knip.base.node.TwoValuesToCellNodeFactory;
 import org.knime.knip.base.node.TwoValuesToCellNodeModel;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgUtils;
 import org.knime.knip.core.util.MiscViews;
 
@@ -112,7 +112,7 @@ public final class BinaryArithmeticNodeFactory extends
             public void addDialogComponents() {
                 addDialogComponent("Options", "Binary operation",
                                    new DialogComponentStringSelection(createMethodNameModel(), "Method",
-                                           EnumListProvider.getStringList(BinaryArithmeticNodeFactory.Method.values())));
+                                           EnumUtils.getStringListFromName(BinaryArithmeticNodeFactory.Method.values())));
 
                 addDialogComponent("Options", "", new DialogComponentBoolean(createVirtuallySynchronizeModel(),
                         "Virtually Extend?"));

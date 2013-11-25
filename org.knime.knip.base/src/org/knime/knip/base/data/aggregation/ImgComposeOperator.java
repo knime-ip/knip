@@ -93,7 +93,7 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.core.data.img.DefaultImageMetadata;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
 import org.knime.knip.core.types.NativeTypes;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * 
@@ -296,7 +296,7 @@ public class ImgComposeOperator<T1 extends RealType<T1>, T2 extends RealType<T2>
 
             m_dcImgType =
                     new DialogComponentStringSelection(createImgTypeModel(), "Result image type",
-                            EnumListProvider.getStringList(NativeTypes.SHORTTYPE, NativeTypes.BITTYPE,
+                            EnumUtils.getStringListFromName(NativeTypes.SHORTTYPE, NativeTypes.BITTYPE,
                                                            NativeTypes.BYTETYPE, NativeTypes.INTTYPE,
                                                            NativeTypes.UNSIGNEDSHORTTYPE, NativeTypes.UNSIGNEDINTTYPE,
                                                            NativeTypes.UNSIGNEDBYTETYPE));

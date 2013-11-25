@@ -1,0 +1,44 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="icons/thresholder.png" type="Manipulator">
+	<name>Global Thresholder</name>
+	<shortDescription>
+		A threshold is determined manually or calculated
+		automatically to threshold the image.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			A threshold algorithms automatically (or manually) determines a
+			threshold to distinguish between foreground and background of an
+			image. After the threshold has been computed or manually chosen
+			selected, the algorithm marks any pixel with an intensity value
+			greater than this threshold with "1" and any pixel with intensity
+			lower than the threshold as "0". The result is a binary image which
+			subsequently can be processed with the Connected Component Analysis
+			Node to extract a labeling with separated segments.
+
+			For details see:
+			<i>"Survey over image thresholding techniques and quantitative
+				performance evaluation" (Sezgin04)</i>
+		</intro>
+		<tab name="Options">
+			<option name="Manual Threshold"> The threshold value used if MANUAL is used as
+				threshold value.
+			</option>
+			<option name="Thresholding Method">The thresholding method to determine the
+				threshold.
+			</option>
+		</tab>
+
+	</fullDescription>
+	<ports>
+		<inPort index="0" name="Images">Images</inPort>
+		<outPort index="0" name="Threshold Images">Thresholded binary images.
+		</outPort>
+	</ports>
+</knimeNode>

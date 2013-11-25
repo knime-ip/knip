@@ -102,10 +102,10 @@ import org.knime.knip.base.exceptions.KNIPRuntimeException;
 import org.knime.knip.base.exceptions.LoggerHelper;
 
 /**
- * 
+ *
  * Node Model to process table cells separately.
- * 
- * 
+ *
+ *
  * @param <VIN> the type of the input values
  * @param <COUT> the type of the output values
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
@@ -222,13 +222,13 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
     /**
      * Contructor to add additional in-ports to the node. The data table port used within this model has index 0! Hence,
      * all additionally added ports will have a index > 0.
-     * 
+     *
      * If you want to overwrite the configure/execute-methods and still want to use the functionality provided by this
      * model, then make sure to overwrite the right methods:
-     * 
+     *
      * {@link #configure(PortObjectSpec[])} and {@link #execute(PortObject[], ExecutionContext)}, and don't forget to
      * call super.... .
-     * 
+     *
      * @param additionalPorts specifies additional ports
      */
     protected ValueToCellNodeModel(final PortType[] additionalPorts) {
@@ -239,13 +239,13 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
     /**
      * Contructor to add additional in-ports and out-ports to the node. The data table port used within this model has
      * index 0! Hence, all additionally added ports will have a index > 0.
-     * 
+     *
      * If you want to overwrite the configure/execute-methods and still want to use the functionality provided by this
      * model, then make sure to overwrite the right methods:
-     * 
+     *
      * {@link #configure(PortObjectSpec[])} and {@link #execute(PortObject[], ExecutionContext)}, and don't forget to
      * call super.... .
-     * 
+     *
      * @param additionalInPorts specifies additional in-ports
      * @param additionalOutPorts specifies additional out-ports
      */
@@ -256,7 +256,7 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
 
     /**
      * Adds the settings model to be saved, load and validated.
-     * 
+     *
      * @param settingsModels
      */
     protected abstract void addSettingsModels(List<SettingsModel> settingsModels);
@@ -293,7 +293,7 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
 
     /**
      * Processes one single data cell. Exactly one of the compute-methods has to be overwritten.
-     * 
+     *
      * @param cellValue
      * @return
      * @throws Exception
@@ -302,7 +302,7 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
 
     /**
      * Will be called everytime a new row is processed. Can be overwritten optionally. It is called before compute();
-     * 
+     *
      * @param row
      */
     protected void computeDataRow(final DataRow row) {
@@ -369,7 +369,6 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
 
                         if ((row.getCell(colIndices[i]).isMissing())) {
                             LOGGER.warn("Missing cell was ignored at row " + row.getKey());
-                            m_numOccurredErrors++;
                             cells[i] = DataType.getMissingCell();
                         } else {
                             DataCell c = compute(m_inValueClass.cast(row.getCell(colIndices[i])));
@@ -518,7 +517,7 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
     /**
      * Returns the {@link ExecutorService} which will be reseted after cancelation of the node. Use this
      * {@link ExecutorService} to submit new futures in your node.
-     * 
+     *
      * @return
      */
     protected ExecutorService getExecutorService() {
@@ -540,7 +539,7 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
 
     /**
      * The cell type that is stored if the out-cell is a ListCell
-     * 
+     *
      * @return
      */
     protected DataType getOutDataCellListCellType() {

@@ -58,12 +58,11 @@ import org.apache.xmlbeans.XmlOptions;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeLogger;
 import org.knime.node2012.KnimeNodeDocument;
-import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 
 /**
  * Helper class essentially to parse and add the xml-file content to XMLBeans objects representing the node description
  * xml (e.g. {@link KnimeNode})
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -76,7 +75,7 @@ public class XMLNodeUtils {
 
     /**
      * Adds the xml content of the file *NodeFactory.xml in the same package to the xml bean (KnimeNodeDocument).
-     * 
+     *
      * @param doc
      * @param factoryClass
      */
@@ -112,7 +111,7 @@ public class XMLNodeUtils {
 
     /**
      * Adds the xml content from the stream to the xml bean node description.
-     * 
+     *
      * @param doc
      * @param inStream
      * @throws XmlException

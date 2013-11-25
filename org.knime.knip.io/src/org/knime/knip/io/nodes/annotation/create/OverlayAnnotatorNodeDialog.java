@@ -72,7 +72,7 @@ import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DataAwareDefaultNodeSettingsPane;
 import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.types.NativeTypes;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.io.nodes.annotation.DialogComponentOverlayAnnotator;
 import org.knime.knip.io.nodes.annotation.SettingsModelOverlayAnnotator;
 
@@ -142,10 +142,10 @@ public class OverlayAnnotatorNodeDialog<T extends RealType<T> & NativeType<T>>
                 "Add unique segment id as label"));
         addDialogComponent(new DialogComponentStringSelection(
                 OverlayAnnotatorNodeModel.creatFactoryTypeSM(), "Factory Type",
-                EnumListProvider.getStringList(ImgFactoryTypes.values())));
+                EnumUtils.getStringListFromName(ImgFactoryTypes.values())));
         addDialogComponent(new DialogComponentStringSelection(
                 OverlayAnnotatorNodeModel.createLabelingTypeSM(),
-                "Storage Img Type", EnumListProvider.getStringList(NativeTypes
+                "Storage Img Type", EnumUtils.getStringListFromName(NativeTypes
                         .intTypeValues())));
 
         closeCurrentGroup();

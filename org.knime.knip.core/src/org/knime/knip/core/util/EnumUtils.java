@@ -1,4 +1,3 @@
-
 /*
  * ------------------------------------------------------------------------
  *
@@ -53,11 +52,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * TODO Auto-generated
+ * Helper class to create String[] Lists of Labelings
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
  */
 public class EnumUtils {
 
@@ -80,7 +79,7 @@ public class EnumUtils {
     }
 
     /**
-     * Provide nicer names and use toString methods
+     * Provide readable names and use toString methods.
      *
      * @param enums
      * @return enum as String[] array based on names()
@@ -99,7 +98,7 @@ public class EnumUtils {
     }
 
     /**
-     * use from to string and provide nice names
+     * Provide readable names and use toString methods.
      *
      * @param enums
      * @return Collection<String> based on name()
@@ -114,6 +113,8 @@ public class EnumUtils {
     }
 
     /**
+     * Creates a {@link String}[] using toString of the given {@link Enum}s
+     *
      * @param enums
      *
      * @return enum as String[] based on toString
@@ -131,10 +132,12 @@ public class EnumUtils {
     }
 
     /**
+     * Creates a {@link Collection} of {@link String}s using toString of the given {@link Enum}
+     *
      * @param enums
      * @return Collection<String> of enum based on toString
      */
-    public static Collection<String> getStringCollectionFromToString(final Enum<?>[] enums) {
+    public static Collection<String> getStringCollectionFromToString(final Enum<?>... enums) {
         final ArrayList<String> s = new ArrayList<String>();
         for (final Enum<?> e : enums) {
             s.add(e.toString());

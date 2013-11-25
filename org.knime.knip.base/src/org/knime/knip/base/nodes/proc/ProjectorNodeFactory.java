@@ -71,7 +71,7 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * Factory class to produce an image inverter node.
@@ -104,8 +104,8 @@ public class ProjectorNodeFactory<T extends RealType<T>> extends ValueToCellNode
             public void addDialogComponents() {
                 addDialogComponent("Options",
                                    "Projection Operation",
-                                   new DialogComponentStringSelection(createProjectionTypeModel(), "", EnumListProvider
-                                           .getStringList(ImgProject.ProjectionType.values())));
+                                   new DialogComponentStringSelection(createProjectionTypeModel(), "", EnumUtils
+                                           .getStringListFromName(ImgProject.ProjectionType.values())));
                 addDialogComponent("Options", "Projection Direction", new DialogComponentDimSelection(
                         createDimSelectModel(), "", 1, 1));
             }

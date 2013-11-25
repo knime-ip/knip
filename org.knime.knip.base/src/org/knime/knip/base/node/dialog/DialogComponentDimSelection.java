@@ -77,7 +77,7 @@ import org.knime.node2012.OptionDocument.Option;
 
 /**
  * Dialog component to select image axis.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -138,7 +138,7 @@ public class DialogComponentDimSelection extends DialogComponent implements Item
     private final JPanel m_panel;
 
     /**
-     * 
+     *
      * @param model
      */
     public DialogComponentDimSelection(final SettingsModelDimSelection model, final String label) {
@@ -146,7 +146,7 @@ public class DialogComponentDimSelection extends DialogComponent implements Item
     }
 
     /**
-     * 
+     *
      * @param model
      */
     public DialogComponentDimSelection(final SettingsModelDimSelection model, final String label, final int minNumDims,
@@ -212,6 +212,13 @@ public class DialogComponentDimSelection extends DialogComponent implements Item
     protected final void setEnabledComponents(final boolean enabled) {
         for (final JToggleButton button : m_dimLabelButtonList) {
             button.setEnabled(enabled);
+
+            if (!enabled) {
+                button.setSelected(false);
+            } else if (enabled && m_activeToogleButtonsQueue.contains(button)) {
+                button.setSelected(true);
+            }
+
         }
 
     }

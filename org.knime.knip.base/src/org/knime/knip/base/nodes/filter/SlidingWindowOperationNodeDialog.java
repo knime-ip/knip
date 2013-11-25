@@ -56,7 +56,7 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.dialog.DialogComponentOutOfBoundsSelection;
 import org.knime.knip.base.node.dialog.DialogComponentSpanSelection;
 import org.knime.knip.core.types.NeighborhoodType;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * TODO Auto-generated
@@ -86,7 +86,7 @@ public class SlidingWindowOperationNodeDialog<T extends RealType<T>> extends Img
 
         addDialogComponent("Options", "Neighborhood Type", new DialogComponentStringSelection(
                 SlidingWindowOperationNodeFactory.createNeighborhoodTypeNodeModel(), "Neighborhood Type",
-                EnumListProvider.getStringList(NeighborhoodType.values())));
+                EnumUtils.getStringListFromName(NeighborhoodType.values())));
 
     }
 

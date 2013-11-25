@@ -73,7 +73,7 @@ import org.knime.node2012.TabDocument.Tab;
 /**
  * Dialog corresponding to the {@link ValueToCellNodeModel} which already contains dialog components, but others can
  * still be added (this {@link #addDialogComponent(String, String, DialogComponent)}.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -82,7 +82,7 @@ public abstract class ValueToCellNodeDialog<VIN extends DataValue> extends LazyN
 
     /**
      * Adds the port description to the node description.
-     * 
+     *
      * @param node
      */
     static void addPortsDescriptionTo(final KnimeNode node) {
@@ -100,7 +100,7 @@ public abstract class ValueToCellNodeDialog<VIN extends DataValue> extends LazyN
 
     /**
      * Adds the description of the column selection tab to the node description.
-     * 
+     *
      * @param desc
      */
     static void addTabsDescriptionTo(final FullDescription desc) {
@@ -124,20 +124,37 @@ public abstract class ValueToCellNodeDialog<VIN extends DataValue> extends LazyN
 
     private SettingsModelString m_smColumnSuffix;
 
+    /**
+     * Created and added
+     */
     public ValueToCellNodeDialog() {
-
-        addDCs();
-        addDialogComponents();
-        buildDialog();
-
+        this(false);
     }
 
-    /*
-     * Helper add the dialog components needed for the this dialog and the
-     * ValueToCellNodeModel, respectively.
+    /**
+     * If lazy is true
+     *
+     * addDialogComponents(); buildDialog();
+     *
+     * Must be called manually!
+     *
+     * @param lazyInit indicator whether lazy or not
+     */
+    public ValueToCellNodeDialog(final boolean lazyInit) {
+        if (!lazyInit) {
+            addDCs();
+            addDialogComponents();
+            buildDialog();
+        } else {
+            addDCs();
+        }
+    }
+
+    /**
+     * Helper add the dialog components needed for the this dialog and the ValueToCellNodeModel, respectively.
      */
     @SuppressWarnings("unchecked")
-    private void addDCs() {
+    protected void addDCs() {
         m_smColCreationMode = ValueToCellNodeModel.createColCreationModeModel();
         addDialogComponent("Column Selection", "Creation Mode", new DialogComponentStringSelection(m_smColCreationMode,
                 "Column Creation Mode", ValueToCellNodeModel.COL_CREATION_MODES));
