@@ -50,8 +50,6 @@ package org.knime.knip.base.nodes.proc.clahe;
 
 import java.util.List;
 
-import net.imglib2.IterableInterval;
-import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.ImgOperations;
 import net.imglib2.ops.operation.UnaryOutputOperation;
@@ -67,16 +65,16 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
 
 /**
- * Factory class to produce an image inverter node.
+ * Factory class to create {@link ClaheNodeFactory}
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author <a href="mailto:daniel.seebacher@uni-konstanz.de">Daniel Seebacher</a>
+ *
  * @param <T> extends RealType<T>
- * @param <K> extends RandomAccessibleInterval<T> & IterableInterval<T>
+ *
  */
-public class FastClaheNDNodeFactory<T extends RealType<T>, K extends RandomAccessibleInterval<T> & IterableInterval<T>>
-        extends ImgPlusToImgPlusNodeFactory<T, T> {
+public class ClaheNodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
 
     private SettingsModelIntegerBounded createCtxDimValue() {
         return new SettingsModelIntegerBounded("dimvalues", 8, 1, 64);
@@ -96,20 +94,20 @@ public class FastClaheNDNodeFactory<T extends RealType<T>, K extends RandomAcces
     @Override
     protected ImgPlusToImgPlusNodeDialog<T> createNodeDialog() {
 
-        return new ImgPlusToImgPlusNodeDialog<T>(2, Integer.MAX_VALUE, "X", "Y") {
+        return new ImgPlusToImgPlusNodeDialog<T>(2, 5, "X", "Y") {
 
             @Override
             public void addDialogComponents() {
 
-                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxDimValue(),
+                addDialogComponent("Options", "CLAHE Options", new DialogComponentNumber(createCtxDimValue(),
                         "Number of contextual regions", 1));
 
-                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxNumberOfBins(),
+                addDialogComponent("Options", "CLAHE Options", new DialogComponentNumber(createCtxNumberOfBins(),
                         "Number of bins", 1));
 
-                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxSlope(), "Slope", 1));
+                addDialogComponent("Options", "CLAHE Options",
+                                   new DialogComponentNumber(createCtxSlope(), "Slope", 0.1));
             }
-
         };
     }
 
@@ -129,9 +127,9 @@ public class FastClaheNDNodeFactory<T extends RealType<T>, K extends RandomAcces
 
             @Override
             protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> op(final ImgPlus<T> imgPlus) {
-                super.m_dimSelection.getSelectedDimLabels();
-                FastClaheND<T> clahe =
-                        new FastClaheND<T>(m_ctxValues.getIntValue(), m_bins.getIntValue(), m_slope.getDoubleValue());
+                // store image dimensions and check if image dimensions are larger than the ctxRegions
+                ClaheND<T> clahe =
+                        new ClaheND<T>(m_ctxValues.getIntValue(), m_bins.getIntValue(), m_slope.getDoubleValue());
 
                 return ImgOperations.wrapRA(clahe, imgPlus.firstElement());
             }

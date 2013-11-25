@@ -50,8 +50,6 @@ package org.knime.knip.base.nodes.proc;
 
 import java.util.List;
 
-import net.imglib2.IterableInterval;
-import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.ImgOperations;
 import net.imglib2.ops.operation.Operations;
@@ -64,18 +62,21 @@ import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
+import org.knime.knip.base.nodes.proc.clahe.ClaheND;
+import org.knime.knip.base.nodes.proc.clahe.ClaheNodeFactory;
 import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
- * Factory class to produce an image inverter node.
+ * Factory class to produce CLAHE Node. Deprecation: Use {@link ClaheNodeFactory}
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
- * @param <K>
+
  * @param <T>
  */
-public class CLAHENodeFactory<T extends RealType<T>, K extends RandomAccessibleInterval<T> & IterableInterval<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
+@Deprecated
+public class CLAHENodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
 
     private static SettingsModelInteger createCtxNumberX() {
         return new SettingsModelInteger("ctxX", 8);
@@ -107,13 +108,12 @@ public class CLAHENodeFactory<T extends RealType<T>, K extends RandomAccessibleI
                         "Number of contextual regions in X direction", 1));
 
                 addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxNumberY(),
-                                                                                         "Number of contextual regions in Y direction", 1));
+                        "Number of contextual regions in Y direction", 1));
 
                 addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxNumberOfBins(),
                         "Number of bins", 1));
 
-                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxSlope(),
-                        "Slope", 1));
+                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxSlope(), "Slope", 1));
 
             }
         };
@@ -145,12 +145,11 @@ public class CLAHENodeFactory<T extends RealType<T>, K extends RandomAccessibleI
             @Override
             protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> op(final ImgPlus<T> imgPlus) {
 
-                FastCLAHE<T> clahe = new FastCLAHE<T>(m_ctxX.getIntValue(), m_ctxY.getIntValue(), m_numberOfBins.getIntValue(), m_slope.getIntValue());
+                ClaheND<T> clahe =
+                        new ClaheND<T>(m_ctxX.getIntValue(), m_numberOfBins.getIntValue(), m_slope.getIntValue());
 
-                return Operations
-                        .wrap(ImgOperations.wrapRA(clahe, imgPlus
-                                                           .firstElement().createVariable()), ImgPlusFactory
-                                .<T, T> get(imgPlus.firstElement()));
+                return Operations.wrap(ImgOperations.wrapRA(clahe, imgPlus.firstElement().createVariable()),
+                                       ImgPlusFactory.<T, T> get(imgPlus.firstElement()));
             }
 
             @Override

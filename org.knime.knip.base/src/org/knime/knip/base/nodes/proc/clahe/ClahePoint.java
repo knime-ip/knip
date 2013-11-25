@@ -53,11 +53,11 @@ import java.util.Arrays;
 
 /**
  *
- * @author Daniel
+ * @author Daniel Seebacher
  */
 public class ClahePoint {
 
-    private long[] m_coordinates;
+    private final long[] m_coordinates;
 
     /**
      * @param coordinates
@@ -69,14 +69,14 @@ public class ClahePoint {
     /**
      * @return the coordinates in all dimensions
      */
-    public long[] getCoordinates() {
+    public final long[] getCoordinates() {
         return this.m_coordinates;
     }
 
     /**
      * @return the dimensionality of this point
      */
-    public int numDim() {
+    public final int numDim() {
         return m_coordinates.length;
     }
 
@@ -84,7 +84,7 @@ public class ClahePoint {
      * @param i the dimension
      * @return the coordinate value in the given dimension
      */
-    public long dim(final int i) {
+    public final long dim(final int i) {
         return this.m_coordinates[i];
     }
 
@@ -92,17 +92,12 @@ public class ClahePoint {
      * @param otherPoint a different ClahePoint
      * @return the distance between this ClahePoint and another ClahePoint
      */
-    public double distance(final ClahePoint otherPoint) {
-        if (this.numDim() != otherPoint.numDim()) {
-            throw new IllegalArgumentException("Can't measure distance between points with different dimensionality");
-        }
-
+    public final double distance(final ClahePoint otherPoint) {
         double sum = 0;
-        for (int i = 0; i < this.numDim(); i++) {
-            sum += Math.pow(this.dim(i) - otherPoint.dim(i), 2);
+        for (int i = 0; i < m_coordinates.length; i++) {
+            sum += (m_coordinates[i] - otherPoint.m_coordinates[i]) * (m_coordinates[i] - otherPoint.m_coordinates[i]);
         }
-
-        return Math.sqrt(sum);
+        return sum;
     }
 
     @Override
@@ -123,9 +118,9 @@ public class ClahePoint {
      * @param imageDimensions the dimensions of an image
      * @return boolean true or false, whether this point lies inside the image boundaries or not.
      */
-    public boolean isInsideImage(final long[] imageDimensions) {
-        for (int i = 0; i < this.numDim(); i++) {
-            if (this.dim(i) < 0 || this.dim(i) >= imageDimensions[i]) {
+    public final boolean isInsideImage(final long[] imageDimensions) {
+        for (int i = 0; i < m_coordinates.length; i++) {
+            if (m_coordinates[i] < 0 || m_coordinates[i] >= imageDimensions[i]) {
                 return false;
             }
         }
