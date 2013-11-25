@@ -144,8 +144,8 @@ public abstract class ValueToCellNodeDialog<VIN extends DataValue> extends LazyN
      * Extracted to method, s.t. other can lazly call this
      */
     protected void init() {
-        addDCs();
         addDialogComponents();
+        addDCs();
         buildDialog();
     }
 
