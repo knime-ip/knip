@@ -58,7 +58,7 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingCellFactory;
 import org.knime.knip.base.data.labeling.LabelingValue;
-import org.knime.knip.base.node.NodeTools;
+import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.core.data.img.LabelingMetadata;
 import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.tracking.data.TrackedNode;
@@ -503,7 +503,7 @@ public class LAPTrackerNodeModel extends NodeModel implements
 
 		int colIdx = -1;
 		if (model.getStringValue() != null) {
-			colIdx = NodeTools.autoColumnSelection(inSpec, model, clazz,
+			colIdx = NodeUtils.autoColumnSelection(inSpec, model, clazz,
 					this.getClass(), excludeCols);
 		}
 		return colIdx;
