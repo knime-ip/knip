@@ -240,7 +240,7 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
     }
 
     /**
-     * Contructor to add additional in-ports and out-ports to the node. The data table port used within this model has
+     * Constructor to add additional in-ports and out-ports to the node. The data table port used within this model has
      * index 0! Hence, all additionally added ports will have a index > 0.
      *
      * If you want to overwrite the configure/execute-methods and still want to use the functionality provided by this
@@ -298,8 +298,8 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
 
         final DataTableSpec inSpec = (DataTableSpec)inSpecs[IN_TABLE_PORT_INDEX];
 
-        m_firstColIdx = NodeTools.getColumnIndex(m_firstColumn, inSpec, m_firstInValClass, this.getClass());
-        m_secondColIdx = NodeTools.getColumnIndex(m_secondColumn, inSpec, m_secondInValClass, this.getClass());
+        m_firstColIdx = getFirstColumnIdx(inSpec);
+        m_secondColIdx = getSecondColumnIdx(inSpec);
 
         final CellFactory cellFac = createCellFactory(inSpec, m_firstColIdx, m_secondColIdx);
         ColumnRearranger colRearranger;
@@ -431,11 +431,9 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
 
         BufferedDataTable[] res;
 
-        final int firstColIdx =
-                NodeTools.getColumnIndex(m_firstColumn, inTable.getDataTableSpec(), m_firstInValClass, this.getClass());
-        final int secondColIdx =
-                NodeTools.getColumnIndex(m_secondColumn, inTable.getDataTableSpec(), m_secondInValClass,
-                                         this.getClass(), firstColIdx);
+        final int firstColIdx = getFirstColumnIdx(inTable.getDataTableSpec());
+
+        final int secondColIdx = getSecondColumnIdx(inTable.getDataTableSpec());
 
         final CellFactory cellFac = createCellFactory(inTable.getDataTableSpec(), firstColIdx, secondColIdx);
 
@@ -633,17 +631,21 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
     }
 
     /**
+     * @param spec {@link DataTableSpec}
      * @return first column idx
+     * @throws InvalidSettingsException
      */
-    protected int firstColumnIdx() {
-        return m_firstColIdx;
+    protected int getFirstColumnIdx(final DataTableSpec spec) throws InvalidSettingsException {
+        return NodeTools.getColumnIndex(m_firstColumn, spec, m_firstInValClass, this.getClass());
     }
 
     /**
+     * @param spec {@link DataTableSpec}
      * @return first column idx
+     * @throws InvalidSettingsException
      */
-    protected int secondColumnIdx() {
-        return m_secondColIdx;
+    protected int getSecondColumnIdx(final DataTableSpec spec) throws InvalidSettingsException {
+        return NodeTools.getColumnIndex(m_firstColumn, spec, m_secondInValClass, this.getClass());
     }
 
 }

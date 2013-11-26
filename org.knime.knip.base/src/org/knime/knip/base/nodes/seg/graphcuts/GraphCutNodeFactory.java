@@ -368,10 +368,9 @@ public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
 
             @Override
             protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
-                DataTableSpec[] output = super.configure(inSpecs);
 
-                m_firstColIdx = firstColumnIdx();
-                m_secondColIdx = secondColumnIdx();
+                m_firstColIdx = getFirstColumnIdx(inSpecs[0]);
+                m_secondColIdx = getSecondColumnIdx(inSpecs[1]);
 
                 if (m_secondColIdx == -1) {
                     m_fgLabel.setEnabled(false);
@@ -384,7 +383,7 @@ public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
                     m_sinkValue.setEnabled(false);
                 }
 
-                return output;
+                return super.configure(inSpecs);
             }
 
             /**
