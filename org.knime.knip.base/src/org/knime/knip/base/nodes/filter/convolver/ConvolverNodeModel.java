@@ -77,7 +77,7 @@ import org.knime.core.node.port.PortType;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
-import org.knime.knip.base.node.NodeTools;
+import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.algorithm.convolvers.KernelTools;
@@ -195,7 +195,7 @@ public class ConvolverNodeModel<T extends RealType<T>, O extends RealType<O>, K 
         }
         if ((m_kernelColumnIdx == -1) && (inSpecs[1] != null)) {
             if ((m_kernelColumnIdx =
-                    NodeTools.autoOptionalColumnSelection((DataTableSpec)inSpecs[1], m_smKernelColumn,
+                    NodeUtils.autoOptionalColumnSelection((DataTableSpec)inSpecs[1], m_smKernelColumn,
                                                           ImgPlusValue.class)) >= 0) {
                 setWarningMessage("Auto-configure Column: " + m_smKernelColumn.getStringValue());
             } else {

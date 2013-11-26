@@ -94,7 +94,7 @@ import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingValue;
-import org.knime.knip.base.node.NodeTools;
+import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.core.data.img.DefaultImageMetadata;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
 import org.knime.knip.core.data.img.LabelingMetadata;
@@ -230,7 +230,7 @@ public class Lab2TableNodeModel<L extends Comparable<L>, II extends IntegerType<
     private int getLabColIdx(final DataTableSpec inSpec) throws InvalidSettingsException {
         int idx = inSpec.findColumnIndex(m_labColumn.getStringValue());
         if (idx == -1) {
-            idx = NodeTools.autoOptionalColumnSelection(inSpec, m_labColumn, LabelingValue.class);
+            idx = NodeUtils.autoOptionalColumnSelection(inSpec, m_labColumn, LabelingValue.class);
             setWarningMessage("Auto-configure Labeling Column: " + m_labColumn.getStringValue());
         }
         if (idx == -1) {

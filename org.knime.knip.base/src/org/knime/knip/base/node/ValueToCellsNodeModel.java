@@ -227,7 +227,7 @@ public abstract class ValueToCellsNodeModel<VIN extends DataValue> extends NodeM
     @Override
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
 
-        final int colIndex = NodeTools.getColumnIndex(m_column, inSpecs[0], m_inValueClass, this.getClass());
+        final int colIndex = NodeUtils.getColumnIndex(m_column, inSpecs[0], m_inValueClass, this.getClass());
 
         final CellFactory cellFac = createCellFactory(colIndex);
         ColumnRearranger colRearranger;
@@ -339,7 +339,7 @@ public abstract class ValueToCellsNodeModel<VIN extends DataValue> extends NodeM
         BufferedDataTable[] res;
 
         final int selectedColIndices =
-                NodeTools.getColumnIndex(m_column, inTable.getDataTableSpec(), m_inValueClass, this.getClass());
+                NodeUtils.getColumnIndex(m_column, inTable.getDataTableSpec(), m_inValueClass, this.getClass());
 
         final CellFactory cellFac = createCellFactory(selectedColIndices);
 

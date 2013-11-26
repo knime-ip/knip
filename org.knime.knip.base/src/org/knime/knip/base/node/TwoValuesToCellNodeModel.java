@@ -636,7 +636,7 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
      * @throws InvalidSettingsException
      */
     protected int getFirstColumnIdx(final DataTableSpec spec) throws InvalidSettingsException {
-        return NodeTools.getColumnIndex(m_firstColumn, spec, m_firstInValClass, this.getClass());
+        return NodeUtils.getColumnIndex(m_firstColumn, spec, m_firstInValClass, this.getClass());
     }
 
     /**
@@ -645,7 +645,7 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
      * @throws InvalidSettingsException
      */
     protected int getSecondColumnIdx(final DataTableSpec spec) throws InvalidSettingsException {
-        return NodeTools.getColumnIndex(m_firstColumn, spec, m_secondInValClass, this.getClass());
+        return NodeUtils.getColumnIndex(m_firstColumn, spec, m_secondInValClass, this.getClass());
     }
 
 }

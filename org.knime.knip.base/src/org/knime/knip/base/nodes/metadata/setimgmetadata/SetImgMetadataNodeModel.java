@@ -86,7 +86,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
-import org.knime.knip.base.node.NodeTools;
+import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
 
 /**
@@ -162,7 +162,7 @@ public class SetImgMetadataNodeModel<T extends RealType<T>> extends NodeModel im
      */
     @Override
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
-        NodeTools.autoColumnSelection(inSpecs[0], m_imgCol, ImgPlusValue.class, this.getClass());
+        NodeUtils.autoColumnSelection(inSpecs[0], m_imgCol, ImgPlusValue.class, this.getClass());
         final ColumnRearranger rearranger = new ColumnRearranger(inSpecs[0]);
         rearranger.replace(createCellFactory(inSpecs[0], null, -1), m_imgCol.getStringValue());
         return new DataTableSpec[]{rearranger.createSpec()};
@@ -280,7 +280,7 @@ public class SetImgMetadataNodeModel<T extends RealType<T>> extends NodeModel im
             throws Exception {
         final ColumnRearranger rearranger = new ColumnRearranger(inData[0].getDataTableSpec());
         final int idx =
-                NodeTools.autoColumnSelection(inData[0].getDataTableSpec(), m_imgCol, ImgPlusValue.class,
+                NodeUtils.autoColumnSelection(inData[0].getDataTableSpec(), m_imgCol, ImgPlusValue.class,
                                               this.getClass());
         rearranger.replace(createCellFactory(inData[0].getDataTableSpec(), new ImgPlusCellFactory(exec),
 
