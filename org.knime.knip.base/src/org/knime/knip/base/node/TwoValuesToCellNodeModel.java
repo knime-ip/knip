@@ -635,7 +635,7 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
      * @throws InvalidSettingsException
      */
     protected int getSecondColumnIdx(final DataTableSpec spec) throws InvalidSettingsException {
-        return NodeUtils.getColumnIndex(m_firstColumn, spec, m_secondInValClass, this.getClass());
+        return NodeUtils.getColumnIndex(m_secondColumn, spec, m_secondInValClass, this.getClass());
     }
 
 }
