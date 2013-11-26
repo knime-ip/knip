@@ -204,16 +204,6 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
     private List<SettingsModel> m_settingsModels = null;
 
     /**
-     * First column idx
-     */
-    private int m_firstColIdx;
-
-    /**
-     * Second column idx
-     */
-    private int m_secondColIdx;
-
-    /**
      * Default Constructor
      */
     protected TwoValuesToCellNodeModel() {
@@ -298,10 +288,10 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
 
         final DataTableSpec inSpec = (DataTableSpec)inSpecs[IN_TABLE_PORT_INDEX];
 
-        m_firstColIdx = getFirstColumnIdx(inSpec);
-        m_secondColIdx = getSecondColumnIdx(inSpec);
+        int firstColIdx = getFirstColumnIdx(inSpec);
+        int secondColIdx = getSecondColumnIdx(inSpec);
 
-        final CellFactory cellFac = createCellFactory(inSpec, m_firstColIdx, m_secondColIdx);
+        final CellFactory cellFac = createCellFactory(inSpec, firstColIdx, secondColIdx);
         ColumnRearranger colRearranger;
 
         if (m_colCreationMode.getStringValue().equals(COL_CREATION_MODES[0])) {
@@ -312,11 +302,11 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
             return new DataTableSpec[]{colRearranger.createSpec()};
         } else if (m_colCreationMode.getStringValue().equals(COL_CREATION_MODES[2])) {
             colRearranger = new ColumnRearranger(inSpec);
-            colRearranger.replace(cellFac, m_firstColIdx);
+            colRearranger.replace(cellFac, firstColIdx);
             return new DataTableSpec[]{colRearranger.createSpec()};
         } else {
             colRearranger = new ColumnRearranger(inSpec);
-            colRearranger.replace(cellFac, m_secondColIdx);
+            colRearranger.replace(cellFac, secondColIdx);
             return new DataTableSpec[]{colRearranger.createSpec()};
         }
     }
