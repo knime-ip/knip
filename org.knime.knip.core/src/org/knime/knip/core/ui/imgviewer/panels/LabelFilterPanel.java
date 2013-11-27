@@ -108,9 +108,9 @@ import org.knime.knip.core.util.MiscViews;
 
 /**
  * Panel to generate a Rulebased LabelFilter.
- * 
+ *
  * Publishes {@link RulebasedLabelFilter}
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -376,8 +376,8 @@ public class LabelFilterPanel<L extends Comparable<L>> extends ViewerComponent {
     }
 
     /**
-     * @param axes
-     * @param name
+     * @param e
+     *
      */
     @EventListener
     public void onLabelingUpdated(final IntervalWithMetadataChgEvent<LabelingType<L>> e) {
