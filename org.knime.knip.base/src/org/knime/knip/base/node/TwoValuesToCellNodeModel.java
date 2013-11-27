@@ -135,6 +135,9 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
     }
 
     private static PortType[] createPortTypes(final PortType[] additionalPorts) {
+        if( additionalPorts == null ){
+            return new PortType[]{ BufferedDataTable.TYPE };
+        }
         final PortType[] inPTypes = new PortType[additionalPorts.length + 1];
         inPTypes[0] = BufferedDataTable.TYPE;
         for (int i = 0; i < additionalPorts.length; i++) {
