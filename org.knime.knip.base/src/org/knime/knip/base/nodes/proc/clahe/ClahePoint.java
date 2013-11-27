@@ -93,9 +93,17 @@ public class ClahePoint {
      * @return the distance between this ClahePoint and another ClahePoint
      */
     public final double distance(final ClahePoint otherPoint) {
+        return distance(otherPoint.getCoordinates());
+    }
+
+    /**
+     * @param coordinates
+     * @return
+     */
+    public final double distance(final long[] coordinates){
         double sum = 0;
         for (int i = 0; i < m_coordinates.length; i++) {
-            sum += (m_coordinates[i] - otherPoint.m_coordinates[i]) * (m_coordinates[i] - otherPoint.m_coordinates[i]);
+            sum += (m_coordinates[i] - coordinates[i]) * (m_coordinates[i] - coordinates[i]);
         }
         return sum;
     }

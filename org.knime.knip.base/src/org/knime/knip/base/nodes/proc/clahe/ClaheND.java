@@ -187,9 +187,6 @@ public class ClaheND<T extends RealType<T>> implements
 
                 // calculate the new value through interpolation
                 final double newValue = interpolate(currentPoint, oldValue, neighbors, ctxHistograms);
-                if (newValue == Float.NEGATIVE_INFINITY) {
-                    System.out.println("arschlecken");
-                }
 
                 out.setReal(newValue);
             }
