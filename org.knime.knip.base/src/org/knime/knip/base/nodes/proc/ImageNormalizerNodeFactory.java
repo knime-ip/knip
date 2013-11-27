@@ -75,11 +75,11 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.ops.img.ImgPlusNormalize;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
- * Factory class to produce an contrast enhancer node.
+ * Use {@link ImgNormalizerNodeFactory} instead
  *
  * @param <T>
  *
@@ -87,6 +87,7 @@ import org.knime.knip.core.util.ImgPlusFactory;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
+@Deprecated
 public class ImageNormalizerNodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
 
     private enum ContrastEnhancementMode {
@@ -192,7 +193,7 @@ public class ImageNormalizerNodeFactory<T extends RealType<T>> extends ImgPlusTo
 
                 // Dialog Components
                 addDialogComponent("Options", "Mode", new DialogComponentStringSelection(type, "Enhancement Type",
-                        EnumListProvider.getStringList(ContrastEnhancementMode.values())));
+                        EnumUtils.getStringListFromName(ContrastEnhancementMode.values())));
 
                 addDialogComponent("Options", "Manual Settings", new DialogComponentNumber(smMin, "Min", 1.0));
 

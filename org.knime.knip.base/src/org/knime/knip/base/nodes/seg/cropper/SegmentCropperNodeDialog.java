@@ -61,7 +61,7 @@ import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.dialog.DialogComponentFilterSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelFilterSelection;
 import org.knime.knip.core.types.ImgFactoryTypes;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * The Dialog for the Segment Feature Node.
@@ -86,7 +86,7 @@ public class SegmentCropperNodeDialog<L extends Comparable<L>> extends DefaultNo
 
         createNewGroup("Choose Columns");
         addDialogComponent(new DialogComponentStringSelection(SegmentCropperNodeModel.createSMFactorySelection(),
-                "Factory selection", EnumListProvider.getStringList(ImgFactoryTypes.ARRAY_IMG_FACTORY,
+                "Factory selection", EnumUtils.getStringListFromName(ImgFactoryTypes.ARRAY_IMG_FACTORY,
                                                                     ImgFactoryTypes.CELL_IMG_FACTORY,
                                                                     ImgFactoryTypes.NTREE_IMG_FACTORY,
                                                                     ImgFactoryTypes.PLANAR_IMG_FACTORY)));

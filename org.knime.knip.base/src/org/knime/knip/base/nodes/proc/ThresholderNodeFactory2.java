@@ -88,12 +88,12 @@ import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.algorithm.types.ThresholdingType;
 import org.knime.knip.core.ops.interval.AutoThreshold;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgUtils;
 import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 
 /**
- * New global thresholder
+ * Deprecated. Use ROI based ThresholderNodeFactory3 (ImgThresholder)
  *
  * @param <T>
  *
@@ -102,6 +102,7 @@ import org.knime.node2012.KnimeNodeDocument.KnimeNode;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 @SuppressWarnings("rawtypes")
+@Deprecated
 public class ThresholderNodeFactory2<T extends RealType<T>> extends ValueToCellNodeFactory {
 
     private static final NodeLogger LOGGER = NodeLogger.getLogger(ThresholderNodeFactory2.class);
@@ -139,7 +140,7 @@ public class ThresholderNodeFactory2<T extends RealType<T>> extends ValueToCellN
                         "Threshold Value", .01));
                 final SettingsModelStringArray method = createThresholderSelectionModel();
                 addDialogComponent("Options", "Thresholding Method", new DialogComponentStringListSelection(method,
-                        "Method", EnumListProvider.getStringList(ThresholdingType.values())));
+                        "Method", EnumUtils.getStringListFromName(ThresholdingType.values())));
 
                 addDialogComponent("Options", "Dimension Selection", new DialogComponentDimSelection(
                         createDimSelectionModel(), "", 2, 5));

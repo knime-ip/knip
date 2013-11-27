@@ -71,7 +71,7 @@ import org.knime.knip.base.node.dialog.DialogComponentFilterSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelFilterSelection;
 import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * TODO Auto-generated
@@ -206,7 +206,7 @@ public class ContourDetectorNodeDialogPane extends DefaultNodeSettingsPane {
 
     private final DialogComponentStringSelection m_outOfBoundsFactory = new DialogComponentStringSelection(
             createOutOfBoundsSelectionModel(), "Out of bounds strategy",
-            EnumListProvider.getStringList(OutOfBoundsStrategyEnum.values()));
+            EnumUtils.getStringListFromName(OutOfBoundsStrategyEnum.values()));
 
     private final DialogComponentNumber m_overlap = new DialogComponentNumber(createOverlap(), "Overlap", .1);
 

@@ -65,6 +65,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelDoubleBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
@@ -124,7 +125,7 @@ public class GaussNativeTypeNodeFactory<T extends NumericType<T> & RealType<T> &
         return new ImgPlusToImgPlusNodeModel<T, T>("X", "Y") {
 
             /*
-             *
+             *  SettingsModel to store OutOfBoundsStrategy
              */
             private final SettingsModelString m_outOfBoundsStrategy = createOutOfBoundsModel();
 
@@ -150,7 +151,7 @@ public class GaussNativeTypeNodeFactory<T extends NumericType<T> & RealType<T> &
                 }
 
                 if (m_dimSelection.getNumSelectedDimLabels(cellValue.getMetadata()) < getMinDimensions()) {
-                    handleNotEnoughDims();
+                    throw new KNIPException("not enough selected dimensions provided by image.");
                 }
 
                 final UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> op = op(cellValue.getImgPlus());

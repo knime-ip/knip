@@ -60,10 +60,13 @@ import org.knime.node2012.KnimeNodeDocument;
 import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 
 /**
- * 
+ * {@link VarianceFilterNodeFactory} as {@link SlidingWindowOperationNodeFactory}
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <T>
  */
 public class VarianceFilterNodeFactory<T extends RealType<T>> extends SlidingWindowOperationNodeFactory<T, T> {
 

@@ -97,7 +97,7 @@ import org.knime.knip.base.KNIMEKNIPPlugin;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
-import org.knime.knip.base.node.NodeTools;
+import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
 
@@ -174,7 +174,7 @@ public class SplitterNodeModel<T extends RealType<T>> extends NodeModel implemen
         m_colIndex = inSpecs[0].findColumnIndex(m_column.getStringValue());
 
         if (m_colIndex == -1) {
-            if ((m_colIndex = NodeTools.autoOptionalColumnSelection(inSpecs[0], m_column, ImgPlusValue.class)) >= 0) {
+            if ((m_colIndex = NodeUtils.autoOptionalColumnSelection(inSpecs[0], m_column, ImgPlusValue.class)) >= 0) {
                 setWarningMessage("Auto-configure Image Column: " + m_column.getStringValue());
             } else {
                 throw new InvalidSettingsException("No column selected!");

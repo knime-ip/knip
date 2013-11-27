@@ -67,7 +67,7 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.knime.knip.base.node.NodeTools;
+import org.knime.knip.base.node.NodeUtils;
 
 /**
  * TODO Auto-generated
@@ -149,7 +149,7 @@ public abstract class ComparatorNodeModel<VIN1 extends DataValue, VIN2 extends D
 
         int tmpFirstColIdx = -1;
         if (m_firstColumn.getStringValue() != null) {
-            tmpFirstColIdx = NodeTools.autoColumnSelection(inSpec, m_firstColumn, m_firstInValClass, this.getClass());
+            tmpFirstColIdx = NodeUtils.autoColumnSelection(inSpec, m_firstColumn, m_firstInValClass, this.getClass());
         }
 
         int tmpSecondColIdx = -1;
@@ -162,7 +162,7 @@ public abstract class ComparatorNodeModel<VIN1 extends DataValue, VIN2 extends D
         }
         if (m_secondColumn.getStringValue() != null) {
             tmpSecondColIdx =
-                    NodeTools.autoColumnSelection(inSpec, m_secondColumn, m_secondInValClass, this.getClass(), except);
+                    NodeUtils.autoColumnSelection(inSpec, m_secondColumn, m_secondInValClass, this.getClass(), except);
         }
 
         return new int[]{tmpFirstColIdx, tmpSecondColIdx};

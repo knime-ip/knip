@@ -119,7 +119,7 @@ import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingValue;
-import org.knime.knip.base.node.NodeTools;
+import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelFilterSelection;
 import org.knime.knip.core.algorithm.PolarImageFactory;
@@ -198,7 +198,7 @@ public class ContourDetectorNodeModel<T extends RealType<T>, L extends Comparabl
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
         m_imgColIdx = inSpecs[0].findColumnIndex(m_smImgColumn.getStringValue());
         if (m_imgColIdx == -1) {
-            if ((m_imgColIdx = NodeTools.autoOptionalColumnSelection(inSpecs[0], m_smImgColumn, ImgPlusValue.class)) >= 0) {
+            if ((m_imgColIdx = NodeUtils.autoOptionalColumnSelection(inSpecs[0], m_smImgColumn, ImgPlusValue.class)) >= 0) {
                 setWarningMessage("Auto-configure Column: " + m_smImgColumn.getStringValue());
             } else {
                 throw new InvalidSettingsException("No img column selected!");
@@ -207,7 +207,7 @@ public class ContourDetectorNodeModel<T extends RealType<T>, L extends Comparabl
 
         m_seedColIdx = inSpecs[0].findColumnIndex(m_smSeedColumn.getStringValue());
         if (m_seedColIdx == -1) {
-            if ((m_seedColIdx = NodeTools.autoOptionalColumnSelection(inSpecs[0], m_smSeedColumn, ImgPlusValue.class)) >= 0) {
+            if ((m_seedColIdx = NodeUtils.autoOptionalColumnSelection(inSpecs[0], m_smSeedColumn, ImgPlusValue.class)) >= 0) {
                 setWarningMessage("Auto-configure Column: " + m_smSeedColumn.getStringValue());
             } else {
                 throw new InvalidSettingsException("No seed column selected!");

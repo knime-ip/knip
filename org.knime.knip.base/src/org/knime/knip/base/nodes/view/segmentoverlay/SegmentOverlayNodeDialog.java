@@ -57,7 +57,7 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.nodes.seg.labeleditor.DialogComponentStringTransformer;
 import org.knime.knip.base.nodes.view.segmentoverlay.SegmentOverlayNodeModel.LabelTransformVariables;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * The Dialog for the Segment Creator Node.
@@ -88,7 +88,7 @@ public class SegmentOverlayNodeDialog extends DefaultNodeSettingsPane {
         final DialogComponentStringTransformer dialogComponentStringTransformer =
                 new DialogComponentStringTransformer(new SettingsModelString(SegmentOverlayNodeModel.CFG_EXPRESSION,
                         "$" + LabelTransformVariables.Label + "$"));
-        dialogComponentStringTransformer.setVariables(EnumListProvider.getStringList(LabelTransformVariables.values()));
+        dialogComponentStringTransformer.setVariables(EnumUtils.getStringListFromName(LabelTransformVariables.values()));
         addDialogComponent(dialogComponentStringTransformer);
 
     }

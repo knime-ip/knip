@@ -3,7 +3,7 @@ Bundle-Name: Scijava Wrapper for KNIP
 Bundle-SymbolicName: org.knime.knip.scijava;singleton:=true
 Bundle-ManifestVersion: 2
 Eclipse-BuddyPolicy: registered
-Bundle-Version: 2.2.0
+Bundle-Version: 2.4.0.qualifier
 Bundle-Vendor: University of Konstanz
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.6.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
@@ -11,7 +11,7 @@ Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: scijava.jar,
  lib/mvn/eventbus-1.4.jar,
  lib/mvn/sezpoz-1.9-imagej.jar,
- lib/mvn/scijava-common-2.3.2.jar
+ lib/mvn/scijava-common-2.4.0.jar
 Export-Package: org.scijava,
  org.scijava.app,
  org.scijava.app.event,

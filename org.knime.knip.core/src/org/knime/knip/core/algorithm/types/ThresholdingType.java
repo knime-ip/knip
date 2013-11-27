@@ -49,16 +49,28 @@
 package org.knime.knip.core.algorithm.types;
 
 /**
- * 
  * Different thresholding types which can be used by the Thresholder.
- * 
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 public enum ThresholdingType {
 
-    HUANG, INTERMODES, ISODATA, LI, MAXENTROPY, MEAN, MINERROR, MINIMUM, MOMENTS, OTSU, PERCENTILE, RENYIENTROPY,
-    SHANBAG, TRIANGLE, YEN, MANUAL;
+    HUANG("Huang"), INTERMODES("Intermodes"), ISODATA("Isodata"), LI("Li"), MAXENTROPY("Max Entropy"), MEAN("Mean"),
+    MINERROR("Minimum Error"), MINIMUM("Minimum"), MOMENTS("Moments"), OTSU("Otsu"), PERCENTILE("Percentile"),
+    RENYIENTROPY("Renyi Entropy"), SHANBAG("Shanbag"), TRIANGLE("Triangle"), YEN("Yen"), MANUAL("Manual");
+
+    private String m_name;
+
+    private ThresholdingType(final String name){
+        this.m_name = name;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return m_name;
+    }
 }
