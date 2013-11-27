@@ -370,7 +370,7 @@ public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
             protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
 
                 m_firstColIdx = getFirstColumnIdx(inSpecs[0]);
-                m_secondColIdx = getSecondColumnIdx(inSpecs[1]);
+                m_secondColIdx = getSecondColumnIdx(inSpecs[1], m_firstColIdx);
 
                 if (m_secondColIdx == -1) {
                     m_fgLabel.setEnabled(false);
