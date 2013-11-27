@@ -289,7 +289,7 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
         final DataTableSpec inSpec = (DataTableSpec)inSpecs[IN_TABLE_PORT_INDEX];
 
         int firstColIdx = getFirstColumnIdx(inSpec);
-        int secondColIdx = getSecondColumnIdx(inSpec);
+        int secondColIdx = getSecondColumnIdx(inSpec, firstColIdx);
 
         final CellFactory cellFac = createCellFactory(inSpec, firstColIdx, secondColIdx);
         ColumnRearranger colRearranger;
@@ -423,7 +423,7 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
 
         final int firstColIdx = getFirstColumnIdx(inTable.getDataTableSpec());
 
-        final int secondColIdx = getSecondColumnIdx(inTable.getDataTableSpec());
+        final int secondColIdx = getSecondColumnIdx(inTable.getDataTableSpec(), firstColIdx);
 
         final CellFactory cellFac = createCellFactory(inTable.getDataTableSpec(), firstColIdx, secondColIdx);
 
@@ -622,20 +622,22 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
 
     /**
      * @param spec {@link DataTableSpec}
+     * @param except ignore the columns with the given indices
      * @return first column idx
      * @throws InvalidSettingsException
      */
-    protected int getFirstColumnIdx(final DataTableSpec spec) throws InvalidSettingsException {
-        return NodeUtils.getColumnIndex(m_firstColumn, spec, m_firstInValClass, this.getClass());
+    protected int getFirstColumnIdx(final DataTableSpec spec, final Integer... except) throws InvalidSettingsException {
+        return NodeUtils.getColumnIndex(m_firstColumn, spec, m_firstInValClass, this.getClass(), except);
     }
 
     /**
      * @param spec {@link DataTableSpec}
+     * @param except ignore the columns with the given indices
      * @return first column idx
      * @throws InvalidSettingsException
      */
-    protected int getSecondColumnIdx(final DataTableSpec spec) throws InvalidSettingsException {
-        return NodeUtils.getColumnIndex(m_secondColumn, spec, m_secondInValClass, this.getClass());
+    protected int getSecondColumnIdx(final DataTableSpec spec, final Integer... except) throws InvalidSettingsException {
+        return NodeUtils.getColumnIndex(m_secondColumn, spec, m_secondInValClass, this.getClass(), except);
     }
 
 }
