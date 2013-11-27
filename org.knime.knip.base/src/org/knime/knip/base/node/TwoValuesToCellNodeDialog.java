@@ -65,13 +65,16 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 /**
  * TODO: Standard description
- * 
+ *
  * Dialog corresponding to the {@link TwoValuesToCellNodeModel} which already contains dialog components, but others can
  * still be added (this {@link #addDialogComponent(String, String, DialogComponent)}.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <VIN1>
+ * @param <VIN2>
  */
 public abstract class TwoValuesToCellNodeDialog<VIN1 extends DataValue, VIN2 extends DataValue> extends
         LazyNodeDialogPane {
@@ -84,12 +87,28 @@ public abstract class TwoValuesToCellNodeDialog<VIN1 extends DataValue, VIN2 ext
 
     private SettingsModelString m_smColumnSuffix;
 
+    /**
+     * Default Constructor
+     */
     public TwoValuesToCellNodeDialog() {
+        this(false);
+    }
 
+    /**
+     * Possible lazy constructor
+     *
+     * If lazy is true addDialogComponents(); buildDialog();
+     *
+     * Must be called manually!
+     *
+     * @param lazy indicator whether lazy or not
+     */
+    public TwoValuesToCellNodeDialog(final boolean lazy) {
         addDCs();
-        addDialogComponents();
-        buildDialog();
-
+        if (!lazy) {
+            addDialogComponents();
+            buildDialog();
+        }
     }
 
     /*
@@ -162,6 +181,9 @@ public abstract class TwoValuesToCellNodeDialog<VIN1 extends DataValue, VIN2 ext
         return "First column";
     }
 
+    /**
+     * @return settings model of first column
+     */
     protected SettingsModelString getFirstColumnSettingsModel() {
         return m_firstColumnSettingsModel;
     }
@@ -173,6 +195,9 @@ public abstract class TwoValuesToCellNodeDialog<VIN1 extends DataValue, VIN2 ext
         return "Second column";
     }
 
+    /**
+     * @return settings model of second column
+     */
     protected SettingsModelString getSecondColumnSettingsModel() {
         return m_secondColumnSettingsModel;
     }
@@ -206,8 +231,8 @@ public abstract class TwoValuesToCellNodeDialog<VIN1 extends DataValue, VIN2 ext
 
     /**
      * Indicates whether the first column is required to be selected or not
-     * 
-     * @return
+     *
+     * @return true, if first column is required
      */
     public boolean isFirstColumnRequired() {
         return true;
@@ -215,8 +240,8 @@ public abstract class TwoValuesToCellNodeDialog<VIN1 extends DataValue, VIN2 ext
 
     /**
      * Indicates whether the second column is required to be selected or not
-     * 
-     * @return
+     *
+     * @return true, if second column is required
      */
     public boolean isSecondColumnRequired() {
         return true;

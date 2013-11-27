@@ -53,45 +53,84 @@ import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.UnaryOutputOperation;
 
 import org.knime.core.node.ExecutionContext;
+import org.knime.core.node.NodeModel;
 import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingCellFactory;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 
 /**
- * TODO Auto-generated
- * 
+ * Use this {@link NodeModel}, if you want to map one {@link Labeling} on another {@link Labeling} row-wise
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @param <L>
+ * @param <M>
  */
 public abstract class LabelingToLabelingNodeModel<L extends Comparable<L>, M extends Comparable<M>> extends
         ValueToCellNodeModel<LabelingValue<L>, LabelingCell<M>> {
 
+    /**
+     * Create {@link SettingsModelDimSelection}
+     *
+     * @param axes default axes of this model
+     * @return the created {@link SettingsModelDimSelection}
+     */
     protected static SettingsModelDimSelection createDimSelectionModel(final String... axes) {
         return new SettingsModelDimSelection("dim_selection", axes);
     }
 
+    /**
+     * {@link SettingsModelDimSelection} to store dimension selection
+     */
     protected SettingsModelDimSelection m_dimSelection;
 
+    /**
+     * {@link LabelingCellFactory} of this {@link NodeModel}
+     */
     private LabelingCellFactory m_labelingCellFactory;
 
+    /**
+     * Constructor to create {@link LabelingToLabelingNodeModel}
+     *
+     * @param isEnabled true, if dimension selection is enabled as default
+     * @param axes default axes of dim selection
+     */
     protected LabelingToLabelingNodeModel(final boolean isEnabled, final String... axes) {
         m_dimSelection = createDimSelectionModel(axes);
         m_dimSelection.setEnabled(isEnabled);
     }
 
+    /**
+     * Create {@link LabelingToLabelingNodeModel}
+     *
+     * @param axes Default axes to be set
+     */
+    protected LabelingToLabelingNodeModel(final String... axes) {
+        this(true, axes);
+    }
+
+    /**
+     * Create {@link LabelingToLabelingNodeModel}
+     *
+     * @param model the {@link SettingsModelDimSelection} which will be used
+     */
+    @Deprecated
     protected LabelingToLabelingNodeModel(final SettingsModelDimSelection model) {
         this(model, true);
     }
 
+    /**
+     * Helper constructor for backwards compatibility
+     *
+     * @param model
+     * @param isEnabled
+     */
+    @Deprecated
     protected LabelingToLabelingNodeModel(final SettingsModelDimSelection model, final boolean isEnabled) {
         m_dimSelection = model;
         m_dimSelection.setEnabled(isEnabled);
-    }
-
-    protected LabelingToLabelingNodeModel(final String... axes) {
-        this(true, axes);
     }
 
     @Override
@@ -111,11 +150,12 @@ public abstract class LabelingToLabelingNodeModel<L extends Comparable<L>, M ext
     }
 
     /**
-     * UnaryOperation is needed here
-     * 
-     * @return
+     * Create {@link UnaryOutputOperation} to map from one {@link Labeling} to another {@link Labeling}.
+     *
+     * @param labeling The incoming {@link Labeling}
+     * @return Operation which will be used to map from {@link Labeling} to another {@link Labeling}
      */
-    protected abstract UnaryOutputOperation<Labeling<L>, Labeling<M>> op(Labeling<L> imgPlus);
+    protected abstract UnaryOutputOperation<Labeling<L>, Labeling<M>> op(Labeling<L> labeling);
 
     /**
      * {@inheritDoc}

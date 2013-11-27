@@ -59,6 +59,7 @@ import net.imglib2.ops.operation.real.unary.RealUnaryOperation;
 import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.type.numeric.RealType;
 
+import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
@@ -104,12 +105,19 @@ public class InvertNodeFactory<T extends RealType<T>> extends ValueToCellNodeFac
     @Override
     public ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<T>> createNodeModel() {
         return new ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<T>>() {
-
             private ImgPlusCellFactory m_imgCellFactory;
 
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
 
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected void prepareExecute(final ExecutionContext exec) {
+                m_imgCellFactory = new ImgPlusCellFactory(exec);
             }
 
             @SuppressWarnings({"unchecked", "rawtypes"})

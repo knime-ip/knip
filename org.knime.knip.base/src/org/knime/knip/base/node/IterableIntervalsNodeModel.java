@@ -292,7 +292,7 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
         if (m_optionalColumnModel.getStringValue() != null
                 && !m_optionalColumnModel.getStringValue().equalsIgnoreCase("")) {
             optionalColIdx =
-                    NodeTools.autoColumnSelection(inSpec, m_optionalColumnModel, LabelingValue.class, this.getClass());
+                    NodeUtils.autoColumnSelection(inSpec, m_optionalColumnModel, LabelingValue.class, this.getClass());
         }
 
         return optionalColIdx;

@@ -91,7 +91,7 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingCellFactory;
 import org.knime.knip.base.data.labeling.LabelingValue;
-import org.knime.knip.base.node.NodeTools;
+import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 
 /**
@@ -324,7 +324,7 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
         int imgColIdx = inSpec.findColumnIndex(m_srcImgCol.getStringValue());
 
         if (imgColIdx == -1) {
-            if ((imgColIdx = NodeTools.autoOptionalColumnSelection(inSpec, m_srcImgCol, ImgPlusValue.class)) >= 0) {
+            if ((imgColIdx = NodeUtils.autoOptionalColumnSelection(inSpec, m_srcImgCol, ImgPlusValue.class)) >= 0) {
                 setWarningMessage("Auto-configure Image Column: " + m_srcImgCol.getStringValue());
             } else {
                 throw new InvalidSettingsException("No column selected!");
@@ -346,7 +346,7 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
         int seedColIdx = inSpec.findColumnIndex(m_seedLabCol.getStringValue());
 
         if (seedColIdx == -1) {
-            if ((seedColIdx = NodeTools.autoOptionalColumnSelection(inSpec, m_seedLabCol, LabelingValue.class)) >= 0) {
+            if ((seedColIdx = NodeUtils.autoOptionalColumnSelection(inSpec, m_seedLabCol, LabelingValue.class)) >= 0) {
                 setWarningMessage("Auto-configure Image Column: " + m_seedLabCol.getStringValue());
             } else {
                 throw new InvalidSettingsException("No column selected!");

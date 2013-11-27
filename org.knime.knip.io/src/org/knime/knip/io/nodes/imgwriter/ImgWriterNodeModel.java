@@ -75,7 +75,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.data.img.ImgPlusValue;
-import org.knime.knip.base.node.NodeTools;
+import org.knime.knip.base.node.NodeUtils;
 
 /**
  * 
@@ -241,7 +241,7 @@ public class ImgWriterNodeModel<T extends RealType<T>> extends NodeModel {
 
         int colIndex = inSpecs[0].findColumnIndex(m_imgColumn.getStringValue());
         if (colIndex == -1) {
-            if ((NodeTools.autoOptionalColumnSelection(inSpecs[0], m_imgColumn,
+            if ((NodeUtils.autoOptionalColumnSelection(inSpecs[0], m_imgColumn,
                     ImgPlusValue.class)) >= 0) {
                 setWarningMessage("Auto-configure Image Column: "
                         + m_imgColumn.getStringValue());
