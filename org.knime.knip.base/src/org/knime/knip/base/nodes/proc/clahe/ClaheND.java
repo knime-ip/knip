@@ -148,7 +148,8 @@ public class ClaheND<T extends RealType<T>> implements
                 inputCursor.localize(pos);
 
                 // calculate position of nearest center
-                ClahePoint center = getNearestCenter(pos, offsets);
+                ClahePoint center = getNearestCenter(pos, offsets, imageDimensions);
+                System.out.println(center+" "+Arrays.toString(imageDimensions));
 
                 // add point to according context histogram (create it, if it doesn't exist yet)
                 ClaheHistogram<T> hist = ctxHistograms.get(center);
@@ -160,11 +161,15 @@ public class ClaheND<T extends RealType<T>> implements
                 ctxHistograms.get(center).add(type);
             }
 
+            System.out.println("test");
+
             // after creation of the histograms, clip them
             for (ClahePoint center : ctxHistograms.keySet()) {
+                System.out.println(center+" "+Arrays.toString(imageDimensions));
                 ctxHistograms.get(center).clip(m_slope);
             }
         }
+
 
         // 3. for each pixel interpolate the new value
         {
@@ -179,6 +184,7 @@ public class ClaheND<T extends RealType<T>> implements
 
                 // get current position and the old value at this position
                 final ClahePoint currentPoint = new ClahePoint(pos);
+
                 final double oldValue = in.getRealDouble();
 
                 // find all neighboring context centers
@@ -200,11 +206,12 @@ public class ClaheND<T extends RealType<T>> implements
      * @param offsets the offsets of the context centers
      * @return The center of the nearest context region for a given point.
      */
-    private ClahePoint getNearestCenter(final long[] coordinates, final long[] offsets) {
+    private ClahePoint getNearestCenter(final long[] coordinates, final long[] offsets, final long[] imageDimensions) {
         final long[] newCoordinates = new long[coordinates.length];
         for (int i = 0; i < coordinates.length; i++) {
             final long times = coordinates[i] / offsets[i];
-            newCoordinates[i] = times * offsets[i] + offsets[i] / 2;
+            final long coords = times * offsets[i] + offsets[i] / 2;
+            newCoordinates[i] = (coords >= imageDimensions[i]) ? coords - offsets[i] : coords;
         }
 
         return new ClahePoint(newCoordinates);
@@ -215,8 +222,8 @@ public class ClaheND<T extends RealType<T>> implements
      * @param offsets the offsets of the context centers
      * @return The center of the nearest context region for a given point.
      */
-    private ClahePoint getNearestCenter(final ClahePoint cp, final long[] offsets) {
-        return getNearestCenter(cp.getCoordinates(), offsets);
+    private ClahePoint getNearestCenter(final ClahePoint cp, final long[] offsets, final long[] imageDimensions) {
+        return getNearestCenter(cp.getCoordinates(), offsets, imageDimensions);
     }
 
     /**
@@ -268,7 +275,7 @@ public class ClaheND<T extends RealType<T>> implements
 
         // create output list and find the nearest center (doesn't matter if it lies outside of the image boundaries)
         List<ClahePoint> neighbors = new ArrayList<ClahePoint>();
-        ClahePoint nearestCenter = getNearestCenter(currentPoint, offsets);
+        ClahePoint nearestCenter = getNearestCenter(currentPoint, offsets, imageDimensions);
 
         // if we're at a center we only have to add the nearest center
         if (currentPoint.equals(nearestCenter) && currentPoint.isInsideImage(imageDimensions)) {

@@ -80,13 +80,13 @@ public class ClaheInterpolation {
         }
         Collections.sort(ips, getDimensionComparator());
 
-//        // fall unterscheidung weil: wir schnellere möglichkeiten
-//        if (currentPoint.numDim() == 2) {
-//            return interpolate2D(currentPoint, neighbors, oldValue, histValues);
-//        } else {
-//            // naive vierlineare interpolation
-//            // here: using imglib
-//        }
+        //        // fall unterscheidung weil: wir schnellere möglichkeiten
+        //        if (currentPoint.numDim() == 2) {
+        //            return interpolate2D(currentPoint, neighbors, oldValue, histValues);
+        //        } else {
+        //            // naive vierlineare interpolation
+        //            // here: using imglib
+        //        }
         return interpolate(currentPoint, ips, 0);
     }
 
@@ -129,10 +129,13 @@ public class ClaheInterpolation {
      */
     private static double interpolate(final ClahePoint currentPoint, final List<InterpolationPoint> ips, final int dim) {
 
-        if(checkDimension(ips, dim) && dim + 1 < currentPoint.numDim()){
-            return interpolate(currentPoint, ips, dim +1);
+        if (ips.size() == 1) {
+            return ips.get(0).getValue();
         }
 
+        if (checkDimension(ips, dim) && dim + 1 < currentPoint.numDim()) {
+            return interpolate(currentPoint, ips, dim + 1);
+        }
 
         // because the points were sorted beforehand the values for an interpolation are always at i and i+1
         final List<InterpolationPoint> newIPS = new ArrayList<ClaheInterpolation.InterpolationPoint>();
@@ -157,11 +160,7 @@ public class ClaheInterpolation {
             }
         }
 
-        if (newIPS.size() == 1) {
-            return newIPS.get(0).getValue();
-        } else {
-            return interpolate(currentPoint, newIPS, dim + 1);
-        }
+        return interpolate(currentPoint, newIPS, dim + 1);
 
     }
 
@@ -191,9 +190,9 @@ public class ClaheInterpolation {
         };
     }
 
-    private static boolean checkDimension(final List<InterpolationPoint> ips, final int dim){
+    private static boolean checkDimension(final List<InterpolationPoint> ips, final int dim) {
         for (InterpolationPoint interpolationPoint : ips) {
-            if(interpolationPoint.dim(dim) != ips.get(0).dim(dim)){
+            if (interpolationPoint.dim(dim) != ips.get(0).dim(dim)) {
                 return false;
             }
         }
