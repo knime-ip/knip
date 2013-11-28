@@ -50,18 +50,19 @@ package org.knime.knip.base.nodes.proc.imgjep;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 
 import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.exception.IncompatibleTypeException;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.img.ImgView;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.meta.ImgPlusMetadata;
+import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.data.DataCell;
@@ -105,6 +106,7 @@ import org.nfunk.jep.Variable;
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
  * @author Bernd Wiswedel, University of Konstanz
  */
 public class ImgJEPNodeModel extends NodeModel implements BufferedDataTableHolder {
@@ -197,6 +199,9 @@ public class ImgJEPNodeModel extends NodeModel implements BufferedDataTableHolde
         return new DataTableSpec[]{outSpec};
     }
 
+    //TODO as soon as ImgLib2 supports cursors created from RandomAccessibleIntervals with arbitrary iteration order we can get rid of the unnesscary wrapping
+    //TODO at the moment the only really "slow-down" takes place, if the input only consists of unwrapped CellImgs.
+    //TODO for any other Img combination it would be wrapped anyway OR the wrapping doesn't influence the performance
     private CellFactory createCellFactory(final ImgExpressionParser expParser, final DataTableSpec spec)
             throws InvalidSettingsException {
         final ImgJEP jep = expParser.getJep();
@@ -209,9 +214,9 @@ public class ImgJEPNodeModel extends NodeModel implements BufferedDataTableHolde
                 Object referenceImgIterationOrder = null;
                 ImgPlusMetadata referenceMetadata = null;
                 Interval referenceInterval = null;
+                boolean requireFactoryWrap = false;
                 ImgFactory referenceFactory = null;
-                LinkedList<Img<RealType<?>>> imgList = new LinkedList<Img<RealType<?>>>();
-                boolean differentIterationOrders = false;
+                LinkedList<ImgPlus<RealType<?>>> imgList = new LinkedList<ImgPlus<RealType<?>>>();
 
                 boolean useAutoGuess = true;
                 if (m_referenceColumn.getStringValue() != null) {
@@ -228,7 +233,7 @@ public class ImgJEPNodeModel extends NodeModel implements BufferedDataTableHolde
                         referenceImgIterationOrder = tmpImg.getImg().iterationOrder();
                         referenceMetadata = new DefaultImgMetadata(tmpImg);
                         referenceInterval = new FinalInterval(tmpImg);
-                        referenceFactory = tmpImg.factory();
+                        referenceFactory = createWrappedFactory(tmpImg.factory());
                     }
                 }
 
@@ -260,32 +265,24 @@ public class ImgJEPNodeModel extends NodeModel implements BufferedDataTableHolde
                                 referenceImgIterationOrder = img.getImg().iterationOrder();
                                 referenceMetadata = new DefaultImgMetadata(img);
                                 referenceInterval = new FinalInterval(img);
-                                referenceFactory = img.factory();
-                            } else {
-                                // at this point we have a reference column either auto-guessed or set by the user
-                                if (m_adjustImgDim.getBooleanValue()) {
-                                    final RandomAccessibleInterval res =
-                                            MiscViews.synchronizeDimensionality(img, img, referenceInterval,
-                                                                                referenceMetadata);
+                                referenceFactory = createWrappedFactory(img.factory());
+                            }
+                            // at this point we have a reference column either auto-guessed or set by the user
+                            if (m_adjustImgDim.getBooleanValue()) {
+                                final RandomAccessibleInterval res =
+                                        MiscViews.synchronizeDimensionality(img.getImg(), img, referenceInterval,
+                                                                            referenceMetadata);
 
-                                    img =
-                                            new ImgPlus(new ImgView(res, img.factory()), new DefaultImgMetadata(
-                                                    referenceMetadata));
-                                }
-
-                                if (!referenceImgIterationOrder.equals(img.iterationOrder())) {
-                                    // we can fix that by using flat iteration order
-                                    differentIterationOrders = true;
-                                }
-
-                                final long[] dims = new long[img.numDimensions()];
-                                img.dimensions(dims);
-                                if (!Arrays.equals(referenceDims, dims)) {
-                                    throw new IllegalStateException("Images are not compatible (dimensions)!");
-                                }
+                                img =
+                                        new ImgPlus(new ImgView(res, img.factory()), new DefaultImgMetadata(
+                                                referenceMetadata));
                             }
 
                             // image exists no error occurred
+                            if (!(img.getImg() instanceof ImgView)) {
+                                img = new ImgPlus(new ImgView(img.getImg(), referenceFactory), img);
+                            }
+
                             jep.getVar(col).setValue(img);
                             imgList.add(img);
                         } else if (num != null) {
@@ -299,20 +296,13 @@ public class ImgJEPNodeModel extends NodeModel implements BufferedDataTableHolde
                 // the parse tree
                 final HashSet<Img<RealType<?>>> tableImages = new HashSet<Img<RealType<?>>>();
 
-                //check if one of the images differs in the iteration order in this case all images
-                //have to be changed to use flatIterationOrder
-                if (differentIterationOrders) {
-                    for (Img i : imgList) {
-                        tableImages.add(new ImgView(i, i.factory()));
-                    }
-                } else {
-                    tableImages.addAll(imgList);
-                }
-
+                // the type
                 final RealType<?> currentType =
                         (RealType<?>)NativeTypes.getTypeInstance(NativeTypes.valueOf(m_resultType.getStringValue()));
 
-                final ImgOperationEval eval = new ImgOperationEval(currentType, referenceFactory, tableImages);
+                // we need a wrapped factory to create buffered images in case of cellimg
+                final ImgOperationEval eval = new ImgOperationEval(currentType, referenceFactory, new HashSet(imgList));
+
                 jep.setImgOperationEvaluator(eval);
 
                 final Img imgRes = (Img)jep.getValueAsObject();
@@ -329,6 +319,21 @@ public class ImgJEPNodeModel extends NodeModel implements BufferedDataTableHolde
                     throw new RuntimeException(e);
                 }
 
+            }
+
+            private <T extends NativeType<T>> ImgFactory<T> createWrappedFactory(final ImgFactory<T> factory) {
+                return new ImgFactory<T>() {
+
+                    @Override
+                    public Img<T> create(final long[] dim, final T type) {
+                        return new ImgView<T>(factory.create(dim, type), this);
+                    }
+
+                    @Override
+                    public <S> ImgFactory<S> imgFactory(final S type) throws IncompatibleTypeException {
+                        return (ImgFactory<S>)this;
+                    }
+                };
             }
 
             @Override
