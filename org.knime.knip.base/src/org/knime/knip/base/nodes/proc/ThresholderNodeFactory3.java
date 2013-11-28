@@ -169,9 +169,10 @@ public class ThresholderNodeFactory3<T extends RealType<T>, L extends Comparable
             public UnaryOperation<IterableInterval<T>, IterableInterval<BitType>> operation() {
 
                 if (m_thresholder == ThresholdingType.INTERMODES || m_thresholder == ThresholdingType.MINIMUM
-                        || m_thresholder == ThresholdingType.ISODATA) {
+                        || m_thresholder == ThresholdingType.ISODATA || m_thresholder == ThresholdingType.MAXENTROPY
+                        || m_thresholder == ThresholdingType.YEN) {
                     throw new KNIPRuntimeException(
-                            "MINIMUM, INTERMODES and ISODATA are currently not supported because their implementation can result in incorrect results. A missing cell has been created.");
+                            "MINIMUM, INTERMODES, MAXENTROPY, YEN and ISODATA are currently not supported because their implementation can result in incorrect results.");
 
                 } else if (m_thresholder == ThresholdingType.MANUAL) {
                     final T type = m_currentElement.createVariable();
