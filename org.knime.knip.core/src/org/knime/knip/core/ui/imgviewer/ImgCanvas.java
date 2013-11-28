@@ -93,11 +93,11 @@ import org.knime.knip.core.ui.imgviewer.events.ViewZoomfactorChgEvent;
 import org.knime.knip.core.ui.imgviewer.panels.MinimapPanel;
 
 /**
- * 
+ *
  * Panel to draw a BufferedImage.
- * 
+ *
  * Propagates {@link ImgViewerRectChgEvent}.
- * 
+ *
  * @param <T>
  * @param <I>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
@@ -304,7 +304,7 @@ public class ImgCanvas<T extends Type<T>, I extends IterableInterval<T> & Random
 
     /**
      * Returns the visible bounding box in the image coordinate space.
-     * 
+     *
      * @return the visible bounding box.
      */
     public Rectangle getVisibleImageRect() {
@@ -365,7 +365,7 @@ public class ImgCanvas<T extends Type<T>, I extends IterableInterval<T> & Random
 
     /**
      * Scrolls the image so the rectangle gets visible.
-     * 
+     *
      * @param rect
      */
     @EventListener
@@ -397,10 +397,9 @@ public class ImgCanvas<T extends Type<T>, I extends IterableInterval<T> & Random
         if (enforceRecalculation || (m_oldFactors[0] != m_factors[0]) || (m_oldFactors[1] != m_factors[1])) {
 
             // get old center of the image
-
             final Rectangle rect = m_imageCanvas.getVisibleRect();
-            final double imgCenterX = rect.getCenterX() / m_oldFactors[0];
-            final double imgCenterY = rect.getCenterY() / m_oldFactors[1];
+            final double imgCenterX = m_image.getWidth() / 2.0;
+            final double imgCenterY = m_image.getHeight() / 2.0;
 
             // enlarge canvas
             final Dimension d =
@@ -413,8 +412,10 @@ public class ImgCanvas<T extends Type<T>, I extends IterableInterval<T> & Random
             final double yCorrect = getVisibleImageRect().height / 2.0;
 
             // apply old center
-            m_imageScrollPane.getViewport().setViewPosition(new Point((int)(((imgCenterX - xCorrect) * m_factors[0])),
-                                                                    (int)(((imgCenterY - yCorrect) * m_factors[1]))));
+            m_imageScrollPane.getViewport().setViewPosition(new Point((int)Math
+                                                                    .round(((imgCenterX - xCorrect) * m_factors[0])),
+                                                                    (int)Math.round((imgCenterY - yCorrect)
+                                                                            * m_factors[1])));
 
             m_oldFactors = m_factors.clone();
 
@@ -425,7 +426,7 @@ public class ImgCanvas<T extends Type<T>, I extends IterableInterval<T> & Random
 
     /**
      * An image with the message.
-     * 
+     *
      * @param message
      */
     @EventListener
