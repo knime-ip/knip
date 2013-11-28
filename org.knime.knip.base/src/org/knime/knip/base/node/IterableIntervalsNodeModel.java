@@ -74,6 +74,7 @@ import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
+import org.knime.knip.base.exceptions.KNIPRuntimeException;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgUtils;
@@ -328,52 +329,57 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
         }
 
         prepareOperation(in.firstElement());
-
-        if (!isLabelingPresent()) {
-            UnaryOperation<IterableInterval<T>, IterableInterval<V>> operation = operation();
-            SubsetOperations.iterate(ImgOperations.wrapII(operation, outType), selectedDimIndices, in, res,
-                                     getExecutorService());
-        } else {
-            for (L label : m_currentLabeling.getLabels()) {
-                IterableRegionOfInterest iterableRegionOfInterest =
-                        m_currentLabeling.getIterableRegionOfInterest(label);
-
-                IterableInterval<T> inII = iterableRegionOfInterest.getIterableIntervalOverROI(in);
-                IterableInterval<V> outII = iterableRegionOfInterest.getIterableIntervalOverROI(res);
-
+        //TODO better exception handling -> do not convert every exception into a KNIPRuntimeException!
+        try {
+            if (!isLabelingPresent()) {
                 UnaryOperation<IterableInterval<T>, IterableInterval<V>> operation = operation();
+                SubsetOperations.iterate(ImgOperations.wrapII(operation, outType), selectedDimIndices, in, res,
+                                         getExecutorService());
+            } else {
+                for (L label : m_currentLabeling.getLabels()) {
+                    IterableRegionOfInterest iterableRegionOfInterest =
+                            m_currentLabeling.getIterableRegionOfInterest(label);
 
-                // TODO parallelize over ROIs (tbd)
-                operation.compute(inII, outII);
-            }
+                    IterableInterval<T> inII = iterableRegionOfInterest.getIterableIntervalOverROI(in);
+                    IterableInterval<V> outII = iterableRegionOfInterest.getIterableIntervalOverROI(res);
 
-            // TODO can we speed this up (or is it even slower if we would have empty pixel information?)
-            FillingMode mode = EnumUtils.valueForName(m_fillNonROIPixels.getStringValue(), FillingMode.values());
+                    UnaryOperation<IterableInterval<T>, IterableInterval<V>> operation = operation();
 
-            switch (mode) {
-                case NOFILLING:
-                    break;
-                case RESMIN:
-                    fill(res, outType.getMinValue());
-                    break;
-                case RESMAX:
-                    fill(res, outType.getMaxValue());
-                    break;
-                case SOURCE:
-                    // here we need to do something special
-                    Cursor<LabelingType<L>> cursor = m_currentLabeling.cursor();
-                    Cursor<V> outCursor = res.cursor();
-                    Cursor<T> inCursor = in.cursor();
-                    while (cursor.hasNext()) {
-                        if (cursor.next().getLabeling().isEmpty()) {
-                            outCursor.next().setReal(inCursor.next().getRealDouble());
-                        } else {
-                            outCursor.fwd();
-                            inCursor.fwd();
+                    // TODO parallelize over ROIs (tbd)
+                    operation.compute(inII, outII);
+
+                }
+
+                // TODO can we speed this up (or is it even slower if we would have empty pixel information?)
+                FillingMode mode = EnumUtils.valueForName(m_fillNonROIPixels.getStringValue(), FillingMode.values());
+
+                switch (mode) {
+                    case NOFILLING:
+                        break;
+                    case RESMIN:
+                        fill(res, outType.getMinValue());
+                        break;
+                    case RESMAX:
+                        fill(res, outType.getMaxValue());
+                        break;
+                    case SOURCE:
+                        // here we need to do something special
+                        Cursor<LabelingType<L>> cursor = m_currentLabeling.cursor();
+                        Cursor<V> outCursor = res.cursor();
+                        Cursor<T> inCursor = in.cursor();
+                        while (cursor.hasNext()) {
+                            if (cursor.next().getLabeling().isEmpty()) {
+                                outCursor.next().setReal(inCursor.next().getRealDouble());
+                            } else {
+                                outCursor.fwd();
+                                inCursor.fwd();
+                            }
                         }
-                    }
-                    break;
+                        break;
+                }
             }
+        } catch (Exception e) {
+            throw new KNIPRuntimeException("", e);
         }
         return m_cellFactory.createCell(res, cellValue.getMinimum());
     }

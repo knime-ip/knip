@@ -66,7 +66,6 @@ import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.knime.knip.base.exceptions.KNIPRuntimeException;
 import org.knime.knip.base.node.IterableIntervalsNodeDialog;
 import org.knime.knip.base.node.IterableIntervalsNodeFactory;
 import org.knime.knip.base.node.IterableIntervalsNodeModel;
@@ -167,14 +166,7 @@ public class ThresholderNodeFactory3<T extends RealType<T>, L extends Comparable
 
             @Override
             public UnaryOperation<IterableInterval<T>, IterableInterval<BitType>> operation() {
-
-                if (m_thresholder == ThresholdingType.INTERMODES || m_thresholder == ThresholdingType.MINIMUM
-                        || m_thresholder == ThresholdingType.ISODATA || m_thresholder == ThresholdingType.MAXENTROPY
-                        || m_thresholder == ThresholdingType.YEN) {
-                    throw new KNIPRuntimeException(
-                            "MINIMUM, INTERMODES, MAXENTROPY, YEN and ISODATA are currently not supported because their implementation can result in incorrect results.");
-
-                } else if (m_thresholder == ThresholdingType.MANUAL) {
+                if (m_thresholder == ThresholdingType.MANUAL) {
                     final T type = m_currentElement.createVariable();
                     type.setReal(m_manualThreshold.getDoubleValue());
                     return new UnaryRelationAssigment<T>(new RealGreaterThanConstant<T>(type));
