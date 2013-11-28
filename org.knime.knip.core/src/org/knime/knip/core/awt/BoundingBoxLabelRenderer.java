@@ -107,14 +107,14 @@ public class BoundingBoxLabelRenderer<L extends Comparable<L> & Type<L>> impleme
     protected boolean m_withLabelStrings = true;
 
     @Override
-    public AWTScreenImage render(final RandomAccessibleInterval<LabelingType<L>> source, final int dimX, final int dimY,
-                              final long[] planePos) {
+    public AWTScreenImage render(final RandomAccessibleInterval<LabelingType<L>> source, final int dimX,
+                                 final int dimY, final long[] planePos) {
         return render(dimX, dimY, planePos, source, m_activeLabels, m_scale, m_withLabelStrings);
     }
 
     private AWTScreenImage render(final int dimX, final int dimY, final long[] planePos,
-                               final RandomAccessibleInterval<LabelingType<L>> labeling,
-                               final Set<String> activeLabels, final double scale, final boolean withLabelString) {
+                                  final RandomAccessibleInterval<LabelingType<L>> labeling,
+                                  final Set<String> activeLabels, final double scale, final boolean withLabelString) {
         Labeling<L> subLab = null;
         if (labeling instanceof Labeling) {
             subLab = (Labeling<L>)labeling;
@@ -139,8 +139,8 @@ public class BoundingBoxLabelRenderer<L extends Comparable<L> & Type<L>> impleme
 
         final long[] dims = new long[subLab.numDimensions()];
         subLab.dimensions(dims);
-        final int width = (int)Math.round(dims[dimX] * scale) + 1;
-        final int height = (int)Math.round(dims[dimY] * scale) + 1;
+        final int width = (int)(dims[dimX] * scale);
+        final int height = (int)(dims[dimY] * scale);
 
         final AWTScreenImage res = createCanvas(width, height);
         final Graphics g = res.image().getGraphics();
@@ -167,8 +167,8 @@ public class BoundingBoxLabelRenderer<L extends Comparable<L> & Type<L>> impleme
 
                 final IterableRegionOfInterest roi = subLab.getIterableRegionOfInterest(label);
                 final Interval ii = roi.getIterableIntervalOverROI(subLab);
-                g.drawRect((int)(ii.min(X) * scale), (int)(ii.min(Y) * scale), (int)((ii.dimension(X) - 1) * scale),
-                           (int)((ii.dimension(Y) - 1) * scale));
+                g.drawRect((int)(ii.min(X) * scale) - 1, (int)(ii.min(Y) * scale) - 1,
+                           (int)((ii.dimension(X)) * scale) + 1, (int)((ii.dimension(Y)) * scale) + 1);
 
                 if (withLabelString) {
                     if (scale > .6) {
