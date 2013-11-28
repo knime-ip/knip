@@ -65,6 +65,7 @@ import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeLogger;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.port.PortObject;
@@ -91,6 +92,8 @@ import org.knime.knip.core.util.ImgUtils;
  */
 public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extends RealType<V>, L extends Comparable<L>>
         extends ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<V>> {
+
+    private static final NodeLogger LOGGER = NodeLogger.getLogger(IterableIntervalsNodeModel.class);
 
     /**
      * Filling Mode. How areas outside the rois are treated
@@ -306,6 +309,10 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
 
         ImgPlus<T> in = cellValue.getImgPlus();
         ImgPlus<V> res = createResultImage(cellValue.getImgPlus());
+
+        if (!m_dimSelectionModel.isContainedIn(cellValue.getMetadata())) {
+            LOGGER.warn("image " + cellValue.getMetadata().getName() + " does not provide all selected dimensions.");
+        }
 
         V outType = getOutType(in.firstElement());
 
