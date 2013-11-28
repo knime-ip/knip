@@ -215,7 +215,7 @@ public class ImgJEPNodeModel extends NodeModel implements BufferedDataTableHolde
                 ImgPlusMetadata referenceMetadata = null;
                 Interval referenceInterval = null;
                 boolean requireFactoryWrap = false;
-                ImgFactory referenceFactory = null;
+                WrappedFactory referenceFactory = null;
                 LinkedList<ImgPlus<RealType<?>>> imgList = new LinkedList<ImgPlus<RealType<?>>>();
 
                 boolean useAutoGuess = true;
@@ -305,7 +305,7 @@ public class ImgJEPNodeModel extends NodeModel implements BufferedDataTableHolde
 
                 jep.setImgOperationEvaluator(eval);
 
-                final Img imgRes = (Img)jep.getValueAsObject();
+                final Img imgRes = new ImgView((Img)jep.getValueAsObject(), referenceFactory.fac);
 
                 if ((imgRes == null) || eval.errorOccured()) {
                     LOGGER.error("Result for row " + row.getKey() + "  can't be calculated.");
@@ -321,19 +321,8 @@ public class ImgJEPNodeModel extends NodeModel implements BufferedDataTableHolde
 
             }
 
-            private <T extends NativeType<T>> ImgFactory<T> createWrappedFactory(final ImgFactory<T> factory) {
-                return new ImgFactory<T>() {
-
-                    @Override
-                    public Img<T> create(final long[] dim, final T type) {
-                        return new ImgView<T>(factory.create(dim, type), this);
-                    }
-
-                    @Override
-                    public <S> ImgFactory<S> imgFactory(final S type) throws IncompatibleTypeException {
-                        return (ImgFactory<S>)this;
-                    }
-                };
+            private <T extends NativeType<T>> WrappedFactory<T> createWrappedFactory(final ImgFactory<T> factory) {
+                return new WrappedFactory(factory);
             }
 
             @Override
@@ -503,5 +492,23 @@ public class ImgJEPNodeModel extends NodeModel implements BufferedDataTableHolde
             // Do nothing
         }
     }
+}
 
+class WrappedFactory<V extends NativeType<V>> extends ImgFactory<V> {
+
+    ImgFactory<V> fac;
+
+    public WrappedFactory(final ImgFactory<V> fac) {
+        this.fac = fac;
+    }
+
+    @Override
+    public Img<V> create(final long[] dim, final V type) {
+        return new ImgView<V>(fac.create(dim, type), this);
+    }
+
+    @Override
+    public <S> ImgFactory<S> imgFactory(final S type) throws IncompatibleTypeException {
+        return (ImgFactory<S>)this;
+    }
 }
