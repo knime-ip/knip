@@ -54,6 +54,7 @@ import java.util.List;
 
 import net.imglib2.Interval;
 import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
 import net.imglib2.meta.CalibratedAxis;
 import net.imglib2.meta.CalibratedSpace;
 import net.imglib2.meta.DefaultCalibratedSpace;
@@ -61,7 +62,6 @@ import net.imglib2.meta.ImgPlus;
 import net.imglib2.meta.ImgPlusMetadata;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.interval.binary.IntervalsFromDimSelection;
-import net.imglib2.ops.operation.subset.views.ImgView;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.data.DataType;

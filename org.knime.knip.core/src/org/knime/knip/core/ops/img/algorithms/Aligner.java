@@ -58,13 +58,13 @@ import net.imglib2.algorithm.legacy.fft.PhaseCorrelation;
 import net.imglib2.algorithm.legacy.fft.PhaseCorrelationPeak;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
+import net.imglib2.img.ImgView;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.BinaryObjectFactory;
 import net.imglib2.ops.operation.BinaryOutputOperation;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.img.unary.ImgCopyOperation;
 import net.imglib2.ops.operation.img.unary.ImgCrop;
-import net.imglib2.ops.operation.subset.views.ImgView;
 import net.imglib2.type.numeric.RealType;
 
 /**

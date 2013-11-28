@@ -53,11 +53,14 @@ import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 
 /**
- * 
+ * {@link LabelingToLabelingNodeDialog} for corresponding {@link LabelingToLabelingNodeModel}
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
- * @author dietyc
+ *
+ * @param <L1>
+ * @param <L2>
  */
 public abstract class LabelingToLabelingNodeFactory<L1 extends Comparable<L1>, L2 extends Comparable<L2>> extends
         ValueToCellNodeFactory<LabelingValue<L1>> {

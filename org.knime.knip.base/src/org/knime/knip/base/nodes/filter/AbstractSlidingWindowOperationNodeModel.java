@@ -60,6 +60,7 @@ import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.outofbounds.OutOfBoundsFactory;
 import net.imglib2.type.numeric.RealType;
 
+import org.knime.core.node.NodeModel;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
@@ -73,30 +74,58 @@ import org.knime.knip.core.types.OutOfBoundsStrategyFactory;
 import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
- * TODO Auto-generated
- * 
+ * Abstract {@link NodeModel} which can be used for sliding window like operations
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <T>
+ * @param <V>
+ *
  */
 public abstract class AbstractSlidingWindowOperationNodeModel<T extends RealType<T>, V extends RealType<V>> extends
         ImgPlusToImgPlusNodeModel<T, V> {
 
+    /**
+     * Create Dimension Selection NodeModel
+     *
+     * @return the created {@link SettingsModelDimSelection}
+     */
     protected static SettingsModelDimSelection createDimSelectionModel() {
         return new SettingsModelDimSelection("dimensions", "X", "Y");
     }
 
+    /**
+     * Extend of the interval which will be used for sliding
+     */
     protected SettingsModelInteger m_intervalExtend = SlidingWindowOperationNodeFactory.createBoxExtendModel();
 
+    /**
+     * Neighborhood which will be used for sliding
+     */
     protected NeighborhoodType m_neighborhood;
 
+    /**
+     * Type of the neighborhood (rectangular, elliptical, etc)
+     */
     protected SettingsModelString m_neighborhoodType = SlidingWindowOperationNodeFactory
             .createNeighborhoodTypeNodeModel();
 
+    /**
+     * {@link SettingsModelString} to store {@link OutOfBoundsStrategyFactory} which will be used for out of bounds
+     * values
+     */
     protected SettingsModelString m_outOfBoundsStrategy = SlidingWindowOperationNodeFactory.createOutOfBoundsModel();
 
+    /**
+     * {@link SettingsModelBoolean} to store whether speed-up shall be used or not
+     */
     protected SettingsModelBoolean m_speedUp = SlidingWindowOperationNodeFactory.createSpeedUpModel();
 
+    /**
+     * Deprecation: Will be removed with KNIP 2.0.0
+     */
     public AbstractSlidingWindowOperationNodeModel() {
         super(createDimSelectionModel());
     }
@@ -111,12 +140,12 @@ public abstract class AbstractSlidingWindowOperationNodeModel<T extends RealType
 
     /**
      * simplifies the usage of {@link #getSlidingOperation(ImgPlus, RealType, Shape, OutOfBoundsFactory)}
-     * 
+     *
      * @param op
      * @param type
      * @param neighborhood
      * @param outStrat
-     * @return
+     * @return {@link UnaryOutputOperation}
      */
     protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<V>>
             defaultBinary(final BinaryOperation<Iterator<T>, T, V> op, final V type, final Shape neighborhood,
@@ -130,12 +159,12 @@ public abstract class AbstractSlidingWindowOperationNodeModel<T extends RealType
 
     /**
      * simplifies the usage of {@link #getSlidingOperation(ImgPlus, RealType, Shape, OutOfBoundsFactory)}
-     * 
+     *
      * @param op
      * @param type
      * @param neighborhood
      * @param outStrat
-     * @return
+     * @return {@link UnaryOutputOperation}
      */
     protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<V>>
             defaultUnary(final UnaryOperation<Iterator<T>, V> op, final V type, final Shape neighborhood,
@@ -149,9 +178,9 @@ public abstract class AbstractSlidingWindowOperationNodeModel<T extends RealType
      * Returns a var of the output type. in the case that the operation is used as SlindingWindow<T,T> just return
      * inType.createVariable(). In the case that you use it as <T,V> return the appropriate V e.g. BitType for local
      * thresholding operations.
-     * 
+     *
      * @param inType
-     * @return
+     * @return outType
      */
     protected abstract V getOutType(T inType);
 
@@ -172,6 +201,12 @@ public abstract class AbstractSlidingWindowOperationNodeModel<T extends RealType
      * create a sliding window operation and return it. You can implement this directly e.g. to apply speed up
      * strategies like integral images ... or use the provided default methods (#defaultUnary() or #defaultBinary())
      * that only require a op to be used.
+     *
+     * @param img
+     * @param type
+     * @param neighborhood
+     * @param outStrat
+     * @return {@link UnaryOutputOperation}
      */
     protected abstract UnaryOutputOperation<ImgPlus<T>, ImgPlus<V>>
             getSlidingOperation(ImgPlus<T> img, V type, Shape neighborhood, OutOfBoundsFactory<T, ImgPlus<T>> outStrat);

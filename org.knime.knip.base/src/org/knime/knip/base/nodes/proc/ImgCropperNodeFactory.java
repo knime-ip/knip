@@ -80,10 +80,13 @@ import org.knime.knip.base.node.dialog.DialogComponentSubsetSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
 import org.knime.knip.core.types.ImgFactoryTypes;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
- * 
+ * ImgCropperNodeFactory
+ *
+ * @param <T>
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -116,7 +119,7 @@ public class ImgCropperNodeFactory<T extends RealType<T> & NativeType<T>> extend
                         createSubsetSelectionModel(), true, true));
 
                 addDialogComponent("Options", "Factory selection", new DialogComponentStringSelection(
-                        createFactorySelectionModel(), "", EnumListProvider.getStringList(ImgFactoryTypes.values())));
+                        createFactorySelectionModel(), "", EnumUtils.getStringListFromName(ImgFactoryTypes.values())));
 
                 addDialogComponent("Options", "Options", new DialogComponentBoolean(createAdjustDimModel(),
                         "Adjust dimensionality?"));
@@ -199,7 +202,7 @@ public class ImgCropperNodeFactory<T extends RealType<T> & NativeType<T>> extend
                     final List<CalibratedAxis> validAxes = new ArrayList<CalibratedAxis>();
                     for (int d = 0; d < img.numDimensions(); d++) {
                         if (!mergeOp.getInvalidDims().contains(d)) {
-                            validAxes.add((CalibratedAxis)cellValue.getMetadata().axis(d).copy());
+                            validAxes.add(cellValue.getMetadata().axis(d).copy());
                         }
                     }
 

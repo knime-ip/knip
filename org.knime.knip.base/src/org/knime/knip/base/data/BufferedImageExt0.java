@@ -58,9 +58,13 @@ import java.awt.image.Raster;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 
-import net.imglib2.display.projectors.screenimages.ARGBScreenImage;
-import net.imglib2.display.projectors.screenimages.ByteScreenImage;
-import net.imglib2.display.projectors.screenimages.ShortScreenImage;
+import net.imglib2.display.screenimage.awt.ARGBScreenImage;
+import net.imglib2.display.screenimage.awt.ByteAWTScreenImage;
+import net.imglib2.display.screenimage.awt.ShortAWTScreenImage;
+import net.imglib2.img.basictypeaccess.array.ByteArray;
+import net.imglib2.img.basictypeaccess.array.ShortArray;
+import net.imglib2.type.numeric.integer.ByteType;
+import net.imglib2.type.numeric.integer.ShortType;
 
 import org.knime.knip.core.io.externalization.BufferedDataInputStream;
 import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
@@ -69,7 +73,7 @@ import org.knime.knip.core.io.externalization.ExternalizerManager;
 
 /**
  * Externalizer for the java buffered image object.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -114,11 +118,11 @@ public class BufferedImageExt0 implements Externalizer<BufferedImage> {
         if (clazz.isAssignableFrom(DataBufferByte.class)) {
             final byte[] data = new byte[length];
             in.read(data);
-            return ByteScreenImage.createBufferedImage(data, width, height);
+            return new ByteAWTScreenImage(new ByteType(), new ByteArray(data), new long[]{width, height}).image();
         } else if (clazz.isAssignableFrom(DataBufferUShort.class)) {
             final short[] data = new short[length];
             in.read(data);
-            return ShortScreenImage.createBufferedImage(data, width, height);
+            return new ShortAWTScreenImage(new ShortType(), new ShortArray(data), new long[]{width, height}).image();
         } else if (clazz.isAssignableFrom(DataBufferInt.class)) {
             final int[] data = new int[length];
             in.read(data);

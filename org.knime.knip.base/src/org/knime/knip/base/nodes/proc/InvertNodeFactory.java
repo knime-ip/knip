@@ -52,10 +52,10 @@ import java.util.List;
 
 import net.imglib2.converter.read.ConvertedRandomAccessibleInterval;
 import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
 import net.imglib2.ops.img.UnaryOperationBasedConverter;
 import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.ops.operation.real.unary.RealUnaryOperation;
-import net.imglib2.ops.operation.subset.views.ImgView;
 import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.type.numeric.RealType;
 
@@ -74,10 +74,15 @@ import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 /**
  * Factory class to produce an image inverter node.
  *
+ * Use InverterNodeFactory
+ *
+ * @param <T>
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
+@Deprecated
 public class InvertNodeFactory<T extends RealType<T>> extends ValueToCellNodeFactory<ImgPlusValue<T>> {
 
     /**
@@ -88,7 +93,7 @@ public class InvertNodeFactory<T extends RealType<T>> extends ValueToCellNodeFac
         final KnimeNode node = doc.addNewKnimeNode();
         node.setIcon("icons/inverter.png");
         node.setType(KnimeNode.Type.MANIPULATOR);
-        node.setName("Inverter");
+        node.setName("Inverter (Deprecated)");
         node.setShortDescription("Inverts Images");
         final FullDescription desc = node.addNewFullDescription();
         desc.addNewIntro().addNewP().newCursor().setTextValue("Inverts Images");
@@ -100,7 +105,6 @@ public class InvertNodeFactory<T extends RealType<T>> extends ValueToCellNodeFac
     @Override
     public ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<T>> createNodeModel() {
         return new ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<T>>() {
-
             private ImgPlusCellFactory m_imgCellFactory;
 
             @Override
@@ -108,6 +112,15 @@ public class InvertNodeFactory<T extends RealType<T>> extends ValueToCellNodeFac
 
             }
 
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected void prepareExecute(final ExecutionContext exec) {
+                m_imgCellFactory = new ImgPlusCellFactory(exec);
+            }
+
+            @SuppressWarnings({"unchecked", "rawtypes"})
             @Override
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
                 final Img<T> img = cellValue.getImgPlus();
@@ -127,14 +140,6 @@ public class InvertNodeFactory<T extends RealType<T>> extends ValueToCellNodeFac
                                                            new UnaryOperationBasedConverter<T, T>(invert), img
                                                                    .firstElement().createVariable()), img.factory()),
                                                    cellValue.getMetadata(), ((ImgPlusValue)cellValue).getMinimum());
-            }
-
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            protected void prepareExecute(final ExecutionContext exec) {
-                m_imgCellFactory = new ImgPlusCellFactory(exec);
             }
         };
     }
@@ -185,7 +190,6 @@ public class InvertNodeFactory<T extends RealType<T>> extends ValueToCellNodeFac
         /**
          * Constructor.
          *
-         * @param specifiedMin - minimum value of the range to invert about
          * @param specifiedMax - maximum value of the range to invert about
          */
         public UnsignedIntegerInvert(final long specifiedMax) {

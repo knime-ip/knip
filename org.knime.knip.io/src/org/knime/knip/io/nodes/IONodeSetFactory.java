@@ -87,7 +87,7 @@ public class IONodeSetFactory implements NodeSetFactory {
      */
     @Override
     public String getAfterID(final String id) {
-        return "/";
+        return "";
     }
 
     /**

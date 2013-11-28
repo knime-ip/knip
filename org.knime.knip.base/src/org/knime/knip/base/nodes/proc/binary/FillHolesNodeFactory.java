@@ -68,7 +68,7 @@ import org.knime.knip.base.exceptions.ImageTypeNotCompatibleException;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
@@ -92,7 +92,7 @@ public final class FillHolesNodeFactory extends ImgPlusToImgPlusNodeFactory<BitT
             @Override
             public void addDialogComponents() {
                 addDialogComponent("Options", "Settings", new DialogComponentStringSelection(createTypeModel(),
-                        "Connection Type", EnumListProvider.getStringList(ConnectedType.values())));
+                        "Connection Type", EnumUtils.getStringListFromName(ConnectedType.values())));
             }
         };
     }

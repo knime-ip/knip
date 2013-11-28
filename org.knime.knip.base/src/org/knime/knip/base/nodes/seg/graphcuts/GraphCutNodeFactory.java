@@ -91,6 +91,8 @@ import org.knime.knip.core.util.ImgUtils;
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <L>
  */
 public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>> extends
         TwoValuesToCellNodeFactory<ImgPlusValue<T>, LabelingValue<L>> {
@@ -241,8 +243,6 @@ public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
 
             private final SettingsModelString m_bgLabel = createBGLabelModel();
 
-            private int[] m_colIndices;
-
             private final SettingsModelDimSelection m_dimSelection = createDimSelectionModel();
 
             private final SettingsModelDimSelection m_featDimSelection = createFeatDimSelectionModel();
@@ -262,10 +262,14 @@ public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
 
             private final SettingsModelBoolean m_useMinMax = createUseMinMaxModel();
 
+            private int m_firstColIdx;
+
+            private int m_secondColIdx;
+
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
 
-                if (m_colIndices == null || m_colIndices[1] == -1) {
+                if (m_firstColIdx == -1 || m_secondColIdx == -1) {
                     m_fgLabel.setEnabled(false);
                     m_bgLabel.setEnabled(false);
                     m_lambdaSelection.setEnabled(false);
@@ -364,9 +368,11 @@ public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
 
             @Override
             protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
-                m_colIndices = getColIndices(inSpecs[0]);
 
-                if (m_colIndices[1] == -1) {
+                m_firstColIdx = getFirstColumnIdx(inSpecs[0]);
+                m_secondColIdx = getSecondColumnIdx(inSpecs[1], m_firstColIdx);
+
+                if (m_secondColIdx == -1) {
                     m_fgLabel.setEnabled(false);
                     m_bgLabel.setEnabled(false);
                     m_lambdaSelection.setEnabled(false);

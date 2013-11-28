@@ -71,11 +71,15 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
 import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
- * 
+ * HDomeNodeFactory
+ *
+ * @param <T>
+ * @param <TMP>
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @author muethingc, Univeristy of Konstanz
+ *
  */
 public class HDomeNodeFactory<T extends RealType<T>, TMP extends IterableInterval<T> & RandomAccessibleInterval<T>>
         extends ImgPlusToImgPlusNodeFactory<T, T> {
@@ -121,6 +125,7 @@ public class HDomeNodeFactory<T extends RealType<T>, TMP extends IterableInterva
     public ImgPlusToImgPlusNodeModel<T, T> createNodeModel() {
         return new ImgPlusToImgPlusNodeModel<T, T>("X", "Y") {
 
+            @SuppressWarnings("deprecation")
             final class HDomOp implements UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> {
 
                 private HDomeTransformation<T> hDomeTransformation;

@@ -72,7 +72,7 @@ import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.core.types.ImgFactoryTypes;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * Converts PNGImageValues to ImgPlusCells<UnsignedByteType>
@@ -103,7 +103,7 @@ public class PNGValueToImgPlusCellNodeFactory extends ValueToCellNodeFactory<PNG
                 addDialogComponent("Settings",
                                    "Factory Selection",
                                    new DialogComponentStringSelection(createFactoryModel(), "Factory Type",
-                                           EnumListProvider.getStringList(ImgFactoryTypes.ARRAY_IMG_FACTORY,
+                                           EnumUtils.getStringListFromName(ImgFactoryTypes.ARRAY_IMG_FACTORY,
                                                                           ImgFactoryTypes.PLANAR_IMG_FACTORY,
                                                                           ImgFactoryTypes.CELL_IMG_FACTORY)));
 

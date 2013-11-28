@@ -58,7 +58,7 @@ import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.nodes.filter.SlidingWindowOperationNodeDialog;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
@@ -79,7 +79,7 @@ public class LocalThresholderNodeDialog2<T extends RealType<T>> extends SlidingW
         final SettingsModelDouble k = LocalThresholderNodeModel2.createKModel();
 
         addDialogComponent("Options", "Thresholding method", new DialogComponentStringSelection(method, "Method",
-                EnumListProvider.getStringList(LocalThresholdingMethodsEnum2.values())));
+                EnumUtils.getStringListFromName(LocalThresholdingMethodsEnum2.values())));
         // SUPER CALL
         super.addDialogComponents();
 

@@ -71,14 +71,15 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * Factory class to produce an image inverter node.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+
+ * @param <T>
  */
 public class ProjectorNodeFactory<T extends RealType<T>> extends ValueToCellNodeFactory<ImgPlusValue<T>> {
 
@@ -103,8 +104,8 @@ public class ProjectorNodeFactory<T extends RealType<T>> extends ValueToCellNode
             public void addDialogComponents() {
                 addDialogComponent("Options",
                                    "Projection Operation",
-                                   new DialogComponentStringSelection(createProjectionTypeModel(), "", EnumListProvider
-                                           .getStringList(ImgProject.ProjectionType.values())));
+                                   new DialogComponentStringSelection(createProjectionTypeModel(), "", EnumUtils
+                                           .getStringListFromName(ImgProject.ProjectionType.values())));
                 addDialogComponent("Options", "Projection Direction", new DialogComponentDimSelection(
                         createDimSelectModel(), "", 1, 1));
             }
@@ -133,10 +134,9 @@ public class ProjectorNodeFactory<T extends RealType<T>> extends ValueToCellNode
 
             /**
              * {@inheritDoc}
-             * 
+             *
              * @throws IOException
              */
-            @SuppressWarnings("unchecked")
             @Override
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws IOException {
                 final ImgPlus<T> img = cellValue.getImgPlus();

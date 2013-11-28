@@ -50,9 +50,9 @@ package org.knime.knip.base.nodes.misc.dimswap;
 
 import java.util.List;
 
+import net.imglib2.img.ImgView;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.meta.TypedAxis;
-import net.imglib2.ops.operation.subset.views.ImgPlusView;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.node.ExecutionContext;
@@ -122,7 +122,8 @@ public class DimensionSwapperNodeFactory<T extends RealType<T>> extends ValueToC
                     mapping[i] = m_mapping.getBackDimensionLookup(i);
                 }
 
-                final ImgPlus<T> res = new ImgPlusView<T>(DimSwapper.swap(img, mapping), img.factory(), img);
+                final ImgPlus<T> res =
+                        new ImgPlus<T>(new ImgView<T>(DimSwapper.swap(img, mapping), img.factory()), img);
 
                 // swap metadata
                 for (int i = 0; i < img.numDimensions(); i++) {

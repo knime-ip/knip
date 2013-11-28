@@ -94,7 +94,7 @@ public class LabNodeSetFactory implements NodeSetFactory {
      */
     @Override
     public String getAfterID(final String id) {
-        return "/";
+        return "";
     }
 
     /**

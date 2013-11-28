@@ -88,17 +88,21 @@ import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.algorithm.types.ThresholdingType;
 import org.knime.knip.core.ops.interval.AutoThreshold;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgUtils;
 import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 
 /**
- * New global thresholder
+ * Deprecated. Use ROI based ThresholderNodeFactory3 (ImgThresholder)
+ *
+ * @param <T>
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
+@SuppressWarnings("rawtypes")
+@Deprecated
 public class ThresholderNodeFactory2<T extends RealType<T>> extends ValueToCellNodeFactory {
 
     private static final NodeLogger LOGGER = NodeLogger.getLogger(ThresholderNodeFactory2.class);
@@ -136,7 +140,7 @@ public class ThresholderNodeFactory2<T extends RealType<T>> extends ValueToCellN
                         "Threshold Value", .01));
                 final SettingsModelStringArray method = createThresholderSelectionModel();
                 addDialogComponent("Options", "Thresholding Method", new DialogComponentStringListSelection(method,
-                        "Method", EnumListProvider.getStringList(ThresholdingType.values())));
+                        "Method", EnumUtils.getStringListFromName(ThresholdingType.values())));
 
                 addDialogComponent("Options", "Dimension Selection", new DialogComponentDimSelection(
                         createDimSelectionModel(), "", 2, 5));
@@ -189,6 +193,7 @@ public class ThresholderNodeFactory2<T extends RealType<T>> extends ValueToCellN
             /**
              * {@inheritDoc}
              */
+            @SuppressWarnings("unchecked")
             @Override
             protected void addSettingsModels(final List settingsModels) {
                 m_manualThreshold.setEnabled(true);
@@ -200,6 +205,7 @@ public class ThresholderNodeFactory2<T extends RealType<T>> extends ValueToCellN
             @Override
             protected DataCell compute(final DataValue cellValue) throws Exception {
 
+                @SuppressWarnings("unchecked")
                 final ImgPlusValue<T> imgPlusValue = (ImgPlusValue<T>)cellValue;
                 final ImgPlus<T> imgPlus = imgPlusValue.getImgPlus();
 
@@ -264,6 +270,7 @@ public class ThresholderNodeFactory2<T extends RealType<T>> extends ValueToCellN
             /**
              * {@inheritDoc}
              */
+            @SuppressWarnings("unchecked")
             @Override
             protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
                 m_inValueClass = ImgPlusValue.class;

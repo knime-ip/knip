@@ -60,10 +60,10 @@ import net.imglib2.RandomAccess;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.labeling.Labeling;
+import net.imglib2.labeling.LabelingView;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.iterable.unary.Fill;
-import net.imglib2.ops.operation.subset.views.LabelingView;
 import net.imglib2.roi.IterableRegionOfInterest;
 import net.imglib2.sampler.special.ConstantRandomAccessible;
 import net.imglib2.type.logic.BitType;
@@ -98,7 +98,7 @@ import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingValue;
-import org.knime.knip.base.node.NodeTools;
+import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.node.nodesettings.SettingsModelFilterSelection;
 import org.knime.knip.core.data.img.DefaultImageMetadata;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
@@ -239,7 +239,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
         int labColIndex = inSpecs[0].findColumnIndex(m_labelingColumn.getStringValue());
         if (labColIndex == -1) {
-            if ((labColIndex = NodeTools.autoOptionalColumnSelection(inSpecs[0], m_labelingColumn, LabelingValue.class)) >= 0) {
+            if ((labColIndex = NodeUtils.autoOptionalColumnSelection(inSpecs[0], m_labelingColumn, LabelingValue.class)) >= 0) {
                 setWarningMessage("Auto-configure Label Column: " + m_labelingColumn.getStringValue());
             } else {
                 throw new InvalidSettingsException("No column selected!");
@@ -279,7 +279,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
         int labColIndex = inData[0].getDataTableSpec().findColumnIndex(m_labelingColumn.getStringValue());
         if (labColIndex == -1) {
             if ((labColIndex =
-                    NodeTools.autoOptionalColumnSelection(inData[0].getDataTableSpec(), m_labelingColumn,
+                    NodeUtils.autoOptionalColumnSelection(inData[0].getDataTableSpec(), m_labelingColumn,
                                                           LabelingValue.class)) >= 0) {
                 setWarningMessage("Auto-configure Label Column: " + m_labelingColumn.getStringValue());
             } else {

@@ -73,7 +73,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.data.labeling.LabelingCellFactory;
 import org.knime.knip.base.data.labeling.LabelingValue;
-import org.knime.knip.base.node.NodeTools;
+import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
 import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 
@@ -133,7 +133,7 @@ public class ApplyColorSettingsToLabelsNodeModel<L extends Comparable<L>> extend
 
         if (m_selectedColumn == -1) {
             m_selectedColumn =
-                    NodeTools.autoColumnSelection(inSpecs[0], m_labelingColModel, LabelingValue.class,
+                    NodeUtils.autoColumnSelection(inSpecs[0], m_labelingColModel, LabelingValue.class,
                                                   ApplyColorSettingsToLabelsNodeModel.class);
         }
 

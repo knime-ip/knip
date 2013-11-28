@@ -91,7 +91,7 @@ public class ProcNodeSetFactory implements NodeSetFactory {
      */
     @Override
     public String getAfterID(final String id) {
-        return "/";
+        return "";
     }
 
     /**
@@ -125,20 +125,12 @@ public class ProcNodeSetFactory implements NodeSetFactory {
         m_nodeFactories.put(AlignerNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(CLAHENodeFactory.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(ImgJEPNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
-        m_nodeFactories.put(ImageNormalizerNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(ConvertImgNodeFactory.class.getCanonicalName(), "/community/knip/image");
-        m_nodeFactories.put(InvertNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(LocalMaximaForDistanceMapNodeFactory.class.getCanonicalName(),
                             "/community/knip/image/process");
 
-        // TODO: Review code of jens and add description
-        // m_nodeFactories.put(LocalMaximaFinderNodeFactory.class
-        // .getCanonicalName(),
-        // "/community/knip/image/process");
-
         m_nodeFactories.put(ProjectorNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(Rotation2DNodeFactory.class.getCanonicalName(), "/community/knip/image");
-        m_nodeFactories.put(ThresholderNodeFactory2.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(ResamplerNodeFactory.class.getCanonicalName(), "/community/knip/image");
         m_nodeFactories.put(UCSplitterNodeFactory.class.getCanonicalName(), "/community/knip/image");
         m_nodeFactories.put(DimensionSwapperNodeFactory.class.getCanonicalName(), "/community/knip/image");
@@ -157,6 +149,11 @@ public class ProcNodeSetFactory implements NodeSetFactory {
         m_nodeFactories.put(LoGDetectorFactory.class.getCanonicalName(), "/community/knip/image/process");
 
         m_nodeFactories.put(UCMNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
+
+        // ROI based nodes (which deprecated the old implementations)
+        m_nodeFactories.put(ImgNormalizerNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
+        m_nodeFactories.put(InverterNodeFactory2.class.getCanonicalName(), "/community/knip/image/process");
+        m_nodeFactories.put(ThresholderNodeFactory3.class.getCanonicalName(), "/community/knip/image/process");
 
         return m_nodeFactories.keySet();
     }

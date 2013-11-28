@@ -77,11 +77,11 @@ import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.knime.knip.core.features.FeatureFactory;
 import org.knime.knip.core.features.FeatureSet;
 import org.knime.knip.core.features.seg.HaralickFeatureSet;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -159,7 +159,7 @@ public class HaralickFeatureSetProvider<T extends RealType<T>> implements
 
     private SettingsModelStringArray createCoocMatrixModel() {
         return new SettingsModelStringArray("haralick_cooc_mtx_selection",
-                EnumListProvider.getStringList(MatrixOrientation.values()));
+                EnumUtils.getStringListFromName(MatrixOrientation.values()));
     }
 
     private SettingsModelInteger createDistanceModel() {
@@ -172,7 +172,7 @@ public class HaralickFeatureSetProvider<T extends RealType<T>> implements
 
     private SettingsModelStringArray createTextFeatModel() {
         return new SettingsModelStringArray("haralick_texture_feature_selection",
-                EnumListProvider.getStringList(HaralickFeature.values()));
+                EnumUtils.getStringListFromName(HaralickFeature.values()));
     }
 
     @Override
@@ -237,11 +237,11 @@ public class HaralickFeatureSetProvider<T extends RealType<T>> implements
     @Override
     public void initAndAddDialogComponents(final List<DialogComponent> dialogComponents) {
 
-        dialogComponents.add(new DialogComponentStringListSelection(createTextFeatModel(), "Features", EnumListProvider
-                .getStringCollection(HaralickFeature.values()), true, 5));
+        dialogComponents.add(new DialogComponentStringListSelection(createTextFeatModel(), "Features", EnumUtils
+                .getStringCollectionFromName(HaralickFeature.values()), true, 5));
 
         dialogComponents.add(new DialogComponentStringListSelection(createCoocMatrixModel(), "Matrices", Arrays
-                .asList(EnumListProvider.getStringList(MatrixOrientation.values())), true, 4));
+                .asList(EnumUtils.getStringListFromName(MatrixOrientation.values())), true, 4));
 
         dialogComponents.add(new DialogComponentBoolean(createCompAverageModel(), "Compute Average"));
 

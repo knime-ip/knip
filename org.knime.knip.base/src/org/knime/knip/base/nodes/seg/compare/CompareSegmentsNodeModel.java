@@ -88,7 +88,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.data.img.ImgPlusValue;
-import org.knime.knip.base.node.NodeTools;
+import org.knime.knip.base.node.NodeUtils;
 
 /**
  * Node to estimate the maximum relative pixel agreement of a list of segments according to a list of reference
@@ -135,8 +135,8 @@ public class CompareSegmentsNodeModel extends ThreadedColAppenderNodeModel {
      */
     @Override
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
-        NodeTools.autoColumnSelection(inSpecs[1], m_smRefCol, ImgPlusValue.class, this.getClass());
-        NodeTools.autoColumnSelection(inSpecs[0], m_smTarCol, ImgPlusValue.class, this.getClass());
+        NodeUtils.autoColumnSelection(inSpecs[1], m_smRefCol, ImgPlusValue.class, this.getClass());
+        NodeUtils.autoColumnSelection(inSpecs[0], m_smTarCol, ImgPlusValue.class, this.getClass());
 
         return new DataTableSpec[]{createOutputSpec(inSpecs[0], createCellFactory(null, null, null, -1))};
     }
@@ -147,10 +147,10 @@ public class CompareSegmentsNodeModel extends ThreadedColAppenderNodeModel {
     @Override
     protected ExtendedCellFactory[] prepareExecute(final DataTable[] inData) throws Exception {
         int refColIdx =
-                NodeTools.autoColumnSelection(inData[1].getDataTableSpec(), m_smRefCol, ImgPlusValue.class,
+                NodeUtils.autoColumnSelection(inData[1].getDataTableSpec(), m_smRefCol, ImgPlusValue.class,
                                               this.getClass());
         int tarColIdx =
-                NodeTools.autoColumnSelection(inData[0].getDataTableSpec(), m_smTarCol, ImgPlusValue.class,
+                NodeUtils.autoColumnSelection(inData[0].getDataTableSpec(), m_smTarCol, ImgPlusValue.class,
                                               this.getClass());
 
         ImgPlusValue<BitType>[] refSegs = new ImgPlusValue[((BufferedDataTable)inData[1]).getRowCount()];

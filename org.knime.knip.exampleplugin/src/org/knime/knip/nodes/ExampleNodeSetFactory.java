@@ -58,7 +58,7 @@ public class ExampleNodeSetFactory implements NodeSetFactory {
 	 */
 	@Override
 	public String getAfterID(String id) {
-		return "/";
+		return "";
 	}
 
 	/**
