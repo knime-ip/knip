@@ -46,7 +46,7 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.base.nodes.proc;
+package org.knime.knip.base.nodes.proc.maxfinder;
 
 import java.util.List;
 
@@ -71,7 +71,6 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
-import org.knime.knip.core.ops.interval.MaximumFinder;
 import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 
 /**

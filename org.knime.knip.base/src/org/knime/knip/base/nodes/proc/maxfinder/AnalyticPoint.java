@@ -1,17 +1,24 @@
-package org.knime.knip.core.ops.interval;
+package org.knime.knip.base.nodes.proc.maxfinder;
 
 import java.util.Arrays;
 
 import net.imglib2.Localizable;
 import net.imglib2.type.numeric.RealType;
 
+/**
+ * Helper Class for MaximumFinder
+ * Warning: This might have unnecessary stuff in it,
+ * some stuff was kept from previous implementation.
+ *
+ * @author Jonathan Hale, University of Konstanz
+ */
 public class AnalyticPoint<T extends RealType<T>> implements Comparable<AnalyticPoint<T>>, Localizable {
 
     private double m_value;
 
     private int[] m_coords;
 
-    private boolean m_isMax; //is maxmimum flag
+    private boolean m_isMax; //maxmimum flag
 
     private boolean m_equal;
 
@@ -33,6 +40,9 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
         m_equal = false;
     }
 
+    /**
+     * @return position of this point
+     */
     public int[] getPosition() {
         return m_coords;
     }
@@ -47,7 +57,7 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
 
     /**
      * Get the flag which describes this as a maximum or not.
-     * @return
+     * @return value maximum flag
      */
     public boolean isMax() {
         return m_isMax;
@@ -61,7 +71,7 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
     }
 
     /**
-     * @return
+     * @return value of equal flag
      */
     public boolean isEqual() {
         return m_equal;
@@ -82,7 +92,7 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
     /**
      * Squared distance for speed
      * @param p
-     * @return
+     * @return squared distance
      */
     public int distanceToSq(final Localizable p) {
         int dist = 0;
@@ -98,7 +108,7 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
      * Calculate distance to a long[]
      *
      * Equivalent to Math.sqrt(distanceToSq(p));
-     * @param p
+     * @param l
      * @return distance
      */
     public double distanceTo(final long[] l) {
@@ -107,8 +117,8 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
 
     /**
      * Squared distance for speed
-     * @param p
-     * @return
+     * @param l
+     * @return squared distance
      */
     public long distanceToSq(final long[] l) {
         long dist = 0;
@@ -135,8 +145,7 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
     }
 
     /**
-     * Returns a copy of this point
-     * @return
+     * @return copy of this AnalyticPoint
      */
     public AnalyticPoint<T> copy() {
         return new AnalyticPoint<T>(this, this.m_value);
@@ -144,7 +153,7 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
 
     /**
      * Get the value of this point
-     * @return
+     * @return the value
      */
     public double getValue() {
         return m_value;

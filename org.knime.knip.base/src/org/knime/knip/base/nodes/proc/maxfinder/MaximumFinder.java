@@ -46,7 +46,7 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.core.ops.interval;
+package org.knime.knip.base.nodes.proc.maxfinder;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -72,7 +72,7 @@ import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 
 /**
- * Operation to compute local Maxima on a RandomAccessibleInterval.
+ * Operation to compute local maxima on a RandomAccessibleInterval.
  *
  * @author Jonathan Hale, University of Konstanz
  * @param <T> Type of Input
@@ -189,11 +189,8 @@ public class MaximumFinder<T extends RealType<T>> implements
 
     private final static int IS_MAX = 0x10;
 
-    /*
-     * Status Image Type should not be
-     * anything higher than ByteType
-     */
     /**
+     * Analyze and mark the maxima on the output image
      * @param input
      * @param output
      * @param maxPoints
