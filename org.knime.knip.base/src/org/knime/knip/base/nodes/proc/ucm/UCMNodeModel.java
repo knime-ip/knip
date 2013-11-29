@@ -98,10 +98,10 @@ public class UCMNodeModel<T extends RealType<T>, L extends Comparable<L>> extend
     }
 
     /**
-     * @return SettingsModel to store min edge weight model
+     * @return SettingsModel to store min boundary weight model
      */
-    static SettingsModelInteger createMinEdgeWeightModel() {
-        return new SettingsModelInteger("min_edge_weight", 0);
+    static SettingsModelInteger createMinBoundaryWeightModel() {
+        return new SettingsModelInteger("min_boundary_weight", 0);
     }
 
     /**
@@ -122,7 +122,7 @@ public class UCMNodeModel<T extends RealType<T>, L extends Comparable<L>> extend
 
     private SettingsModelDouble m_maxFacePercent = createMaxFacePercentModel();
 
-    private SettingsModelInteger m_minEdgeWeight = createMinEdgeWeightModel();
+    private SettingsModelInteger m_minBoundaryWeight = createMinBoundaryWeightModel();
 
     private SettingsModelString m_boundaryLabel = createBoundaryLabelModel();
 
@@ -148,7 +148,7 @@ public class UCMNodeModel<T extends RealType<T>, L extends Comparable<L>> extend
         // create new UCMOp with parameters
         final UCMOp<L, T> ucmOp =
                 new UCMOp<L, T>(m_maxNumFaces.getIntValue(), m_maxFacePercent.getDoubleValue(),
-                        m_minEdgeWeight.getIntValue(), m_boundaryLabel.getStringValue());
+                        m_minBoundaryWeight.getIntValue(), m_boundaryLabel.getStringValue());
 
         SubsetOperations.iterate(ucmOp, m_dimSelection.getSelectedDimIndices(inImg), labeling, inImg, result,
                                  getExecutorService());
@@ -160,7 +160,7 @@ public class UCMNodeModel<T extends RealType<T>, L extends Comparable<L>> extend
     protected void addSettingsModels(final List<SettingsModel> settingsModels) {
         settingsModels.add(m_maxNumFaces);
         settingsModels.add(m_maxFacePercent);
-        settingsModels.add(m_minEdgeWeight);
+        settingsModels.add(m_minBoundaryWeight);
         settingsModels.add(m_boundaryLabel);
         settingsModels.add(m_dimSelection);
     }

@@ -111,13 +111,14 @@ public class UCMNodeFactory<T extends RealType<T>, L extends Comparable<L>> exte
                                            "Maximal Number of Faces", 10));
                 addDialogComponent("Options", "", new DialogComponentNumber(UCMNodeModel.createMaxFacePercentModel(),
                         "Maximal Percentage of Original Faces (%)", 5));
-                addDialogComponent("Options", "Edges",
-                                   new DialogComponentNumber(UCMNodeModel.createMinEdgeWeightModel(),
-                                           "Minimal Weight of Edges", 10));
+                addDialogComponent("Options", "Boundaries",
+                                   new DialogComponentNumber(UCMNodeModel.createMinBoundaryWeightModel(),
+                                           "Minimal Weight of Boundary", 10));
                 addDialogComponent("Options", "Boundary label",
                                    new DialogComponentString(UCMNodeModel.createBoundaryLabelModel(), "Boundary"));
 
-                addDialogComponent("Options", "Dimension selection", new DialogComponentDimSelection(UCMNodeModel.createDimSelectionModel(), "", 2, 2));
+                addDialogComponent("Options", "Dimension selection",
+                                   new DialogComponentDimSelection(UCMNodeModel.createDimSelectionModel(), "", 2, 2));
             }
         };
     }

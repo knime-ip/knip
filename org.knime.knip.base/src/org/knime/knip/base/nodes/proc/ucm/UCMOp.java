@@ -67,13 +67,14 @@ import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.view.Views;
 
 /**
- * Operation encapsulating functionality of UltraMetricContourMaps
- * UCMs are a extraction system that combines several types of low-level image information into a
- * generic notion of segmentation scale. This system constructs a hierarchical representation of the
- * image boundaries called Ultrametric Contour Map (UCM). Thresholding an UCM at level k provides
- * by definition a set of closed curves, the boundaries of the segmentation at scale k.
- * (from http://www.cs.berkeley.edu/~arbelaez/UCM.html).
+ * Operation encapsulating functionality of UltraMetricContourMaps UCMs are a extraction system that combines several
+ * types of low-level image information into a generic notion of segmentation scale. This system constructs a
+ * hierarchical representation of the image boundaries called Ultrametric Contour Map (UCM). Thresholding an UCM at
+ * level k provides by definition a set of closed curves, the boundaries of the segmentation at scale k (from
+ * http://www.cs.berkeley.edu/~arbelaez/UCM.html).
  *
+ * @author Jan Dirk Verbeek (University of Konstanz)
+ * @author Martin Horn (University of Konstanz)
  * @author Tim-Oliver Buchholz (University of Konstanz)
  * @author Christian Dietz (University of Konstanz)
  *
@@ -87,7 +88,7 @@ public class UCMOp<L extends Comparable<L>, T extends RealType<T>> implements
 
     private final double maxFacePercent;
 
-    private final int minEdgeWeight;
+    private final int minBoundaryWeight;
 
     private final String boundaryLabel;
 
@@ -98,14 +99,14 @@ public class UCMOp<L extends Comparable<L>, T extends RealType<T>> implements
      *
      * @param paramMaxNumFaces
      * @param paramMaxFacePercent
-     * @param paramMinEdgeWeight
-     * @param paramBoundaryLabel Name of Label which is Boundary between some other Labels
+     * @param paramMinBoundaryWeight
+     * @param paramBoundaryLabel name of label which is boundary between some other Labels
      */
-    public UCMOp(final int paramMaxNumFaces, final double paramMaxFacePercent, final int paramMinEdgeWeight,
+    public UCMOp(final int paramMaxNumFaces, final double paramMaxFacePercent, final int paramMinBoundaryWeight,
                  final String paramBoundaryLabel) {
         this.maxNumFaces = paramMaxNumFaces;
         this.maxFacePercent = paramMaxFacePercent;
-        this.minEdgeWeight = paramMinEdgeWeight;
+        this.minBoundaryWeight = paramMinBoundaryWeight;
         this.boundaryLabel = paramBoundaryLabel;
 
     }
@@ -119,7 +120,7 @@ public class UCMOp<L extends Comparable<L>, T extends RealType<T>> implements
                                                        final RandomAccessibleInterval<FloatType> result) {
 
         // check for dimensions
-        if (labeling.numDimensions() != inImg.numDimensions() && inImg.numDimensions()!= result.numDimensions()) {
+        if (labeling.numDimensions() != inImg.numDimensions() && inImg.numDimensions() != result.numDimensions()) {
             throw new IllegalArgumentException("Dimensions do not match.");
         }
 
@@ -128,10 +129,11 @@ public class UCMOp<L extends Comparable<L>, T extends RealType<T>> implements
             throw new IllegalArgumentException("Only two dimension are supported.");
         }
 
-        // Create containers for faces and edges
+        // Create containers for faces and boundaries
         final HashMap<String, UCMFace> faces = new HashMap<String, UCMFace>();
-        final ArrayList<UCMEdge> edges = new ArrayList<UCMEdge>();
+        final ArrayList<UCMBoundary> boundaries = new ArrayList<UCMBoundary>();
 
+        // access on img
         final RandomAccess<FloatType> resultAccess = result.randomAccess();
         final RandomAccess<T> imgAccess = inImg.randomAccess();
 
@@ -202,35 +204,35 @@ public class UCMOp<L extends Comparable<L>, T extends RealType<T>> implements
 
                 }
 
-                // add pixel to edge(s)
-                HashMap<String, UCMEdge> tempEdgeMap = null;
-                UCMEdge tempEdge = null;
+                // add pixel to boundary(ies)
+                HashMap<String, UCMBoundary> tempBoundaryMap = null;
+                UCMBoundary tempBoundary = null;
                 for (String firstLabel : tempLabels) {
-                    tempEdgeMap = faces.get(firstLabel).getEdges();
+                    tempBoundaryMap = faces.get(firstLabel).getBoundaries();
                     for (String secondLabel : tempLabels) {
                         if (firstLabel.compareTo(secondLabel) >= 0) {
                             continue;
                         }
                         int[] pos = new int[labCur.numDimensions()];
                         labCur.localize(pos);
-                        // check if Edge exists
-                        tempEdge = tempEdgeMap.get(secondLabel);
-                        if (tempEdge == null) {
+                        // check if boundary exists
+                        tempBoundary = tempBoundaryMap.get(secondLabel);
+                        if (tempBoundary == null) {
                             UCMFace faceA = faces.get(firstLabel);
                             UCMFace faceB = faces.get(secondLabel);
-                            // create the edge
-                            tempEdge = new UCMEdge();
-                            tempEdge.getFaces().add(faceA);
-                            tempEdge.getFaces().add(faceB);
-                            edges.add(tempEdge);
+                            // create the boundary
+                            tempBoundary = new UCMBoundary();
+                            tempBoundary.getFaces().add(faceA);
+                            tempBoundary.getFaces().add(faceB);
+                            boundaries.add(tempBoundary);
                             // add to faces
-                            faceA.addEdge(secondLabel, tempEdge);
-                            faceB.addEdge(firstLabel, tempEdge);
+                            faceA.addBoundary(secondLabel, tempBoundary);
+                            faceB.addBoundary(firstLabel, tempBoundary);
                         }
 
                         try {
                             imgAccess.setPosition(pos);
-                            tempEdge.addPixel(pos, imgAccess.get().getRealDouble());
+                            tempBoundary.addPixel(pos, imgAccess.get().getRealDouble());
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -239,8 +241,8 @@ public class UCMOp<L extends Comparable<L>, T extends RealType<T>> implements
             }
         }
 
-        // | sort according to edgeweights
-        Collections.sort(edges);
+        // | sort according to boundary weights
+        Collections.sort(boundaries);
 
         final double maxFacesSize = faces.size();
         double facesWished = maxNumFaces;
@@ -255,26 +257,26 @@ public class UCMOp<L extends Comparable<L>, T extends RealType<T>> implements
         boolean drawAllowed = false;
         double tempDouble = 0;
 
-        // | Merge regions & draw edges
-        while (faces.size() > 1 && edges.size() > 0) {
-            // get the next Edge
-            UCMEdge edge = edges.get(0);
-            tempDouble = edge.getWeight();
+        // | Merge regions & draw boundaries
+        while (faces.size() > 1 && boundaries.size() > 0) {
+            // get the next boundary
+            UCMBoundary boundary = boundaries.get(0);
+            tempDouble = boundary.getWeight();
 
             // merge neighboring regions
-            mergeFaces(edge, faces, edges);
+            mergeFaces(boundary, faces, boundaries);
 
             // check draw conditions
             if (!drawAllowed) {
-                if (faces.size() <= facesWished && tempDouble >= minEdgeWeight
+                if (faces.size() <= facesWished && tempDouble >= minBoundaryWeight
                         && faces.size() / maxFacesSize <= calcedMaxFacePercent) {
                     drawAllowed = true;
                 }
             }
 
-            // draw edge
+            // draw boundary
             if (drawAllowed) {
-                for (int[] pos : edge.getPixels()) {
+                for (int[] pos : boundary.getPixels()) {
                     resultAccess.setPosition(pos);
                     resultAccess.get().setReal(tempDouble);
                 }
@@ -396,76 +398,77 @@ public class UCMOp<L extends Comparable<L>, T extends RealType<T>> implements
     }
 
     /**
-     * merges the two faces of an given edge
+     * merges the two faces of an given boundary
      *
-     * @param mergingEdge
+     * @param mergingBoundary
      * @param faces
-     * @param edges
+     * @param boundaries
      * @return
      */
-    private UCMFace mergeFaces(final UCMEdge mergingEdge, final HashMap<String, UCMFace> faces,
-                               final ArrayList<UCMEdge> edges) {
+    private UCMFace mergeFaces(final UCMBoundary mergingBoundary, final HashMap<String, UCMFace> faces,
+                               final ArrayList<UCMBoundary> boundaries) {
         // Faces
         UCMFace faceA = null;
         UCMFace faceB = null;
         UCMFace thirdFace;
-        // Edges
-        UCMEdge manipulatedEdge;
-        UCMEdge existingEdge;
+
+        // Boundaries
+        UCMBoundary manipulatedBoundary;
+        UCMBoundary existingBoundary;
         // temporary Variables
         Iterator<UCMFace> tempFaceIterator;
 
         // get faces
-        tempFaceIterator = mergingEdge.getFaces().iterator();
+        tempFaceIterator = mergingBoundary.getFaces().iterator();
         faceA = tempFaceIterator.next();
         faceB = tempFaceIterator.next();
 
         // decide which face stays
-        if (faceA.getEdges().size() < faceB.getEdges().size()) {
+        if (faceA.getBoundaries().size() < faceB.getBoundaries().size()) {
             thirdFace = faceA;
             faceA = faceB;
             faceB = thirdFace;
         }
 
-        // remove connecting edge
-        faceA.getEdges().remove(faceB.getLabel());
-        faceB.getEdges().remove(faceA.getLabel());
-        edges.remove(mergingEdge);
+        // remove connecting boundary
+        faceA.getBoundaries().remove(faceB.getLabel());
+        faceB.getBoundaries().remove(faceA.getLabel());
+        boundaries.remove(mergingBoundary);
 
-        // visit every connected face and shift corresponding Edge
-        Iterator<String> faceLabelIterator = faceB.getEdges().keySet().iterator();
+        // visit every connected face and shift corresponding boundary
+        Iterator<String> faceLabelIterator = faceB.getBoundaries().keySet().iterator();
         String conFaceLabel;
         while (faceLabelIterator.hasNext()) {
             // the label of the neighbor
             conFaceLabel = faceLabelIterator.next();
-            // get connecting Edge
-            manipulatedEdge = faceB.getEdges().get(conFaceLabel);
+            // get connecting boundary
+            manipulatedBoundary = faceB.getBoundaries().get(conFaceLabel);
             // get connected Face
             thirdFace = faces.get(conFaceLabel);
 
             // remove connection to vanishing face
-            thirdFace.getEdges().remove(faceB.getLabel());
+            thirdFace.getBoundaries().remove(faceB.getLabel());
 
-            // edge to staying face?
-            existingEdge = thirdFace.getEdges().get(faceA.getLabel());
-            if (existingEdge == null) {
+            // boundary to staying face?
+            existingBoundary = thirdFace.getBoundaries().get(faceA.getLabel());
+            if (existingBoundary == null) {
 
-                // change faces of shifted Edge
-                manipulatedEdge.getFaces().remove(faceB);
-                manipulatedEdge.getFaces().add(faceA);
+                // change faces of shifted boundary
+                manipulatedBoundary.getFaces().remove(faceB);
+                manipulatedBoundary.getFaces().add(faceA);
 
-                // add edge to faces
-                faceA.getEdges().put(conFaceLabel, manipulatedEdge);
-                thirdFace.getEdges().put(faceA.getLabel(), manipulatedEdge);
+                // add boundary to faces
+                faceA.getBoundaries().put(conFaceLabel, manipulatedBoundary);
+                thirdFace.getBoundaries().put(faceA.getLabel(), manipulatedBoundary);
 
             } else {
 
                 // remove from general list
-                edges.remove(manipulatedEdge);
+                boundaries.remove(manipulatedBoundary);
 
-                // merge into existing edge
-                existingEdge.mergeEdge(manipulatedEdge);
-                Collections.sort(edges);
+                // merge into existing boundary
+                existingBoundary.mergeBoundary(manipulatedBoundary);
+                Collections.sort(boundaries);
 
             }
         }
@@ -480,6 +483,6 @@ public class UCMOp<L extends Comparable<L>, T extends RealType<T>> implements
      */
     @Override
     public BinaryOperation<Labeling<L>, RandomAccessibleInterval<T>, RandomAccessibleInterval<FloatType>> copy() {
-        return new UCMOp<L, T>(maxNumFaces, maxFacePercent, minEdgeWeight, boundaryLabel);
+        return new UCMOp<L, T>(maxNumFaces, maxFacePercent, minBoundaryWeight, boundaryLabel);
     }
 }

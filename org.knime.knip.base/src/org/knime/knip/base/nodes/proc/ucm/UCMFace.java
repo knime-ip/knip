@@ -62,7 +62,7 @@ public class UCMFace {
     private final String m_label;
 
     // outer boundaries
-    private HashMap<String, UCMEdge> m_edges;
+    private HashMap<String, UCMBoundary> m_boundaries;
 
     // label of the original regions
     private HashSet<String> m_regions;
@@ -73,27 +73,27 @@ public class UCMFace {
      */
     public UCMFace(final String label) {
         m_label = label;
-        m_edges = new HashMap<String, UCMEdge>();
+        m_boundaries = new HashMap<String, UCMBoundary>();
         m_regions = new HashSet<String>();
         m_regions.add(label);
     }
 
     /**
      *
-     * @return the edges which form the outer boundaries of the regions
+     * @return the boundaries which form the outer boundaries of the regions
      */
-    public HashMap<String, UCMEdge> getEdges() {
-        return m_edges;
+    public HashMap<String, UCMBoundary> getBoundaries() {
+        return m_boundaries;
     }
 
     /**
      * adds an Edge to the face
      *
      * @param i Label of second Face
-     * @param newEdge
+     * @param newBoundary
      */
-    public void addEdge(final String i, final UCMEdge newEdge) {
-        m_edges.put(i, newEdge);
+    public void addBoundary(final String i, final UCMBoundary newBoundary) {
+        m_boundaries.put(i, newBoundary);
     }
 
     /**
