@@ -275,7 +275,7 @@ public class DialogComponentStringTransformer extends DialogComponent {
 
     @Override
     protected void validateSettingsBeforeSave() throws InvalidSettingsException {
-        if (!m_expEdit.getText().contains(m_requiredVariable)) {
+        if (m_requiredVariable != null && !m_expEdit.getText().contains(m_requiredVariable)) {
             throw new InvalidSettingsException("Label transformation: Required variable " + m_requiredVariable
                     + " is missing.");
         }
