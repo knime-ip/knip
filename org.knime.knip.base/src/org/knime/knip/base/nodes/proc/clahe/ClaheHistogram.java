@@ -102,12 +102,14 @@ public class ClaheHistogram<T extends RealType<T>> {
      * @param slope the desired slope for clipping
      */
     public void clip(final double slope) {
-        final int limit = (int)(slope * (histogram.totalCount() / histogram.getBinCount()));
+        final int limit = (int)(slope * (histogram.totalCount() / histogram.getBinCount()) + 0.5f);
         clippedHistogram = histogram.toLongArray();
         final int numbins = clippedHistogram.length;
 
         int clippedEntries = 0;
+        int clippedEntriesBefore;
         do {
+            clippedEntriesBefore = clippedEntries;
             clippedEntries = 0;
             for (int i = 0; i < numbins; ++i) {
                 final long d = clippedHistogram[i] - limit;
@@ -129,7 +131,7 @@ public class ClaheHistogram<T extends RealType<T>> {
                     ++clippedHistogram[i];
                 }
             }
-        } while (clippedEntries != 0);
+        } while (clippedEntries != clippedEntriesBefore);
     }
 
     /**
