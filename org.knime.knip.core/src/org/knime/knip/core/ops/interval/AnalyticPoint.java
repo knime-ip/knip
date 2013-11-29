@@ -53,9 +53,16 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
         return m_isMax;
     }
 
+    /**
+     * @param b
+     */
     public void setEqual(final boolean b) {
         m_equal = b;
     }
+
+    /**
+     * @return
+     */
     public boolean isEqual() {
         return m_equal;
     }
