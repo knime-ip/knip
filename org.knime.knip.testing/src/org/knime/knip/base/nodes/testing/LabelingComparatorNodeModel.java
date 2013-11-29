@@ -56,20 +56,25 @@ import net.imglib2.Cursor;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingType;
 
+import org.knime.core.data.DataRow;
 import org.knime.knip.base.data.labeling.LabelingValue;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <L>
  */
 public class LabelingComparatorNodeModel<L extends Comparable<L>> extends
         ComparatorNodeModel<LabelingValue<L>, LabelingValue<L>> {
 
     @Override
-    protected void compare(final LabelingValue<L> vin1, final LabelingValue<L> vin2) {
+    protected void compare(final DataRow row, final LabelingValue<L> vin1, final LabelingValue<L> vin2) {
+        //TODO same stuff as in ImgComparator
+
         final Labeling<L> labeling1 = vin1.getLabelingCopy();
         final Labeling<L> labeling2 = vin2.getLabelingCopy();
 
@@ -111,7 +116,7 @@ public class LabelingComparatorNodeModel<L extends Comparable<L>> extends
             }
 
             if (!eq) {
-                throw new IllegalStateException("Two images are not the same");
+                throw new IllegalStateException("Two images are not the same" + row.getKey().toString());
             }
         }
     }

@@ -54,6 +54,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import net.imglib2.IterableInterval;
+import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.img.UnaryRelationAssigment;
 import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.ops.relation.real.unary.RealGreaterThanConstant;
@@ -66,7 +67,8 @@ import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.knime.knip.base.exceptions.KNIPRuntimeException;
+import org.knime.knip.base.data.img.ImgPlusCell;
+import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.IterableIntervalsNodeDialog;
 import org.knime.knip.base.node.IterableIntervalsNodeFactory;
 import org.knime.knip.base.node.IterableIntervalsNodeModel;
@@ -165,15 +167,22 @@ public class ThresholderNodeFactory3<T extends RealType<T>, L extends Comparable
                 m_currentElement = element;
             }
 
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected ImgPlusCell<BitType> compute(final ImgPlusValue<T> cellValue) throws Exception {
+                ImgPlus<T> img = cellValue.getImgPlus();
+                if (img.firstElement() instanceof BitType) {
+                    super.setWarningMessage("Image of type 'BitType' remain untouched.");
+                    return m_cellFactory.createCell((ImgPlus<BitType>)img);
+                }
+                return super.compute(cellValue);
+            }
+
             @Override
             public UnaryOperation<IterableInterval<T>, IterableInterval<BitType>> operation() {
-
-                if (m_thresholder == ThresholdingType.INTERMODES || m_thresholder == ThresholdingType.MINIMUM
-                        || m_thresholder == ThresholdingType.ISODATA) {
-                    throw new KNIPRuntimeException(
-                            "MINIMUM, INTERMODES and ISODATA are currently not supported because their implementation can result in incorrect results. A missing cell has been created.");
-
-                } else if (m_thresholder == ThresholdingType.MANUAL) {
+                if (m_thresholder == ThresholdingType.MANUAL) {
                     final T type = m_currentElement.createVariable();
                     type.setReal(m_manualThreshold.getDoubleValue());
                     return new UnaryRelationAssigment<T>(new RealGreaterThanConstant<T>(type));

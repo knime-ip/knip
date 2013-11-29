@@ -54,11 +54,13 @@ import net.imglib2.labeling.LabelingType;
 import org.knime.knip.core.data.img.LabelingMetadata;
 
 /**
- * TODO Auto-generated
- * 
+ * Labeling Changed Event
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <L>
  */
 public class LabelingWithMetadataChgEvent<L extends Comparable<L>> extends
         IntervalWithMetadataChgEvent<LabelingType<L>> {
@@ -66,18 +68,17 @@ public class LabelingWithMetadataChgEvent<L extends Comparable<L>> extends
     private final LabelingMetadata m_labelingMetadata;
 
     /**
-     * TODO
-     * 
-     * @param interval
-     * @param metadata
+     * Default Constructor
+     *
+     * @param labeling the labeling
+     * @param metadata metadata of the labeling
      */
-    public LabelingWithMetadataChgEvent(final Labeling<L> interval, final LabelingMetadata metadata) {
-        super(interval, metadata, metadata, metadata);
+    public LabelingWithMetadataChgEvent(final Labeling<L> labeling, final LabelingMetadata metadata) {
+        super(labeling, metadata, metadata, metadata);
         m_labelingMetadata = metadata;
     }
 
     /**
-     * 
      * @return metadata of the labeling.
      */
     public LabelingMetadata getLabelingMetaData() {
