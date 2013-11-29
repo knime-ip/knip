@@ -57,7 +57,7 @@ import java.util.List;
 
 /**
  * This class provides the function needed by the CLAHE algorithm to make a linear interpolation in n-dimensions
- * (linear, bilinear, trilinear, quadlinear, etc.)
+ * (linear, bilinear, trilinear, ...)
  *
  * @author Daniel Seebacher
  */
@@ -80,43 +80,7 @@ public class ClaheInterpolation {
         }
         Collections.sort(ips, getDimensionComparator());
 
-        //        // fall unterscheidung weil: wir schnellere möglichkeiten
-        //        if (currentPoint.numDim() == 2) {
-        //            return interpolate2D(currentPoint, neighbors, oldValue, histValues);
-        //        } else {
-        //            // naive vierlineare interpolation
-        //            // here: using imglib
-        //        }
         return interpolate(currentPoint, ips, 0);
-    }
-
-    /**
-     * @param currentPoint
-     * @param neighbors
-     * @param oldValue
-     * @param histValues
-     * @return
-     */
-    private final static double interpolate2D(final ClahePoint currentPoint, final List<ClahePoint> neighbors,
-                                              final double oldValue, final double[] histValues) {
-        switch (neighbors.size()) {
-            case 1:
-                return histValues[0];
-            case 2:
-                final double distA = currentPoint.distance(neighbors.get(0));
-
-                final double distB = currentPoint.distance(neighbors.get(1));
-
-                final double totalDist = distA + distB;
-
-                final double factor = 1.0 / totalDist;
-
-                return ((totalDist - distA) * histValues[0] + (totalDist - distB) * histValues[1]) * factor;
-            case 4:
-                // TODO:
-            default:
-                throw new IllegalStateException("Shouldn't happen in ClaheInterpolation. Wrong number of neighbors!");
-        }
     }
 
     /**
@@ -129,17 +93,20 @@ public class ClaheInterpolation {
      */
     private static double interpolate(final ClahePoint currentPoint, final List<InterpolationPoint> ips, final int dim) {
 
+        // with only one point no interpolation has to be made
         if (ips.size() == 1) {
             return ips.get(0).getValue();
         }
 
+        // if all values in a given dimension are the same an interpolation is also unnecessary.
         if (checkDimension(ips, dim) && dim + 1 < currentPoint.numDim()) {
             return interpolate(currentPoint, ips, dim + 1);
         }
 
-        // because the points were sorted beforehand the values for an interpolation are always at i and i+1
+        // because the points were sorted beforehand the values needed for the interpolation are always at i and i+1
         final List<InterpolationPoint> newIPS = new ArrayList<ClaheInterpolation.InterpolationPoint>();
         for (int i = 0; i < ips.size(); i += 2) {
+
             // calculate the distances in the dimension i
             final double distanceOne = Math.abs(ips.get(i).dim(dim) - currentPoint.dim(dim));
             final double distanceTwo = Math.abs(ips.get(i + 1).dim(dim) - currentPoint.dim(dim));
@@ -161,7 +128,6 @@ public class ClaheInterpolation {
         }
 
         return interpolate(currentPoint, newIPS, dim + 1);
-
     }
 
     /**
@@ -190,6 +156,13 @@ public class ClaheInterpolation {
         };
     }
 
+    /**
+     * Checks if all points are equal in a given dimension.
+     *
+     * @param ips some points
+     * @param dim dimension which should be checked
+     * @return true if the value in a given dimension is the same for all points, otherwise false.
+     */
     private static boolean checkDimension(final List<InterpolationPoint> ips, final int dim) {
         for (InterpolationPoint interpolationPoint : ips) {
             if (interpolationPoint.dim(dim) != ips.get(0).dim(dim)) {
@@ -200,6 +173,11 @@ public class ClaheInterpolation {
         return true;
     }
 
+    /**
+     * Private class used by the interpolation, stores coordinates and a value.
+     *
+     * @author Daniel Seebacher
+     */
     private static class InterpolationPoint {
 
         private long[] m_coordinates;

@@ -59,7 +59,7 @@ import net.imglib2.type.numeric.RealType;
  *
  * @author Daniel Seebacher
  *
- * @param <T>
+ * @param <T> extends RealType<T>
  */
 public class ClaheHistogram<T extends RealType<T>> {
 
@@ -106,32 +106,39 @@ public class ClaheHistogram<T extends RealType<T>> {
         clippedHistogram = histogram.toLongArray();
         final int numbins = clippedHistogram.length;
 
-        int clippedEntries = 0;
-        int clippedEntriesBefore;
-        do {
+        int clippedEntries = 0, clippedEntriesBefore;
+        do
+        {
+            // clip bins which have more than "limit" entries
             clippedEntriesBefore = clippedEntries;
             clippedEntries = 0;
-            for (int i = 0; i < numbins; ++i) {
-                final long d = clippedHistogram[i] - limit;
-                if (d > 0) {
+            for ( int i = 0; i < numbins; ++i )
+            {
+                final long d = clippedHistogram[ i ] - limit;
+                if ( d > 0 )
+                {
                     clippedEntries += d;
-                    clippedHistogram[i] = limit;
+                    clippedHistogram[ i ] = limit;
                 }
             }
 
-            final int d = clippedEntries / numbins;
-            final int m = clippedEntries % numbins;
-            for (int i = 0; i < numbins; ++i) {
-                clippedHistogram[i] += d;
+
+            // distribute the clipped entries
+            final int d = clippedEntries / ( numbins );
+            final int m = clippedEntries % ( numbins );
+            for ( int i = 0; i < numbins; ++i) {
+                clippedHistogram[ i ] += d;
             }
 
-            if (m != 0) {
-                final int s = numbins / m;
-                for (int i = 0; i < numbins; i += s) {
-                    ++clippedHistogram[i];
+            if ( m != 0 )
+            {
+                final int s = ( numbins - 1 ) / m;
+                for ( int i = s / 2; i < numbins; i += s ) {
+                    ++clippedHistogram[ i ];
                 }
             }
-        } while (clippedEntries != clippedEntriesBefore);
+        }
+        while ( clippedEntries != clippedEntriesBefore );
     }
 
     /**
@@ -141,27 +148,38 @@ public class ClaheHistogram<T extends RealType<T>> {
      * @return the newValue which gets written in the ouput image.
      */
     public double buildCDF(final double oldValue) {
+
         int hMin = clippedHistogram.length - 1;
         int normalizedOldValue = (int)((oldValue - min) / (max - min) * clippedHistogram.length);
-        for (int i = 0; i < hMin; ++i) {
-            if (clippedHistogram[i] != 0) {
+
+        for ( int i = 0; i < hMin; ++i ) {
+            if ( clippedHistogram[ i ] != 0 ) {
                 hMin = i;
             }
         }
 
-        long cdf = 0;
-        for (int i = hMin; i < normalizedOldValue; ++i) {
-            cdf += clippedHistogram[i];
+        int cdf = 0;
+        for ( int i = hMin; i < normalizedOldValue; ++i ) {
+            cdf += clippedHistogram[ i ];
         }
 
-        long cdfMax = cdf;
-        for (int i = normalizedOldValue; i < clippedHistogram.length; ++i) {
-            cdfMax += clippedHistogram[i];
+        int cdfMax = cdf;
+        for ( int i = normalizedOldValue; i < clippedHistogram.length; ++i ) {
+            cdfMax += clippedHistogram[ i ];
         }
 
-        final long cdfMin = clippedHistogram[hMin];
+        final long cdfMin = clippedHistogram[ hMin ];
 
-        return Math.max(min, Math
-                .min(max, (((double)cdf - (double)cdfMin) / ((double)cdfMax - (double)cdfMin) * (max - min)) + min));
+        double val = ( cdf - cdfMin ) / ( double )( cdfMax - cdfMin );
+
+        return Math.max(min, Math.min(max, val * (max - min) + min));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return histogram.getBinCount()+ " "+histogram.totalCount()+" "+max + " "+min;
     }
 }

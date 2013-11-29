@@ -149,7 +149,6 @@ public class ClaheND<T extends RealType<T>> implements
 
                 // calculate position of nearest center
                 ClahePoint center = getNearestCenter(pos, offsets, imageDimensions);
-                System.out.println(center+" "+Arrays.toString(imageDimensions));
 
                 // add point to according context histogram (create it, if it doesn't exist yet)
                 ClaheHistogram<T> hist = ctxHistograms.get(center);
@@ -161,11 +160,10 @@ public class ClaheND<T extends RealType<T>> implements
                 ctxHistograms.get(center).add(type);
             }
 
-            System.out.println("test");
 
             // after creation of the histograms, clip them
             for (ClahePoint center : ctxHistograms.keySet()) {
-                System.out.println(center+" "+Arrays.toString(imageDimensions));
+                System.out.println(ctxHistograms.get(center));
                 ctxHistograms.get(center).clip(m_slope);
             }
         }

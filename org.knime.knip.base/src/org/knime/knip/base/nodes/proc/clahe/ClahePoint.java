@@ -52,6 +52,7 @@ package org.knime.knip.base.nodes.proc.clahe;
 import java.util.Arrays;
 
 /**
+ * Point used by the CLAHE algorithm.
  *
  * @author Daniel Seebacher
  */
@@ -60,7 +61,9 @@ public class ClahePoint {
     private final long[] m_coordinates;
 
     /**
-     * @param coordinates
+     * Constructor
+     *
+     * @param coordinates long array with the coordinates
      */
     public ClahePoint(final long[] coordinates) {
         this.m_coordinates = coordinates;
@@ -90,7 +93,7 @@ public class ClahePoint {
 
     /**
      * @param otherPoint a different ClahePoint
-     * @return the distance between this ClahePoint and another ClahePoint
+     * @return the euclidean distance between this ClahePoint and another ClahePoint
      */
     public final double distance(final ClahePoint otherPoint) {
         return distance(otherPoint.getCoordinates());
@@ -98,9 +101,9 @@ public class ClahePoint {
 
     /**
      * @param coordinates
-     * @return
+     * @return the euclidean distance between this ClahePoint and the given coordinates.
      */
-    public final double distance(final long[] coordinates){
+    public final double distance(final long[] coordinates) {
         double sum = 0;
         for (int i = 0; i < m_coordinates.length; i++) {
             sum += (m_coordinates[i] - coordinates[i]) * (m_coordinates[i] - coordinates[i]);
