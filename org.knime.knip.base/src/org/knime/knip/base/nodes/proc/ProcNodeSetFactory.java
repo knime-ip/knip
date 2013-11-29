@@ -148,6 +148,7 @@ public class ProcNodeSetFactory implements NodeSetFactory {
         m_nodeFactories.put(WaveletSpotDetectionNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(LoGDetectorFactory.class.getCanonicalName(), "/community/knip/image/process");
 
+        // new node: UCM
         m_nodeFactories.put(UCMNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
 
         // ROI based nodes (which deprecated the old implementations)

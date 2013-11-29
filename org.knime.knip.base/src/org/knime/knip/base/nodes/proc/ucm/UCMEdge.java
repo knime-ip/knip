@@ -78,19 +78,6 @@ public class UCMEdge implements Comparable<UCMEdge> {
     }
 
     /**
-     * (obsolete?)
-     *
-     * @param faces
-     * @param weight
-     * @param pixels
-     */
-    // UCMEdge(HashSet<UCMFace> faces, HashSet<int[]> pixels, double weight) {
-    // m_faces = faces;
-    // m_weight = weight;
-    // m_pixels = pixels;
-    // }
-
-    /**
      * returns the requested UCMFace, or null (if not a neighbor) - rather slow!
      *
      * @param label
@@ -116,9 +103,7 @@ public class UCMEdge implements Comparable<UCMEdge> {
      */
     public void addPixel(final int[] newPixel, final double weight) {
         m_pixels.add(newPixel);
-        // int size = m_pixels.size();
         m_weight += weight;
-        // m_weight = (size / (size + 1)) * m_weight + weight / (size + 1);
     }
 
     /**
@@ -153,12 +138,7 @@ public class UCMEdge implements Comparable<UCMEdge> {
      */
     public void mergeEdge(final UCMEdge edge) {
         m_pixels.addAll(edge.m_pixels);
-        // int sizeA = m_pixels.size();
-        // int sizeB = edge.m_pixels.size();
-        // int sum = sizeA + sizeB;
         m_weight += edge.m_weight;
-
-        // m_weight = (sizeA/sum)*this.m_weight + (sizeB/sum)*edge.m_weight;
     }
 
     @Override

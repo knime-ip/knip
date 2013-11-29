@@ -61,6 +61,7 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.TwoValuesToCellNodeDialog;
 import org.knime.knip.base.node.TwoValuesToCellNodeModel;
+import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.nodes.view.TableCellViewNodeView;
 
 /**
@@ -72,61 +73,53 @@ import org.knime.knip.base.nodes.view.TableCellViewNodeView;
  * @param <T>
  * @param <L>
  */
-public class UCMNodeFactory<T extends RealType<T>, L extends Comparable<L>>
-		extends
-		NodeFactory<TwoValuesToCellNodeModel<LabelingValue<L>, ImgPlusValue<T>, ImgPlusCell<FloatType>>> {
+public class UCMNodeFactory<T extends RealType<T>, L extends Comparable<L>> extends
+        NodeFactory<TwoValuesToCellNodeModel<LabelingValue<L>, ImgPlusValue<T>, ImgPlusCell<FloatType>>> {
 
-	@Override
-	public TwoValuesToCellNodeModel<LabelingValue<L>, ImgPlusValue<T>, ImgPlusCell<FloatType>> createNodeModel() {
-		return new UCMNodeModel<T, L>();
-	}
+    @Override
+    public TwoValuesToCellNodeModel<LabelingValue<L>, ImgPlusValue<T>, ImgPlusCell<FloatType>> createNodeModel() {
+        return new UCMNodeModel<T, L>();
+    }
 
-	@Override
-	protected int getNrNodeViews() {
-		return 1;
-	}
+    @Override
+    protected int getNrNodeViews() {
+        return 1;
+    }
 
-	@Override
-	public NodeView<TwoValuesToCellNodeModel<LabelingValue<L>, ImgPlusValue<T>, ImgPlusCell<FloatType>>> createNodeView(
-			final int viewIndex,
-			final TwoValuesToCellNodeModel<LabelingValue<L>, ImgPlusValue<T>, ImgPlusCell<FloatType>> nodeModel) {
-		return new TableCellViewNodeView<TwoValuesToCellNodeModel<LabelingValue<L>, ImgPlusValue<T>, ImgPlusCell<FloatType>>>(
-				nodeModel);
-	}
+    @Override
+    public
+            NodeView<TwoValuesToCellNodeModel<LabelingValue<L>, ImgPlusValue<T>, ImgPlusCell<FloatType>>>
+            createNodeView(final int viewIndex,
+                           final TwoValuesToCellNodeModel<LabelingValue<L>, ImgPlusValue<T>, ImgPlusCell<FloatType>> nodeModel) {
+        return new TableCellViewNodeView<TwoValuesToCellNodeModel<LabelingValue<L>, ImgPlusValue<T>, ImgPlusCell<FloatType>>>(
+                nodeModel);
+    }
 
-	@Override
-	protected boolean hasDialog() {
-		return true;
-	}
+    @Override
+    protected boolean hasDialog() {
+        return true;
+    }
 
-	@Override
-	protected NodeDialogPane createNodeDialogPane() {
-		return new TwoValuesToCellNodeDialog<LabelingValue<L>, ImgPlusValue<T>>() {
+    @Override
+    protected NodeDialogPane createNodeDialogPane() {
+        return new TwoValuesToCellNodeDialog<LabelingValue<L>, ImgPlusValue<T>>() {
 
-			@Override
-			public void addDialogComponents() {
-				addDialogComponent(
-						"Options",
-						"Faces",
-						new DialogComponentNumber(UCMNodeModel
-								.createMaxFacesAmountModel(),
-								"Maximal number of faces", 10));
-				addDialogComponent("Options", "", new DialogComponentNumber(
-						UCMNodeModel.createMaxFacePercentModel(),
-						"Maximal percentage of original faces (%)", 5));
-				addDialogComponent(
-						"Options",
-						"Edges",
-						new DialogComponentNumber(UCMNodeModel
-								.createMinEdgeWeightModel(),
-								"Minimal weight of Edges", 10));
-				addDialogComponent(
-						"Options",
-						"Boundary label",
-						new DialogComponentString(UCMNodeModel
-								.createBoundaryLabelModel(), "Boundary"));
-			}
-		};
-	}
+            @Override
+            public void addDialogComponents() {
+                addDialogComponent("Options", "Faces",
+                                   new DialogComponentNumber(UCMNodeModel.createMaxFacesAmountModel(),
+                                           "Maximal Number of Faces", 10));
+                addDialogComponent("Options", "", new DialogComponentNumber(UCMNodeModel.createMaxFacePercentModel(),
+                        "Maximal Percentage of Original Faces (%)", 5));
+                addDialogComponent("Options", "Edges",
+                                   new DialogComponentNumber(UCMNodeModel.createMinEdgeWeightModel(),
+                                           "Minimal Weight of Edges", 10));
+                addDialogComponent("Options", "Boundary label",
+                                   new DialogComponentString(UCMNodeModel.createBoundaryLabelModel(), "Boundary"));
+
+                addDialogComponent("Options", "Dimension selection", new DialogComponentDimSelection(UCMNodeModel.createDimSelectionModel(), "", 2, 2));
+            }
+        };
+    }
 
 }
