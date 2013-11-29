@@ -17,7 +17,8 @@
 			(depending on the iteration order of each underlying image factory).
 			These pixel are added successively to the new image object, filling
 			each dimension to the given maximum. If the maximum is reached, the
-			next dimensions is added and/or extended.</intro>
+			next dimensions is added and/or extended. The pixel type of the
+			result image is the least common pixel type of all images.</intro>
 		<tab name="Options">
 			<option name="Image to merge">Select the columns containing the images to
 				merge.

@@ -43,70 +43,84 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
  */
-package org.knime.knip.core.io.externalization.externalizers;
+package org.knime.knip.base.nodes.proc.ucm;
 
-import net.imglib2.img.Img;
-import net.imglib2.img.ImgView;
-
-import org.knime.knip.core.io.externalization.BufferedDataInputStream;
-import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
-import org.knime.knip.core.io.externalization.Externalizer;
-import org.knime.knip.core.io.externalization.ExternalizerManager;
+import java.util.HashMap;
+import java.util.HashSet;
 
 /**
- * Delegates to the naive img externalization.
+ * UltraMetricContourMap face
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
  */
-public class ImgViewExt0 implements Externalizer<Img> {
+public class UCMFace {
+    private final String m_label;
+
+    // outer boundaries
+    private HashMap<String, UCMBoundary> m_boundaries;
+
+    // label of the original regions
+    private HashSet<String> m_regions;
 
     /**
-     * {@inheritDoc}
+     *
+     * @param label of the face
      */
+    public UCMFace(final String label) {
+        m_label = label;
+        m_boundaries = new HashMap<String, UCMBoundary>();
+        m_regions = new HashSet<String>();
+        m_regions.add(label);
+    }
+
+    /**
+     *
+     * @return the boundaries which form the outer boundaries of the regions
+     */
+    public HashMap<String, UCMBoundary> getBoundaries() {
+        return m_boundaries;
+    }
+
+    /**
+     * adds an Edge to the face
+     *
+     * @param i Label of second Face
+     * @param newBoundary
+     */
+    public void addBoundary(final String i, final UCMBoundary newBoundary) {
+        m_boundaries.put(i, newBoundary);
+    }
+
+    /**
+     *
+     * @return the labels of the original regions which where merged into this face
+     */
+    public HashSet<String> getRegions() {
+        return m_regions;
+    }
+
+    /**
+     * @return the label of the face
+     */
+    public String getLabel() {
+        return m_label;
+    }
+
     @Override
-    public String getId() {
-        return this.getClass().getSimpleName();
+    public boolean equals(final Object obj) {
+        return m_label == ((UCMFace)obj).m_label;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Class<? extends Img> getType() {
-        return ImgView.class;
+    public int hashCode() {
+        return super.hashCode();
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getPriority() {
-        return 0;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Img read(final BufferedDataInputStream in) throws Exception {
-        // delegate to the img externalizer
-        return ExternalizerManager.read(in);
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void write(final BufferedDataOutputStream out, final Img obj) throws Exception {
-        // delegate to the img externalizer
-        ExternalizerManager.write(out, obj, Img.class);
-
-    }
-
 }
