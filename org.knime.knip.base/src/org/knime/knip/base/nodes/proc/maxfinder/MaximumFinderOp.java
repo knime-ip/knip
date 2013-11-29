@@ -78,7 +78,7 @@ import net.imglib2.view.Views;
  * @param <T> Type of Input
  */
 
-public class MaximumFinder<T extends RealType<T>> implements
+public class MaximumFinderOp<T extends RealType<T>> implements
         UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<BitType>> {
 
     private final double m_tolerance;
@@ -94,7 +94,7 @@ public class MaximumFinder<T extends RealType<T>> implements
      * @param suppression
      * @param maxAreas
      */
-    public MaximumFinder(final double tolerance, final double suppression, final boolean maxAreas) {
+    public MaximumFinderOp(final double tolerance, final double suppression, final boolean maxAreas) {
         m_tolerance = tolerance;
         m_suppression = suppression;
 
@@ -105,7 +105,7 @@ public class MaximumFinder<T extends RealType<T>> implements
      * @param tolerance
      * @param suppression
      */
-    public MaximumFinder(final double tolerance, final double suppression) {
+    public MaximumFinderOp(final double tolerance, final double suppression) {
         this(tolerance, suppression, false);
     }
 
@@ -191,6 +191,7 @@ public class MaximumFinder<T extends RealType<T>> implements
 
     /**
      * Analyze and mark the maxima on the output image
+     *
      * @param input
      * @param output
      * @param maxPoints
@@ -338,7 +339,7 @@ public class MaximumFinder<T extends RealType<T>> implements
             Cursor<BitType> raOutput = Views.flatIterable(output).cursor();
 
             while (metaCursor.hasNext()) {
-                raOutput.next().set(isBitSet( metaCursor.next(), IS_MAX_AREA));
+                raOutput.next().set(isBitSet(metaCursor.next(), IS_MAX_AREA));
             }
         } else {
             if (m_suppression > 0) {
@@ -386,7 +387,7 @@ public class MaximumFinder<T extends RealType<T>> implements
      */
     @Override
     public UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<BitType>> copy() {
-        return new MaximumFinder<T>(m_tolerance, m_suppression, m_maxAreas);
+        return new MaximumFinderOp<T>(m_tolerance, m_suppression, m_maxAreas);
     }
 
 }

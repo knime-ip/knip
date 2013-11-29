@@ -58,6 +58,9 @@ import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.node.ExecutionContext;
+import org.knime.core.node.NodeDialog;
+import org.knime.core.node.NodeFactory;
+import org.knime.core.node.NodeModel;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
@@ -74,8 +77,13 @@ import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 
 /**
+ * {@link NodeFactory} containint {@link NodeModel} and {@link NodeDialog} for {@link MaximumFinderOp}
  *
  * @author Tino Klingebiel, University of Konstanz
+ * @author Jonathan Hale, Unversity of Konstanz
+ * @author Martin Horn, University of Konstanz
+ * @author Christian Dietz, University of Konstanz
+ *
  * @param <T>
  */
 public class MaximumFinderNodeFactory<T extends RealType<T> & NativeType<T>> extends
@@ -140,21 +148,13 @@ public class MaximumFinderNodeFactory<T extends RealType<T> & NativeType<T>> ext
                 // cube, hypercube or whatever and run our operation. Results is
                 // written into the according position of the plane, cube,
                 // hypercube, etc of the output
-                SubsetOperations
-                        .iterate(new MaximumFinder<T>(m_toleranceModel.getDoubleValue(), m_suppressionModel.getDoubleValue(), m_maxAreasModel.getBooleanValue()),
-                                 m_dimSelectionModel.getSelectedDimIndices(img), img.getImg(), output, getExecutorService());
+                SubsetOperations.iterate(new MaximumFinderOp<T>(m_toleranceModel.getDoubleValue(), m_suppressionModel
+                                                 .getDoubleValue(), m_maxAreasModel.getBooleanValue()),
+                                         m_dimSelectionModel.getSelectedDimIndices(img), img.getImg(), output,
+                                         getExecutorService());
 
                 // Simply return the output
                 return m_cellFactory.createCell(output);
-
-                /*
-                 * return
-                 * (ImgPlusCell<BitType>)m_cellFactory.createCell((ImgPlus
-                 * <BitType>)(new MaximumOperation<T>( m_noise.getDoubleValue(),
-                 * m_suppression
-                 * .getDoubleValue(),cellValue.getDimensions().length
-                 * ).compute(input, output)));
-                 */
             }
 
             @Override

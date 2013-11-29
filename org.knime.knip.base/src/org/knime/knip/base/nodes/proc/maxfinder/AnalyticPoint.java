@@ -6,11 +6,12 @@ import net.imglib2.Localizable;
 import net.imglib2.type.numeric.RealType;
 
 /**
- * Helper Class for MaximumFinder
- * Warning: This might have unnecessary stuff in it,
- * some stuff was kept from previous implementation.
+ * Helper Class for MaximumFinder Warning: This might have unnecessary stuff in it, some stuff was kept from previous
+ * implementation.
  *
  * @author Jonathan Hale, University of Konstanz
+ *
+ * @param <T>
  */
 public class AnalyticPoint<T extends RealType<T>> implements Comparable<AnalyticPoint<T>>, Localizable {
 
@@ -23,9 +24,7 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
     private boolean m_equal;
 
     /**
-     * Contructor of AnalyticPoint
-     * isMax defaults to false
-     * processed defaults to false
+     * Contructor of AnalyticPoint isMax defaults to false processed defaults to false
      *
      * @param pos Position of the point
      * @param val the value
@@ -49,6 +48,7 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
 
     /**
      * Set the flag which describes this as a maximum or not.
+     *
      * @param b
      */
     public void setMax(final boolean b) {
@@ -57,6 +57,7 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
 
     /**
      * Get the flag which describes this as a maximum or not.
+     *
      * @return value maximum flag
      */
     public boolean isMax() {
@@ -77,11 +78,11 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
         return m_equal;
     }
 
-
     /**
      * Calculate distance to a Localizable
      *
      * Equivalent to Math.sqrt(distanceToSq(p));
+     *
      * @param p
      * @return distance
      */
@@ -91,6 +92,7 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
 
     /**
      * Squared distance for speed
+     *
      * @param p
      * @return squared distance
      */
@@ -108,6 +110,7 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
      * Calculate distance to a long[]
      *
      * Equivalent to Math.sqrt(distanceToSq(p));
+     *
      * @param l
      * @return distance
      */
@@ -117,6 +120,7 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
 
     /**
      * Squared distance for speed
+     *
      * @param l
      * @return squared distance
      */
@@ -153,6 +157,7 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
 
     /**
      * Get the value of this point
+     *
      * @return the value
      */
     public double getValue() {
@@ -165,8 +170,8 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
     @Override
     public void localize(final float[] pos) {
         int n = numDimensions();
-        for ( int d = 0; d < n; d++ ) {
-            pos[ d ] = this.m_coords[ d ];
+        for (int d = 0; d < n; d++) {
+            pos[d] = this.m_coords[d];
         }
     }
 
@@ -176,13 +181,13 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
     @Override
     public void localize(final double[] pos) {
         int n = numDimensions();
-        for ( int d = 0; d < n; d++ ) {
-            pos[ d ] = this.m_coords[ d ];
+        for (int d = 0; d < n; d++) {
+            pos[d] = this.m_coords[d];
         }
     }
 
-    /**sition
-     * {@inheritDoc}
+    /**
+     * sition {@inheritDoc}
      */
     @Override
     public float getFloatPosition(final int d) {
@@ -211,8 +216,8 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
     @Override
     public void localize(final int[] pos) {
         int n = numDimensions();
-        for ( int d = 0; d < n; d++ ) {
-            pos[ d ] = this.m_coords[ d ];
+        for (int d = 0; d < n; d++) {
+            pos[d] = this.m_coords[d];
         }
     }
 
@@ -222,8 +227,8 @@ public class AnalyticPoint<T extends RealType<T>> implements Comparable<Analytic
     @Override
     public void localize(final long[] pos) {
         int n = numDimensions();
-        for ( int d = 0; d < n; d++ ) {
-            pos[ d ] = this.m_coords[ d ];
+        for (int d = 0; d < n; d++) {
+            pos[d] = this.m_coords[d];
         }
     }
 
