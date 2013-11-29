@@ -46,7 +46,7 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.base.nodes.proc;
+package org.knime.knip.base.nodes.proc.maxfinder;
 
 import java.util.List;
 
@@ -58,8 +58,10 @@ import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.node.ExecutionContext;
+import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
+import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
@@ -69,7 +71,6 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
-import org.knime.knip.core.ops.interval.MaximumFinder;
 import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 
 /**
@@ -84,12 +85,16 @@ public class MaximumFinderNodeFactory<T extends RealType<T> & NativeType<T>> ext
         return new SettingsModelDimSelection("dim_selection", "X", "Y");
     }
 
-    private static SettingsModelDouble createNoiseModel() {
+    private static SettingsModelDouble createToleranceModel() {
         return new SettingsModelDouble("Noise Tolerance", 0);
     }
 
     private static SettingsModelDouble createSuppressionModel() {
         return new SettingsModelDouble("Suppression", 0);
+    }
+
+    private static SettingsModelBoolean createMaxAreaModel() {
+        return new SettingsModelBoolean("Tolearance Areas", false);
     }
 
     /**
@@ -99,11 +104,13 @@ public class MaximumFinderNodeFactory<T extends RealType<T> & NativeType<T>> ext
     public ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<BitType>> createNodeModel() {
         return new ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<BitType>>() {
 
-            private SettingsModelDouble m_noise = createNoiseModel();
+            private SettingsModelDouble m_toleranceModel = createToleranceModel();
 
-            private SettingsModelDouble m_suppression = createSuppressionModel();
+            private SettingsModelDouble m_suppressionModel = createSuppressionModel();
 
-            private SettingsModelDimSelection m_dimSelection = createDimSelectionModel();
+            private SettingsModelDimSelection m_dimSelectionModel = createDimSelectionModel();
+
+            private SettingsModelBoolean m_maxAreasModel = createMaxAreaModel();
 
             private ImgPlusCellFactory m_cellFactory;
 
@@ -134,8 +141,8 @@ public class MaximumFinderNodeFactory<T extends RealType<T> & NativeType<T>> ext
                 // written into the according position of the plane, cube,
                 // hypercube, etc of the output
                 SubsetOperations
-                        .iterate(new MaximumFinder<T>(m_noise.getDoubleValue(), m_suppression.getDoubleValue()),
-                                 m_dimSelection.getSelectedDimIndices(img), img.getImg(), output, getExecutorService());
+                        .iterate(new MaximumFinder<T>(m_toleranceModel.getDoubleValue(), m_suppressionModel.getDoubleValue(), m_maxAreasModel.getBooleanValue()),
+                                 m_dimSelectionModel.getSelectedDimIndices(img), img.getImg(), output, getExecutorService());
 
                 // Simply return the output
                 return m_cellFactory.createCell(output);
@@ -152,9 +159,10 @@ public class MaximumFinderNodeFactory<T extends RealType<T> & NativeType<T>> ext
 
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
-                settingsModels.add(m_noise);
-                settingsModels.add(m_suppression);
-                settingsModels.add(m_dimSelection);
+                settingsModels.add(m_toleranceModel);
+                settingsModels.add(m_suppressionModel);
+                settingsModels.add(m_dimSelectionModel);
+                settingsModels.add(m_maxAreasModel);
             }
 
         };
@@ -166,13 +174,13 @@ public class MaximumFinderNodeFactory<T extends RealType<T> & NativeType<T>> ext
     @Override
     protected ValueToCellNodeDialog<ImgPlusValue<T>> createNodeDialog() {
         return new ValueToCellNodeDialog<ImgPlusValue<T>>() {
-
             @Override
             public void addDialogComponents() {
-                addDialogComponent("Options", "Options", new DialogComponentNumber(createNoiseModel(),
+                addDialogComponent("Options", "Options", new DialogComponentNumber(createToleranceModel(),
                         "Noise Tolerance", 0.5));
                 addDialogComponent("Options", "Options", new DialogComponentNumber(createSuppressionModel(),
                         "Supression", 0.5));
+                addDialogComponent(new DialogComponentBoolean(createMaxAreaModel(), "Output with Tolerance Areas"));
                 addDialogComponent(new DialogComponentDimSelection(createDimSelectionModel(), "Dimension Selection"));
             }
         };
