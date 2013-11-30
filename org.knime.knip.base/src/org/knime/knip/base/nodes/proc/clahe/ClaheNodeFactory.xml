@@ -19,9 +19,7 @@
 			<a href="http://en.wikipedia.org/wiki/Adaptive_histogram_equalization">Wikipedia</a>
 		</intro>
 		<tab name="Options">
-			<option name="Blocksize"> The size of the local region around a pixel for
-				which the histogram is equalized. This size should be larger than
-				the size of features to be preserved.</option>
+			<option name="Number of contextual regions">The amount of context regions in which each dimension will be split.</option>
 			<option name="Number of Bins"> The amount of different pixel values which are
 				used for the histogram equalization.</option>
 			<option name="Slope"> Limits the contrast stretch in the intensity
