@@ -68,6 +68,7 @@ import net.imglib2.view.Views;
  * that new values are assigned by building a cumulative distribution function for each histogram and then by
  * interpolation between these resulting values.
  *
+ * TODO: this method is still unverified for images with more than two dimensions.
  *
  * @param <T> extends RealType<T>
  * @see <a href="http://en.wikipedia.org/wiki/Adaptive_histogram_equalization">[1] Adaptive histogram equalization</a>
@@ -163,7 +164,6 @@ public class ClaheND<T extends RealType<T>> implements
 
             // after creation of the histograms, clip them
             for (ClahePoint center : ctxHistograms.keySet()) {
-                System.out.println(ctxHistograms.get(center));
                 ctxHistograms.get(center).clip(m_slope);
             }
         }
@@ -198,6 +198,7 @@ public class ClaheND<T extends RealType<T>> implements
 
         return output;
     }
+
 
     /**
      * @param coordinates coordinates of a point
