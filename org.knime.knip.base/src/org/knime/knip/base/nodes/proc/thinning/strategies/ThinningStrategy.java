@@ -45,67 +45,23 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ---------------------------------------------------------------------
  *
- * Created on 07.11.2013 by Andreas
+ * Created on 01.12.2013 by Andreas
  */
-package org.knime.knip.base.nodes.proc;
+package org.knime.knip.base.nodes.proc.thinning.strategies;
 
-import java.util.List;
-
-import net.imglib2.meta.ImgPlus;
-import net.imglib2.ops.operation.Operations;
-import net.imglib2.ops.operation.UnaryOutputOperation;
-import net.imglib2.type.numeric.RealType;
-
-import org.knime.core.node.defaultnodesettings.SettingsModel;
-import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
-import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
-import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
-import org.knime.knip.core.ops.img.ImgPlusToImgPlusWrapperOp;
-import org.knime.knip.core.util.ImgPlusFactory;
+import net.imglib2.RandomAccessible;
+import net.imglib2.type.logic.BitType;
 
 /**
  *
  * @author Andreas
  */
-public class ThinningNodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
+public interface ThinningStrategy {
 
-    @Override
-    protected ImgPlusToImgPlusNodeDialog<T> createNodeDialog() {
-        return new ImgPlusToImgPlusNodeDialog<T>(2, 2, "X", "Y") {
+    public boolean removePixel(final long[] position, final RandomAccessible<BitType> img);
 
-            @Override
-            public void addDialogComponents() {
-                // TODO Auto-generated method stub
+    public int getIterationsPerCycle();
 
-            }};
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ImgPlusToImgPlusNodeModel<T, T> createNodeModel() {
-        return new ImgPlusToImgPlusNodeModel<T, T>("X", "Y") {
-
-            @Override
-            protected void addSettingsModels(final List<SettingsModel> settingsModels) {
-
-            }
-
-            @Override
-            protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> op(final ImgPlus<T> imgPlus) {
-                ThinningOp<T> thinOp = new ThinningOp<T>();
-
-                return Operations.wrap(new ImgPlusToImgPlusWrapperOp<T, T>(thinOp, imgPlus.firstElement()
-                        .createVariable()), ImgPlusFactory.<T, T> get(imgPlus.firstElement()));
-            }
-
-            @Override
-            protected int getMinDimensions() {
-                return 2;
-            }
-
-        };
-    }
+    public void afterIteration();
 
 }

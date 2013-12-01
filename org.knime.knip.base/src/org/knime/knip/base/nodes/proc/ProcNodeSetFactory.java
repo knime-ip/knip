@@ -66,6 +66,7 @@ import org.knime.knip.base.nodes.proc.multilvlthresholding.MultilevelThresholder
 import org.knime.knip.base.nodes.proc.resampler.ResamplerNodeFactory;
 import org.knime.knip.base.nodes.proc.spotdetection.LoGDetectorFactory;
 import org.knime.knip.base.nodes.proc.spotdetection.WaveletSpotDetectionNodeFactory;
+import org.knime.knip.base.nodes.proc.thinning.ThinningNodeFactory;
 import org.knime.knip.base.nodes.proc.ucm.UCMNodeFactory;
 import org.knime.knip.base.nodes.seg.local.LocalThresholderNodeFactory2;
 
