@@ -43,70 +43,106 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
  */
-package org.knime.knip.core.io.externalization.externalizers;
+package org.knime.knip.base.nodes.proc.ucm;
 
-import net.imglib2.img.Img;
-import net.imglib2.img.ImgView;
-
-import org.knime.knip.core.io.externalization.BufferedDataInputStream;
-import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
-import org.knime.knip.core.io.externalization.Externalizer;
-import org.knime.knip.core.io.externalization.ExternalizerManager;
+import java.util.HashSet;
+import java.util.Iterator;
 
 /**
- * Delegates to the naive img externalization.
+ * UltraMetricContourMap Boundary
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
  */
-public class ImgViewExt0 implements Externalizer<Img> {
+public class UCMBoundary implements Comparable<UCMBoundary> {
+    // connected Faces, maximal 2
+    private HashSet<UCMFace> m_faces;
+
+    // weight of the boundary
+    private double m_weight;
+
+    // pixels forming the boundary
+    private HashSet<int[]> m_pixels;
 
     /**
-     * {@inheritDoc}
+     * Constructor
      */
-    @Override
-    public String getId() {
-        return this.getClass().getSimpleName();
+    public UCMBoundary() {
+        m_faces = new HashSet<UCMFace>();
+        m_weight = -1;
+        m_pixels = new HashSet<int[]>();
     }
 
     /**
-     * {@inheritDoc}
+     * returns the requested UCMFace, or null (if not a neighbor) - rather slow!
+     *
+     * @param label
+     * @return UCM for this label
      */
-    @Override
-    public Class<? extends Img> getType() {
-        return ImgView.class;
+    public UCMFace hasUCMFace(final int label) {
+        Iterator<UCMFace> m_iterator = m_faces.iterator();
+        UCMFace tempFace;
+        while (m_iterator.hasNext()) {
+            tempFace = m_iterator.next();
+            if (tempFace.getLabel().equals(label)) {
+                return tempFace;
+            }
+        }
+        return null;
     }
 
     /**
-     * {@inheritDoc}
+     * adds a Pixel with its weight
+     *
+     * @param newPixel
+     * @param weight
      */
-    @Override
-    public int getPriority() {
-        return 0;
+    public void addPixel(final int[] newPixel, final double weight) {
+        m_pixels.add(newPixel);
+        m_weight += weight;
     }
 
     /**
-     * {@inheritDoc}
+     *
+     * @return returns the weight of the boundary
      */
-    @Override
-    public Img read(final BufferedDataInputStream in) throws Exception {
-        // delegate to the img externalizer
-        return ExternalizerManager.read(in);
+    public double getWeight() {
+        return m_weight / m_pixels.size();
+    }
+
+    /**
+     *
+     * @return faces of the boundary
+     */
+    public HashSet<UCMFace> getFaces() {
+        return m_faces;
 
     }
 
     /**
-     * {@inheritDoc}
+     *
+     * @return returns the position of the points forming the boundary
      */
-    @Override
-    public void write(final BufferedDataOutputStream out, final Img obj) throws Exception {
-        // delegate to the img externalizer
-        ExternalizerManager.write(out, obj, Img.class);
-
+    public HashSet<int[]> getPixels() {
+        return m_pixels;
     }
 
+    /**
+     * adds pixel and weight of an boundary
+     *
+     * @param boundary
+     */
+    public void mergeBoundary(final UCMBoundary boundary) {
+        m_pixels.addAll(boundary.m_pixels);
+        m_weight += boundary.m_weight;
+    }
+
+    @Override
+    public int compareTo(final UCMBoundary other) {
+        return Double.compare(this.getWeight(), other.getWeight());
+    }
 }
