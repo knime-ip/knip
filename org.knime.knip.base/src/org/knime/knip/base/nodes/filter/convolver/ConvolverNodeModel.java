@@ -53,10 +53,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.SubsetOperations;
-import net.imglib2.ops.operation.subset.views.ImgPlusView;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.DoubleType;
@@ -77,7 +77,7 @@ import org.knime.core.node.port.PortType;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
-import org.knime.knip.base.node.NodeTools;
+import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.algorithm.convolvers.KernelTools;
@@ -85,7 +85,7 @@ import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -165,8 +165,8 @@ public class ConvolverNodeModel<T extends RealType<T>, O extends RealType<O>, K 
     protected ImgPlusCell<O> compute(final ImgPlusValue<T> cellValue) throws Exception {
 
         final ImgPlus<T> in =
-                new ImgPlusView<T>(SubsetOperations.subsetview(cellValue.getImgPlus(), cellValue.getImgPlus()),
-                        cellValue.getImgPlus().getImg().factory(), cellValue.getImgPlus());
+                new ImgPlus<T>(new ImgView<T>(SubsetOperations.subsetview(cellValue.getImgPlus(), cellValue.getImgPlus()),
+                        cellValue.getImgPlus().getImg().factory()), cellValue.getImgPlus());
 
         final Img<K>[] currentKernels = new Img[m_kernelList.length];
 
@@ -195,7 +195,7 @@ public class ConvolverNodeModel<T extends RealType<T>, O extends RealType<O>, K 
         }
         if ((m_kernelColumnIdx == -1) && (inSpecs[1] != null)) {
             if ((m_kernelColumnIdx =
-                    NodeTools.autoOptionalColumnSelection((DataTableSpec)inSpecs[1], m_smKernelColumn,
+                    NodeUtils.autoOptionalColumnSelection((DataTableSpec)inSpecs[1], m_smKernelColumn,
                                                           ImgPlusValue.class)) >= 0) {
                 setWarningMessage("Auto-configure Column: " + m_smKernelColumn.getStringValue());
             } else {

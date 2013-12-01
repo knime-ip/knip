@@ -102,12 +102,13 @@ import org.knime.knip.base.exceptions.KNIPRuntimeException;
 import org.knime.knip.base.exceptions.LoggerHelper;
 
 /**
- * 
+ *
  * Node Model to process table cells separately.
- * 
- * 
+ *
+ *
  * @param <VIN> the type of the input values
  * @param <COUT> the type of the output values
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -187,7 +188,7 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
     private final ThreadPoolExecutorService m_executor = new ThreadPoolExecutorService(
             KNIMEConstants.GLOBAL_THREAD_POOL.createSubPool(KNIPConstants.THREADS_PER_NODE));
 
-    /*
+    /**
      * Class of the first argument type.
      */
     protected Class<VIN> m_inValueClass;
@@ -197,17 +198,17 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
      */
     private int m_numOccurredErrors;
 
-    /*
+    /**
      * Class of the second argument type.
      */
     protected Class<COUT> m_outCellClass;
 
-    /*
+    /**
      * Collection of all settings model used.
      */
     protected List<SettingsModel> m_settingsModels = null;
 
-    /*
+    /**
      * Index of the currently processed selected value
      */
     protected int m_currentCellIdx;
@@ -222,13 +223,13 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
     /**
      * Contructor to add additional in-ports to the node. The data table port used within this model has index 0! Hence,
      * all additionally added ports will have a index > 0.
-     * 
+     *
      * If you want to overwrite the configure/execute-methods and still want to use the functionality provided by this
      * model, then make sure to overwrite the right methods:
-     * 
+     *
      * {@link #configure(PortObjectSpec[])} and {@link #execute(PortObject[], ExecutionContext)}, and don't forget to
      * call super.... .
-     * 
+     *
      * @param additionalPorts specifies additional ports
      */
     protected ValueToCellNodeModel(final PortType[] additionalPorts) {
@@ -239,13 +240,13 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
     /**
      * Contructor to add additional in-ports and out-ports to the node. The data table port used within this model has
      * index 0! Hence, all additionally added ports will have a index > 0.
-     * 
+     *
      * If you want to overwrite the configure/execute-methods and still want to use the functionality provided by this
      * model, then make sure to overwrite the right methods:
-     * 
+     *
      * {@link #configure(PortObjectSpec[])} and {@link #execute(PortObject[], ExecutionContext)}, and don't forget to
      * call super.... .
-     * 
+     *
      * @param additionalInPorts specifies additional in-ports
      * @param additionalOutPorts specifies additional out-ports
      */
@@ -256,7 +257,7 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
 
     /**
      * Adds the settings model to be saved, load and validated.
-     * 
+     *
      * @param settingsModels
      */
     protected abstract void addSettingsModels(List<SettingsModel> settingsModels);
@@ -277,9 +278,8 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
 
     }
 
-    /*
-     * Helper to collect all settings models and add them to one list (if
-     * not already done)
+    /**
+     * Helper to collect all settings models and add them to one list (if not already done)
      */
     protected void collectSettingsModels() {
         if (m_settingsModels == null) {
@@ -293,16 +293,16 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
 
     /**
      * Processes one single data cell. Exactly one of the compute-methods has to be overwritten.
-     * 
+     *
      * @param cellValue
-     * @return
+     * @return the computed DataCell
      * @throws Exception
      */
     protected abstract COUT compute(VIN cellValue) throws Exception;
 
     /**
-     * Will be called everytime a new row is processed. Can be overwritten optionally. It is called before compute();
-     * 
+     * Will be called if a new row is about to be processed. Can be overwritten optionally. It is called before compute();
+     *
      * @param row
      */
     protected void computeDataRow(final DataRow row) {
@@ -335,7 +335,12 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
     }
 
     /**
-     * Creates the cell factory.
+     * Creates the cell factory for the given {@link DataTableSpec} and col indices
+     *
+     * @param inSpec {@link DataTableSpec} in
+     * @param colIndices selected col indices
+     *
+     * @return cell factory to compute results
      */
     protected CellFactory createCellFactory(final DataTableSpec inSpec, final int[] colIndices) {
 
@@ -344,8 +349,6 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
         DataType dt;
         if (getOutDataCellListCellType() != null) {
             dt = ListCell.getCollectionType(getOutDataCellListCellType());
-            // dt = DataType.getType(m_outCellClass,
-            // getOutDataCellListCellType());
         } else {
             dt = DataType.getType(m_outCellClass);
         }
@@ -369,7 +372,6 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
 
                         if ((row.getCell(colIndices[i]).isMissing())) {
                             LOGGER.warn("Missing cell was ignored at row " + row.getKey());
-                            m_numOccurredErrors++;
                             cells[i] = DataType.getMissingCell();
                         } else {
                             DataCell c = compute(m_inValueClass.cast(row.getCell(colIndices[i])));
@@ -505,7 +507,7 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
         }
 
         if (m_numOccurredErrors > 0) {
-            setWarningMessage(m_numOccurredErrors + " errors occurred while executing!");
+            setWarningMessage(m_numOccurredErrors + " errors occurred while executing! See console log for details.");
         }
 
         // data for the table cell view
@@ -518,8 +520,8 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
     /**
      * Returns the {@link ExecutorService} which will be reseted after cancelation of the node. Use this
      * {@link ExecutorService} to submit new futures in your node.
-     * 
-     * @return
+     *
+     * @return the current {@link ExecutorService}
      */
     protected ExecutorService getExecutorService() {
         return m_executor;
@@ -540,8 +542,8 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
 
     /**
      * The cell type that is stored if the out-cell is a ListCell
-     * 
-     * @return
+     *
+     * @return if not null, outtype is a {@link ListCell}
      */
     protected DataType getOutDataCellListCellType() {
         return null;
@@ -552,10 +554,12 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
         return new OutputPortRole[]{OutputPortRole.DISTRIBUTED};
     }
 
-    /*
-     * Retrieves the selected column indices from the given DataTableSpec
-     * and the column selection. If the selection turned out to be invalid,
-     * all columns are selected.
+    /**
+     * Retrieves the selected column indices from the given DataTableSpec and the column selection. If the selection
+     * turned out to be invalid, all columns are selected.
+     *
+     * @param inSpec the inspec
+     * @return the selected indices
      */
     protected int[] getSelectedColumnIndices(final DataTableSpec inSpec) {
         final List<String> colNames;
@@ -594,7 +598,7 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
 
     }
 
-    /*
+    /**
      * Retrieves the classes of the type arguments VIN and COUT.
      */
     @SuppressWarnings("unchecked")
@@ -649,8 +653,10 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
     /**
      * Will be called before calling the {@link ValueToCellNodeModel#compute(DataValue)} multiple times. Has to be
      * overwritten if needed.
+     *
+     * @param exec current {@link ExecutionContext}
      */
-    protected void prepareExecute(@SuppressWarnings("unused") final ExecutionContext exec) {
+    protected void prepareExecute(final ExecutionContext exec) {
         //
     }
 

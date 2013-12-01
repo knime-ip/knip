@@ -66,7 +66,7 @@ import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentSubsetSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
 import org.knime.knip.core.types.ImgFactoryTypes;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.io.ImgRefValue;
 import org.knime.knip.io.ImgSource;
 import org.knime.knip.io.ImgSourcePool;
@@ -110,7 +110,7 @@ public class ImgImporterNodeFactory<T extends RealType<T> & NativeType<T>>
                         "Factory selection",
                         new DialogComponentStringSelection(
                                 createFactorySelectionModel(), "",
-                                EnumListProvider.getStringList(ImgFactoryTypes
+                                EnumUtils.getStringListFromName(ImgFactoryTypes
                                         .values())));
 
             }

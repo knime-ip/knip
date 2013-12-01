@@ -66,10 +66,12 @@ import org.knime.knip.core.util.MiscViews;
 
 /**
  * Factory class to produce an image inverter node.
- * 
+ *
+ * @param <T>
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
  */
 public class Remove1DimNodeFactory<T extends RealType<T> & NativeType<T>> extends
         ValueToCellNodeFactory<ImgPlusValue<T>> {

@@ -83,7 +83,7 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingCellFactory;
 import org.knime.knip.base.data.labeling.LabelingValue;
-import org.knime.knip.base.node.NodeTools;
+import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 
@@ -290,7 +290,7 @@ public class MorphLabelingOpsNodeModel<L extends Comparable<L>> extends
             m_structurColumnIndex = ((DataTableSpec)inSpecs[1]).findColumnIndex(m_smStructurColumn.getStringValue());
             if (m_structurColumnIndex == -1) {
                 if ((m_structurColumnIndex =
-                        NodeTools.autoOptionalColumnSelection((DataTableSpec)inSpecs[1], m_smStructurColumn,
+                        NodeUtils.autoOptionalColumnSelection((DataTableSpec)inSpecs[1], m_smStructurColumn,
                                                               ImgPlusValue.class)) >= 0) {
                     setWarningMessage("Auto-configure Column: " + m_smStructurColumn.getStringValue());
                 } else {

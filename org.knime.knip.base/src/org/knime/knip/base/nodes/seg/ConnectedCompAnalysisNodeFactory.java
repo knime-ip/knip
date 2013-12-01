@@ -81,7 +81,7 @@ import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
 import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.types.ImgFactoryTypes;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgUtils;
 
 /**
@@ -122,10 +122,10 @@ public class ConnectedCompAnalysisNodeFactory<T extends RealType<T> & Comparable
             @Override
             public void addDialogComponents() {
                 addDialogComponent("Settings", "Factory Selection", new DialogComponentStringSelection(
-                        createFactoryModel(), "Factory Type", EnumListProvider.getStringList(ImgFactoryTypes.values())));
+                        createFactoryModel(), "Factory Type", EnumUtils.getStringListFromName(ImgFactoryTypes.values())));
 
                 addDialogComponent("Options", "Settings", new DialogComponentStringSelection(createTypeModel(),
-                        "Connection Type", EnumListProvider.getStringList(ConnectedType.values())));
+                        "Connection Type", EnumUtils.getStringListFromName(ConnectedType.values())));
                 addDialogComponent("Options", "Settings", new DialogComponentNumber(createBackgroundModel(),
                         "Background", 1));
 

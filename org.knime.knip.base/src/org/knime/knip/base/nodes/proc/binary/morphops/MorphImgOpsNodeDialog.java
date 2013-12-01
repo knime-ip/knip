@@ -66,7 +66,7 @@ import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.nodes.proc.binary.morphops.MorphImgOpsNodeModel.MorphOp;
 import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * 
@@ -132,7 +132,7 @@ public class MorphImgOpsNodeDialog extends ValueToCellNodeDialog<ImgPlusValue<Bi
         addDialogComponent("Options",
                            "Out of Bounds Strategy",
                            new DialogComponentStringSelection(MorphImgOpsNodeModel.createOutOfBoundsModel(),
-                                   "Out of Bounds Strategy", EnumListProvider.getStringList(OutOfBoundsStrategyEnum
+                                   "Out of Bounds Strategy", EnumUtils.getStringListFromName(OutOfBoundsStrategyEnum
                                            .values())));
 
     }

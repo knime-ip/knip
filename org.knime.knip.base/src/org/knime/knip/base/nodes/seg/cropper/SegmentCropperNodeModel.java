@@ -56,15 +56,14 @@ import java.util.Map;
 
 import net.imglib2.Cursor;
 import net.imglib2.FinalInterval;
-import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccess;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.labeling.Labeling;
+import net.imglib2.labeling.LabelingView;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.iterable.unary.Fill;
-import net.imglib2.ops.operation.subset.views.LabelingView;
 import net.imglib2.roi.IterableRegionOfInterest;
 import net.imglib2.sampler.special.ConstantRandomAccessible;
 import net.imglib2.type.logic.BitType;
@@ -99,7 +98,7 @@ import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingValue;
-import org.knime.knip.base.node.NodeTools;
+import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.node.nodesettings.SettingsModelFilterSelection;
 import org.knime.knip.core.data.img.DefaultImageMetadata;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
@@ -110,7 +109,7 @@ import org.knime.knip.core.util.MiscViews;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -126,7 +125,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
     /**
      * Helper
-     * 
+     *
      * @return SettingsModel to store img column
      */
     public static SettingsModelBoolean createSMAddDependency() {
@@ -135,7 +134,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
     /**
      * Helper
-     * 
+     *
      * @return SettingsModel to store factory selection
      */
     public static SettingsModelString createSMFactorySelection() {
@@ -144,7 +143,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
     /**
      * Helper
-     * 
+     *
      * @return SettingsModel to store img column
      */
     public static SettingsModelString createSMImgColumnSelection() {
@@ -160,7 +159,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
     /**
      * Helper
-     * 
+     *
      * @return SettingsModelFilterSelection to store left filter selection
      */
     public static <LL extends Comparable<LL>> SettingsModelFilterSelection<LL> createSMLabelFilterLeft() {
@@ -169,7 +168,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
     /**
      * Helper
-     * 
+     *
      * @return SettingsModelFilterSelection to store right filter selection
      */
     public static <LL extends Comparable<LL>> SettingsModelFilterSelection<LL>
@@ -181,7 +180,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
     /**
      * Helper
-     * 
+     *
      * @return SettingsModel to store labeling column
      */
     public static SettingsModelString createSMLabelingColumnSelection() {
@@ -240,7 +239,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
         int labColIndex = inSpecs[0].findColumnIndex(m_labelingColumn.getStringValue());
         if (labColIndex == -1) {
-            if ((labColIndex = NodeTools.autoOptionalColumnSelection(inSpecs[0], m_labelingColumn, LabelingValue.class)) >= 0) {
+            if ((labColIndex = NodeUtils.autoOptionalColumnSelection(inSpecs[0], m_labelingColumn, LabelingValue.class)) >= 0) {
                 setWarningMessage("Auto-configure Label Column: " + m_labelingColumn.getStringValue());
             } else {
                 throw new InvalidSettingsException("No column selected!");
@@ -280,7 +279,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
         int labColIndex = inData[0].getDataTableSpec().findColumnIndex(m_labelingColumn.getStringValue());
         if (labColIndex == -1) {
             if ((labColIndex =
-                    NodeTools.autoOptionalColumnSelection(inData[0].getDataTableSpec(), m_labelingColumn,
+                    NodeUtils.autoOptionalColumnSelection(inData[0].getDataTableSpec(), m_labelingColumn,
                                                           LabelingValue.class)) >= 0) {
                 setWarningMessage("Auto-configure Label Column: " + m_labelingColumn.getStringValue());
             } else {
@@ -353,11 +352,11 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
                     Cursor<O> roiCursor = (Cursor<O>)roi.getIterableIntervalOverROI(img).cursor();
                     RandomAccess<O> ra = res.randomAccess();
 
-                    Fill<O, IterableInterval<O>> fill = new Fill<O, IterableInterval<O>>();
+                    Fill<O> fill = new Fill<O>();
                     if (m_backgroundSelection.getStringValue().equals(BACKGROUND_OPTIONS[BACKGROUND.MIN.ordinal()])) {
-                        fill.compute(minType, res);
+                        fill.compute(minType, res.iterator());
                     } else {
-                        fill.compute(maxType, res);
+                        fill.compute(maxType, res.iterator());
                     }
 
                     long[] pos = new long[img.numDimensions()];

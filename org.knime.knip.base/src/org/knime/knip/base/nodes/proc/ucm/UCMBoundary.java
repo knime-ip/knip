@@ -43,68 +43,106 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
  */
-package org.knime.knip.core.ops.img;
+package org.knime.knip.base.nodes.proc.ucm;
 
-import net.imglib2.IterableInterval;
-import net.imglib2.meta.ImgPlus;
-import net.imglib2.ops.img.UnaryObjectFactory;
-import net.imglib2.ops.operation.UnaryOperation;
-import net.imglib2.ops.operation.UnaryOutputOperation;
-import net.imglib2.type.numeric.RealType;
-
-import org.knime.knip.core.util.ImgPlusFactory;
+import java.util.HashSet;
+import java.util.Iterator;
 
 /**
- * Simple wrapper class to wrap UnaryOperations to UnaryOutputOperations which run on ImgPlus basis
+ * UltraMetricContourMap Boundary
  *
- * @param <T> input type
- * @param <V> output type
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
  */
-public class ImgPlusToImgPlusIIWrapperOp<T extends RealType<T>, V extends RealType<V>> implements
-        UnaryOutputOperation<ImgPlus<T>, ImgPlus<V>> {
+public class UCMBoundary implements Comparable<UCMBoundary> {
+    // connected Faces, maximal 2
+    private HashSet<UCMFace> m_faces;
 
-    private UnaryOperation<IterableInterval<T>, IterableInterval<V>> m_op;
+    // weight of the boundary
+    private double m_weight;
 
-    private V m_outType;
+    // pixels forming the boundary
+    private HashSet<int[]> m_pixels;
 
     /**
-     * @param op
-     * @param outType
+     * Constructor
      */
-    public ImgPlusToImgPlusIIWrapperOp(final UnaryOperation<IterableInterval<T>, IterableInterval<V>> op, final V outType) {
-        m_op = op;
-        m_outType = outType;
+    public UCMBoundary() {
+        m_faces = new HashSet<UCMFace>();
+        m_weight = -1;
+        m_pixels = new HashSet<int[]>();
     }
 
     /**
-     * {@inheritDoc}
+     * returns the requested UCMFace, or null (if not a neighbor) - rather slow!
+     *
+     * @param label
+     * @return UCM for this label
      */
+    public UCMFace hasUCMFace(final int label) {
+        Iterator<UCMFace> m_iterator = m_faces.iterator();
+        UCMFace tempFace;
+        while (m_iterator.hasNext()) {
+            tempFace = m_iterator.next();
+            if (tempFace.getLabel().equals(label)) {
+                return tempFace;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * adds a Pixel with its weight
+     *
+     * @param newPixel
+     * @param weight
+     */
+    public void addPixel(final int[] newPixel, final double weight) {
+        m_pixels.add(newPixel);
+        m_weight += weight;
+    }
+
+    /**
+     *
+     * @return returns the weight of the boundary
+     */
+    public double getWeight() {
+        return m_weight / m_pixels.size();
+    }
+
+    /**
+     *
+     * @return faces of the boundary
+     */
+    public HashSet<UCMFace> getFaces() {
+        return m_faces;
+
+    }
+
+    /**
+     *
+     * @return returns the position of the points forming the boundary
+     */
+    public HashSet<int[]> getPixels() {
+        return m_pixels;
+    }
+
+    /**
+     * adds pixel and weight of an boundary
+     *
+     * @param boundary
+     */
+    public void mergeBoundary(final UCMBoundary boundary) {
+        m_pixels.addAll(boundary.m_pixels);
+        m_weight += boundary.m_weight;
+    }
+
     @Override
-    public ImgPlus<V> compute(final ImgPlus<T> input, final ImgPlus<V> output) {
-        m_op.compute(input, output);
-        return output;
+    public int compareTo(final UCMBoundary other) {
+        return Double.compare(this.getWeight(), other.getWeight());
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public UnaryObjectFactory<ImgPlus<T>, ImgPlus<V>> bufferFactory() {
-        return ImgPlusFactory.<T, V> get(m_outType);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public UnaryOutputOperation<ImgPlus<T>, ImgPlus<V>> copy() {
-        return new ImgPlusToImgPlusIIWrapperOp<T, V>(m_op.copy(), m_outType);
-    }
-
 }

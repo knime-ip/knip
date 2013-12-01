@@ -52,6 +52,7 @@ import java.util.List;
 
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingType;
+import net.imglib2.labeling.LabelingView;
 import net.imglib2.ops.img.BinaryOperationAssignment;
 import net.imglib2.ops.operation.labeling.binary.LabelingTypeAnd;
 import net.imglib2.ops.operation.labeling.binary.LabelingTypeCongruent;
@@ -59,7 +60,6 @@ import net.imglib2.ops.operation.labeling.binary.LabelingTypeDifference;
 import net.imglib2.ops.operation.labeling.binary.LabelingTypeIntersect;
 import net.imglib2.ops.operation.labeling.binary.LabelingTypeMerge;
 import net.imglib2.ops.operation.labeling.binary.LabelingTypeXOR;
-import net.imglib2.ops.operation.subset.views.LabelingView;
 
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
@@ -74,7 +74,7 @@ import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.node.TwoValuesToCellNodeDialog;
 import org.knime.knip.base.node.TwoValuesToCellNodeFactory;
 import org.knime.knip.base.node.TwoValuesToCellNodeModel;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgUtils;
 import org.knime.knip.core.util.MiscViews;
 
@@ -112,7 +112,7 @@ public final class LabelingArithmeticNodeFactory<L extends Comparable<L>> extend
                                    new DialogComponentStringSelection(
                                            createMethodNameModel(),
                                            "Method",
-                                           EnumListProvider.getStringList(LabelingArithmeticNodeFactory.Method.values())));
+                                           EnumUtils.getStringListFromName(LabelingArithmeticNodeFactory.Method.values())));
 
                 addDialogComponent("Options", "", new DialogComponentBoolean(createVirtuallySynchronizeModel(),
                         "Virtually Extend?"));

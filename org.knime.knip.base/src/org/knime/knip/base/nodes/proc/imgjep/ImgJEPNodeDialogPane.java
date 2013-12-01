@@ -94,7 +94,7 @@ import org.knime.core.node.util.ColumnSelectionPanel;
 import org.knime.core.node.util.DataColumnSpecListCellRenderer;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.core.types.NativeTypes;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * Dialog for Mathematical Formula node. Shows expression text field, and three list containing variables, functions,
@@ -323,7 +323,7 @@ public class ImgJEPNodeDialogPane extends NodeDialogPane {
         m_resType =
                 new DialogComponentStringSelection(new SettingsModelString(ImgJEPNodeModel.CFG_RESULT_TYPE,
                         NativeTypes.FLOATTYPE.toString()), "Result pixel type",
-                        EnumListProvider.getStringList(NativeTypes.values()));
+                        EnumUtils.getStringListFromName(NativeTypes.values()));
         additionalOptions.add(m_resType.getComponentPanel(), BorderLayout.SOUTH);
 
         addTab("Math Expression", finalPanel);

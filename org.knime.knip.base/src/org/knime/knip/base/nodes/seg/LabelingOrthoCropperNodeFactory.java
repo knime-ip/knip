@@ -53,11 +53,11 @@ import java.util.List;
 
 import net.imglib2.Interval;
 import net.imglib2.labeling.Labeling;
+import net.imglib2.labeling.LabelingView;
 import net.imglib2.labeling.NativeImgLabeling;
 import net.imglib2.meta.CalibratedAxis;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.labeling.unary.MergeLabelings;
-import net.imglib2.ops.operation.subset.views.LabelingView;
 import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.view.Views;
 

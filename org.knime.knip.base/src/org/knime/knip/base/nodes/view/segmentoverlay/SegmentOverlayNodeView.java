@@ -57,6 +57,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
@@ -67,8 +68,8 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingMapping;
+import net.imglib2.labeling.LabelingView;
 import net.imglib2.labeling.NativeImgLabeling;
-import net.imglib2.ops.operation.subset.views.LabelingView;
 import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.ByteType;
@@ -101,7 +102,7 @@ import org.knime.knip.core.ui.imgviewer.panels.providers.LabelingRU;
 import org.knime.knip.core.util.MiscViews;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -126,7 +127,7 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
     private LabelHiliteProvider<L, T> m_hiliteProvider;
 
     /* Image cell view pane */
-    private ImgViewer m_imgView;
+    private ImgViewer m_imgView = null;
 
     /* Current row */
     private int m_row;
@@ -153,19 +154,45 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
 
     /**
      * Constructor
-     * 
+     *
      * @param model
      */
     public SegmentOverlayNodeView(final SegmentOverlayNodeModel<T, L> model) {
         super(model);
         m_sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         m_row = -1;
+
+        initTableView();
+        m_sp.setLeftComponent(m_tableView);
+        m_sp.setRightComponent(new JPanel());
+
+        setComponent(m_sp);
+
+        m_sp.setDividerLocation(300);
+        loadPortContent();
+
+    }
+
+    private void loadPortContent() {
+
+        m_tableContentView.setModel(getNodeModel().getTableContentModel());
+
+        // Scale to thumbnail size
+        m_tableView.validate();
+        m_tableView.repaint();
+    }
+
+    /*Initializes the table view (left side of the split pane)*/
+    private void initTableView() {
         m_tableContentView = new TableContentView();
         m_tableContentView.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         m_tableContentView.getSelectionModel().addListSelectionListener(this);
         m_tableContentView.getColumnModel().getSelectionModel().addListSelectionListener(this);
         m_tableView = new TableView(m_tableContentView);
+    }
 
+    /* Initializes the img view (right side of the split pane)*/
+    private void initImgView() {
         m_imgView = new ImgViewer();
         m_imgView
                 .addViewerComponent(new AWTImageProvider(20, new CombinedRU(new ImageRU<T>(true), new LabelingRU<L>())));
@@ -186,28 +213,10 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
         } else {
             m_hiliteProvider = null;
         }
-
-        m_sp.add(m_tableView);
-        m_sp.add(m_imgView);
-
-        setComponent(m_sp);
-
-        m_sp.setDividerLocation(300);
-        loadPortContent();
-
-    }
-
-    private void loadPortContent() {
-
-        m_tableContentView.setModel(getNodeModel().getTableContentModel());
-
-        // Scale to thumbnail size
-        m_tableView.validate();
-        m_tableView.repaint();
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     @Override
@@ -220,7 +229,7 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     @Override
@@ -243,7 +252,7 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     @Override
@@ -255,8 +264,8 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
 
     /**
      * Updates the ViewPane with the selected image and labeling
-     * 
-     * 
+     *
+     *
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
@@ -267,6 +276,14 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
 
         if ((row == m_row) || e.getValueIsAdjusting()) {
             return;
+        }
+
+        //if the imgView isn't visible yet, add it to the spit pane -> happens when a cell is selected the first time
+        if (m_imgView == null) {
+            initImgView();
+            int tmp = m_sp.getDividerLocation();
+            m_sp.setRightComponent(m_imgView);
+            m_sp.setDividerLocation(tmp);
         }
 
         m_row = row;

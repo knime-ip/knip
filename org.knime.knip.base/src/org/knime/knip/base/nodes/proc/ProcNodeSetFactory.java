@@ -61,10 +61,12 @@ import org.knime.knip.base.nodes.misc.merger.MergerNodeFactory;
 import org.knime.knip.base.nodes.misc.splitter.SplitterNodeFactory;
 import org.knime.knip.base.nodes.misc.splitter.UCSplitterNodeFactory;
 import org.knime.knip.base.nodes.proc.imgjep.ImgJEPNodeFactory;
+import org.knime.knip.base.nodes.proc.maxfinder.MaximumFinderNodeFactory;
 import org.knime.knip.base.nodes.proc.multilvlthresholding.MultilevelThresholderNodeFactory;
 import org.knime.knip.base.nodes.proc.resampler.ResamplerNodeFactory;
 import org.knime.knip.base.nodes.proc.spotdetection.LoGDetectorFactory;
 import org.knime.knip.base.nodes.proc.spotdetection.WaveletSpotDetectionNodeFactory;
+import org.knime.knip.base.nodes.proc.ucm.UCMNodeFactory;
 import org.knime.knip.base.nodes.seg.local.LocalThresholderNodeFactory2;
 
 /**
@@ -90,7 +92,7 @@ public class ProcNodeSetFactory implements NodeSetFactory {
      */
     @Override
     public String getAfterID(final String id) {
-        return "/";
+        return "";
     }
 
     /**
@@ -125,20 +127,12 @@ public class ProcNodeSetFactory implements NodeSetFactory {
         m_nodeFactories.put(CLAHENodeFactory.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(ThinningNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(ImgJEPNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
-        m_nodeFactories.put(ImageNormalizerNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(ConvertImgNodeFactory.class.getCanonicalName(), "/community/knip/image");
-        m_nodeFactories.put(InvertNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(LocalMaximaForDistanceMapNodeFactory.class.getCanonicalName(),
                             "/community/knip/image/process");
 
-        // TODO: Review code of jens and add description
-        // m_nodeFactories.put(LocalMaximaFinderNodeFactory.class
-        // .getCanonicalName(),
-        // "/community/knip/image/process");
-
         m_nodeFactories.put(ProjectorNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(Rotation2DNodeFactory.class.getCanonicalName(), "/community/knip/image");
-        m_nodeFactories.put(ThresholderNodeFactory2.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(ResamplerNodeFactory.class.getCanonicalName(), "/community/knip/image");
         m_nodeFactories.put(UCSplitterNodeFactory.class.getCanonicalName(), "/community/knip/image");
         m_nodeFactories.put(DimensionSwapperNodeFactory.class.getCanonicalName(), "/community/knip/image");
@@ -151,13 +145,18 @@ public class ProcNodeSetFactory implements NodeSetFactory {
                             "/community/knip/image/process");
 
         m_nodeFactories.put(HDomeNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
-        //deprecated:
-        //        m_nodeFactories.put(ImgPeaksNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
-        //replaced by:
         m_nodeFactories.put(MaximumFinderNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
 
         m_nodeFactories.put(WaveletSpotDetectionNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(LoGDetectorFactory.class.getCanonicalName(), "/community/knip/image/process");
+
+        // new node: UCM
+        m_nodeFactories.put(UCMNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
+
+        // ROI based nodes (which deprecated the old implementations)
+        m_nodeFactories.put(ImgNormalizerNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
+        m_nodeFactories.put(InverterNodeFactory2.class.getCanonicalName(), "/community/knip/image/process");
+        m_nodeFactories.put(ThresholderNodeFactory3.class.getCanonicalName(), "/community/knip/image/process");
 
         return m_nodeFactories.keySet();
     }

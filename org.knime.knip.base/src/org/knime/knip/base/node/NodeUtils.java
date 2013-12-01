@@ -66,18 +66,18 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class NodeTools {
+public class NodeUtils {
 
     /**
      * If setting holds a valid column name returns the column index. If not search the first compatible column and
      * return the index. A logger warning is given to indicate the automatic selection in contrast to
-     * {@link NodeTools#silentOptionalAutoColumnSelection}.
-     * 
+     * {@link NodeUtils#silentOptionalAutoColumnSelection}.
+     *
      * @param inSpec
      * @param model
      * @param valueClass
@@ -133,7 +133,7 @@ public class NodeTools {
     /**
      * Selects the first compatible column from the table spec. If a compatible column is found sets the model to this
      * column and returns the column index.
-     * 
+     *
      * @param inSpec
      * @param model
      * @param value
@@ -165,7 +165,7 @@ public class NodeTools {
     }
 
     /**
-     * 
+     *
      * @param buf
      * @return a ListCell created from the given int array
      */
@@ -180,7 +180,7 @@ public class NodeTools {
 
     /**
      * Searches the first compatible column from the table specs
-     * 
+     *
      * @param inSpec
      * @param valueClass
      * @param except columns that should not be chosen e.g. because they are already in use
@@ -189,7 +189,6 @@ public class NodeTools {
     public final static int firstCompatibleColumn(final DataTableSpec inSpec,
                                                   final Class<? extends DataValue> valueClass, final Integer... except) {
 
-        @SuppressWarnings("unchecked")
         final List<Integer> exceptList = (except == null ? new LinkedList<Integer>() : Arrays.asList(except));
 
         int i = 0;
@@ -205,7 +204,7 @@ public class NodeTools {
     /**
      * If setting holds a valid column name returns the column index. If not search the first compatible column and
      * return the index.
-     * 
+     *
      * @param inSpec
      * @param model
      * @param valueClass
@@ -227,7 +226,28 @@ public class NodeTools {
 
     }
 
-    private NodeTools() {
-        // utility class
+    /**
+     * Get column index
+     *
+     * @param column settings model for the column name
+     * @param inSpec the in {@link DataTableSpec}
+     * @param inValueClass the class of the {@link DataValue} to look for
+     * @param parentClass class of the {@link NodeModel}
+     * @param exclude exclueded column indices
+     * @return index of column
+     *
+     * @throws InvalidSettingsException
+     */
+    public static int getColumnIndex(final SettingsModelString column, final DataTableSpec inSpec,
+                                     final Class<? extends DataValue> inValueClass,
+                                     final Class<? extends NodeModel> parentClass, final Integer... exclude)
+            throws InvalidSettingsException {
+
+        int colIdx = -1;
+        if (column.getStringValue() != null) {
+            colIdx = NodeUtils.autoColumnSelection(inSpec, column, inValueClass, parentClass, exclude);
+        }
+
+        return colIdx;
     }
 }

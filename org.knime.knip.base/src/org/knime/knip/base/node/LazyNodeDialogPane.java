@@ -70,7 +70,7 @@ import org.knime.core.node.port.PortObjectSpec;
 /**
  * Node settings pane which allows one to first add the dialog components in different hierarchies and builds the dialog
  * after all dialog components have been collected.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -120,6 +120,9 @@ public class LazyNodeDialogPane extends NodeDialogPane {
 
     private final HashMap<String, HashMap<String, List<DialogComponent>>> m_tabs;
 
+    /**
+     * Default constructor
+     */
     public LazyNodeDialogPane() {
 
         m_tabs = new LinkedHashMap<String, HashMap<String, List<DialogComponent>>>();
@@ -130,11 +133,10 @@ public class LazyNodeDialogPane extends NodeDialogPane {
     }
 
     /**
-     * {@inheritDoc}
-     * 
      * The dialog components will be added to the first tab with no group.
+     *
+     * @param dc {@link DialogComponent} to add
      */
-
     public void addDialogComponent(final DialogComponent dc) {
         addDialogComponent(DEFAULT_TAB_TITLE, "", dc);
     }
@@ -143,7 +145,7 @@ public class LazyNodeDialogPane extends NodeDialogPane {
 
     /**
      * Adds the dialog component to the specified tab (will be created, if not existent) and the group.
-     * 
+     *
      * @param tab
      * @param group
      * @param dc
@@ -167,7 +169,7 @@ public class LazyNodeDialogPane extends NodeDialogPane {
     /**
      * Add a new DialogComponent to the underlying dialog. It will automatically be added in the dialog and saved/loaded
      * from/to the config.
-     * 
+     *
      * @param diaC component to be added
      */
     private void addDialogComponentToPanel(final DialogComponent diaC) {
@@ -223,7 +225,7 @@ public class LazyNodeDialogPane extends NodeDialogPane {
 
     /**
      * Closes the current group. Further added dialog components are added to the default panel outside any border.
-     * 
+     *
      */
     private void closeCurrentGroup() {
         checkForEmptyBox();
@@ -238,7 +240,7 @@ public class LazyNodeDialogPane extends NodeDialogPane {
     /**
      * Creates a new dialog component group and closes the current one. From now on the dialog components added with the
      * addDialogComponent method are added to the current group. The group is a bordered and titled panel.
-     * 
+     *
      * @param title - the title of the new group.
      */
     private void createNewGroup(final String title) {
@@ -261,11 +263,11 @@ public class LazyNodeDialogPane extends NodeDialogPane {
      * new tab the previous tab is no longer accessible. If a tab with the same name was created before an Exception is
      * thrown. The new panel in the new tab has no group set (i.e. has no border). The tab is placed at the right most
      * position.
-     * 
+     *
      * @param tabTitle the title of the new tab to use from now on. Can't be null or empty.
      * @throws IllegalArgumentException if you specify a title that is already been used by another tab. Or if the
      *             specified title is null or empty.
-     * @see #setDefaultTabTitle(String)
+     *
      */
     public void createNewTab(final String tabTitle) {
         createNewTabAt(tabTitle, Integer.MAX_VALUE);
@@ -276,12 +278,12 @@ public class LazyNodeDialogPane extends NodeDialogPane {
      * new tab the previous tab is no longer accessible. If a tab with the same name was created before an Exception is
      * thrown. The new panel in the new tab has no group set (i.e. has no border). The new tab is placed at the
      * specified position (or at the right most position, if the index is too big).
-     * 
+     *
      * @param tabTitle the title of the new tab to use from now on. Can't be null or empty.
      * @param index the index to place the new tab at. Can't be negative.
      * @throws IllegalArgumentException if you specify a title that is already been used by another tab. Or if the
      *             specified title is null or empty.
-     * @see #setDefaultTabTitle(String)
+     *
      */
     public void createNewTabAt(final String tabTitle, final int index) {
         if ((tabTitle == null) || (tabTitle.length() == 0)) {
@@ -308,7 +310,7 @@ public class LazyNodeDialogPane extends NodeDialogPane {
      * Override hook to load additional settings when all input ports are data ports. This method is the specific
      * implementation to {@link #loadAdditionalSettingsFrom(NodeSettingsRO, PortObjectSpec[])} if all input ports are
      * data ports. All elements in the <code>specs</code> argument are guaranteed to be non-null.
-     * 
+     *
      * @param settings The settings of the node
      * @param specs The <code>DataTableSpec</code> of the input tables.
      * @throws NotConfigurableException If not configurable
@@ -321,7 +323,7 @@ public class LazyNodeDialogPane extends NodeDialogPane {
      * This method can be overridden to load additional settings. Override this method if you have mixed input types
      * (different port types). Alternatively, if your node only has ordinary data inputs, consider to overwrite the
      * {@link #loadAdditionalSettingsFrom(NodeSettingsRO, DataTableSpec[])} method, which does the type casting already.
-     * 
+     *
      * @param settings the <code>NodeSettings</code> to read from
      * @param specs the input specs
      * @throws NotConfigurableException if the node can currently not be configured
@@ -347,7 +349,7 @@ public class LazyNodeDialogPane extends NodeDialogPane {
 
     /**
      * Load settings for all registered components.
-     * 
+     *
      * @param settings the <code>NodeSettings</code> to read from
      * @param specs the input specs
      * @throws NotConfigurableException if the node can currently not be configured
@@ -367,7 +369,7 @@ public class LazyNodeDialogPane extends NodeDialogPane {
 
     /**
      * This method can be overridden to save additional settings to the given settings object.
-     * 
+     *
      * @param settings the <code>NodeSettings</code> to write into
      * @throws InvalidSettingsException if the user has entered wrong values
      */
@@ -377,7 +379,7 @@ public class LazyNodeDialogPane extends NodeDialogPane {
 
     /**
      * Save settings of all registered <code>DialogComponents</code> into the configuration object.
-     * 
+     *
      * @param settings the <code>NodeSettings</code> to write into
      * @throws InvalidSettingsException if the user has entered wrong values
      */
@@ -392,7 +394,7 @@ public class LazyNodeDialogPane extends NodeDialogPane {
 
     /**
      * Brings the specified tab to front and shows its components.
-     * 
+     *
      * @param tabTitle the title of the tab to select. If the specified title doesn't exist, this method does nothing.
      */
     public void selectTab(final String tabTitle) {
@@ -401,7 +403,7 @@ public class LazyNodeDialogPane extends NodeDialogPane {
 
     /**
      * Changes the orientation the components get placed in the dialog.
-     * 
+     *
      * @param horizontal <code>true</code> if the next components should be placed next to each other or
      *            <code>false</code> if the next components should be placed below each other.
      */

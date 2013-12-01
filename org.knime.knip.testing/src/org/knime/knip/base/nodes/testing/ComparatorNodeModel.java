@@ -67,11 +67,11 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.knime.knip.base.node.NodeTools;
+import org.knime.knip.base.node.NodeUtils;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -149,7 +149,7 @@ public abstract class ComparatorNodeModel<VIN1 extends DataValue, VIN2 extends D
 
         int tmpFirstColIdx = -1;
         if (m_firstColumn.getStringValue() != null) {
-            tmpFirstColIdx = NodeTools.autoColumnSelection(inSpec, m_firstColumn, m_firstInValClass, this.getClass());
+            tmpFirstColIdx = NodeUtils.autoColumnSelection(inSpec, m_firstColumn, m_firstInValClass, this.getClass());
         }
 
         int tmpSecondColIdx = -1;
@@ -162,7 +162,7 @@ public abstract class ComparatorNodeModel<VIN1 extends DataValue, VIN2 extends D
         }
         if (m_secondColumn.getStringValue() != null) {
             tmpSecondColIdx =
-                    NodeTools.autoColumnSelection(inSpec, m_secondColumn, m_secondInValClass, this.getClass(), except);
+                    NodeUtils.autoColumnSelection(inSpec, m_secondColumn, m_secondInValClass, this.getClass(), except);
         }
 
         return new int[]{tmpFirstColIdx, tmpSecondColIdx};
@@ -200,7 +200,7 @@ public abstract class ComparatorNodeModel<VIN1 extends DataValue, VIN2 extends D
                 try {
                     in1 = m_firstInValClass.cast(row.getCell(m_colIndices[0]));
                     in2 = m_secondInValClass.cast(row.getCell(m_colIndices[1]));
-                    compare(in1, in2);
+                    compare(row, in1, in2);
                 } catch (final Exception e) {
                     LOGGER.warn("comparing " + in1 + " with " + in2 + " failed with the exception\n" + e.toString()
                             + " in row " + row.getKey());
@@ -218,7 +218,7 @@ public abstract class ComparatorNodeModel<VIN1 extends DataValue, VIN2 extends D
         return new BufferedDataTable[]{};
     }
 
-    protected abstract void compare(VIN1 vin1, VIN2 vin2);
+    protected abstract void compare(DataRow row, VIN1 vin1, VIN2 vin2);
 
     /*
      * Retrieves the classes of the type arguments VIN1, VIN2

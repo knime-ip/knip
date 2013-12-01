@@ -51,6 +51,7 @@ package org.knime.knip.base.nodes.proc;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.SubsetOperations;
@@ -74,14 +75,18 @@ import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 
 /**
+ * Grayscale Reconstruction NodeFactory
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @author muethingc, University of Konstanz
  */
 public final class GrayscaleReconstructionNodeFactory<T extends RealType<T>> extends
         TwoValuesToCellNodeFactory<ImgPlusValue<T>, ImgPlusValue<T>> {
 
+    /**
+     * Operating type
+     */
     public enum OperationType {
         DILATE("By Dilation"), ERODE("By Erosion");
 
@@ -179,17 +184,17 @@ public final class GrayscaleReconstructionNodeFactory<T extends RealType<T>> ext
                 final ImgPlus<T> marker = cellValue2.getImgPlus();
 
                 final ConnectedType type = ConnectedType.value(m_connection.getStringValue());
-                UnaryOperation<Img<T>, Img<T>> op;
+                UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> op;
 
                 if (OperationType.value(m_operation.getStringValue()) == OperationType.DILATE) {
-                    op = new GrayscaleReconstructionByDilation<T, T, Img<T>, Img<T>>(type);
+                    op = new GrayscaleReconstructionByDilation<T, T>(type);
                 } else {
-                    op = new GrayscaleReconstructionByErosion<T, T, Img<T>, Img<T>>(type);
+                    op = new GrayscaleReconstructionByErosion<T, T>(type);
                 }
 
-                final Img<T> out =
-                        SubsetOperations.iterate(op, m_dimSelection.getSelectedDimIndices(mask), mask, marker.copy(),
-                                                 getExecutorService());
+                Img<T> out = marker.copy();
+                SubsetOperations.iterate(op, m_dimSelection.getSelectedDimIndices(mask), mask, out,
+                                         getExecutorService());
 
                 return m_imgCellFactory.createCell(out, cellValue1.getMetadata());
             }

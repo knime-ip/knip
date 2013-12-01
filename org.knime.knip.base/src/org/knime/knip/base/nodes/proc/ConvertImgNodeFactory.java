@@ -51,7 +51,10 @@ package org.knime.knip.base.nodes.proc;
 import java.io.IOException;
 import java.util.List;
 
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.exception.IncompatibleTypeException;
 import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.img.unary.ImgConvert;
 import net.imglib2.ops.operation.img.unary.ImgConvert.ImgConversionTypes;
@@ -81,15 +84,16 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.types.NativeTypes;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgUtils;
 
 /**
  * Factory class to produce the Histogram Operations Node.
- * 
+ *
+ * @param <T>
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 public class ConvertImgNodeFactory<T extends RealType<T> & NativeType<T>> extends
         ValueToCellNodeFactory<ImgPlusValue<T>> {
@@ -119,12 +123,12 @@ public class ConvertImgNodeFactory<T extends RealType<T> & NativeType<T>> extend
             @Override
             public void addDialogComponents() {
                 addDialogComponent("Options", "Target Type", new DialogComponentStringSelection(
-                        createTargetTypeModel(), "Target type", EnumListProvider.getStringList(NativeTypes.values())));
+                        createTargetTypeModel(), "Target type", EnumUtils.getStringListFromName(NativeTypes.values())));
                 addDialogComponent("Options", "Target Type", new DialogComponentStringSelection(
                         createConversionTypeModel(), "Conversion method", ImgConversionTypes.labelsAsStringArray()));
                 addDialogComponent("Options", "Factory Selection",
                                    new DialogComponentStringSelection(createFactorySelectionModel(), "Factory Type",
-                                           EnumListProvider.getStringList(ImgFactoryTypes.values())));
+                                           EnumUtils.getStringListFromName(ImgFactoryTypes.values())));
             }
         };
     }
@@ -154,7 +158,7 @@ public class ConvertImgNodeFactory<T extends RealType<T> & NativeType<T>> extend
 
             /**
              * {@inheritDoc}
-             * 
+             *
              * @throws IllegalArgumentException
              */
             @SuppressWarnings({"unchecked", "rawtypes"})
@@ -207,7 +211,7 @@ public class ConvertImgNodeFactory<T extends RealType<T> & NativeType<T>> extend
                         throw new IllegalArgumentException("Unsupported conversion.");
                 }
 
-                return m_imgCellFactory.createCell(res, img);
+                return m_imgCellFactory.createCell(new ImgView(res, img.factory()), img);
             }
 
             public synchronized <O extends RealType<O> & NativeType<O>> Img<O> convert(final Img<T> img,
@@ -215,14 +219,20 @@ public class ConvertImgNodeFactory<T extends RealType<T> & NativeType<T>> extend
                                                                                        final ImgFactoryTypes facType,
                                                                                        final ImgConversionTypes mode) {
 
-                final ImgConvert<T, O> imgConvert =
-                        new ImgConvert<T, O>(img.firstElement().createVariable(), outType, mode);
+                ImgConvert<T, O> imgConvert;
+                try {
+                    imgConvert =
+                            new ImgConvert<T, O>(img.firstElement().createVariable(), outType, mode, img.factory()
+                                    .imgFactory(outType));
+                } catch (IncompatibleTypeException e) {
+                    throw new RuntimeException(e);
+                }
 
                 @SuppressWarnings("unchecked")
                 final Img<O> res =
                         ImgUtils.<T, O> createEmptyCopy(img, ImgFactoryTypes.<T> getImgFactory(facType, img), outType);
-
-                return imgConvert.compute(img, res);
+                imgConvert.compute((RandomAccessibleInterval<T>)img, res);
+                return res;
             }
 
             /**

@@ -54,6 +54,7 @@ import java.util.BitSet;
 import net.imglib2.Cursor;
 import net.imglib2.IterableInterval;
 import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
 import net.imglib2.meta.CalibratedSpace;
 import net.imglib2.meta.TypedAxis;
 import net.imglib2.meta.TypedSpace;
@@ -61,7 +62,6 @@ import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.iterableinterval.unary.CalculateDiameter;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.ConvexHull2D;
-import net.imglib2.ops.operation.subset.views.ImgView;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.real.DoubleType;
 
@@ -92,7 +92,7 @@ public class SegmentFeatureSet implements FeatureSet, SharesObjects {
 
     private final CalculatePerimeter m_calculatePerimeter;
 
-    private final ConvexHull2D<Img<BitType>> m_convexityOp;
+    private final ConvexHull2D m_convexityOp;
 
     private final CalculateDiameter m_calculateDiameter;
 
@@ -119,7 +119,7 @@ public class SegmentFeatureSet implements FeatureSet, SharesObjects {
         super();
         m_calculatePerimeter = new CalculatePerimeter();
         m_outlineOp = new ExtractOutlineImg(false);
-        m_convexityOp = new ConvexHull2D<Img<BitType>>(0, 1, false);
+        m_convexityOp = new ConvexHull2D(0, 1, false);
         m_calculateDiameter = new CalculateDiameter();
         m_defaultAxis = defaultAxes.clone();
         m_features = getFeatures(defaultAxes);

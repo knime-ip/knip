@@ -48,25 +48,52 @@
  */
 package org.knime.knip.base.node;
 
+import org.knime.core.node.NodeDialog;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 
 /**
- * 
+ * NodeDialog for {@link LabelingToLabelingNodeModel}
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <L>
  */
 public abstract class LabelingToLabelingNodeDialog<L extends Comparable<L>> extends
         ValueToCellNodeDialog<LabelingValue<L>> {
 
+    /**
+     * {@link SettingsModelDimSelection} for this {@link NodeDialog}
+     */
     protected SettingsModelDimSelection m_dimSelectionModel;
 
+    /**
+     * Constructor
+     *
+     * @param minDims Minimal number of dimensions which have to be selected in the {@link SettingsModelDimSelection}
+     * @param maxDims Maximum number of dimensions which have to be selected in the {@link SettingsModelDimSelection}
+     * @param axes Default selected axes
+     */
     public LabelingToLabelingNodeDialog(final int minDims, final int maxDims, final String... axes) {
-        this(ImgPlusToImgPlusNodeModel.createDimSelectionModel(axes), minDims, maxDims);
+        m_dimSelectionModel = ImgPlusToImgPlusNodeModel.createDimSelectionModel(axes);
+
+        addDialogComponent("Options", "Dimension Selection", new DialogComponentDimSelection(m_dimSelectionModel, "",
+                minDims, maxDims));
+
+        super.buildDialog();
     }
 
+    /**
+     * Deprecation: Will be removed with KNIP 2.0.0
+     *
+     * @param model
+     * @param minDims
+     * @param maxDims
+     */
+    @Deprecated
     public LabelingToLabelingNodeDialog(final SettingsModelDimSelection model, final int minDims, final int maxDims) {
         m_dimSelectionModel = model;
 
@@ -80,6 +107,6 @@ public abstract class LabelingToLabelingNodeDialog<L extends Comparable<L>> exte
     @Override
     protected void buildDialog() {
         // Lazy..
-    };
+    }
 
 }

@@ -55,11 +55,14 @@ import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 
 /**
- * 
+ * {@link ImgPlusToImgPlusNodeFactory}
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
- * @author dietyc
+ *
+ * @param <T>
+ * @param <V>
  */
 public abstract class ImgPlusToImgPlusNodeFactory<T extends RealType<T>, V extends RealType<V>> extends
         GenericValueToCellNodeFactory<ImgPlusValue<T>, ImgPlusToImgPlusNodeModel<T, V>> {

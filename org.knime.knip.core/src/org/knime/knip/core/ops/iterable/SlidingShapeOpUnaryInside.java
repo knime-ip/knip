@@ -61,7 +61,7 @@ import net.imglib2.type.Type;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -79,6 +79,10 @@ public class SlidingShapeOpUnaryInside<T extends Type<T>, V extends Type<V>, IN 
 
     @Override
     protected OUT compute(final IterableInterval<Neighborhood<T>> neighborhoods, final IN input, final OUT output) {
+        //TODO we can easily parallelize this if we accept and executor service here...
+        //Note: if we do paralellization here, we should disable the parallelization in the AbstractSlidingWindowNodeModel
+        //by simply override getExecutionService() and return 0;
+
         final Cursor<V> outCursor = output.cursor();
         for (final Neighborhood<T> neighborhood : neighborhoods) {
             m_op.compute(neighborhood.cursor(), outCursor.next());

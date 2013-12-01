@@ -52,12 +52,12 @@ import java.util.List;
 
 import net.imglib2.IterableInterval;
 import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.img.BinaryOperationAssignment;
 import net.imglib2.ops.operation.real.binary.RealAnd;
 import net.imglib2.ops.operation.real.binary.RealOr;
 import net.imglib2.ops.operation.real.binary.RealXor;
-import net.imglib2.ops.operation.subset.views.ImgPlusView;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.util.Util;
 import net.imglib2.view.Views;
@@ -75,7 +75,7 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.TwoValuesToCellNodeDialog;
 import org.knime.knip.base.node.TwoValuesToCellNodeFactory;
 import org.knime.knip.base.node.TwoValuesToCellNodeModel;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgUtils;
 import org.knime.knip.core.util.MiscViews;
 
@@ -112,7 +112,7 @@ public final class BinaryArithmeticNodeFactory extends
             public void addDialogComponents() {
                 addDialogComponent("Options", "Binary operation",
                                    new DialogComponentStringSelection(createMethodNameModel(), "Method",
-                                           EnumListProvider.getStringList(BinaryArithmeticNodeFactory.Method.values())));
+                                           EnumUtils.getStringListFromName(BinaryArithmeticNodeFactory.Method.values())));
 
                 addDialogComponent("Options", "", new DialogComponentBoolean(createVirtuallySynchronizeModel(),
                         "Virtually Extend?"));
@@ -171,8 +171,9 @@ public final class BinaryArithmeticNodeFactory extends
 
                 if (m_synchronize.getBooleanValue()) {
                     img2 =
-                            new ImgPlusView<BitType>(MiscViews.synchronizeDimensionality(img2, img2, img1, img1),
-                                    img1.factory(), img1);
+                            new ImgPlus<BitType>(new ImgView<BitType>(MiscViews.synchronizeDimensionality(img2, img2,
+                                                                                                          img1, img1),
+                                    img1.factory()), img1);
                 }
 
                 IterableInterval<BitType> iiOut = out;

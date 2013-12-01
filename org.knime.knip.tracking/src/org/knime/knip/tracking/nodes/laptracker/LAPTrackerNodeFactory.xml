@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="laptracker.png" type="Manipulator">
+	<name>LAPTracker (TrackMate)</name>
+
+	<shortDescription>
+		Tracking based on the TrackMate (see http://fiji.sc/TrackMate).
+	</shortDescription>
+
+	<fullDescription>
+		<intro>The Linear Assignment Problem (LAP) trackers implemented here
+			follow a stripped down version of the renowned method contributed by
+			Jaqaman and colleagues[1]. We repeat here the ideas found in the
+			reference paper, then stresses the differences with the nominal
+			implementation. Particle-linking happens in two step: track segments
+			creation from frame-to-frame particle linking, then track segments
+			linking to achieve gap closing. The mathematical formulation used for
+			both steps is linear assignment problem (LAP): a cost matrix is
+			assembled contained all possible assignment costs. Actual assignments
+			are retrieved by solving this matrix for minimal total cost. We
+			describe first how cost matrices are arranged, then how individual
+			costs are calculated (from http://fiji.sc/TrackMate).
+		</intro>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Table">Table with cells to be tracked</inPort>
+		<outPort index="0" name="Labeling">Labeling with tracked cells</outPort>
+	</ports>
+</knimeNode>

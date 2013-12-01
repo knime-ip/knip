@@ -52,12 +52,14 @@ import java.util.List;
 
 import net.imglib2.converter.read.ConvertedRandomAccessibleInterval;
 import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
 import net.imglib2.meta.ImgPlus;
+import net.imglib2.ops.operation.ImgOperations;
 import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.ops.operation.iterableinterval.unary.QuantileFilter;
 import net.imglib2.ops.operation.real.unary.Convert;
 import net.imglib2.ops.operation.real.unary.Convert.TypeConversionTypes;
-import net.imglib2.ops.operation.subset.views.ImgPlusView;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 
@@ -73,10 +75,9 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
-import org.knime.knip.core.ops.img.ImgPlusToImgPlusRAIWrapperOp;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -171,18 +172,17 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
                                     new UnsignedByteType());
 
                     unsignedByteTypeImg =
-                            new ImgPlusView<UnsignedByteType>(randomAccessibleInterval, inImg.factory()
-                                    .imgFactory(new UnsignedByteType()), inImg);
+                            new ImgPlus<UnsignedByteType>(new ImgView<UnsignedByteType>(randomAccessibleInterval, inImg
+                                    .factory().imgFactory(new UnsignedByteType())), inImg);
                 } else {
                     unsignedByteTypeImg = (ImgPlus<UnsignedByteType>)inImg;
                 }
 
                 ImgPlus<UnsignedByteType> wrappedImgPlus = new ImgPlus<UnsignedByteType>(unsignedByteTypeImg, inImg);
 
-                ImgPlusToImgPlusRAIWrapperOp<UnsignedByteType, UnsignedByteType> wrappedOp =
-                        new ImgPlusToImgPlusRAIWrapperOp<UnsignedByteType, UnsignedByteType>(
-                                new QuantileFilter<UnsignedByteType>(m_smRadius.getIntValue(),
-                                        m_smQuantile.getIntValue()), new UnsignedByteType());
+                UnaryOutputOperation<ImgPlus<UnsignedByteType>, ImgPlus<UnsignedByteType>> wrappedOp =
+                        ImgOperations.wrapRA(new QuantileFilter<UnsignedByteType>(m_smRadius.getIntValue(),
+                                m_smQuantile.getIntValue()), new UnsignedByteType());
 
                 final Img<UnsignedByteType> unsignedByteTypeResImg =
                         SubsetOperations.iterate(wrappedOp, m_smDimSel.getSelectedDimIndices(inImg), wrappedImgPlus,
@@ -198,7 +198,7 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
                             new ConvertedRandomAccessibleInterval<UnsignedByteType, T>(unsignedByteTypeResImg,
                                     convertOp, type);
 
-                    resImg = new ImgPlusView<T>(randomAccessibleInterval, inImg.factory(), inImg);
+                    resImg = new ImgPlus<T>(new ImgView<T>(randomAccessibleInterval, inImg.factory()), inImg);
                 } else {
                     resImg = (Img<T>)unsignedByteTypeResImg;
                 }

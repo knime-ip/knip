@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2013
+ *  Copyright (C) 2003 - 2011
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -40,72 +40,66 @@
  *  License, the License does not apply to Nodes, you are not required to
  *  license Nodes under the License, and you are granted a license to
  *  prepare and propagate Nodes, in each case even if such Nodes are
- *  propagated with or for interoperation with KNIME.  The owner of a Node
+ *  propagated with or for interoperation with KNIME. The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ------------------------------------------------------------------------
  *
+ * History
+ *   Feb 5, 2013 (hornm): created
  */
-package org.knime.knip.core.ops.img;
+package org.knime.knip.base.nodes.seg.compare;
 
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.meta.ImgPlus;
-import net.imglib2.ops.img.UnaryObjectFactory;
-import net.imglib2.ops.operation.UnaryOperation;
-import net.imglib2.ops.operation.UnaryOutputOperation;
-import net.imglib2.type.numeric.RealType;
-
-import org.knime.knip.core.util.ImgPlusFactory;
+import org.knime.core.node.NodeDialogPane;
+import org.knime.core.node.NodeFactory;
+import org.knime.core.node.NodeView;
 
 /**
- * Simple wrapper class to wrap UnaryOperations to UnaryOutputOperations which run on ImgPlus basis
- * 
- * @param <T> input type
- * @param <V> output type
- * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @author Martin Horn, University of Konstanz
  */
-public class ImgPlusToImgPlusRAIWrapperOp<T extends RealType<T>, V extends RealType<V>> implements
-        UnaryOutputOperation<ImgPlus<T>, ImgPlus<V>> {
-
-    private UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<V>> m_op;
-
-    private V m_outType;
+public class CompareSegmentsNodeFactory extends
+        NodeFactory<CompareSegmentsNodeModel> {
 
     /**
-     * @param op
-     * @param outType
+     * {@inheritDoc}
      */
-    public ImgPlusToImgPlusRAIWrapperOp(final UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<V>> op,
-                                     final V outType) {
-        m_op = op;
-        m_outType = outType;
+    @Override
+    public CompareSegmentsNodeModel createNodeModel() {
+        return new CompareSegmentsNodeModel();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public ImgPlus<V> compute(final ImgPlus<T> input, final ImgPlus<V> output) {
-        m_op.compute(input, output);
-        return output;
+    protected int getNrNodeViews() {
+        return 0;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public UnaryObjectFactory<ImgPlus<T>, ImgPlus<V>> bufferFactory() {
-        return ImgPlusFactory.<T, V> get(m_outType);
+    public NodeView<CompareSegmentsNodeModel> createNodeView(final int viewIndex,
+            final CompareSegmentsNodeModel nodeModel) {
+        return null;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public UnaryOutputOperation<ImgPlus<T>, ImgPlus<V>> copy() {
-        return new ImgPlusToImgPlusRAIWrapperOp<T, V>(m_op.copy(), m_outType);
+    protected boolean hasDialog() {
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected NodeDialogPane createNodeDialogPane() {
+        return new CompareSegmentsNodeDialog();
     }
 
 }

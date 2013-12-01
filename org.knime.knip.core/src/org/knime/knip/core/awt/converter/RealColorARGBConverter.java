@@ -49,13 +49,13 @@
 package org.knime.knip.core.awt.converter;
 
 import net.imglib2.converter.Converter;
-import net.imglib2.display.projectors.sampler.ProjectedSampler;
+import net.imglib2.display.projector.sampler.ProjectedSampler;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.RealType;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -85,7 +85,7 @@ public class RealColorARGBConverter<R extends RealType<R>> implements Converter<
             double value = ((val - m_localMin) * m_normalizationFactor);
 
             // normalize to be between 0 and 1
-            value = value / (input.get().getMaxValue() - input.get().getMinValue());
+            value = (value - input.get().getMinValue()) / (input.get().getMaxValue() - input.get().getMinValue());
 
             if (value < 0) {
                 value = 0;

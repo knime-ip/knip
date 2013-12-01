@@ -55,11 +55,14 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
 
 /**
- * 
+ * NodeFactory
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
- * @author friedrichm, University of Konstanz
+ *
+ * @author Manuel Friedrich, University of Konstanz
+ *
+ * @param <T>
  */
 public class MultilevelThresholderNodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
 

@@ -78,8 +78,8 @@ import org.knime.core.node.util.DataColumnSpecListCellRenderer;
 import org.knime.knip.core.util.StringTransformer;
 
 /**
- * TODO Auto-generated
- * 
+ * Dialog Component for String Transformations
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -90,15 +90,14 @@ public class DialogComponentStringTransformer extends DialogComponent {
      * Renderer that will display the rowindex and rowkey with different background.
      */
     private static class ListRenderer extends DataColumnSpecListCellRenderer {
-        /**
-         * 
-         */
+
         private static final long serialVersionUID = 1L;
 
         /** {@inheritDoc} */
         @Override
-        public Component getListCellRendererComponent(final JList list, final Object value, final int index,
-                                                      final boolean isSelected, final boolean cellHasFocus) {
+        public Component getListCellRendererComponent(@SuppressWarnings("rawtypes") final JList list,
+                                                      final Object value, final int index, final boolean isSelected,
+                                                      final boolean cellHasFocus) {
             final Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             if (value instanceof String) {
                 c.setFont(list.getFont().deriveFont(Font.ITALIC));
@@ -109,8 +108,13 @@ public class DialogComponentStringTransformer extends DialogComponent {
 
     private final JEditorPane m_expEdit;
 
+    @SuppressWarnings("rawtypes")
     private final JList m_varList;
 
+    /**
+     * @param expressionModel the expression
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public DialogComponentStringTransformer(final SettingsModelString expressionModel) {
         super(expressionModel);
 
@@ -147,36 +151,6 @@ public class DialogComponentStringTransformer extends DialogComponent {
         getComponentPanel().setLayout(new BorderLayout());
         getComponentPanel().add(finalPanel, BorderLayout.CENTER);
 
-        // m_expEdit.getDocument().addDocumentListener(
-        // new DocumentListener() {
-        // public void removeUpdate(
-        // final DocumentEvent e) {
-        // try {
-        // updateModel();
-        // } catch (final InvalidSettingsException ise) {
-        // // Ignore it here.
-        // }
-        // }
-        //
-        // public void insertUpdate(
-        // final DocumentEvent e) {
-        // try {
-        // updateModel();
-        // } catch (final InvalidSettingsException ise) {
-        // // Ignore it here.
-        // }
-        // }
-        //
-        // public void changedUpdate(
-        // final DocumentEvent e) {
-        // try {
-        // updateModel();
-        // } catch (final InvalidSettingsException ise) {
-        // // Ignore it here.
-        // }
-        // }
-        // });
-
         getModel().addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(final ChangeEvent arg0) {
@@ -189,8 +163,7 @@ public class DialogComponentStringTransformer extends DialogComponent {
 
     @Override
     protected void checkConfigurabilityBeforeLoad(final PortObjectSpec[] specs) throws NotConfigurableException {
-        // TODO Auto-generated method stub
-
+        // NB nothing to do
     }
 
     private JPanel createPanel() {
@@ -231,9 +204,7 @@ public class DialogComponentStringTransformer extends DialogComponent {
     }
 
     /**
-     * Return the expression transformer
-     * 
-     * @throws InvalidSettingsException
+     * @return the expression transformer
      */
     public StringTransformer getStringTransformer() {
         return new StringTransformer(m_expEdit.getText().toString(), "$");
@@ -251,8 +222,13 @@ public class DialogComponentStringTransformer extends DialogComponent {
         m_varList.setToolTipText(text);
     }
 
+    /**
+     * @param variables which were defined in the dialog and can be reused during transformation
+     */
+    @SuppressWarnings("unchecked")
     public void setVariables(final String... variables) {
 
+        @SuppressWarnings("rawtypes")
         final DefaultListModel listModel = (DefaultListModel)m_varList.getModel();
         listModel.removeAllElements();
         for (int i = 0; i < variables.length; i++) {
@@ -271,7 +247,7 @@ public class DialogComponentStringTransformer extends DialogComponent {
 
     /**
      * Transfers the current value from the component into the model.
-     * 
+     *
      * @throws InvalidSettingsException if the string was not accepted.
      */
     private void updateModel() throws InvalidSettingsException {

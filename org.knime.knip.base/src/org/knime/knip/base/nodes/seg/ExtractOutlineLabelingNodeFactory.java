@@ -67,7 +67,7 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * Factory class to produce a Connected Component Analysis Node.
@@ -99,7 +99,7 @@ public class ExtractOutlineLabelingNodeFactory<L extends Comparable<L>> extends
             public void addDialogComponents() {
                 addDialogComponent("Options", "Settings",
                                    new DialogComponentStringSelection(createConnectionTypeModel(), "Connection Type",
-                                           EnumListProvider.getStringList(ConnectedType.values())));
+                                           EnumUtils.getStringListFromName(ConnectedType.values())));
 
                 addDialogComponent("Options", "Dimensions", new DialogComponentDimSelection(createDimSelectionModel(),
                         "Dimensions", 2, 5));

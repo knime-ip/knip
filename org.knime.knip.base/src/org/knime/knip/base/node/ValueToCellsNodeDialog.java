@@ -63,16 +63,18 @@ import org.knime.node2012.TabDocument.Tab;
 /**
  * Dialog corresponding to the {@link ValueToCellsNodeModel} which already contains dialog components, but others can
  * still be added (this {@link #addDialogComponent(String, String, DialogComponent)}.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <VIN1>
  */
 public abstract class ValueToCellsNodeDialog<VIN1 extends DataValue> extends LazyNodeDialogPane {
 
     /**
      * Adds the description of the column selection tab to the node description.
-     * 
+     *
      * @param desc
      */
     static void addTabsDescriptionTo(final FullDescription desc) {
@@ -92,18 +94,32 @@ public abstract class ValueToCellsNodeDialog<VIN1 extends DataValue> extends Laz
     private SettingsModelString m_columnSettingsModel;
 
     /**
-     * Constructor
+     * Default Constructor
      */
     public ValueToCellsNodeDialog() {
-
-        addDCs();
-        addDialogComponents();
-        buildDialog();
+        this(false);
     }
 
-    /*
-     * Helper add the dialog components needed for the this dialog and the
-     * ValueToCellNodeModel, respectively.
+    /**
+     * Possible lazy constructor
+     *
+     * If lazy is true addDialogComponents(); buildDialog();
+     *
+     * Must be called manually!
+     *
+     * @param lazy indicator whether lazy or not
+     */
+    public ValueToCellsNodeDialog(final boolean lazy) {
+        addDCs();
+
+        if (!lazy) {
+            addDialogComponents();
+            buildDialog();
+        }
+    }
+
+    /**
+     * Helper add the dialog components needed for the this dialog and the ValueToCellNodeModel, respectively.
      */
     @SuppressWarnings("unchecked")
     protected void addDCs() {
@@ -164,9 +180,9 @@ public abstract class ValueToCellsNodeDialog<VIN1 extends DataValue> extends Laz
     }
 
     /**
-     * Indicates weather the first column is required to be selected or not
-     * 
-     * @return
+     * Indicates whether the first column is required to be selected or not
+     *
+     * @return true if first column is required
      */
     public boolean isColumnRequired() {
         return true;

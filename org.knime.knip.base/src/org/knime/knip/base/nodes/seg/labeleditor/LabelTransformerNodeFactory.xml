@@ -7,22 +7,21 @@
 <knimeNode icon="labeltransformer.png" type="Manipulator">
 	<name>Label Transformer</name>
 	<shortDescription>
-		Transforms a label using the given expression. Attention: Only the Labeling Name is transformed!
+		Transforms a label using the given expression.
+		Attention: Only the Labeling Name is transformed!
 	</shortDescription>
 	<fullDescription>
 		<intro>
 			<p>
 				This nodes evaluates the given expression by concatenating the
 				defined variables or a self-defined string.
-				The result is a
-				string-based labeling, containing the new, modified labels, resulting from the expression.
+				The result is a string-based labeling, containing the new, modified labels,
+				resulting from the expression.
 			</p>
 		</intro>
 		<tab name="Options">
-			<option name="Column List">Available String input columns.
-				Click any column
-				name to include the
-				value in the expression text field. </option>
+			<option name="Column List">Available String input columns. Click any column
+				name to include the value in the expression text field. </option>
 			<option name="Expression">The string expression</option>
 		</tab>
 	</fullDescription>
