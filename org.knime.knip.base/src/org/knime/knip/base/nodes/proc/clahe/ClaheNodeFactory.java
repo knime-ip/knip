@@ -59,7 +59,6 @@ import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
-import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
@@ -76,8 +75,8 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
  */
 public class ClaheNodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
 
-    private SettingsModelIntegerBounded createCtxDimValue() {
-        return new SettingsModelIntegerBounded("dimvalues", 8, 1, 64);
+    private SettingsModelInteger createCtxDimValue() {
+        return new SettingsModelInteger("nrDims", 8);
     }
 
     private static SettingsModelInteger createCtxNumberOfBins() {
@@ -119,7 +118,7 @@ public class ClaheNodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNod
 
         return new ImgPlusToImgPlusNodeModel<T, T>() {
 
-            private final SettingsModelIntegerBounded m_ctxValues = createCtxDimValue();
+            private final SettingsModelInteger m_ctxValues = createCtxDimValue();
 
             private final SettingsModelInteger m_bins = createCtxNumberOfBins();
 
