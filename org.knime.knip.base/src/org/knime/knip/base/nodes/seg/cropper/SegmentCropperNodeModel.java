@@ -336,7 +336,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
             final Map<L, List<L>> dependedLabels = Operations.compute(labelingDependency, labeling);
 
-            for (final L l : labeling.firstElement().getMapping().getLabels()) {
+            for (final L l : labeling.getLabels()) {
 
                 if (!leftFilter.isValid(l)) {
                     continue;
