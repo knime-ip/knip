@@ -69,6 +69,7 @@ import net.imglib2.view.Views;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @author dietyc
+ * @param <TYPE>
  */
 public class GaussNativeTypeOp<T extends RealType<T> & NativeType<T>, TYPE extends RandomAccessibleInterval<T>>
         implements UnaryOperation<TYPE, TYPE> {
@@ -80,11 +81,12 @@ public class GaussNativeTypeOp<T extends RealType<T> & NativeType<T>, TYPE exten
     private final ExecutorService m_service;
 
     /**
-     * @param numThreads
+     * @param service
      * @param sigmas
      * @param factory
      */
-    public GaussNativeTypeOp(final ExecutorService service, final double[] sigmas, final OutOfBoundsFactory<T, TYPE> factory) {
+    public GaussNativeTypeOp(final ExecutorService service, final double[] sigmas,
+                             final OutOfBoundsFactory<T, TYPE> factory) {
         m_sigmas = sigmas.clone();
         m_fac = factory;
         m_service = service;

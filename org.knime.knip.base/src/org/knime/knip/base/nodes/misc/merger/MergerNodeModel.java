@@ -222,6 +222,7 @@ public class MergerNodeModel<T extends RealType<T>, V extends RealType<V>> exten
             for (int i = 0; i < selectedColIndices.length; i++) {
                 cell = row.getCell(selectedColIndices[i]);
                 if (cell.isMissing()) {
+                    setWarningMessage("Some rows have been skipped due to missing cells!");
                     LOGGER.warn("Missing cell in row " + row.getKey() + ". Image skipped.");
                     continue;
                 }

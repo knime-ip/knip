@@ -253,7 +253,7 @@ class SobelOp<T extends RealType<T> & NativeType<T>> implements UnaryOutputOpera
                 return null;
             }
 
-        }).compute(resx, resy, resx);
+        }).compute(Views.flatIterable(resx), Views.flatIterable(resy), Views.flatIterable(resx));
 
         return resx;
 

@@ -15,12 +15,19 @@
 			sizes
 		</intro>
 		<tab name="Options">
-			<option name="New dimensions">
-				The new size of the images per dimension
-		</option>
+			<option name="New Dimensions">
+				Size of the resulting image in each dimension.
+			</option>
+			<option name="Relative?">
+				If true, the given values for each dimension are
+				interpreted as factors (i.e. oldDim*factor = size of new dimension).
+				Else, the values are interpreted as the absolute dimension sizes of
+				the new image.
+			</option>
 			<option name="Interpolation Mode">
 				Determines how to interpolate the pixels.
 			</option>
+
 
 		</tab>
 

@@ -85,7 +85,9 @@ public final class TypeUtils {
         double max = -Double.MAX_VALUE;
         boolean isIntegerType = true;
         for (RealType<?> t : types) {
-
+            if (t == null) {
+                continue;
+            }
             min = Math.min(t.getMinValue(), min);
             max = Math.max(t.getMaxValue(), max);
             if (!(t instanceof IntegerType)) {

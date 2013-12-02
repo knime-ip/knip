@@ -234,9 +234,6 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
         settingsModels.add(m_smDimensions);
         settingsModels.add(m_smOperation);
 
-        // TODO: Remove with 2.0.0
-        // settingsModels.add(m_smNeighborhood);
-
         settingsModels.add(m_smIterations);
         settingsModels.add(m_smOutOfBoundsStrategy);
     }

@@ -54,10 +54,9 @@ import net.imglib2.ops.operation.BinaryOperation;
 import net.imglib2.type.numeric.RealType;
 
 /**
- * 
- * 
+ *
+ *
  * @param <T>
- * @param <Integer>
  * @param <TYPE>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
