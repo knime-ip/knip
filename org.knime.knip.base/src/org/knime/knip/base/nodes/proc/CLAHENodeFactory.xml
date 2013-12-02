@@ -5,18 +5,31 @@
 	IBM Corporation - initial API and implementation -->
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="icons/clahe.png" type="Manipulator">
-	<name>CLAHE</name>
+	<name>CLAHE (deprecated)</name>
 	<shortDescription>
-		contrast limited adaptive histogram equalization.
+		Contrast limited adaptive histogram equalization.
+		(DEPRECATION: re-add this node for the newer version)
 	</shortDescription>
 
 	<fullDescription>
-		<intro>Enhances images by contrast limited adaptive histogram
-			equalization.</intro>
+		<intro>
+			Adaptive histogram equalization (AHE) is a computer image processing
+			technique used to improve contrast in images. Contrast Limited AHE
+			(CLAHE) was developed prevent the over amplification of noise. For
+			more information see
+			<a href="http://en.wikipedia.org/wiki/Adaptive_histogram_equalization">Wikipedia</a>
+		</intro>
 		<tab name="Options">
-			<option name="Clipping"> If enabled, CLAHE is applied (cumulative
-				histogram slope is limited). If disabled only adaptive histogram
-				equalization is applied.</option>
+			<option name="Blocksize"> The size of the local region around a pixel for
+				which the histogram is equalized. This size should be larger than
+				the size of features to be preserved.</option>
+			<option name="Number of Bins"> The amount of different pixel values which are
+				used for the histogram equalization.</option>
+			<option name="Slope"> Limits the contrast stretch in the intensity
+				transfer function. Very large values will let the histogram
+				equalization do whatever it wants to do, that is result in maximal
+				local contrast. The value 1 will result in the original image.
+			</option>
 		</tab>
 	</fullDescription>
 

@@ -101,14 +101,16 @@ public abstract class ImgPlusToImgPlusNodeDialog<T extends RealType<T>> extends 
     public ImgPlusToImgPlusNodeDialog(final SettingsModelDimSelection model, final int minDims, final int maxDims) {
         super(true);
         m_dimSelectionModel = model;
+
         addDialogComponents();
         addDialogComponent("Options", "Dimension Selection", new DialogComponentDimSelection(m_dimSelectionModel, "",
                 minDims, maxDims));
+
         buildDialog();
     }
 
     /**
-     * This method can be called after everything is initalized
+     * This method can be called after everything is initialized
      */
     protected void initDialog() {
         // nothing to do here

@@ -43,60 +43,107 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
+ * Created on 07.11.2013 by Daniel
  */
-package org.knime.knip.base.nodes.filter.convolver;
+package org.knime.knip.base.nodes.proc.clahe;
 
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-
-import org.knime.knip.base.data.img.ImgPlusValue;
-import org.knime.knip.base.node.ValueToCellNodeFactory;
-import org.knime.knip.base.node.dialog.DescriptionHelper;
-import org.knime.knip.base.node.dialog.DialogComponentOutOfBoundsSelection;
-import org.knime.node2012.KnimeNodeDocument.KnimeNode;
-import org.knime.node2012.TabDocument.Tab;
+import java.util.Arrays;
 
 /**
+ * Point used by the CLAHE algorithm.
  *
- * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author Daniel Seebacher
  */
-public class ConvolverNodeFactory<T extends RealType<T>, O extends RealType<O>, K extends RealType<K> & NativeType<K>>
-        extends ValueToCellNodeFactory<ImgPlusValue<T>> {
+public class ClahePoint {
+
+    private final long[] m_coordinates;
+
+    /**
+     * Constructor
+     *
+     * @param coordinates long array with the coordinates
+     */
+    public ClahePoint(final long[] coordinates) {
+        this.m_coordinates = coordinates;
+    }
+
+    /**
+     * @return the coordinates in all dimensions
+     */
+    public final long[] getCoordinates() {
+        return this.m_coordinates;
+    }
+
+    /**
+     * @return the dimensionality of this point
+     */
+    public final int numDim() {
+        return m_coordinates.length;
+    }
+
+    /**
+     * @param i the dimension
+     * @return the coordinate value in the given dimension
+     */
+    public final long dim(final int i) {
+        return this.m_coordinates[i];
+    }
+
+    /**
+     * @param otherPoint a different ClahePoint
+     * @return the euclidean distance between this ClahePoint and another ClahePoint
+     */
+    public final double distance(final ClahePoint otherPoint) {
+        return distance(otherPoint.getCoordinates());
+    }
+
+    /**
+     * @param coordinates
+     * @return the euclidean distance between this ClahePoint and the given coordinates.
+     */
+    public final double distance(final long[] coordinates) {
+        double sum = 0;
+        for (int i = 0; i < m_coordinates.length; i++) {
+            sum += (m_coordinates[i] - coordinates[i]) * (m_coordinates[i] - coordinates[i]);
+        }
+        return sum;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        ClahePoint otherPoint = (ClahePoint)obj;
+        return Arrays.equals(getCoordinates(), otherPoint.getCoordinates());
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected void addNodeDescriptionContent(final KnimeNode node) {
+    public int hashCode() {
+        return Arrays.hashCode(m_coordinates);
+    }
 
-        // Convolvers are added
-        final Tab convolverTab = node.getFullDescription().addNewTab();
-        convolverTab.setName("Convolution Settings");
-
-        for (final String convolver : MultiKernelImageConvolverManager.getConvolverNames()) {
-            MultiKernelImageConvolverManager.getConvolverByName(convolver).addNodeDescription(convolverTab);
+    /**
+     * @param imageDimensions the dimensions of an image
+     * @return boolean true or false, whether this point lies inside the image boundaries or not.
+     */
+    public final boolean isInsideImage(final long[] imageDimensions) {
+        for (int i = 0; i < m_coordinates.length; i++) {
+            if (m_coordinates[i] < 0 || m_coordinates[i] >= imageDimensions[i]) {
+                return false;
+            }
         }
 
-        int index = DescriptionHelper.findTabIndex("Options", node.getFullDescription().getTabList());
-        DialogComponentOutOfBoundsSelection.createNodeDescription(node.getFullDescription().getTabArray(index)
-                .addNewOption());
+        return true;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected ConvolverNodeDialog<T> createNodeDialog() {
-        return new ConvolverNodeDialog<T>();
+    public String toString() {
+        return "ClahePoint [m_coordinates=" + Arrays.toString(m_coordinates) + "]";
     }
-
-    @Override
-    public ConvolverNodeModel<T, O, K> createNodeModel() {
-        return new ConvolverNodeModel<T, O, K>();
-    }
-
 }

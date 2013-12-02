@@ -46,52 +46,45 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.base.nodes.proc;
+package org.knime.knip.base.nodes.proc.clahe;
 
 import java.util.List;
 
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.ImgOperations;
-import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
-import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
+import org.knime.core.node.defaultnodesettings.SettingsModelDoubleBounded;
+import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
-import org.knime.knip.base.nodes.proc.clahe.ClaheND;
-import org.knime.knip.base.nodes.proc.clahe.ClaheNodeFactory;
-import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
- * Factory class to produce CLAHE Node. Deprecation: Use {@link ClaheNodeFactory}
+ * Factory class to create {@link ClaheNodeFactory}
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
-
- * @param <T>
+ * @author <a href="mailto:daniel.seebacher@uni-konstanz.de">Daniel Seebacher</a>
+ *
+ * @param <T> extends RealType<T>
+ *
  */
-@Deprecated
-public class CLAHENodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
+public class ClaheNodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
 
-    private static SettingsModelInteger createCtxNumberX() {
-        return new SettingsModelInteger("ctxX", 8);
+    private SettingsModelIntegerBounded createCtxDimValue() {
+        return new SettingsModelIntegerBounded("nrctxregions", 8, 1, 64);
     }
 
-    private static SettingsModelInteger createCtxNumberY() {
-        return new SettingsModelInteger("ctxY", 8);
+    private static SettingsModelIntegerBounded createCtxNumberOfBins() {
+        return new SettingsModelIntegerBounded("nrbins", 256, 16, 4096);
     }
 
-    private static SettingsModelInteger createCtxNumberOfBins() {
-        return new SettingsModelInteger("nrbins", 256);
-    }
-
-    private static SettingsModelInteger createCtxSlope() {
-        return new SettingsModelInteger("slope", 3);
+    private static SettingsModelDoubleBounded createCtxSlope() {
+        return new SettingsModelDoubleBounded("slope", 3, 1, Double.MAX_VALUE);
     }
 
     /**
@@ -99,22 +92,20 @@ public class CLAHENodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNod
      */
     @Override
     protected ImgPlusToImgPlusNodeDialog<T> createNodeDialog() {
-        return new ImgPlusToImgPlusNodeDialog<T>(2, 2, "X", "Y") {
+
+        return new ImgPlusToImgPlusNodeDialog<T>(2, 5, "X", "Y") {
 
             @Override
             public void addDialogComponents() {
 
-                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxNumberX(),
-                        "Number of contextual regions in X direction", 1));
+                addDialogComponent("Options", "CLAHE Options", new DialogComponentNumber(createCtxDimValue(),
+                        "Number of contextual regions", 1));
 
-                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxNumberY(),
-                        "Number of contextual regions in Y direction", 1));
-
-                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxNumberOfBins(),
+                addDialogComponent("Options", "CLAHE Options", new DialogComponentNumber(createCtxNumberOfBins(),
                         "Number of bins", 1));
 
-                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxSlope(), "Slope", 1));
-
+                addDialogComponent("Options", "CLAHE Options",
+                                   new DialogComponentNumber(createCtxSlope(), "Slope", 0.1));
             }
         };
     }
@@ -124,37 +115,34 @@ public class CLAHENodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNod
      */
     @Override
     public ImgPlusToImgPlusNodeModel<T, T> createNodeModel() {
-        return new ImgPlusToImgPlusNodeModel<T, T>("X", "Y") {
 
-            private final SettingsModelInteger m_ctxX = createCtxNumberX();
+        return new ImgPlusToImgPlusNodeModel<T, T>() {
 
-            private final SettingsModelInteger m_ctxY = createCtxNumberX();
+            private final SettingsModelIntegerBounded m_ctxValues = createCtxDimValue();
 
-            private final SettingsModelInteger m_numberOfBins = createCtxNumberOfBins();
+            private final SettingsModelIntegerBounded m_bins = createCtxNumberOfBins();
 
-            private final SettingsModelInteger m_slope = createCtxSlope();
-
-            @Override
-            protected void addSettingsModels(final List<SettingsModel> settingsModels) {
-                settingsModels.add(m_ctxX);
-                settingsModels.add(m_ctxY);
-                settingsModels.add(m_numberOfBins);
-                settingsModels.add(m_slope);
-            }
+            private final SettingsModelDoubleBounded m_slope = createCtxSlope();
 
             @Override
             protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> op(final ImgPlus<T> imgPlus) {
-
+                // store image dimensions and check if image dimensions are larger than the ctxRegions
                 ClaheND<T> clahe =
-                        new ClaheND<T>(m_ctxX.getIntValue(), m_numberOfBins.getIntValue(), m_slope.getIntValue());
+                        new ClaheND<T>(m_ctxValues.getIntValue(), m_bins.getIntValue(), m_slope.getDoubleValue());
 
-                return Operations.wrap(ImgOperations.wrapRA(clahe, imgPlus.firstElement().createVariable()),
-                                       ImgPlusFactory.<T, T> get(imgPlus.firstElement()));
+                return ImgOperations.wrapRA(clahe, imgPlus.firstElement());
             }
 
             @Override
             protected int getMinDimensions() {
                 return 2;
+            }
+
+            @Override
+            protected void addSettingsModels(final List<SettingsModel> settingsModels) {
+                settingsModels.add(m_ctxValues);
+                settingsModels.add(m_bins);
+                settingsModels.add(m_slope);
             }
         };
     }

@@ -97,7 +97,7 @@ public class ImgComparatorNodeModel<T extends NativeType<T> & RealType<T>> exten
         }
 
         if (!img1.getName().equalsIgnoreCase(img2.getName())) {
-            throw new IllegalStateException("Namesof images is not the same! " + row.getKey().toString());
+            throw new IllegalStateException("Names of images is not the same! " + row.getKey().toString());
         }
 
         if (!img1.getSource().equalsIgnoreCase(img2.getSource())) {
@@ -105,14 +105,14 @@ public class ImgComparatorNodeModel<T extends NativeType<T> & RealType<T>> exten
         }
 
         for (int d = 0; d < img1.numDimensions(); d++) {
-            if (img1.axis(d).generalEquation().equalsIgnoreCase(img2.axis(d).generalEquation())) {
+            if (!img1.axis(d).generalEquation().equalsIgnoreCase(img2.axis(d).generalEquation())) {
                 throw new IllegalStateException("GeneralEquation of CalibratedAxis " + d
                         + " is not the same in the compared images!" + row.getKey().toString());
             }
         }
 
         for (int d = 0; d < img1.numDimensions(); d++) {
-            if (img1.axis(d).type().getLabel().equalsIgnoreCase(img2.axis(d).type().getLabel())) {
+            if (!img1.axis(d).type().getLabel().equalsIgnoreCase(img2.axis(d).type().getLabel())) {
                 throw new IllegalStateException("Label of Axis " + d + " is not the same in the compared images!"
                         + row.getKey().toString());
             }
