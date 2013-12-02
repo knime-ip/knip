@@ -72,6 +72,7 @@ public class ImgComparatorNodeModel<T extends NativeType<T> & RealType<T>> exten
     //TODO until ImgLib is able to create cursors from RandomAccessibleIntervals in certain iteration orders (e.g. CellIterationOrder) we need to check if there exists an ImgView
     @Override
     protected void compare(final DataRow row, final ImgPlusValue<T> vin1, final ImgPlusValue<T> vin2) {
+
         final ImgPlus<T> img1 = vin1.getImgPlus();
         final ImgPlus<T> img2 = vin2.getImgPlus();
 
@@ -95,28 +96,27 @@ public class ImgComparatorNodeModel<T extends NativeType<T> & RealType<T>> exten
             }
         }
 
-        //TODO Compare metadata ( add more comparisons and activate as soon as imagej2 bug is fixed)
-        //                if (!img1.getName().equalsIgnoreCase(img2.getName())) {
-        //                    throw new IllegalStateException("Name of images is not the same! " + row.getKey().toString());
-        //                }
-        //
-        //                if (!img1.getSource().equalsIgnoreCase(img2.getSource())) {
-        //                    throw new IllegalStateException("Source of images is not the same! " + row.getKey().toString());
-        //                }
-        //
-        //                for (int d = 0; d < img1.numDimensions(); d++) {
-        //                    if (img1.axis(d).generalEquation().equalsIgnoreCase(img2.axis(d).generalEquation())) {
-        //                        throw new IllegalStateException("GeneralEquation of CalibratedAxis " + d
-        //                                + " is not the same in the compared images!" + row.getKey().toString());
-        //                    }
-        //                }
-        //
-        //                for (int d = 0; d < img1.numDimensions(); d++) {
-        //                    if (img1.axis(d).type().getLabel().equalsIgnoreCase(img2.axis(d).type().getLabel())) {
-        //                        throw new IllegalStateException("Label of Axis " + d + " is not the same in the compared images!"
-        //                                + row.getKey().toString());
-        //                    }
-        //                }
+        if (!img1.getName().equalsIgnoreCase(img2.getName())) {
+            throw new IllegalStateException("Names of images is not the same! " + row.getKey().toString());
+        }
+
+        if (!img1.getSource().equalsIgnoreCase(img2.getSource())) {
+            throw new IllegalStateException("Sources of images is not the same! " + row.getKey().toString());
+        }
+
+        for (int d = 0; d < img1.numDimensions(); d++) {
+            if (!img1.axis(d).generalEquation().equalsIgnoreCase(img2.axis(d).generalEquation())) {
+                throw new IllegalStateException("GeneralEquation of CalibratedAxis " + d
+                        + " is not the same in the compared images!" + row.getKey().toString());
+            }
+        }
+
+        for (int d = 0; d < img1.numDimensions(); d++) {
+            if (!img1.axis(d).type().getLabel().equalsIgnoreCase(img2.axis(d).type().getLabel())) {
+                throw new IllegalStateException("Label of Axis " + d + " is not the same in the compared images!"
+                        + row.getKey().toString());
+            }
+        }
 
         final Cursor<T> c1;
         final Cursor<T> c2;

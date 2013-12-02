@@ -151,9 +151,6 @@ public abstract class ValueToCellNodeDialog<VIN extends DataValue> extends LazyN
         }
     }
 
-    /**
-     * Helper add the dialog components needed for the this dialog and the ValueToCellNodeModel, respectively.
-     */
     @SuppressWarnings("unchecked")
     private void addDCs() {
         m_smColCreationMode = ValueToCellNodeModel.createColCreationModeModel();
