@@ -208,7 +208,7 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
     /**
      * @param hasDimSelection set false if you don't want to use dimension selection
      */
-    public IterableIntervalsNodeModel(@SuppressWarnings("hiding") final boolean hasDimSelection) {
+    public IterableIntervalsNodeModel(final boolean hasDimSelection) {
         this.m_hasDimSelection = hasDimSelection;
         if (hasDimSelection) {
             m_dimSelectionModel = createDimSelectionModel("X", "Y");
@@ -355,10 +355,10 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
                 case NOFILLING:
                     break;
                 case RESMIN:
-                    fill(res, outType.getMinValue());
+                    fill(Views.flatIterable(res), outType.getMinValue());
                     break;
                 case RESMAX:
-                    fill(res, outType.getMaxValue());
+                    fill(Views.flatIterable(res), outType.getMaxValue());
                     break;
                 case SOURCE:
                     // here we need to do something special
@@ -381,7 +381,7 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
 
     // fills the res with val if labeling contains no labels at a certain position
     private void fill(final IterableInterval<V> res, final double val) {
-        Cursor<LabelingType<L>> cursor = m_currentLabeling.cursor();
+        Cursor<LabelingType<L>> cursor = Views.flatIterable(m_currentLabeling).cursor();
         Cursor<V> outCursor = res.cursor();
         while (cursor.hasNext()) {
             if (cursor.next().getLabeling().isEmpty()) {
