@@ -87,12 +87,12 @@ public final class FillHolesNodeFactory extends ImgPlusToImgPlusNodeFactory<BitT
      */
     @Override
     protected ImgPlusToImgPlusNodeDialog<BitType> createNodeDialog() {
-        return new ImgPlusToImgPlusNodeDialog(2, Integer.MAX_VALUE, "X", "Y") {
+        return new ImgPlusToImgPlusNodeDialog<BitType>(2, Integer.MAX_VALUE, "X", "Y") {
 
             @Override
             public void addDialogComponents() {
                 addDialogComponent("Options", "Settings", new DialogComponentStringSelection(createTypeModel(),
-                        "Connection Type", EnumUtils.getStringListFromName(ConnectedType.values())));
+                        "Connection Type", EnumUtils.getStringCollectionFromToString(ConnectedType.values())));
             }
         };
     }
@@ -113,6 +113,7 @@ public final class FillHolesNodeFactory extends ImgPlusToImgPlusNodeFactory<BitT
                 settingsModels.add(m_conType);
             }
 
+            @SuppressWarnings("cast")
             @Override
             protected UnaryOutputOperation<ImgPlus<BitType>, ImgPlus<BitType>> op(final ImgPlus<BitType> imgPlus) {
 
