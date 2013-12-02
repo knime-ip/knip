@@ -65,7 +65,7 @@ import org.knime.node2012.OptionDocument.Option;
 import org.knime.node2012.TabDocument.Tab;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -92,7 +92,7 @@ public abstract class SlidingWindowOperationNodeFactory<T extends RealType<T>, V
     protected final String INTEGRAL_IMAGE_SPEED_UP_TEXT =
             "Activates the usage of integral images. If the sum of all pixels is smaller than the internal type of the integral image overflows will occur.";
 
-    protected final String NO_SPEED_UP_TEXT = "no speed up method used";
+    protected final String NO_SPEED_UP_TEXT = "No speed up method used";
 
     /**
      * {@inheritDoc}
@@ -107,29 +107,26 @@ public abstract class SlidingWindowOperationNodeFactory<T extends RealType<T>, V
         DialogComponentOutOfBoundsSelection.createNodeDescription(node.getFullDescription().getTabArray(index)
                 .addNewOption());
 
-        node.getFullDescription().addNewTab().setName("Parameters");
-        index = DescriptionHelper.findTabIndex("Parameters", node.getFullDescription().getTabList());
         DialogComponentSpanSelection.createNodeDescription(node.getFullDescription().getTabArray(index).addNewOption());
-
     }
 
     /**
      * searches the provided node description for a tab with the name "options" generates such a tab if it doesn't
      * exist.
-     * 
+     *
      * @param fdesc
      */
     private void addSlidingWindowParametersTo(final FullDescription fdesc) {
         Tab optionTab = null;
         for (final Tab t : fdesc.getTabList()) {
-            if (t.getName().equals("options")) {
+            if (t.getName().equals("Options")) {
                 optionTab = t;
             }
         }
 
         if (optionTab == null) {
             optionTab = fdesc.addNewTab();
-            optionTab.setName("options");
+            optionTab.setName("Options");
         }
 
         addSlidingWindowParametersTo(optionTab);
@@ -138,7 +135,7 @@ public abstract class SlidingWindowOperationNodeFactory<T extends RealType<T>, V
     /**
      * adds descriptions for the standard sliding window parameters like out of bounds strategy and neighborhood type.
      * Also adds the descriptions for potential Speed Up strategies {@link #getSpeedUpOptionText()}.
-     * 
+     *
      * @param optionTab a handle for the "options" tab. The overloaded method
      *            {@link #addSlidingWindowParametersTo(FullDescription)} can be used to get this handle.
      */

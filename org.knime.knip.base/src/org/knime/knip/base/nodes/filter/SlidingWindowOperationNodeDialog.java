@@ -93,7 +93,7 @@ public class SlidingWindowOperationNodeDialog<T extends RealType<T>> extends Img
                            "Neighborhood Type",
                            new DialogComponentStringSelection(SlidingWindowOperationNodeFactory
                                    .createNeighborhoodTypeNodeModel(), "Neighborhood Type", EnumUtils
-                                   .getStringListFromName(NeighborhoodType.values())));
+                                   .getStringCollectionFromToString(NeighborhoodType.values())));
 
     }
 
