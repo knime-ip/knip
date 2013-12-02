@@ -24,7 +24,7 @@
 				</ul>
 			</option>
 			<option name="Column">
-				Column of the structuring element.
+				Column of the structuring element, if 'Structuring Element' is selected as 'Connection Type'.
 			</option>
 			<option name="Method">
 				<ul>
@@ -33,12 +33,6 @@
 					<li>Open: Erode followed by Dilate. Erases tiny bright spots.</li>
 					<li>Close: Dilate followed by Erode. Erases tiny dark holes.</li>
 				</ul>
-			</option>
-			<option name="Nearest neighbor count (deprecated)">
-				This option has been removed, as it has been
-				inconsistent with the implementations of morphological operations
-				using arbitrary structuring elements. If you made use of this
-				option, your settings will be kept until you reset the node.
 			</option>
 			<option name="Number of iterations">
 				Determines how often the chosen morphological
@@ -49,6 +43,7 @@
 			</option>
 			<option name="Dimension selection">Determines for which dimensions the morphological
 				operations will be applied individually.</option>
+			<option name="Out of Bounds Strategy">The 'OutOfBounds Strategy' is used when an algorithm needs access to pixels which lie outside of an image (for example convolutions). The strategy determines how an image is extended, for examples see <a href='http://fiji.sc/ImgLib2_Examples#Example_5_-_Out_of_bounds'>Fiji Wiki</a></option>
 		</tab>
 	</fullDescription>
 
