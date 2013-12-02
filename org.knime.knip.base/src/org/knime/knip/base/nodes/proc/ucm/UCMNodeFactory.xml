@@ -1,0 +1,50 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="ucm.png" type="Manipulator">
+	<name>Ultrametric Contour Map</name>
+	<shortDescription>
+		Returns a UCM based on a given boundary labeling and
+		an image containing boundary weights.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			UCMs are a extraction system that combines several types of
+			low-level image information into a generic notion of segmentation
+			scale. This system constructs a hierarchical representation of the
+			image boundaries called Ultrametric Contour Map (UCM). Thresholding
+			the resulting UCM (e.g. with a Global Thresholder) with some
+			threshold k provides by definition a set of closed curves, the
+			boundaries of the segmentation at scale k (from
+			http://www.cs.berkeley.edu/~arbelaez/UCM.html).
+		</intro>
+		<tab name="Options">
+			<option name="Maximum Faces Number"> Maximum number of faces
+			</option>
+			<option name="Maximum Face Percent"> Maximum percentage of faces
+			</option>
+			<option name="Minimum Boundary Weight"> Minimum weight of an boundary
+			</option>
+			<option name="Boundary Label"> Name of the label in the incoming labeling which
+				indicates the boundary between other labels.
+			</option>
+		</tab>
+	</fullDescription>
+
+
+
+	<ports>
+		<inPort index="0" name="Labeling and Image">Labeled boundaries and image with
+			boundary
+			weights.
+		</inPort>
+		<outPort index="0" name="Ultra Metric Contour Map">UCM. Thresholding this UCM at level k
+			provides by definition a set of closed boundaries (i.e. using Global
+			Thresholder).
+		</outPort>
+	</ports>
+</knimeNode>

@@ -59,7 +59,7 @@ import org.knime.knip.core.features.ObjectCalcAndCache;
 import org.knime.knip.core.features.SharesObjects;
 
 /**
- * 
+ *
  * @param <T> image type
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -73,7 +73,7 @@ public class FirstOrderMomentsFeatureSet<T extends RealType<T>> implements Featu
     public static final String[] FEATURES = new String[]{"Min", "Max", "Mean", "Geometric Mean", "Sum",
             "Squares of Sum", "Std Dev", "Variance", "Skewness", "Kurtosis", "Quantil 25", "Quantil 50", "Quantil 75",
             "Median absolute deviation (MAD)", "WeightedCentroid Dim 1", "WeightedCentroid Dim 2",
-            "WeightedCentroid Dim 3", "WeightedCentroid Dim 4", "WeightedCentroid Dim 5", "Mass Displacement",};
+            "WeightedCentroid Dim 3", "WeightedCentroid Dim 4", "WeightedCentroid Dim 5", "Mass Displacement"};
 
     private DescriptiveStatistics m_statistics;
 
@@ -157,7 +157,6 @@ public class FirstOrderMomentsFeatureSet<T extends RealType<T>> implements Featu
                 }
 
                 return Math.sqrt(m_massDisplacement);
-
             default:
                 return Double.NaN;
 
@@ -215,7 +214,7 @@ public class FirstOrderMomentsFeatureSet<T extends RealType<T>> implements Featu
     }
 
     /**
-     * 
+     *
      * @param ii
      * @param percentile
      * @return
