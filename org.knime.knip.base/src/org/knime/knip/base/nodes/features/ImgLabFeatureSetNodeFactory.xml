@@ -17,25 +17,33 @@
 
 		</intro>
 
-		<tab name="Features">
-			<option name="Selection of the features to be calculated">
-				<ul>
-					<li>Haralick:
-						see:
-						http://murphylab.web.cmu.edu/publications/boland/boland_node26.html</li>
-
-
-					<li>First order statistics:
+	<tab name="Features">
+		<option name="Tamura">
+			<ul>
+					<li>
+						Calculates 6 Tamura features: Granularity, Contrast, Kurtosis of Directionality
+						Standard Deviation of Directionality, Maximal directionality, Skewness
+					</li>
+					</ul>
+		</option>
+		
+		<option name="Segment Geometry">
+			<ul>
+						<li>Basic geometric properties: e.g. size,
+						perimeter, centroid, circulartiy, convexity, diameter, ...</li>
+			</ul>
+		</option>
+		
+		<option name="First order statistics">
+			<ul>
+					<li>
 						Calculates the moments of the first
-						order
-						statistics. The
-						following features are computed: Min, Max,
-						Mean,
+						order statistics. The
+						following features are computed: Min, Max, Mean,
 						Geometric Mean, Sum,
-						Square of Sums, Standard Deviation,
-						Variance,
+						Square of Sums, Standard Deviation, Variance,
 						Skewness, Kurtosis,
-						Quantil25, Quantil50, Quantil75.
+						Quantil25, Quantil50, Quantil75, user defined Quantil, Histogram.
 						Please note that
 						the Geometric Mean
 						can only be computed on unsigned
@@ -43,13 +51,21 @@
 						Invalid
 						calculations
 						(i.e. NaN) result in missing cells.</li>
-
-					<li>Zernike:
-						see:
-						http://murphylab.web.cmu.edu/publications/boland/boland_node25.html</li>
-				</ul>
-			</option>
-		</tab>
+			</ul>
+		</option>
+		
+		<option name="Haralick">
+		<ul>
+					<li>
+						Statistical features based on gray-level co-occurrence matrix. Rotation invariance
+						can be reached by averaging over the four directional co-occurrence matrices
+						(activate 'compute average').
+						See http://murphylab.web.cmu.edu/publications/boland/boland_node26.html
+						for more information.</li>
+		</ul>
+		</option>
+	</tab>
+		
 		<tab name="ROI settings">
 			<option name="Append labels of overlapping ROIs?">
 				If region of interests are overlapping, the union

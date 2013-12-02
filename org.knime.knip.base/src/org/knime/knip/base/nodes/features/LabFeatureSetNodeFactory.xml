@@ -16,31 +16,33 @@
 		</intro>
 
 		<tab name="Features">
-			<option name="Selection of the features to be calculated">
+			<option name="Segment Geometry">
+			<ul>
+						<li>Basic geometric properties: e.g. size,
+						perimeter, centroid, circulartiy, convexity, diameter, ...</li>
+			</ul>
+			</option>
+			
+			<option name="Shape Descriptors">
 				<ul>
-					<li>Segment Geometry:
-						Basic geometric properties, such as size,
-						perimeter, ...
-					</li>
-
-					<li>Centroid Distance (Shape Descriptors):
+						<li>Centroid Distance:
 						The distance from the
 						centroid to
 						the outline of this segment.
-					</li>
-					<li>
-						FD Centroid Distance (Shape Descriptors):
+				</li>
+				<li>
+						FD Centroid Distance:
 						The distances from the
 						centroid to the contour in fourier space. From the resulting
 						fourier coefficients the magnitude is taken and their are
 						normalized by the first component (cp. Fourier Descriptors).
 						Please note that only (n/2)-1 features will be calculated (where n is the number
-						of contour points).
-					</li>
+						of contour points). The number of samples must be a power of 2.
+					</li>				
 				</ul>
-
-			</option>
+			</option>	
 		</tab>
+		
 		<tab name="ROI settings">
 			<option name="Append labels of overlapping ROIs?">
 				If region of interests are overlapping, the union
