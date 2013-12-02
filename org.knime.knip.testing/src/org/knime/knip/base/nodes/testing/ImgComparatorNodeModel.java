@@ -72,6 +72,7 @@ public class ImgComparatorNodeModel<T extends NativeType<T> & RealType<T>> exten
     //TODO until ImgLib is able to create cursors from RandomAccessibleIntervals in certain iteration orders (e.g. CellIterationOrder) we need to check if there exists an ImgView
     @Override
     protected void compare(final DataRow row, final ImgPlusValue<T> vin1, final ImgPlusValue<T> vin2) {
+
         final ImgPlus<T> img1 = vin1.getImgPlus();
         final ImgPlus<T> img2 = vin2.getImgPlus();
 
@@ -96,11 +97,11 @@ public class ImgComparatorNodeModel<T extends NativeType<T> & RealType<T>> exten
         }
 
         if (!img1.getName().equalsIgnoreCase(img2.getName())) {
-            throw new IllegalStateException("Name of images is not the same! " + row.getKey().toString());
+            throw new IllegalStateException("Namesof images is not the same! " + row.getKey().toString());
         }
 
         if (!img1.getSource().equalsIgnoreCase(img2.getSource())) {
-            throw new IllegalStateException("Source of images is not the same! " + row.getKey().toString());
+            throw new IllegalStateException("Sources of images is not the same! " + row.getKey().toString());
         }
 
         for (int d = 0; d < img1.numDimensions(); d++) {
