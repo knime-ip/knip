@@ -70,11 +70,16 @@ import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
+import org.knime.knip.base.node.dialog.DescriptionHelper;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
+import org.knime.knip.base.node.dialog.DialogComponentSpanSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
+import org.knime.node2012.KnimeNodeDocument.KnimeNode;
+
 
 /**
  *
@@ -96,6 +101,16 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
         return new SettingsModelIntegerBounded("quantile", 50, 1, 100);
     }
 
+      /**
+      * {@inheritDoc}
+      */
+     @Override
+     protected void addNodeDescriptionContent(final KnimeNode node) {
+         int index = DescriptionHelper.findTabIndex("Options", node.getFullDescription().getTabList());
+         DialogComponentSpanSelection.createNodeDescription(node.getFullDescription().getTabArray(index).addNewOption());
+         DialogComponentDimSelection.createNodeDescription(node.getFullDescription().getTabList().get(0).addNewOption());
+     }
+
     /**
      * {@inheritDoc}
      */
@@ -108,7 +123,7 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
 
                 addDialogComponent("Options", "", new DialogComponentNumber(createQuantileModel(), "Quantile", 1));
 
-                addDialogComponent("Options", "", new DialogComponentNumber(createlRadiusModel(), "Radius", 1));
+                addDialogComponent("Options", "", new DialogComponentNumber(createlRadiusModel(), "Span", 1));
 
                 addDialogComponent(new DialogComponentDimSelection(createDimSelectionModel(), "Dimension selection", 2,
                         2));
@@ -162,6 +177,10 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
                 final ImgPlus<T> inImg = cellValue.getImgPlus();
                 final T type = cellValue.getImgPlus().firstElement();
 
+                if( inImg.numDimensions() != 2 ){
+                    throw new KNIPException("Quantil Filter only works on 2-dimensional images");
+                }
+
                 ImgPlus<UnsignedByteType> unsignedByteTypeImg = null;
                 if (!(type instanceof UnsignedByteType)) {
                     final Convert<T, UnsignedByteType> convertOp =
@@ -214,6 +233,7 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
             protected void prepareExecute(final ExecutionContext exec) {
                 m_imgCellFactory = new ImgPlusCellFactory(exec);
             }
+
         };
     }
 
