@@ -105,7 +105,7 @@ public abstract class IterableIntervalsNodeFactory<T extends RealType<T>, V exte
         opt.setName("Filling Mode");
         opt.addNewP()
                 .newCursor()
-                .setTextValue("The FillingMode determines how all values, which lie outside your defined region of interest, will be set. This option is only needed if you choose a labeling column, such that the node operates on ROIs instead of the entire image. There are currently four LabelingModes:");
+                .setTextValue("The FillingMode determines how all values, which lie outside your defined region of interest, will be set. This option is only needed if you choose a labeling column, such that the node operates on ROIs instead of the entire image. There are currently four FillingModes:");
         Ul list = opt.addNewUl();
         list.addLi("Value of Source: In this mode, pixels outside of the ROIs remain unchanged. ");
         list.addLi("Minimum of Result Type: Here, values outside of the ROI are set to the smallest legal value of the output image type. ");
