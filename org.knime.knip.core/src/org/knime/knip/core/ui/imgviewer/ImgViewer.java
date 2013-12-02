@@ -113,9 +113,11 @@ import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingView;
 import net.imglib2.meta.DefaultCalibratedSpace;
 import net.imglib2.meta.ImgPlus;
+import net.imglib2.meta.ImgPlusMetadata;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 
+import org.knime.knip.core.data.img.DefaultImgMetadata;
 import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.data.img.LabelingMetadata;
 import org.knime.knip.core.ui.event.EventService;
@@ -274,13 +276,15 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
         // make sure that at least two dimensions exist
         Img<T> img2d = img.getImg();
+        ImgPlusMetadata meta = img;
         if (img.numDimensions() <= 1) {
             img2d = new ImgView<T>(Views.addDimension(img, 0, 0), img.factory());
+            meta = new DefaultImgMetadata(2);
         }
 
         //TODO special case: we have an imgview with an underlying img as source which has the same dimensions
 
-        m_eventService.publish(new ImgWithMetadataChgEvent<T>(img2d, img));
+        m_eventService.publish(new ImgWithMetadataChgEvent<T>(img2d, meta));
         m_eventService.publish(new ImgRedrawEvent());
 
     }

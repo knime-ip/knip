@@ -65,7 +65,7 @@ import org.knime.knip.core.util.EnumUtils;
 
 /**
  * The Dialog for the Segment Feature Node.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -76,7 +76,7 @@ public class SegmentCropperNodeDialog<L extends Comparable<L>> extends DefaultNo
     public SegmentCropperNodeDialog() {
         super();
 
-        createNewGroup("Choose Columns");
+        createNewGroup("Column Selection");
         addDialogComponent(new DialogComponentColumnNameSelection(
                 SegmentCropperNodeModel.createSMLabelingColumnSelection(), "", 0, true, LabelingValue.class));
 
@@ -84,7 +84,7 @@ public class SegmentCropperNodeDialog<L extends Comparable<L>> extends DefaultNo
                 "", 0, false, true, ImgPlusValue.class));
         closeCurrentGroup();
 
-        createNewGroup("Choose Columns");
+        createNewGroup("Factory Selection");
         addDialogComponent(new DialogComponentStringSelection(SegmentCropperNodeModel.createSMFactorySelection(),
                 "Factory selection", EnumUtils.getStringListFromName(ImgFactoryTypes.ARRAY_IMG_FACTORY,
                                                                     ImgFactoryTypes.CELL_IMG_FACTORY,
@@ -92,7 +92,7 @@ public class SegmentCropperNodeDialog<L extends Comparable<L>> extends DefaultNo
                                                                     ImgFactoryTypes.PLANAR_IMG_FACTORY)));
 
         closeCurrentGroup();
-        createNewGroup("Choose Background");
+        createNewGroup("Background");
 
         addDialogComponent(new DialogComponentStringSelection(SegmentCropperNodeModel.createSMBackgroundSelection(),
                 "background", SegmentCropperNodeModel.BACKGROUND_OPTIONS));
@@ -105,7 +105,7 @@ public class SegmentCropperNodeDialog<L extends Comparable<L>> extends DefaultNo
         addDialogComponent(new DialogComponentFilterSelection<L>(SegmentCropperNodeModel.<L> createSMLabelFilterLeft()));
         closeCurrentGroup();
 
-        createNewGroup("Dependend ROIs filter");
+        createNewGroup("Dependent ROIs filter");
 
         final SettingsModelFilterSelection<L> sm = SegmentCropperNodeModel.<L> createSMLabelFilterRight(false);
 

@@ -7,18 +7,26 @@
 <knimeNode icon="cropper.png" type="Manipulator">
 	<name>Segment Cropper</name>
 	<shortDescription>
-		Given input images and corresponding labelings, the
-		segment cropper crops
-		all possible segments from the input image.
+	Crops segments, given by a labeling, of an image.
 	</shortDescription>
 
 	<fullDescription>
-		<intro> Given input images and corresponding labelings, the segment
-			cropper crops all possible segments from the input image. e.g.: This
-			node can be used to work on the individual segments upcoming nodes.
+		<intro>Crops segments, given by a labeling, of an image. The pixels that are not defined by the according segment a filled either with the maximum or minimum pixel value.
 		</intro>
 	</fullDescription>
-
+	<tab name="Options">
+	<option name="Column Selection">Select the image and labeling column (image column is optional).</option>
+	<option name="Image Selection">How the image pixel will be organised in the memory. May have impact on the runtime of algorithms.</option>
+	<option name="Background">Fills the pixels that are not covered with a constant value, either the minimum or maximum pixel value.</option>
+	</tab>
+	<tab name="ROI Filter">
+			<option name="Roi Filter">
+				Segment whose label DON'T comply with the specified rules (wildcards * are allowed) will not be part of the result table.							
+			</option>
+			<option name="Add dependent labels?">
+				
+			</option>			
+		</tab>
 	<ports>
 		<inPort index="0" name="Images">Images and corresponding labeling in
 			same column</inPort>
