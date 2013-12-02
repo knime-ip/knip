@@ -107,14 +107,14 @@ public class LabelingComparatorNodeModel<L extends Comparable<L>> extends
         }
 
         for (int d = 0; d < labeling1.numDimensions(); d++) {
-            if (meta1.axis(d).generalEquation().equalsIgnoreCase(meta2.axis(d).generalEquation())) {
+            if (!meta1.axis(d).generalEquation().equalsIgnoreCase(meta2.axis(d).generalEquation())) {
                 throw new IllegalStateException("GeneralEquation of CalibratedAxis " + d
                         + " is not the same in the compared labelings!" + row.getKey().toString());
             }
         }
 
         for (int d = 0; d < labeling1.numDimensions(); d++) {
-            if (meta1.axis(d).type().getLabel().equalsIgnoreCase(meta2.axis(d).type().getLabel())) {
+            if (!meta1.axis(d).type().getLabel().equalsIgnoreCase(meta2.axis(d).type().getLabel())) {
                 throw new IllegalStateException("Label of Axis " + d + " is not the same in the compared labelings!"
                         + row.getKey().toString());
             }
