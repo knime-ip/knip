@@ -48,7 +48,6 @@
  */
 package org.knime.knip.base.nodes.testing;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -128,10 +127,8 @@ public class LabelingComparatorNodeModel<L extends Comparable<L>> extends
             c2 = new LabelingView<L>(labeling2, null).cursor();
         } else {
             c1 = labeling1.cursor();
-            c2 = labeling1.cursor();
+            c2 = labeling2.cursor();
         }
-
-        final HashMap<L, L> labelingMapping = new HashMap<L, L>();
 
         while (c1.hasNext()) {
             c1.fwd();
@@ -148,15 +145,8 @@ public class LabelingComparatorNodeModel<L extends Comparable<L>> extends
                     final L t1 = iter1.next();
                     final L t2 = iter2.next();
 
-                    if (labelingMapping.containsKey(t1)) {
-                        // we have already a hypothesis
-                        // what the labeling is
-                        if (!labelingMapping.get(t1).equals(t2)) {
-                            // oh oh error
-                            throw new IllegalStateException("Two labelings are not the same" + row.getKey().toString());
-                        }
-                    } else {
-                        labelingMapping.put(t1, t2);
+                    if (!t1.equals(t2)) {
+                        throw new IllegalStateException("Two labelings are not the same" + row.getKey().toString());
                     }
                 }
             } else {

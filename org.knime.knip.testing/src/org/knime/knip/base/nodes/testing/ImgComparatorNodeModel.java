@@ -126,7 +126,7 @@ public class ImgComparatorNodeModel<T extends NativeType<T> & RealType<T>> exten
             c2 = new ImgView<T>(img2.getImg(), null).cursor();
         } else {
             c1 = img1.cursor();
-            c2 = img1.cursor();
+            c2 = img2.cursor();
         }
 
         while (c1.hasNext()) {
