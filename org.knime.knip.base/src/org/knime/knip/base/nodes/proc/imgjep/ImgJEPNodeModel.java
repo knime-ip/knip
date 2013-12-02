@@ -309,7 +309,7 @@ public class ImgJEPNodeModel extends NodeModel implements BufferedDataTableHolde
 
                 if ((imgRes == null) || eval.errorOccured()) {
                     LOGGER.error("Result for row " + row.getKey() + "  can't be calculated.");
-                    setWarningMessage("Some error occured while executing!");
+                    setWarningMessage("Some error occured while executing! See console log for details!");
                     return DataType.getMissingCell();
 
                 }
