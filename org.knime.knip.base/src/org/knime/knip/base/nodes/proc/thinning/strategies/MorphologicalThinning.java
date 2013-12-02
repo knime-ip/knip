@@ -54,13 +54,18 @@ import net.imglib2.RandomAccessible;
 import net.imglib2.type.logic.BitType;
 
 /**
- *
- * @author Andreas
+ * A Class implementing a standard morphological thinning.
+ * @author Andreas Burger, University of Konstanz
  */
 public class MorphologicalThinning extends Abstract3x3NeighbourhoodThinning {
 
     private int iteration = 0;
 
+    /**
+     * Create a new morphological thinning strategy. The passed boolean will represent the foreground-value of the image.
+     *
+     * @param foreground Value determining the boolean value of foreground pixels.
+     */
     public MorphologicalThinning(final boolean foreground)
     {
         super(foreground);
@@ -69,11 +74,13 @@ public class MorphologicalThinning extends Abstract3x3NeighbourhoodThinning {
     @Override
     public boolean removePixel(final long[] position, final RandomAccessible<BitType> img) {
 
+        // Setup
         RandomAccess<BitType> access = img.randomAccess();
         access.setPosition(position);
 
         boolean[] vals = getNeighbourhood(access);
 
+        // Depending on the current step of the cycle, we rotate the two Filters by 0, 90, 180 or 270 Degrees.
         if(iteration % 4 == 0) {
             return top(vals);
         }
@@ -94,7 +101,16 @@ public class MorphologicalThinning extends Abstract3x3NeighbourhoodThinning {
 
     }
 
-
+    /*
+     * This method applies the filters without rotating. The actual filters are given by:
+     *
+     *  0   0   0           0   0
+     *      1           1   1   0
+     *  1   1   1           1
+     *
+     *  (Zero stands for background, 1 stands for foreground, no value represents a wildcard.)
+     *  Since the ThinningOp only checks pixels which are in the foreground, the center pixel is alway 1.
+     */
     private boolean top(final boolean[] vals) {
         if (vals[1] == m_Background && vals[2] == m_Background && vals[8] == m_Background && vals[4] == m_Foreground
                 && vals[5] == m_Foreground && vals[6] == m_Foreground) {
@@ -108,6 +124,7 @@ public class MorphologicalThinning extends Abstract3x3NeighbourhoodThinning {
         return false;
     }
 
+    // Rotated by 90 degrees RIGHT
     private boolean right(final boolean[] vals) {
         if (vals[2] == m_Background && vals[3] == m_Background && vals[4] == m_Background && vals[6] == m_Foreground
                 && vals[7] == m_Foreground && vals[8] == m_Foreground) {
@@ -121,6 +138,7 @@ public class MorphologicalThinning extends Abstract3x3NeighbourhoodThinning {
         return false;
     }
 
+    // Rotated by 180 degrees
     private boolean bottom(final boolean[] vals) {
         if (vals[4] == m_Background && vals[5] == m_Background && vals[6] == m_Background && vals[1] == m_Foreground
                 && vals[2] == m_Foreground && vals[8] == m_Foreground) {
@@ -134,6 +152,7 @@ public class MorphologicalThinning extends Abstract3x3NeighbourhoodThinning {
         return false;
     }
 
+    // Rotated by 270 degrees RIGHT or 90 degrees LEFT.
     private boolean left(final boolean[] vals) {
         if (vals[8] == m_Background && vals[7] == m_Background && vals[6] == m_Background && vals[2] == m_Foreground
                 && vals[3] == m_Foreground && vals[4] == m_Foreground) {
@@ -151,7 +170,8 @@ public class MorphologicalThinning extends Abstract3x3NeighbourhoodThinning {
      * {@inheritDoc}
      */
     @Override
-    public void afterIteration() {
+    public void afterCycle() {
+        // Keep track of current step in the cycle.
         ++iteration;
     }
 
@@ -161,6 +181,8 @@ public class MorphologicalThinning extends Abstract3x3NeighbourhoodThinning {
      */
     @Override
     public int getIterationsPerCycle() {
+        // To ensure correct order of filter applications and correct termination, we need at least 4 iterations per cycle.
+        // This guarantees that each filter is checked before terminating.
         return 4;
     }
 

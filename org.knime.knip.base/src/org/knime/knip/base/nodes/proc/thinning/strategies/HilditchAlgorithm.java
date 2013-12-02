@@ -54,11 +54,17 @@ import net.imglib2.RandomAccessible;
 import net.imglib2.type.logic.BitType;
 
 /**
+ *  An implementation of the Algorithm proposed by C. J. Hilditch.
  *
- * @author Andreas
+ * @author Andreas Burger, University of Konstanz
  */
 public class HilditchAlgorithm extends Abstract3x3NeighbourhoodThinning {
 
+    /**
+     * Create a new hilditch strategy. The passed boolean will represent the foreground-value of the image.
+     *
+     * @param foreground Value determining the boolean value of foreground pixels.
+     */
     public HilditchAlgorithm(final boolean foreground)
     {
         super(foreground);
@@ -74,8 +80,8 @@ public class HilditchAlgorithm extends Abstract3x3NeighbourhoodThinning {
 
         boolean[] vals = getNeighbourhood(access);
 
+        // First condition is to ensure there are at least 2 and at most 6 neighbouring foreground pixels.
         int numForeground = 0;
-
         for (int i = 1; i < vals.length; ++i) {
             if (vals[i] == m_Foreground) {
                 ++numForeground;
@@ -85,11 +91,18 @@ public class HilditchAlgorithm extends Abstract3x3NeighbourhoodThinning {
         if (!(2 <= numForeground && numForeground <= 6)) {
             return false;
         }
+
+        // Second condition checks for transitions between foreground and background. Exactly 1 such transition
+        // is required.
         int numPatterns = findPatternSwitches(vals);
         if (!(numPatterns == 1)) {
             return false;
         }
 
+        // The third and fourth conditions require neighbourhoods of adjacent pixels.
+
+        // Access has to be reset to current image-position before moving it, since
+        // the getNeighbourhood() method moves it to the top-left of the initial pixel.
         access.setPosition(position);
         access.move(-1, 1);
         int p2Patterns = findPatternSwitches((getNeighbourhood(access)));
@@ -104,6 +117,8 @@ public class HilditchAlgorithm extends Abstract3x3NeighbourhoodThinning {
         if (!((vals[1] == m_Background || vals[3] == m_Background || vals[5] == m_Background) || p4Patterns != 1)) {
             return false;
         }
+
+        // If all conditions are met, we can safely remove the pixel.
         return true;
     }
 

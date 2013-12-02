@@ -65,7 +65,7 @@ import net.imglib2.view.Views;
 import org.knime.knip.base.nodes.proc.thinning.strategies.ThinningStrategy;
 
 /**
-
+ *
  * @param <T> extends RealType<T>
  * @author Andreas Burger, University of Konstanz
  */
@@ -78,6 +78,12 @@ public class ThinningOp<T extends RealType<T>> implements
 
     private ThinningStrategy m_Strategy;
 
+    /**
+     * Instanciate a new ThinningOp using the given strategy and considering the given boolean value as foreground.
+     *
+     * @param strategy The Strategy to use
+     * @param foreground Boolean value of foreground pixels.
+     */
     public ThinningOp(final ThinningStrategy strategy, final boolean foreground) {
         m_Strategy = strategy;
         m_Foreground = foreground;
@@ -90,75 +96,99 @@ public class ThinningOp<T extends RealType<T>> implements
     @Override
     public RandomAccessibleInterval<T> compute(final RandomAccessibleInterval<T> input,
                                                final RandomAccessibleInterval<T> output) {
-        T type = input.randomAccess().get();
-        if (!(type instanceof BitType)) {
-            System.out.println("No Bittype");
-            return null;
-        } else {
 
-            ImgFactory<BitType> fac = new ArrayImgFactory<BitType>();
-            Img<BitType> img1 = fac.create(input, new BitType());
-            Img<BitType> img2 = fac.create(input, new BitType());
+        // NOTE: DO NOT USE NON-BITTYPE IMAGES!
+        // In the thinning node, this is taken care of by the factory.
 
-            IterableInterval<BitType> it1 = Views.iterable(img1);
-            copy((RandomAccessibleInterval<BitType>)input, it1);
+        ImgFactory<BitType> fac = new ArrayImgFactory<BitType>();
 
-            RandomAccessible<BitType> ra1 = Views.extendBorder(img1);
-            Cursor<BitType> firstCursor = it1.localizingCursor();
+        // Create new images to store the thinning image in each iteration.
+        // These images are swapped each iteration.
+        Img<BitType> img1 = fac.create(input, new BitType());
+        Img<BitType> img2 = fac.create(input, new BitType());
 
-            RandomAccessible<BitType> ra2 = Views.extendBorder(img2);
-            IterableInterval<BitType> it2 = Views.iterable(img2);
-            Cursor<BitType> secondCursor = it2.localizingCursor();
-            Cursor<BitType> currentCursor, nextCursor;
-            currentCursor = firstCursor;
-            RandomAccessible<BitType> currRa = ra1;
-            nextCursor = secondCursor;
+        IterableInterval<BitType> it1 = Views.iterable(img1);
+        // Initially, we need to copy the input to the first Image.
+        copy((RandomAccessibleInterval<BitType>)input, it1);
 
-            boolean changes = true;
-            int i = 0;
-            while (changes) {
-                changes = false;
-                for (int j = 0; j < m_Strategy.getIterationsPerCycle(); ++j) {
-                    while (currentCursor.hasNext()) {
-                        currentCursor.fwd();
-                        nextCursor.fwd();
-                        long[] coordinates = new long[currentCursor.numDimensions()]; // TODO: CurrentCursor (1 or 2), not always 1
-                        currentCursor.localize(coordinates);
-                        boolean curr = currentCursor.get().get();
-                        nextCursor.get().set(curr);
-                        if (curr == m_Foreground) {
-                            boolean flip = m_Strategy.removePixel(coordinates, currRa);
+        // Extend the images in order to be able to iterate care-free later.
+        RandomAccessible<BitType> ra1 = Views.extendBorder(img1);
+        Cursor<BitType> firstCursor = it1.localizingCursor();
 
-                            if (flip) {
-                                nextCursor.get().set(m_Background);
-                                changes = true;
-                            }
+        RandomAccessible<BitType> ra2 = Views.extendBorder(img2);
+        IterableInterval<BitType> it2 = Views.iterable(img2);
+        Cursor<BitType> secondCursor = it2.localizingCursor();
+
+        // Create pointers to the current and next cursor and set them to Image 1 and 2 respectively.
+        Cursor<BitType> currentCursor, nextCursor;
+        currentCursor = firstCursor;
+        RandomAccessible<BitType> currRa = ra1;
+        nextCursor = secondCursor;
+
+        // The main loop.
+        boolean changes = true;
+        int i = 0;
+        // Until no more changes, do:
+        while (changes) {
+            changes = false;
+            // This For-Loop makes sure, that iterations only end on full cycles (as defined by the strategies).
+            for (int j = 0; j < m_Strategy.getIterationsPerCycle(); ++j) {
+                // For each pixel in the image.
+                while (currentCursor.hasNext()) {
+                    // Move both cursors
+                    currentCursor.fwd();
+                    nextCursor.fwd();
+                    // Get the position of the current cursor.
+                    long[] coordinates = new long[currentCursor.numDimensions()];
+                    currentCursor.localize(coordinates);
+
+                    // Copy the value of the image currently operated upon.
+                    boolean curr = currentCursor.get().get();
+                    nextCursor.get().set(curr);
+
+                    // Only foreground pixels may be thinned
+                    if (curr == m_Foreground) {
+
+                        // Ask the strategy whether to flip the foreground pixel or not.
+                        boolean flip = m_Strategy.removePixel(coordinates, currRa);
+
+                        // If yes - change and keep track of the change.
+                        if (flip) {
+                            nextCursor.get().set(m_Background);
+                            changes = true;
                         }
                     }
-                    m_Strategy.afterIteration();
-                    currentCursor.reset();
-                    nextCursor.reset();
-                    Cursor<BitType> temp = currentCursor;
-                    if (currRa == ra1) {
-                        currRa = ra2;
-                    } else {
-                        currRa = ra1;
-                    }
-                    currentCursor = nextCursor;
-                    nextCursor = temp;
                 }
+                // One step of the cycle is finished, notify the strategy.
+                m_Strategy.afterCycle();
+
+                // Reset the cursors to the beginning and assign pointers for the next iteration.
+                currentCursor.reset();
+                nextCursor.reset();
+                Cursor<BitType> temp = currentCursor;
+
+                // Keep track of the most recent image. Needed for output.
+                if (currRa == ra1) {
+                    currRa = ra2;
+                } else {
+                    currRa = ra1;
+                }
+                currentCursor = nextCursor;
+                nextCursor = temp;
+
+                // Keep track of iterations.
                 ++i;
             }
-//            System.out.println(i);
-            if (i % 2 == 1) {
-                copy(ra2, Views.iterable((RandomAccessibleInterval<BitType>)output));
-            } else {
-                copy(ra1, Views.iterable((RandomAccessibleInterval<BitType>)output));
-            }
-
-            return output;
         }
 
+        // Depending on the iteration count, the final image is either in ra1 or ra2. Copy it to output.
+        if (i % 2 == 1) {
+            copy(ra2, Views.iterable((RandomAccessibleInterval<BitType>)output));
+        } else {
+            copy(ra1, Views.iterable((RandomAccessibleInterval<BitType>)output));
+        }
+
+        return output;
     }
 
     /**
@@ -166,7 +196,6 @@ public class ThinningOp<T extends RealType<T>> implements
      */
     @Override
     public UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> copy() {
-        // TODO Return copy with same parameters
         return new ThinningOp<T>(m_Strategy, m_Foreground);
     }
 
@@ -176,7 +205,7 @@ public class ThinningOp<T extends RealType<T>> implements
         while (targetCursor.hasNext()) {
             targetCursor.fwd();
             sourceAccess.setPosition(targetCursor);
-            targetCursor.get().set(sourceAccess.get()); //FIXME: Type handling
+            targetCursor.get().set(sourceAccess.get());
         }
     }
 

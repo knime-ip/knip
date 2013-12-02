@@ -54,14 +54,28 @@ import net.imglib2.RandomAccessible;
 import net.imglib2.type.logic.BitType;
 
 /**
+ *  This abstract class represents an rough framework for a Thinning algorithm operating on a 3x3 neighbourhood by providing
+ *  some often needed functions.
  *
- * @author Andreas
+ * @author Andreas Burger, University of Konstanz
  */
 public abstract class Abstract3x3NeighbourhoodThinning implements ThinningStrategy {
 
+    /**
+     * Boolean value of the foreground.
+     */
     protected boolean m_Foreground;
+
+    /**
+     * Boolean value of the background.
+     */
     protected boolean m_Background;
 
+    /**
+     * Create a new abstract thinning strategy. The passed boolean will represent the foreground-value of the image.
+     *
+     * @param foreground Value determining the boolean value of foreground pixels.
+     */
     protected Abstract3x3NeighbourhoodThinning(final boolean foreground)
     {
         m_Foreground = foreground;
@@ -76,6 +90,17 @@ public abstract class Abstract3x3NeighbourhoodThinning implements ThinningStrate
         return false;
     }
 
+    /**
+     * Returns all booleans in a 3x3 neighbourhood of the pixel the RandomAccess points to.
+     * These booleans are stored in an Array in the following order: <br>
+     *
+     *  8   1   2 <br>
+     *  7   0   3 <br>
+     *  6   5   4 <br>
+     *
+     * @param access A RandomAccess pointing to a pixel of the image
+     * @return A boolean Array holding the values of the neighbourhood in clockwise order.
+     */
     protected boolean[] getNeighbourhood(final RandomAccess<BitType> access) {
         boolean[] vals = new boolean[9];
 
@@ -109,6 +134,11 @@ public abstract class Abstract3x3NeighbourhoodThinning implements ThinningStrate
 
     }
 
+    /**
+     * Returns the amount of switches from foreground to background occurring in the circle around vals[1]
+     * @param vals Boolean Array holding the neighbourhood.
+     * @return Amount of true-false switches in the neighbourhood.
+     */
     protected int findPatternSwitches(final boolean[] vals) {
         int res = 0;
         for (int i = 1; i < vals.length - 1; ++i) {
@@ -122,11 +152,13 @@ public abstract class Abstract3x3NeighbourhoodThinning implements ThinningStrate
         return res;
     }
 
-    public void afterIteration() {
+    @Override
+    public void afterCycle() {
         // Intentionally left blank.
     }
 
 
+    @Override
     public int getIterationsPerCycle() {
         return 1;
     }

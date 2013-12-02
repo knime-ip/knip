@@ -53,6 +53,7 @@ import java.util.List;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.ImgOperations;
 import net.imglib2.ops.operation.UnaryOutputOperation;
+import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
@@ -60,6 +61,7 @@ import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.knip.base.exceptions.ImageTypeNotCompatibleException;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
@@ -119,6 +121,11 @@ public class ThinningNodeFactory<T extends RealType<T>> extends ImgPlusToImgPlus
 
             @Override
             protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> op(final ImgPlus<T> imgPlus) {
+
+                if(!(imgPlus.firstElement() instanceof BitType)) {
+                    throw new ImageTypeNotCompatibleException(",,thinning''", imgPlus.firstElement(), BitType.class);
+                }
+
                 ThinningStrategyFactory fac = new ThinningStrategyFactory(m_WhiteForeground.getBooleanValue());
                 ThinningOp<T> thinning =
                         new ThinningOp<T>(fac.getStrategy(m_ThinningAlgorithm.getStringValue()), m_WhiteForeground.getBooleanValue());

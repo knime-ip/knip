@@ -54,13 +54,18 @@ import net.imglib2.RandomAccessible;
 import net.imglib2.type.logic.BitType;
 
 /**
- *
- * @author Andreas
+ * Implementation of the thinning algorithm proposed by T. Y. Zhang and C. Y. Suen.
+ * @author Andreas Burger, University of Konstanz
  */
 public class ZhangSuenAlgorithm extends Abstract3x3NeighbourhoodThinning {
 
     private int iteration = 0;
 
+    /**
+     * Create a new Zhang-Suen thinning strategy. The passed boolean will represent the foreground-value of the image.
+     *
+     * @param foreground Value determining the boolean value of foreground pixels.
+     */
     public ZhangSuenAlgorithm(final boolean foreground)
     {
         super(foreground);
@@ -72,11 +77,13 @@ public class ZhangSuenAlgorithm extends Abstract3x3NeighbourhoodThinning {
     @Override
     public boolean removePixel(final long[] position, final RandomAccessible<BitType> img) {
 
+        // Setup
         RandomAccess<BitType> access = img.randomAccess();
         access.setPosition(position);
 
         boolean[] vals = getNeighbourhood(access);
 
+        // First two conditions are similar to Hilditch-Thinning.
         int numForeground = 0;
 
         for (int i = 1; i < vals.length; ++i) {
@@ -93,6 +100,7 @@ public class ZhangSuenAlgorithm extends Abstract3x3NeighbourhoodThinning {
             return false;
         }
 
+        // Currently, this thinning algorithm runs as 1-iteration-per-cycle, since the order of operations is not important.
         if ((iteration % 2) != 1) {
             return evenIteration(vals);
         } else {
@@ -101,6 +109,7 @@ public class ZhangSuenAlgorithm extends Abstract3x3NeighbourhoodThinning {
 
     }
 
+    // Check for background pixels in the vicinity.
     private boolean evenIteration(final boolean[] vals) {
         if (!(vals[1] == m_Background || vals[3] == m_Background || vals[5] == m_Background)) {
             return false;
@@ -113,6 +122,7 @@ public class ZhangSuenAlgorithm extends Abstract3x3NeighbourhoodThinning {
         return true;
     }
 
+    // Variation of the checks in an even iteration.
     private boolean oddIteration(final boolean[] vals) {
         if (!(vals[1] == m_Background || vals[3] == m_Background || vals[7] == m_Background)) {
             return false;
@@ -128,7 +138,7 @@ public class ZhangSuenAlgorithm extends Abstract3x3NeighbourhoodThinning {
      * {@inheritDoc}
      */
     @Override
-    public void afterIteration() {
+    public void afterCycle() {
         ++iteration;
     }
 

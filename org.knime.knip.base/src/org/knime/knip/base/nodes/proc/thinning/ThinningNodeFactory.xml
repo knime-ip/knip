@@ -4,24 +4,25 @@
         and is available at http://www.eclipse.org/legal/epl-v10.html Contributors:
         IBM Corporation - initial API and implementation -->
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
-<knimeNode icon="icons/dimextend.png" type="Manipulator">
+<knimeNode icon="thinning.png" type="Manipulator">
         <name>Thinning</name>
         <shortDescription>
-                Tbd
+                Reduce an image to its skeleton, a simplified representation which is topologically equivalent.
         </shortDescription>
 
         <fullDescription>
                 <intro>
-                        Tbd
+                        Reduce an image to its skeleton, a simplified representation which is topologically equivalent.
                 </intro>
                 <tab name="Options">
-                        <option name="Thinning Algorithm"> Tbd </option>
-                        <option name="Use white as foreground colour"> Tbd </option>
+                        <option name="Thinning Algorithm"> Select which thinning algorithm should be used in order to calculate the result </option>
+                        <option name="Use white as foreground colour"> If checked, the area of interest for the algorithm is assumed to be white, i.e. the node attempts to thin the white portions of the image.
+                         If not selected, the black parts of the image are to be thinned.</option>
                 </tab>
         </fullDescription>
 
         <ports>
                 <inPort index="0" name="Images">Images</inPort>
-                <outPort index="0" name="Enhanced Images">Thinned Images</outPort>
+                <outPort index="0" name="Thinned Images">Thinned Images</outPort>
         </ports>
 </knimeNode>

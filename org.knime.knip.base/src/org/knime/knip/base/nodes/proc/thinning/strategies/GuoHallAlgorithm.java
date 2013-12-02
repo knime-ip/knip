@@ -54,13 +54,18 @@ import net.imglib2.RandomAccessible;
 import net.imglib2.type.logic.BitType;
 
 /**
- *
- * @author Andreas
+ *  Represents the thinning algorithm proposed by Z. Guo and R. W. Hall.
+ * @author Andreas Burger, University of Konstanz
  */
 public class GuoHallAlgorithm extends Abstract3x3NeighbourhoodThinning {
 
     private int iteration = 0;
 
+    /**
+     * Create a new Guo-Hall thinning strategy. The passed boolean will represent the foreground-value of the image.
+     *
+     * @param foreground Value determining the boolean value of foreground pixels.
+     */
     public GuoHallAlgorithm(final boolean foreground)
     {
         super(foreground);
@@ -71,11 +76,14 @@ public class GuoHallAlgorithm extends Abstract3x3NeighbourhoodThinning {
      */
     @Override
     public boolean removePixel(final long[] position, final RandomAccessible<BitType> img) {
+
+        // Setup
         RandomAccess<BitType> access = img.randomAccess();
         access.setPosition(position);
 
         boolean[] vals = getNeighbourhood(access);
 
+        // First we need to count the amount of connected neighbours in the vicinity.
         int simpleConnectedNeighbours = 0;
         if (vals[1] == m_Background && (vals[2] == m_Foreground || vals[3] == m_Foreground)) {
             ++simpleConnectedNeighbours;
@@ -89,10 +97,12 @@ public class GuoHallAlgorithm extends Abstract3x3NeighbourhoodThinning {
         if (vals[7] == m_Background && (vals[8] == m_Foreground || vals[1] == m_Foreground)) {
             ++simpleConnectedNeighbours;
         }
+        // First condition: Exactly one simple connected neighbour.
         if (simpleConnectedNeighbours != 1) {
             return false;
         }
 
+        // Check for foreground pixels in each sector.
         int sectorsOne = countSectors(vals, -1);
         int sectorsTwo = countSectors(vals, 1);
         int minSectors = Math.min(sectorsOne, sectorsTwo);
@@ -102,6 +112,7 @@ public class GuoHallAlgorithm extends Abstract3x3NeighbourhoodThinning {
 
         boolean oddEvenCheck;
 
+        // Depending on the step in the cycle, we need to perform different calculations.
         if (iteration % 2 == 1) {
             oddEvenCheck =
                     (vals[1] == m_Foreground || vals[2] == m_Foreground || vals[4] == m_Background) && vals[3] == m_Foreground;
@@ -115,6 +126,8 @@ public class GuoHallAlgorithm extends Abstract3x3NeighbourhoodThinning {
         return true;
     }
 
+    // Count the foreground pixels in each of the four sectors. Depending on the offset, the sector borders are
+    // rotated by 45 degrees.
     private int countSectors(final boolean[] vals, final int offset) {
         int res = 0;
         for (int i = 1; i < vals.length - 1; i = i + 2) {
@@ -136,8 +149,14 @@ public class GuoHallAlgorithm extends Abstract3x3NeighbourhoodThinning {
      * {@inheritDoc}
      */
     @Override
-    public void afterIteration() {
+    public void afterCycle() {
         ++iteration;
+    }
+
+    @Override
+    public int getIterationsPerCycle()
+    {
+        return 2;
 
     }
 
