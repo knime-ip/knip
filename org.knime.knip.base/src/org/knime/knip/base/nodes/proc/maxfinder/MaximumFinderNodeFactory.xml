@@ -1,0 +1,40 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="../icons/peaks.png" type="Manipulator">
+	<name>Maximum Finder</name>
+	<shortDescription> Find local maxima on an n-dimensional image. </shortDescription>
+
+	<fullDescription>
+		<intro>
+			<p>
+				MaximumFinder runs over an image, finds points which are larger than all of
+				it's neighbors and finally iterates over these points to find the real local
+				maxima.
+			</p>
+			<p>
+				To find minima instead, you might want to invert the input.
+			</p>
+		</intro>
+		
+		<tab name="Options">
+			<option name="Noise Tolerance">
+				Sets the tolerance for comparison of two pixels. This is useful when an image
+				is affected by unwanted noise.
+			</option>
+			<option name="Suppression">
+				Suppression in MaximumFinder removes maxima which are closer than the suppression value.
+				This comes at the cost of a little more computation time.
+			</option>	
+			<option name="Output with Tolerance Areas"> Will mark tolerance areas instead of single points only. </option>		
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Image">Image</inPort>
+		<outPort index="0" name="Maxima Image">Binary image (maxima represented as value 1).</outPort>
+	</ports>
+</knimeNode>

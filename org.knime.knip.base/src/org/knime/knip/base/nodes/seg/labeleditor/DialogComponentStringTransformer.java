@@ -69,6 +69,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DialogComponent;
@@ -111,14 +112,35 @@ public class DialogComponentStringTransformer extends DialogComponent {
     @SuppressWarnings("rawtypes")
     private final JList m_varList;
 
+    private final String m_requiredVariable;
+
+    private final boolean m_addColumnAsVariables;
+
+    private final int m_portIdx;
+
     /**
-     * @param expressionModel the expression
+     * @param expressionModel settings modelF
+     * @param addColumnAsVariables if true, the input columns will be added as variables, too
+     * @param portIdx input port of the data table (for input column variables)
+     * @param requiredVariable the variables the must appear in the expression, if <code>null</code> no required
+     *            variable is assumed
+     * @param variables all available variables
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public DialogComponentStringTransformer(final SettingsModelString expressionModel) {
+    public DialogComponentStringTransformer(final SettingsModelString expressionModel,
+                                            final boolean addColumnAsVariables, final int portIdx,
+                                            final String requiredVariable, final String... variables) {
         super(expressionModel);
+        m_addColumnAsVariables = addColumnAsVariables;
+        m_portIdx = portIdx;
+        m_requiredVariable = requiredVariable;
 
-        m_varList = new JList(new DefaultListModel());
+        final DefaultListModel listModel = new DefaultListModel();
+        for (int i = 0; i < variables.length; i++) {
+            listModel.addElement(variables[i]);
+        }
+
+        m_varList = new JList(listModel);
 
         m_expEdit = new JEditorPane();
 
@@ -222,23 +244,19 @@ public class DialogComponentStringTransformer extends DialogComponent {
         m_varList.setToolTipText(text);
     }
 
-    /**
-     * @param variables which were defined in the dialog and can be reused during transformation
-     */
-    @SuppressWarnings("unchecked")
-    public void setVariables(final String... variables) {
-
-        @SuppressWarnings("rawtypes")
-        final DefaultListModel listModel = (DefaultListModel)m_varList.getModel();
-        listModel.removeAllElements();
-        for (int i = 0; i < variables.length; i++) {
-            listModel.addElement(variables[i]);
-        }
-        m_varList.repaint();
-    }
-
     @Override
     protected void updateComponent() {
+
+        //variables from column
+        if (m_addColumnAsVariables) {
+            PortObjectSpec spec = getLastTableSpec(m_portIdx);
+            if (spec != null && spec instanceof DataTableSpec) {
+                for (final String col : ((DataTableSpec)spec).getColumnNames()) {
+                    ((DefaultListModel)m_varList.getModel()).addElement(col);
+                }
+            }
+        }
+
         // only update component if values are off
         final SettingsModelString model = (SettingsModelString)getModel();
         setEnabledComponents(model.isEnabled());
@@ -257,6 +275,10 @@ public class DialogComponentStringTransformer extends DialogComponent {
 
     @Override
     protected void validateSettingsBeforeSave() throws InvalidSettingsException {
+        if (m_requiredVariable != null && !m_expEdit.getText().contains(m_requiredVariable)) {
+            throw new InvalidSettingsException("Label transformation: Required variable " + m_requiredVariable
+                    + " is missing.");
+        }
         updateModel();
     }
 

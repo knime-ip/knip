@@ -321,8 +321,10 @@ public class ImgGeneratorNodeModel<T extends NativeType<T> & RealType<T>> extend
 
                 fac = img.factory().toString();
                 type = NativeTypes.getPixelType(img.firstElement()).toString();
-                con.addRowToTable(new DefaultRow(new RowKey("img_" + type + "_" + fac + "_" + k), imgCellFactory
-                        .createCell(img)));
+                RowKey rowKey = new RowKey("img_" + type + "_" + fac + "_" + k);
+                img.setName(rowKey.toString());
+                img.setSource(rowKey.toString() + "_source");
+                con.addRowToTable(new DefaultRow(rowKey, imgCellFactory.createCell(img)));
 
             } catch (final Exception e) {
                 // catch exception, if some combinations of
@@ -363,8 +365,8 @@ public class ImgGeneratorNodeModel<T extends NativeType<T> & RealType<T>> extend
     @Override
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
         for (final SettingsModel sm : m_settings) {
-                sm.loadSettingsFrom(settings);
-            }
+            sm.loadSettingsFrom(settings);
+        }
     }
 
     /**
@@ -408,7 +410,7 @@ public class ImgGeneratorNodeModel<T extends NativeType<T> & RealType<T>> extend
 
         for (final SettingsModel sm : m_settings) {
 
-                sm.validateSettings(settings);
+            sm.validateSettings(settings);
         }
     }
 }

@@ -52,6 +52,7 @@ import net.imglib2.Cursor;
 import net.imglib2.img.AbstractImg;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
+import net.imglib2.img.ImgView;
 import net.imglib2.type.Type;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.integer.ByteType;
@@ -64,6 +65,7 @@ import net.imglib2.type.numeric.integer.UnsignedIntType;
 import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.type.numeric.real.FloatType;
+import net.imglib2.view.Views;
 
 import org.knime.knip.core.io.externalization.BufferedDataInputStream;
 import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
@@ -78,8 +80,7 @@ import org.knime.knip.core.types.NativeTypes;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-@Deprecated
-public class ImgExt0 implements Externalizer<Img> {
+public class ImgExt1 implements Externalizer<Img> {
 
     /**
      * {@inheritDoc}
@@ -102,7 +103,7 @@ public class ImgExt0 implements Externalizer<Img> {
      */
     @Override
     public int getPriority() {
-        return 0;
+        return 1;
     }
 
     /**
@@ -110,6 +111,8 @@ public class ImgExt0 implements Externalizer<Img> {
      */
     @Override
     public Img read(final BufferedDataInputStream in) throws Exception {
+
+        final boolean forceFlatIterationOrder = in.readBoolean();
 
         final Type<?> type = (Type<?>)ExternalizerManager.<Class> read(in).newInstance();
 
@@ -120,8 +123,8 @@ public class ImgExt0 implements Externalizer<Img> {
 
         @SuppressWarnings("unchecked")
         final AbstractImg<Type<?>> res = (AbstractImg<Type<?>>)factory.create(dims, type);
+        final Cursor<? extends Type<?>> cur = forceFlatIterationOrder ? Views.flatIterable(res).cursor() : res.cursor();
 
-        final Cursor<? extends Type<?>> cur = res.cursor();
         final int totalSize = (int)res.size();
         final int buffSize = 8192;
 
@@ -318,6 +321,9 @@ public class ImgExt0 implements Externalizer<Img> {
      */
     @Override
     public void write(final BufferedDataOutputStream out, final Img obj) throws Exception {
+
+        // if imgview, we need to force flat iteration order
+        out.writeBoolean(obj instanceof ImgView);
 
         ExternalizerManager.<Class> write(out, obj.firstElement().getClass());
         ExternalizerManager.<Class> write(out, obj.factory().getClass());

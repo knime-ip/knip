@@ -55,12 +55,14 @@ import java.util.List;
 import net.imglib2.Cursor;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingType;
+import net.imglib2.labeling.LabelingView;
 
 import org.knime.core.data.DataRow;
 import org.knime.knip.base.data.labeling.LabelingValue;
+import org.knime.knip.core.data.img.LabelingMetadata;
 
 /**
- * TODO Auto-generated
+ * Compares two labelings
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -73,13 +75,61 @@ public class LabelingComparatorNodeModel<L extends Comparable<L>> extends
 
     @Override
     protected void compare(final DataRow row, final LabelingValue<L> vin1, final LabelingValue<L> vin2) {
-        //TODO same stuff as in ImgComparator
 
-        final Labeling<L> labeling1 = vin1.getLabelingCopy();
-        final Labeling<L> labeling2 = vin2.getLabelingCopy();
+        final Labeling<L> labeling1 = vin1.getLabeling();
+        final Labeling<L> labeling2 = vin2.getLabeling();
 
-        final Cursor<LabelingType<L>> c1 = labeling1.cursor();
-        final Cursor<LabelingType<L>> c2 = labeling2.cursor();
+        final LabelingMetadata meta1 = vin1.getLabelingMetadata();
+        final LabelingMetadata meta2 = vin2.getLabelingMetadata();
+
+        if (labeling1.factory().getClass() != labeling2.factory().getClass()) {
+            throw new IllegalStateException("Factory of the images are not the same! " + row.getKey().toString());
+        }
+
+        if (labeling1.numDimensions() != labeling2.numDimensions()) {
+            throw new IllegalStateException("Number of dimensions of images is not the same! "
+                    + row.getKey().toString());
+        }
+
+        for (int d = 0; d < labeling1.numDimensions(); d++) {
+            if (labeling1.dimension(d) != labeling2.dimension(d)) {
+                throw new IllegalStateException("Dimension " + d + " is not the same in the compared images!"
+                        + row.getKey().toString());
+            }
+        }
+
+        if (!meta1.getName().equalsIgnoreCase(meta2.getName())) {
+            throw new IllegalStateException("Names of labelings are not the same! " + row.getKey().toString());
+        }
+
+        if (!meta1.getSource().equalsIgnoreCase(meta2.getSource())) {
+            throw new IllegalStateException("Sources of labelings are not the same! " + row.getKey().toString());
+        }
+
+        for (int d = 0; d < labeling1.numDimensions(); d++) {
+            if (!meta1.axis(d).generalEquation().equalsIgnoreCase(meta2.axis(d).generalEquation())) {
+                throw new IllegalStateException("GeneralEquation of CalibratedAxis " + d
+                        + " is not the same in the compared labelings!" + row.getKey().toString());
+            }
+        }
+
+        for (int d = 0; d < labeling1.numDimensions(); d++) {
+            if (!meta1.axis(d).type().getLabel().equalsIgnoreCase(meta2.axis(d).type().getLabel())) {
+                throw new IllegalStateException("Label of Axis " + d + " is not the same in the compared labelings!"
+                        + row.getKey().toString());
+            }
+        }
+
+        final Cursor<LabelingType<L>> c1;
+        final Cursor<LabelingType<L>> c2;
+
+        if (labeling1 instanceof LabelingView || labeling2 instanceof LabelingView) {
+            c1 = new LabelingView<L>(labeling1, null).cursor();
+            c2 = new LabelingView<L>(labeling2, null).cursor();
+        } else {
+            c1 = labeling1.cursor();
+            c2 = labeling1.cursor();
+        }
 
         final HashMap<L, L> labelingMapping = new HashMap<L, L>();
 
@@ -90,7 +140,6 @@ public class LabelingComparatorNodeModel<L extends Comparable<L>> extends
             final List<L> list1 = c1.get().getLabeling();
             final List<L> list2 = c2.get().getLabeling();
 
-            boolean eq = true;
             if (list1.size() == list2.size()) {
                 final Iterator<L> iter1 = list1.iterator();
                 final Iterator<L> iter2 = list2.iterator();
@@ -104,21 +153,15 @@ public class LabelingComparatorNodeModel<L extends Comparable<L>> extends
                         // what the labeling is
                         if (!labelingMapping.get(t1).equals(t2)) {
                             // oh oh error
-                            eq = false;
-                            break;
+                            throw new IllegalStateException("Two labelings are not the same" + row.getKey().toString());
                         }
                     } else {
                         labelingMapping.put(t1, t2);
                     }
                 }
             } else {
-                eq = false;
-            }
-
-            if (!eq) {
-                throw new IllegalStateException("Two images are not the same" + row.getKey().toString());
+                throw new IllegalStateException("Two labelings are not the same" + row.getKey().toString());
             }
         }
     }
-
 }

@@ -43,70 +43,107 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
+ * Created on 07.11.2013 by Daniel
  */
-package org.knime.knip.core.io.externalization.externalizers;
+package org.knime.knip.base.nodes.proc.clahe;
 
-import net.imglib2.img.Img;
-import net.imglib2.img.ImgView;
-
-import org.knime.knip.core.io.externalization.BufferedDataInputStream;
-import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
-import org.knime.knip.core.io.externalization.Externalizer;
-import org.knime.knip.core.io.externalization.ExternalizerManager;
+import java.util.Arrays;
 
 /**
- * Delegates to the naive img externalization.
+ * Point used by the CLAHE algorithm.
  *
- * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author Daniel Seebacher
  */
-public class ImgViewExt0 implements Externalizer<Img> {
+public class ClahePoint {
+
+    private final long[] m_coordinates;
 
     /**
-     * {@inheritDoc}
+     * Constructor
+     *
+     * @param coordinates long array with the coordinates
      */
+    public ClahePoint(final long[] coordinates) {
+        this.m_coordinates = coordinates;
+    }
+
+    /**
+     * @return the coordinates in all dimensions
+     */
+    public final long[] getCoordinates() {
+        return this.m_coordinates;
+    }
+
+    /**
+     * @return the dimensionality of this point
+     */
+    public final int numDim() {
+        return m_coordinates.length;
+    }
+
+    /**
+     * @param i the dimension
+     * @return the coordinate value in the given dimension
+     */
+    public final long dim(final int i) {
+        return this.m_coordinates[i];
+    }
+
+    /**
+     * @param otherPoint a different ClahePoint
+     * @return the euclidean distance between this ClahePoint and another ClahePoint
+     */
+    public final double distance(final ClahePoint otherPoint) {
+        return distance(otherPoint.getCoordinates());
+    }
+
+    /**
+     * @param coordinates
+     * @return the euclidean distance between this ClahePoint and the given coordinates.
+     */
+    public final double distance(final long[] coordinates) {
+        double sum = 0;
+        for (int i = 0; i < m_coordinates.length; i++) {
+            sum += (m_coordinates[i] - coordinates[i]) * (m_coordinates[i] - coordinates[i]);
+        }
+        return sum;
+    }
+
     @Override
-    public String getId() {
-        return this.getClass().getSimpleName();
+    public boolean equals(final Object obj) {
+        ClahePoint otherPoint = (ClahePoint)obj;
+        return Arrays.equals(getCoordinates(), otherPoint.getCoordinates());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Class<? extends Img> getType() {
-        return ImgView.class;
+    public int hashCode() {
+        return Arrays.hashCode(m_coordinates);
+    }
+
+    /**
+     * @param imageDimensions the dimensions of an image
+     * @return boolean true or false, whether this point lies inside the image boundaries or not.
+     */
+    public final boolean isInsideImage(final long[] imageDimensions) {
+        for (int i = 0; i < m_coordinates.length; i++) {
+            if (m_coordinates[i] < 0 || m_coordinates[i] >= imageDimensions[i]) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public int getPriority() {
-        return 0;
+    public String toString() {
+        return "ClahePoint [m_coordinates=" + Arrays.toString(m_coordinates) + "]";
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Img read(final BufferedDataInputStream in) throws Exception {
-        // delegate to the img externalizer
-        return ExternalizerManager.read(in);
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void write(final BufferedDataOutputStream out, final Img obj) throws Exception {
-        // delegate to the img externalizer
-        ExternalizerManager.write(out, obj, Img.class);
-
-    }
-
 }

@@ -70,11 +70,11 @@ import org.knime.knip.core.data.labeling.Signature;
 import org.knime.knip.core.util.PolygonTools;
 
 /**
- * 
+ *
  * Utility class which calculates "caches" commonly used objects, i.e. as soon as one of the methods is called, the
  * demanded object is created and returned. On the second call the already created object is returned, if the parameter
  * object equals (object equality) the parameter object of the previous call.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
