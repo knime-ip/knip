@@ -111,6 +111,7 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
     protected ValueToCellNodeDialog<ImgPlusValue<T>> createNodeDialog() {
         return new ValueToCellNodeDialog<ImgPlusValue<T>>() {
 
+            @SuppressWarnings("deprecation")
             @Override
             public void addDialogComponents() {
                 addDialogComponent("Options", "Interpolation mode", new DialogComponentStringSelection(
@@ -118,7 +119,7 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
                 addDialogComponent("Options", "New Dimension Sizes", new DialogComponentScalingValues(
                         createScalingModel()));
                 addDialogComponent("Options", "New Dimension Sizes", new DialogComponentBoolean(createRelDimsModel(),
-                        "relative"));
+                        "Relative?"));
             }
         };
     }
