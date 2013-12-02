@@ -71,7 +71,7 @@ import org.knime.knip.core.util.EnumUtils;
 
 /**
  * Factory class to produce a Connected Component Analysis Node.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -99,10 +99,10 @@ public class ExtractOutlineLabelingNodeFactory<L extends Comparable<L>> extends
             public void addDialogComponents() {
                 addDialogComponent("Options", "Settings",
                                    new DialogComponentStringSelection(createConnectionTypeModel(), "Connection Type",
-                                           EnumUtils.getStringListFromName(ConnectedType.values())));
+                                           EnumUtils.getStringListFromToString(ConnectedType.values())));
 
                 addDialogComponent("Options", "Dimensions", new DialogComponentDimSelection(createDimSelectionModel(),
-                        "Dimensions", 2, 5));
+                        "Dimensions", 2, 2));
             }
         };
     }
@@ -131,7 +131,8 @@ public class ExtractOutlineLabelingNodeFactory<L extends Comparable<L>> extends
             protected LabelingCell<L> compute(final LabelingValue<L> cellValue) throws Exception {
                 final Labeling<L> lab = cellValue.getLabeling();
                 final ExtractLabelingOutline<L> op =
-                        new ExtractLabelingOutline<L>(ConnectedType.valueOf(m_type.getStringValue()));
+                        new ExtractLabelingOutline<L>(EnumUtils.valueForName(m_type.getStringValue(),
+                                                                             ConnectedType.values()));
 
                 final Labeling<L> out =
                         SubsetOperations.iterate(op,
