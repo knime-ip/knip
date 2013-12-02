@@ -57,8 +57,8 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.core.util.EnumUtils;
 
 /**
- * 
- * 
+ *
+ *
  * @param <T>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -83,10 +83,10 @@ public class AnisotropicDiffusionNodeDialog<T extends RealType<T>> extends ImgPl
                 new DialogComponentNumber(AnisotropicDiffusionNodeModel.createKappaModel(), "Kappa", 1);
 
         //
-        addDialogComponent("Function Selection", "", fun);
+        addDialogComponent("Options", "Function Selection", fun);
 
         //
-        addDialogComponent("Function Selection", "", kappa);
+        addDialogComponent("Options", "Function Selection", kappa);
 
         // Parameters for the execution
         // Iterations
@@ -97,7 +97,7 @@ public class AnisotropicDiffusionNodeDialog<T extends RealType<T>> extends ImgPl
         final DialogComponent deltat =
                 new DialogComponentNumber(AnisotropicDiffusionNodeModel.createDeltaTModel(), "Delta t", 0.1);
 
-        addDialogComponent("Execution Parameters", "", deltat);
-        addDialogComponent("Execution Parameters", "", n);
+        addDialogComponent("Options", "Execution Parameters", deltat);
+        addDialogComponent("Options", "Execution Parameters", n);
     }
 }
