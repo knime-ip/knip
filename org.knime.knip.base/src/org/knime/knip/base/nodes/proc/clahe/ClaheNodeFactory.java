@@ -57,8 +57,8 @@ import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
-import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
-import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
+import org.knime.core.node.defaultnodesettings.SettingsModelDoubleBounded;
+import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
@@ -75,16 +75,16 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
  */
 public class ClaheNodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
 
-    private SettingsModelInteger createCtxDimValue() {
-        return new SettingsModelInteger("nrDims", 8);
+    private SettingsModelIntegerBounded createCtxDimValue() {
+        return new SettingsModelIntegerBounded("nrctxregions", 8, 1, 64);
     }
 
-    private static SettingsModelInteger createCtxNumberOfBins() {
-        return new SettingsModelInteger("nrbins", 256);
+    private static SettingsModelIntegerBounded createCtxNumberOfBins() {
+        return new SettingsModelIntegerBounded("nrbins", 256, 16, 4096);
     }
 
-    private static SettingsModelDouble createCtxSlope() {
-        return new SettingsModelDouble("slope", 3);
+    private static SettingsModelDoubleBounded createCtxSlope() {
+        return new SettingsModelDoubleBounded("slope", 3, 1, Double.MAX_VALUE);
     }
 
     /**
@@ -118,11 +118,11 @@ public class ClaheNodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNod
 
         return new ImgPlusToImgPlusNodeModel<T, T>() {
 
-            private final SettingsModelInteger m_ctxValues = createCtxDimValue();
+            private final SettingsModelIntegerBounded m_ctxValues = createCtxDimValue();
 
-            private final SettingsModelInteger m_bins = createCtxNumberOfBins();
+            private final SettingsModelIntegerBounded m_bins = createCtxNumberOfBins();
 
-            private final SettingsModelDouble m_slope = createCtxSlope();
+            private final SettingsModelDoubleBounded m_slope = createCtxSlope();
 
             @Override
             protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> op(final ImgPlus<T> imgPlus) {
