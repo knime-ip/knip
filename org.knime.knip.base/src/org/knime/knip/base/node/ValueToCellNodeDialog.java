@@ -114,7 +114,7 @@ public abstract class ValueToCellNodeDialog<VIN extends DataValue> extends LazyN
                 .newCursor()
                 .setTextValue("Mode how to handle the selected column. The processed column can be added to a new table, appended to the end of the table, or the old column can be replaced by the new result");
         opt = tab.addNewOption();
-        opt.setName("Column suffix");
+        opt.setName("Column Suffix");
         opt.newCursor()
                 .setTextValue("A suffix appended to the column name. If \"Append\" is not selected, it can be left empty.");
         opt = tab.addNewOption();
