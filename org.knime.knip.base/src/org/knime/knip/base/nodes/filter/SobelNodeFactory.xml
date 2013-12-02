@@ -14,27 +14,44 @@
 
 	<fullDescription>
 		<intro>
-
-			Wikipedia:
 			The Sobel operator is used in image processing,
-			particularly within edge detection algorithms. Technically, it is a
-			discrete differentiation operator, computing an approximation of the
-			gradient of the image intensity function. At each point in the image,
-			the result of the Sobel operator is either the corresponding gradient
+			particularly
+			within edge detection algorithms. Technically, it is a
+			discrete
+			differentiation operator, computing an approximation of the
+			gradient
+			of the image intensity function. At each point in the image,
+			the
+			result of the Sobel operator is either the corresponding gradient
 			vector or the normof this vector. The Sobel operator is based on
 			convolving the image with a small, separable, and integer valued
-			filter in horizontal and vertical direction and is therefore
-			relatively inexpensive in terms of computations. On the other hand,
-			the gradient approximation which it	produces is relatively crude, in
-			particular for high frequency variations in the image.
-
-			Details:
-			http://en.wikipedia.org/wiki/Sobel_operator
+			filter in horizontal
+			and vertical direction and is therefore
+			relatively inexpensive in
+			terms of computations. On the other hand,
+			the gradient approximation
+			which it produces is relatively crude, in
+			particular for high
+			frequency variations in the image (see:
+			http://en.wikipedia.org/wiki/Sobel_operator).
 		</intro>
+		<tab name="options">
+			<option name="Direct Convolution">
+				Direct Convolution of the image. Convolution
+				takes place in image space.
+			</option>
+			<option name="ImgLib 2 Fourier">
+				Based on ImgLib2's Fourier Transformation
+				implemenation. Image and Kernels are converted to FourierSpace and
+				convolved there.
+			</option>
+
+		</tab>
+
 	</fullDescription>
 
 	<ports>
 		<inPort index="0" name="Images">Images</inPort>
-		<outPort index="0" name="Sobel filtered Images">Filtered Images</outPort>
+		<outPort index="0" name="Sobel Filtered Images">Filtered Images</outPort>
 	</ports>
 </knimeNode>
