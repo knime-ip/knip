@@ -82,7 +82,7 @@ public final class ConvexHullNodeFactory extends ImgPlusToImgPlusNodeFactory<Bit
      */
     @Override
     protected ImgPlusToImgPlusNodeDialog<BitType> createNodeDialog() {
-        return new ImgPlusToImgPlusNodeDialog(2, 2, "X", "Y") {
+        return new ImgPlusToImgPlusNodeDialog<BitType>(2, 2, "X", "Y") {
 
             @Override
             public void addDialogComponents() {
