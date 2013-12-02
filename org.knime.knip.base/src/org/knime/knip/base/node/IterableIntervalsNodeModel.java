@@ -195,7 +195,7 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
     protected ImgPlusCellFactory m_cellFactory;
 
     // indicator whether dimension selection should be added
-    private boolean hasDimSelection;
+    private boolean m_hasDimSelection;
 
     /**
      * Convienience constructor. If you want to avoid dimension selection, you can do so using the other constructor.
@@ -208,7 +208,7 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
      * @param hasDimSelection set false if you don't want to use dimension selection
      */
     public IterableIntervalsNodeModel(@SuppressWarnings("hiding") final boolean hasDimSelection) {
-        this.hasDimSelection = hasDimSelection;
+        this.m_hasDimSelection = hasDimSelection;
         if (hasDimSelection) {
             m_dimSelectionModel = createDimSelectionModel("X", "Y");
         }
@@ -234,12 +234,12 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
         int idx = getOptionalColumnIdx((DataTableSpec)inSpecs[0]);
 
         if (idx == -1) {
-            if (hasDimSelection) {
+            if (m_hasDimSelection) {
                 m_dimSelectionModel.setEnabled(true);
             }
             m_fillNonROIPixels.setEnabled(false);
         } else {
-            if (hasDimSelection) {
+            if (m_hasDimSelection) {
                 m_dimSelectionModel.setEnabled(false);
             }
             m_fillNonROIPixels.setEnabled(true);
@@ -254,8 +254,10 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
     @SuppressWarnings("unchecked")
     @Override
     protected void computeDataRow(final DataRow row) {
-        if (m_optionalColIdx != -1) {
-            m_currentLabeling = ((LabelingValue<L>)row.getCell(m_optionalColIdx)).getLabeling();
+        if(!row.getCell(m_optionalColIdx).isMissing()) {
+            if (m_optionalColIdx != -1) {
+                m_currentLabeling = ((LabelingValue<L>)row.getCell(m_optionalColIdx)).getLabeling();
+            }
         }
     }
 
@@ -275,7 +277,7 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
         super.collectSettingsModels();
         m_settingsModels.add(m_optionalColumnModel);
 
-        if (hasDimSelection) {
+        if (m_hasDimSelection) {
             m_settingsModels.add(m_dimSelectionModel);
         }
         m_settingsModels.add(m_fillNonROIPixels);
@@ -310,14 +312,15 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
         ImgPlus<T> in = cellValue.getImgPlus();
         ImgPlus<V> res = createResultImage(cellValue.getImgPlus());
 
-        if (!m_dimSelectionModel.isContainedIn(cellValue.getMetadata())) {
+
+        if (m_hasDimSelection && !m_dimSelectionModel.isContainedIn(cellValue.getMetadata())) {
             LOGGER.warn("image " + cellValue.getMetadata().getName() + " does not provide all selected dimensions.");
         }
 
         V outType = getOutType(in.firstElement());
 
         int[] selectedDimIndices = null;
-        if (hasDimSelection) {
+        if (m_hasDimSelection) {
             selectedDimIndices = m_dimSelectionModel.getSelectedDimIndices(in);
         } else {
             // set all as selected
