@@ -306,7 +306,7 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
 
             final Img<T> out = ImgUtils.createEmptyCopy(in);
             final UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> op =
-                    createOperationGray(m_structElement, m_smDimensions.getNumSelectedDimLabels());
+                    createOperationGray(m_structElement, in.numDimensions());
 
             try {
                 OutOfBoundsFactory<T, RandomAccessibleInterval<T>> strategy =
