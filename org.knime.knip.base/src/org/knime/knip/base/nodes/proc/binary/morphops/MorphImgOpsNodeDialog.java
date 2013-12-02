@@ -69,7 +69,7 @@ import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
 import org.knime.knip.core.util.EnumUtils;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -99,15 +99,6 @@ public class MorphImgOpsNodeDialog extends ValueToCellNodeDialog<ImgPlusValue<Bi
                            new DialogComponentStringSelection(MorphImgOpsNodeModel.createOperationModel(), "Method",
                                    MorphOp.NAMES));
 
-        // TODO: Removed as not compatible with all nodes
-        // addDialogComponent(
-        // "Options",
-        // "Operation",
-        // new DialogComponentNumberEdit(
-        // MorphImgOpsNodeModel
-        // .createNeighborhoodCountModel(),
-        // "Neighborhood Count"));
-
         type.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(final ChangeEvent e) {
@@ -123,9 +114,9 @@ public class MorphImgOpsNodeDialog extends ValueToCellNodeDialog<ImgPlusValue<Bi
 
         addDialogComponent("Options", "Operation",
                            new DialogComponentNumber(MorphImgOpsNodeModel.createIterationsModel(),
-                                   "Number of iterations", 1));
+                                   "Number of Iterations", 1));
 
-        addDialogComponent("Options", "Dimension selection",
+        addDialogComponent("Options", "Dimension Selection",
                            new DialogComponentDimSelection(MorphImgOpsNodeModel.createDimSelectionModel(), "", 2,
                                    Integer.MAX_VALUE));
 

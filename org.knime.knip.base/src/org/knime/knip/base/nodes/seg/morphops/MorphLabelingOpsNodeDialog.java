@@ -67,7 +67,7 @@ import org.knime.knip.base.nodes.seg.morphops.MorphLabelingOpsNodeModel.LabelHan
 import org.knime.knip.base.nodes.seg.morphops.MorphLabelingOpsNodeModel.MorphOp;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -114,6 +114,7 @@ public class MorphLabelingOpsNodeDialog<L extends Comparable<L>> extends ValueTo
         addDialogComponent("Options", "Operation",
                            new DialogComponentNumber(MorphLabelingOpsNodeModel.createIterationsModel(),
                                    "Number of iterations", 1));
+
         addDialogComponent("Options", "Dimension selection",
                            new DialogComponentDimSelection(MorphLabelingOpsNodeModel.createDimSelectionModel(), "", 2,
                                    Integer.MAX_VALUE));
