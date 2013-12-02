@@ -75,7 +75,7 @@ public class EnumUtils {
             }
         }
 
-        throw new IllegalArgumentException("Unknown filling mode");
+        throw new IllegalArgumentException("Unknown enum value");
     }
 
     /**
