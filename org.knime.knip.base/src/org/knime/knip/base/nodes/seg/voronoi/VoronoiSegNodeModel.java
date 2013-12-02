@@ -95,8 +95,8 @@ import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 
 /**
- *
- *
+ * 
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -202,13 +202,11 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
                 seed.dimensions(labDims);
 
                 if (!Arrays.equals(imgDims, labDims)) {
-                    LOGGER.error("Labeling and Image dimensions in row " + row.getKey() + " are not compatible.");
+                    setWarningMessage("Labeling and Image dimensions in row " + row.getKey() + " are not compatible.");
                     if (m_resultCols.getStringValue().equals(RESULT_COLUMNS[2])) {
-                        setWarningMessage("Some errors occured!");
                         return new DataCell[]{DataType.getMissingCell(), DataType.getMissingCell()};
 
                     } else {
-                        setWarningMessage("Some errors occured!");
                         return new DataCell[]{DataType.getMissingCell()};
 
                     }
@@ -357,7 +355,7 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
 
     /**
      * does nothing.
-     *
+     * 
      * @see org.knime.core.node.NodeModel# loadInternals(java.io.File, org.knime.core.node.ExecutionMonitor)
      */
     @Override
@@ -368,7 +366,7 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
 
     /**
      * load settings.
-     *
+     * 
      * @see org.knime.core.node.NodeModel#loadValidatedSettingsFrom (NodeSettingsRO)
      * @param settings where from
      * @throws InvalidSettingsException when sth's wrong
@@ -391,7 +389,7 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
 
     /**
      * reset.
-     *
+     * 
      * @see org.knime.core.node.NodeModel#reset()
      */
     @Override
@@ -400,7 +398,7 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
 
     /**
      * does nothing.
-     *
+     * 
      * @see org.knime.core.node.NodeModel# saveInternals(java.io.File, org.knime.core.node.ExecutionMonitor)
      */
     @Override
@@ -411,7 +409,7 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
 
     /**
      * save settings.
-     *
+     * 
      * @see org.knime.core.node.NodeModel#saveSettingsTo (NodeSettingsWO)
      * @param settings where
      */
@@ -436,7 +434,7 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
 
     /**
      * validate settings.
-     *
+     * 
      * @see org.knime.core.node.NodeModel#validateSettings (NodeSettingsRO)
      * @param settings settings
      * @throws InvalidSettingsException when sth's wrong

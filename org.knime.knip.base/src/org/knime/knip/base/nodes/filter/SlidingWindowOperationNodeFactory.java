@@ -92,7 +92,7 @@ public abstract class SlidingWindowOperationNodeFactory<T extends RealType<T>, V
     protected final String INTEGRAL_IMAGE_SPEED_UP_TEXT =
             "Activates the usage of integral images. If the sum of all pixels is smaller than the internal type of the integral image overflows will occur.";
 
-    protected final String NO_SPEED_UP_TEXT = "no speed up method used";
+    protected final String NO_SPEED_UP_TEXT = "No speed up method used";
 
     /**
      * {@inheritDoc}
@@ -107,9 +107,14 @@ public abstract class SlidingWindowOperationNodeFactory<T extends RealType<T>, V
         int index = DescriptionHelper.findTabIndex("Options", node.getFullDescription().getTabList());
         DialogComponentOutOfBoundsSelection.createNodeDescription(node.getFullDescription().getTabArray(index)
                 .addNewOption());
+<<<<<<< HEAD
         DialogComponentSpanSelection.createNodeDescription(node.getFullDescription().getTabArray(index).addNewOption());
 
         super.addNodeDescriptionContent(node);
+=======
+
+        DialogComponentSpanSelection.createNodeDescription(node.getFullDescription().getTabArray(index).addNewOption());
+>>>>>>> master
     }
 
     /**

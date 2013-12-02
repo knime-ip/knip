@@ -50,8 +50,7 @@
 			<option name="Use Threshold">If the specified threshold value should be used.
 			</option>
 			<option name="Threshold Value">Set the threshold where the watershed should stop
-				no matter if
-				* another water basin was reached.</option>
+				no matter if another water basin was reached.</option>
 		</tab>
 	</fullDescription>
 

@@ -49,11 +49,11 @@
 package org.knime.knip.base.nodes.filter;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 import net.imglib2.algorithm.gauss3.Gauss3;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.Operations;
-import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
@@ -63,9 +63,6 @@ import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelDoubleBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.knime.knip.base.data.img.ImgPlusCell;
-import org.knime.knip.base.data.img.ImgPlusValue;
-import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
@@ -141,24 +138,12 @@ public class GaussNativeTypeNodeFactory<T extends NumericType<T> & RealType<T> &
                 settingsModels.add(m_outOfBoundsStrategy);
             }
 
-            // we need to override this method, as we don't want plane-wise multi-threading (as Gauss3 offers inherent multi-threading support).
+            /**
+             * {@inheritDoc}
+             */
             @Override
-            protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
-
-                if (!m_dimSelection.isContainedIn(cellValue.getMetadata())) {
-                    LOGGER.warn("image " + cellValue.getMetadata().getName()
-                            + " does not provide all selected dimensions.");
-                }
-
-                if (m_dimSelection.getNumSelectedDimLabels(cellValue.getMetadata()) < getMinDimensions()) {
-                    throw new KNIPException("not enough selected dimensions provided by image.");
-                }
-
-                final UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> op = op(cellValue.getImgPlus());
-                final int[] selection = m_dimSelection.getSelectedDimIndices(cellValue.getMetadata());
-
-                return m_imgCellFactory.createCell(SubsetOperations.iterate(op, selection, cellValue.getImgPlus(), op
-                        .bufferFactory().instantiate(cellValue.getImgPlus())), cellValue.getMinimum());
+            protected ExecutorService getExecutorService() {
+                return null;
             }
 
             @Override
