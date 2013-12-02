@@ -139,6 +139,9 @@ public class ConvolverNodeModel<T extends RealType<T>, O extends RealType<O>, K 
 
     private final SettingsModelString m_smOutOfBoundsStrategy = createOutOfBoundsModel();
 
+    /**
+     *
+     */
     public ConvolverNodeModel() {
         super(new PortType[]{BufferedDataTable.TYPE});
 
