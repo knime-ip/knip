@@ -53,11 +53,13 @@ import net.imglib2.type.numeric.RealType;
 
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
+import org.knime.knip.base.node.dialog.DescriptionHelper;
+import org.knime.knip.base.node.dialog.DialogComponentOutOfBoundsSelection;
 import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 import org.knime.node2012.TabDocument.Tab;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -78,6 +80,10 @@ public class ConvolverNodeFactory<T extends RealType<T>, O extends RealType<O>, 
         for (final String convolver : MultiKernelImageConvolverManager.getConvolverNames()) {
             MultiKernelImageConvolverManager.getConvolverByName(convolver).addNodeDescription(convolverTab);
         }
+
+        int index = DescriptionHelper.findTabIndex("Options", node.getFullDescription().getTabList());
+        DialogComponentOutOfBoundsSelection.createNodeDescription(node.getFullDescription().getTabArray(index)
+                .addNewOption());
     }
 
     /**

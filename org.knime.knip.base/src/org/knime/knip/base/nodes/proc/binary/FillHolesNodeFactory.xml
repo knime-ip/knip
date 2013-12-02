@@ -7,24 +7,28 @@
 <knimeNode icon="icons/fillholes.png" type="Manipulator">
 	<name>Fill Holes</name>
 	<shortDescription>
-		Perform binary arithmetic on binary or segmented images.
-  </shortDescription>
+		Fill black holes in binary images 
+  	</shortDescription>
 
 	<fullDescription>
-		<intro>Perform binary arithmetic on binary or segmented images.
+		<intro>
+			Fill black holes in binary images. 
 		</intro>
 		<tab name="Options">
-			<option name="Choose image column">
-				Select the column to process here.
-    </option>
-			<option name="Segment preserving">
-				If not checked runs bit type operations. Faster but merges segments.
+			<option name="Connection Type">
+				Neighborhood definition.
+					<ul>
+						<li>FOUR_CONNECTED: These pixels are connected along one of the
+							primary axes.</li>
+						<li>EIGHT_CONNECTED: These pixels are connected along either one,
+							two, or all of the primary axes.</li>
+					</ul>
 			</option>
 		</tab>
 	</fullDescription>
 
 	<ports>
-		<inPort index="0" name="Segmentation">Images</inPort>
-		<outPort index="0" name="Segmentation">Result</outPort>
+		<inPort index="0" name="Images (BitType)">Images</inPort>
+		<outPort index="0" name="Images (BitType)">Images without holes</outPort>
 	</ports>
 </knimeNode>

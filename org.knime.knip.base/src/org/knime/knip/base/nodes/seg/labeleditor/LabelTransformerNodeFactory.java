@@ -62,8 +62,7 @@ import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeSettingsRO;
-import org.knime.core.node.NotConfigurableException;
+import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.port.PortObjectSpec;
@@ -102,33 +101,15 @@ public class LabelTransformerNodeFactory<L extends Comparable<L>> extends ValueT
     protected ValueToCellNodeDialog<LabelingValue<L>> createNodeDialog() {
         return new ValueToCellNodeDialog<LabelingValue<L>>() {
 
-            private DialogComponentStringTransformer m_dialogComponent;
-
             @Override
             public void addDialogComponents() {
-
-                m_dialogComponent = new DialogComponentStringTransformer(createExpressionModel());
-                addDialogComponent("Options", "", m_dialogComponent);
+                DialogComponent dc =
+                        new DialogComponentStringTransformer(createExpressionModel(), true, 0, null, new String[]{
+                                LABEL_VAR, ROW_VAR});
+                addDialogComponent("Options", "", dc);
 
             }
 
-            @Override
-            public void loadAdditionalSettingsFrom(final NodeSettingsRO settings, final DataTableSpec[] specs)
-                    throws NotConfigurableException {
-
-                final String[] colNames = new String[specs[0].getColumnNames().length + 2];
-                int i = 0;
-                for (final String col : specs[0].getColumnNames()) {
-                    colNames[i++] = col;
-                }
-
-                colNames[colNames.length - 2] = ROW_VAR;
-                colNames[colNames.length - 1] = LABEL_VAR;
-
-                m_dialogComponent.setVariables(colNames);
-
-                super.loadAdditionalSettingsFrom(settings, specs);
-            }
         };
     }
 
