@@ -70,7 +70,7 @@ public class MultilevelThresholderNodeDialog<T extends RealType<T>> extends ImgP
      * Constructor
      */
     public MultilevelThresholderNodeDialog() {
-        super(MultilevelThresholderNodeModel.createDimSelectionModel(), 2, 2);
+        super(1, Integer.MAX_VALUE, "X", "Y");
     }
 
     @Override
