@@ -141,7 +141,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
      * @return SettingsModel to store factory selection
      */
     static SettingsModelString createSMFactorySelection() {
-        return new SettingsModelString("cfg_factory_selection", "");
+        return new SettingsModelString("cfg_factory_selection", ImgFactoryTypes.SOURCE_FACTORY.toString());
     }
 
     /**
