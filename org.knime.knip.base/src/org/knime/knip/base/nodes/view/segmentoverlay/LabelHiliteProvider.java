@@ -59,6 +59,7 @@ import net.imglib2.labeling.LabelingType;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.data.RowKey;
+import org.knime.core.node.property.hilite.DefaultHiLiteHandler;
 import org.knime.core.node.property.hilite.HiLiteHandler;
 import org.knime.core.node.property.hilite.HiLiteListener;
 import org.knime.core.node.property.hilite.KeyEvent;
@@ -74,12 +75,13 @@ import org.knime.knip.core.ui.imgviewer.panels.HiddenViewerComponent;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class LabelHiliteProvider<L extends Comparable<L>, T extends RealType<T>> extends HiddenViewerComponent {
+public class LabelHiliteProvider<L extends Comparable<L>, T extends RealType<T>> extends HiddenViewerComponent
+        implements HiLiteListener {
 
     /**
      *
@@ -92,8 +94,6 @@ public class LabelHiliteProvider<L extends Comparable<L>, T extends RealType<T>>
 
     private HiLiteHandler m_hiliteHandler;
 
-    private HiLiteListener m_hiliteListener;
-
     private RandomAccess<LabelingType<L>> m_labelingAccess;
 
     private String m_rowKey;
@@ -102,14 +102,12 @@ public class LabelHiliteProvider<L extends Comparable<L>, T extends RealType<T>>
 
     public LabelHiliteProvider() {
         m_hilitedLabels = new HashSet<String>();
+        m_hiliteHandler = new DefaultHiLiteHandler();
     }
 
     public void clearHiliteListener() {
         m_hilitedLabels.clear();
-
-        if (m_hiliteHandler != null) {
-            m_hiliteHandler.removeHiLiteListener(m_hiliteListener);
-        }
+        m_hiliteHandler.removeHiLiteListener(this);
     }
 
     public void close() {
@@ -118,9 +116,7 @@ public class LabelHiliteProvider<L extends Comparable<L>, T extends RealType<T>>
 
     private void createHiliteFromHandler(final HiLiteHandler hiliteHandler) {
         m_hilitedLabels.clear();
-        if (hiliteHandler != null) {
-            handleHiLiteEvent(hiliteHandler.getHiLitKeys());
-        }
+        handleHiLiteEvent(hiliteHandler.getHiLitKeys());
     }
 
     private void handleHiLiteEvent(final Set<RowKey> rowKeys) {
@@ -248,36 +244,33 @@ public class LabelHiliteProvider<L extends Comparable<L>, T extends RealType<T>>
         }
 
         m_hilitedLabels.clear();
-        if (m_hiliteHandler != null) {
-            m_hiliteHandler.removeHiLiteListener(m_hiliteListener);
-        }
+        m_hiliteHandler.removeHiLiteListener(this);
 
         m_hiliteHandler = hiliteInHandler;
         createHiliteFromHandler(m_hiliteHandler);
 
-        m_hiliteListener = new HiLiteListener() {
-            @Override
-            public void hiLite(final KeyEvent event) {
-                final Set<RowKey> rowKeys = event.keys();
-                handleHiLiteEvent(rowKeys);
-                m_eventService.publish(new ImgRedrawEvent());
-            }
+        m_hiliteHandler.addHiLiteListener(this);
+    }
 
-            @Override
-            public void unHiLite(final KeyEvent event) {
-                final Set<RowKey> rowKeys = event.keys();
-                handleUnHiLiteEvent(rowKeys);
-                m_eventService.publish(new ImgRedrawEvent());
-            }
+    @Override
+    public void hiLite(final KeyEvent event) {
+        final Set<RowKey> rowKeys = event.keys();
+        handleHiLiteEvent(rowKeys);
+        m_eventService.publish(new ImgRedrawEvent());
+    }
 
-            @Override
-            public void unHiLiteAll(final KeyEvent event) {
-                m_hilitedLabels.clear();
-                m_eventService.publish(new HilitedLabelsChgEvent(m_hilitedLabels));
-                m_eventService.publish(new ImgRedrawEvent());
-            }
-        };
-        m_hiliteHandler.addHiLiteListener(m_hiliteListener);
+    @Override
+    public void unHiLite(final KeyEvent event) {
+        final Set<RowKey> rowKeys = event.keys();
+        handleUnHiLiteEvent(rowKeys);
+        m_eventService.publish(new ImgRedrawEvent());
+    }
+
+    @Override
+    public void unHiLiteAll(final KeyEvent event) {
+        m_hilitedLabels.clear();
+        m_eventService.publish(new HilitedLabelsChgEvent(m_hilitedLabels));
+        m_eventService.publish(new ImgRedrawEvent());
     }
 
 }

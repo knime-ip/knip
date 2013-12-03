@@ -71,6 +71,7 @@ import org.knime.knip.core.ui.imgviewer.events.HilitedLabelsChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.IntervalWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelColoringChangeEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelOptionsChangeEvent;
+import org.knime.knip.core.ui.imgviewer.events.LabelPanelIsHiliteModeEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelPanelVisibleLabelsChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelingWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter.Operator;
@@ -255,6 +256,11 @@ public class LabelingRU<L extends Comparable<L>> extends AbstractDefaultRU<Label
     @EventListener
     public void onUpdated(final HilitedLabelsChgEvent e) {
         m_hilitedLabels = e.getHilitedLabels();
+    }
+
+    @EventListener
+    public void onUpdated(final LabelPanelIsHiliteModeEvent e) {
+        m_isHiliteMode = e.isHiliteMode();
     }
 
     /**
