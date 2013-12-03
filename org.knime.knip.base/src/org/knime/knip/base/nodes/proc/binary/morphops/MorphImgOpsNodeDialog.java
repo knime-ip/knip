@@ -54,8 +54,9 @@ import javax.swing.event.ChangeListener;
 import net.imglib2.type.logic.BitType;
 
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.node.NodeLogger;
+import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
@@ -80,6 +81,8 @@ public class MorphImgOpsNodeDialog extends ValueToCellNodeDialog<ImgPlusValue<Bi
 
     private boolean m_structProvided;
 
+    private SettingsModelString m_type;
+
     /**
      * {@inheritDoc}
      */
@@ -87,30 +90,29 @@ public class MorphImgOpsNodeDialog extends ValueToCellNodeDialog<ImgPlusValue<Bi
     @Override
     public void addDialogComponents() {
 
-        final SettingsModelString type = MorphImgOpsNodeModel.createConnectionTypeModel();
-        addDialogComponent("Options", "Structuring Element", new DialogComponentStringSelection(type,
+        m_type = MorphImgOpsNodeModel.createConnectionTypeModel();
+        addDialogComponent("Options", "Structuring Element", new DialogComponentStringSelection(m_type,
                 "Connection Type", MorphImgOpsNodeModel.ConnectedType.NAMES));
+
         m_struct = MorphImgOpsNodeModel.createColStructureModel();
 
-        addDialogComponent("Options", "Structuring Element", new DialogComponentColumnNameSelection(m_struct, "Column",
-                1, false, true, ImgPlusValue.class));
+        final SettingsModelString structColumn = m_struct;
+
+        m_type.addChangeListener(new ChangeListener() {
+
+            @Override
+            public void stateChanged(final ChangeEvent e) {
+                // activate column selection if structuring element was selected
+                structColumn.setEnabled(isStructuringElement(m_type.getStringValue()));
+            }
+        });
+
+        addDialogComponent("Options", "Structuring Element", new DialogComponentColumnNameSelection(m_struct,
+                "Structuring Element", 1, false, true, ImgPlusValue.class));
 
         addDialogComponent("Options", "Operation",
                            new DialogComponentStringSelection(MorphImgOpsNodeModel.createOperationModel(), "Method",
                                    MorphOp.NAMES));
-
-        type.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(final ChangeEvent e) {
-                if (MorphImgOpsNodeModel.ConnectedType.value(type.getStringValue()) != MorphImgOpsNodeModel.ConnectedType.STRUCTURING_ELEMENT) {
-                    m_struct.setStringValue(null);
-                } else if (!m_structProvided) {
-                    type.setStringValue(MorphImgOpsNodeModel.ConnectedType.FOUR_CONNECTED.toString());
-                    NodeLogger.getLogger(this.getClass())
-                            .warn("No strucutring element in inport 2 provided. Four-Connected is chosen by default.");
-                }
-            }
-        });
 
         addDialogComponent("Options", "Operation",
                            new DialogComponentNumber(MorphImgOpsNodeModel.createIterationsModel(),
@@ -128,12 +130,39 @@ public class MorphImgOpsNodeDialog extends ValueToCellNodeDialog<ImgPlusValue<Bi
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveAdditionalSettingsTo(final NodeSettingsWO settings) throws InvalidSettingsException {
+        super.saveAdditionalSettingsTo(settings);
+
+        if (MorphImgOpsNodeModel.ConnectedType.value(m_type.getStringValue()) == MorphImgOpsNodeModel.ConnectedType.STRUCTURING_ELEMENT
+                && !m_structProvided) {
+            throw new InvalidSettingsException(
+                    "You can't have a strucuturing element selection without providing a strucuturing element in the second in port!");
+        }
+
+    }
+
+    private boolean isStructuringElement(final String type) {
+        return type == null
+                || MorphImgOpsNodeModel.ConnectedType.value(type) == MorphImgOpsNodeModel.ConnectedType.STRUCTURING_ELEMENT;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void loadAdditionalSettingsFrom(final NodeSettingsRO settings, final DataTableSpec[] specs)
             throws NotConfigurableException {
         super.loadAdditionalSettingsFrom(settings, specs);
-
         m_structProvided = specs[1].getNumColumns() != 0;
-        m_struct.setEnabled(m_structProvided);
+
+        // if we dont have a structuring element anymore we select four connected as default
+        if (!m_structProvided && m_struct.getStringValue() != null && isStructuringElement(m_type.getStringValue())) {
+            // auto select something else
+            m_type.setStringValue(MorphImgOpsNodeModel.ConnectedType.FOUR_CONNECTED.toString());
+        }
     }
 }
