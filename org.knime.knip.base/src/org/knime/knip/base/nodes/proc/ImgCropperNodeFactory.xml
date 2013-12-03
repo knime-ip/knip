@@ -13,8 +13,19 @@
 
 	<fullDescription>
 		<intro>Crops orthogonal selections from an image and puts them
-			together again</intro>
+			together again
+		</intro>
 	</fullDescription>
+
+	<tab name="Options">
+		<option name="Subset Selection">Select the subset of your image which will be
+			recombined to one image.
+		</option>
+		<option name="Adjust Dimensionality?">If true, dimensions of size one will be removed
+			from the resulting image.
+		</option>
+	</tab>
+
 
 	<ports>
 		<inPort index="0" name="Images">Images</inPort>

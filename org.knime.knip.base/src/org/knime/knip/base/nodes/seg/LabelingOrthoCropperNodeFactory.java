@@ -76,10 +76,12 @@ import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
 
 /**
  * Factory class to produce the Histogram Operations Node.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <L>
  */
 public class LabelingOrthoCropperNodeFactory<L extends Comparable<L>> extends ValueToCellNodeFactory<LabelingValue<L>> {
 
@@ -101,11 +103,11 @@ public class LabelingOrthoCropperNodeFactory<L extends Comparable<L>> extends Va
             @Override
             public void addDialogComponents() {
 
-                addDialogComponent("Options", "Subset", new DialogComponentSubsetSelection(
+                addDialogComponent("Options", "Subset Selection" , new DialogComponentSubsetSelection(
                         createSubsetSelectionModel(), true, true));
 
                 addDialogComponent("Options", "Options", new DialogComponentBoolean(createAdjustDimModel(),
-                        "Adjust dimensionality?"));
+                        "Adjust Dimensionality?"));
             }
         };
     }
@@ -166,7 +168,7 @@ public class LabelingOrthoCropperNodeFactory<L extends Comparable<L>> extends Va
                     final List<CalibratedAxis> validAxes = new ArrayList<CalibratedAxis>();
                     for (int d = 0; d < lab.numDimensions(); d++) {
                         if (!mergeOp.getInvalidDims().contains(d)) {
-                            validAxes.add((CalibratedAxis)cellValue.getLabelingMetadata().axis(d).copy());
+                            validAxes.add(cellValue.getLabelingMetadata().axis(d).copy());
                         }
 
                     }
