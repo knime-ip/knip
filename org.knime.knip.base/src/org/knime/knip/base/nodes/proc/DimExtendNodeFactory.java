@@ -118,8 +118,13 @@ public class DimExtendNodeFactory<T extends RealType<T>> extends ValueToCellNode
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
                 ImgPlus<T> res = Operations.compute(m_ext, cellValue.getImgPlus());
                 res.setName(cellValue.getMetadata().getName());
-                res.setName(cellValue.getMetadata().getSource());
-                return m_imgCellFactory.createCell(res, cellValue.getMinimum());
+                res.setSource(cellValue.getMetadata().getSource());
+
+                long[] minimum = cellValue.getMinimum();
+                long[] newMinimum = new long[minimum.length + 1];
+                System.arraycopy(minimum, 0, newMinimum, 0, minimum.length);
+
+                return m_imgCellFactory.createCell(res, newMinimum);
             }
 
             @Override
