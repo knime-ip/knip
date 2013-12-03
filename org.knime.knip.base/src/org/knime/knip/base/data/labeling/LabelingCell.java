@@ -71,6 +71,7 @@ import net.imglib2.meta.CalibratedSpace;
 import net.imglib2.meta.Named;
 import net.imglib2.meta.Sourced;
 import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.view.Views;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataCellDataInput;
@@ -234,26 +235,33 @@ public class LabelingCell<L extends Comparable<L>> extends FileStoreCell impleme
     }
 
     private BufferedImage createThumbnail(final double factor) {
+        LOGGER.debug("Create thumbnail of labeling ...");
 
-        LOGGER.debug("Create thumbnail ...");
+        // make sure that at least two dimensions exist
+        RandomAccessibleInterval<LabelingType<L>> lab2d;
+        if (m_lab.numDimensions() > 1) {
+            lab2d = m_lab;
+        } else {
+            lab2d = Views.addDimension(m_lab, 0, 0);
+        }
 
         // set the labeling mapping
         final ColorLabelingRenderer<L> rend = new ColorLabelingRenderer<L>();
-        rend.setLabelMapping(m_lab.randomAccess().get().getMapping());
+        rend.setLabelMapping(lab2d.randomAccess().get().getMapping());
 
         int i = 0;
-        final long[] max = new long[m_lab.numDimensions()];
-        max[0] = m_lab.max(0);
-        max[1] = m_lab.max(1);
-        for (i = 2; i < m_lab.numDimensions(); i++) {
-            if ((m_lab.dimension(i) == 2) || (m_lab.dimension(i) == 3)) {
-                max[i] = m_lab.max(i);
+        final long[] max = new long[lab2d.numDimensions()];
+        max[0] = lab2d.max(0);
+        max[1] = lab2d.max(1);
+        for (i = 2; i < lab2d.numDimensions(); i++) {
+            if ((lab2d.dimension(i) == 2) || (lab2d.dimension(i) == 3)) {
+                max[i] = lab2d.max(i);
                 break;
             }
         }
 
         final RandomAccessibleInterval<LabelingType<L>> subInterval =
-                getSubInterval(new FinalInterval(new long[m_lab.numDimensions()], max));
+                getSubInterval(new FinalInterval(new long[lab2d.numDimensions()], max));
 
         rend.setLabelingColorTable(LabelingColorTableUtils.extendLabelingColorTable(m_labelingMetadata
                 .getLabelingMetadata().getLabelingColorTable(), new RandomMissingColorHandler()));
