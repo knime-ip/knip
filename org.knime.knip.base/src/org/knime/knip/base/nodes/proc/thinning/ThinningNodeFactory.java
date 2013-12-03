@@ -50,6 +50,7 @@ package org.knime.knip.base.nodes.proc.thinning;
 
 import java.util.List;
 
+import net.imglib2.img.ImgFactory;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.ImgOperations;
 import net.imglib2.ops.operation.UnaryOutputOperation;
@@ -61,7 +62,9 @@ import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.knime.knip.base.exceptions.ImageTypeNotCompatibleException;
+import org.knime.knip.base.data.img.ImgPlusCell;
+import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
@@ -111,27 +114,45 @@ public class ThinningNodeFactory<T extends RealType<T>> extends ImgPlusToImgPlus
 * {@inheritDoc}
 */
     @Override
+    @SuppressWarnings("unchecked") // Handled in compute()
     public ImgPlusToImgPlusNodeModel<T, T> createNodeModel() {
 
-        return new ImgPlusToImgPlusNodeModel<T, T>() {
+        return new ImgPlusToImgPlusNodeModel<T, T>("X","Y") {
 
             private final SettingsModelString m_ThinningAlgorithm = createThinningAlgorithm();
 
             private final SettingsModelBoolean m_WhiteForeground = createForeground();
 
+
+
             @Override
             protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> op(final ImgPlus<T> imgPlus) {
 
-                if(!(imgPlus.firstElement() instanceof BitType)) {
-                    throw new ImageTypeNotCompatibleException(",,thinning''", imgPlus.firstElement(), BitType.class);
-                }
-
                 ThinningStrategyFactory fac = new ThinningStrategyFactory(m_WhiteForeground.getBooleanValue());
+
+
+
                 ThinningOp<T> thinning =
-                        new ThinningOp<T>(fac.getStrategy(m_ThinningAlgorithm.getStringValue()), m_WhiteForeground.getBooleanValue());
+                        new ThinningOp<T>(fac.getStrategy(m_ThinningAlgorithm.getStringValue()), m_WhiteForeground.getBooleanValue(), (ImgFactory<BitType>)imgPlus.factory());
 
                 return ImgOperations.wrapRA(thinning, imgPlus.firstElement());
             }
+
+
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
+                // Overwritten to add additional (graceful) type checking
+                if(!(cellValue.getImgPlus().firstElement() instanceof BitType)) {
+                    throw new KNIPException("Thinning is only possible on binary images, missing cell inserted instead.");
+                }
+                return super.compute(cellValue);
+            }
+
+
 
             @Override
             protected int getMinDimensions() {
@@ -142,6 +163,7 @@ public class ThinningNodeFactory<T extends RealType<T>> extends ImgPlusToImgPlus
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
                 settingsModels.add(m_ThinningAlgorithm);
               settingsModels.add(m_WhiteForeground);
+              settingsModels.add(m_dimSelection);
             }
         };
     }

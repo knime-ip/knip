@@ -72,10 +72,10 @@ public class MorphologicalThinning extends Abstract3x3NeighbourhoodThinning {
     }
 
     @Override
-    public boolean removePixel(final long[] position, final RandomAccessible<BitType> img) {
+    public boolean removePixel(final long[] position, final RandomAccessible<BitType> accessible) {
 
         // Setup
-        RandomAccess<BitType> access = img.randomAccess();
+        RandomAccess<BitType> access = accessible.randomAccess();
         access.setPosition(position);
 
         boolean[] vals = getNeighbourhood(access);
@@ -112,12 +112,12 @@ public class MorphologicalThinning extends Abstract3x3NeighbourhoodThinning {
      *  Since the ThinningOp only checks pixels which are in the foreground, the center pixel is alway 1.
      */
     private boolean top(final boolean[] vals) {
-        if (vals[1] == m_Background && vals[2] == m_Background && vals[8] == m_Background && vals[4] == m_Foreground
-                && vals[5] == m_Foreground && vals[6] == m_Foreground) {
+        if (vals[1] == m_background && vals[2] == m_background && vals[8] == m_background && vals[4] == m_foreground
+                && vals[5] == m_foreground && vals[6] == m_foreground) {
             return true;
         }
-        if (vals[1] == m_Background && vals[2] == m_Background && vals[3] == m_Background && vals[5] == m_Foreground
-                && vals[7] == m_Foreground) {
+        if (vals[1] == m_background && vals[2] == m_background && vals[3] == m_background && vals[5] == m_foreground
+                && vals[7] == m_foreground) {
             return true;
         }
 
@@ -126,12 +126,12 @@ public class MorphologicalThinning extends Abstract3x3NeighbourhoodThinning {
 
     // Rotated by 90 degrees RIGHT
     private boolean right(final boolean[] vals) {
-        if (vals[2] == m_Background && vals[3] == m_Background && vals[4] == m_Background && vals[6] == m_Foreground
-                && vals[7] == m_Foreground && vals[8] == m_Foreground) {
+        if (vals[2] == m_background && vals[3] == m_background && vals[4] == m_background && vals[6] == m_foreground
+                && vals[7] == m_foreground && vals[8] == m_foreground) {
             return true;
         }
-        if (vals[3] == m_Background && vals[4] == m_Background && vals[5] == m_Background && vals[1] == m_Foreground
-                && vals[7] == m_Foreground) {
+        if (vals[3] == m_background && vals[4] == m_background && vals[5] == m_background && vals[1] == m_foreground
+                && vals[7] == m_foreground) {
             return true;
         }
 
@@ -140,12 +140,12 @@ public class MorphologicalThinning extends Abstract3x3NeighbourhoodThinning {
 
     // Rotated by 180 degrees
     private boolean bottom(final boolean[] vals) {
-        if (vals[4] == m_Background && vals[5] == m_Background && vals[6] == m_Background && vals[1] == m_Foreground
-                && vals[2] == m_Foreground && vals[8] == m_Foreground) {
+        if (vals[4] == m_background && vals[5] == m_background && vals[6] == m_background && vals[1] == m_foreground
+                && vals[2] == m_foreground && vals[8] == m_foreground) {
             return true;
         }
-        if (vals[5] == m_Background && vals[6] == m_Background && vals[7] == m_Background && vals[1] == m_Foreground
-                && vals[3] == m_Foreground) {
+        if (vals[5] == m_background && vals[6] == m_background && vals[7] == m_background && vals[1] == m_foreground
+                && vals[3] == m_foreground) {
             return true;
         }
 
@@ -154,12 +154,12 @@ public class MorphologicalThinning extends Abstract3x3NeighbourhoodThinning {
 
     // Rotated by 270 degrees RIGHT or 90 degrees LEFT.
     private boolean left(final boolean[] vals) {
-        if (vals[8] == m_Background && vals[7] == m_Background && vals[6] == m_Background && vals[2] == m_Foreground
-                && vals[3] == m_Foreground && vals[4] == m_Foreground) {
+        if (vals[8] == m_background && vals[7] == m_background && vals[6] == m_background && vals[2] == m_foreground
+                && vals[3] == m_foreground && vals[4] == m_foreground) {
             return true;
         }
-        if (vals[7] == m_Background && vals[8] == m_Background && vals[1] == m_Background && vals[5] == m_Foreground
-                && vals[3] == m_Foreground) {
+        if (vals[7] == m_background && vals[8] == m_background && vals[1] == m_background && vals[5] == m_foreground
+                && vals[3] == m_foreground) {
             return true;
         }
 

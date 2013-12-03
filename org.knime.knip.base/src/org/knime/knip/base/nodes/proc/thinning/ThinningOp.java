@@ -56,7 +56,6 @@ import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
-import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
@@ -72,11 +71,13 @@ import org.knime.knip.base.nodes.proc.thinning.strategies.ThinningStrategy;
 public class ThinningOp<T extends RealType<T>> implements
         UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> {
 
-    private boolean m_Foreground = true;
+    private boolean m_foreground = true;
 
-    private boolean m_Background = false;
+    private boolean m_background = false;
 
-    private ThinningStrategy m_Strategy;
+    private ThinningStrategy m_strategy;
+
+    private ImgFactory<BitType> m_factory;
 
     /**
      * Instanciate a new ThinningOp using the given strategy and considering the given boolean value as foreground.
@@ -84,10 +85,11 @@ public class ThinningOp<T extends RealType<T>> implements
      * @param strategy The Strategy to use
      * @param foreground Boolean value of foreground pixels.
      */
-    public ThinningOp(final ThinningStrategy strategy, final boolean foreground) {
-        m_Strategy = strategy;
-        m_Foreground = foreground;
-        m_Background = !foreground;
+    public ThinningOp(final ThinningStrategy strategy, final boolean foreground, final ImgFactory<BitType> factory) {
+        m_strategy = strategy;
+        m_foreground = foreground;
+        m_background = !foreground;
+        m_factory = factory;
     }
 
     /**
@@ -97,26 +99,22 @@ public class ThinningOp<T extends RealType<T>> implements
     public RandomAccessibleInterval<T> compute(final RandomAccessibleInterval<T> input,
                                                final RandomAccessibleInterval<T> output) {
 
-        // NOTE: DO NOT USE NON-BITTYPE IMAGES!
-        // In the thinning node, this is taken care of by the factory.
 
-        ImgFactory<BitType> fac = new ArrayImgFactory<BitType>();
-
-        // Create new images to store the thinning image in each iteration.
-        // These images are swapped each iteration.
-        Img<BitType> img1 = fac.create(input, new BitType());
-        Img<BitType> img2 = fac.create(input, new BitType());
+        // Create a new image to store the thinning image in each iteration.
+        // This image and output are swapped each iteration since we need to work on the image
+        // without changing it.
+        Img<BitType> img1 = m_factory.create(input, new BitType());
 
         IterableInterval<BitType> it1 = Views.iterable(img1);
         // Initially, we need to copy the input to the first Image.
-        copy((RandomAccessibleInterval<BitType>)input, it1);
+        copy((RandomAccessibleInterval<BitType>)input, img1);
 
         // Extend the images in order to be able to iterate care-free later.
         RandomAccessible<BitType> ra1 = Views.extendBorder(img1);
         Cursor<BitType> firstCursor = it1.localizingCursor();
 
-        RandomAccessible<BitType> ra2 = Views.extendBorder(img2);
-        IterableInterval<BitType> it2 = Views.iterable(img2);
+        RandomAccessible<BitType> ra2 = Views.extendBorder((RandomAccessibleInterval<BitType>)output);
+        IterableInterval<BitType> it2 = Views.iterable((RandomAccessibleInterval<BitType>)output);
         Cursor<BitType> secondCursor = it2.localizingCursor();
 
         // Create pointers to the current and next cursor and set them to Image 1 and 2 respectively.
@@ -132,7 +130,7 @@ public class ThinningOp<T extends RealType<T>> implements
         while (changes) {
             changes = false;
             // This For-Loop makes sure, that iterations only end on full cycles (as defined by the strategies).
-            for (int j = 0; j < m_Strategy.getIterationsPerCycle(); ++j) {
+            for (int j = 0; j < m_strategy.getIterationsPerCycle(); ++j) {
                 // For each pixel in the image.
                 while (currentCursor.hasNext()) {
                     // Move both cursors
@@ -147,20 +145,20 @@ public class ThinningOp<T extends RealType<T>> implements
                     nextCursor.get().set(curr);
 
                     // Only foreground pixels may be thinned
-                    if (curr == m_Foreground) {
+                    if (curr == m_foreground) {
 
                         // Ask the strategy whether to flip the foreground pixel or not.
-                        boolean flip = m_Strategy.removePixel(coordinates, currRa);
+                        boolean flip = m_strategy.removePixel(coordinates, currRa);
 
                         // If yes - change and keep track of the change.
                         if (flip) {
-                            nextCursor.get().set(m_Background);
+                            nextCursor.get().set(m_background);
                             changes = true;
                         }
                     }
                 }
                 // One step of the cycle is finished, notify the strategy.
-                m_Strategy.afterCycle();
+                m_strategy.afterCycle();
 
                 // Reset the cursors to the beginning and assign pointers for the next iteration.
                 currentCursor.reset();
@@ -182,10 +180,10 @@ public class ThinningOp<T extends RealType<T>> implements
         }
 
         // Depending on the iteration count, the final image is either in ra1 or ra2. Copy it to output.
-        if (i % 2 == 1) {
-            copy(ra2, Views.iterable((RandomAccessibleInterval<BitType>)output));
-        } else {
-            copy(ra1, Views.iterable((RandomAccessibleInterval<BitType>)output));
+        if (i % 2 == 0) {
+            //Ra1 points to img1, ra2 points to output.
+            copy(img1, (RandomAccessibleInterval<BitType>)output);
+
         }
 
         return output;
@@ -196,16 +194,29 @@ public class ThinningOp<T extends RealType<T>> implements
      */
     @Override
     public UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> copy() {
-        return new ThinningOp<T>(m_Strategy, m_Foreground);
+        return new ThinningOp<T>(m_strategy, m_foreground, m_factory);
     }
 
-    private void copy(final RandomAccessible<BitType> source, final IterableInterval<BitType> target) {
-        Cursor<BitType> targetCursor = target.localizingCursor();
-        RandomAccess<BitType> sourceAccess = source.randomAccess();
-        while (targetCursor.hasNext()) {
-            targetCursor.fwd();
-            sourceAccess.setPosition(targetCursor);
-            targetCursor.get().set(sourceAccess.get());
+    private void copy(final RandomAccessibleInterval<BitType> source, final RandomAccessibleInterval<BitType> target) {
+        IterableInterval<BitType> targetIt = Views.iterable(target);
+        IterableInterval<BitType> sourceIt = Views.iterable(source);
+
+        if (sourceIt.iterationOrder().equals(targetIt.iterationOrder())) {
+            Cursor<BitType> targetCursor = targetIt.cursor();
+            Cursor<BitType> sourceCursor = sourceIt.cursor();
+            while (sourceCursor.hasNext()) {
+                targetCursor.fwd();
+                sourceCursor.fwd();
+                targetCursor.get().set(sourceCursor.get().get());
+            }
+        } else { // Fallback to random access
+            RandomAccess<BitType> targetRA = target.randomAccess();
+            Cursor<BitType> sourceCursor = sourceIt.localizingCursor();
+            while (sourceCursor.hasNext()) {
+                sourceCursor.fwd();
+                targetRA.setPosition(sourceCursor);
+                targetRA.get().set(sourceCursor.get().get());
+            }
         }
     }
 

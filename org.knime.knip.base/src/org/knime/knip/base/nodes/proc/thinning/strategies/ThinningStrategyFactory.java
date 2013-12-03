@@ -58,11 +58,11 @@ import java.util.List;
  */
 public class ThinningStrategyFactory {
 
-    private boolean m_Foreground;
+    private boolean m_foreground;
 
     public ThinningStrategyFactory(final boolean foreground)
     {
-        m_Foreground = foreground;
+        m_foreground = foreground;
     }
 
     public static enum Strategy {
@@ -100,15 +100,15 @@ public class ThinningStrategyFactory {
     public ThinningStrategy getStrategy(final Strategy strategy) {
         switch (strategy) {
             case MORPHOLOGICAL:
-                return new MorphologicalThinning(m_Foreground);
+                return new MorphologicalThinning(m_foreground);
             case HILDITCH:
-                return new HilditchAlgorithm(m_Foreground);
+                return new HilditchAlgorithm(m_foreground);
             case ZHANGSUEN:
-                return new ZhangSuenAlgorithm(m_Foreground);
+                return new ZhangSuenAlgorithm(m_foreground);
             case GUOHALL:
-                return new GuoHallAlgorithm(m_Foreground);
+                return new GuoHallAlgorithm(m_foreground);
             default:
-                return new MorphologicalThinning(m_Foreground);
+                return new MorphologicalThinning(m_foreground);
         }
 
     }
@@ -120,6 +120,6 @@ public class ThinningStrategyFactory {
                 return getStrategy(s);
             }
         }
-        return new MorphologicalThinning(m_Foreground);
+        return new MorphologicalThinning(m_foreground);
     }
 }

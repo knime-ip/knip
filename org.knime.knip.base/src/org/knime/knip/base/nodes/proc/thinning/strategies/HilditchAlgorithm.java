@@ -74,8 +74,8 @@ public class HilditchAlgorithm extends Abstract3x3NeighbourhoodThinning {
      * {@inheritDoc}
      */
     @Override
-    public boolean removePixel(final long[] position, final RandomAccessible<BitType> img) {
-        RandomAccess<BitType> access = img.randomAccess();
+    public boolean removePixel(final long[] position, final RandomAccessible<BitType> accessible) {
+        RandomAccess<BitType> access = accessible.randomAccess();
         access.setPosition(position);
 
         boolean[] vals = getNeighbourhood(access);
@@ -83,7 +83,7 @@ public class HilditchAlgorithm extends Abstract3x3NeighbourhoodThinning {
         // First condition is to ensure there are at least 2 and at most 6 neighbouring foreground pixels.
         int numForeground = 0;
         for (int i = 1; i < vals.length; ++i) {
-            if (vals[i] == m_Foreground) {
+            if (vals[i] == m_foreground) {
                 ++numForeground;
             }
         }
@@ -106,7 +106,7 @@ public class HilditchAlgorithm extends Abstract3x3NeighbourhoodThinning {
         access.setPosition(position);
         access.move(-1, 1);
         int p2Patterns = findPatternSwitches((getNeighbourhood(access)));
-        if (!( (vals[1] == m_Background || vals[3] == m_Background || vals[7] == m_Background) || p2Patterns != 1)) {
+        if (!( (vals[1] == m_background || vals[3] == m_background || vals[7] == m_background) || p2Patterns != 1)) {
             return false;
         }
 
@@ -114,7 +114,7 @@ public class HilditchAlgorithm extends Abstract3x3NeighbourhoodThinning {
         access.move(1, 0);
         int p4Patterns = findPatternSwitches((getNeighbourhood(access)));
 
-        if (!((vals[1] == m_Background || vals[3] == m_Background || vals[5] == m_Background) || p4Patterns != 1)) {
+        if (!((vals[1] == m_background || vals[3] == m_background || vals[5] == m_background) || p4Patterns != 1)) {
             return false;
         }
 

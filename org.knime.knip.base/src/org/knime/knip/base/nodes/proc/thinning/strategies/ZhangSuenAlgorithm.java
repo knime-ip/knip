@@ -75,10 +75,10 @@ public class ZhangSuenAlgorithm extends Abstract3x3NeighbourhoodThinning {
      * {@inheritDoc}
      */
     @Override
-    public boolean removePixel(final long[] position, final RandomAccessible<BitType> img) {
+    public boolean removePixel(final long[] position, final RandomAccessible<BitType> accessible) {
 
         // Setup
-        RandomAccess<BitType> access = img.randomAccess();
+        RandomAccess<BitType> access = accessible.randomAccess();
         access.setPosition(position);
 
         boolean[] vals = getNeighbourhood(access);
@@ -87,7 +87,7 @@ public class ZhangSuenAlgorithm extends Abstract3x3NeighbourhoodThinning {
         int numForeground = 0;
 
         for (int i = 1; i < vals.length; ++i) {
-            if (vals[i] == m_Foreground) {
+            if (vals[i] == m_foreground) {
                 ++numForeground;
             }
         }
@@ -111,11 +111,11 @@ public class ZhangSuenAlgorithm extends Abstract3x3NeighbourhoodThinning {
 
     // Check for background pixels in the vicinity.
     private boolean evenIteration(final boolean[] vals) {
-        if (!(vals[1] == m_Background || vals[3] == m_Background || vals[5] == m_Background)) {
+        if (!(vals[1] == m_background || vals[3] == m_background || vals[5] == m_background)) {
             return false;
         }
 
-        if (!(vals[3] == m_Background || vals[5] == m_Background || vals[7] == m_Background)) {
+        if (!(vals[3] == m_background || vals[5] == m_background || vals[7] == m_background)) {
             return false;
         }
 
@@ -124,11 +124,11 @@ public class ZhangSuenAlgorithm extends Abstract3x3NeighbourhoodThinning {
 
     // Variation of the checks in an even iteration.
     private boolean oddIteration(final boolean[] vals) {
-        if (!(vals[1] == m_Background || vals[3] == m_Background || vals[7] == m_Background)) {
+        if (!(vals[1] == m_background || vals[3] == m_background || vals[7] == m_background)) {
             return false;
         }
 
-        if (!(vals[1] == m_Background || vals[5] == m_Background || vals[7] == m_Background)) {
+        if (!(vals[1] == m_background || vals[5] == m_background || vals[7] == m_background)) {
             return false;
         }
         return true;

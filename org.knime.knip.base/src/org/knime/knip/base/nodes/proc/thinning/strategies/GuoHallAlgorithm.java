@@ -75,26 +75,26 @@ public class GuoHallAlgorithm extends Abstract3x3NeighbourhoodThinning {
      * {@inheritDoc}
      */
     @Override
-    public boolean removePixel(final long[] position, final RandomAccessible<BitType> img) {
+    public boolean removePixel(final long[] position, final RandomAccessible<BitType> accessible) {
 
         // Setup
-        RandomAccess<BitType> access = img.randomAccess();
+        RandomAccess<BitType> access = accessible.randomAccess();
         access.setPosition(position);
 
         boolean[] vals = getNeighbourhood(access);
 
         // First we need to count the amount of connected neighbours in the vicinity.
         int simpleConnectedNeighbours = 0;
-        if (vals[1] == m_Background && (vals[2] == m_Foreground || vals[3] == m_Foreground)) {
+        if (vals[1] == m_background && (vals[2] == m_foreground || vals[3] == m_foreground)) {
             ++simpleConnectedNeighbours;
         }
-        if (vals[3] == m_Background && (vals[4] == m_Foreground || vals[5] == m_Foreground)) {
+        if (vals[3] == m_background && (vals[4] == m_foreground || vals[5] == m_foreground)) {
             ++simpleConnectedNeighbours;
         }
-        if (vals[5] == m_Background && (vals[6] == m_Foreground || vals[7] == m_Foreground)) {
+        if (vals[5] == m_background && (vals[6] == m_foreground || vals[7] == m_foreground)) {
             ++simpleConnectedNeighbours;
         }
-        if (vals[7] == m_Background && (vals[8] == m_Foreground || vals[1] == m_Foreground)) {
+        if (vals[7] == m_background && (vals[8] == m_foreground || vals[1] == m_foreground)) {
             ++simpleConnectedNeighbours;
         }
         // First condition: Exactly one simple connected neighbour.
@@ -115,10 +115,10 @@ public class GuoHallAlgorithm extends Abstract3x3NeighbourhoodThinning {
         // Depending on the step in the cycle, we need to perform different calculations.
         if (iteration % 2 == 1) {
             oddEvenCheck =
-                    (vals[1] == m_Foreground || vals[2] == m_Foreground || vals[4] == m_Background) && vals[3] == m_Foreground;
+                    (vals[1] == m_foreground || vals[2] == m_foreground || vals[4] == m_background) && vals[3] == m_foreground;
         } else {
             oddEvenCheck =
-                    (vals[5] == m_Foreground || vals[6] == m_Foreground || vals[8] == m_Background) && vals[7] == m_Foreground;
+                    (vals[5] == m_foreground || vals[6] == m_foreground || vals[8] == m_background) && vals[7] == m_foreground;
         }
         if (oddEvenCheck) {
             return false;
@@ -132,10 +132,10 @@ public class GuoHallAlgorithm extends Abstract3x3NeighbourhoodThinning {
         int res = 0;
         for (int i = 1; i < vals.length - 1; i = i + 2) {
             if (i + offset == 0) {
-                if (vals[1] == m_Foreground || vals[8] == m_Foreground) {
+                if (vals[1] == m_foreground || vals[8] == m_foreground) {
                     ++res;
                 }
-            } else if (vals[i] == m_Foreground || vals[i + offset] == m_Foreground) {
+            } else if (vals[i] == m_foreground || vals[i + offset] == m_foreground) {
                 ++res;
 
             }

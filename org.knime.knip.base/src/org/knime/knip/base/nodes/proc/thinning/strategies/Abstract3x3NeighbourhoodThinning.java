@@ -64,12 +64,12 @@ public abstract class Abstract3x3NeighbourhoodThinning implements ThinningStrate
     /**
      * Boolean value of the foreground.
      */
-    protected boolean m_Foreground;
+    protected boolean m_foreground;
 
     /**
      * Boolean value of the background.
      */
-    protected boolean m_Background;
+    protected boolean m_background;
 
     /**
      * Create a new abstract thinning strategy. The passed boolean will represent the foreground-value of the image.
@@ -78,14 +78,14 @@ public abstract class Abstract3x3NeighbourhoodThinning implements ThinningStrate
      */
     protected Abstract3x3NeighbourhoodThinning(final boolean foreground)
     {
-        m_Foreground = foreground;
-        m_Background = !foreground;
+        m_foreground = foreground;
+        m_background = !foreground;
     }
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean removePixel(final long[] position, final RandomAccessible<BitType> img) {
+    public boolean removePixel(final long[] position, final RandomAccessible<BitType> access) {
         // TODO Auto-generated method stub
         return false;
     }
@@ -142,10 +142,10 @@ public abstract class Abstract3x3NeighbourhoodThinning implements ThinningStrate
     protected int findPatternSwitches(final boolean[] vals) {
         int res = 0;
         for (int i = 1; i < vals.length - 1; ++i) {
-            if (vals[i] == m_Foreground && vals[i + 1] == m_Background) {
+            if (vals[i] == m_foreground && vals[i + 1] == m_background) {
                 ++res;
             }
-            if (vals[vals.length - 1] == m_Foreground && vals[1] == m_Background) {
+            if (vals[vals.length - 1] == m_foreground && vals[1] == m_background) {
                 ++res;
             }
         }

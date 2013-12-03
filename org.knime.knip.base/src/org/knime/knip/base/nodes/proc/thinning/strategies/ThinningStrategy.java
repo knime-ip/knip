@@ -62,10 +62,10 @@ public interface ThinningStrategy {
      * This method should determine whether to keep a foreground pixel or not.
      *
      * @param position Long Array containing the current position in the image.
-     * @param img The image to thin.
+     * @param access The image to thin.
      * @return True if pixel can be switched to background, false otherwise.
      */
-    public boolean removePixel(final long[] position, final RandomAccessible<BitType> img);
+    public boolean removePixel(final long[] position, final RandomAccessible<BitType> accessible);
 
     /**
      * Returns the minimum number of iterations necessary for the algorithm to run. This delays termination of
