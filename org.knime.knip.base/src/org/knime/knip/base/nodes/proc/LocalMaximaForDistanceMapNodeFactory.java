@@ -61,6 +61,7 @@ import net.imglib2.ops.operation.randomaccessibleinterval.unary.LocalMaximaForDi
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 
+import org.knime.core.node.NodeFactory;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
@@ -72,11 +73,12 @@ import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
- * LocalMaxima for DistanceMap Node Factory
+ * {@link NodeFactory} for {@link LocalMaximaForDistanceMap}
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author metznerj
+ *
+ * @author Jens Metzner (University of Konstanz)
  *
  * @param <T>
  */
