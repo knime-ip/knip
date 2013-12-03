@@ -57,7 +57,7 @@ import net.imglib2.util.ValuePair;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -97,7 +97,7 @@ public class StringTransformer {
             final int end = expression.indexOf(delim, start + 1);
 
             if (end < start) {
-                throw new IllegalArgumentException("No closing $ for: \""
+                throw new IllegalArgumentException("No closing " + delim + " for: \""
                         + expression.substring(start, Math.max(expression.length(), start + 10)) + "\"");
             }
 
@@ -110,7 +110,7 @@ public class StringTransformer {
 
     /**
      * Given a map from String to Object, the resulting String is created, given the expression set in the constructor.
-     * 
+     *
      * @param input
      * @return
      * @throws InvalidSettingsException

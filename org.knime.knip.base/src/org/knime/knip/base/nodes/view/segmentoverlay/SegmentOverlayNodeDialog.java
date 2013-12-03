@@ -76,13 +76,13 @@ public class SegmentOverlayNodeDialog extends DefaultNodeSettingsPane {
         super();
 
         addDialogComponent(new DialogComponentColumnNameSelection(new SettingsModelString(
-                SegmentOverlayNodeModel.CFG_IMG_COL, ""), "Img Column", 0, false, false, ImgPlusValue.class));
+                SegmentOverlayNodeModel.CFG_IMG_COL, ""), "Image Column", 0, false, false, ImgPlusValue.class));
 
         addDialogComponent(new DialogComponentColumnNameSelection(new SettingsModelString(
                 SegmentOverlayNodeModel.CFG_LABELING_COL, ""), "Labeling Column", 0, true, LabelingValue.class));
 
         addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
-                SegmentOverlayNodeModel.CFG_ADJUST_VIRTUALLY, true), "Virtually Extend Labeling or Img?"));
+                SegmentOverlayNodeModel.CFG_ADJUST_VIRTUALLY, true), "Virtually extend labeling or image?"));
 
         createNewTab("Label Transformation");
         final DialogComponentStringTransformer dialogComponentStringTransformer =

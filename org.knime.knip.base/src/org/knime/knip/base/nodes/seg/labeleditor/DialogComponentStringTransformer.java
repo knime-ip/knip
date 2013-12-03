@@ -107,6 +107,8 @@ public class DialogComponentStringTransformer extends DialogComponent {
         }
     }
 
+    private static final String DELIM = "$";
+
     private final JEditorPane m_expEdit;
 
     @SuppressWarnings("rawtypes")
@@ -229,7 +231,7 @@ public class DialogComponentStringTransformer extends DialogComponent {
      * @return the expression transformer
      */
     public StringTransformer getStringTransformer() {
-        return new StringTransformer(m_expEdit.getText().toString(), "$");
+        return new StringTransformer(m_expEdit.getText().toString(), DELIM);
     }
 
     @Override
@@ -275,7 +277,7 @@ public class DialogComponentStringTransformer extends DialogComponent {
 
     @Override
     protected void validateSettingsBeforeSave() throws InvalidSettingsException {
-        if (m_requiredVariable != null && !m_expEdit.getText().contains(m_requiredVariable)) {
+        if (m_requiredVariable != null && !m_expEdit.getText().contains(DELIM + m_requiredVariable + DELIM)) {
             throw new InvalidSettingsException("Label transformation: Required variable " + m_requiredVariable
                     + " is missing.");
         }
