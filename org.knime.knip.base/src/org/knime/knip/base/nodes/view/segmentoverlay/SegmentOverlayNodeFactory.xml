@@ -48,12 +48,12 @@
 	<ports>
 		<inPort index="0" name="Images">original images and corresponding
 			labelings.</inPort>
-		<inPort index="1" name="Segment Features">optional e.g. output of the (Image)
+		<inPort index="1" name="Segment Features">Optional list of segments, e.g. output of the (Image)
 			Segment Feature node.</inPort>
 	</ports>
 
 	<views>
-		<view index="0" name="Segment Overlay View">
+		<view index="0" name="Interactive Segmentation View">
 			Displays the images with their
 			corresponding segment overlays.
 		</view>

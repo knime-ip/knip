@@ -210,6 +210,9 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
         if (getNodeModel().getInternalTables().length > SegmentOverlayNodeModel.PORT_SEG) {
             m_hiliteProvider = new LabelHiliteProvider<L, T>();
             m_imgView.addViewerComponent(m_hiliteProvider);
+            final HiLiteHandler handler = getNodeModel().getInHiLiteHandler(getNodeModel().PORT_SEG);
+            m_hiliteProvider.updateInHandler(handler);
+
         } else {
             m_hiliteProvider = null;
         }
