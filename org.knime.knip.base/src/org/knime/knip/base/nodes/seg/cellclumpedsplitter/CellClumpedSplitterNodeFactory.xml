@@ -18,13 +18,15 @@
 			(http://cilabs.kaist.ac.kr/People/Paper/05518403.pdf)
 		</intro>
 		<tab name="Options">
-			<option name="Max value of a local maxima">
-				Ignore local maxima values that lie below this value.
+			<option name="Minimum Value of a Local Maxima">
+				Ignore local maxima values that lie below this
+				value.
 			</option>
 
-			<option name="Ignore percentage">
-				Ignore local maxima values below the percentage of the average value of
-				local maximas of the clumped cell. Value is between 0 and 1.
+			<option name="Ignore Percentage">
+				Ignore local maxima values below the percentage
+				of the average value of local maximas of the clumped cell. Value is
+				between 0 and 1.
 			</option>
 
 			<option name="Neighboorhood">
@@ -37,19 +39,15 @@
 				</ul>
 			</option>
 
-			<option name="Max iterations">
-				Number of iterations of the performed EM algorithm. (standard value = 100
-				iterations)
-			</option>
-
-			<option name="Number of working threads">
-				Number of threads, which are used for the calculation. (0 = max number of
-				possible cores)
+			<option name="Maximum Number of Iterations">
+				Number of iterations of the performed EM
+				algorithm.
 			</option>
 		</tab>
 	</fullDescription>
 	<ports>
-		<inPort index="0" name="Segments">Labeled cells</inPort>
-		<outPort index="0" name="Segements">Labeling of split cells</outPort>
+		<inPort index="0" name="Segments">Labeling</inPort>
+		<outPort index="0" name="Segements">Labeling with Splitted Objects
+		</outPort>
 	</ports>
 </knimeNode>
