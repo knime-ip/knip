@@ -82,6 +82,11 @@ import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 public class InverterNodeFactory2<T extends RealType<T>, L extends Comparable<L>> extends
         IterableIntervalsNodeFactory<T, T, L> {
 
+    public InverterNodeFactory2() {
+        super();
+        m_hasDimensionSelection = false;
+    }
+
     private class SignedRealInvert<I extends RealType<I>, O extends RealType<O>> implements RealUnaryOperation<I, O> {
 
         @Override
