@@ -68,6 +68,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingCellFactory;
 import org.knime.knip.base.data.labeling.LabelingValue;
+import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
@@ -103,7 +104,7 @@ public class LabelingOrthoCropperNodeFactory<L extends Comparable<L>> extends Va
             @Override
             public void addDialogComponents() {
 
-                addDialogComponent("Options", "Subset Selection" , new DialogComponentSubsetSelection(
+                addDialogComponent("Options", "Subset Selection", new DialogComponentSubsetSelection(
                         createSubsetSelectionModel(), true, true));
 
                 addDialogComponent("Options", "Options", new DialogComponentBoolean(createAdjustDimModel(),
@@ -162,6 +163,15 @@ public class LabelingOrthoCropperNodeFactory<L extends Comparable<L>> extends Va
                     final MergeLabelings<L> mergeOp =
                             new MergeLabelings<L>(((NativeImgLabeling<L, ? extends IntegerType<?>>)lab).getStorageImg()
                                     .firstElement().createVariable(), m_smAdjustDimensionality.getBooleanValue());
+
+                    long totalSize = 0;
+                    for (int i = 0; i < subLab.length; i++) {
+                        totalSize += subLab[i].size();
+                    }
+
+                    if (subLab.length == totalSize) {
+                        throw new KNIPException("There is no dimension left to create a new image in Labeling Cropper!");
+                    }
 
                     res = Operations.compute(mergeOp, subLab);
 
