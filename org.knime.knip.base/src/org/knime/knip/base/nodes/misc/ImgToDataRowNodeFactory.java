@@ -52,6 +52,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.imglib2.Cursor;
+import net.imglib2.img.Img;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.data.DataType;
@@ -65,11 +66,12 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 
 /**
- * TODO Auto-generated
- * 
+ * Converts an {@link Img} to a Collection of {@link DoubleCell}s
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @param <T>
  */
 public class ImgToDataRowNodeFactory<T extends RealType<T>> extends ValueToCellNodeFactory<ImgPlusValue<T>> {
 
@@ -105,7 +107,7 @@ public class ImgToDataRowNodeFactory<T extends RealType<T>> extends ValueToCellN
 
     @Override
     protected int getNrNodeViews() {
-        return 0;
+        return 1;
     }
 
     /**

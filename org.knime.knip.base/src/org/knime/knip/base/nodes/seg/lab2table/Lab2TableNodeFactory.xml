@@ -5,9 +5,11 @@
 	IBM Corporation - initial API and implementation -->
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="lab2table.png" type="Manipulator">
-	<name>Labeling to Table</name>
+	<name>Labeling to Table (Deprecated)</name>
 	<shortDescription>
-		Converts a labeling to a segment table
+		Converts a labeling to a segment table.
+		DEPRECATION:
+		Use Segment Cropper with empty Img column instead!
 	</shortDescription>
 
 	<fullDescription>
@@ -24,6 +26,6 @@
 
 	<ports>
 		<inPort index="0" name="Labeling">Labeling</inPort>
-		<outPort index="0" name="Segment table">Segment table</outPort>
+		<outPort index="0" name="Segment table">Segment Table</outPort>
 	</ports>
 </knimeNode>

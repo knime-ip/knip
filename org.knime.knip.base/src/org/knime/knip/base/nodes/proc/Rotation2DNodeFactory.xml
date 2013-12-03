@@ -28,6 +28,11 @@
 				image center will be used.</option>
 			<option name="Center Dim 2">The center of the second dimension, if -1, the
 				image center will be used.</option>
+			<option name="Out of Bounds Strategy">The 'OutOfBounds Strategy' is used when 
+			an algorithm needs access to pixels which lie outside of an image 
+			(for example convolutions). The strategy determines how an image is extended, 
+			for examples see <a href='http://fiji.sc/ImgLib2_Examples#Example_5_-_Out_of_bounds'>Fiji Wiki</a></option>
+				
 		</tab>
 
 	</fullDescription>

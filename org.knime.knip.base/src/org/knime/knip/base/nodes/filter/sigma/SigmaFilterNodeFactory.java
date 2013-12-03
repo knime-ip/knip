@@ -50,17 +50,24 @@ package org.knime.knip.base.nodes.filter.sigma;
 
 import net.imglib2.type.numeric.RealType;
 
+import org.knime.core.node.NodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.dialog.DescriptionHelper;
 import org.knime.knip.base.node.dialog.DialogComponentOutOfBoundsSelection;
+import org.knime.knip.core.ops.iterator.SigmaFilter;
 import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 
 /**
- * 
+ *
+ * {@link NodeFactory} for {@link SigmaFilter}
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
- * @author wildnerm, University of Konstanz
+ *
+ * @author Manuel Wildnder (University of Konstanz)
+ *
+ * @param <T>
  */
 public class SigmaFilterNodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
 

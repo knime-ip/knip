@@ -1,39 +1,50 @@
-<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
-	This program and the accompanying materials are made available under the 
-	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
-	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
-	IBM Corporation - initial API and implementation -->
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
-<knimeNode icon="cropper.png" type="Manipulator">
+<knimeNode type="Manipulator" icon="cropper.png">
 	<name>Segment Cropper</name>
 	<shortDescription>
-	Crops segments, given by a labeling, of an image.
+		Crops segments, given by a labeling, of an image.
 	</shortDescription>
 
 	<fullDescription>
-		<intro>Crops segments, given by a labeling, of an image. The pixels that are not defined by the according segment a filled either with the maximum or minimum pixel value.
+		<intro>Crops segments, given by a labeling, of an image. The pixels
+			that are not defined by the according segment a filled either with
+			the maximum or minimum pixel value.
 		</intro>
-	</fullDescription>
-	<tab name="Options">
-	<option name="Column Selection">Select the image and labeling column (image column is optional).</option>
-	<option name="Image Selection">How the image pixel will be organised in the memory. May have impact on the runtime of algorithms.</option>
-	<option name="Background">Fills the pixels that are not covered with a constant value, either the minimum or maximum pixel value.</option>
-	</tab>
-	<tab name="ROI Filter">
-			<option name="Roi Filter">
-				Segment whose label DON'T comply with the specified rules (wildcards * are allowed) will not be part of the result table.							
+		<tab name="Options">
+			<option name="Column Selection">Select the image and labeling column (image
+				column
+				is optional).
 			</option>
-			<option name="Add dependent labels?">
-				
-			</option>			
+			<option name="Image Selection">How the image pixel will be organised in the
+				memory. May have impact on the runtime of algorithms.
+			</option>
+			<option name="Background">Fills the pixels that are not covered with a
+				constant value, either the minimum or maximum pixel value.
+			</option>
 		</tab>
+		<tab name="ROI Filter">
+			<option name="ROI Filter">
+				Segment whose label DON'T comply with the
+				specified rules (wildcards * are
+				allowed) will not be part of the
+				result table.
+			</option>
+			<option name="Add Non-ROI Labels as List?">
+				If true, one can add the non-ROI labels as a
+				list.
+				Non-ROI labels are labels, which are filtered out using the ROI
+				filter.
+			</option>
+		</tab>
+	</fullDescription>
 	<ports>
-		<inPort index="0" name="Images">Images and corresponding labeling in
-			same column</inPort>
-		<outPort index="0" name="Features">Cropped segments</outPort>
+		<inPort index="0" name="Images">Images and corresponding Labeling in
+			same column
+		</inPort>
+		<outPort index="0" name="Cropped Segments">Cropped Segments</outPort>
 	</ports>
-
 	<views>
-		<view name="Table Cell View" index="0"></view>
+		<view name="Table Cell View" index="0">Cropped Segments</view>
 	</views>
 </knimeNode>

@@ -55,11 +55,12 @@ import org.knime.knip.base.data.labeling.LabelingValue;
 
 /**
  * The Dialog for the Lab2TableNode
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
+@Deprecated
 public class Lab2TableNodeDialog extends DefaultNodeSettingsPane {
 
     @SuppressWarnings("unchecked")

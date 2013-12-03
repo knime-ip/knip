@@ -108,6 +108,7 @@ import org.knime.knip.core.data.img.LabelingMetadata;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
+@Deprecated
 public class Lab2TableNodeModel<L extends Comparable<L>, II extends IntegerType<II>> extends NodeModel {
 
     private static final NodeLogger LOGGER = NodeLogger.getLogger(Lab2TableNodeModel.class);

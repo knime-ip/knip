@@ -56,6 +56,7 @@ import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 import org.knime.node2012.OptionDocument.Option;
 import org.knime.node2012.TabDocument.Tab;
+import org.knime.node2012.UlDocument.Ul;
 
 /**
  * NodeFactory for {@link IterableIntervalsNodeModel}
@@ -70,6 +71,12 @@ import org.knime.node2012.TabDocument.Tab;
  */
 public abstract class IterableIntervalsNodeFactory<T extends RealType<T>, V extends RealType<V>, L extends Comparable<L>>
         extends ValueToCellNodeFactory<ImgPlusValue<T>> {
+
+
+    /**
+     * Variable holding information whether this node has a dimSelection or not.
+     */
+    protected boolean m_hasDimensionSelection = true;
 
     /**
      * {@inheritDoc}
@@ -88,7 +95,9 @@ public abstract class IterableIntervalsNodeFactory<T extends RealType<T>, V exte
      */
     @Override
     protected void addNodeDescriptionContent(final KnimeNode node) {
-        DialogComponentDimSelection.createNodeDescription(node.getFullDescription().getTabList().get(0).addNewOption());
+        if(m_hasDimensionSelection) {
+            DialogComponentDimSelection.createNodeDescription(node.getFullDescription().getTabList().get(0).addNewOption());
+        }
 
         Tab tab = node.getFullDescription().addNewTab();
         tab.setName("ROI Options");
@@ -104,7 +113,13 @@ public abstract class IterableIntervalsNodeFactory<T extends RealType<T>, V exte
         opt.setName("Filling Mode");
         opt.addNewP()
                 .newCursor()
-                .setTextValue("The FillingMode determines how all values, which lie outside your defined region of interest, will be set. This option is only needed if you choose a labeling column, such that the node operates on ROIs instead of the entire image. ");
+                .setTextValue("The FillingMode determines how all values, which lie outside your defined region of interest, will be set. This option is only needed if you choose a labeling column, such that the node operates on ROIs instead of the entire image. There are currently four FillingModes:");
+        Ul list = opt.addNewUl();
+        list.addLi("Value of Source: In this mode, pixels outside of the ROIs remain unchanged. ");
+        list.addLi("Minimum of Result Type: Here, values outside of the ROI are set to the smallest legal value of the output image type. ");
+        list.addLi("Maximum of Result Type: All values outside of the ROI are set to the largest posible value of the output image type. ");
+        list.addLi("No Filling: No action is taken after initializing the target image, thus all pixels outside the ROIs remain zero. ");
+
     }
 
     /**

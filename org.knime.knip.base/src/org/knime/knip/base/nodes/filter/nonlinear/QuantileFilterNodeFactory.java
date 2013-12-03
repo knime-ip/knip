@@ -64,6 +64,7 @@ import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 
 import org.knime.core.node.ExecutionContext;
+import org.knime.core.node.NodeModel;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
@@ -80,12 +81,15 @@ import org.knime.knip.base.node.dialog.DialogComponentSpanSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 
-
 /**
+ *
+ * {@link NodeModel} for Linear time {@link QuantileFilter}
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <T>
  */
 public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCellNodeFactory<ImgPlusValue<T>> {
 
@@ -94,22 +98,22 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
     }
 
     private static SettingsModelIntegerBounded createlRadiusModel() {
-        return new SettingsModelIntegerBounded("radius", 3, 1, 100);
+        return new SettingsModelIntegerBounded("radius", 3, 1, Integer.MAX_VALUE);
     }
 
     private static SettingsModelIntegerBounded createQuantileModel() {
-        return new SettingsModelIntegerBounded("quantile", 50, 1, 100);
+        return new SettingsModelIntegerBounded("quantile", 50, 1, 99);
     }
 
-      /**
-      * {@inheritDoc}
-      */
-     @Override
-     protected void addNodeDescriptionContent(final KnimeNode node) {
-         int index = DescriptionHelper.findTabIndex("Options", node.getFullDescription().getTabList());
-         DialogComponentSpanSelection.createNodeDescription(node.getFullDescription().getTabArray(index).addNewOption());
-         DialogComponentDimSelection.createNodeDescription(node.getFullDescription().getTabList().get(0).addNewOption());
-     }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void addNodeDescriptionContent(final KnimeNode node) {
+        int index = DescriptionHelper.findTabIndex("Options", node.getFullDescription().getTabList());
+        DialogComponentSpanSelection.createNodeDescription(node.getFullDescription().getTabArray(index).addNewOption());
+        DialogComponentDimSelection.createNodeDescription(node.getFullDescription().getTabList().get(0).addNewOption());
+    }
 
     /**
      * {@inheritDoc}
@@ -125,7 +129,7 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
 
                 addDialogComponent("Options", "", new DialogComponentNumber(createlRadiusModel(), "Span", 1));
 
-                addDialogComponent(new DialogComponentDimSelection(createDimSelectionModel(), "Dimension selection", 2,
+                addDialogComponent(new DialogComponentDimSelection(createDimSelectionModel(), "Dimension Selection", 2,
                         2));
 
             }
@@ -163,12 +167,10 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
                 settingsModels.add(m_smRadius);
             }
 
-            /*
+            /**
              * (non-Javadoc)
              *
-             * @see
-             * org.knime.knip.base.node.ValueToCellNodeModel#compute
-             * (org.knime.core.data.DataValue)
+             * @see org.knime.knip.base.node.ValueToCellNodeModel#compute (org.knime.core.data.DataValue)
              */
             @SuppressWarnings("unchecked")
             @Override
@@ -176,9 +178,22 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
 
                 final ImgPlus<T> inImg = cellValue.getImgPlus();
                 final T type = cellValue.getImgPlus().firstElement();
+                int[] selectedDimIndices = m_smDimSel.getSelectedDimIndices(inImg);
 
-                if( inImg.numDimensions() != 2 ){
-                    throw new KNIPException("Quantil Filter only works on 2-dimensional images");
+                if (selectedDimIndices.length == 1) {
+                    throw new KNIPException("One dimensional images can't be processed with the Quantil Filter.");
+                }
+
+                int dim1 = 0;
+                for (int idx : selectedDimIndices) {
+                    if (inImg.dimension(selectedDimIndices[idx]) == 1) {
+                        dim1++;
+                    }
+                }
+
+                if (selectedDimIndices.length - dim1 <= 1) {
+                    throw new KNIPException(
+                            "Image would be reduced to a one dimensional image, which can't be processed using the Quantil Filter. Please select different dimensions in the dimension selection.");
                 }
 
                 ImgPlus<UnsignedByteType> unsignedByteTypeImg = null;
@@ -236,5 +251,4 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
 
         };
     }
-
 }
