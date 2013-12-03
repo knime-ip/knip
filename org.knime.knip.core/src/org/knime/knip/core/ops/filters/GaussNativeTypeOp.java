@@ -96,10 +96,6 @@ public class GaussNativeTypeOp<T extends RealType<T> & NativeType<T>, TYPE exten
     @Override
     public TYPE compute(final TYPE input, final TYPE output) {
 
-        if (m_sigmas.length != input.numDimensions()) {
-            throw new IllegalArgumentException("Size of sigma array doesn't fit to input image");
-        }
-
         final RandomAccessible<FloatType> rIn = (RandomAccessible<FloatType>)Views.extend(input, m_fac);
 
         try {
