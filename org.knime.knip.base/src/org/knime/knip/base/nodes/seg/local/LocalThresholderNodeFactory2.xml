@@ -14,7 +14,7 @@
 			used which is very fast.
 		</intro>
 
-		<tab name="options">
+		<tab name="Options">
 			<option name="Thresholding method">The used thresholding Method: Mean, Median,
 				Sauvola, MidGrey, Bernsen, Niblack. Mean, Niblack and Sauvola are
 				implemented using the fast integral image approach.

@@ -99,15 +99,17 @@ public abstract class SlidingWindowOperationNodeFactory<T extends RealType<T>, V
      */
     @Override
     protected void addNodeDescriptionContent(final KnimeNode node) {
-        super.addNodeDescriptionContent(node);
-
         addSlidingWindowParametersTo(node.getFullDescription());
+
+
+
 
         int index = DescriptionHelper.findTabIndex("Options", node.getFullDescription().getTabList());
         DialogComponentOutOfBoundsSelection.createNodeDescription(node.getFullDescription().getTabArray(index)
                 .addNewOption());
-
         DialogComponentSpanSelection.createNodeDescription(node.getFullDescription().getTabArray(index).addNewOption());
+
+        super.addNodeDescriptionContent(node);
     }
 
     /**

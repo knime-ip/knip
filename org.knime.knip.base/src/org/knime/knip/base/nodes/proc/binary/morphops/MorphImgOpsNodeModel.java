@@ -59,6 +59,7 @@ import net.imglib2.Cursor;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.exception.IncompatibleTypeException;
 import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.img.UnaryObjectFactory;
@@ -71,8 +72,10 @@ import net.imglib2.ops.operation.randomaccessibleinterval.unary.morph.DilateGray
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.morph.Erode;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.morph.ErodeGray;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.morph.StructuringElementCursor;
+import net.imglib2.outofbounds.OutOfBoundsFactory;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 
 import org.knime.core.data.DataRow;
@@ -89,10 +92,12 @@ import org.knime.core.node.port.PortType;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
+import org.knime.knip.core.types.OutOfBoundsStrategyFactory;
 import org.knime.knip.core.util.ImgUtils;
 
 /**
@@ -240,15 +245,11 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
 
     @SuppressWarnings("unchecked")
     @Override
-    protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws IOException {
+    protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws KNIPException, IOException {
         final ImgPlus<T> in = cellValue.getImgPlus();
 
-        //TODO: Use OutOfBoundsStrategyFactory
-        //OutOfBoundsStrategyFactory.getStrategy(m_smOutOfBoundsStrategy.getStringValue(), in.firstElement());
-
-        if ((m_structElement != null) && (m_smDimensions.getNumSelectedDimLabels() != m_structElement[0].length)) {
-            throw new IllegalArgumentException(
-                    "Structuring element must have the same dimensionality as the chosen dims");
+        if ((m_structElement != null) && ( (m_smDimensions.getNumSelectedDimLabels() != m_structElement[0].length) || (in.numDimensions() != m_structElement[0].length) )) {
+            throw new KNIPException("Structuring element must have the same dimensionality as the chosen dims");
         }
 
         if (in.firstElement() instanceof BitType) {
@@ -274,11 +275,18 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
             final Img<BitType> out = ImgUtils.createEmptyCopy(in, new BitType());
 
             try {
-                SubsetOperations.iterate(op, m_smDimensions.getSelectedDimIndices(in), (Img<BitType>)in, out,
-                                         getExecutorService());
+                Img<BitType> inAsBitType = (Img<BitType>)in;
+                OutOfBoundsFactory<BitType, RandomAccessibleInterval<BitType>> strategy =
+                        OutOfBoundsStrategyFactory.getStrategy(m_smOutOfBoundsStrategy.getStringValue(),
+                                                               inAsBitType.firstElement());
+                IntervalView<BitType> extend = Views.interval(Views.extend(inAsBitType, strategy), inAsBitType);
+
+                SubsetOperations.iterate(op, m_smDimensions.getSelectedDimIndices(in), new ImgView<BitType>(extend,
+                        inAsBitType.factory()), out, getExecutorService());
             } catch (final InterruptedException e) {
                 LOGGER.warn("Thread execution was interrupted", e);
             } catch (final ExecutionException e) {
+                e.printStackTrace();
                 LOGGER.warn("Couldn't retrieve results from thread because execution was interrupted/aborted", e);
             }
 
@@ -295,13 +303,22 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
 
             final Img<T> out = ImgUtils.createEmptyCopy(in);
             final UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> op =
-                    createOperationGray(m_structElement, m_smDimensions.getNumSelectedDimLabels());
+                    createOperationGray(m_structElement, in.numDimensions());
 
             try {
-                SubsetOperations.iterate(op, m_smDimensions.getSelectedDimIndices(in), in, out, getExecutorService());
+                OutOfBoundsFactory<T, RandomAccessibleInterval<T>> strategy =
+                        OutOfBoundsStrategyFactory.getStrategy(m_smOutOfBoundsStrategy.getStringValue(),
+                                                               in.firstElement());
+
+                IntervalView<T> extend = Views.interval(Views.extend(in, strategy), in);
+
+                SubsetOperations.iterate(op, m_smDimensions.getSelectedDimIndices(in),
+                                         new ImgView<T>(extend, in.factory()), out, getExecutorService());
             } catch (final InterruptedException e) {
                 LOGGER.warn("Thread execution was interrupted", e);
             } catch (final ExecutionException e) {
+                e.printStackTrace();
+
                 LOGGER.warn("Couldn't retrieve results from thread because execution was interrupted/aborted", e);
             }
 

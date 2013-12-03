@@ -42,6 +42,10 @@
 						neighborhood.</li>
 				</ul>
 			</option>
+				<option name="Dimension selection">Determines for which dimensions the morphological
+				operations will be applied individually.</option>
+			<option name="Out of Bounds Strategy">The 'OutOfBounds Strategy' is used when an algorithm needs access to pixels which lie outside of an image (for example convolutions). The strategy determines how an image is extended, for examples see <a href='http://fiji.sc/ImgLib2_Examples#Example_5_-_Out_of_bounds'>Fiji Wiki</a></option>
+		
 		</tab>
 	</fullDescription>
 

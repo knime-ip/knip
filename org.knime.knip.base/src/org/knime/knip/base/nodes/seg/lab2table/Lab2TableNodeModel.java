@@ -102,12 +102,13 @@ import org.knime.knip.core.data.img.LabelingMetadata;
 /**
  * Labeling is converted into a KNIME table. For each possible label the region of interest is extracted and put into a
  * {@link IntervalCell} together with a {@link BitType} {@link Img}
- * 
+ *
  * @param <T>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
+@Deprecated
 public class Lab2TableNodeModel<L extends Comparable<L>, II extends IntegerType<II>> extends NodeModel {
 
     private static final NodeLogger LOGGER = NodeLogger.getLogger(Lab2TableNodeModel.class);

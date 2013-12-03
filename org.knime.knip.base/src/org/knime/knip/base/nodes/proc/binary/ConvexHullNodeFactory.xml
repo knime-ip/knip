@@ -16,7 +16,7 @@
 			for two dimensions.
 		</intro>
 
-		<tab name="">
+		<tab name="Options">
 			<option name="Fill hull">Whether to fill the resulting region or not
 			</option>
 		</tab>

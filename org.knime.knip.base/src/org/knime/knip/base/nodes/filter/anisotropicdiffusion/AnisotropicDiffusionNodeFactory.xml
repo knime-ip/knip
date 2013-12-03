@@ -25,7 +25,6 @@
 		<option name="Kappa">This parameter depends on the Function one uses. Usually a greater value means a stronger filtering, but this may result in more artifacts. It is recommended to use more Iterations to get a stronger filtering result instead of increasing Kappa. </option>
 		<option name="Delta t">This is the integration constant, typically less than 1. Usually a greater value means a stronger filtering, but this may result in more artifacts. It is recommended to use more Iterations to get a stronger filtering result instead of increasing Delta t. </option>		
 		<option name="Iterations">This number says how often the Method is applied to the image, with the settings above. Be careful not to choose a value too large, this may slow down your calculations.</option>
-		<option name="Threads">Says how many threads are used for calculation. For Expert use; the standard value should work fine.</option>
 	</tab>
 	</fullDescription>
 
