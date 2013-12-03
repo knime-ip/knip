@@ -186,7 +186,7 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
 
                 int dim1 = 0;
                 for (int idx : selectedDimIndices) {
-                    if (inImg.dimension(selectedDimIndices[idx]) == 1) {
+                    if (inImg.dimension(idx) <= 1) {
                         dim1++;
                     }
                 }

@@ -213,7 +213,7 @@ public final class GrayscaleReconstructionNodeFactory<T extends RealType<T>> ext
 
                 int dim1 = 0;
                 for (int idx : selectedDimIndices) {
-                    if (mask.dimension(selectedDimIndices[idx]) == 1) {
+                    if (mask.dimension(idx) <= 1) {
                         dim1++;
                     }
                 }
