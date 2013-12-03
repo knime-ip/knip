@@ -136,7 +136,7 @@ public class LoGDetectorOp<T extends RealType<T> & NativeType<T>> implements
         FourierConvolution<T, FloatType> fConvLaplacian;
         fConvLaplacian =
                 new FourierConvolution<T, FloatType>(temp, laplacianKernel, new ArrayImgFactory<ComplexFloatType>());
-        fConvLaplacian.setNumThreads(0);
+        fConvLaplacian.setNumThreads(1);
         if (!fConvLaplacian.checkInput() || !fConvLaplacian.process()) {
             baseErrorMessage += "Fourier Convolution with Laplacian failed:\n" + fConvLaplacian.getErrorMessage();
             return null;

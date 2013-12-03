@@ -56,6 +56,7 @@ import net.imglib2.type.NativeType;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 
+import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
@@ -90,6 +91,8 @@ public class LoGDetectorFactory<T extends RealType<T> & NativeType<T>> extends I
         };
     }
 
+
+
     @Override
     public ImgPlusToImgPlusNodeModel<T, BitType> createNodeModel() {
         return new ImgPlusToImgPlusNodeModel<T, BitType>("X", "Y") {
@@ -99,6 +102,15 @@ public class LoGDetectorFactory<T extends RealType<T> & NativeType<T>> extends I
             @Override
             protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<BitType>> op(final ImgPlus<T> imgPlus) {
                 return new LoGDetectorOp<T>(m_spanModel.getIntValue() / 2);
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected void prepareExecute(final ExecutionContext exec) {
+                enableParallelization(false);
+                super.prepareExecute(exec);
             }
 
             @Override
