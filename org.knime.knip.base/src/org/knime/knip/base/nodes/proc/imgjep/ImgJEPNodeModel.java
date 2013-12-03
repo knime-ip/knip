@@ -285,7 +285,7 @@ public class ImgJEPNodeModel extends NodeModel implements BufferedDataTableHolde
                             }
 
                             if (!referenceImgIterationOrder.equals(img.iterationOrder())) {
-                                LOGGER.error("The images you want to combine don't match in their dimensions. You may want to use the Advanced Settings to resolve the problem.");
+                                LOGGER.warn("The images you want to combine don't match in their dimensions. You may want to use the Advanced Settings to resolve the problem.");
                                 setWarningMessage("Some error occured while executing! See console log for details!");
                                 return DataType.getMissingCell();
                             }
