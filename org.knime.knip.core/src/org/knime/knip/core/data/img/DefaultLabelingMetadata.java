@@ -60,7 +60,7 @@ import org.knime.knip.core.awt.labelingcolortable.LabelingColorTable;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -71,8 +71,9 @@ public class DefaultLabelingMetadata extends AbstractGeneralMetadata implements 
 
     /**
      * Creates a new DefaultLabelingMetadata object.
-     * 
-     * @param numDims
+     *
+     * @param numDims the number of dimensions
+     * @param colorTable the color table
      */
     public DefaultLabelingMetadata(final int numDims, final LabelingColorTable colorTable) {
         super(numDims);
@@ -81,7 +82,7 @@ public class DefaultLabelingMetadata extends AbstractGeneralMetadata implements 
 
     /**
      * TODO
-     * 
+     *
      * @param metadata
      */
     public DefaultLabelingMetadata(final LabelingMetadata metadata) {
@@ -94,7 +95,7 @@ public class DefaultLabelingMetadata extends AbstractGeneralMetadata implements 
 
     /**
      * Creates a new DefaultLabelingMetadata object. All given parameters will be copied.
-     * 
+     *
      * @param space
      * @param named
      * @param sourced

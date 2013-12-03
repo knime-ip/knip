@@ -9,7 +9,7 @@
 
 	<fullDescription>
 		<intro>Converts a labeling to an image with an additional
-			C-dimension
+			Channel-dimension
 			containing the color information. It is, for instance, useful to
 			write a colored labeling to an image file. Optionally the labeling
 			can be blended with a background image of the same size.</intro>
