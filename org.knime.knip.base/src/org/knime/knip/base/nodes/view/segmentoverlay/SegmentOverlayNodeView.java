@@ -225,10 +225,13 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
     @Override
     protected void modelChanged() {
         m_tableContentView.setModel(getNodeModel().getTableContentModel());
+        m_imgView = null;
+        m_sp.setRightComponent(new JPanel());
         if (m_hiliteProvider != null) {
             final HiLiteHandler handler = getNodeModel().getInHiLiteHandler(getNodeModel().PORT_SEG);
             m_hiliteProvider.updateInHandler(handler);
         }
+        m_row = -1;
     }
 
     /**

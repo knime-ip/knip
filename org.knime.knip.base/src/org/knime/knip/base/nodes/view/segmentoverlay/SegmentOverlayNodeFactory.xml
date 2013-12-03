@@ -29,8 +29,9 @@
 
 
 		<tab name="Options">
-			<option name="Img column">select the image column</option>
+			<option name="Image column">select the image column</option>
 			<option name="Labeling column">and the appropriate segment column.</option>
+			<option name="Virtually extend labeling or image?">If the labeling and image to be overlayed don't have the same sizes they will be adjusted such that they fit.</option>
 		</tab>
 
 		<tab name="Label Transformation">
