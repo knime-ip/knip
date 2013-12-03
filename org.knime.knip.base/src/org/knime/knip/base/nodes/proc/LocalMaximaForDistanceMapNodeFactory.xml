@@ -7,16 +7,29 @@
 <knimeNode icon="icons/localmaximadistancemap.png" type="Manipulator">
 	<name>Local Maxima for Distance Map</name>
 	<shortDescription>
-		TBD
+		Optimized computation of local maxima if the input
+		image is a distance map (see: Distance Map node in KNIME).
 	</shortDescription>
 
 	<fullDescription>
-		<intro>TBD
+		<intro>
+			This node computes the local pixel maxima (given some
+			neighborhood) given
+			a distance map. As we know that the input is a
+			distance map, the algorithm is optimized in runtime. For any other
+			type of input image, e.g. arbitrary images, use the Maximum Finder.
 		</intro>
+		<tab name="Options">
+			<option name="Connected Type">Type of the neighborhood. Eight-Connected means
+				that the eight pixels around a maximum candidate are considered
+				during computation. Sixteen makes this neighborhood one pixel larger
+				etc.
+			</option>
+		</tab>
 	</fullDescription>
 
 	<ports>
 		<inPort index="0" name="Images">Images</inPort>
-		<outPort index="0" name="Distance Images">Distance Images</outPort>
+		<outPort index="0" name="Images with Local Maxima">Images containing the Maxima</outPort>
 	</ports>
 </knimeNode>
