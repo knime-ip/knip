@@ -181,10 +181,22 @@ public class LabelingCell<L extends Comparable<L>> extends FileStoreCell impleme
     /* metadata of the labeling */
     private LabelingCellMetadata m_labelingMetadata;
 
+    /**
+     * Constructor for Serialization
+     *
+     * @throws IOException
+     */
     protected LabelingCell() throws IOException {
         super();
     }
 
+    /**
+     * Default Constructor
+     *
+     * @param labeling the {@link Labeling} stored in this cell
+     * @param metadata {@link LabelingMetadata} of the {@link Labeling} stored in this cell
+     * @param fileStore {@link FileStore} used to serialize/deserialize this cell
+     */
     protected LabelingCell(final Labeling<L> labeling, final LabelingMetadata metadata, final FileStore fileStore) {
         super(fileStore);
         final long[] dimensions = new long[labeling.numDimensions()];
@@ -443,7 +455,7 @@ public class LabelingCell<L extends Comparable<L>> extends FileStoreCell impleme
     }
 
     /**
-     * Loads the cell content. To be called after the {@link #FileImgPlusCell(DataCellDataInput)} constructor.
+     * Loads the cell content. To be called after the #FileImgPlusCell(DataCellDataInput) constructor.
      *
      * @param input
      * @throws IOException
@@ -486,6 +498,7 @@ public class LabelingCell<L extends Comparable<L>> extends FileStoreCell impleme
      * reads the labeling data including metadata, dimensions, thumbnail
      * etc.
      */
+    @SuppressWarnings("unchecked")
     private synchronized void readLabelingData(final long offset, final boolean metadataOnly) {
 
         if ((metadataOnly && (m_labelingMetadata != null)) || (!metadataOnly && (m_lab != null))) {
@@ -516,7 +529,6 @@ public class LabelingCell<L extends Comparable<L>> extends FileStoreCell impleme
 
             } else {
 
-                @SuppressWarnings("unchecked")
                 final LabelingCell<L> cell = (LabelingCell<L>)tmp;
                 m_labelingMetadata = cell.m_labelingMetadata;
                 m_lab = cell.m_lab;
@@ -530,6 +542,9 @@ public class LabelingCell<L extends Comparable<L>> extends FileStoreCell impleme
 
     /**
      * Stores the cell content. A few meta information to the data output, the heavy data to the file.
+     *
+     * @param output {@link DataOutput} to persist cell
+     * @throws IOException can be thrown during serialization
      */
     protected synchronized void save(final DataOutput output) throws IOException {
         long offset = m_fileMetadata.getOffset();
