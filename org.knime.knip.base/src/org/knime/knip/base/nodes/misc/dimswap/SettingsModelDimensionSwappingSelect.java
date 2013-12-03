@@ -59,11 +59,13 @@ import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.port.PortObjectSpec;
 
 /**
+ * TODO: Documentation
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
- * @author fschoenenberger, University of Konstanz
+ *
+ * @author Felix Schoenenberger (University of Konstanz)
  */
 public class SettingsModelDimensionSwappingSelect extends SettingsModel {
 
@@ -73,6 +75,12 @@ public class SettingsModelDimensionSwappingSelect extends SettingsModel {
 
     private final String m_configName;
 
+    /**
+     * Defaul Constructor
+     *
+     * @param configName name of this configuration
+     * @param numDimensions number of dimensions
+     */
     public SettingsModelDimensionSwappingSelect(final String configName, final int numDimensions) {
         m_configName = configName;
         m_backDimensionLookup = new int[numDimensions];
@@ -84,24 +92,17 @@ public class SettingsModelDimensionSwappingSelect extends SettingsModel {
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("unchecked")
     @Override
     protected <T extends SettingsModel> T createClone() {
         final SettingsModelDimensionSwappingSelect copy =
-                new SettingsModelDimensionSwappingSelect(m_configName, getNumDimensions());
+                new SettingsModelDimensionSwappingSelect(m_configName, numDimensions());
         copy.m_backDimensionLookup = m_backDimensionLookup.clone();
         return (T)copy;
     }
 
     public int getBackDimensionLookup(final int to) {
         return m_backDimensionLookup[to];
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected String getConfigName() {
-        return m_configName;
     }
 
     public int getFwdDimensionLookup(final int from) {
@@ -113,16 +114,32 @@ public class SettingsModelDimensionSwappingSelect extends SettingsModel {
         return -1;
     }
 
+    public int numDimensions() {
+        return m_backDimensionLookup.length;
+    }
+
+    public void setBackDimensionLookup(final int to, final int from) {
+        m_backDimensionLookup[from] = to;
+    }
+
+    public void setFwdDimensionLookup(final int to, final int from) {
+        m_backDimensionLookup[to] = from;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String getConfigName() {
+        return m_configName;
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     protected String getModelTypeID() {
-        return null;
-    }
-
-    public int getNumDimensions() {
-        return m_backDimensionLookup.length;
+        return m_configName;
     }
 
     /**
@@ -162,14 +179,6 @@ public class SettingsModelDimensionSwappingSelect extends SettingsModel {
     protected void saveSettingsForModel(final NodeSettingsWO settings) {
         final Config c = settings.addConfig(m_configName);
         c.addIntArray(CFG_DIM_LUT, m_backDimensionLookup);
-    }
-
-    public void setBackDimensionLookup(final int to, final int from) {
-        m_backDimensionLookup[from] = to;
-    }
-
-    public void setFwdDimensionLookup(final int to, final int from) {
-        m_backDimensionLookup[to] = from;
     }
 
     /**

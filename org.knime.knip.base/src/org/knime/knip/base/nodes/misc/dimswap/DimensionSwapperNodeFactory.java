@@ -56,11 +56,13 @@ import net.imglib2.meta.TypedAxis;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.node.ExecutionContext;
+import org.knime.core.node.NodeFactory;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.knip.base.KNIMEKNIPPlugin;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
@@ -68,9 +70,13 @@ import org.knime.knip.core.ops.metadata.DimSwapper;
 
 /**
  *
+ * {@link NodeFactory} to swap two dimensions
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <T>
  */
 public class DimensionSwapperNodeFactory<T extends RealType<T>> extends ValueToCellNodeFactory<ImgPlusValue<T>> {
 
@@ -122,16 +128,22 @@ public class DimensionSwapperNodeFactory<T extends RealType<T>> extends ValueToC
                     mapping[i] = m_mapping.getBackDimensionLookup(i);
                 }
 
-                final ImgPlus<T> res =
-                        new ImgPlus<T>(new ImgView<T>(DimSwapper.swap(img, mapping), img.factory()), img);
+                try {
+                    final ImgPlus<T> res =
+                            new ImgPlus<T>(new ImgView<T>(DimSwapper.swap(img, mapping), img.factory()), img);
 
-                // swap metadata
-                for (int i = 0; i < img.numDimensions(); i++) {
-                    res.setAxis(img.axis(i).copy(), mapping[i]);
-                    permutedMinimum[i] = minimum[mapping[i]];
+                    // swap metadata
+                    for (int i = 0; i < img.numDimensions(); i++) {
+                        res.setAxis(img.axis(i).copy(), mapping[i]);
+                        permutedMinimum[i] = minimum[mapping[i]];
+                    }
+
+                    return m_imgCellFactory.createCell(res, permutedMinimum);
+
+                } catch (IllegalArgumentException e) {
+                    throw new KNIPException(e.getMessage());
                 }
 
-                return m_imgCellFactory.createCell(res, permutedMinimum);
             }
 
             @Override
