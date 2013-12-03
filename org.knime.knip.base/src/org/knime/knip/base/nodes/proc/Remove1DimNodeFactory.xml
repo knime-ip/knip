@@ -18,6 +18,6 @@
 
 	<ports>
 		<inPort index="0" name="Images">Images</inPort>
-		<outPort index="0" name="Reduces Images">Reduced Images</outPort>
+		<outPort index="0" name="Cleaned Images">Cleaned Images</outPort>
 	</ports>
 </knimeNode>
