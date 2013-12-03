@@ -70,11 +70,14 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.node.NodeUtils;
 
 /**
- * TODO Auto-generated
+ * General {@link NodeModel} to compare to {@link DataValue}s
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <VIN1>
+ * @param <VIN2>
  */
 public abstract class ComparatorNodeModel<VIN1 extends DataValue, VIN2 extends DataValue> extends NodeModel {
 
@@ -123,6 +126,9 @@ public abstract class ComparatorNodeModel<VIN1 extends DataValue, VIN2 extends D
 
     private int[] m_colIndices;
 
+    /**
+     * Default Constructor, getTypeArgumentClasses() has to be called!
+     */
     protected ComparatorNodeModel() {
         super(1, 0);
         getTypeArgumentClasses();
@@ -218,6 +224,13 @@ public abstract class ComparatorNodeModel<VIN1 extends DataValue, VIN2 extends D
         return new BufferedDataTable[]{};
     }
 
+    /**
+     * Compare the {@link DataValue}s vin1 and vin22 which are contained in {@link DataRow} row
+     *
+     * @param row {@link DataRow} containing vin1 and vin2
+     * @param vin1 {@link DataValue} which will be compared to vin2
+     * @param vin2 {@link DataValue} which will be compared to vin1
+     */
     protected abstract void compare(DataRow row, VIN1 vin1, VIN2 vin2);
 
     /*

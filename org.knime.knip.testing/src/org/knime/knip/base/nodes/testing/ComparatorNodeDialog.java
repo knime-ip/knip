@@ -52,19 +52,27 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 import org.knime.core.data.DataValue;
+import org.knime.core.node.NodeDialog;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
+import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
 
 /**
- * TODO Auto-generated
- * 
+ * {@link NodeDialog} for {@link ComparatorNodeModel}
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <VIN1>
+ * @param <VIN2>
  */
 public abstract class ComparatorNodeDialog<VIN1 extends DataValue, VIN2 extends DataValue> extends
         DefaultNodeSettingsPane {
 
+    /**
+     * Default Constructor adding all required {@link DialogComponent}s
+     */
     @SuppressWarnings("unchecked")
     public ComparatorNodeDialog() {
 
@@ -79,7 +87,7 @@ public abstract class ComparatorNodeDialog<VIN1 extends DataValue, VIN2 extends 
 
     }
 
-    /*
+    /**
      * Retrieves the classes of the type arguments VIN1, VIN2
      */
     @SuppressWarnings("unchecked")
