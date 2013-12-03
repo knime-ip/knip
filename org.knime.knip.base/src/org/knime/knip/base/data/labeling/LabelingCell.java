@@ -259,13 +259,15 @@ public class LabelingCell<L extends Comparable<L>> extends FileStoreCell impleme
                 break;
             }
         }
-
-        final RandomAccessibleInterval<LabelingType<L>> subInterval =
-                getSubInterval(new FinalInterval(new long[lab2d.numDimensions()], max));
-
+        final RandomAccessibleInterval<LabelingType<L>> toRender;
+        if (m_lab == lab2d) {
+            toRender = getSubInterval(new FinalInterval(new long[lab2d.numDimensions()], max));
+        } else {
+            toRender = lab2d;
+        }
         rend.setLabelingColorTable(LabelingColorTableUtils.extendLabelingColorTable(m_labelingMetadata
                 .getLabelingMetadata().getLabelingColorTable(), new RandomMissingColorHandler()));
-        return AWTImageTools.renderScaledStandardColorImg(subInterval, rend, factor, new long[max.length]);
+        return AWTImageTools.renderScaledStandardColorImg(toRender, rend, factor, new long[max.length]);
     }
 
     /**
