@@ -101,6 +101,11 @@ public abstract class ImgPlusToImgPlusNodeModel<T extends RealType<T>, V extends
     protected ImgPlusCellFactory m_imgCellFactory;
 
     /**
+     * if true, parallelization is active
+     */
+    private boolean m_active = true;
+
+    /**
      * Constructor
      *
      * @param isEnabled
@@ -164,7 +169,9 @@ public abstract class ImgPlusToImgPlusNodeModel<T extends RealType<T>, V extends
         final int[] selection = m_dimSelection.getSelectedDimIndices(cellValue.getMetadata());
 
         return m_imgCellFactory.createCell(SubsetOperations.iterate(op, selection, cellValue.getImgPlus(), op
-                .bufferFactory().instantiate(cellValue.getImgPlus()), getExecutorService()), cellValue.getMinimum());
+                                                   .bufferFactory().instantiate(cellValue.getImgPlus()), m_active
+                                                   ? getExecutorService() : null),
+                                           cellValue.getMinimum());
     }
 
     /**
@@ -174,6 +181,23 @@ public abstract class ImgPlusToImgPlusNodeModel<T extends RealType<T>, V extends
      * @return {@link UnaryOutputOperation} which will be used to map from {@link ImgPlus} to another {@link ImgPlus}
      */
     protected abstract UnaryOutputOperation<ImgPlus<T>, ImgPlus<V>> op(ImgPlus<T> imgPlus);
+
+    /**
+     * Enable/Disable plane-wise or rather hypercube-wise parallelization. NB: Disable parallelization, if the
+     * {@link UnaryOutputOperation} provided by the implementation is able to parallelize
+     *
+     * @param active
+     */
+    protected void enableParallelization(final boolean active) {
+        this.m_active = active;
+    }
+
+    /**
+     * @return true, if plane-wise parallelization is active
+     */
+    protected boolean isParallelization() {
+        return m_active;
+    }
 
     /**
      * {@inheritDoc}
