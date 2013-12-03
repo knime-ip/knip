@@ -59,12 +59,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import net.imglib2.util.Util;
 
 /**
- * TODO Auto-generated
- * 
+ * Deprecation:  Use code of scijava-ops when available
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
+@Deprecated
 public class Spot {
 
     public static AtomicInteger IDcounter = new AtomicInteger(0);
@@ -89,27 +90,29 @@ public class Spot {
      * set to a constant value 0. This constructor ensures that none of the {@link Spot#POSITION_FEATURES} will be
      * <code>null</code>, and ensure relevance when calculating distances and so on.
      */
-    public Spot(double[] coordinates, String name) {
+    public Spot(final double[] coordinates, final String name) {
         this.ID = IDcounter.getAndIncrement();
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 3; i++) {
             putFeature(POSITION_FEATURES[i], coordinates[i]);
-        if (null == name)
+        }
+        if (null == name) {
             this.name = "ID" + ID;
-        else
+        } else {
             this.name = name;
+        }
     }
 
-    public Spot(double[] coordinates) {
+    public Spot(final double[] coordinates) {
         this(coordinates, null);
     }
 
     /**
      * Blank constructor meant to be used when loading a spot collection from a file. <b>Will</b> mess with the
      * {@link #IDcounter} field, so this constructor should not be used for normal spot creation.
-     * 
+     *
      * @param ID the spot ID to set
      */
-    public Spot(int ID) {
+    public Spot(final int ID) {
         this.ID = ID;
         if (IDcounter.get() < ID) {
             IDcounter.set(ID + 1);
@@ -130,7 +133,7 @@ public class Spot {
     /**
      * Set the name of this Spot.
      */
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -141,10 +144,11 @@ public class Spot {
     @Override
     public String toString() {
         String str;
-        if (null == name || name.equals(""))
+        if (null == name || name.equals("")) {
             str = "ID" + ID;
-        else
+        } else {
             str = name;
+        }
         return str;
     }
 
@@ -155,10 +159,11 @@ public class Spot {
         StringBuilder s = new StringBuilder();
 
         // Name
-        if (null == name)
+        if (null == name) {
             s.append("Spot: <no name>\n");
-        else
+        } else {
             s.append("Spot: " + name + "\n");
+        }
 
         // Frame
         s.append("Time: " + getFeature(POSITION_T) + '\n');
@@ -169,18 +174,19 @@ public class Spot {
         s.append("Position: " + Util.printCoordinates(coordinates) + "\n");
 
         // Feature list
-        if (null == features || features.size() < 1)
+        if (null == features || features.size() < 1) {
             s.append("No features calculated\n");
-        else {
+        } else {
             s.append("Feature list:\n");
             double val;
             for (String key : features.keySet()) {
                 s.append("\t" + key.toString() + ": ");
                 val = features.get(key);
-                if (val >= 1e4)
+                if (val >= 1e4) {
                     s.append(String.format("%.1g", val));
-                else
+                } else {
                     s.append(String.format("%.1f", val));
+                }
                 s.append('\n');
             }
         }
@@ -217,7 +223,7 @@ public class Spot {
      * @return the difference of the feature value of this spot with the one of the given spot. By construction, this
      *         operation is anti-symmetric (A.diffTo(B) = - B.diffTo(A)).
      */
-    public double diffTo(Spot s, String feature) {
+    public double diffTo(final Spot s, final String feature) {
         double f1 = features.get(feature).doubleValue();
         double f2 = s.getFeature(feature).doubleValue();
         return f1 - f2;
@@ -231,19 +237,20 @@ public class Spot {
      *         <p>
      *         By construction, this operation is symmetric (A.normalizeDiffTo(B) = B.normalizeDiffTo(A)).
      */
-    public double normalizeDiffTo(Spot s, String feature) {
+    public double normalizeDiffTo(final Spot s, final String feature) {
         final double a = features.get(feature).doubleValue();
         final double b = s.getFeature(feature).doubleValue();
-        if (a == -b)
+        if (a == -b) {
             return 0d;
-        else
+        } else {
             return Math.abs(a - b) / ((a + b) / 2);
+        }
     }
 
     /**
      * @return the square distance from this spot to another, using the x,y,z position features.
      */
-    public double squareDistanceTo(Spot s) {
+    public double squareDistanceTo(final Spot s) {
         double sumSquared = 0d;
         double thisVal, otherVal;
 
@@ -262,14 +269,15 @@ public class Spot {
     /** A comparator used to sort spots by ascending time feature. */
     public final static Comparator<Spot> timeComparator = new Comparator<Spot>() {
         @Override
-        public int compare(Spot o1, Spot o2) {
+        public int compare(final Spot o1, final Spot o2) {
             final double diff = o2.diffTo(o1, POSITION_T);
-            if (diff == 0)
+            if (diff == 0) {
                 return 0;
-            else if (diff < 0)
+            } else if (diff < 0) {
                 return 1;
-            else
+            } else {
                 return -1;
+            }
         }
 
     };
@@ -277,14 +285,15 @@ public class Spot {
     /** A comparator used to sort spots by ascending frame. */
     public final static Comparator<Spot> frameComparator = new Comparator<Spot>() {
         @Override
-        public int compare(Spot o1, Spot o2) {
+        public int compare(final Spot o1, final Spot o2) {
             final double diff = o2.diffTo(o1, FRAME);
-            if (diff == 0)
+            if (diff == 0) {
                 return 0;
-            else if (diff < 0)
+            } else if (diff < 0) {
                 return 1;
-            else
+            } else {
                 return -1;
+            }
         }
     };
 

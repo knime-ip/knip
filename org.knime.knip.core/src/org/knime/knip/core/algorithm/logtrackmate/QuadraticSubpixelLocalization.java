@@ -67,12 +67,13 @@ import Jama.Matrix;
 import Jama.SingularValueDecomposition;
 
 /**
- * TODO Auto-generated
- * 
+ * Deprecation: Use code of scijava-ops when available
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
+@Deprecated
 public class QuadraticSubpixelLocalization<T extends RealType<T>> implements Algorithm, Benchmark, MultiThreaded {
 
     protected final Img<T> laPlacian;
@@ -104,8 +105,9 @@ public class QuadraticSubpixelLocalization<T extends RealType<T>> implements Alg
         this.allowedToMoveInDim = new boolean[laPlacian.numDimensions()];
 
         // principally one can move in any dimension
-        for (int d = 0; d < allowedToMoveInDim.length; ++d)
+        for (int d = 0; d < allowedToMoveInDim.length; ++d) {
             allowedToMoveInDim[d] = true;
+        }
 
         this.doubleArrayFactory = new ArrayImgFactory<DoubleType>();
     }
@@ -176,7 +178,7 @@ public class QuadraticSubpixelLocalization<T extends RealType<T>> implements Alg
         final Thread[] threads = SimpleMultiThreading.newThreads(getNumThreads());
         final int numThreads = threads.length;
 
-        for (int ithread = 0; ithread < threads.length; ++ithread)
+        for (int ithread = 0; ithread < threads.length; ++ithread) {
             threads[ithread] = new Thread(new Runnable() {
                 public void run() {
                     final int myNumber = ai.getAndIncrement();
@@ -192,6 +194,7 @@ public class QuadraticSubpixelLocalization<T extends RealType<T>> implements Alg
                     }
                 }
             });
+        }
 
         SimpleMultiThreading.startAndJoin(threads);
 
@@ -200,6 +203,12 @@ public class QuadraticSubpixelLocalization<T extends RealType<T>> implements Alg
         return true;
     }
 
+    /**
+     * Analyze each peak
+     *
+     * @param peak
+     * @return true if maxima
+     */
     public boolean analyzePeak(final SubPixelLocalization<T> peak) {
         final int numDimensions = laPlacian.numDimensions();
 
@@ -235,10 +244,10 @@ public class QuadraticSubpixelLocalization<T extends RealType<T>> implements Alg
         long[] currentPosition = new long[peak.numDimensions()];
         peak.localize(currentPosition);
 
-        // fit n-dimensional quadratic function to the extremum and 
-        // if the extremum is shifted more than 0.5 in one or more 
+        // fit n-dimensional quadratic function to the extremum and
+        // if the extremum is shifted more than 0.5 in one or more
         // directions we test wheather it is better there
-        // until we 
+        // until we
         //   - converge (find a stable extremum)
         //   - move out of the image
         //   - achieved the maximal number of moves
@@ -257,7 +266,7 @@ public class QuadraticSubpixelLocalization<T extends RealType<T>> implements Alg
             //
             // xx xy xz
             // yx yy yz
-            // zx zy zz			
+            // zx zy zz
             hessianMatrix = getHessianMatrix(cursor, hessianMatrix);
 
             // compute the inverse of the hessian matrix
@@ -278,8 +287,9 @@ public class QuadraticSubpixelLocalization<T extends RealType<T>> implements Alg
             // compute the extremum of the n-dimensinal quadratic fit
             X = (A.uminus()).times(B);
 
-            for (int d = 0; d < numDimensions; ++d)
+            for (int d = 0; d < numDimensions; ++d) {
                 subpixelLocation[d] = X.get(d, 0);
+            }
 
             // test all dimensions for their change
             // if the absolute value of the subpixel location
@@ -291,11 +301,11 @@ public class QuadraticSubpixelLocalization<T extends RealType<T>> implements Alg
                 // has to be changed, e.g. a subpixel location of 4.7
                 // would mean that the new base location is 5 with an offset of -0.3
                 //
-                // If we allow an increasing maxima tolerance we will 
+                // If we allow an increasing maxima tolerance we will
                 // not change the base position that easily. Sometimes
                 // it simply jumps from left to right and back, because
                 // it is 4.51 (i.e. goto 5), then 4.49 (i.e. goto 4)
-                // Then we say, ok, lets keep the base position even if 
+                // Then we say, ok, lets keep the base position even if
                 // the subpixel location is 0.6...
 
                 final double threshold = allowMaximaTolerance ? 0.5 + numMoves * maximaTolerance : 0.5;
@@ -307,7 +317,7 @@ public class QuadraticSubpixelLocalization<T extends RealType<T>> implements Alg
                         foundStableMaxima = false;
                     } else {
                         // set it to the position that is maximally away when keeping the current base position
-                        // e.g. if (0.7) do 4 -> 4.5 (although it should be 4.7, i.e. a new base position of 5) 
+                        // e.g. if (0.7) do 4 -> 4.5 (although it should be 4.7, i.e. a new base position of 5)
                         // or  if (-0.9) do 4 -> 3.5 (although it should be 3.1, i.e. a new base position of 3)
                         subpixelLocation[d] = Math.signum(subpixelLocation[d]) * 0.5;
                     }
@@ -317,33 +327,41 @@ public class QuadraticSubpixelLocalization<T extends RealType<T>> implements Alg
             // check validity of the new location if there is a need to move
             pointsValid = true;
 
-            if (!canMoveOutside)
-                if (!foundStableMaxima)
-                    for (int d = 0; d < numDimensions; ++d)
-                        if (currentPosition[d] <= 0 || currentPosition[d] >= laPlacian.dimension(d) - 1)
+            if (!canMoveOutside) {
+                if (!foundStableMaxima) {
+                    for (int d = 0; d < numDimensions; ++d) {
+                        if (currentPosition[d] <= 0 || currentPosition[d] >= laPlacian.dimension(d) - 1) {
                             pointsValid = false;
+                        }
+                    }
+                }
+            }
 
         } while (numMoves <= maxNumMoves && !foundStableMaxima && pointsValid);
 
-        if (!foundStableMaxima)
+        if (!foundStableMaxima) {
             return handleFailure(peak, "No stable extremum found.");
+        }
 
-        if (!pointsValid)
+        if (!pointsValid) {
             return handleFailure(peak, "Moved outside of the image.");
+        }
 
         // compute the function value (intensity) of the fit
         double quadrFuncValue = 0;
 
-        for (int d = 0; d < numDimensions; ++d)
+        for (int d = 0; d < numDimensions; ++d) {
             quadrFuncValue += X.get(d, 0) * B.get(d, 0);
+        }
 
         quadrFuncValue /= 2.0;
 
         // set the results if everything went well
 
         // subpixel location
-        for (int d = 0; d < numDimensions; ++d)
+        for (int d = 0; d < numDimensions; ++d) {
             peak.setSubPixelLocationOffset(subpixelLocation[d], d);
+        }
 
         // pixel location
         peak.localize(currentPosition);
@@ -364,8 +382,9 @@ public class QuadraticSubpixelLocalization<T extends RealType<T>> implements Alg
     protected Matrix invertMatrix(final Img<DoubleType> matrixImage) {
         final Matrix matrix = getMatrix(matrixImage);
 
-        if (matrix == null)
+        if (matrix == null) {
             return null;
+        }
 
         return computePseudoInverseMatrix(matrix, 0.001);
     }
@@ -388,15 +407,16 @@ public class QuadraticSubpixelLocalization<T extends RealType<T>> implements Alg
 
     /**
      * Converts an {@link Img} into a matrix
-     * 
+     *
      * @param maxtrixImage - the input {@link Img}
      * @return a {@link Matrix} or null if the {@link Img} is not one or two-dimensional
      */
     public static <S extends RealType<S>> Matrix getMatrix(final Img<S> maxtrixImage) {
         final int numDimensions = maxtrixImage.numDimensions();
 
-        if (numDimensions > 2)
+        if (numDimensions > 2) {
             return null;
+        }
 
         final Matrix matrix;
 
@@ -424,7 +444,7 @@ public class QuadraticSubpixelLocalization<T extends RealType<T>> implements Alg
 
     /**
      * Computes the pseudo-inverse of a matrix using Singular Value Decomposition
-     * 
+     *
      * @param M - the input {@link Matrix}
      * @param threshold - the threshold for inverting diagonal elements (suggested 0.001)
      * @return the inverted {@link Matrix} or an approximation with lowest possible squared error
@@ -442,10 +462,11 @@ public class QuadraticSubpixelLocalization<T extends RealType<T>> implements Alg
         for (int j = 0; j < S.getRowDimension(); ++j) {
             temp = S.get(j, j);
 
-            if (temp < threshold) // this is an inaccurate inverting of the matrix 
+            if (temp < threshold) {
                 temp = 1.0 / threshold;
-            else
+            } else {
                 temp = 1.0 / temp;
+            }
 
             S.set(j, j, temp);
         }
@@ -462,7 +483,7 @@ public class QuadraticSubpixelLocalization<T extends RealType<T>> implements Alg
     /**
      * Computes the n-dimensional 1st derivative vector in 3x3x3...x3 environment for a certain {@link Img} location
      * defined by the position of the {@link RandomAccess}.
-     * 
+     *
      * @param cursor - the position for which to compute the Hessian Matrix
      * @return Img<DoubleType> - the derivative, which is essentially a one-dimensional {@link DoubleType} {@link Img}
      *         of size [numDimensions]
@@ -479,7 +500,7 @@ public class QuadraticSubpixelLocalization<T extends RealType<T>> implements Alg
     /**
      * Computes the n-dimensional 1st derivative vector in 3x3x3...x3 environment for a certain {@link Img} location
      * defined by the position of the {@link RandomAccess}.
-     * 
+     *
      * @param cursor - the position for which to compute the Hessian Matrix
      * @param Img<DoubleType> - the derivative, which is essentially a one-dimensional {@link DoubleType} {@link Img} of
      *            size [numDimensions]
@@ -496,7 +517,7 @@ public class QuadraticSubpixelLocalization<T extends RealType<T>> implements Alg
 
             // we compute the derivative for dimension A like this
             //
-            // | a0 | a1 | a2 | 
+            // | a0 | a1 | a2 |
             //        ^
             //        |
             //  Original position of image cursor
@@ -523,7 +544,7 @@ public class QuadraticSubpixelLocalization<T extends RealType<T>> implements Alg
     /**
      * Computes the n-dimensional Hessian Matrix in 3x3x3...x3 environment for a certain {@link Img} location defined by
      * the position of the {@link RandomAccess}.
-     * 
+     *
      * @param cursor - the position for which to compute the Hessian Matrix
      * @return Img<DoubleType> - the hessian matrix, which is essentially a two-dimensional {@link DoubleType}
      *         {@link Img} of size [numDimensions][numDimensions]
@@ -541,7 +562,7 @@ public class QuadraticSubpixelLocalization<T extends RealType<T>> implements Alg
     /**
      * Computes the n-dimensional Hessian Matrix in 3x3x3...x3 environment for a certain {@link Img} location defined by
      * the position of the {@link RandomAccess}.
-     * 
+     *
      * @param cursor - the position for which to compute the Hessian Matrix
      * @param Img<DoubleType> - the hessian matrix, which is essentially a two-dimensional {@link DoubleType}
      *            {@link Img} of size [numDimensions][numDimensions]
@@ -567,7 +588,7 @@ public class QuadraticSubpixelLocalization<T extends RealType<T>> implements Alg
                 // diagonal elements h(aa) for dimension a
                 // computed from the row a in the input image
                 //
-                // | a0 | a1 | a2 | 
+                // | a0 | a1 | a2 |
                 //        ^
                 //        |
                 //  Original position of image cursor
@@ -606,7 +627,7 @@ public class QuadraticSubpixelLocalization<T extends RealType<T>> implements Alg
                 //
                 // we divide by 2 because these are always jumps over two pixels
 
-                // we only have to do that if dimB > dimA, 
+                // we only have to do that if dimB > dimA,
                 // because h(ab) = h(ba)
 
                 cursor.fwd(dimB);
@@ -658,8 +679,9 @@ public class QuadraticSubpixelLocalization<T extends RealType<T>> implements Alg
         } else if (peaks.size() == 0) {
             errorMessage = "SubpixelLocalization: [List<SubPixelLocalization<T>> peaks] is empty.";
             return false;
-        } else
+        } else {
             return true;
+        }
     }
 
     @Override

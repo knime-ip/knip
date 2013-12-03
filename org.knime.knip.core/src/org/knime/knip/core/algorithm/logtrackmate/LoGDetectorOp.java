@@ -60,6 +60,7 @@ import net.imglib2.img.ImgFactory;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.img.UnaryObjectFactory;
+import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.logic.BitType;
@@ -70,12 +71,16 @@ import net.imglib2.type.numeric.real.FloatType;
 import org.knime.knip.core.algorithm.logtrackmate.SubPixelLocalization.LocationType;
 
 /**
- * TODO Auto-generated
- * 
+ * Wrapper {@link UnaryOperation} for {@link LoGDetectorOp} which is implemented in Trackmate
+ *
+ * Deprecation: Use code of scijava-ops when available
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @param <T>
  */
+@Deprecated
 public class LoGDetectorOp<T extends RealType<T> & NativeType<T>> implements
         UnaryOutputOperation<ImgPlus<T>, ImgPlus<BitType>> {
 
@@ -83,18 +88,19 @@ public class LoGDetectorOp<T extends RealType<T> & NativeType<T>> implements
 
     private double radius;
 
-    private double threshold;
-
-    private boolean doSubPixelLocalization;
-
     protected List<Spot> spots = new ArrayList<Spot>();
 
     private int numDimensions;
 
-    public LoGDetectorOp(final double radius, final double threshold, final boolean doSubPixelLocalization) {
-        this.radius = radius;
-        this.threshold = threshold;
-        this.doSubPixelLocalization = doSubPixelLocalization;
+    /**
+     * Default Constructor
+     *
+     * @param span span of the resulting spots
+     * @param threshold minimum brightness of spots
+     * @param doSubPixelLocalization activate subpixel localization
+     */
+    public LoGDetectorOp(final double span) {
+        this.radius = span;
     }
 
     @Override
@@ -108,7 +114,7 @@ public class LoGDetectorOp<T extends RealType<T> & NativeType<T>> implements
         // Turn it in pixel coordinates
         final double[] calibration = new double[input.numDimensions()];
         for (int d = 0; d < input.numDimensions(); d++) {
-            calibration[d] = input.axis(d).averageScale(0, 0);
+            calibration[d] = input.axis(d).averageScale(0, 1);
         }
 
         double[] sigmas = new double[numDimensions];
@@ -130,6 +136,7 @@ public class LoGDetectorOp<T extends RealType<T> & NativeType<T>> implements
         FourierConvolution<T, FloatType> fConvLaplacian;
         fConvLaplacian =
                 new FourierConvolution<T, FloatType>(temp, laplacianKernel, new ArrayImgFactory<ComplexFloatType>());
+        fConvLaplacian.setNumThreads(0);
         if (!fConvLaplacian.checkInput() || !fConvLaplacian.process()) {
             baseErrorMessage += "Fourier Convolution with Laplacian failed:\n" + fConvLaplacian.getErrorMessage();
             return null;
@@ -160,26 +167,10 @@ public class LoGDetectorOp<T extends RealType<T> & NativeType<T>> implements
             long[] center = centers.get(i);
             cursor.setPosition(center);
             T value = cursor.get().copy();
-            if (value.getRealDouble() < threshold) {
-                break; // because peaks are sorted, we can exit loop here
-            }
+
             SubPixelLocalization<T> peak = new SubPixelLocalization<T>(center, value, specialPoint);
             peaks.add(peak);
             pruned_values.add(value);
-        }
-
-        // Do sub-pixel localization
-        if (doSubPixelLocalization) {
-            // Create localizer and apply it to the list. The list object will
-            // be updated
-            final QuadraticSubpixelLocalization<T> locator = new QuadraticSubpixelLocalization<T>(temp, peaks);
-            locator.setNumThreads(1); // Since the calls to a detector are
-                                      // already multi-threaded.
-            locator.setCanMoveOutside(true);
-            if (!locator.checkInput() || !locator.process()) {
-                baseErrorMessage += locator.getErrorMessage();
-                return null;
-            }
         }
 
         // Create spots
@@ -280,7 +271,7 @@ public class LoGDetectorOp<T extends RealType<T> & NativeType<T>> implements
 
     @Override
     public UnaryOutputOperation<ImgPlus<T>, ImgPlus<BitType>> copy() {
-        return new LoGDetectorOp<T>(radius, threshold, doSubPixelLocalization);
+        return new LoGDetectorOp<T>(radius);
     }
 
 }

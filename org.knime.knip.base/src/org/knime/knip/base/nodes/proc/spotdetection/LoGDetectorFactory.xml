@@ -4,25 +4,32 @@
 	<name>LoG Spot Detection (TrackMate)</name>
 
 	<shortDescription>
-		Applies a Laplacian of Gaussian to the input and
-		returns a BitType image containing the found spots.
+		Applies a Laplacian of Gaussian on the input images
+		and returns an image of type BitType containing the found spots.
 	</shortDescription>
 
 	<fullDescription>
 		<intro>Implementation of the TrackMate (see http://fiji.sc/TrackMate)
-			LogDetector.</intro>
-		<tab name="Settings">
-			<option name="radius">The minimum radius a spot.</option>
-			<option name="threshold">A threshold for pruning the found spot to filter
-				out the background. </option>
-			<option name="do Sub Pixel Localization"> Choose whether you want to use sub pixel
-				localization.</option>
+			LogDetector.
+
+			Applies a Laplacian of Gaussian on the input images and
+			returns an image of type BitType containing the found spots. To
+			achieve the full functionality of the TrackMate SpotDetector you may
+			want to use an Connected Component Analysis to create a Labeling and
+			filter the detected spots by various features (Image Segment Feature
+			Node) afterwards. We refer to our examples on the web-page
+			(Tutorial:
+			Spot-Detection).
+		</intro>
+		<tab name="Options">
+			<option name="Span">The minimum span of a spot (span = 2*radius)
+			</option>
 		</tab>
 	</fullDescription>
 
 	<ports>
 		<inPort index="0" name="Images">Images</inPort>
-		<outPort index="0" name="Images">Images (BitType)</outPort>
+		<outPort index="0" name="Images">BitType Images of Spots</outPort>
 	</ports>
 
 </knimeNode>

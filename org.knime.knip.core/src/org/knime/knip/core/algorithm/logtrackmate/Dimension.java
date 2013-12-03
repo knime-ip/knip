@@ -49,12 +49,13 @@
 package org.knime.knip.core.algorithm.logtrackmate;
 
 /**
- * TODO Auto-generated
- * 
+ * Deprecation
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
+@Deprecated
 public enum Dimension {
     NONE, QUALITY, INTENSITY, INTENSITY_SQUARED, POSITION, VELOCITY, LENGTH, // we separate length and position so that x,y,z are plotted on a different graph from spot sizes
     TIME, ANGLE, STRING; // for non-numeric features

@@ -56,10 +56,8 @@ import net.imglib2.type.NativeType;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 
-import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
-import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
@@ -77,16 +75,8 @@ import org.knime.knip.core.algorithm.logtrackmate.LoGDetectorOp;
  */
 public class LoGDetectorFactory<T extends RealType<T> & NativeType<T>> extends ImgPlusToImgPlusNodeFactory<T, BitType> {
 
-    static SettingsModelIntegerBounded createRadiusValueModel() {
+    static SettingsModelIntegerBounded createSpanModel() {
         return new SettingsModelIntegerBounded("radius value", 5, 0, Integer.MAX_VALUE);
-    }
-
-    static SettingsModelIntegerBounded createThresholdValueModel() {
-        return new SettingsModelIntegerBounded("threshold value", 0, 0, Integer.MAX_VALUE);
-    }
-
-    static SettingsModelBoolean createDoSubPixelModel() {
-        return new SettingsModelBoolean("do Sub Pixel Localization", true);
     }
 
     @Override
@@ -95,12 +85,7 @@ public class LoGDetectorFactory<T extends RealType<T> & NativeType<T>> extends I
 
             @Override
             public void addDialogComponents() {
-
-                addDialogComponent("Options", "", new DialogComponentNumber(createRadiusValueModel(), "radius", 5));
-                addDialogComponent("Options", "",
-                                   new DialogComponentNumber(createThresholdValueModel(), "threshold", 0));
-                addDialogComponent("Options", "", new DialogComponentBoolean(createDoSubPixelModel(),
-                        "Do Sub Pixel Localization"));
+                addDialogComponent("Options", "", new DialogComponentNumber(createSpanModel(), "Span", 5));
             }
         };
     }
@@ -109,21 +94,17 @@ public class LoGDetectorFactory<T extends RealType<T> & NativeType<T>> extends I
     public ImgPlusToImgPlusNodeModel<T, BitType> createNodeModel() {
         return new ImgPlusToImgPlusNodeModel<T, BitType>("X", "Y") {
 
-            private SettingsModelInteger m_radius = createRadiusValueModel();
-
-            private SettingsModelInteger m_threshold = createThresholdValueModel();
-
-            private SettingsModelBoolean m_doSubPixel = createDoSubPixelModel();
+            private SettingsModelInteger m_spanModel = createSpanModel();
 
             @Override
             protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<BitType>> op(final ImgPlus<T> imgPlus) {
-                return new LoGDetectorOp<T>(m_radius.getIntValue() / 2, m_threshold.getIntValue(),
+                return new LoGDetectorOp<T>(m_spanModel.getIntValue() / 2, m_threshold.getIntValue(),
                         m_doSubPixel.getBooleanValue());
             }
 
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
-                settingsModels.add(m_radius);
+                settingsModels.add(m_spanModel);
                 settingsModels.add(m_threshold);
                 settingsModels.add(m_doSubPixel);
             }

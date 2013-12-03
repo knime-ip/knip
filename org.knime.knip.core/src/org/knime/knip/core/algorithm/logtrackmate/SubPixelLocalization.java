@@ -52,12 +52,13 @@ import net.imglib2.Localizable;
 import net.imglib2.type.numeric.NumericType;
 
 /**
- * TODO Auto-generated
- * 
+ * Deprecation: Use code of scijava-ops when available
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
+@Deprecated
 public class SubPixelLocalization<T extends NumericType<T> & Comparable<T>> implements Localizable,
         Comparable<SubPixelLocalization<T>> {
 
@@ -77,7 +78,7 @@ public class SubPixelLocalization<T extends NumericType<T> & Comparable<T>> impl
 
     protected LocationType locationType;
 
-    public SubPixelLocalization(final long[] pixelCoordinates, T value, LocationType locationType) {
+    public SubPixelLocalization(final long[] pixelCoordinates, final T value, final LocationType locationType) {
         super();
         this.pixelCoordinates = pixelCoordinates;
         this.value = value.copy();
@@ -88,26 +89,26 @@ public class SubPixelLocalization<T extends NumericType<T> & Comparable<T>> impl
     }
 
     @Override
-    public void localize(float[] position) {
+    public void localize(final float[] position) {
         for (int i = 0; i < position.length; i++) {
             position[i] = (float)(pixelCoordinates[i] + subPixelLocationOffset[i]);
         }
     }
 
     @Override
-    public void localize(double[] position) {
+    public void localize(final double[] position) {
         for (int i = 0; i < position.length; i++) {
             position[i] = pixelCoordinates[i] + subPixelLocationOffset[i];
         }
     }
 
     @Override
-    public float getFloatPosition(int d) {
+    public float getFloatPosition(final int d) {
         return (float)(pixelCoordinates[d] + subPixelLocationOffset[d]);
     }
 
     @Override
-    public double getDoublePosition(int d) {
+    public double getDoublePosition(final int d) {
         return pixelCoordinates[d] + subPixelLocationOffset[d];
     }
 
@@ -117,30 +118,30 @@ public class SubPixelLocalization<T extends NumericType<T> & Comparable<T>> impl
     }
 
     @Override
-    public void localize(int[] position) {
+    public void localize(final int[] position) {
         for (int i = 0; i < position.length; i++) {
             position[i] = (int)pixelCoordinates[i];
         }
     }
 
     @Override
-    public void localize(long[] position) {
+    public void localize(final long[] position) {
         for (int i = 0; i < position.length; i++) {
             position[i] = pixelCoordinates[i];
         }
     }
 
     @Override
-    public int getIntPosition(int d) {
+    public int getIntPosition(final int d) {
         return (int)pixelCoordinates[d];
     }
 
     @Override
-    public long getLongPosition(int d) {
+    public long getLongPosition(final int d) {
         return pixelCoordinates[d];
     }
 
-    public void setSubPixelLocationOffset(double offset, int d) {
+    public void setSubPixelLocationOffset(final double offset, final int d) {
         this.subPixelLocationOffset[d] = offset;
     }
 
@@ -148,7 +149,7 @@ public class SubPixelLocalization<T extends NumericType<T> & Comparable<T>> impl
         return value;
     }
 
-    public void setValue(T value) {
+    public void setValue(final T value) {
         this.value = value;
     }
 
@@ -156,7 +157,7 @@ public class SubPixelLocalization<T extends NumericType<T> & Comparable<T>> impl
         return interpolatedValue;
     }
 
-    public void setErrorMessage(String error) {
+    public void setErrorMessage(final String error) {
         this.errorMessage = error;
     }
 
@@ -168,7 +169,7 @@ public class SubPixelLocalization<T extends NumericType<T> & Comparable<T>> impl
         return locationType;
     }
 
-    public void setLocationType(LocationType locationType) {
+    public void setLocationType(final LocationType locationType) {
         this.locationType = locationType;
     }
 
