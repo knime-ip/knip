@@ -61,7 +61,10 @@ import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingView;
+import net.imglib2.meta.DefaultNamed;
+import net.imglib2.meta.DefaultSourced;
 import net.imglib2.meta.ImgPlus;
+import net.imglib2.meta.ImgPlusMetadata;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.iterable.unary.Fill;
 import net.imglib2.roi.IterableRegionOfInterest;
@@ -101,6 +104,7 @@ import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.node.nodesettings.SettingsModelFilterSelection;
 import org.knime.knip.core.data.img.DefaultImageMetadata;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
+import org.knime.knip.core.data.img.LabelingMetadata;
 import org.knime.knip.core.ops.misc.LabelingDependency;
 import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter;
@@ -403,10 +407,10 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
                 final List<DataCell> cells = new ArrayList<DataCell>();
 
                 // TODO: What about color tables?
-                final DefaultImgMetadata metadata =
-                        new DefaultImgMetadata(labelingValue.getLabelingMetadata(),
-                                labelingValue.getLabelingMetadata(), labelingValue.getLabelingMetadata(),
-                                new DefaultImageMetadata());
+                final LabelingMetadata lmdata = labelingValue.getLabelingMetadata();
+                final ImgPlusMetadata metadata =
+                        new DefaultImgMetadata(lmdata, new DefaultNamed(l.toString()), new DefaultSourced(
+                                lmdata.getName()), new DefaultImageMetadata());
 
                 cells.add(imgCellFactory.createCell(res, metadata, min));
                 if (imgColIndex != -1) {

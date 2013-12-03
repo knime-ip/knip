@@ -206,9 +206,11 @@ public class Lab2TableNodeModel<L extends Comparable<L>, II extends IntegerType<
                     min[j] = ii.min(j);
                 }
                 final LabelingMetadata lmdata = labVal.getLabelingMetadata();
+
                 final ImgPlusMetadata mdata =
                         new DefaultImgMetadata(lmdata, new DefaultNamed(label.toString()), new DefaultSourced(
                                 lmdata.getName()), new DefaultImageMetadata());
+
                 cells.add(imgCellFactory.createCell(createBinaryMask(ii), mdata, min));
 
                 // Segment label

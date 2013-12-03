@@ -248,8 +248,10 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
         m_tableView.removeAll();
         m_hiliteProvider = null;
         m_tableContentView.removeAll();
-        m_imgView.getEventService().publish(new ViewClosedEvent());
-        m_imgView.removeAll();
+        if (m_imgView != null) {
+            m_imgView.getEventService().publish(new ViewClosedEvent());
+            m_imgView.removeAll();
+        }
         m_imgView = null;
         m_tableContentView = null;
         m_tableView = null;
