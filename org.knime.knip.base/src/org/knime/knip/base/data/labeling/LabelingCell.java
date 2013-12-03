@@ -418,10 +418,17 @@ public class LabelingCell<L extends Comparable<L>> extends FileStoreCell impleme
             return AWTImageTools.makeTextBufferedImage(getStringValue(), height * 3, height, "\n");
         } else {
             readLabelingData(m_fileMetadata.getOffset(), true);
-            double height =
-                    Math.min(m_labelingMetadata.getDimensions()[1], KNIMEKNIPPlugin.getMaximumImageCellHeight());
-            if (height == 0) {
-                height = (int)m_labelingMetadata.getDimensions()[1];
+
+            double height = 1; // default for 1d images
+            double fullHeight = 1;
+
+            if (m_labelingMetadata.getDimensions().length > 1) {
+                height = Math.min(m_labelingMetadata.getDimensions()[1], KNIMEKNIPPlugin.getMaximumImageCellHeight());
+                if (height == 0) {
+                    height = m_labelingMetadata.getDimensions()[1];
+                }
+
+                fullHeight = m_labelingMetadata.getDimensions()[1];
             }
             if ((m_labelingMetadata.getThumbnail() == null)
                     || (m_labelingMetadata.getThumbnail().getHeight() != height)) {
@@ -429,7 +436,7 @@ public class LabelingCell<L extends Comparable<L>> extends FileStoreCell impleme
                 m_labelingMetadata =
                         new LabelingCellMetadata(m_labelingMetadata.getLabelingMetadata(),
                                 m_labelingMetadata.getSize(), m_labelingMetadata.getDimensions(),
-                                createThumbnail(height / m_labelingMetadata.getDimensions()[1]));
+                                createThumbnail(height / fullHeight));
                 // update cached object
                 m_objectRepository.cacheObject(this);
             }
