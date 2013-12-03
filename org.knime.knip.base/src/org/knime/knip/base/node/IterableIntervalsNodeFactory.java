@@ -72,6 +72,12 @@ import org.knime.node2012.UlDocument.Ul;
 public abstract class IterableIntervalsNodeFactory<T extends RealType<T>, V extends RealType<V>, L extends Comparable<L>>
         extends ValueToCellNodeFactory<ImgPlusValue<T>> {
 
+
+    /**
+     * Variable holding information whether this node has a dimSelection or not.
+     */
+    protected boolean m_hasDimensionSelection = true;
+
     /**
      * {@inheritDoc}
      */
@@ -89,7 +95,9 @@ public abstract class IterableIntervalsNodeFactory<T extends RealType<T>, V exte
      */
     @Override
     protected void addNodeDescriptionContent(final KnimeNode node) {
-        DialogComponentDimSelection.createNodeDescription(node.getFullDescription().getTabList().get(0).addNewOption());
+        if(m_hasDimensionSelection) {
+            DialogComponentDimSelection.createNodeDescription(node.getFullDescription().getTabList().get(0).addNewOption());
+        }
 
         Tab tab = node.getFullDescription().addNewTab();
         tab.setName("ROI Options");
