@@ -230,7 +230,8 @@ public class ImgJEPNodeModel extends NodeModel implements BufferedDataTableHolde
 
                         referenceDims = new long[tmpImg.numDimensions()];
                         tmpImg.dimensions(referenceDims);
-                        referenceImgIterationOrder = tmpImg.getImg().iterationOrder();
+                        referenceImgIterationOrder =
+                                new ImgView(tmpImg.getImg(), createWrappedFactory(tmpImg.factory())).iterationOrder();
                         referenceMetadata = new DefaultImgMetadata(tmpImg);
                         referenceInterval = new FinalInterval(tmpImg);
                         referenceFactory = createWrappedFactory(tmpImg.factory());
@@ -262,7 +263,7 @@ public class ImgJEPNodeModel extends NodeModel implements BufferedDataTableHolde
                                 // i.e. the first occurring img column is used as reference values
                                 referenceDims = new long[img.numDimensions()];
                                 img.dimensions(referenceDims);
-                                referenceImgIterationOrder = img.getImg().iterationOrder();
+                                referenceImgIterationOrder = new ImgView(img.getImg(), img.factory()).iterationOrder();
                                 referenceMetadata = new DefaultImgMetadata(img);
                                 referenceInterval = new FinalInterval(img);
                                 referenceFactory = createWrappedFactory(img.factory());
@@ -281,6 +282,12 @@ public class ImgJEPNodeModel extends NodeModel implements BufferedDataTableHolde
                             // image exists no error occurred
                             if (!(img.getImg() instanceof ImgView)) {
                                 img = new ImgPlus(new ImgView(img.getImg(), referenceFactory), img);
+                            }
+
+                            if (!referenceImgIterationOrder.equals(img.iterationOrder())) {
+                                LOGGER.error("The images you want to combine don't match in their dimensions. You may want to use the Advanced Settings to resolve the problem.");
+                                setWarningMessage("Some error occured while executing! See console log for details!");
+                                return DataType.getMissingCell();
                             }
 
                             jep.getVar(col).setValue(img);
