@@ -5,7 +5,7 @@
 	IBM Corporation - initial API and implementation -->
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="resampler.png" type="Manipulator">
-	<name>Resampler (Deprecated)</name>
+	<name>Resampler</name>
 	<shortDescription>
 		Resizes the image.
 	</shortDescription>

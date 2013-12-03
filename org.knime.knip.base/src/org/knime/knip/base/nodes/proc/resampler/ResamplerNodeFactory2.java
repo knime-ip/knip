@@ -86,8 +86,7 @@ import org.knime.knip.core.util.EnumUtils;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @param <T>
  */
-@Deprecated
-public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFactory<ImgPlusValue<T>> {
+public class ResamplerNodeFactory2<T extends RealType<T>> extends ValueToCellNodeFactory<ImgPlusValue<T>> {
 
     private enum Mode {
         LINEAR, NEAREST_NEIGHBOR, PERIODICAL, LANCZOS;
