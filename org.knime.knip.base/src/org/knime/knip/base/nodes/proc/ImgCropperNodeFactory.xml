@@ -1,8 +1,3 @@
-<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
-	This program and the accompanying materials are made available under the 
-	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
-	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
-	IBM Corporation - initial API and implementation -->
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="icons/orthocropper.png" type="Manipulator">
 	<name>Image Cropper</name>
@@ -15,17 +10,16 @@
 		<intro>Crops orthogonal selections from an image and puts them
 			together again
 		</intro>
+
+		<tab name="Options">
+			<option name="Subset Selection">Select the subset of your image which will be
+				recombined to one image.
+			</option>
+			<option name="Adjust Dimensionality?">If true, dimensions of size one will be removed
+				from the resulting image.
+			</option>
+		</tab>
 	</fullDescription>
-
-	<tab name="Options">
-		<option name="Subset Selection">Select the subset of your image which will be
-			recombined to one image.
-		</option>
-		<option name="Adjust Dimensionality?">If true, dimensions of size one will be removed
-			from the resulting image.
-		</option>
-	</tab>
-
 
 	<ports>
 		<inPort index="0" name="Images">Images</inPort>
