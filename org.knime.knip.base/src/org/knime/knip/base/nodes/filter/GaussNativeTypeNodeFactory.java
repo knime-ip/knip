@@ -49,7 +49,6 @@
 package org.knime.knip.base.nodes.filter;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 
 import net.imglib2.algorithm.gauss3.Gauss3;
 import net.imglib2.meta.ImgPlus;
@@ -59,6 +58,7 @@ import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
 import net.imglib2.type.numeric.RealType;
 
+import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelDoubleBounded;
@@ -130,11 +130,11 @@ public class GaussNativeTypeNodeFactory<T extends NumericType<T> & RealType<T> &
              * Storing the sigmas. Since now sigmas in each
              * dimension are equal!
              */
-            private final SettingsModelDoubleBounded m_smSigma = createSigmaModel();
+            private final SettingsModelDoubleBounded m_sigma = createSigmaModel();
 
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
-                settingsModels.add(m_smSigma);
+                settingsModels.add(m_sigma);
                 settingsModels.add(m_outOfBoundsStrategy);
             }
 
@@ -142,8 +142,9 @@ public class GaussNativeTypeNodeFactory<T extends NumericType<T> & RealType<T> &
              * {@inheritDoc}
              */
             @Override
-            protected ExecutorService getExecutorService() {
-                return null;
+            protected void prepareExecute(final ExecutionContext exec) {
+                enableParallelization(false);
+                super.prepareExecute(exec);
             }
 
             @Override
@@ -152,7 +153,7 @@ public class GaussNativeTypeNodeFactory<T extends NumericType<T> & RealType<T> &
                 final double[] sigmas = new double[m_dimSelection.getNumSelectedDimLabels(img)];
 
                 for (int d = 0; d < sigmas.length; d++) {
-                    sigmas[d] = m_smSigma.getDoubleValue();
+                    sigmas[d] = m_sigma.getDoubleValue();
                 }
 
                 return Operations.wrap(new GaussNativeTypeOp<T, ImgPlus<T>>(getExecutorService(), sigmas,
