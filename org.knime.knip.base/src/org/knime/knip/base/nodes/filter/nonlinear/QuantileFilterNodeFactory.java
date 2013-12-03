@@ -80,7 +80,6 @@ import org.knime.knip.base.node.dialog.DialogComponentSpanSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 
-
 /**
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
@@ -94,22 +93,22 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
     }
 
     private static SettingsModelIntegerBounded createlRadiusModel() {
-        return new SettingsModelIntegerBounded("radius", 3, 1, 100);
+        return new SettingsModelIntegerBounded("radius", 3, 1, Integer.MAX_VALUE);
     }
 
     private static SettingsModelIntegerBounded createQuantileModel() {
-        return new SettingsModelIntegerBounded("quantile", 50, 1, 100);
+        return new SettingsModelIntegerBounded("quantile", 50, 1, 99);
     }
 
-      /**
-      * {@inheritDoc}
-      */
-     @Override
-     protected void addNodeDescriptionContent(final KnimeNode node) {
-         int index = DescriptionHelper.findTabIndex("Options", node.getFullDescription().getTabList());
-         DialogComponentSpanSelection.createNodeDescription(node.getFullDescription().getTabArray(index).addNewOption());
-         DialogComponentDimSelection.createNodeDescription(node.getFullDescription().getTabList().get(0).addNewOption());
-     }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void addNodeDescriptionContent(final KnimeNode node) {
+        int index = DescriptionHelper.findTabIndex("Options", node.getFullDescription().getTabList());
+        DialogComponentSpanSelection.createNodeDescription(node.getFullDescription().getTabArray(index).addNewOption());
+        DialogComponentDimSelection.createNodeDescription(node.getFullDescription().getTabList().get(0).addNewOption());
+    }
 
     /**
      * {@inheritDoc}
@@ -125,7 +124,7 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
 
                 addDialogComponent("Options", "", new DialogComponentNumber(createlRadiusModel(), "Span", 1));
 
-                addDialogComponent(new DialogComponentDimSelection(createDimSelectionModel(), "Dimension selection", 2,
+                addDialogComponent(new DialogComponentDimSelection(createDimSelectionModel(), "Dimension Selection", 2,
                         2));
 
             }
@@ -163,12 +162,10 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
                 settingsModels.add(m_smRadius);
             }
 
-            /*
+            /**
              * (non-Javadoc)
              *
-             * @see
-             * org.knime.knip.base.node.ValueToCellNodeModel#compute
-             * (org.knime.core.data.DataValue)
+             * @see org.knime.knip.base.node.ValueToCellNodeModel#compute (org.knime.core.data.DataValue)
              */
             @SuppressWarnings("unchecked")
             @Override
@@ -177,7 +174,7 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
                 final ImgPlus<T> inImg = cellValue.getImgPlus();
                 final T type = cellValue.getImgPlus().firstElement();
 
-                if( inImg.numDimensions() != 2 ){
+                if (m_smQuantile.getIntValue() == 0 && m_smQuantile.getIntValue() == 100) {
                     throw new KNIPException("Quantil Filter only works on 2-dimensional images");
                 }
 
