@@ -88,6 +88,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.port.PortObject;
+import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
@@ -171,7 +172,7 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
     }
 
     static SettingsModelString createConnectionTypeModel() {
-        return new SettingsModelString("connection_type", ConnectedType.FOUR_CONNECTED.toString());
+        return new SettingsModelString("connection_type", null);
     }
 
     static SettingsModelDimSelection createDimSelectionModel() {
@@ -226,7 +227,25 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
      */
     protected MorphImgOpsNodeModel() {
         super(new PortType[]{BufferedDataTable.TYPE_OPTIONAL});
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
+        //Active structuring element on configure
+        if (((DataTableSpec)inSpecs[1]) != null) {
+            m_smConnectionType.setStringValue(ConnectedType.STRUCTURING_ELEMENT.toString());
+            NodeUtils
+                    .autoColumnSelection((DataTableSpec)inSpecs[0], m_smStructurColumn, ImgPlusValue.class, getClass());
+        } else {
+            m_smConnectionType.setStringValue(ConnectedType.FOUR_CONNECTED.toString());
+        }
+
+        m_smStructurColumn.setEnabled(((DataTableSpec)inSpecs[1]) != null);
+
+        return super.configure(inSpecs);
     }
 
     /**
@@ -248,7 +267,8 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
     protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws KNIPException, IOException {
         final ImgPlus<T> in = cellValue.getImgPlus();
 
-        if ((m_structElement != null) && ( (m_smDimensions.getNumSelectedDimLabels() != m_structElement[0].length) || (in.numDimensions() != m_structElement[0].length) )) {
+        if ((m_structElement != null)
+                && ((m_smDimensions.getNumSelectedDimLabels() != m_structElement[0].length) || (in.numDimensions() != m_structElement[0].length))) {
             throw new KNIPException("Structuring element must have the same dimensionality as the chosen dims");
         }
 
