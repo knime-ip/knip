@@ -372,7 +372,7 @@ public abstract class ValueToCellsNodeModel<VIN extends DataValue> extends NodeM
         }
 
         if (m_numOccurredErrors > 0) {
-            setWarningMessage(m_numOccurredErrors + " errors occurred while executing!");
+            setWarningMessage(m_numOccurredErrors + " errors occurred while executing! See console log for details!");
         }
 
         // data for the table cell view
