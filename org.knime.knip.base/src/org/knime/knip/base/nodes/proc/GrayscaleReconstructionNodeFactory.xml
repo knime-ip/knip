@@ -4,7 +4,7 @@
 	<name>Grayscale Reconstruction</name>
 
 	<shortDescription>Reconstruct a grayscale or binary image from a marker
-		image</shortDescription>
+		image.</shortDescription>
 
 	<fullDescription>
 		<intro>
@@ -19,7 +19,7 @@
 			<p>Contributed by INCIDE, University of Konstanz</p>
 		</intro>
 
-		<tab name="options">
+		<tab name="Options">
 			<option name="Connection Type">Use either four or eight connected grids.
 			</option>
 			<option name="Operation Type">Use either dilation or erosion operation for
