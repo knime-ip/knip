@@ -64,6 +64,7 @@ import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 
 import org.knime.core.node.ExecutionContext;
+import org.knime.core.node.NodeModel;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
@@ -82,9 +83,13 @@ import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 
 /**
  *
+ * {@link NodeModel} for Linear time {@link QuantileFilter}
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <T>
  */
 public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCellNodeFactory<ImgPlusValue<T>> {
 
@@ -173,9 +178,22 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
 
                 final ImgPlus<T> inImg = cellValue.getImgPlus();
                 final T type = cellValue.getImgPlus().firstElement();
+                int[] selectedDimIndices = m_smDimSel.getSelectedDimIndices(inImg);
 
-                if (m_smQuantile.getIntValue() == 0 || m_smQuantile.getIntValue() == 100) {
-                    throw new KNIPException("Quantil of zero or 100 is not supported!");
+                if (selectedDimIndices.length == 1) {
+                    throw new KNIPException("One dimensional images can't be processed with the Quantil Filter.");
+                }
+
+                int dim1 = 0;
+                for (int idx : selectedDimIndices) {
+                    if (inImg.dimension(selectedDimIndices[idx]) == 1) {
+                        dim1++;
+                    }
+                }
+
+                if (selectedDimIndices.length - dim1 <= 1) {
+                    throw new KNIPException(
+                            "Image would be reduced to a one dimensional image, which can't be processed using the Quantil Filter. Please select different dimensions in the dimension selection.");
                 }
 
                 ImgPlus<UnsignedByteType> unsignedByteTypeImg = null;
@@ -233,5 +251,4 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
 
         };
     }
-
 }
