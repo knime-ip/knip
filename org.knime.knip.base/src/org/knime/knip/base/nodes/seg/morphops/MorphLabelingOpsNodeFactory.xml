@@ -20,32 +20,44 @@
 					<li>Four-Connected</li>
 					<li>Eight-Connected</li>
 					<li>Structuring Element: Read the structuring element from the
-						optional second in port.</li>
+						optional second in port.
+					</li>
 				</ul>
 			</option>
-			<option name="Column">
+			<option name="Structuring Element">
 				Column of the structuring element.
-		</option>
-			<option name="Method">
+			</option>
+			<option name="Operation">
 				<ul>
-					<li>Erode: Shrink labeled areas.</li>
-					<li>Dilate: Grow labeled areas.</li>
+					<li>Erode: Erode labeled areas.</li>
+					<li>Dilate: Dilate labeled areas.</li>
 					<li>Open: Erode followed by Dilate. Erases tiny labeled spots.</li>
 					<li>Close: Dilate followed by Erode. Erases small holes in labeled
-						components.</li>
+						components.
+					</li>
 				</ul>
 			</option>
-			<option name="Labeling-based">
+			<option name="Strategy">
 				<ul>
-					<li>Individual Labeling: Erode/Dilate each label individually.</li>
+					<li>Individual Labeling: Erode/Dilate each label individually. This
+						means, labels may also overlap.
+					</li>
 					<li>Binary: Erode/Dilate each pixel with none/any labeling in the
-						neighborhood.</li>
+						neighborhood. In short: we don't distinguish between the
+						individual labels and treat any labeled pixel as positive.
+					</li>
 				</ul>
 			</option>
-				<option name="Dimension selection">Determines for which dimensions the morphological
-				operations will be applied individually.</option>
-			<option name="Out of Bounds Strategy">The 'OutOfBounds Strategy' is used when an algorithm needs access to pixels which lie outside of an image (for example convolutions). The strategy determines how an image is extended, for examples see <a href='http://fiji.sc/ImgLib2_Examples#Example_5_-_Out_of_bounds'>Fiji Wiki</a></option>
-		
+			<option name="Dimension Selection">Determines for which dimensions the morphological
+				operations will be applied individually.
+			</option>
+			<option name="Out of Bounds Strategy">
+				The 'OutOfBounds Strategy' is used when an algorithm needs access to
+				pixels which lie outside of an image (for example convolutions). The
+				strategy determines how an image is extended, for examples see
+				<a href='http://fiji.sc/ImgLib2_Examples#Example_5_-_Out_of_bounds'>Fiji Wiki</a>
+			</option>
+
 		</tab>
 	</fullDescription>
 
