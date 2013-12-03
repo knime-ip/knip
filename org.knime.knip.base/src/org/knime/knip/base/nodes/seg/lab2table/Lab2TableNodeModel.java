@@ -102,7 +102,7 @@ import org.knime.knip.core.data.img.LabelingMetadata;
 /**
  * Labeling is converted into a KNIME table. For each possible label the region of interest is extracted and put into a
  * {@link IntervalCell} together with a {@link BitType} {@link Img}
- * 
+ *
  * @param <T>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -205,9 +205,11 @@ public class Lab2TableNodeModel<L extends Comparable<L>, II extends IntegerType<
                     min[j] = ii.min(j);
                 }
                 final LabelingMetadata lmdata = labVal.getLabelingMetadata();
+
                 final ImgPlusMetadata mdata =
                         new DefaultImgMetadata(lmdata, new DefaultNamed(label.toString()), new DefaultSourced(
                                 lmdata.getName()), new DefaultImageMetadata());
+
                 cells.add(imgCellFactory.createCell(createBinaryMask(ii), mdata, min));
 
                 // Segment label
