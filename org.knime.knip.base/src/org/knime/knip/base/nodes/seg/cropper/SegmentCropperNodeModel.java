@@ -392,7 +392,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
                     while (cur.hasNext()) {
                         cur.fwd();
-                        for (int d = 0; d < 2; d++) {
+                        for (int d = 0; d < cur.numDimensions(); d++) {
                             maskRA.setPosition(cur.getLongPosition(d) - interval.min(d), d);
                         }
                         maskRA.get().set(true);
