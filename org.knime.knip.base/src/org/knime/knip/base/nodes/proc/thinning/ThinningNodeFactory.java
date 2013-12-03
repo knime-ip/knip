@@ -147,7 +147,7 @@ public class ThinningNodeFactory<T extends RealType<T>> extends ImgPlusToImgPlus
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
                 // Overwritten to add additional (graceful) type checking
                 if(!(cellValue.getImgPlus().firstElement() instanceof BitType)) {
-                    throw new KNIPException("Thinning is only possible on binary images, missing cell inserted instead.");
+                    throw new KNIPException("Thinning is only possible on binary images!");
                 }
                 return super.compute(cellValue);
             }
