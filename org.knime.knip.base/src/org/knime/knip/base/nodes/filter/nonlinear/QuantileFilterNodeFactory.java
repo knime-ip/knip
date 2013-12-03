@@ -175,7 +175,7 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
                 final T type = cellValue.getImgPlus().firstElement();
 
                 if (m_smQuantile.getIntValue() == 0 && m_smQuantile.getIntValue() == 100) {
-                    throw new KNIPException("Quantil Filter only works on 2-dimensional images");
+                    throw new KNIPException("Quantil of zero or 100 is not supported!");
                 }
 
                 ImgPlus<UnsignedByteType> unsignedByteTypeImg = null;
