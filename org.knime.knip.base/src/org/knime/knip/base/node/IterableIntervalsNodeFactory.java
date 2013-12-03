@@ -79,6 +79,11 @@ public abstract class IterableIntervalsNodeFactory<T extends RealType<T>, V exte
     protected boolean m_hasDimensionSelection = true;
 
     /**
+     * Boolean variable indicating the presence of a DimensionSelection component.
+     */
+    protected boolean m_hasDimensionSelection = true;
+
+    /**
      * {@inheritDoc}
      */
     @Override
