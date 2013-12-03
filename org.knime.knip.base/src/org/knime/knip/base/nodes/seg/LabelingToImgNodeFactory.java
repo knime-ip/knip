@@ -52,14 +52,15 @@ import java.io.IOException;
 import java.util.List;
 
 import net.imglib2.exception.IncompatibleTypeException;
+import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.NativeImgLabeling;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.labeling.unary.LabelingToImg;
-import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.node.ExecutionContext;
+import org.knime.core.node.NodeFactory;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
@@ -69,23 +70,21 @@ import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
-import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.types.NativeTypes;
 import org.knime.knip.core.util.EnumUtils;
 
 /**
- * NodeFactory for the image to segmentation Node that converts double to integer values.
+ * {@link NodeFactory} to convert {@link Labeling} to an {@link ImgPlus} of arbitrary {@link RealType}
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <L>
+ * @param <V>
  */
 public class LabelingToImgNodeFactory<L extends Comparable<L>, V extends IntegerType<V>> extends
         ValueToCellNodeFactory<LabelingValue<L>> {
-
-    private static SettingsModelString createFactoryTypeModel() {
-        return new SettingsModelString("factory_type", ImgFactoryTypes.SOURCE_FACTORY.toString());
-    }
 
     private static SettingsModelString createOutputImgModel() {
         return new SettingsModelString("output", NativeTypes.BITTYPE.toString());
@@ -102,12 +101,8 @@ public class LabelingToImgNodeFactory<L extends Comparable<L>, V extends Integer
              */
             @Override
             public void addDialogComponents() {
-
-                addDialogComponent("Options", "", new DialogComponentStringSelection(createFactoryTypeModel(), "",
-                        EnumUtils.getStringListFromName(ImgFactoryTypes.values())));
-
                 addDialogComponent("Options", "", new DialogComponentStringSelection(createOutputImgModel(),
-                        "Img output selection", EnumUtils.getStringListFromName(NativeTypes.values())));
+                        "Img Output Type Selection", EnumUtils.getStringListFromName(NativeTypes.values())));
             }
         };
     }
@@ -119,15 +114,12 @@ public class LabelingToImgNodeFactory<L extends Comparable<L>, V extends Integer
     public ValueToCellNodeModel<LabelingValue<L>, ImgPlusCell<V>> createNodeModel() {
         return new ValueToCellNodeModel<LabelingValue<L>, ImgPlusCell<V>>() {
 
-            private final SettingsModelString m_factoryType = createFactoryTypeModel();
-
             private ImgPlusCellFactory m_imgCellFactory;
 
             private final SettingsModelString m_outputImg = createOutputImgModel();
 
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
-                settingsModels.add(m_factoryType);
                 settingsModels.add(m_outputImg);
             }
 
@@ -141,17 +133,13 @@ public class LabelingToImgNodeFactory<L extends Comparable<L>, V extends Integer
             protected ImgPlusCell<V> compute(final LabelingValue<L> cellValue) throws IncompatibleTypeException,
                     IOException {
                 final NativeImgLabeling<L, V> lab = (NativeImgLabeling<L, V>)cellValue.getLabeling();
-                final long[] dims = new long[lab.numDimensions()];
-                lab.dimensions(dims);
 
-                final ImgFactoryTypes facType = ImgFactoryTypes.valueOf(m_factoryType.getStringValue());
-
-                final RealType<?> outType =
-                        (RealType<?>)NativeTypes.getTypeInstance(NativeTypes.valueOf(m_outputImg.getStringValue()));
+                final RealType outType =
+                        (RealType)NativeTypes.getTypeInstance(NativeTypes.valueOf(m_outputImg.getStringValue()));
 
                 final ImgPlus out =
-                        new ImgPlus(ImgFactoryTypes.<NativeType> getImgFactory(facType, lab.getStorageImg())
-                                .imgFactory(outType).create(lab.getStorageImg(), outType));
+                        new ImgPlus(lab.getStorageImg().factory().imgFactory(outType)
+                                .create(lab.getStorageImg(), outType));
 
                 new LabelingToImg<L, V>().compute(lab, out);
 
