@@ -107,14 +107,9 @@ public abstract class SlidingWindowOperationNodeFactory<T extends RealType<T>, V
         int index = DescriptionHelper.findTabIndex("Options", node.getFullDescription().getTabList());
         DialogComponentOutOfBoundsSelection.createNodeDescription(node.getFullDescription().getTabArray(index)
                 .addNewOption());
-<<<<<<< HEAD
         DialogComponentSpanSelection.createNodeDescription(node.getFullDescription().getTabArray(index).addNewOption());
 
         super.addNodeDescriptionContent(node);
-=======
-
-        DialogComponentSpanSelection.createNodeDescription(node.getFullDescription().getTabArray(index).addNewOption());
->>>>>>> master
     }
 
     /**
