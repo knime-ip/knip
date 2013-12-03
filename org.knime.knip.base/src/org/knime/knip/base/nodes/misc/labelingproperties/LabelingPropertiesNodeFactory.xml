@@ -15,7 +15,7 @@
 		<tab name="Options">
 			<option name="Labeling to analyse">Select an image column which images
 				shall be analyzed.</option>
-			<option name="Select Properties">Select which properties shall be analyzed.
+			<option name="Features">Select which features shall be analyzed.
 			</option>
 		</tab>
 	</fullDescription>
