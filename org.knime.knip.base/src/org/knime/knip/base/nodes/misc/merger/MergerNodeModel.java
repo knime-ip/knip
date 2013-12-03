@@ -230,7 +230,7 @@ public class MergerNodeModel<T extends RealType<T>, V extends RealType<V>> exten
                 numTotalPixels += img.size();
 
                 types[i] = img.firstElement().createVariable();
-                if (i > 0 && types[i - 1].getClass() != types[i].getClass()) {
+                if (i > 0 && types[i - 1] != null && types[i - 1].getClass() != types[i].getClass()) {
                     resultTypeChanged = true;
                 }
             }
