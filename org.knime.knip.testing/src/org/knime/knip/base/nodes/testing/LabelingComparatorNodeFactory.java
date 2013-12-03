@@ -56,12 +56,11 @@ import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeView;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.XMLNodeUtils;
-import org.knime.knip.base.nodes.view.TableCellViewNodeView;
 import org.knime.node2012.KnimeNodeDocument;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -72,9 +71,6 @@ public class LabelingComparatorNodeFactory<T extends NativeType<T> & RealType<T>
     @Override
     protected void addNodeDescription(final KnimeNodeDocument doc) {
         XMLNodeUtils.addXMLNodeDescriptionTo(doc, getClass());
-        //TODO: Column Selection Description
-        //        ValueToCellNodeDialog.addTabsDescriptionTo(doc.getKnimeNode().getFullDescription());
-        TableCellViewNodeView.addViewDescriptionTo(doc.getKnimeNode().addNewViews());
     }
 
     @Override
