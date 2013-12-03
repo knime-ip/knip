@@ -149,7 +149,8 @@ public class CellClumpedSplitterNodeFactory<T extends RealType<T>, L extends Com
 
             private final SettingsModelDimSelection m_smDimSelection = createDimSelectionModel();
 
-            private final SettingsModelDoubleBounded m_smIgnoreValueBelowAvgPrecent = createIgnoreValueBelowAvgPercent();
+            private final SettingsModelDoubleBounded m_smIgnoreValueBelowAvgPrecent =
+                    createIgnoreValueBelowAvgPercent();
 
             private final SettingsModelInteger m_smMaxInterations = createMaxIterationsModel();
 
@@ -181,7 +182,7 @@ public class CellClumpedSplitterNodeFactory<T extends RealType<T>, L extends Com
                 final Labeling<Integer> out =
                         SubsetOperations.iterate(op, m_smDimSelection.getSelectedDimIndices(cellLabelingVal
                                 .getLabelingMetadata()), labeling, cellLabelingVal.getLabeling().<Integer> factory()
-                                .create(cellLabelingVal.getLabeling()), getExecutorService());
+                                .create(cellLabelingVal.getLabeling()));
 
                 return m_labCellFactory.createCell(out, cellLabelingVal.getLabelingMetadata());
 
