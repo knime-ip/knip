@@ -53,6 +53,7 @@ import javax.swing.event.ChangeListener;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeDialog;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
@@ -68,10 +69,13 @@ import org.knime.knip.base.nodes.seg.morphops.MorphLabelingOpsNodeModel.LabelHan
 import org.knime.knip.base.nodes.seg.morphops.MorphLabelingOpsNodeModel.MorphOp;
 
 /**
+ * {@link NodeDialog} for Morphological Labeling Operations
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <L>
  */
 public class MorphLabelingOpsNodeDialog<L extends Comparable<L>> extends ValueToCellNodeDialog<LabelingValue<L>> {
 
