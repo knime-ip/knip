@@ -98,15 +98,12 @@ public class LoGDetectorFactory<T extends RealType<T> & NativeType<T>> extends I
 
             @Override
             protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<BitType>> op(final ImgPlus<T> imgPlus) {
-                return new LoGDetectorOp<T>(m_spanModel.getIntValue() / 2, m_threshold.getIntValue(),
-                        m_doSubPixel.getBooleanValue());
+                return new LoGDetectorOp<T>(m_spanModel.getIntValue() / 2);
             }
 
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
                 settingsModels.add(m_spanModel);
-                settingsModels.add(m_threshold);
-                settingsModels.add(m_doSubPixel);
             }
 
             @Override
