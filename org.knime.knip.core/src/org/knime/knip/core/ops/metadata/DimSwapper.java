@@ -81,7 +81,7 @@ public class DimSwapper {
         final int nDims = op.numDimensions();
         for (int i = 0; i < nDims; i++) {
             if (backMapping[i] >= nDims) {
-                throw new IllegalArgumentException("Dimension Mapping is out of bounds");
+                throw new IllegalArgumentException("Can't swap outside the interval defined by the image.");
             }
         }
 
