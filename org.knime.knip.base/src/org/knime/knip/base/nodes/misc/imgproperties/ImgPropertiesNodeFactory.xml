@@ -16,9 +16,6 @@
 		<tab name="Features">
 			<option name="">Select the properties to be determined.</option>
 		</tab>
-		<tab name="Column Selection">
-			<option name="">Selected the column to work on here.</option>
-		</tab>
 
 	</fullDescription>
 
