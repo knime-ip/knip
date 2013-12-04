@@ -7,20 +7,43 @@
 	</shortDescription>
 
 	<fullDescription>
-		<intro>Crops segments, given by a labeling, of an image. The pixels
-			that are not defined by the according segment a filled either with
-			the maximum or minimum pixel value.
+		<intro>
+			Crops segments, given by a labeling, of an image. The pixels
+			that are
+			not defined by the according segment a filled either with
+			the maximum,
+			minimum pixel value or zero.
+
+			Two cases:
+			<ul>
+				<li>No additional Image: BitMasks of the ROIs will be
+					extracted.
+				</li>
+				<li>
+					Additional Image: ROI will be filled with the values of the
+					provided image.
+				</li>
+			</ul>
 		</intro>
 		<tab name="Options">
-			<option name="Column Selection">Select the image and labeling column (image
-				column
-				is optional).
+
+			<option name="Labeling Column">Labeling representing the Region of Interests
+				(ROIs) to be cropped.
 			</option>
-			<option name="Image Selection">How the image pixel will be organised in the
+
+			<option name="Image Column (optional)">How the image pixel will be organised in the
 				memory. May have impact on the runtime of algorithms.
 			</option>
-			<option name="Background">Fills the pixels that are not covered with a
-				constant value, either the minimum or maximum pixel value.
+			<option name="Background">
+				As we crop an labeling into a rectangular
+				bounding box image, some
+				pixels may not be covered by the ROI. Select the value of these
+				pixels.
+				<ul>
+					<li>Minimum value of result image</li>
+					<li>Maximum value of result image</li>
+					<li>Set value to zero</li>
+				</ul>
 			</option>
 		</tab>
 		<tab name="ROI Filter">
@@ -30,7 +53,7 @@
 				allowed) will not be part of the
 				result table.
 			</option>
-			<option name="Add Non-ROI Labels as List?">
+			<option name="Add non ROI Labels as List?">
 				If true, one can add the non-ROI labels as a
 				list.
 				Non-ROI labels are labels, which are filtered out using the ROI

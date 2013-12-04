@@ -59,8 +59,10 @@ import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccess;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
+import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingView;
+import net.imglib2.labeling.NativeImgLabeling;
 import net.imglib2.meta.DefaultNamed;
 import net.imglib2.meta.DefaultSourced;
 import net.imglib2.meta.ImgPlus;
@@ -106,57 +108,49 @@ import org.knime.knip.core.data.img.DefaultImageMetadata;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
 import org.knime.knip.core.data.img.LabelingMetadata;
 import org.knime.knip.core.ops.misc.LabelingDependency;
-import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter;
 import org.knime.knip.core.util.MiscViews;
 
 /**
- * TODO Auto-generated
+ * Crop BitMasks or parts of images according to a Labeling
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @param <L>
+ * @param <T>
  */
-public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType<T>, O extends RealType<O>> extends
-        NodeModel implements BufferedDataTableHolder {
+public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType<T>> extends NodeModel implements
+        BufferedDataTableHolder {
 
     private static enum BACKGROUND {
-        MIN, MAX;
+        MIN, MAX, ZERO;
     }
 
-    static final String[] BACKGROUND_OPTIONS = new String[]{"min value", "max value"};
+    static final String[] BACKGROUND_OPTIONS = new String[]{"Min Value of Result", "Max Value of Result", "Zero"};
 
     /**
      * Helper
      *
      * @return SettingsModel to store img column
      */
-    static SettingsModelBoolean createSMAddDependency() {
+    static SettingsModelBoolean createAddNonRoiLabels() {
         return new SettingsModelBoolean("cfg_add_dependendcy", false);
     }
 
     /**
      * Helper
      *
-     * @return SettingsModel to store factory selection
-     */
-    static SettingsModelString createSMFactorySelection() {
-        return new SettingsModelString("cfg_factory_selection", ImgFactoryTypes.SOURCE_FACTORY.toString());
-    }
-
-    /**
-     * Helper
-     *
      * @return SettingsModel to store img column
      */
-    static SettingsModelString createSMImgColumnSelection() {
+    static SettingsModelString createImgColumnSelectionModel() {
         return new SettingsModelString("cfg_img_col", "");
     }
 
     /**
      * @return selected value for the background (parts of a bounding box that do not belong to the label.
      */
-    static SettingsModelString createSMBackgroundSelection() {
+    static SettingsModelString createBackgroundSelectionModel() {
         return new SettingsModelString("backgroundOptions", BACKGROUND_OPTIONS[BACKGROUND.MIN.ordinal()]);
     }
 
@@ -165,7 +159,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
      *
      * @return SettingsModelFilterSelection to store left filter selection
      */
-    static <LL extends Comparable<LL>> SettingsModelFilterSelection<LL> createSMLabelFilterLeft() {
+    static <LL extends Comparable<LL>> SettingsModelFilterSelection<LL> createROIFilterModel() {
         return new SettingsModelFilterSelection<LL>("cfg_label_filter_left");
     }
 
@@ -175,7 +169,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
      * @return SettingsModelFilterSelection to store right filter selection
      */
     static <LL extends Comparable<LL>> SettingsModelFilterSelection<LL>
-            createSMLabelFilterRight(final boolean isEnabled) {
+            createNONRoiFilterModel(final boolean isEnabled) {
         final SettingsModelFilterSelection<LL> sm = new SettingsModelFilterSelection<LL>("cfg_label_filter_right");
         sm.setEnabled(isEnabled);
         return sm;
@@ -191,31 +185,28 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
     }
 
     // SM addDependencies
-    private final SettingsModelBoolean m_addDependencies = createSMAddDependency();
+    private final SettingsModelBoolean m_addNonRoiLabels = createAddNonRoiLabels();
 
     /* Resulting BufferedDataTable */
     private BufferedDataTable m_data;
 
-    // SettingsModel to store factory type of resulting img snippets
-    private final SettingsModelString m_factorySelection = createSMFactorySelection();
-
     // SettingsModel to store Img column
-    private final SettingsModelString m_imgColumn = createSMImgColumnSelection();
+    private final SettingsModelString m_imgColumn = createImgColumnSelectionModel();
 
     // SettingsModel to store Labeling column
     private final SettingsModelString m_labelingColumn = createSMLabelingColumnSelection();
 
     // SM left filter
-    private final SettingsModelFilterSelection<L> m_leftFilter = createSMLabelFilterLeft();
+    private final SettingsModelFilterSelection<L> m_roiFilter = createROIFilterModel();
 
     /* Specification of the resulting table */
     private DataTableSpec m_outSpec;
 
     // SM right filter
-    private final SettingsModelFilterSelection<L> m_rightFilter = createSMLabelFilterRight(false);
+    private final SettingsModelFilterSelection<L> m_nonROIFilter = createNONRoiFilterModel(false);
 
     //value for the label background
-    private final SettingsModelString m_backgroundSelection = createSMBackgroundSelection();
+    private final SettingsModelString m_backgroundSelection = createBackgroundSelectionModel();
 
     // List of all SettingsModels
     private final ArrayList<SettingsModel> m_settings;
@@ -228,11 +219,11 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
         m_settings = new ArrayList<SettingsModel>();
         m_settings.add(m_imgColumn);
         m_settings.add(m_labelingColumn);
-        m_settings.add(m_factorySelection);
-        m_settings.add(m_leftFilter);
-        m_settings.add(m_rightFilter);
-        m_settings.add(m_addDependencies);
+        m_settings.add(m_roiFilter);
+        m_settings.add(m_nonROIFilter);
+        m_settings.add(m_addNonRoiLabels);
         m_settings.add(m_backgroundSelection);
+        m_backgroundSelection.setEnabled(!m_imgColumn.getStringValue().equals(""));
     }
 
     /**
@@ -261,13 +252,14 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
                     .singletonMap(DataValueRenderer.PROPERTY_PREFERRED_RENDERER, "String")));
             specs.add(colspecCreator.createSpec());
         }
+
         colspecCreator = new DataColumnSpecCreator("Source Labeling", LabelingCell.TYPE);
         colspecCreator.setProperties(new DataColumnProperties(Collections
                 .singletonMap(DataValueRenderer.PROPERTY_PREFERRED_RENDERER, "String")));
         specs.add(colspecCreator.createSpec());
         specs.add(new DataColumnSpecCreator("Label", StringCell.TYPE).createSpec());
 
-        if (m_addDependencies.getBooleanValue()) {
+        if (m_addNonRoiLabels.getBooleanValue()) {
             specs.add(new DataColumnSpecCreator("DependedLabels", StringCell.TYPE).createSpec());
         }
 
@@ -279,7 +271,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
      * {@inheritDoc}
      */
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
             throws Exception {
 
@@ -298,11 +290,9 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
         final BufferedDataContainer con = exec.createDataContainer(m_outSpec);
 
-        final RulebasedLabelFilter<L> leftFilter = m_leftFilter.getRulebasedFilter();
+        final RulebasedLabelFilter<L> leftFilter = m_roiFilter.getRulebasedFilter();
 
-        final RulebasedLabelFilter<L> rightFilter = m_rightFilter.getRulebasedFilter();
-
-        final ImgFactory<O> fac = ImgFactoryTypes.getImgFactory(m_factorySelection.getStringValue(), null);
+        final RulebasedLabelFilter<L> rightFilter = m_nonROIFilter.getRulebasedFilter();
 
         final RowIterator it = inData[0].iterator();
         final int rowCount = inData[0].getRowCount();
@@ -338,6 +328,16 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
                                                                                 img, img), labeling.<L> factory());
             }
 
+            ImgFactory<T> fac = null;
+            if (labeling instanceof NativeImgLabeling) {
+                fac = ((NativeImgLabeling)labeling).getStorageImg().factory();
+            } else if (img != null) {
+                fac = img.factory();
+            } else {
+                // if we don't have an image and no labeling where we can derive the factory from we simply create ArrayImg BitMasks
+                fac = (ImgFactory<T>)new ArrayImgFactory<BitType>();
+            }
+
             final Map<L, List<L>> dependedLabels = Operations.compute(labelingDependency, labeling);
 
             for (final L l : labeling.getLabels()) {
@@ -355,23 +355,25 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
                 }
                 final FinalInterval interval = new FinalInterval(min, max);
 
-                Img<O> res = null;
+                Img<T> res = null;
                 if (img != null) {
-                    O type = (O)img.firstElement().createVariable();
-                    O minType = type.createVariable();
+                    T type = img.firstElement().createVariable();
+                    T minType = type.createVariable();
                     minType.setReal(type.getMinValue());
-                    O maxType = type.createVariable();
+                    T maxType = type.createVariable();
                     maxType.setReal(type.getMaxValue());
 
                     res = fac.create(interval, type.createVariable());
 
-                    Cursor<O> roiCursor = (Cursor<O>)roi.getIterableIntervalOverROI(img).cursor();
-                    RandomAccess<O> ra = res.randomAccess();
+                    Cursor<T> roiCursor = roi.getIterableIntervalOverROI(img).cursor();
+                    RandomAccess<T> ra = res.randomAccess();
 
-                    Fill<O> fill = new Fill<O>();
-                    if (m_backgroundSelection.getStringValue().equals(BACKGROUND_OPTIONS[BACKGROUND.MIN.ordinal()])) {
+                    Fill<T> fill = new Fill<T>();
+                    if (m_backgroundSelection.getStringValue().equals(BACKGROUND_OPTIONS[BACKGROUND.MIN.ordinal()])
+                            && minType.getRealDouble() != 0) {
                         fill.compute(minType, res.iterator());
-                    } else {
+                    } else if (m_backgroundSelection.getStringValue().equals(BACKGROUND_OPTIONS[BACKGROUND.MAX
+                                                                                     .ordinal()])) {
                         fill.compute(maxType, res.iterator());
                     }
 
@@ -386,7 +388,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
                         ra.get().setReal(roiCursor.get().getRealDouble());
                     }
                 } else {
-                    res = fac.create(interval, (O)new BitType());
+                    res = fac.create(interval, (T)new BitType());
 
                     final RandomAccess<BitType> maskRA = (RandomAccess<BitType>)res.randomAccess();
 
@@ -419,7 +421,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
                 cells.add(row.getCell(labColIndex));
                 cells.add(new StringCell(l.toString()));
 
-                if (m_addDependencies.getBooleanValue()) {
+                if (m_addNonRoiLabels.getBooleanValue()) {
                     cells.add(new StringCell(dependedLabels.get(l).toString()));
                 }
 

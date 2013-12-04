@@ -51,80 +51,94 @@ package org.knime.knip.base.nodes.seg.cropper;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.knime.core.node.NodeDialog;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
+import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.dialog.DialogComponentFilterSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelFilterSelection;
-import org.knime.knip.core.types.ImgFactoryTypes;
-import org.knime.knip.core.util.EnumUtils;
 
 /**
- * The Dialog for the Segment Feature Node.
+ * {@link NodeDialog} for {@link SegmentCropperNodeModel}
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @param <L>
+ *
  */
 public class SegmentCropperNodeDialog<L extends Comparable<L>> extends DefaultNodeSettingsPane {
 
+    /**
+     * Default Constructor
+     */
     @SuppressWarnings("unchecked")
     public SegmentCropperNodeDialog() {
         super();
+        final SettingsModelString imgSelectionModel = SegmentCropperNodeModel.createImgColumnSelectionModel();
+        final SettingsModelString backgroundModel = SegmentCropperNodeModel.createBackgroundSelectionModel();
 
         createNewGroup("Column Selection");
         addDialogComponent(new DialogComponentColumnNameSelection(
-                SegmentCropperNodeModel.createSMLabelingColumnSelection(), "", 0, true, LabelingValue.class));
+                SegmentCropperNodeModel.createSMLabelingColumnSelection(), "Labeling Column", 0, true,
+                LabelingValue.class));
 
-        addDialogComponent(new DialogComponentColumnNameSelection(SegmentCropperNodeModel.createSMImgColumnSelection(),
-                "", 0, false, true, ImgPlusValue.class));
+        imgSelectionModel.addChangeListener(new ChangeListener() {
+
+            @Override
+            public void stateChanged(final ChangeEvent e) {
+                if (imgSelectionModel.getStringValue() != null) {
+                    backgroundModel.setEnabled(!imgSelectionModel.getStringValue().equals(""));
+                } else if (backgroundModel != null) {
+                    backgroundModel.setEnabled(false);
+                }
+            }
+        });
+
+        // add some change listeners
+        backgroundModel.setEnabled(!imgSelectionModel.getStringValue().equals(""));
+
+        addDialogComponent(new DialogComponentColumnNameSelection(imgSelectionModel, "Image Column (optional)", 0,
+                false, true, ImgPlusValue.class));
+
         closeCurrentGroup();
 
-        createNewGroup("Factory Selection");
-        addDialogComponent(new DialogComponentStringSelection(SegmentCropperNodeModel.createSMFactorySelection(),
-                "Factory selection", EnumUtils.getStringListFromName(ImgFactoryTypes.ARRAY_IMG_FACTORY,
-                                                                    ImgFactoryTypes.CELL_IMG_FACTORY,
-                                                                    ImgFactoryTypes.NTREE_IMG_FACTORY,
-                                                                    ImgFactoryTypes.PLANAR_IMG_FACTORY)));
-
-        closeCurrentGroup();
         createNewGroup("Background");
 
-        addDialogComponent(new DialogComponentStringSelection(SegmentCropperNodeModel.createSMBackgroundSelection(),
-                "background", SegmentCropperNodeModel.BACKGROUND_OPTIONS));
+        addDialogComponent(new DialogComponentStringSelection(backgroundModel, "Background",
+                SegmentCropperNodeModel.BACKGROUND_OPTIONS));
 
         closeCurrentGroup();
 
-        createNewTab("ROI Filter");
+        createNewTab("Label Filter");
 
         createNewGroup("ROI Filter");
-        addDialogComponent(new DialogComponentFilterSelection<L>(SegmentCropperNodeModel.<L> createSMLabelFilterLeft()));
+        addDialogComponent(new DialogComponentFilterSelection<L>(SegmentCropperNodeModel.<L> createROIFilterModel()));
         closeCurrentGroup();
 
-        createNewGroup("Dependent ROIs filter");
-
-        final SettingsModelFilterSelection<L> sm = SegmentCropperNodeModel.<L> createSMLabelFilterRight(false);
-
-        final SettingsModelBoolean addDependencies = SegmentCropperNodeModel.createSMAddDependency();
+        createNewGroup("Non-ROI Filter");
+        final SettingsModelFilterSelection<L> nonRoiFilterModel =
+                SegmentCropperNodeModel.<L> createNONRoiFilterModel(false);
+        final SettingsModelBoolean addDependencies = SegmentCropperNodeModel.createAddNonRoiLabels();
 
         addDependencies.addChangeListener(new ChangeListener() {
 
             @Override
             public void stateChanged(final ChangeEvent e) {
-                sm.setEnabled(addDependencies.getBooleanValue());
+                nonRoiFilterModel.setEnabled(addDependencies.getBooleanValue());
             }
         });
 
-        addDialogComponent(new DialogComponentBoolean(addDependencies, "Add dependend labels?"));
+        addDialogComponent(new DialogComponentBoolean(addDependencies, "Add non ROI Labels?"));
 
-        addDialogComponent(new DialogComponentFilterSelection<L>(sm));
-
-        closeCurrentGroup();
+        addDialogComponent(new DialogComponentFilterSelection<L>(nonRoiFilterModel));
 
         closeCurrentGroup();
+
     }
 }
