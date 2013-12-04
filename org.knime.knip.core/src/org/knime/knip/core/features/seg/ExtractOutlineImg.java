@@ -56,6 +56,7 @@ import net.imglib2.ops.operation.randomaccessibleinterval.unary.morph.Dilate;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.morph.Erode;
 import net.imglib2.ops.operation.real.binary.RealXor;
 import net.imglib2.ops.types.ConnectedType;
+import net.imglib2.outofbounds.OutOfBoundsBorderFactory;
 import net.imglib2.type.logic.BitType;
 
 /**
@@ -82,8 +83,10 @@ public class ExtractOutlineImg implements UnaryOperation<Img<BitType>, Img<BitTy
         m_imgManWith =
                 new BinaryOperationAssignment<BitType, BitType, BitType>(new RealXor<BitType, BitType, BitType>());
         m_op =
-                m_outlineInsideSegment ? new Erode(ConnectedType.EIGHT_CONNECTED, 1) : new Dilate(
-                        ConnectedType.FOUR_CONNECTED, 1);
+                m_outlineInsideSegment ? new Erode(ConnectedType.EIGHT_CONNECTED,
+                        new OutOfBoundsBorderFactory<BitType, RandomAccessibleInterval<BitType>>(), 1) : new Dilate(
+                        ConnectedType.FOUR_CONNECTED,
+                        new OutOfBoundsBorderFactory<BitType, RandomAccessibleInterval<BitType>>(), 1);
     }
 
     @Override
