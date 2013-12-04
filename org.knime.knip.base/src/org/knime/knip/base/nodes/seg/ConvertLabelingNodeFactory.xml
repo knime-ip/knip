@@ -15,10 +15,10 @@
 		<tab name="Options">
 			<option name="Target Type">
 				Select the type here in which the images should be
-				converted.
+				converted. In case of BITTYPE only two labels can be processed.
 		</option>
 			<option name="Factory Selection">How the image pixel will be organised in the
-				memory. May have impact on the runtime of algorithms. BYPASS_FACTORY
+				memory. May have impact on the runtime of algorithms. SOURCE_FACTORY
 				uses the storage strategy from the original image.
 		</option>
 		</tab>
