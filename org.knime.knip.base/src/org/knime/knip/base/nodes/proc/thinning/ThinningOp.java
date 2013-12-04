@@ -58,18 +58,16 @@ import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.type.logic.BitType;
-import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 
 import org.knime.knip.base.nodes.proc.thinning.strategies.ThinningStrategy;
 
 /**
+ * Thinning Operation
  *
- * @param <T> extends RealType<T>
  * @author Andreas Burger, University of Konstanz
  */
-public class ThinningOp<T extends RealType<T>> implements
-        UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> {
+public class ThinningOp implements UnaryOperation<RandomAccessibleInterval<BitType>, RandomAccessibleInterval<BitType>> {
 
     private boolean m_foreground = true;
 
@@ -80,10 +78,11 @@ public class ThinningOp<T extends RealType<T>> implements
     private ImgFactory<BitType> m_factory;
 
     /**
-     * Instanciate a new ThinningOp using the given strategy and considering the given boolean value as foreground.
+     * Instantiate a new ThinningOp using the given strategy and considering the given boolean value as foreground.
      *
-     * @param strategy The Strategy to use
+     * @param strategy thinning strategy to use
      * @param foreground Boolean value of foreground pixels.
+     * @param factory for temporary result image
      */
     public ThinningOp(final ThinningStrategy strategy, final boolean foreground, final ImgFactory<BitType> factory) {
         m_strategy = strategy;
@@ -96,9 +95,8 @@ public class ThinningOp<T extends RealType<T>> implements
      * {@inheritDoc}
      */
     @Override
-    public RandomAccessibleInterval<T> compute(final RandomAccessibleInterval<T> input,
-                                               final RandomAccessibleInterval<T> output) {
-
+    public RandomAccessibleInterval<BitType> compute(final RandomAccessibleInterval<BitType> input,
+                                                     final RandomAccessibleInterval<BitType> output) {
 
         // Create a new image to store the thinning image in each iteration.
         // This image and output are swapped each iteration since we need to work on the image
@@ -106,15 +104,16 @@ public class ThinningOp<T extends RealType<T>> implements
         Img<BitType> img1 = m_factory.create(input, new BitType());
 
         IterableInterval<BitType> it1 = Views.iterable(img1);
+
         // Initially, we need to copy the input to the first Image.
-        copy((RandomAccessibleInterval<BitType>)input, img1);
+        copy(input, img1);
 
         // Extend the images in order to be able to iterate care-free later.
         RandomAccessible<BitType> ra1 = Views.extendBorder(img1);
         Cursor<BitType> firstCursor = it1.localizingCursor();
 
-        RandomAccessible<BitType> ra2 = Views.extendBorder((RandomAccessibleInterval<BitType>)output);
-        IterableInterval<BitType> it2 = Views.iterable((RandomAccessibleInterval<BitType>)output);
+        RandomAccessible<BitType> ra2 = Views.extendBorder(output);
+        IterableInterval<BitType> it2 = Views.iterable(output);
         Cursor<BitType> secondCursor = it2.localizingCursor();
 
         // Create pointers to the current and next cursor and set them to Image 1 and 2 respectively.
@@ -182,7 +181,7 @@ public class ThinningOp<T extends RealType<T>> implements
         // Depending on the iteration count, the final image is either in ra1 or ra2. Copy it to output.
         if (i % 2 == 0) {
             //Ra1 points to img1, ra2 points to output.
-            copy(img1, (RandomAccessibleInterval<BitType>)output);
+            copy(img1, output);
 
         }
 
@@ -193,8 +192,8 @@ public class ThinningOp<T extends RealType<T>> implements
      * {@inheritDoc}
      */
     @Override
-    public UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> copy() {
-        return new ThinningOp<T>(m_strategy, m_foreground, m_factory);
+    public UnaryOperation<RandomAccessibleInterval<BitType>, RandomAccessibleInterval<BitType>> copy() {
+        return new ThinningOp(m_strategy, m_foreground, m_factory);
     }
 
     private void copy(final RandomAccessibleInterval<BitType> source, final RandomAccessibleInterval<BitType> target) {

@@ -184,6 +184,7 @@ public class ThresholderNodeFactory3<T extends RealType<T>, L extends Comparable
             /**
              * {@inheritDoc}
              */
+            @SuppressWarnings("unchecked")
             @Override
             protected ImgPlusCell<BitType> compute(final ImgPlusValue<T> cellValue) throws Exception {
                 ImgPlus<T> img = cellValue.getImgPlus();

@@ -50,12 +50,10 @@ package org.knime.knip.base.nodes.proc.thinning;
 
 import java.util.List;
 
-import net.imglib2.img.ImgFactory;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.ImgOperations;
 import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.type.logic.BitType;
-import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
@@ -71,16 +69,14 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
 import org.knime.knip.base.nodes.proc.thinning.strategies.ThinningStrategyFactory;
 
 /**
-* Factory class to create {@link ThinningNodeFactory}
-*
-* @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
-* @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
-* @author <a href="mailto:Andreas.Burger@uni-konstanz.de">Andreas Burger</a>
-*
-* @param <T> extends RealType<T>
-*
-*/
-public class ThinningNodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
+ * Factory class to create {@link ThinningNodeFactory}
+ *
+ * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
+ * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
+ * @author <a href="mailto:Andreas.Burger@uni-konstanz.de">Andreas Burger</a>
+ *
+ */
+public class ThinningNodeFactory extends ImgPlusToImgPlusNodeFactory<BitType, BitType> {
 
     private SettingsModelString createThinningAlgorithm() {
         return new SettingsModelString("thinningalgorithm", ThinningStrategyFactory.Strategy.MORPHOLOGICAL.toString());
@@ -90,69 +86,65 @@ public class ThinningNodeFactory<T extends RealType<T>> extends ImgPlusToImgPlus
         return new SettingsModelBoolean("whiteforeground", true);
     }
 
-
     /**
-* {@inheritDoc}
-*/
+     * {@inheritDoc}
+     */
     @Override
-    protected ImgPlusToImgPlusNodeDialog<T> createNodeDialog() {
+    protected ImgPlusToImgPlusNodeDialog<BitType> createNodeDialog() {
 
-        return new ImgPlusToImgPlusNodeDialog<T>(2, 2, "X", "Y") {
+        return new ImgPlusToImgPlusNodeDialog<BitType>(2, 2, "X", "Y") {
 
             @Override
             public void addDialogComponents() {
 
-                addDialogComponent("Options", "Thinning Options", new DialogComponentStringSelection(createThinningAlgorithm(), "Thinning Algorithm: ", ThinningStrategyFactory.Strategy.getNames(), false));
+                addDialogComponent("Options", "Thinning Options", new DialogComponentStringSelection(
+                        createThinningAlgorithm(), "Thinning Algorithm: ", ThinningStrategyFactory.Strategy.getNames(),
+                        false));
 
-                addDialogComponent("Options", "Thinning Options", new DialogComponentBoolean(createForeground(), "Use white as foreground colour? "));
+                addDialogComponent("Options", "Thinning Options", new DialogComponentBoolean(createForeground(),
+                        "Use white as foreground color? "));
 
             }
         };
     }
 
     /**
-* {@inheritDoc}
-*/
+     * {@inheritDoc}
+     */
     @Override
-    @SuppressWarnings("unchecked") // Handled in compute()
-    public ImgPlusToImgPlusNodeModel<T, T> createNodeModel() {
+    public ImgPlusToImgPlusNodeModel<BitType, BitType> createNodeModel() {
 
-        return new ImgPlusToImgPlusNodeModel<T, T>("X","Y") {
+        return new ImgPlusToImgPlusNodeModel<BitType, BitType>("X", "Y") {
 
-            private final SettingsModelString m_ThinningAlgorithm = createThinningAlgorithm();
+            private final SettingsModelString m_thinningAlgorithm = createThinningAlgorithm();
 
-            private final SettingsModelBoolean m_WhiteForeground = createForeground();
-
-
+            private final SettingsModelBoolean m_whiteForeground = createForeground();
 
             @Override
-            protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> op(final ImgPlus<T> imgPlus) {
+            protected UnaryOutputOperation<ImgPlus<BitType>, ImgPlus<BitType>> op(final ImgPlus<BitType> imgPlus) {
 
-                ThinningStrategyFactory fac = new ThinningStrategyFactory(m_WhiteForeground.getBooleanValue());
+                ThinningStrategyFactory fac = new ThinningStrategyFactory(m_whiteForeground.getBooleanValue());
 
-
-
-                ThinningOp<T> thinning =
-                        new ThinningOp<T>(fac.getStrategy(m_ThinningAlgorithm.getStringValue()), m_WhiteForeground.getBooleanValue(), (ImgFactory<BitType>)imgPlus.factory());
+                ThinningOp thinning =
+                        new ThinningOp(fac.getStrategy(m_thinningAlgorithm.getStringValue()),
+                                m_whiteForeground.getBooleanValue(), imgPlus.factory());
 
                 return ImgOperations.wrapRA(thinning, imgPlus.firstElement());
             }
 
-
-
             /**
              * {@inheritDoc}
              */
+            @SuppressWarnings("cast")
             @Override
-            protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
+            protected ImgPlusCell<BitType> compute(final ImgPlusValue<BitType> cellValue) throws Exception {
                 // Overwritten to add additional (graceful) type checking
-                if(!(cellValue.getImgPlus().firstElement() instanceof BitType)) {
-                    throw new KNIPException("Thinning is only possible on binary images!");
+                if (!(cellValue.getImgPlus().firstElement() instanceof BitType)) {
+                    throw new KNIPException("Thinning is only possible on bit type images (=binary images)!");
                 }
+
                 return super.compute(cellValue);
             }
-
-
 
             @Override
             protected int getMinDimensions() {
@@ -161,9 +153,9 @@ public class ThinningNodeFactory<T extends RealType<T>> extends ImgPlusToImgPlus
 
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
-                settingsModels.add(m_ThinningAlgorithm);
-              settingsModels.add(m_WhiteForeground);
-              settingsModels.add(m_dimSelection);
+                settingsModels.add(m_thinningAlgorithm);
+                settingsModels.add(m_whiteForeground);
+                settingsModels.add(m_dimSelection);
             }
         };
     }
