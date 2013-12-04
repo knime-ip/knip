@@ -137,6 +137,8 @@ public class DialogComponentDimSelection extends DialogComponent implements Item
 
     private final JPanel m_panel;
 
+    private boolean m_enabled = true;
+
     /**
      *
      * @param model
@@ -154,7 +156,6 @@ public class DialogComponentDimSelection extends DialogComponent implements Item
         super(model);
 
         m_activeToogleButtonsQueue = new LinkedList<JToggleButton>();
-
         m_label = label;
         m_minNumDims = minNumDims;
         m_maxNumDims = maxNumDims;
@@ -210,6 +211,7 @@ public class DialogComponentDimSelection extends DialogComponent implements Item
      */
     @Override
     protected final void setEnabledComponents(final boolean enabled) {
+        m_enabled = enabled;
         for (final JToggleButton button : m_dimLabelButtonList) {
             button.setEnabled(enabled);
 
@@ -287,7 +289,7 @@ public class DialogComponentDimSelection extends DialogComponent implements Item
             }
         }
 
-        if ((numSel < m_minNumDims) || (numSel > m_maxNumDims)) {
+        if (((numSel < m_minNumDims) || (numSel > m_maxNumDims)) && m_enabled) {
             final String mess =
                     "Wrong number of selected dimensions! Allowed are " + m_minNumDims + "-" + m_maxNumDims + ".";
             m_errorMessage.setText(mess);
@@ -299,6 +301,7 @@ public class DialogComponentDimSelection extends DialogComponent implements Item
     }
 
     /**
+     * @param opt Option pane to add dimension selection description.
      *
      */
     public static void createNodeDescription(final Option opt) {
