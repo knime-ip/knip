@@ -4,7 +4,8 @@
 	<name>LAPTracker (TrackMate)</name>
 
 	<shortDescription>
-		Tracking based on the TrackMate (see http://fiji.sc/TrackMate).
+		Tracking based on the TrackMate (see
+		http://fiji.sc/TrackMate).
 	</shortDescription>
 
 	<fullDescription>
@@ -22,6 +23,10 @@
 			costs are calculated (from http://fiji.sc/TrackMate).
 		</intro>
 	</fullDescription>
+
+	<views>
+		<view name=" Table Cell View " index="0">Resulting Tracking</view>
+	</views>
 
 	<ports>
 		<inPort index="0" name="Table">Table with cells to be tracked</inPort>
