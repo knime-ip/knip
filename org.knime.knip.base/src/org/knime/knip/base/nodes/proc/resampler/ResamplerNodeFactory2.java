@@ -58,6 +58,8 @@ import net.imglib2.interpolation.randomaccess.LanczosInterpolatorFactory;
 import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
 import net.imglib2.interpolation.randomaccess.NearestNeighborInterpolatorFactory;
 import net.imglib2.meta.ImgPlus;
+import net.imglib2.meta.ImgPlusMetadata;
+import net.imglib2.meta.axis.DefaultLinearAxis;
 import net.imglib2.realtransform.RealViews;
 import net.imglib2.realtransform.Scale;
 import net.imglib2.type.numeric.RealType;
@@ -65,10 +67,8 @@ import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 
 import org.knime.core.node.ExecutionContext;
-import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
-import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
@@ -88,16 +88,20 @@ import org.knime.knip.core.util.EnumUtils;
  */
 public class ResamplerNodeFactory2<T extends RealType<T>> extends ValueToCellNodeFactory<ImgPlusValue<T>> {
 
-    private enum Mode {
+    private enum InterpolationMode {
         LINEAR, NEAREST_NEIGHBOR, PERIODICAL, LANCZOS;
     }
 
-    private static SettingsModelString createInterpolationModel() {
-        return new SettingsModelString("interpolation_mode", Mode.NEAREST_NEIGHBOR.toString());
+    private enum RelDimsMode {
+        absolute, relative, pixelsize;
     }
 
-    private static SettingsModelBoolean createRelDimsModel() {
-        return new SettingsModelBoolean("relative_dims", true);
+    private static SettingsModelString createInterpolationModel() {
+        return new SettingsModelString("interpolation_mode", InterpolationMode.NEAREST_NEIGHBOR.toString());
+    }
+
+    private static SettingsModelString createRelDimsModel() {
+        return new SettingsModelString("relative_dims", RelDimsMode.relative.toString());
     }
 
     private static SettingsModelScalingValues createScalingModel() {
@@ -111,15 +115,15 @@ public class ResamplerNodeFactory2<T extends RealType<T>> extends ValueToCellNod
     protected ValueToCellNodeDialog<ImgPlusValue<T>> createNodeDialog() {
         return new ValueToCellNodeDialog<ImgPlusValue<T>>() {
 
-            @SuppressWarnings("deprecation")
             @Override
             public void addDialogComponents() {
                 addDialogComponent("Options", "Interpolation mode", new DialogComponentStringSelection(
-                        createInterpolationModel(), "", EnumUtils.getStringListFromName(Mode.values())));
-                addDialogComponent("Options", "New Dimension Sizes", new DialogComponentScalingValues(
+                        createInterpolationModel(), "", EnumUtils.getStringListFromToString(InterpolationMode.values())));
+                addDialogComponent("Options", "New Dimension Sizes (will affect calibration)", new DialogComponentScalingValues(
                         createScalingModel()));
-                addDialogComponent("Options", "New Dimension Sizes", new DialogComponentBoolean(createRelDimsModel(),
-                        "Relative?"));
+                addDialogComponent("Options", "New Dimension Sizes (will affect calibration)", new DialogComponentStringSelection(createRelDimsModel(),
+                        "", EnumUtils.getStringListFromToString(RelDimsMode.values())));
+
             }
         };
     }
@@ -137,7 +141,7 @@ public class ResamplerNodeFactory2<T extends RealType<T>> extends ValueToCellNod
 
             private final SettingsModelScalingValues m_newDimensions = createScalingModel();
 
-            private final SettingsModelBoolean m_relativeDims = createRelDimsModel();
+            private final SettingsModelString m_relativeDims = createRelDimsModel();
 
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
@@ -152,26 +156,56 @@ public class ResamplerNodeFactory2<T extends RealType<T>> extends ValueToCellNod
 
                 ImgPlus<T> img = cellValue.getImgPlus();
 
-                final double[] scaling = m_newDimensions.getNewDimensions(cellValue.getMetadata());
+                ImgPlusMetadata metadata = cellValue.getMetadata();
+
+                final double[] scaling = m_newDimensions.getNewDimensions(metadata);
+
+                final double[] calibration = new double[metadata.numDimensions()];
+
+                for (int i = 0; i < metadata.numDimensions(); i++) {
+                    calibration[i] = metadata.axis(i).averageScale(0, 1);
+                }
+
                 double[] scaleFactors = new double[scaling.length];
 
                 final long[] newDimensions = new long[scaling.length];
-                if (m_relativeDims.getBooleanValue()) {
-                    for (int i = 0; i < scaling.length; i++) {
-                        newDimensions[i] = Math.round(img.dimension(i) * scaling[i]);
-                    }
-                    scaleFactors = scaling;
-                } else {
-                    for (int i = 0; i < scaling.length; i++) {
-                        newDimensions[i] = Math.round(scaling[i]);
-                        scaleFactors[i] = scaling[i] / img.dimension(i);
-                    }
+
+                // compute scaling factors and new dimensions:
+                switch (RelDimsMode.valueOf(m_relativeDims.getStringValue()) ){
+                    case absolute:
+                        for (int i = 0; i < scaling.length; i++) {
+                            newDimensions[i] = Math.round(scaling[i]);
+                            scaleFactors[i] = scaling[i] / img.dimension(i);
+                        }
+                        break;
+                    case relative:
+                        for (int i = 0; i < scaling.length; i++) {
+                            newDimensions[i] = Math.round(img.dimension(i) * scaling[i]);
+                        }
+                        scaleFactors = scaling;
+                        break;
+                    case pixelsize:
+                        for (int i = 0; i < scaling.length; i++) {
+                            scaleFactors[i] = calibration[i] / scaling[i];
+                            newDimensions[i] = Math.round(img.dimension(i) * scaleFactors[i]);
+                        }
+                        break;
+                        default:
+                            throw new IllegalArgumentException("Unknown mode...");
+                }
+
+                // adapt calibration
+                // without rounding error the formula for the new scale would shorten to "calibration/scaleFactor"... use proportions instead, i.e. "oldCalib*oldDim = newCalib*newDim".
+
+                for (int i = 0; i < metadata.numDimensions(); i++){
+                    double d = img.getImg().dimension(i);
+                    metadata.setAxis( (new DefaultLinearAxis(metadata.axis(i).type(), (calibration[i] * img.getImg().dimension(i) )/ newDimensions[i] )) , i);
                 }
 
                 return m_imgCellFactory.createCell(resample(img,
-                                                            Mode.valueOf(m_interpolationSettings.getStringValue()),
-                                                            new FinalInterval(newDimensions), scaleFactors), cellValue
-                                                           .getMetadata());
+                                                            InterpolationMode.valueOf(m_interpolationSettings.getStringValue()),
+                                                            new FinalInterval(newDimensions), scaleFactors),
+                                                            metadata);
             }
 
             /**
@@ -184,7 +218,7 @@ public class ResamplerNodeFactory2<T extends RealType<T>> extends ValueToCellNod
         };
     }
 
-    private Img<T> resample(final Img<T> img, final Mode mode, final Interval newDims, final double[] scaleFactors) {
+    private Img<T> resample(final Img<T> img, final InterpolationMode mode, final Interval newDims, final double[] scaleFactors) {
         IntervalView<T> interval = null;
         switch (mode) {
             case LINEAR:
@@ -211,6 +245,7 @@ public class ResamplerNodeFactory2<T extends RealType<T>> extends ValueToCellNod
             default:
                 throw new IllegalArgumentException("Unknown mode in Resample.java");
         }
+
         return new ImgView<T>(interval, img.factory());
 
     }

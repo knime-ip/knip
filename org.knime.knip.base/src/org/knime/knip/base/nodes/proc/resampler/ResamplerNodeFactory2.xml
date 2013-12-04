@@ -16,14 +16,23 @@
 		</intro>
 		<tab name="Options">
 			<option name="New Dimensions">
-				Size of the resulting image in each dimension.
-			</option>
-			<option name="Relative?">
-				If true, the given values for each dimension are
+				<p>
+				There are three modes to define new dimensions: 
+				</p>
+				<p>
+				a) relative: the given values for each dimension are
 				interpreted as factors (i.e. oldDim*factor = size of new dimension).
 				Else, the values are interpreted as the absolute dimension sizes of
-				the new image.
+				the new image. 
+				</p>
+				<p>
+				b) absolute: Size of the resulting image in each dimension. 
+				</p>
+				<p>
+				c) pixelsize: Size of the resulting pixels in each dimension (e.g., this is useful for arbitrarily calibrated images). Due to rounding errors, the resulting calibration will only approach this definition (depending on the image size). 
+				</p>
 			</option>
+			
 			<option name="Interpolation Mode">
 				Determines how to interpolate the pixels.
 			</option>
