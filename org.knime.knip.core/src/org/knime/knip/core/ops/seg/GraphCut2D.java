@@ -69,13 +69,13 @@ import net.imglib2.view.Views;
 
 /**
  * GraphCut. The values of sink and source are specified directly.
- * 
+ *
  * @author hornm, dietzc, University of Konstanz
  */
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -96,11 +96,12 @@ public class GraphCut2D<T extends RealType<T>, I extends RandomAccessibleInterva
     private final int m_dimFeat;
 
     /**
-     * @param factory factory of the source image
-     * @param lambda
+     * @param pottsWeight
      * @param dimX the first dimensions
      * @param dimY the second dimensions
      * @param dimFeat the dimension containing the features (feature vector)
+     * @param srcVal
+     * @param sinkVal
      */
     public GraphCut2D(final double pottsWeight, final int dimX, final int dimY, final int dimFeat,
                       final double[] srcVal, final double[] sinkVal) {
@@ -138,7 +139,7 @@ public class GraphCut2D<T extends RealType<T>, I extends RandomAccessibleInterva
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @return
      */
     @Override
@@ -301,7 +302,7 @@ public class GraphCut2D<T extends RealType<T>, I extends RandomAccessibleInterva
 
     /**
      * Gives the position of the node in the list from the pixel position in the image.
-     * 
+     *
      * @param imagePosition Coordinates of the pixel in x,y,z,... direction
      * @param dimensions overall image dimensions (width, height, depth,...)
      * @return the position of the node in the list
