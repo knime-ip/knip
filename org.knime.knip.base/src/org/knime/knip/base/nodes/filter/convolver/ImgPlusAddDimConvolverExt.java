@@ -62,7 +62,6 @@ import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.meta.Axes;
-import net.imglib2.meta.CalibratedAxis;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.meta.axis.DefaultLinearAxis;
 import net.imglib2.ops.operation.BinaryObjectFactory;
@@ -80,7 +79,7 @@ import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -92,12 +91,18 @@ public abstract class ImgPlusAddDimConvolverExt<T extends RealType<T>, K extends
 
     private final List<SettingsModel> m_additionalSettingsModels;
 
+    /**
+     * {@link OutOfBoundsStrategyEnum} to get strategy
+     */
     protected OutOfBoundsStrategyEnum m_outOfBounds;
 
     private O m_resType;
 
     private final SettingsModelString m_smAxisConfig;
 
+    /**
+     * Default Constructor
+     */
     public ImgPlusAddDimConvolverExt() {
         m_additionalSettingsModels = new ArrayList<SettingsModel>();
 
@@ -133,7 +138,7 @@ public abstract class ImgPlusAddDimConvolverExt<T extends RealType<T>, K extends
 
                 // Copy metadata
                 for (int d = 0; d < inputA.numDimensions(); d++) {
-                    res.setAxis((CalibratedAxis)inputA.axis(d).copy(), d);
+                    res.setAxis(inputA.axis(d).copy(), d);
                 }
 
                 DefaultLinearAxis axis = new DefaultLinearAxis(Axes.get(m_smAxisConfig.getStringValue()));
@@ -211,7 +216,7 @@ public abstract class ImgPlusAddDimConvolverExt<T extends RealType<T>, K extends
 
             /**
              * Transfers the current value from the component into the model.
-             * 
+             *
              * @throws InvalidSettingsException if the string was not accepted.
              */
             private void updateModel() throws InvalidSettingsException {
