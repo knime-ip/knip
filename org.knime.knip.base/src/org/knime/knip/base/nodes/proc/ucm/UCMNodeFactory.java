@@ -51,18 +51,15 @@ package org.knime.knip.base.nodes.proc.ucm;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.FloatType;
 
-import org.knime.core.node.NodeDialogPane;
-import org.knime.core.node.NodeFactory;
-import org.knime.core.node.NodeView;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentString;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.TwoValuesToCellNodeDialog;
+import org.knime.knip.base.node.TwoValuesToCellNodeFactory;
 import org.knime.knip.base.node.TwoValuesToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
-import org.knime.knip.base.nodes.view.TableCellViewNodeView;
 
 /**
  * NodeFactory for UltraMetric ContourMaps
@@ -74,7 +71,7 @@ import org.knime.knip.base.nodes.view.TableCellViewNodeView;
  * @param <L>
  */
 public class UCMNodeFactory<T extends RealType<T>, L extends Comparable<L>> extends
-        NodeFactory<TwoValuesToCellNodeModel<LabelingValue<L>, ImgPlusValue<T>, ImgPlusCell<FloatType>>> {
+        TwoValuesToCellNodeFactory<LabelingValue<L>, ImgPlusValue<T>> {
 
     @Override
     public TwoValuesToCellNodeModel<LabelingValue<L>, ImgPlusValue<T>, ImgPlusCell<FloatType>> createNodeModel() {
@@ -86,22 +83,11 @@ public class UCMNodeFactory<T extends RealType<T>, L extends Comparable<L>> exte
         return 1;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public
-            NodeView<TwoValuesToCellNodeModel<LabelingValue<L>, ImgPlusValue<T>, ImgPlusCell<FloatType>>>
-            createNodeView(final int viewIndex,
-                           final TwoValuesToCellNodeModel<LabelingValue<L>, ImgPlusValue<T>, ImgPlusCell<FloatType>> nodeModel) {
-        return new TableCellViewNodeView<TwoValuesToCellNodeModel<LabelingValue<L>, ImgPlusValue<T>, ImgPlusCell<FloatType>>>(
-                nodeModel);
-    }
-
-    @Override
-    protected boolean hasDialog() {
-        return true;
-    }
-
-    @Override
-    protected NodeDialogPane createNodeDialogPane() {
+    protected TwoValuesToCellNodeDialog<LabelingValue<L>, ImgPlusValue<T>> createNodeDialog() {
         return new TwoValuesToCellNodeDialog<LabelingValue<L>, ImgPlusValue<T>>() {
 
             @Override
