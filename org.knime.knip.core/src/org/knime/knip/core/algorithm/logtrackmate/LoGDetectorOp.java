@@ -84,13 +84,7 @@ import org.knime.knip.core.algorithm.logtrackmate.SubPixelLocalization.LocationT
 public class LoGDetectorOp<T extends RealType<T> & NativeType<T>> implements
         UnaryOutputOperation<ImgPlus<T>, ImgPlus<BitType>> {
 
-    private String baseErrorMessage = "LogDetector: ";
-
     private double radius;
-
-    protected List<Spot> spots = new ArrayList<Spot>();
-
-    private int numDimensions;
 
     /**
      * Default Constructor
@@ -105,8 +99,8 @@ public class LoGDetectorOp<T extends RealType<T> & NativeType<T>> implements
 
     @Override
     public ImgPlus<BitType> compute(final ImgPlus<T> input, final ImgPlus<BitType> output) {
-
-        numDimensions = input.numDimensions();
+        ArrayList<Spot> spots = new ArrayList<Spot>();
+        int numDimensions = input.numDimensions();
 
         Img<T> temp = input;
 
@@ -127,20 +121,16 @@ public class LoGDetectorOp<T extends RealType<T> & NativeType<T>> implements
         FourierConvolution<T, FloatType> fConvGauss;
         fConvGauss =
                 new FourierConvolution<T, FloatType>(temp, gaussianKernel, new ArrayImgFactory<ComplexFloatType>());
-        if (!fConvGauss.checkInput() || !fConvGauss.process()) {
-            baseErrorMessage += "Fourier convolution with Gaussian failed:\n" + fConvGauss.getErrorMessage();
-        }
+        fConvGauss.setNumThreads(1);
+        fConvGauss.process();
         temp = fConvGauss.getResult();
 
-        Img<FloatType> laplacianKernel = createLaplacianKernel();
+        Img<FloatType> laplacianKernel = createLaplacianKernel(numDimensions);
         FourierConvolution<T, FloatType> fConvLaplacian;
         fConvLaplacian =
                 new FourierConvolution<T, FloatType>(temp, laplacianKernel, new ArrayImgFactory<ComplexFloatType>());
         fConvLaplacian.setNumThreads(1);
-        if (!fConvLaplacian.checkInput() || !fConvLaplacian.process()) {
-            baseErrorMessage += "Fourier Convolution with Laplacian failed:\n" + fConvLaplacian.getErrorMessage();
-            return null;
-        }
+        fConvLaplacian.process();
         temp = fConvLaplacian.getResult();
 
         PickImagePeaks<T> peakPicker = new PickImagePeaks<T>(temp);
@@ -150,15 +140,12 @@ public class LoGDetectorOp<T extends RealType<T> & NativeType<T>> implements
         }
         peakPicker.setSuppression(suppressionRadiuses); // in pixels
         peakPicker.setAllowBorderPeak(true);
-
-        if (!peakPicker.checkInput() || !peakPicker.process()) {
-            baseErrorMessage += "Could not run the peak picker algorithm:\n" + peakPicker.getErrorMessage();
-            return null;
-        }
+        peakPicker.process();
 
         // Get peaks location and values
         final ArrayList<long[]> centers = peakPicker.getPeakList();
         final RandomAccess<T> cursor = temp.randomAccess();
+
         // Prune values lower than threshold
         List<SubPixelLocalization<T>> peaks = new ArrayList<SubPixelLocalization<T>>();
         final List<T> pruned_values = new ArrayList<T>();
@@ -212,9 +199,8 @@ public class LoGDetectorOp<T extends RealType<T> & NativeType<T>> implements
     /*
      * PRIVATE METHODS
      */
-    private Img<FloatType> createLaplacianKernel() {
+    private Img<FloatType> createLaplacianKernel(final int numDim) {
         final ImgFactory<FloatType> factory = new ArrayImgFactory<FloatType>();
-        int numDim = numDimensions;
         Img<FloatType> laplacianKernel = null;
         if (numDim == 3) {
             final float laplacianArray[][][] =
@@ -263,10 +249,6 @@ public class LoGDetectorOp<T extends RealType<T> & NativeType<T>> implements
                 }
             }
         }
-    }
-
-    public List<Spot> getSpots() {
-        return spots;
     }
 
     @Override
