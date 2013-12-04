@@ -296,7 +296,7 @@ public class MorphLabelingOpsNodeModel<L extends Comparable<L>> extends
         if (((DataTableSpec)inSpecs[1]) != null) {
             m_smConnectionType.setStringValue(ConnectedType.STRUCTURING_ELEMENT.toString());
             NodeUtils
-                    .autoColumnSelection((DataTableSpec)inSpecs[0], m_smStructurColumn, ImgPlusValue.class, getClass());
+                    .autoColumnSelection((DataTableSpec)inSpecs[1], m_smStructurColumn, ImgPlusValue.class, getClass());
         } else {
             m_smConnectionType.setStringValue(ConnectedType.FOUR_CONNECTED.toString());
         }
