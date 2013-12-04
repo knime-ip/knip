@@ -4,8 +4,8 @@
 	<name>Image to Labeling</name>
 
 	<shortDescription>
-		Converts an image cell to a segmentation/labeling
-		cell.
+		Converts an image cell to a labeling
+		cell (segmentation).
 	</shortDescription>
 
 	<fullDescription>
@@ -14,20 +14,21 @@
 			segmentations. 
 		</intro>
 		<tab name="Options">
-		<option name="Set Background">If true, no labels will be set for pixels with the
-			value specified in "Background Value"</option>
-		<option name="Background Value">The value of the pixels which will be regarded as
-			background. Hence, no label will be assigned to them (if "Set
-			Background" is selected)</option>
-		<option name="Column Selection">Move the columns of interest into the
-			&quot;Include&quot; list</option>
+		<option name="Use background value as background?">If true, no labels will be set for pixels with the
+			value specified in "Background value"</option>
+		<option name="Background value">The value of the pixels which will be regarded as
+			background. Hence, no label will be assigned to them.</option>		
+		</tab>
+		<tab name="Labeling Settings">
+		<option name = "Labels from ...">Optional column to specify the labels from where the labels of the new labeling (segmentation) should be taken. In this case no labeling factory can be selected (factory type is determined by the source image).</option>
+		<option name ="Labeling factory">Specifies how the labeling is stored internally. SOURCE_FACTORY uses the same data structure as the input image.</option>
 		</tab>
 
 	</fullDescription>
 
 	<ports>
 		<inPort index="0" name="Images">Arbitrary image columns</inPort>
-		<outPort index="0" name="Segmentation">Input data with new SegmentationTypes.
+		<outPort index="0" name="Labelings">New labeling column.
 		</outPort>
 	</ports>
 </knimeNode>
