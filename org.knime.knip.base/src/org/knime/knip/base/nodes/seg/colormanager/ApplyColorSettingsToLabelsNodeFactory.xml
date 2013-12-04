@@ -4,16 +4,20 @@
 	<name>Apply Color Settings To Labels</name>
 
 	<shortDescription>
-		Assigns colors to labels given a color model.
+		Assigns a color table given by a table with labelings
+		to a labeling.
 	</shortDescription>
 
 	<fullDescription>
 		<intro>
 			Assigns colors to labels given the color model from the second
-			table. Use the ColorManager to create a color model for a given
-			column of the table. Please make sure, that the labels of all the
-			labelings from InPort #1 are contained in the column with the
-			appended color model of InPort #2.
+			table. Use the SegmentCropper -> ColorManager to create a color model
+			for a given column of the table (e.g. the labels themselves). Please
+			make sure, that the labels of all the labelings from InPort #1 are
+			contained in the column with the appended color model of InPort #2.
+
+			For further details you may want to have a look in our Tutorial:
+			Color Management on our website.
 		</intro>
 
 		<option name="Column">
@@ -31,9 +35,10 @@
 	<ports>
 		<inPort index="0" name="Labelings">Labelings
 		</inPort>
-		<inPort index="1" name="Labelings">Column with appended ColorModel.
+		<inPort index="1" name="Labelings">Table with one column colored by
+			ColorManager.
 		</inPort>
-		<outPort index="0" name="Labelings with ColorModels">Labelings with applied ColorModels
+		<outPort index="0" name="Labelings with Color Models">Labelings with applied color models.
 		</outPort>
 	</ports>
 </knimeNode>
