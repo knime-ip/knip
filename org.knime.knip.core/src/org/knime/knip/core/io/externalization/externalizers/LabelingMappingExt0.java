@@ -49,6 +49,7 @@
 package org.knime.knip.core.io.externalization.externalizers;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import net.imglib2.labeling.LabelingMapping;
@@ -60,7 +61,7 @@ import org.knime.knip.core.io.externalization.Externalizer;
 import org.knime.knip.core.io.externalization.ExternalizerManager;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -99,7 +100,13 @@ public class LabelingMappingExt0 implements Externalizer<LabelingMapping> {
 
         final int numLabelComb = in.readInt();
 
-        final LabelingMapping map = new LabelingMapping(new IntType());
+        final LabelingMapping map = new LabelingMapping(new IntType()) {
+            {
+                //delete background from lists
+                internedLists.clear();
+                listsByIndex.clear();
+            }
+        };
 
         for (int i = 0; i < numLabelComb; i++) {
             final int size = in.readInt();
@@ -109,6 +116,8 @@ public class LabelingMappingExt0 implements Externalizer<LabelingMapping> {
                     list.add(ExternalizerManager.read(in));
                 }
                 map.intern(list);
+            } else {
+                map.intern(Collections.EMPTY_LIST);
             }
         }
 
