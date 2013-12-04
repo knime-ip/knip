@@ -52,6 +52,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -356,7 +357,7 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
 
             final Map<L, List<L>> dependencies = Operations.compute(dependencyOp, labeling);
 
-            final List<L> labels = labeling.firstElement().getMapping().getLabels();
+            final Collection<L> labels = labeling.getLabels();
 
             IterableRegionOfInterest labelRoi;
             for (final L label : labels) {
