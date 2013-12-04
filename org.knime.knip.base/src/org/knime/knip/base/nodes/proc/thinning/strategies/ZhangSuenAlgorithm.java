@@ -142,5 +142,13 @@ public class ZhangSuenAlgorithm extends Abstract3x3NeighbourhoodThinning {
         ++iteration;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ThinningStrategy copy() {
+        return new ZhangSuenAlgorithm(m_foreground);
+    }
+
 
 }

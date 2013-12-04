@@ -160,4 +160,12 @@ public class GuoHallAlgorithm extends Abstract3x3NeighbourhoodThinning {
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ThinningStrategy copy() {
+        return new GuoHallAlgorithm(m_foreground);
+    }
+
 }

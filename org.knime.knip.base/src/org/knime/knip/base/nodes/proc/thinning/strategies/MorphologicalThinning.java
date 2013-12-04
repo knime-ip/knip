@@ -186,4 +186,12 @@ public class MorphologicalThinning extends Abstract3x3NeighbourhoodThinning {
         return 4;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ThinningStrategy copy() {
+        return new MorphologicalThinning(m_foreground);
+    }
+
 }

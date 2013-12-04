@@ -98,28 +98,26 @@ public class ThinningOp implements UnaryOperation<RandomAccessibleInterval<BitTy
     public RandomAccessibleInterval<BitType> compute(final RandomAccessibleInterval<BitType> input,
                                                      final RandomAccessibleInterval<BitType> output) {
 
-        // Create a new image to store the thinning image in each iteration.
+        // Create a new image as a buffer to store the thinning image in each iteration.
         // This image and output are swapped each iteration since we need to work on the image
         // without changing it.
-        Img<BitType> img1 = m_factory.create(input, new BitType());
+        final Img<BitType> buffer = m_factory.create(input, new BitType());
 
-        IterableInterval<BitType> it1 = Views.iterable(img1);
+        final IterableInterval<BitType> it1 = Views.iterable(buffer);
+        final IterableInterval<BitType> it2 = Views.iterable(output);
 
-        // Initially, we need to copy the input to the first Image.
-        copy(input, img1);
+        // Extend the buffer in order to be able to iterate care-free later.
+        final RandomAccessible<BitType> ra1 = Views.extendBorder(buffer);
+        final RandomAccessible<BitType> ra2 = Views.extendBorder(output);
+         RandomAccessible<BitType> currRa = Views.extendBorder(input); // Used only in first iteration.
 
-        // Extend the images in order to be able to iterate care-free later.
-        RandomAccessible<BitType> ra1 = Views.extendBorder(img1);
-        Cursor<BitType> firstCursor = it1.localizingCursor();
+        // Create cursors.
+        final Cursor<BitType> firstCursor =  it1.localizingCursor();
+        Cursor<BitType> currentCursor = Views.iterable(input).localizingCursor();
+        final Cursor<BitType> secondCursor = it2.localizingCursor();
 
-        RandomAccessible<BitType> ra2 = Views.extendBorder(output);
-        IterableInterval<BitType> it2 = Views.iterable(output);
-        Cursor<BitType> secondCursor = it2.localizingCursor();
-
-        // Create pointers to the current and next cursor and set them to Image 1 and 2 respectively.
-        Cursor<BitType> currentCursor, nextCursor;
-        currentCursor = firstCursor;
-        RandomAccessible<BitType> currRa = ra1;
+        // Create pointers to the current and next cursor and set them to Buffer and output respectively.
+        Cursor<BitType>  nextCursor;
         nextCursor = secondCursor;
 
         // The main loop.
@@ -162,16 +160,17 @@ public class ThinningOp implements UnaryOperation<RandomAccessibleInterval<BitTy
                 // Reset the cursors to the beginning and assign pointers for the next iteration.
                 currentCursor.reset();
                 nextCursor.reset();
-                Cursor<BitType> temp = currentCursor;
 
                 // Keep track of the most recent image. Needed for output.
-                if (currRa == ra1) {
-                    currRa = ra2;
-                } else {
+                if (currRa == ra2) {
                     currRa = ra1;
+                    currentCursor = firstCursor;
+                    nextCursor = secondCursor;
+                } else {
+                    currRa = ra2;
+                    currentCursor = secondCursor;
+                    nextCursor = firstCursor;
                 }
-                currentCursor = nextCursor;
-                nextCursor = temp;
 
                 // Keep track of iterations.
                 ++i;
@@ -181,7 +180,7 @@ public class ThinningOp implements UnaryOperation<RandomAccessibleInterval<BitTy
         // Depending on the iteration count, the final image is either in ra1 or ra2. Copy it to output.
         if (i % 2 == 0) {
             //Ra1 points to img1, ra2 points to output.
-            copy(img1, output);
+            copy(buffer, output);
 
         }
 
@@ -193,7 +192,7 @@ public class ThinningOp implements UnaryOperation<RandomAccessibleInterval<BitTy
      */
     @Override
     public UnaryOperation<RandomAccessibleInterval<BitType>, RandomAccessibleInterval<BitType>> copy() {
-        return new ThinningOp(m_strategy, m_foreground, m_factory);
+        return new ThinningOp(m_strategy.copy(), m_foreground, m_factory);
     }
 
     private void copy(final RandomAccessibleInterval<BitType> source, final RandomAccessibleInterval<BitType> target) {

@@ -122,5 +122,13 @@ public class HilditchAlgorithm extends Abstract3x3NeighbourhoodThinning {
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ThinningStrategy copy() {
+        return new HilditchAlgorithm(m_foreground);
+    }
+
 
 }
