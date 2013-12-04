@@ -24,12 +24,13 @@
 		</intro>
 	</fullDescription>
 
-	<views>
-		<view name=" Table Cell View " index="0">Resulting Tracking</view>
-	</views>
-
 	<ports>
 		<inPort index="0" name="Table">Table with cells to be tracked</inPort>
 		<outPort index="0" name="Labeling">Labeling with tracked cells</outPort>
 	</ports>
+
+	<views>
+		<view name=" Table Cell View " index="0">Resulting Tracking</view>
+	</views>
+
 </knimeNode>
