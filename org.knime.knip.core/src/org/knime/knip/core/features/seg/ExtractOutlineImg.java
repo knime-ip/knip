@@ -78,6 +78,11 @@ public class ExtractOutlineImg implements UnaryOperation<Img<BitType>, Img<BitTy
 
     private final boolean m_outlineInsideSegment;
 
+    /**
+     * Default Constructor
+     *
+     * @param outlineInsideSegment true if outline is inside the segment or just the line outside the segment
+     */
     public ExtractOutlineImg(final boolean outlineInsideSegment) {
         m_outlineInsideSegment = outlineInsideSegment;
         m_imgManWith =
