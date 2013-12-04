@@ -137,7 +137,7 @@ import org.knime.knip.core.util.ImgUtils;
 
 /**
  * Factory class to produce the Histogram Operations Node.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -197,7 +197,7 @@ public class ConvertLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>
 
             /**
              * {@inheritDoc}
-             * 
+             *
              * @throws IllegalArgumentException
              */
             @SuppressWarnings({"rawtypes", "unchecked"})
@@ -252,7 +252,13 @@ public class ConvertLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>
 
                 final LabelingMapping<L> mapping = ((NativeImgLabeling<L, T>)cellValue.getLabeling()).getMapping();
                 for (int i = 0; i < mapping.numLists(); i++) {
-                    resLab.getMapping().intern(mapping.listAtIndex(i));
+                    try {
+                     resLab.getMapping().intern(mapping.listAtIndex(i));
+                    }
+                    catch (AssertionError e)
+                    {
+                        throw new AssertionError( String.format("Too many labels: Maximal two labels can be converted to BITTYPE") );
+                    }
                 }
 
                 return m_labCellFactory.createCell(resLab, cellValue.getLabelingMetadata());
