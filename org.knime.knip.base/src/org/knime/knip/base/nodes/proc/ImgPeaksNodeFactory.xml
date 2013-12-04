@@ -7,7 +7,7 @@
 <knimeNode icon="icons/peaks.png" type="Manipulator">
 	<name>Pick Image Peaks (Deprecated)</name>
 	<shortDescription>
-		Picks image peaks, i.e. local maxima.
+		Deprecated: Use Maximum Finder instead
 	</shortDescription>
 
 	<fullDescription>
