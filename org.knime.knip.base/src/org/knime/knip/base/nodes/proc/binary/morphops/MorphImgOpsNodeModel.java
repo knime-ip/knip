@@ -268,7 +268,8 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
         final ImgPlus<T> in = cellValue.getImgPlus();
 
         if ((m_structElement != null)
-                && ((m_smDimensions.getNumSelectedDimLabels() != m_structElement[0].length) || (in.numDimensions() != m_structElement[0].length))) {
+                && ((m_smDimensions.getSelectedDimIndices(in).length != m_structElement[0].length) || (m_smDimensions
+                        .getSelectedDimIndices(in).length != m_structElement[0].length))) {
             throw new KNIPException("Structuring element must have the same dimensionality as the chosen dims");
         }
 
@@ -323,7 +324,7 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
 
             final Img<T> out = ImgUtils.createEmptyCopy(in);
             final UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> op =
-                    createOperationGray(m_structElement, in.numDimensions());
+                    createOperationGray(m_structElement, m_smDimensions.getSelectedDimIndices(in).length);
 
             try {
                 OutOfBoundsFactory<T, RandomAccessibleInterval<T>> strategy =
