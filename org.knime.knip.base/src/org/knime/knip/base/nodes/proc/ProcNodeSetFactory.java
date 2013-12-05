@@ -61,11 +61,11 @@ import org.knime.knip.base.nodes.misc.merger.MergerNodeFactory;
 import org.knime.knip.base.nodes.misc.splitter.SplitterNodeFactory;
 import org.knime.knip.base.nodes.misc.splitter.UCSplitterNodeFactory;
 import org.knime.knip.base.nodes.proc.clahe.ClaheNodeFactory;
+import org.knime.knip.base.nodes.proc.dogdetector.DoGDetectorNodeFactory;
 import org.knime.knip.base.nodes.proc.imgjep.ImgJEPNodeFactory;
 import org.knime.knip.base.nodes.proc.maxfinder.MaximumFinderNodeFactory;
 import org.knime.knip.base.nodes.proc.multilvlthresholding.MultilevelThresholderNodeFactory;
 import org.knime.knip.base.nodes.proc.resampler.ResamplerNodeFactory;
-import org.knime.knip.base.nodes.proc.spotdetection.LoGDetectorFactory;
 import org.knime.knip.base.nodes.proc.spotdetection.WaveletSpotDetectionNodeFactory;
 import org.knime.knip.base.nodes.proc.thinning.ThinningNodeFactory;
 import org.knime.knip.base.nodes.proc.ucm.UCMNodeFactory;
@@ -149,7 +149,6 @@ public class ProcNodeSetFactory implements NodeSetFactory {
         m_nodeFactories.put(MaximumFinderNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
 
         m_nodeFactories.put(WaveletSpotDetectionNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
-        m_nodeFactories.put(LoGDetectorFactory.class.getCanonicalName(), "/community/knip/image/process");
 
         // new node: UCM
         m_nodeFactories.put(UCMNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
@@ -161,6 +160,9 @@ public class ProcNodeSetFactory implements NodeSetFactory {
 
         // Deprecated ClaheNodeFactory
         m_nodeFactories.put(ClaheNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
+
+        // DoG Detection
+        m_nodeFactories.put(DoGDetectorNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
 
         return m_nodeFactories.keySet();
     }

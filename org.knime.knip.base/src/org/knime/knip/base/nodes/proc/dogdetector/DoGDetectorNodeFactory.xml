@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="SpotDetect.png" type="Manipulator">
+	<name>DoG Spot Detection</name>
+
+	<shortDescription>
+		Difference of Gaussian (DoG) Spot
+		Detection.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			In the computer vision literature, this approach is referred to
+			as the
+			Difference of Gaussians (DoG) approach. Besides minor
+			technicalities,
+			however, this operator is in essence similar to the
+			Laplacian and can
+			be seen as an approximation of the Laplacian
+			operator. In a similar
+			fashion as for the Laplacian blob detector,
+			blobs can be detected
+			from scale-space extrema of differences of
+			Gaussians (see
+			http://en.wikipedia.org/wiki/Blob_detection#The_difference_of_Gaussians_approach).
+		</intro>
+		<tab name="Options">
+			<option name="Maxima/Minima?">Select whether you want to detect minima or
+				maxima.
+			</option>
+			<option name="Sigma 1">Sigma for first Gaussian
+			</option>
+			<option name="Sigma 2">Sigma for second Gaussian
+			</option>
+			<option name="Out of Bounds Strategy">
+				The 'OutOfBounds Strategy' is used when an algorithm needs access to
+				pixels which lie outside of an image (for example convolutions). The
+				strategy determines how an image is extended, for examples see
+				<a href='http://fiji.sc/ImgLib2_Examples#Example_5_-_Out_of_bounds'>Fiji Wiki</a>
+			</option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Images">Images</inPort>
+		<outPort index="0" name="Images">BitType Images of Spots</outPort>
+	</ports>
+
+</knimeNode>
