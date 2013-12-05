@@ -27,7 +27,24 @@
 			describe first how cost matrices are arranged, then how individual
 			costs are calculated (from http://fiji.sc/TrackMate).
 		</intro>
+		<tab name="Options">
+			<option name="Algorithm">???</option>
+			<option name="Maximum Object Distance">???</option>
+			<option name="Tracking Dimension">???</option>
+			<option name="Allow Splitting">???</option>
+			<option name="Max Distance (Splitting)">???</option>
+			<option name="Allow Merging">???</option>
+			<option name="Max Distance (Merging)">???</option>
+			<option name="Allow Gap Distance">???</option>
+			<option name="Max Distance (Gap Distance)">???</option>
+			<option name="Max Gap Size (Frames)">???</option>
+		</tab>
+		<tab name="Advanced">
+			<option name="Alternative Linking Cost Factor">???</option>
+			<option name="Cutoff Percentile">???</option>
+		</tab>
 	</fullDescription>
+
 
 	<ports>
 		<inPort index="0" name="Table">Table with cells to be tracked</inPort>
