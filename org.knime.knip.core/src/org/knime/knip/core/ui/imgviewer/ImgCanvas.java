@@ -92,6 +92,8 @@ import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewZoomfactorChgEvent;
 import org.knime.knip.core.ui.imgviewer.panels.MinimapPanel;
 
+import edu.mines.jtk.util.Array;
+
 /**
  *
  * Panel to draw a BufferedImage.
@@ -151,6 +153,9 @@ public class ImgCanvas<T extends Type<T>, I extends IterableInterval<T> & Random
     protected StringBuffer m_labelBuffer = new StringBuffer();
 
     protected EventService m_eventService;
+
+    //TODO Workaround
+    private boolean m_init;
 
     public ImgCanvas() {
         this("Image", false);
@@ -352,14 +357,21 @@ public class ImgCanvas<T extends Type<T>, I extends IterableInterval<T> & Random
 
     @EventListener
     public void onZoomFactorChanged(final ViewZoomfactorChgEvent zoomEvent) {
+        if (m_zoomFactor == zoomEvent.getZoomFactor()) {
+            return;
+        }
         m_zoomFactor = zoomEvent.getZoomFactor();
         updateImageCanvas();
     }
 
     @EventListener
     public void onCalibrationUpdateEvent(final CalibrationUpdateEvent e) {
-        m_scaleFactors =
+        double[] newFactors =
                 new double[]{e.getScaleFactors()[e.getSelectedDims()[0]], e.getScaleFactors()[e.getSelectedDims()[1]],};
+        if (Array.equal(newFactors, m_scaleFactors)) {
+            return;
+        }
+        m_scaleFactors = newFactors;
         updateImageCanvas();
     }
 
@@ -380,6 +392,7 @@ public class ImgCanvas<T extends Type<T>, I extends IterableInterval<T> & Random
     @EventListener
     public void onBufferedImageChanged(final AWTImageChgEvent e) {
         m_image = (BufferedImage)e.getImage();
+        m_init = true;
         m_blockMouseEvents = false;
 
         updateImageCanvas();
@@ -394,10 +407,11 @@ public class ImgCanvas<T extends Type<T>, I extends IterableInterval<T> & Random
         m_factors[0] = m_scaleFactors[0] * m_zoomFactor;
         m_factors[1] = m_scaleFactors[1] * m_zoomFactor;
 
-        if (m_oldFactors[0] != m_factors[0] || m_oldFactors[1] != m_factors[1]) {
+        if (m_oldFactors[0] != m_factors[0] || m_oldFactors[1] != m_factors[1] || m_init) {
+            // TODO: Workaround
+            m_init=false;
 
             // get old center of the image
-
             final Rectangle rect = m_imageCanvas.getVisibleRect();
             final double imgCenterX = rect.getCenterX() / m_oldFactors[0];
             final double imgCenterY = rect.getCenterY() / m_oldFactors[1];
