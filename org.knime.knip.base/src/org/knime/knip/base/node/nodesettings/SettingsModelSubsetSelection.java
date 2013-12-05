@@ -656,11 +656,20 @@ public class SettingsModelSubsetSelection extends SettingsModel {
 
                 if (getIncMode(calibAxes[d].type().getLabel())) {
                     // include mode
-                    long[] selectionL = new long[selection.length];
+
+                    //count the number of selected indices smaller than the maximum dimension
+                    int count = 0;
                     for (int i = 0; i < selection.length; i++) {
+                        if (selection[i] < dimensions[d]) {
+                            count++;
+                        } else {
+                            break;
+                        }
+                    }
+                    long[] selectionL = new long[count];
+                    for (int i = 0; i < selectionL.length; i++) {
                         selectionL[i] = selection[i];
                     }
-
                     ret.add(new ValuePair<TypedAxis, long[]>(calibAxes[d], selectionL));
                 } else {
                     //exclude mode
