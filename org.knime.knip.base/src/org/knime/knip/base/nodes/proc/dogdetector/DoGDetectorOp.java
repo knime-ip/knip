@@ -87,7 +87,9 @@ public class DoGDetectorOp<T extends RealType<T> & NativeType<T>> implements
 
     private final double m_threshold;
 
-    private ExecutorService m_service;
+    private final ExecutorService m_service;
+
+    private final boolean m_normalize;
 
     /**
      * Constructor
@@ -97,10 +99,11 @@ public class DoGDetectorOp<T extends RealType<T> & NativeType<T>> implements
      * @param type are you looking for minima or maxima?
      * @param oob {@link OutOfBoundsBorderFactory}
      * @param threshold maximum/minum value of pixel such that it is considered as a maxima/minima
+     * @param normalize true, if threshold should be normalized
      * @param service executionservice to be used
      */
     public DoGDetectorOp(final double sigma1, final double sigma2, final ExtremaType type,
-                         final OutOfBoundsFactory<T, RandomAccessibleInterval<T>> oob, final double threshold,
+                         final OutOfBoundsFactory<T, RandomAccessibleInterval<T>> oob, final double threshold, final boolean normalize,
                          final ExecutorService service) {
         this.m_sigma1 = sigma1;
         this.m_sigma2 = sigma2;
@@ -108,6 +111,7 @@ public class DoGDetectorOp<T extends RealType<T> & NativeType<T>> implements
         this.m_oob = oob;
         this.m_service = service;
         this.m_threshold = threshold;
+        this.m_normalize = normalize;
 
     }
 
@@ -121,7 +125,7 @@ public class DoGDetectorOp<T extends RealType<T> & NativeType<T>> implements
 
         DogDetection<T> dogDetection =
                 new DogDetection<T>(Views.extend(input, m_oob), input, calibration, m_sigma1, m_sigma2, m_type,
-                        m_threshold, false, m_service);
+                        m_threshold, m_normalize, m_service);
 
         RandomAccess<BitType> randomAccess = output.randomAccess();
         for (Point peak : dogDetection.getPeaks(m_service)) {
@@ -151,7 +155,7 @@ public class DoGDetectorOp<T extends RealType<T> & NativeType<T>> implements
 
     @Override
     public UnaryOutputOperation<ImgPlus<T>, ImgPlus<BitType>> copy() {
-        return new DoGDetectorOp<T>(m_sigma1, m_sigma2, m_type, m_oob, m_threshold, m_service);
+        return new DoGDetectorOp<T>(m_sigma1, m_sigma2, m_type, m_oob, m_threshold, m_normalize, m_service);
     }
 
 }
