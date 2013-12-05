@@ -121,7 +121,7 @@ public class DoGDetectorOp<T extends RealType<T> & NativeType<T>> implements
 
         DogDetection<T> dogDetection =
                 new DogDetection<T>(Views.extend(input, m_oob), input, calibration, m_sigma1, m_sigma2, m_type,
-                        m_threshold);
+                        m_threshold, false, m_service);
 
         RandomAccess<BitType> randomAccess = output.randomAccess();
         for (Point peak : dogDetection.getPeaks(m_service)) {
