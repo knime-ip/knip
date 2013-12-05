@@ -674,8 +674,20 @@ public class SettingsModelSubsetSelection extends SettingsModel {
                 } else {
                     //exclude mode
                     //the following code is based on the fact that the selection array is ordered
+
+                    //count number of indicies to be selected
+                    int count = 0;
                     int j = 0;
-                    long[] selectionL = new long[((int)(dimensions[d]) - selection.length)];
+                    for (int i = 0; i < dimensions[d]; i++) {
+                        if (j >= selection.length || selection[j] != i) {
+                            count++;
+                        } else {
+                            j++;
+                        }
+                    }
+
+                    j = 0;
+                    long[] selectionL = new long[count];
                     for (int i = 0; i < dimensions[d]; i++) {
                         if (j >= selection.length || selection[j] != i) {
                             selectionL[i - j] = i;

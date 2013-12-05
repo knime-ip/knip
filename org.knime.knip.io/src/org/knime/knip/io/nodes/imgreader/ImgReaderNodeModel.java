@@ -62,6 +62,7 @@ import net.imglib2.img.planar.PlanarImgFactory;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
+import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.StringValue;
@@ -333,8 +334,13 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 
 							@Override
 							public String next() {
-								return ((StringValue) rowIt.next().getCell(
-										colIdx)).getStringValue();
+								DataCell cell = rowIt.next().getCell(colIdx);
+								if (cell.isMissing()) {
+									return "missing cell";
+								} else {
+									return ((StringValue) cell)
+											.getStringValue();
+								}
 							}
 
 							@Override
