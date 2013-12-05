@@ -56,10 +56,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
 import net.imglib2.IterableInterval;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingMapping;
 import net.imglib2.labeling.LabelingType;
+import net.imglib2.meta.CalibratedAxis;
 
 import org.knime.base.util.WildcardMatcher;
 import org.knime.core.data.DataCell;
@@ -77,6 +81,8 @@ import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
+import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
+import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 
 /**
  * Node to filter a labeling according to easily calculated characteristics (e.g. segment size, border segments, regular
@@ -112,6 +118,12 @@ public class LabelingFilterNodeFactory<L extends Comparable<L>> extends ValueToC
         return new SettingsModelBoolean("contains_no_overlapping_segments", false);
     }
 
+    private static SettingsModelDimSelection createDimSelectionModel() {
+        SettingsModelDimSelection sm = new SettingsModelDimSelection("dim_selection_remove_border");
+        sm.setEnabled(false);
+        return sm;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -129,8 +141,17 @@ public class LabelingFilterNodeFactory<L extends Comparable<L>> extends ValueToC
                         "Minimum segment area (pixels)", 1));
                 addDialogComponent("Options", "Segment Area", new DialogComponentNumber(createMaxAreaModel(),
                         "Maximum segment area (pixels)", 1));
-                addDialogComponent("Options", "Other Filter Criteria", new DialogComponentBoolean(
-                        createRemoveBorderSegModel(), "Remove segments touching the border"));
+                final SettingsModelBoolean smRemoveBorder = createRemoveBorderSegModel();
+                final SettingsModelDimSelection smDimSelection = createDimSelectionModel();
+                smRemoveBorder.addChangeListener(new ChangeListener() {
+                    @Override
+                    public void stateChanged(final ChangeEvent e) {
+                        smDimSelection.setEnabled(smRemoveBorder.getBooleanValue());
+                    }
+                });
+                addDialogComponent("Options", "Border Segments", new DialogComponentBoolean(smRemoveBorder,
+                        "Remove segments touching the border"));
+                addDialogComponent("Options", "Border Segments", new DialogComponentDimSelection(smDimSelection, ""));
                 addDialogComponent("Options", "Speed-up", new DialogComponentBoolean(createContainsNoOverlapsModel(),
                         "Contains NO overlapping segments"));
             }
@@ -164,6 +185,8 @@ public class LabelingFilterNodeFactory<L extends Comparable<L>> extends ValueToC
             private SettingsModelBoolean m_smRemoveBorderSegments = createRemoveBorderSegModel();
 
             private SettingsModelBoolean m_smContainsNoOverlappingSegments = createContainsNoOverlapsModel();
+
+            private SettingsModelDimSelection m_smDimSelectionRemoveBorder = createDimSelectionModel();
 
             // labeling cell factory
             private LabelingCellFactory m_labCellFactory;
@@ -200,6 +223,7 @@ public class LabelingFilterNodeFactory<L extends Comparable<L>> extends ValueToC
                 settingsModels.add(m_smMinArea);
                 settingsModels.add(m_smRemoveBorderSegments);
                 settingsModels.add(m_smContainsNoOverlappingSegments);
+                settingsModels.add(m_smDimSelectionRemoveBorder);
             }
 
             @Override
@@ -235,18 +259,23 @@ public class LabelingFilterNodeFactory<L extends Comparable<L>> extends ValueToC
 
                     //filter segment which are touching the border (i.e. their bounding box)
                     if (m_smRemoveBorderSegments.getBooleanValue()) {
+                        CalibratedAxis[] axes = new CalibratedAxis[lab.numDimensions()];
+                        cellValue.getLabelingMetadata().axes(axes);
                         long[] min = new long[lab.numDimensions()];
                         long[] max = new long[lab.numDimensions()];
                         lab.getExtents(label, min, max);
                         boolean touchesBorder = false;
                         for (int i = 0; i < max.length; i++) {
-                            if (min[i] == 0) {
-                                touchesBorder = true;
-                                break;
-                            }
-                            if (max[i] == lab.max(i)) {
-                                touchesBorder = true;
-                                break;
+                            //skip non-selected dims
+                            if (m_smDimSelectionRemoveBorder.isSelectedDim(axes[i].type().getLabel())) {
+                                if (min[i] == 0) {
+                                    touchesBorder = true;
+                                    break;
+                                }
+                                if (max[i] == lab.max(i)) {
+                                    touchesBorder = true;
+                                    break;
+                                }
                             }
                         }
                         if (touchesBorder) {
