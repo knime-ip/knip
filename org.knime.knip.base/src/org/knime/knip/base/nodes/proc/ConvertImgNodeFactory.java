@@ -130,6 +130,14 @@ public class ConvertImgNodeFactory<T extends RealType<T> & NativeType<T>> extend
                                    new DialogComponentStringSelection(createFactorySelectionModel(), "Factory Type",
                                            EnumUtils.getStringListFromName(ImgFactoryTypes.values())));
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_converted";
+            }
         };
     }
 

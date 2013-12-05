@@ -104,6 +104,14 @@ public class ExtractOutlineLabelingNodeFactory<L extends Comparable<L>> extends
                 addDialogComponent("Options", "Dimensions", new DialogComponentDimSelection(createDimSelectionModel(),
                         "Dimensions", 2, 2));
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_outlines";
+            }
         };
     }
 

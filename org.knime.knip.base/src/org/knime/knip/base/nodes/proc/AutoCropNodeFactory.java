@@ -148,6 +148,14 @@ public class AutoCropNodeFactory<T extends RealType<T>> extends ValueToCellNodeF
                 addDialogComponent("Margin", "", new DialogComponentNumber(outOfBoundsVal, "Out of bounds value", 1));
 
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_autoCrop";
+            }
         };
     }
 

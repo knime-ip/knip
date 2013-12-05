@@ -121,6 +121,14 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
                 addDialogComponent("Options", "New Dimension Sizes", new DialogComponentBoolean(createRelDimsModel(),
                         "Relative?"));
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_resampled";
+            }
         };
     }
 

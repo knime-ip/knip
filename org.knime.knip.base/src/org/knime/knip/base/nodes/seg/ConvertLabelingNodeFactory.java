@@ -141,6 +141,8 @@ import org.knime.knip.core.util.ImgUtils;
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @param <T>
+ * @param <L>
  */
 public class ConvertLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>, L extends Comparable<L>> extends
         ValueToCellNodeFactory<LabelingValue<L>> {
@@ -163,6 +165,7 @@ public class ConvertLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>
             /**
              * {@inheritDoc}
              */
+            @SuppressWarnings("deprecation")
             @Override
             public void addDialogComponents() {
                 addDialogComponent("Options", "Target Type",
@@ -171,6 +174,14 @@ public class ConvertLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>
                 addDialogComponent("Options", "Factory Selection",
                                    new DialogComponentStringSelection(createFactorySelectionModel(), "Factory Type",
                                            EnumUtils.getStringListFromName(ImgFactoryTypes.values())));
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_converted";
             }
         };
     }
@@ -253,11 +264,10 @@ public class ConvertLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>
                 final LabelingMapping<L> mapping = ((NativeImgLabeling<L, T>)cellValue.getLabeling()).getMapping();
                 for (int i = 0; i < mapping.numLists(); i++) {
                     try {
-                     resLab.getMapping().intern(mapping.listAtIndex(i));
-                    }
-                    catch (AssertionError e)
-                    {
-                        throw new AssertionError( String.format("Too many labels: Maximal two labels can be converted to BITTYPE") );
+                        resLab.getMapping().intern(mapping.listAtIndex(i));
+                    } catch (AssertionError e) {
+                        throw new AssertionError(
+                                String.format("Too many labels: Maximal two labels can be converted to BITTYPE"));
                     }
                 }
 

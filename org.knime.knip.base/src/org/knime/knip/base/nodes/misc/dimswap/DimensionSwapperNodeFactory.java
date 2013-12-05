@@ -98,6 +98,14 @@ public class DimensionSwapperNodeFactory<T extends RealType<T>> extends ValueToC
                         createMappingModel()));
 
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_dimsSwapped";
+            }
         };
     }
 

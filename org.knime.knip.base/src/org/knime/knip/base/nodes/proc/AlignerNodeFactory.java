@@ -155,6 +155,15 @@ public class AlignerNodeFactory<T extends RealType<T>, V extends RealType<V>> ex
             protected String getSecondColumnSelectionLabel() {
                 return "Filtered image";
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_aligned";
+            }
+
         };
     }
 

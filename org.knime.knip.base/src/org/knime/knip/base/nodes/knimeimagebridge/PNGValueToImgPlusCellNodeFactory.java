@@ -76,7 +76,7 @@ import org.knime.knip.core.util.EnumUtils;
 
 /**
  * Converts PNGImageValues to ImgPlusCells<UnsignedByteType>
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -97,15 +97,16 @@ public class PNGValueToImgPlusCellNodeFactory extends ValueToCellNodeFactory<PNG
             /**
              * {@inheritDoc}
              */
+            @SuppressWarnings("deprecation")
             @Override
             public void addDialogComponents() {
 
                 addDialogComponent("Settings",
                                    "Factory Selection",
-                                   new DialogComponentStringSelection(createFactoryModel(), "Factory Type",
-                                           EnumUtils.getStringListFromName(ImgFactoryTypes.ARRAY_IMG_FACTORY,
-                                                                          ImgFactoryTypes.PLANAR_IMG_FACTORY,
-                                                                          ImgFactoryTypes.CELL_IMG_FACTORY)));
+                                   new DialogComponentStringSelection(createFactoryModel(), "Factory Type", EnumUtils
+                                           .getStringListFromName(ImgFactoryTypes.ARRAY_IMG_FACTORY,
+                                                                  ImgFactoryTypes.PLANAR_IMG_FACTORY,
+                                                                  ImgFactoryTypes.CELL_IMG_FACTORY)));
 
             }
         };
@@ -129,7 +130,7 @@ public class PNGValueToImgPlusCellNodeFactory extends ValueToCellNodeFactory<PNG
 
             /**
              * {@inheritDoc}
-             * 
+             *
              * @throws IllegalArgumentException
              */
             @SuppressWarnings({"rawtypes"})

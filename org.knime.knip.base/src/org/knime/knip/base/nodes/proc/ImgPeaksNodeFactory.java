@@ -102,6 +102,14 @@ public class ImgPeaksNodeFactory<T extends RealType<T>> extends ValueToCellNodeF
                 addDialogComponent(new DialogComponentNumber(createSuppressionModel(),
                         "Peak suppression region radius", .1));
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_peaks";
+            }
         };
     }
 

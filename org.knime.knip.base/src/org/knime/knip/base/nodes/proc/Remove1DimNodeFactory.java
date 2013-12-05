@@ -129,6 +129,14 @@ public class Remove1DimNodeFactory<T extends RealType<T> & NativeType<T>> extend
                 //
 
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_dimsRemoved";
+            }
         };
     }
 }

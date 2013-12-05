@@ -99,6 +99,7 @@ public class LabelingToImgNodeFactory<L extends Comparable<L>, V extends Integer
             /**
              * {@inheritDoc}
              */
+            @SuppressWarnings("deprecation")
             @Override
             public void addDialogComponents() {
                 addDialogComponent("Options", "", new DialogComponentStringSelection(createOutputImgModel(),

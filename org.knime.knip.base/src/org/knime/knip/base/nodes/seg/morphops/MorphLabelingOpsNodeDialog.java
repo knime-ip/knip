@@ -159,4 +159,12 @@ public class MorphLabelingOpsNodeDialog<L extends Comparable<L>> extends ValueTo
             m_type.setStringValue(MorphLabelingOpsNodeModel.ConnectedType.FOUR_CONNECTED.toString());
         }
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String getDefaultSuffixForAppend() {
+        return "_morphLab";
+    }
 }

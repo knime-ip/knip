@@ -114,6 +114,14 @@ public class ImgCropperNodeFactory<T extends RealType<T> & NativeType<T>> extend
                         "Adjust Dimensionality?"));
 
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_cropped";
+            }
         };
     }
 

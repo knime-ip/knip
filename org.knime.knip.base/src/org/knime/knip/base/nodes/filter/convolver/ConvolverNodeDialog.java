@@ -156,6 +156,13 @@ public class ConvolverNodeDialog<T extends RealType<T>> extends ValueToCellNodeD
 
             m_componentPanels.put(key, dialogComponent);
         }
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String getDefaultSuffixForAppend() {
+     return "_convolved";
     }
 }

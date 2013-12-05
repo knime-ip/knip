@@ -134,6 +134,14 @@ public class ConnectedCompAnalysisNodeFactory<T extends RealType<T> & Comparable
                 addDialogComponent("Options", "Dimensions", new DialogComponentDimSelection(createDimSelectionModel(),
                         "Dimensions", 2, 5));
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_cca";
+            }
         };
     }
 

@@ -78,7 +78,7 @@ import org.knime.knip.core.util.EnumUtils;
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
-
+ *
  * @param <T>
  */
 public class ProjectorNodeFactory<T extends RealType<T>> extends ValueToCellNodeFactory<ImgPlusValue<T>> {
@@ -110,6 +110,13 @@ public class ProjectorNodeFactory<T extends RealType<T>> extends ValueToCellNode
                         createDimSelectModel(), "", 1, 1));
             }
 
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_projected";
+            }
         };
     }
 

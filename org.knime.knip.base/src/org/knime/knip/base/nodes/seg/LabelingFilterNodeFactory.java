@@ -81,7 +81,7 @@ import org.knime.knip.base.node.ValueToCellNodeModel;
 /**
  * Node to filter a labeling according to easily calculated characteristics (e.g. segment size, border segments, regular
  * expression, ...)
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -133,6 +133,14 @@ public class LabelingFilterNodeFactory<L extends Comparable<L>> extends ValueToC
                         createRemoveBorderSegModel(), "Remove segments touching the border"));
                 addDialogComponent("Options", "Speed-up", new DialogComponentBoolean(createContainsNoOverlapsModel(),
                         "Contains NO overlapping segments"));
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_filtered";
             }
         };
     }
