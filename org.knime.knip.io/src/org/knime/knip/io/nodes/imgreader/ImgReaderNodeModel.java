@@ -396,7 +396,7 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 				.createBufferedDataTable(dt, exec) };
 
 		if (dt.hasAnErrorOccured()) {
-			setWarningMessage("Some errors occured opening images or image planes!");
+			setWarningMessage("Some errors occured opening images or image planes! See console log for details.");
 		} else if (!dt.usedDifferentReaders()
 				&& m_checkFileFormat.getBooleanValue()
 				&& out[0].getRowCount() > 1) {

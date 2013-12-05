@@ -48,6 +48,7 @@
  */
 package org.knime.knip.io.nodes.imgreader;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -82,7 +83,6 @@ import org.knime.core.util.pathresolve.ResolverUtil;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.exceptions.KNIPException;
-import org.knime.knip.base.exceptions.KNIPRuntimeException;
 import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
 import org.knime.knip.io.ScifioImgSource;
 import org.knime.knip.io.node.dialog.DialogComponentMultiFileChooser;
@@ -344,6 +344,12 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 								.convertToFilePath(currentFile,
 										m_workflowCanonicalPath);
 
+						// check whether file exists
+						if (!new File(currentFile).exists()) {
+							throw new KNIPException("File " + currentFile
+									+ " doesn't exist!");
+						}
+
 						seriesCount = m_imgSource.getSeriesCount(currentFile);
 						currentSeries = m_selectedSeries == -1 ? 0
 								: m_selectedSeries;
@@ -406,7 +412,7 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 							+ currentFile + " (" + e.getMessage() + ")");
 					m_error = true;
 				} catch (final KNIPException e) {
-					LOGGER.warn(e.toString());
+					LOGGER.warn(e.getLocalizedMessage());
 					m_error = true;
 				} catch (final Exception e) {
 					LOGGER.error(e);
