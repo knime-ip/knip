@@ -28,20 +28,40 @@
 			costs are calculated (from http://fiji.sc/TrackMate).
 		</intro>
 		<tab name="Options">
-			<option name="Algorithm">???</option>
-			<option name="Maximum Object Distance">???</option>
-			<option name="Tracking Dimension">???</option>
-			<option name="Allow Splitting">???</option>
-			<option name="Max Distance (Splitting)">???</option>
-			<option name="Allow Merging">???</option>
-			<option name="Max Distance (Merging)">???</option>
-			<option name="Allow Gap Distance">???</option>
-			<option name="Max Distance (Gap Distance)">???</option>
-			<option name="Max Gap Size (Frames)">???</option>
+			<option name="Algorithm">Choose the implementation. Munkres-Kuhn is faster
+				than Hungarian, but sometimes performs worse.
+			</option>
+			<option name="Maximum Object Distance">Maximum distance between to objects</option>
+			<option name="Tracking Dimension">Select the dimension which will be used for
+				tracking (in most cases its Time).
+			</option>
+			<option name="Allow Splitting">If checked, the algorithm tries to detect
+				splitting objects.
+			</option>
+			<option name="Max Distance (Splitting)">Maximum distance two splitting objects may have.
+			</option>
+			<option name="Allow Merging">If checked, the algorithm tries to detect
+				merging
+				objects
+			</option>
+			<option name="Max Distance (Merging)">Maximum distance two merging objects may have.
+			</option>
+			<option name="Allow Gap Closing">If checked, a missing object at a certain
+				frame
+				can be recovered using the following tracking frames.
+			</option>
+			<option name="Max Distance (Gap Distance)">Maximum distance two objects may have, such that
+				their track can be recovered using gap closing.
+			</option>
+			<option name="Max Gap Size (Frames)">Number of frames which can be skipped for
+				gap-closing.
+			</option>
 		</tab>
 		<tab name="Advanced">
-			<option name="Alternative Linking Cost Factor">???</option>
-			<option name="Cutoff Percentile">???</option>
+			<option name="Alternative Linking Cost Factor"> Factor used to compute alternative linking costs
+				(see http://fiji.sc/TrackMate for details). </option>
+			<option name="Cutoff Percentile">Cut-Off Percentile (see http://fiji.sc/TrackMate
+				for details).</option>
 		</tab>
 	</fullDescription>
 
