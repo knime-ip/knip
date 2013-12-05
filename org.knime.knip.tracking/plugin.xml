@@ -19,4 +19,12 @@
               path="/community/knip/">
         </category>
      </extension>
+     <extension
+           point="org.knime.workbench.repository.nodesets">
+        <nodeset
+              expert-flag="false"
+              factory-class="org.knime.knip.tracking.nodes.TrackingNodeSetFactory"
+              id="org.knime.knip.tracking.nodes.TrackingNodeSetFactory">
+        </nodeset>
+     </extension>
 </plugin>
