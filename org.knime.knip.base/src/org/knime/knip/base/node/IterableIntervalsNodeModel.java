@@ -75,6 +75,7 @@ import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
+import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgUtils;
@@ -326,6 +327,11 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
             for (int i = 0; i < selectedDimIndices.length; i++) {
                 selectedDimIndices[i] = i;
             }
+        }
+
+        if (m_dimSelectionModel.getNumSelectedDimLabels(cellValue.getMetadata()) == 0
+                && m_dimSelectionModel.getNumSelectedDimLabels() > 0) {
+            throw new KNIPException("Not enough selected dimensions provided by image.");
         }
 
         prepareOperation(in.firstElement());
