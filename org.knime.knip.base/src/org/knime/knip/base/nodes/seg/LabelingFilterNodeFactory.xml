@@ -26,8 +26,9 @@
 				A segment will be included in the result labeling
 				if the area is
 				within the given interval.</option>
-			<option name="Other Filter Criteria"> Option to remove segments which are touching the
-				border (no matter which dimension).</option>
+			<option name="Border Segments"> Option to remove segments which are touching the
+				border (no matter which dimension). Only the selected dimensions are
+				considered to test whether segments are touching the border.</option>
 			<option name="Speed-up">If it can be guaranteed that the input labeling
 				does not contain overlapping segments, the calculation can be
 				accelerated. If this option is checked but the input DOES contain
