@@ -106,6 +106,7 @@ public final class ConvexHullNodeFactory extends ImgPlusToImgPlusNodeFactory<Bit
                 settingsModels.add(m_dimSelection);
             }
 
+            @SuppressWarnings("cast")
             @Override
             protected UnaryOutputOperation<ImgPlus<BitType>, ImgPlus<BitType>> op(final ImgPlus<BitType> imgPlus) {
 
@@ -118,9 +119,9 @@ public final class ConvexHullNodeFactory extends ImgPlusToImgPlusNodeFactory<Bit
                     throw new ImageTypeNotCompatibleException("fill holes", imgPlus.firstElement(), BitType.class);
                 }
 
-                return Operations.wrap(ImgOperations.wrapRA(new ConvexHull2D(0, 1,
-                        m_fillHull.getBooleanValue()), new BitType()), ImgPlusFactory.<BitType, BitType> get(imgPlus
-                        .firstElement()));
+                return Operations.wrap(ImgOperations.wrapRA(new ConvexHull2D(0, 1, m_fillHull.getBooleanValue()),
+                                                            new BitType()), ImgPlusFactory
+                        .<BitType, BitType> get(imgPlus.firstElement()));
             }
 
             @Override
