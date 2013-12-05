@@ -53,7 +53,7 @@ import java.util.List;
 import org.knime.node2012.TabDocument.Tab;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -61,10 +61,14 @@ import org.knime.node2012.TabDocument.Tab;
  */
 public class DescriptionHelper {
 
+    private DescriptionHelper() {
+        //utility class
+    }
+
     /**
      * @param tabname
      * @param tabList
-     * @return
+     * @return index
      */
     public static int findTabIndex(final String tabname, final List<Tab> tabList) {
         int k = 0;

@@ -64,12 +64,17 @@ import org.knime.node2012.PDocument.P;
  */
 public class DialogComponentPixelType extends AbstractSimpleComboboxDialogComponent {
 
-    @SuppressWarnings("javadoc")
+    /**
+     * @param model
+     */
+    @SuppressWarnings({"deprecation"})
     protected DialogComponentPixelType(final SettingsModel model) {
         super(model, "PixelType Selection:", EnumUtils.getStringListFromName(NativeTypes.values()));
     }
 
-    @SuppressWarnings("javadoc")
+    /**
+     * @param opt
+     */
     public static void createNodeDescription(final Option opt) {
         opt.setName("PixelType Selection");
         P para = opt.addNewP();

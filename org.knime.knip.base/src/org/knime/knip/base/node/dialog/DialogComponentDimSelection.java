@@ -140,8 +140,11 @@ public class DialogComponentDimSelection extends DialogComponent implements Item
     private boolean m_enabled = true;
 
     /**
+     * Dimension selection dialog component with minimum and maximum number of allowed dimensions of 1 and 100,
+     * respectively.
      *
      * @param model
+     * @param label
      */
     public DialogComponentDimSelection(final SettingsModelDimSelection model, final String label) {
         this(model, label, 1, 100);
@@ -150,6 +153,9 @@ public class DialogComponentDimSelection extends DialogComponent implements Item
     /**
      *
      * @param model
+     * @param label label appearing next to the dimension selection
+     * @param minNumDims minimum number of allowed dimensions to be selected
+     * @param maxNumDims maximum number of allowed dimensions to be selected
      */
     public DialogComponentDimSelection(final SettingsModelDimSelection model, final String label, final int minNumDims,
                                        final int maxNumDims) {

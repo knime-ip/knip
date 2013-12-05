@@ -62,10 +62,11 @@ import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter.Operator;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @param <L>
  */
 public class SettingsModelFilterSelection<L extends Comparable<L>> extends SettingsModel {
 
@@ -86,7 +87,7 @@ public class SettingsModelFilterSelection<L extends Comparable<L>> extends Setti
 
     /**
      * Constructor
-     * 
+     *
      * @param configName
      */
     public SettingsModelFilterSelection(final String configName) {
@@ -112,10 +113,16 @@ public class SettingsModelFilterSelection<L extends Comparable<L>> extends Setti
         return "SMID_filterSelection";
     }
 
+    /**
+     * @return rulebasedlabelfilter operator
+     */
     public RulebasedLabelFilter.Operator getOperator() {
         return m_operator;
     }
 
+    /**
+     * @return rule-based label filter
+     */
     public RulebasedLabelFilter<L> getRulebasedFilter() {
 
         final String[] rules = getRules().clone();
@@ -127,6 +134,9 @@ public class SettingsModelFilterSelection<L extends Comparable<L>> extends Setti
         return new RulebasedLabelFilter<L>(rules, getOperator());
     }
 
+    /**
+     * @return rules as string array
+     */
     public String[] getRules() {
         return m_rules;
     }
@@ -170,10 +180,16 @@ public class SettingsModelFilterSelection<L extends Comparable<L>> extends Setti
         lists.addInt("operator", m_operator.ordinal());
     }
 
+    /**
+     * @param operator
+     */
     public void setOperator(final RulebasedLabelFilter.Operator operator) {
         m_operator = operator;
     }
 
+    /**
+     * @param rules
+     */
     public void setRules(final String[] rules) {
         m_rules = rules.clone();
     }

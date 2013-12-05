@@ -68,7 +68,7 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.knip.base.KNIMEKNIPPlugin;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -80,9 +80,8 @@ public class SettingsModelDimSelection extends SettingsModel {
 
     /**
      * Creates a new plane selection where all planes of each dimension are selected.
-     * 
+     *
      * @param configName
-     * @param dimLables
      */
     public SettingsModelDimSelection(final String configName) {
         this(configName, KNIMEKNIPPlugin.parseDimensionLabels());
@@ -132,6 +131,12 @@ public class SettingsModelDimSelection extends SettingsModel {
         return m_configName;
     }
 
+    /**
+     *
+     * @param axes
+     * @param i
+     * @return intervals representing the dimension selection
+     */
     public final Interval[] getIntervals(final TypedSpace<? extends TypedAxis> axes, final Interval i) {
         return IntervalsFromDimSelection.compute(getSelectedDimIndices(i.numDimensions(), axes), i);
     }
@@ -161,8 +166,10 @@ public class SettingsModelDimSelection extends SettingsModel {
 
     /**
      * Filter the selected dim indices according to axis labels of the given {@link ImgPlus} object.
-     * 
-     * @return
+     *
+     * @param space
+     *
+     * @return dimension indices
      */
     public final int[] getSelectedDimIndices(final TypedSpace<? extends TypedAxis> space) {
         return getSelectedDimIndices(space.numDimensions(), space);
@@ -170,10 +177,11 @@ public class SettingsModelDimSelection extends SettingsModel {
 
     /**
      * Filter the selected dim indices according to axis labels.
-     * 
-     * @param imgPlus
-     * 
-     * @return
+     *
+     * @param numDims
+     * @param dimLabels
+     *
+     * @return dimension indices
      */
     public final int[] getSelectedDimIndices(final int numDims, final TypedAxis[] dimLabels) {
         final int[] res = new int[numDims];
@@ -189,10 +197,11 @@ public class SettingsModelDimSelection extends SettingsModel {
 
     /**
      * Filter the selected dim indices according to axis labels of the given {@link ImgPlus} object.
-     * 
-     * @param imgPlus
-     * 
-     * @return
+     *
+     * @param numDims
+     * @param space
+     *
+     * @return dimension indices
      */
     public final int[] getSelectedDimIndices(final int numDims, final TypedSpace<? extends TypedAxis> space) {
         final TypedAxis[] axes = new TypedAxis[numDims];
@@ -206,7 +215,7 @@ public class SettingsModelDimSelection extends SettingsModel {
     }
 
     /**
-     * @return
+     * @return selected dimension labels
      */
     public final Set<String> getSelectedDimLabels() {
         return m_selectedDims;
@@ -247,9 +256,9 @@ public class SettingsModelDimSelection extends SettingsModel {
 
     /**
      * Determines if the given dimension is selected.
-     * 
-     * @param dim
-     * @return
+     *
+     * @param dimLabel
+     * @return true, if dimension is selected
      */
     public boolean isSelectedDim(final String dimLabel) {
         return m_selectedDims.contains(dimLabel);
@@ -306,7 +315,7 @@ public class SettingsModelDimSelection extends SettingsModel {
 
     /**
      * set the value stored to the new value.
-     * 
+     *
      * @param newValue the new value to store.
      */
     public void setDimSelectionValue(final Set<String> newValue) {

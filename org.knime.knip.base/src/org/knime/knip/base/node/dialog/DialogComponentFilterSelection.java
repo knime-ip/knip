@@ -73,15 +73,17 @@ import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @param <L>
  */
 public class DialogComponentFilterSelection<L extends Comparable<L>> extends DialogComponent implements ChangeListener {
 
     private final JButton m_addButton;
 
+    @SuppressWarnings("rawtypes")
     private final JComboBox m_operatorBox;
 
     private JButton m_removeButton;
@@ -92,6 +94,10 @@ public class DialogComponentFilterSelection<L extends Comparable<L>> extends Dia
 
     private final JPanel m_textFieldsPanel;
 
+    /**
+     * @param model
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public DialogComponentFilterSelection(final SettingsModelFilterSelection<L> model) {
         super(model);
 
@@ -131,6 +137,9 @@ public class DialogComponentFilterSelection<L extends Comparable<L>> extends Dia
 
     }
 
+    /**
+     * @param initValue
+     */
     protected void addTextField(final String initValue) {
         final JPanel oneFieldRow = new JPanel();
         oneFieldRow.add(new JLabel("Rule " + (m_textFields.size() + 1) + ":"));

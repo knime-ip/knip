@@ -134,8 +134,9 @@ public class SettingsModelSubsetSelection extends SettingsModel {
      * Creates the selected intervals according to the given image and its metadata.
      *
      * @param dimensions
+     * @param axes
      *
-     * @return
+     * @return the intervals
      * @throws KNIPException
      */
     @SuppressWarnings("unchecked")
@@ -240,10 +241,10 @@ public class SettingsModelSubsetSelection extends SettingsModel {
     }
 
     /**
-     * @param dimensions
-     * @param axes
-     * @return
-     * @throws InvalidSettingsException
+     * @param dimensions the dimensions of the input image
+     * @param labeledAxes the labels of the input image
+     * @return the intervals
+     * @throws KNIPException
      */
     public final Interval[] createSelectedIntervals(final long[] dimensions,
                                                     final CalibratedSpace<CalibratedAxis> labeledAxes)
@@ -253,6 +254,12 @@ public class SettingsModelSubsetSelection extends SettingsModel {
         return createSelectedIntervals(dimensions, axes);
     }
 
+    /**
+     * @param dimensions the dimensions of the input image
+     * @param axes the labels of the input image
+     * @return the intervals
+     * @throws KNIPException
+     */
     public Interval[] createSelectedIntervalsPlaneWise(final long[] dimensions, final CalibratedAxis[] axes)
             throws KNIPException {
 
@@ -307,7 +314,7 @@ public class SettingsModelSubsetSelection extends SettingsModel {
 
     /**
      * @param dimLabel
-     * @return
+     * @return true, if is in incude mode
      */
     public final boolean getIncMode(final String dimLabel) {
         final Boolean res = m_isIncMode.get(dimLabel);
@@ -324,12 +331,18 @@ public class SettingsModelSubsetSelection extends SettingsModel {
 
     /**
      * @param dimLabel
-     * @return
+     * @return the selected points in the specified dimension
      */
     public final int[] getSelection(final String dimLabel) {
         return m_selection.get(dimLabel);
     }
 
+    /**
+     * @param srcDim
+     * @param axes
+     * @return the dimensions in which something is selected
+     * @throws InvalidSettingsException
+     */
     public final long[] getSelectionDimensions(final long[] srcDim, final CalibratedAxis[] axes)
             throws InvalidSettingsException {
         final long[] dimensions = new long[srcDim.length];
@@ -362,6 +375,12 @@ public class SettingsModelSubsetSelection extends SettingsModel {
         return dimensions;
     }
 
+    /**
+     * @param srcDim
+     * @param labeledAxes
+     * @return the dimensions in which something is selected
+     * @throws InvalidSettingsException
+     */
     public final long[] getSelectionDimensions(final long[] srcDim, final CalibratedSpace<CalibratedAxis> labeledAxes)
             throws InvalidSettingsException {
         final CalibratedAxis[] axes = new CalibratedAxis[srcDim.length];
@@ -429,7 +448,8 @@ public class SettingsModelSubsetSelection extends SettingsModel {
 
             if (dimSize <= selection[0]) {
                 //selection not in range = nothing selected in inc mode
-                throw new KNIPException("Selection at dimension " + dimLabel + " does not cover image content. Image has size 0 and will be ignored.",
+                throw new KNIPException("Selection at dimension " + dimLabel
+                        + " does not cover image content. Image has size 0 and will be ignored.",
                         new InvalidSettingsException("image reduced to nothing."));
             }
 
@@ -616,6 +636,7 @@ public class SettingsModelSubsetSelection extends SettingsModel {
      * @param dimensions
      * @param calibAxes
      * @return an array of pairs {axes}{selected indices}
+     * @throws KNIPException
      */
     @SuppressWarnings("unchecked")
     public Pair<TypedAxis, long[]>[] createSelectionConstraints(final long[] dimensions,
