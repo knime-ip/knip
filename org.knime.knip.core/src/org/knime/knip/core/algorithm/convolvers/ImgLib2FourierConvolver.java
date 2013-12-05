@@ -56,10 +56,14 @@ import net.imglib2.type.numeric.complex.ComplexFloatType;
 
 /**
  * Convolution, using ImgLib2Fourier implementation
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <T>
+ * @param <K>
+ * @param <O>
  */
 public class ImgLib2FourierConvolver<T extends RealType<T>, K extends RealType<K>, O extends RealType<O>> implements
         Convolver<T, K, O> {
@@ -68,8 +72,11 @@ public class ImgLib2FourierConvolver<T extends RealType<T>, K extends RealType<K
 
     private FFTConvolution<T, K, O> m_fc = null;
 
-    // Empty constructor for extension point
+    /**
+    *
+    */
     public ImgLib2FourierConvolver() {
+        //NB: Externalization
     }
 
     @Override

@@ -64,7 +64,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.port.PortObjectSpec;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -87,7 +87,7 @@ abstract class AbstractSimpleJTextfieldDialogComponent extends DialogComponent {
 
     /**
      * Constructor put label and JTextField into panel. It will accept empty strings as legal input.
-     * 
+     *
      * @param stringModel the model that stores the value for this component.
      * @param label label for dialog in front of JTextField
      */
@@ -97,7 +97,7 @@ abstract class AbstractSimpleJTextfieldDialogComponent extends DialogComponent {
 
     /**
      * Constructor put label and JTextField into panel.
-     * 
+     *
      * @param stringModel the model that stores the value for this component.
      * @param label label for dialog in front of JTextField
      * @param disallowEmptyString if set true, the component request a non-empty string from the user.
@@ -115,6 +115,7 @@ abstract class AbstractSimpleJTextfieldDialogComponent extends DialogComponent {
         m_valueField.setColumns(compWidth);
 
         m_valueField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
             public void removeUpdate(final DocumentEvent e) {
                 try {
                     updateModel();
@@ -123,6 +124,7 @@ abstract class AbstractSimpleJTextfieldDialogComponent extends DialogComponent {
                 }
             }
 
+            @Override
             public void insertUpdate(final DocumentEvent e) {
                 try {
                     updateModel();
@@ -131,6 +133,7 @@ abstract class AbstractSimpleJTextfieldDialogComponent extends DialogComponent {
                 }
             }
 
+            @Override
             public void changedUpdate(final DocumentEvent e) {
                 try {
                     updateModel();
@@ -192,7 +195,7 @@ abstract class AbstractSimpleJTextfieldDialogComponent extends DialogComponent {
 
     /**
      * Transfers the current value from the component into the model.
-     * 
+     *
      * @throws InvalidSettingsException if the string was not accepted.
      */
     private void updateModel() throws InvalidSettingsException {
@@ -231,7 +234,7 @@ abstract class AbstractSimpleJTextfieldDialogComponent extends DialogComponent {
 
     /**
      * Sets the preferred size of the internal component.
-     * 
+     *
      * @param width The width.
      * @param height The height.
      */

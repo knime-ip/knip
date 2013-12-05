@@ -12,50 +12,62 @@
 		<intro>
 			Calculates features based on the complete image.
 		</intro>
-	
-	
-	<tab name="Features">
-		<option name="Tamura">
-			<ul>
+
+
+		<tab name="Features">
+			<option name="Tamura">
+				<ul>
 					<li>
-						Calculates 6 Tamura features: Granularity, Contrast, Kurtosis of Directionality
-						Standard Deviation of Directionality, Maximal directionality, Skewness
+						Calculates 6 Tamura features: Granularity, Contrast, Kurtosis
+						of Directionality
+						Standard Deviation of Directionality, Maximal
+						directionality, Skewness
 					</li>
-					</ul>
-		</option>
-		
-		<option name="First order statistics">
-			<ul>
+				</ul>
+			</option>
+
+			<option name="First order statistics">
+				<ul>
 					<li>
 						Calculates the moments of the first
 						order statistics. The
 						following features are computed: Min, Max, Mean,
-						Geometric Mean, Sum,
+						Geometric Mean,
+						Sum,
 						Square of Sums, Standard Deviation, Variance,
-						Skewness, Kurtosis,
-						Quantil25, Quantil50, Quantil75, user defined Quantil, Histogram.
+						Skewness,
+						Kurtosis,
+						Quantil25, Quantil50, Quantil75, user defined Quantil,
+						Histogram.
 						Please note that
 						the Geometric Mean
-						can only be computed on unsigned
+						can only be computed
+						on unsigned
 						datatypes.
 						Invalid
 						calculations
-						(i.e. NaN) result in missing cells.</li>
-			</ul>
-		</option>
-		
-		<option name="Haralick">
-		<ul>
+						(i.e. NaN) result in
+						missing cells.
+					</li>
+				</ul>
+			</option>
+
+			<option name="Haralick">
+				<ul>
 					<li>
-						Statistical features based on gray-level co-occurrence matrix. Rotation invariance
-						can be reached by averaging over the four directional co-occurrence matrices
+						Statistical features based on gray-level co-occurrence matrix.
+						Rotation invariance
+						can be reached by averaging over the four
+						directional co-occurrence matrices
 						(activate 'compute average').
-						See http://murphylab.web.cmu.edu/publications/boland/boland_node26.html
-						for more information.</li>
-		</ul>
-		</option>
-	</tab>
-	
+						See
+						http://murphylab.web.cmu.edu/publications/boland/boland_node26.html
+						for more information.
+					</li>
+				</ul>
+			</option>
+		</tab>
+
 	</fullDescription>
 
 	<ports>

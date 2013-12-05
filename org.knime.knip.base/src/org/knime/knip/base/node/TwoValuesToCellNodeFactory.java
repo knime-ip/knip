@@ -92,12 +92,12 @@ public abstract class TwoValuesToCellNodeFactory<VIN1 extends DataValue, VIN2 ex
         if (node != null) {
 
             // add description of this dialog
-            //TODO!
+            TwoValuesToCellNodeDialog.addTabsDescriptionTo(node.getFullDescription());
             TableCellViewNodeView.addViewDescriptionTo(node.addNewViews());
 
             if (node.getPorts() == null) {
                 //add default port description
-                //TODO!
+                TwoValuesToCellNodeDialog.addPortsDescriptionTo(node);
             }
 
             // Add user stuff

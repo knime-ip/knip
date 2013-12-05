@@ -102,6 +102,9 @@ public class ThresholderNodeFactory3<T extends RealType<T>, L extends Comparable
     @Override
     protected IterableIntervalsNodeDialog<T> createNodeDialog() {
         return new IterableIntervalsNodeDialog<T>(true) {
+
+            private boolean activeDimSelection;
+
             @Override
             public void addDialogComponents() {
                 final SettingsModelDouble settModManual = createManualThresholdModel();
@@ -118,15 +121,26 @@ public class ThresholderNodeFactory3<T extends RealType<T>, L extends Comparable
                         final String selectedMethod = method.getStringValue();
                         if (EnumUtils.valueForName(selectedMethod, ThresholdingType.values()) == ThresholdingType.MANUAL) {
                             settModManual.setEnabled(true);
-                            m_dimSelectionModel.setEnabled(false);
-                            return;
+                            activeDimSelection = false;
+                        } else {
+                            activeDimSelection = true;
+                            settModManual.setEnabled(false);
                         }
-                        m_dimSelectionModel.setEnabled(true);
-                        settModManual.setEnabled(false);
+                        m_dimSelectionModel.setEnabled(activeDimSelection);
                     }
                 });
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected boolean forceActiveDimensionSelection() {
+                return activeDimSelection;
+            }
+
         };
+
     }
 
     /**
@@ -170,6 +184,7 @@ public class ThresholderNodeFactory3<T extends RealType<T>, L extends Comparable
             /**
              * {@inheritDoc}
              */
+            @SuppressWarnings("unchecked")
             @Override
             protected ImgPlusCell<BitType> compute(final ImgPlusValue<T> cellValue) throws Exception {
                 ImgPlus<T> img = cellValue.getImgPlus();

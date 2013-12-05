@@ -7,12 +7,13 @@
 <knimeNode icon="morphops.png" type="Manipulator">
 	<name>Morphological Image Operations</name>
 	<shortDescription>
-		Perform morphological operations on images.
+		Performs morphological operations on images.
 	</shortDescription>
 
 	<fullDescription>
 		<intro>
-			Perform morphological operations on images.
+			Perform morphological operations (like erode and dilate or open
+			and close) on images.
 		</intro>
 		<tab name="Options">
 			<option name="Connection Type">
@@ -20,13 +21,15 @@
 					<li>Four-Connected</li>
 					<li>Eight-Connected</li>
 					<li>Structuring Element: Read the structuring element from the
-						optional second in port.</li>
+						optional second in port.
+					</li>
 				</ul>
 			</option>
-			<option name="Column">
-				Column of the structuring element, if 'Structuring Element' is selected as 'Connection Type'.
+			<option name="Structuring Element">
+				Column of the structuring element, if
+				'Structuring Element' is selected as 'Connection Type'.
 			</option>
-			<option name="Method">
+			<option name="Operation">
 				<ul>
 					<li>Erode: Shrink bright areas.</li>
 					<li>Dilate: Grow bright areas.</li>
@@ -34,16 +37,22 @@
 					<li>Close: Dilate followed by Erode. Erases tiny dark holes.</li>
 				</ul>
 			</option>
-			<option name="Number of iterations">
+			<option name="Number of Iterations">
 				Determines how often the chosen morphological
 				operation should be applied to
 				the images (to increase the effect).
 				If Open/Closed is selected, first Erode/Dilate is applied n times
 				then Dilate/Erode n times.
 			</option>
-			<option name="Dimension selection">Determines for which dimensions the morphological
-				operations will be applied individually.</option>
-			<option name="Out of Bounds Strategy">The 'OutOfBounds Strategy' is used when an algorithm needs access to pixels which lie outside of an image (for example convolutions). The strategy determines how an image is extended, for examples see <a href='http://fiji.sc/ImgLib2_Examples#Example_5_-_Out_of_bounds'>Fiji Wiki</a></option>
+			<option name="Dimension Selection">Determines for which dimensions the morphological
+				operations will be applied individually.
+			</option>
+			<option name="Out of Bounds Strategy">
+				The 'OutOfBounds Strategy' is used when an algorithm needs access to
+				pixels which lie outside of an image (for example convolutions). The
+				strategy determines how an image is extended, for examples see
+				<a href='http://fiji.sc/ImgLib2_Examples#Example_5_-_Out_of_bounds'>Fiji Wiki</a>
+			</option>
 		</tab>
 	</fullDescription>
 
@@ -55,6 +64,8 @@
 	</ports>
 
 	<views>
-		<view name="Table Cell View" index="0"></view>
+		<view name="Table Cell View" index="0">Table Cell View with resulting
+			Images
+		</view>
 	</views>
 </knimeNode>

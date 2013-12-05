@@ -127,12 +127,14 @@ public class ImgNormalizerNodeFactory<T extends RealType<T>, L extends Comparabl
 
             private SettingsModelString type;
 
+            private boolean activeDimSelection;
+
             /**
              * {@inheritDoc}
              */
             @Override
             public void addDialogComponents() {
-                // Settings Models
+
                 type = createModeModel();
 
                 min = createManualMinModel();
@@ -147,7 +149,8 @@ public class ImgNormalizerNodeFactory<T extends RealType<T>, L extends Comparabl
 
                     @Override
                     public void stateChanged(final ChangeEvent e) {
-                        m_dimSelectionModel.setEnabled(((SettingsModelBoolean)e.getSource()).getBooleanValue());
+                        activeDimSelection = ((SettingsModelBoolean)e.getSource()).getBooleanValue();
+                        m_dimSelectionModel.setEnabled(activeDimSelection);
                     }
                 });
 
@@ -183,25 +186,33 @@ public class ImgNormalizerNodeFactory<T extends RealType<T>, L extends Comparabl
                         max.setEnabled(true);
                         minMaxOfNewImage.setEnabled(true);
                         saturation.setEnabled(false);
-                        m_dimSelectionModel.setEnabled(minMaxOfNewImage.getBooleanValue());
+                        m_dimSelectionModel.setEnabled(activeDimSelection = minMaxOfNewImage.getBooleanValue());
                         break;
                     case EQUALIZE:
                         min.setEnabled(false);
                         max.setEnabled(false);
                         saturation.setEnabled(false);
                         minMaxOfNewImage.setEnabled(false);
-                        m_dimSelectionModel.setEnabled(true);
+                        m_dimSelectionModel.setEnabled(activeDimSelection = true);
                         break;
                     case NORMALIZE:
                         min.setEnabled(false);
                         max.setEnabled(false);
                         minMaxOfNewImage.setEnabled(false);
                         saturation.setEnabled(true);
-                        m_dimSelectionModel.setEnabled(true);
+                        m_dimSelectionModel.setEnabled(activeDimSelection = true);
                         break;
                     default:
                         throw new RuntimeException("Illegal state in contrast enhancer");
                 }
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected boolean forceActiveDimensionSelection() {
+                return activeDimSelection;
             }
         };
     }

@@ -13,6 +13,15 @@
 			Converts segmentations in a column (or a set of columns) to
 			images. 
 		</intro>
+		
+		<tab name="Parameter">
+			<option name="Image Output Type">
+			Select the pixel type for the output image to be generated. In case the selected
+			pixel type has a lower value range than the given input the output values are cutted.
+			
+			</option>
+		</tab>
+		
 		<tab name="Options">
 			<option name="Column Selection">Move the columns of interest into the
 				&quot;Include&quot; list</option>

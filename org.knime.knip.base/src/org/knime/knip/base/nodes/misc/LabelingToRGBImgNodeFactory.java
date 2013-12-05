@@ -85,15 +85,20 @@ import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.core.awt.converter.RealGreyARGBConverter;
-import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
+import org.knime.knip.core.awt.labelingcolortable.ExtendedLabelingColorTable;
 import org.knime.knip.core.awt.labelingcolortable.LabelingColorTable;
 import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableUtils;
+import org.knime.knip.core.awt.labelingcolortable.RandomMissingColorHandler;
 
 /**
- * 
+ * Convert Labeling to a RGB based Img, i.e. extend the image with a channel if not already existing.
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <T>
+ * @param <L>
  */
 public class LabelingToRGBImgNodeFactory<T extends RealType<T>, L extends Comparable<L>> extends
         ValueToCellNodeFactory<LabelingValue<L>> {
@@ -161,8 +166,10 @@ public class LabelingToRGBImgNodeFactory<T extends RealType<T>, L extends Compar
             @Override
             protected ImgPlusCell<UnsignedByteType> compute(final LabelingValue<L> cellValue) throws Exception {
                 final Labeling<L> lab = cellValue.getLabeling();
-                //TODO: Make MissingColorHandler selectable
-                final LabelingColorTable colorMapping = new DefaultLabelingColorTable();
+
+                final LabelingColorTable colorMapping =
+                        new ExtendedLabelingColorTable(cellValue.getLabelingMetadata().getLabelingColorTable(),
+                                new RandomMissingColorHandler());
 
                 if (m_imgColNr != -1) {
                     //render with image first check dimensionality
@@ -186,6 +193,7 @@ public class LabelingToRGBImgNodeFactory<T extends RealType<T>, L extends Compar
 
                 final Cursor<LabelingType<L>> labCur = lab.localizingCursor();
 
+
                 //load the dims from labeling and append one 0
                 final long[] tmp = new long[lab.numDimensions()];
                 final long[] dims = new long[tmp.length + 1];
@@ -197,11 +205,6 @@ public class LabelingToRGBImgNodeFactory<T extends RealType<T>, L extends Compar
                 final Img<UnsignedByteType> res =
                         new ArrayImgFactory<UnsignedByteType>().create(dims, new UnsignedByteType());
                 final RandomAccess<UnsignedByteType> raOut = res.randomAccess();
-
-                // new UnaryOperationAssignment(new
-                // RealConstant(
-                // Byte.MIN_VALUE)).compute(res,
-                // res);
 
                 List<L> labels;
 
@@ -261,7 +264,10 @@ public class LabelingToRGBImgNodeFactory<T extends RealType<T>, L extends Compar
                 }
 
                 final CalibratedAxis[] axes = new CalibratedAxis[res.numDimensions()];
-                cellValue.getLabelingMetadata().axes(axes);
+                for (int d = 0; d < axes.length - 1; d++) {
+                    axes[d] = cellValue.getLabelingMetadata().axis(d);
+                }
+
                 axes[axes.length - 1] = new DefaultLinearAxis(Axes.get("Channel"));
 
                 ImgPlus<UnsignedByteType> resImgPlus = new ImgPlus<UnsignedByteType>(res);
@@ -273,7 +279,7 @@ public class LabelingToRGBImgNodeFactory<T extends RealType<T>, L extends Compar
             }
 
             /**
-             * 
+             *
              * @param labelRed 0..255
              * @param imgValue 0..255
              * @param transFactor label value * trans + imgValue * (1-trans)

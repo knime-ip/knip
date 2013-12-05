@@ -112,13 +112,13 @@ public abstract class IterableIntervalsNodeDialog<T extends RealType<T>> extends
             @Override
             public void stateChanged(final ChangeEvent e) {
                 if (optionalColumn.getStringValue() == null || optionalColumn.getStringValue().equalsIgnoreCase("")) {
-                    if (m_hasDimSelection) {
+                    if (m_hasDimSelection || forceActiveDimensionSelection()) {
                         m_dimSelectionModel.setEnabled(true);
                     }
-                    fillingModeModel.setEnabled(false);
+                    fillingModeModel.setEnabled(forceActiveDimensionSelection());
                 } else {
                     if (m_hasDimSelection) {
-                        m_dimSelectionModel.setEnabled(false);
+                        m_dimSelectionModel.setEnabled(forceActiveDimensionSelection());
                     }
                     fillingModeModel.setEnabled(true);
                 }
@@ -150,5 +150,12 @@ public abstract class IterableIntervalsNodeDialog<T extends RealType<T>> extends
      */
     protected String getFirstColumnSelectionLabel() {
         return "Labeling";
+    }
+
+    /**
+     * @return true if dimension selection should be activate, not matter if Labeling is selected or not.
+     */
+    protected boolean forceActiveDimensionSelection() {
+        return false;
     }
 }

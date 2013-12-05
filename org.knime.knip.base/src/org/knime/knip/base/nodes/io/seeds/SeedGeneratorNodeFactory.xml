@@ -22,6 +22,7 @@
 				(randomly or arranged in a regular grid).</option>
 			<option name="Average distance">The average number of pixel the seeds are going
 				to have in one dimension in average.</option>
+			<option name="Move seeding point to minimum in local neighborhood">Determines if the labelings should be moved to a local minimum after their creation.</option>
 		</tab>
 	</fullDescription>
 

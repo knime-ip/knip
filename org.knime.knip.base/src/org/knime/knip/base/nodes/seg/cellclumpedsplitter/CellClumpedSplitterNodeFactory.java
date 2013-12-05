@@ -61,6 +61,7 @@ import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
+import org.knime.core.node.defaultnodesettings.SettingsModelDoubleBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.data.labeling.LabelingCell;
@@ -76,12 +77,16 @@ import org.knime.knip.core.util.EnumUtils;
 
 /**
  * Cell Clump Splitter.
- * 
+ *
+ *
  * @param <T>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <L>
  */
+
 public class CellClumpedSplitterNodeFactory<T extends RealType<T>, L extends Comparable<L>> extends
         ValueToCellNodeFactory<LabelingValue<L>> {
 
@@ -101,8 +106,8 @@ public class CellClumpedSplitterNodeFactory<T extends RealType<T>, L extends Com
         return new SettingsModelString("neighborhood", NeighborhoodType.EIGHT.toString());
     }
 
-    private SettingsModelDouble createIgnoreValueBelowAvgPercent() {
-        return new SettingsModelDouble("ignore_value_below_avg_precent", 0.0);
+    private SettingsModelDoubleBounded createIgnoreValueBelowAvgPercent() {
+        return new SettingsModelDoubleBounded("ignore_value_below_avg_precent", 0.0, 0.0, 99.99);
     }
 
     /**
@@ -116,17 +121,16 @@ public class CellClumpedSplitterNodeFactory<T extends RealType<T>, L extends Com
             public void addDialogComponents() {
 
                 addDialogComponent("Options", "Filter Options", new DialogComponentNumber(
-                        createMinimaMaximaSizeModel(), "Max value of a local maxima:", 1));
+                        createMinimaMaximaSizeModel(), "Minimum Value of a Local Maxima:", 1));
 
                 addDialogComponent("Options", "Filter Options", new DialogComponentNumber(
-                        createIgnoreValueBelowAvgPercent(), "Ignore percentage:", 0.1));
+                        createIgnoreValueBelowAvgPercent(), "Ignore Percentage:", 0.1));
 
-                addDialogComponent("Options", "Splitter", new DialogComponentStringSelection(
-
-                createNeighborhoodModel(), "Neighboorhood", EnumUtils.getStringListFromName(NeighborhoodType.values())));
+                addDialogComponent("Options", "Splitter", new DialogComponentStringSelection(createNeighborhoodModel(),
+                        "Neighboorhood", EnumUtils.getStringListFromName(NeighborhoodType.values())));
 
                 addDialogComponent("Options", "Splitter", new DialogComponentNumber(createMaxIterationsModel(),
-                        "Max iterations:", 10));
+                        "Maximum Number of Iterations:", 10));
 
                 addDialogComponent("Options", "Dimensions", new DialogComponentDimSelection(createDimSelectionModel(),
                         "Dimensions", 2, 5));
@@ -145,7 +149,8 @@ public class CellClumpedSplitterNodeFactory<T extends RealType<T>, L extends Com
 
             private final SettingsModelDimSelection m_smDimSelection = createDimSelectionModel();
 
-            private final SettingsModelDouble m_smIgnoreValueBelowAvgPrecent = createIgnoreValueBelowAvgPercent();
+            private final SettingsModelDoubleBounded m_smIgnoreValueBelowAvgPrecent =
+                    createIgnoreValueBelowAvgPercent();
 
             private final SettingsModelInteger m_smMaxInterations = createMaxIterationsModel();
 
@@ -177,7 +182,7 @@ public class CellClumpedSplitterNodeFactory<T extends RealType<T>, L extends Com
                 final Labeling<Integer> out =
                         SubsetOperations.iterate(op, m_smDimSelection.getSelectedDimIndices(cellLabelingVal
                                 .getLabelingMetadata()), labeling, cellLabelingVal.getLabeling().<Integer> factory()
-                                .create(cellLabelingVal.getLabeling()), getExecutorService());
+                                .create(cellLabelingVal.getLabeling()));
 
                 return m_labCellFactory.createCell(out, cellLabelingVal.getLabelingMetadata());
 

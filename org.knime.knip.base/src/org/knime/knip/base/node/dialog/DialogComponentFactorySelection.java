@@ -64,7 +64,7 @@ import org.knime.node2012.PDocument.P;
  */
 public class DialogComponentFactorySelection extends AbstractSimpleComboboxDialogComponent {
 
-    @SuppressWarnings("javadoc")
+    @SuppressWarnings({"javadoc", "deprecation"})
     public DialogComponentFactorySelection(final SettingsModel model) {
         super(model, "Factory Selection:", EnumUtils.getStringListFromName(ImgFactoryTypes.values()));
     }

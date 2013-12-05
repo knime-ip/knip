@@ -23,11 +23,11 @@
 			http://www.cs.berkeley.edu/~arbelaez/UCM.html).
 		</intro>
 		<tab name="Options">
-			<option name="Maximum Faces Number"> Maximum number of faces
+			<option name="Maximum Faces Number"> Corresponds to the maximal number of segments that can be retrieved from the UCM if thresholded at each available intensity level.
 			</option>
-			<option name="Maximum Face Percent"> Maximum percentage of faces
+			<option name="Maximum Face Percent"> The maximum size of a segment relative to the size of the biggest segment (in terms of number of pixels).
 			</option>
-			<option name="Minimum Boundary Weight"> Minimum weight of an boundary
+			<option name="Minimum Boundary Weight"> The minimum average pixel intensity of a boundary separating two segments (faces). All boundaries below this threshold will not be part of the result UCM.
 			</option>
 			<option name="Boundary Label"> Name of the label in the incoming labeling which
 				indicates the boundary between other labels.

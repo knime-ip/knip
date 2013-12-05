@@ -286,9 +286,14 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
             }
         }
 
-        final Img<T> img = getSubImg(img2d, m_img.factory(), new FinalInterval(new long[img2d.numDimensions()], max));
+        final RandomAccessibleInterval<T> toRender;
+        if (img2d == m_img) {
+            toRender = SubsetOperations.subsetview(m_img, new FinalInterval(new long[img2d.numDimensions()], max));
+        } else {
+            toRender = img2d;
+        }
 
-        return AWTImageTools.renderScaledStandardColorImg(img, new Real2GreyColorRenderer<T>(2), factor,
+        return AWTImageTools.renderScaledStandardColorImg(toRender, new Real2GreyColorRenderer<T>(2), factor,
                                                           new long[max.length]);
     }
 

@@ -137,9 +137,14 @@ public class DialogComponentDimSelection extends DialogComponent implements Item
 
     private final JPanel m_panel;
 
+    private boolean m_enabled = true;
+
     /**
+     * Dimension selection dialog component with minimum and maximum number of allowed dimensions of 1 and 100,
+     * respectively.
      *
      * @param model
+     * @param label
      */
     public DialogComponentDimSelection(final SettingsModelDimSelection model, final String label) {
         this(model, label, 1, 100);
@@ -148,13 +153,15 @@ public class DialogComponentDimSelection extends DialogComponent implements Item
     /**
      *
      * @param model
+     * @param label label appearing next to the dimension selection
+     * @param minNumDims minimum number of allowed dimensions to be selected
+     * @param maxNumDims maximum number of allowed dimensions to be selected
      */
     public DialogComponentDimSelection(final SettingsModelDimSelection model, final String label, final int minNumDims,
                                        final int maxNumDims) {
         super(model);
 
         m_activeToogleButtonsQueue = new LinkedList<JToggleButton>();
-
         m_label = label;
         m_minNumDims = minNumDims;
         m_maxNumDims = maxNumDims;
@@ -210,6 +217,7 @@ public class DialogComponentDimSelection extends DialogComponent implements Item
      */
     @Override
     protected final void setEnabledComponents(final boolean enabled) {
+        m_enabled = enabled;
         for (final JToggleButton button : m_dimLabelButtonList) {
             button.setEnabled(enabled);
 
@@ -287,7 +295,7 @@ public class DialogComponentDimSelection extends DialogComponent implements Item
             }
         }
 
-        if ((numSel < m_minNumDims) || (numSel > m_maxNumDims)) {
+        if (((numSel < m_minNumDims) || (numSel > m_maxNumDims)) && m_enabled) {
             final String mess =
                     "Wrong number of selected dimensions! Allowed are " + m_minNumDims + "-" + m_maxNumDims + ".";
             m_errorMessage.setText(mess);
@@ -299,6 +307,7 @@ public class DialogComponentDimSelection extends DialogComponent implements Item
     }
 
     /**
+     * @param opt Option pane to add dimension selection description.
      *
      */
     public static void createNodeDescription(final Option opt) {

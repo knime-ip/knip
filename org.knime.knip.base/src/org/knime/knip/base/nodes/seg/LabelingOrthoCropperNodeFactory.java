@@ -68,6 +68,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingCellFactory;
 import org.knime.knip.base.data.labeling.LabelingValue;
+import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
@@ -76,10 +77,12 @@ import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
 
 /**
  * Factory class to produce the Histogram Operations Node.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <L>
  */
 public class LabelingOrthoCropperNodeFactory<L extends Comparable<L>> extends ValueToCellNodeFactory<LabelingValue<L>> {
 
@@ -101,11 +104,11 @@ public class LabelingOrthoCropperNodeFactory<L extends Comparable<L>> extends Va
             @Override
             public void addDialogComponents() {
 
-                addDialogComponent("Options", "Subset", new DialogComponentSubsetSelection(
+                addDialogComponent("Options", "Subset Selection", new DialogComponentSubsetSelection(
                         createSubsetSelectionModel(), true, true));
 
                 addDialogComponent("Options", "Options", new DialogComponentBoolean(createAdjustDimModel(),
-                        "Adjust dimensionality?"));
+                        "Adjust Dimensionality?"));
             }
         };
     }
@@ -161,12 +164,21 @@ public class LabelingOrthoCropperNodeFactory<L extends Comparable<L>> extends Va
                             new MergeLabelings<L>(((NativeImgLabeling<L, ? extends IntegerType<?>>)lab).getStorageImg()
                                     .firstElement().createVariable(), m_smAdjustDimensionality.getBooleanValue());
 
+                    long totalSize = 0;
+                    for (int i = 0; i < subLab.length; i++) {
+                        totalSize += subLab[i].size();
+                    }
+
+                    if (subLab.length == totalSize) {
+                        throw new KNIPException("There is no dimension left to create a new image in Labeling Cropper!");
+                    }
+
                     res = Operations.compute(mergeOp, subLab);
 
                     final List<CalibratedAxis> validAxes = new ArrayList<CalibratedAxis>();
                     for (int d = 0; d < lab.numDimensions(); d++) {
                         if (!mergeOp.getInvalidDims().contains(d)) {
-                            validAxes.add((CalibratedAxis)cellValue.getLabelingMetadata().axis(d).copy());
+                            validAxes.add(cellValue.getLabelingMetadata().axis(d).copy());
                         }
 
                     }

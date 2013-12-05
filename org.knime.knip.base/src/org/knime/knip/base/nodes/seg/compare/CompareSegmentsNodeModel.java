@@ -251,6 +251,18 @@ public class CompareSegmentsNodeModel extends ThreadedColAppenderNodeModel {
         IntervalView<BitType> iv1 = Views.translate(img1, min1);
         IntervalView<BitType> iv2 = Views.translate(img2, min2);
 
+        //adopt image dimension if they are different
+        int dimDiff = img1.numDimensions() - img2.numDimensions();
+        if (dimDiff < 0) {
+            for (int i = 0; i < Math.abs(dimDiff); i++) {
+                iv1 = Views.addDimension(iv1, 0, 0);
+            }
+        } else if (dimDiff > 0) {
+            for (int i = 0; i < Math.abs(dimDiff); i++) {
+                iv2 = Views.addDimension(iv2, 0, 0);
+            }
+        }
+
         Interval intersect = Intervals.intersect(iv1, iv2);
         for (int i = 0; i < intersect.numDimensions(); i++) {
             if (intersect.dimension(i) <= 0) {

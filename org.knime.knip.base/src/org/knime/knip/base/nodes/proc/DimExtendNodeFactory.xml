@@ -7,16 +7,17 @@
 <knimeNode icon="icons/dimextend.png" type="Manipulator">
 	<name>Dimension Extender</name>
 	<shortDescription>
-		Appends dimensions.
+		Appends new dimensions of size one to the image.
 	</shortDescription>
 
 	<fullDescription>
 		<intro>Appends the dimensions of the given name, if they don't exist,
-			yet.
+			yet. The dimension has the size 1.
 		</intro>
+		<tab name="Options">
+			<option name="New Dimension Labels">New Dimension Labels (separated by ',')"</option>
+		</tab>
 	</fullDescription>
-
-
 
 	<ports>
 		<inPort index="0" name="Images">Images</inPort>

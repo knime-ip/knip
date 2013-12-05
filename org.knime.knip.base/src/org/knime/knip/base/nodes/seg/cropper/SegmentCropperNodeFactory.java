@@ -56,14 +56,17 @@ import org.knime.core.node.NodeView;
 import org.knime.knip.base.nodes.view.TableCellViewNodeView;
 
 /**
- * Factory class to produce a Segment Feature Node.
- * 
+ * {@link NodeFactory} for {@link SegmentCropperNodeModel}
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <L>
+ * @param <T>
  */
-public class SegmentCropperNodeFactory<L extends Number & Comparable<L>, T extends RealType<T>, O extends RealType<O>>
-        extends NodeFactory<SegmentCropperNodeModel<L, T, O>> {
+public class SegmentCropperNodeFactory<L extends Number & Comparable<L>, T extends RealType<T>> extends
+        NodeFactory<SegmentCropperNodeModel<L, T>> {
 
     /**
      * {@inheritDoc}
@@ -77,17 +80,17 @@ public class SegmentCropperNodeFactory<L extends Number & Comparable<L>, T exten
      * {@inheritDoc}
      */
     @Override
-    public SegmentCropperNodeModel<L, T, O> createNodeModel() {
-        return new SegmentCropperNodeModel<L, T, O>();
+    public SegmentCropperNodeModel<L, T> createNodeModel() {
+        return new SegmentCropperNodeModel<L, T>();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public NodeView<SegmentCropperNodeModel<L, T, O>> createNodeView(final int viewIndex,
-                                                                     final SegmentCropperNodeModel<L, T, O> nodeModel) {
-        return new TableCellViewNodeView<SegmentCropperNodeModel<L, T, O>>(nodeModel);
+    public NodeView<SegmentCropperNodeModel<L, T>> createNodeView(final int viewIndex,
+                                                                  final SegmentCropperNodeModel<L, T> nodeModel) {
+        return new TableCellViewNodeView<SegmentCropperNodeModel<L, T>>(nodeModel);
     }
 
     /**

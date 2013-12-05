@@ -48,6 +48,8 @@
  */
 package org.knime.knip.base.nodes.testing;
 
+import java.util.Arrays;
+
 import net.imglib2.Cursor;
 import net.imglib2.img.ImgView;
 import net.imglib2.meta.ImgPlus;
@@ -102,6 +104,10 @@ public class ImgComparatorNodeModel<T extends NativeType<T> & RealType<T>> exten
 
         if (!img1.getSource().equalsIgnoreCase(img2.getSource())) {
             throw new IllegalStateException("Sources of images is not the same! " + row.getKey().toString());
+        }
+
+        if (!Arrays.equals(vin1.getMinimum(), vin2.getMinimum())) {
+            throw new IllegalStateException("Minima of images are not the same");
         }
 
         for (int d = 0; d < img1.numDimensions(); d++) {

@@ -48,7 +48,7 @@ import net.imglib2.view.Views;
  * Computes the convolution of an image with an arbitrary kernel. Computation is based on the Convolution Theorem
  * (http://en.wikipedia.org/wiki/Convolution_theorem). By default computation is performed in-place, i.e. the input is
  * replaced by the convolution. A separate output can, however, be specified.
- * 
+ *
  * The class supports to sequentially convolve the same image with different kernels. To achieve that, you have to call
  * setKeepImgFFT(true) and for each sequential run replace the kernel by either calling
  * setKernel(RandomAccessibleInterval< R > kernel) or setKernel(RandomAccessible< R > kernel, Interval kernelInterval).
@@ -56,7 +56,7 @@ import net.imglib2.view.Views;
  * call. NOTE: There is no checking if the sizes are compatible. If the new kernel has smaller or larger dimensions, it
  * will simply fail. It is up to you to look for that. NOTE: This is not influenced by whether the computation is
  * performed in-place or not, just the FFT of the image is kept.
- * 
+ *
  * In the same way, you can sequentially convolve varying images with the same kernel. For that, you simply have to
  * replace the image after the first run() call by calling either setImg(RandomAccessibleInterval< R > img) or
  * setImg(RandomAccessible< R > img, Interval imgInterval). The Fourier convolution will keep the FFT of the kernel
@@ -64,7 +64,7 @@ import net.imglib2.view.Views;
  * compatible. If the new input has smaller or larger dimensions, it will simply fail. It is up to you to look for that.
  * NOTE: This is not influenced by whether the computation is performed in-place or not, just the FFT of the kernel is
  * kept.
- * 
+ *
  * @author Stephan Preibisch
  */
 public class FFTConvolution<T extends RealType<T>, K extends RealType<K>, R extends RealType<R>> implements Runnable {
@@ -91,7 +91,7 @@ public class FFTConvolution<T extends RealType<T>, K extends RealType<K>, R exte
      * be extended by mirroring with single boundary, the kernel will be zero-padded. The {@link ImgFactory} for
      * creating the FFT will be identical to the one used by the 'img' if possible, otherwise an {@link ArrayImgFactory}
      * or {@link CellImgFactory} depending on the size.
-     * 
+     *
      * @param img - the image
      * @param kernel - the convolution kernel
      */
@@ -104,7 +104,7 @@ public class FFTConvolution<T extends RealType<T>, K extends RealType<K>, R exte
      * Compute a Fourier space based convolution The image will be extended by mirroring with single boundary, the
      * kernel will be zero-padded. The {@link ImgFactory} for creating the FFT will be identical to the one used by the
      * 'img' if possible, otherwise an {@link ArrayImgFactory} or {@link CellImgFactory} depending on the size.
-     * 
+     *
      * @param img - the image
      * @param kernel - the convolution kernel
      * @param output - the result of the convolution
@@ -117,7 +117,7 @@ public class FFTConvolution<T extends RealType<T>, K extends RealType<K>, R exte
     /**
      * Compute a Fourier space based convolution in-place (img will be replaced by the convolved result). The image will
      * be extended by mirroring with single boundary, the kernel will be zero-padded.
-     * 
+     *
      * @param img - the image
      * @param kernel - the convolution kernel
      * @param factory - the {@link ImgFactory} to create the fourier transforms
@@ -131,7 +131,7 @@ public class FFTConvolution<T extends RealType<T>, K extends RealType<K>, R exte
     /**
      * Compute a Fourier space based convolution The image will be extended by mirroring with single boundary, the
      * kernel will be zero-padded.
-     * 
+     *
      * @param img - the image
      * @param kernel - the convolution kernel
      * @param output - the output
@@ -149,9 +149,9 @@ public class FFTConvolution<T extends RealType<T>, K extends RealType<K>, R exte
      * Compute a Fourier space based convolution in-place (img will be replaced by the convolved result). The input as
      * well as the kernel need to be extended or infinite already as the {@link Interval} required to perform the
      * Fourier convolution is significantly bigger than the {@link Interval} provided here.
-     * 
+     *
      * Interval size of img and kernel: size(img) + 2*(size(kernel)-1) + pad to fft compatible size
-     * 
+     *
      * @param img - the input
      * @param imgInterval - the input interval (i.e. the area to be convolved)
      * @param kernel - the kernel
@@ -168,9 +168,9 @@ public class FFTConvolution<T extends RealType<T>, K extends RealType<K>, R exte
      * Compute a Fourier space based convolution. The input as well as the kernel need to be extended or infinite
      * already as the {@link Interval} required to perform the Fourier convolution is significantly bigger than the
      * {@link Interval} provided here.
-     * 
+     *
      * Interval size of img and kernel: size(img) + 2*(size(kernel)-1) + pad to fft compatible size
-     * 
+     *
      * @param img - the input
      * @param imgInterval - the input interval (i.e. the area to be convolved)
      * @param kernel - the kernel
@@ -280,6 +280,16 @@ public class FFTConvolution<T extends RealType<T>, K extends RealType<K>, R exte
         // compute the new interval for the input image
         final Interval imgConvolutionInterval =
                 FFTMethods.paddingIntervalCentered(imgInterval, FinalDimensions.wrap(paddedDimensions));
+
+        // we need to recalculate for a new kernel
+        if (fftImg != null) {
+            for (int d = 0; d < imgConvolutionInterval.numDimensions(); d++) {
+                if (imgConvolutionInterval.dimension(d) != fftImg.dimension(d)) {
+                    fftImg = null;
+                    break;
+                }
+            }
+        }
 
         // compute the new interval for the kernel image
         final Interval kernelConvolutionInterval =

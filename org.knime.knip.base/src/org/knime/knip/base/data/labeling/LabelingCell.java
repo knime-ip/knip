@@ -71,6 +71,7 @@ import net.imglib2.meta.CalibratedSpace;
 import net.imglib2.meta.Named;
 import net.imglib2.meta.Sourced;
 import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.view.Views;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataCellDataInput;
@@ -181,10 +182,22 @@ public class LabelingCell<L extends Comparable<L>> extends FileStoreCell impleme
     /* metadata of the labeling */
     private LabelingCellMetadata m_labelingMetadata;
 
+    /**
+     * Constructor for Serialization
+     *
+     * @throws IOException
+     */
     protected LabelingCell() throws IOException {
         super();
     }
 
+    /**
+     * Default Constructor
+     *
+     * @param labeling the {@link Labeling} stored in this cell
+     * @param metadata {@link LabelingMetadata} of the {@link Labeling} stored in this cell
+     * @param fileStore {@link FileStore} used to serialize/deserialize this cell
+     */
     protected LabelingCell(final Labeling<L> labeling, final LabelingMetadata metadata, final FileStore fileStore) {
         super(fileStore);
         final long[] dimensions = new long[labeling.numDimensions()];
@@ -222,30 +235,39 @@ public class LabelingCell<L extends Comparable<L>> extends FileStoreCell impleme
     }
 
     private BufferedImage createThumbnail(final double factor) {
+        LOGGER.debug("Create thumbnail of labeling ...");
 
-        LOGGER.debug("Create thumbnail ...");
+        // make sure that at least two dimensions exist
+        RandomAccessibleInterval<LabelingType<L>> lab2d;
+        if (m_lab.numDimensions() > 1) {
+            lab2d = m_lab;
+        } else {
+            lab2d = Views.addDimension(m_lab, 0, 0);
+        }
 
         // set the labeling mapping
         final ColorLabelingRenderer<L> rend = new ColorLabelingRenderer<L>();
-        rend.setLabelMapping(m_lab.randomAccess().get().getMapping());
+        rend.setLabelMapping(lab2d.randomAccess().get().getMapping());
 
         int i = 0;
-        final long[] max = new long[m_lab.numDimensions()];
-        max[0] = m_lab.max(0);
-        max[1] = m_lab.max(1);
-        for (i = 2; i < m_lab.numDimensions(); i++) {
-            if ((m_lab.dimension(i) == 2) || (m_lab.dimension(i) == 3)) {
-                max[i] = m_lab.max(i);
+        final long[] max = new long[lab2d.numDimensions()];
+        max[0] = lab2d.max(0);
+        max[1] = lab2d.max(1);
+        for (i = 2; i < lab2d.numDimensions(); i++) {
+            if ((lab2d.dimension(i) == 2) || (lab2d.dimension(i) == 3)) {
+                max[i] = lab2d.max(i);
                 break;
             }
         }
-
-        final RandomAccessibleInterval<LabelingType<L>> subInterval =
-                getSubInterval(new FinalInterval(new long[m_lab.numDimensions()], max));
-
+        final RandomAccessibleInterval<LabelingType<L>> toRender;
+        if (m_lab == lab2d) {
+            toRender = getSubInterval(new FinalInterval(new long[lab2d.numDimensions()], max));
+        } else {
+            toRender = lab2d;
+        }
         rend.setLabelingColorTable(LabelingColorTableUtils.extendLabelingColorTable(m_labelingMetadata
                 .getLabelingMetadata().getLabelingColorTable(), new RandomMissingColorHandler()));
-        return AWTImageTools.renderScaledStandardColorImg(subInterval, rend, factor, new long[max.length]);
+        return AWTImageTools.renderScaledStandardColorImg(toRender, rend, factor, new long[max.length]);
     }
 
     /**
@@ -406,10 +428,17 @@ public class LabelingCell<L extends Comparable<L>> extends FileStoreCell impleme
             return AWTImageTools.makeTextBufferedImage(getStringValue(), height * 3, height, "\n");
         } else {
             readLabelingData(m_fileMetadata.getOffset(), true);
-            double height =
-                    Math.min(m_labelingMetadata.getDimensions()[1], KNIMEKNIPPlugin.getMaximumImageCellHeight());
-            if (height == 0) {
-                height = (int)m_labelingMetadata.getDimensions()[1];
+
+            double height = 1; // default for 1d images
+            double fullHeight = 1;
+
+            if (m_labelingMetadata.getDimensions().length > 1) {
+                height = Math.min(m_labelingMetadata.getDimensions()[1], KNIMEKNIPPlugin.getMaximumImageCellHeight());
+                if (height == 0) {
+                    height = m_labelingMetadata.getDimensions()[1];
+                }
+
+                fullHeight = m_labelingMetadata.getDimensions()[1];
             }
             if ((m_labelingMetadata.getThumbnail() == null)
                     || (m_labelingMetadata.getThumbnail().getHeight() != height)) {
@@ -417,7 +446,7 @@ public class LabelingCell<L extends Comparable<L>> extends FileStoreCell impleme
                 m_labelingMetadata =
                         new LabelingCellMetadata(m_labelingMetadata.getLabelingMetadata(),
                                 m_labelingMetadata.getSize(), m_labelingMetadata.getDimensions(),
-                                createThumbnail(height / m_labelingMetadata.getDimensions()[1]));
+                                createThumbnail(height / fullHeight));
                 // update cached object
                 m_objectRepository.cacheObject(this);
             }
@@ -443,7 +472,7 @@ public class LabelingCell<L extends Comparable<L>> extends FileStoreCell impleme
     }
 
     /**
-     * Loads the cell content. To be called after the {@link #FileImgPlusCell(DataCellDataInput)} constructor.
+     * Loads the cell content. To be called after the #FileImgPlusCell(DataCellDataInput) constructor.
      *
      * @param input
      * @throws IOException
@@ -486,6 +515,7 @@ public class LabelingCell<L extends Comparable<L>> extends FileStoreCell impleme
      * reads the labeling data including metadata, dimensions, thumbnail
      * etc.
      */
+    @SuppressWarnings("unchecked")
     private synchronized void readLabelingData(final long offset, final boolean metadataOnly) {
 
         if ((metadataOnly && (m_labelingMetadata != null)) || (!metadataOnly && (m_lab != null))) {
@@ -516,7 +546,6 @@ public class LabelingCell<L extends Comparable<L>> extends FileStoreCell impleme
 
             } else {
 
-                @SuppressWarnings("unchecked")
                 final LabelingCell<L> cell = (LabelingCell<L>)tmp;
                 m_labelingMetadata = cell.m_labelingMetadata;
                 m_lab = cell.m_lab;
@@ -530,6 +559,9 @@ public class LabelingCell<L extends Comparable<L>> extends FileStoreCell impleme
 
     /**
      * Stores the cell content. A few meta information to the data output, the heavy data to the file.
+     *
+     * @param output {@link DataOutput} to persist cell
+     * @throws IOException can be thrown during serialization
      */
     protected synchronized void save(final DataOutput output) throws IOException {
         long offset = m_fileMetadata.getOffset();

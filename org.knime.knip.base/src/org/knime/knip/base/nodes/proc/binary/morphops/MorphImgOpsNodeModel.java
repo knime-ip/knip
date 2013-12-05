@@ -75,7 +75,6 @@ import net.imglib2.ops.operation.randomaccessibleinterval.unary.morph.Structurin
 import net.imglib2.outofbounds.OutOfBoundsFactory;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 
 import org.knime.core.data.DataRow;
@@ -88,6 +87,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.port.PortObject;
+import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
@@ -171,7 +171,7 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
     }
 
     static SettingsModelString createConnectionTypeModel() {
-        return new SettingsModelString("connection_type", ConnectedType.FOUR_CONNECTED.toString());
+        return new SettingsModelString("connection_type", null);
     }
 
     static SettingsModelDimSelection createDimSelectionModel() {
@@ -226,7 +226,25 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
      */
     protected MorphImgOpsNodeModel() {
         super(new PortType[]{BufferedDataTable.TYPE_OPTIONAL});
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
+        //Active structuring element on configure
+        if (((DataTableSpec)inSpecs[1]) != null) {
+            m_smConnectionType.setStringValue(ConnectedType.STRUCTURING_ELEMENT.toString());
+            NodeUtils
+                    .autoColumnSelection((DataTableSpec)inSpecs[0], m_smStructurColumn, ImgPlusValue.class, getClass());
+        } else {
+            m_smConnectionType.setStringValue(ConnectedType.FOUR_CONNECTED.toString());
+        }
+
+        m_smStructurColumn.setEnabled(((DataTableSpec)inSpecs[1]) != null);
+
+        return super.configure(inSpecs);
     }
 
     /**
@@ -248,81 +266,77 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
     protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws KNIPException, IOException {
         final ImgPlus<T> in = cellValue.getImgPlus();
 
-        if ((m_structElement != null) && ( (m_smDimensions.getNumSelectedDimLabels() != m_structElement[0].length) || (in.numDimensions() != m_structElement[0].length) )) {
+        if ((m_structElement != null)
+                && ((m_smDimensions.getSelectedDimIndices(in).length != m_structElement[0].length) || (m_smDimensions
+                        .getSelectedDimIndices(in).length != m_structElement[0].length))) {
             throw new KNIPException("Structuring element must have the same dimensionality as the chosen dims");
         }
 
         if (in.firstElement() instanceof BitType) {
-
-            m_bitFac = new UnaryObjectFactory<RandomAccessibleInterval<BitType>, RandomAccessibleInterval<BitType>>() {
-
-                @Override
-                public Img<BitType> instantiate(final RandomAccessibleInterval<BitType> a) {
-
-                    try {
-                        return in.factory().imgFactory(new BitType())
-                                .create(a, Views.iterable(a).firstElement().createVariable());
-                    } catch (IncompatibleTypeException e) {
-                        //TODO better error handling here
-                        throw new RuntimeException(e);
-                    }
-                }
-            };
-
-            final UnaryOperation<RandomAccessibleInterval<BitType>, RandomAccessibleInterval<BitType>> op =
-                    createOperationBit(m_structElement);
-
-            final Img<BitType> out = ImgUtils.createEmptyCopy(in, new BitType());
-
             try {
-                Img<BitType> inAsBitType = (Img<BitType>)in;
-                OutOfBoundsFactory<BitType, RandomAccessibleInterval<BitType>> strategy =
-                        OutOfBoundsStrategyFactory.getStrategy(m_smOutOfBoundsStrategy.getStringValue(),
-                                                               inAsBitType.firstElement());
-                IntervalView<BitType> extend = Views.interval(Views.extend(inAsBitType, strategy), inAsBitType);
+                m_bitFac =
+                        new UnaryObjectFactory<RandomAccessibleInterval<BitType>, RandomAccessibleInterval<BitType>>() {
 
-                SubsetOperations.iterate(op, m_smDimensions.getSelectedDimIndices(in), new ImgView<BitType>(extend,
-                        inAsBitType.factory()), out, getExecutorService());
+                            @Override
+                            public Img<BitType> instantiate(final RandomAccessibleInterval<BitType> a) {
+
+                                try {
+                                    return in.factory().imgFactory(new BitType())
+                                            .create(a, Views.iterable(a).firstElement().createVariable());
+                                } catch (IncompatibleTypeException e) {
+                                    //TODO better error handling here
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                        };
+                final Img<BitType> out = ImgUtils.createEmptyCopy(in, new BitType());
+
+                Img<BitType> inAsBitType = (Img<BitType>)in;
+
+                final UnaryOperation<RandomAccessibleInterval<BitType>, RandomAccessibleInterval<BitType>> op =
+                        createOperationBit(m_structElement,
+                                           OutOfBoundsStrategyFactory.getStrategy(m_smOutOfBoundsStrategy
+                                                   .getStringValue(), inAsBitType.firstElement()));
+
+                SubsetOperations.iterate(op, m_smDimensions.getSelectedDimIndices(in), new ImgView<BitType>(
+                        inAsBitType, inAsBitType.factory()), out, getExecutorService());
+
+                return (ImgPlusCell<T>)m_imgCellFactory.createCell(out, in);
             } catch (final InterruptedException e) {
                 LOGGER.warn("Thread execution was interrupted", e);
+                throw new KNIPException(e.getMessage());
             } catch (final ExecutionException e) {
                 e.printStackTrace();
                 LOGGER.warn("Couldn't retrieve results from thread because execution was interrupted/aborted", e);
+                throw new KNIPException(e.getMessage());
             }
-
-            return (ImgPlusCell<T>)m_imgCellFactory.createCell(out, in);
         } else {
-            m_fac = new UnaryObjectFactory<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>() {
-
-                @Override
-                public Img<T> instantiate(final RandomAccessibleInterval<T> a) {
-
-                    return in.factory().create(a, in.firstElement().createVariable());
-                }
-            };
-
-            final Img<T> out = ImgUtils.createEmptyCopy(in);
-            final UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> op =
-                    createOperationGray(m_structElement, in.numDimensions());
-
             try {
-                OutOfBoundsFactory<T, RandomAccessibleInterval<T>> strategy =
-                        OutOfBoundsStrategyFactory.getStrategy(m_smOutOfBoundsStrategy.getStringValue(),
-                                                               in.firstElement());
+                m_fac = new UnaryObjectFactory<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>() {
 
-                IntervalView<T> extend = Views.interval(Views.extend(in, strategy), in);
+                    @Override
+                    public Img<T> instantiate(final RandomAccessibleInterval<T> a) {
+
+                        return in.factory().create(a, in.firstElement().createVariable());
+                    }
+                };
+
+                final Img<T> out = ImgUtils.createEmptyCopy(in);
+                final UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> op =
+                        createOperationGray(m_structElement, m_smDimensions.getSelectedDimIndices(in).length,
+                                            OutOfBoundsStrategyFactory.getStrategy(m_smOutOfBoundsStrategy
+                                                    .getStringValue(), in.firstElement()));
 
                 SubsetOperations.iterate(op, m_smDimensions.getSelectedDimIndices(in),
-                                         new ImgView<T>(extend, in.factory()), out, getExecutorService());
+                                         new ImgView<T>(in, in.factory()), out, getExecutorService());
+                return m_imgCellFactory.createCell(out, in);
             } catch (final InterruptedException e) {
                 LOGGER.warn("Thread execution was interrupted", e);
+                throw new KNIPException(e.getMessage());
             } catch (final ExecutionException e) {
-                e.printStackTrace();
-
                 LOGGER.warn("Couldn't retrieve results from thread because execution was interrupted/aborted", e);
+                throw new KNIPException(e.getMessage());
             }
-
-            return m_imgCellFactory.createCell(out, in);
         }
 
     }
@@ -389,7 +403,8 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
 
     @SuppressWarnings("deprecation")
     private UnaryOutputOperation<RandomAccessibleInterval<BitType>, RandomAccessibleInterval<BitType>>
-            createOperationBit(final long[][] structuringElement) {
+            createOperationBit(final long[][] structuringElement,
+                               final OutOfBoundsFactory<BitType, RandomAccessibleInterval<BitType>> oobFac) {
         UnaryOutputOperation<RandomAccessibleInterval<BitType>, RandomAccessibleInterval<BitType>> simpleErode;
         UnaryOutputOperation<RandomAccessibleInterval<BitType>, RandomAccessibleInterval<BitType>> simpleDilate;
         net.imglib2.ops.types.ConnectedType c = net.imglib2.ops.types.ConnectedType.EIGHT_CONNECTED;
@@ -402,12 +417,13 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
                 }
 
                 simpleErode =
-                        Operations.iterate(Operations.wrap(new ErodeGray<BitType>(structuringElement), m_bitFac),
-                                           m_smIterations.getIntValue());
+                        Operations.iterate(Operations
+                                .wrap(new ErodeGray<BitType>(structuringElement, oobFac), m_bitFac), m_smIterations
+                                .getIntValue());
 
                 simpleDilate =
-                        Operations.iterate(Operations.wrap(new DilateGray<BitType>(structuringElement), m_bitFac),
-                                           m_smIterations.getIntValue());
+                        Operations.iterate(Operations.wrap(new DilateGray<BitType>(structuringElement, oobFac),
+                                                           m_bitFac), m_smIterations.getIntValue());
                 break;
             case FOUR_CONNECTED:
                 c = net.imglib2.ops.types.ConnectedType.FOUR_CONNECTED;
@@ -415,12 +431,12 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
             default:
 
                 simpleErode =
-                        Operations.iterate(Operations.wrap(new Erode(c, m_smNeighborhood.getIntValue()), m_bitFac),
-                                           m_smIterations.getIntValue());
+                        Operations.iterate(Operations.wrap(new Erode(c, oobFac, m_smNeighborhood.getIntValue()),
+                                                           m_bitFac), m_smIterations.getIntValue());
 
                 simpleDilate =
-                        Operations.iterate(Operations.wrap(new Dilate(c, m_smNeighborhood.getIntValue()), m_bitFac),
-                                           m_smIterations.getIntValue());
+                        Operations.iterate(Operations.wrap(new Dilate(c, oobFac, m_smNeighborhood.getIntValue()),
+                                                           m_bitFac), m_smIterations.getIntValue());
         }
 
         switch (MorphOp.value(m_smOperation.getStringValue())) {
@@ -437,7 +453,8 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
     }
 
     private UnaryOutputOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
-            createOperationGray(long[][] structuringElement, final int numDims) {
+            createOperationGray(long[][] structuringElement, final int numDims,
+                                final OutOfBoundsFactory<T, RandomAccessibleInterval<T>> oobFac) {
         UnaryOutputOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> simpleErode;
         UnaryOutputOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> simpleDilate;
         switch (ConnectedType.value(m_smConnectionType.getStringValue())) {
@@ -460,11 +477,11 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
         }
 
         simpleErode =
-                Operations.iterate(Operations.wrap(new ErodeGray<T>(structuringElement), m_fac),
+                Operations.iterate(Operations.wrap(new ErodeGray<T>(structuringElement, oobFac), m_fac),
                                    m_smIterations.getIntValue());
 
         simpleDilate =
-                Operations.iterate(Operations.wrap(new DilateGray<T>(structuringElement), m_fac),
+                Operations.iterate(Operations.wrap(new DilateGray<T>(structuringElement, oobFac), m_fac),
                                    m_smIterations.getIntValue());
 
         switch (MorphOp.value(m_smOperation.getStringValue())) {

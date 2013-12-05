@@ -5,18 +5,29 @@
 	IBM Corporation - initial API and implementation -->
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="icons/orthocropper.png" type="Manipulator">
-	<name>Orthogonal Label Cropper</name>
+	<name>Labeling Cropper</name>
 	<shortDescription>
-		Crops orthogonal selections from an image and puts them together again
+		Crops orthogonal selections from a labeling and
+		recombines them to one labeling.
 	</shortDescription>
 
 	<fullDescription>
-		<intro>Crops orthogonal selections from an image and puts them
-			together again</intro>
+		<intro> Crops orthogonal selections from a labeling and
+			recombines them
+			to one labeling.
+		</intro>
+		<tab name="Options">
+			<option name="Subset Selection">Select the subset of your labeling which will be
+				recombined to one labeling.
+			</option>
+			<option name="Adjust Dimensionality?">If true, dimensions of size one will be removed
+				from the resulting labeling.
+			</option>
+		</tab>
 	</fullDescription>
 
 	<ports>
-		<inPort index="0" name="Images">Images</inPort>
-		<outPort index="0" name="Cropped Images">Cropped Images</outPort>
+		<inPort index="0" name="Labelings">Labelings</inPort>
+		<outPort index="0" name="Cropped Labelings">Cropped Labelings</outPort>
 	</ports>
 </knimeNode>

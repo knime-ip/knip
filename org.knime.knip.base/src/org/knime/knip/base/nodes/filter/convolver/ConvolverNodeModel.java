@@ -77,6 +77,7 @@ import org.knime.core.node.port.PortType;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
@@ -114,6 +115,9 @@ public class ConvolverNodeModel<T extends RealType<T>, O extends RealType<O>, K 
         return new SettingsModelString("column_kernel", "");
     }
 
+    /**
+     * @return create out of bounds strategy model
+     */
     protected static SettingsModelString createOutOfBoundsModel() {
         return new SettingsModelString("outofboundsstrategy", OutOfBoundsStrategyEnum.BORDER.toString());
     }
@@ -168,13 +172,15 @@ public class ConvolverNodeModel<T extends RealType<T>, O extends RealType<O>, K 
     protected ImgPlusCell<O> compute(final ImgPlusValue<T> cellValue) throws Exception {
 
         final ImgPlus<T> in =
-                new ImgPlus<T>(new ImgView<T>(SubsetOperations.subsetview(cellValue.getImgPlus(), cellValue.getImgPlus()),
-                        cellValue.getImgPlus().getImg().factory()), cellValue.getImgPlus());
+                new ImgPlus<T>(new ImgView<T>(SubsetOperations.subsetview(cellValue.getImgPlus(),
+                                                                          cellValue.getImgPlus()), cellValue
+                        .getImgPlus().getImg().factory()), cellValue.getImgPlus());
 
         final Img<K>[] currentKernels = new Img[m_kernelList.length];
 
         final int[] selectedDims = m_smDimSelection.getSelectedDimIndices(in);
         int k = 0;
+
         for (final Img<K> kernel : m_kernelList) {
             currentKernels[k++] = KernelTools.adjustKernelDimensions(in.numDimensions(), selectedDims, kernel);
         }
@@ -185,9 +191,11 @@ public class ConvolverNodeModel<T extends RealType<T>, O extends RealType<O>, K 
         } else {
             m_convolver.setResultType(inType);
         }
-
-        return m_imgCellFactory.createCell((ImgPlus<O>)Operations.compute(m_convolver, in, currentKernels));
-
+        try {
+            return m_imgCellFactory.createCell((ImgPlus<O>)Operations.compute(m_convolver, in, currentKernels));
+        } catch (IllegalStateException e) {
+            throw new KNIPException(e.getMessage());
+        }
     }
 
     @Override
@@ -258,7 +266,6 @@ public class ConvolverNodeModel<T extends RealType<T>, O extends RealType<O>, K 
     @Override
     protected void prepareExecute(final ExecutionContext exec) {
         m_imgCellFactory = new ImgPlusCellFactory(exec);
-
         m_convolver.load();
     }
 }

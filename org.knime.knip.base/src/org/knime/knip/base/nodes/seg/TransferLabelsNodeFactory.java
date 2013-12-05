@@ -50,10 +50,10 @@ package org.knime.knip.base.nodes.seg;
 
 import java.util.List;
 
-import net.imglib2.Cursor;
+import net.imglib2.img.Img;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingMapping;
-import net.imglib2.labeling.LabelingType;
+import net.imglib2.labeling.NativeImgLabeling;
 import net.imglib2.type.numeric.IntegerType;
 
 import org.knime.core.node.ExecutionContext;
@@ -67,13 +67,13 @@ import org.knime.knip.base.node.TwoValuesToCellNodeModel;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class TransferLabelsNodeFactory<L extends Comparable<L>, II extends IntegerType<II>> extends
-        TwoValuesToCellNodeFactory<LabelingValue<L>, LabelingValue<L>> {
+public class TransferLabelsNodeFactory<T extends IntegerType<T>, L extends Comparable<L>, II extends IntegerType<II>>
+        extends TwoValuesToCellNodeFactory<LabelingValue<L>, LabelingValue<L>> {
 
     /**
      * {@inheritDoc}
@@ -114,20 +114,42 @@ public class TransferLabelsNodeFactory<L extends Comparable<L>, II extends Integ
             protected LabelingCell<L> compute(final LabelingValue<L> cellValue1, final LabelingValue<L> cellValue2)
                     throws Exception {
 
-                final Labeling<L> lab = cellValue2.getLabelingCopy();
-                final LabelingMapping<L> map1 = cellValue1.getLabeling().firstElement().getMapping();
-                final LabelingMapping<L> map2 = lab.firstElement().getMapping();
+                final Img<T> storageImg = ((NativeImgLabeling<L, T>)cellValue2.getLabeling()).getStorageImg().copy();
+                final LabelingMapping<L> src = cellValue1.getLabeling().firstElement().getMapping();
+                final LabelingMapping<L> target = cellValue2.getLabeling().firstElement().getMapping();
 
-                final Cursor<LabelingType<L>> labCur = lab.cursor();
-                while (labCur.hasNext()) {
-                    labCur.fwd();
-                    if (!labCur.get().getLabeling().isEmpty()) {
-                        labCur.get().setLabeling(map1.listAtIndex(map2.indexOf(labCur.get().getLabeling())));
+                final LabelingMapping<L> res = new LabelingMapping<L>(storageImg.firstElement().createVariable()) {
+                    {
+                        //delete empty list
+                        super.internedLists.clear();
+                        super.listsByIndex.clear();
                     }
+                };
+                for (int i = 0; i < Math.max(src.numLists(), target.numLists()); i++) {
 
+                    if (i < src.numLists() && i < target.numLists()) {
+                        res.intern(src.listAtIndex(i));
+                    } else if (i < target.numLists()) {
+                        //if we encounter another empty labeling list,
+                        //treat it differently, as the result mapping would be to short
+                        //otherwise (res.intern(...) would not add the empty labeling to the list)
+                        if (target.listAtIndex(i).size() == 0) {
+                            //TODO: no solution yet, how to deal with it!!!
+                            //should only occur in rare cases
+                        }
+                        res.intern(target.listAtIndex(i));
+                    } else {
+                        break;
+                    }
                 }
+                assert target.numLists() == res.numLists();
 
-                return m_labCellFactory.createCell(lab, cellValue2.getLabelingMetadata());
+                Labeling<L> resLab = new NativeImgLabeling<L, T>(storageImg) {
+                    {
+                        super.mapping = res;
+                    }
+                };
+                return m_labCellFactory.createCell(resLab, cellValue2.getLabelingMetadata());
             }
 
             /**
@@ -139,5 +161,4 @@ public class TransferLabelsNodeFactory<L extends Comparable<L>, II extends Integ
             }
         };
     }
-
 }

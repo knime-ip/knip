@@ -88,7 +88,6 @@ public class Remove1DimNodeFactory<T extends RealType<T> & NativeType<T>> extend
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
                 //
-
             }
 
             @Override

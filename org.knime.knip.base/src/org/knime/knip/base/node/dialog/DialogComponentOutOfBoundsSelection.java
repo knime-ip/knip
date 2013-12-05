@@ -65,7 +65,10 @@ import org.knime.node2012.PDocument.P;
  */
 public class DialogComponentOutOfBoundsSelection extends AbstractSimpleComboboxDialogComponent {
 
-    @SuppressWarnings("javadoc")
+    /**
+     * @param model
+     */
+    @SuppressWarnings({"deprecation"})
     public DialogComponentOutOfBoundsSelection(final SettingsModel model) {
         super(model, "Out of Bounds Strategy:", EnumUtils.getStringListFromName(OutOfBoundsStrategyEnum.values()));
     }

@@ -62,6 +62,13 @@ import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelectio
 import org.knime.core.node.defaultnodesettings.DialogComponentString;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.node2012.FullDescriptionDocument.FullDescription;
+import org.knime.node2012.InPortDocument.InPort;
+import org.knime.node2012.KnimeNodeDocument.KnimeNode;
+import org.knime.node2012.OptionDocument.Option;
+import org.knime.node2012.OutPortDocument.OutPort;
+import org.knime.node2012.PortsDocument.Ports;
+import org.knime.node2012.TabDocument.Tab;
 
 /**
  * TODO: Standard description
@@ -86,6 +93,46 @@ public abstract class TwoValuesToCellNodeDialog<VIN1 extends DataValue, VIN2 ext
     private SettingsModelString m_smColCreationMode;
 
     private SettingsModelString m_smColumnSuffix;
+
+    /**
+     * Adds the description of the column selection tab to the node description.
+     *
+     * @param desc
+     */
+    static void addTabsDescriptionTo(final FullDescription desc) {
+        final Tab tab = desc.addNewTab();
+        tab.setName("Column Selection");
+        Option opt = tab.addNewOption();
+        opt.setName("Column Creation Mode");
+        opt.addNewP()
+                .newCursor()
+                .setTextValue("Mode how to handle the selected column. The processed column can be added to a new table, appended to the end of the table, or the old columns can be replaced by the new result");
+        opt = tab.addNewOption();
+        opt.setName("Column Suffix");
+        opt.newCursor()
+                .setTextValue("A suffix appended to the column name. If \"Append\" is not selected, it can be left empty.");
+        opt = tab.addNewOption();
+        opt.setName("Column Selection");
+        opt.newCursor().setTextValue("Selection of the columns to be processed.");
+    }
+
+    /**
+     * Adds the port description to the node description.
+     *
+     * @param node
+     */
+    static void addPortsDescriptionTo(final KnimeNode node) {
+        final Ports ports = node.addNewPorts();
+        final InPort inPort = ports.addNewInPort();
+        inPort.newCursor().setTextValue("Images");
+        inPort.setName("Images");
+        inPort.setIndex(0);
+        inPort.newCursor().setTextValue("Images");
+        final OutPort outPort = ports.addNewOutPort();
+        outPort.setName("Processed Images");
+        outPort.setIndex(0);
+        outPort.newCursor().setTextValue("Processed Images");
+    }
 
     /**
      * Default Constructor
@@ -131,13 +178,13 @@ public abstract class TwoValuesToCellNodeDialog<VIN1 extends DataValue, VIN2 ext
 
         m_firstColumnSettingsModel = TwoValuesToCellNodeModel.createFirstColModel();
 
-        addDialogComponent("Column Selection", "Choose", new DialogComponentColumnNameSelection(
+        addDialogComponent("Column Selection", "Column Selection", new DialogComponentColumnNameSelection(
                 m_firstColumnSettingsModel, getFirstColumnSelectionLabel(), 0, isFirstColumnRequired(),
                 !isFirstColumnRequired(), argTypeClasses[0]));
 
         m_secondColumnSettingsModel = TwoValuesToCellNodeModel.createSecondColModel();
 
-        addDialogComponent("Column Selection", "Choose", new DialogComponentColumnNameSelection(
+        addDialogComponent("Column Selection", "Column Selection", new DialogComponentColumnNameSelection(
                 m_secondColumnSettingsModel, getSecondColumnSelectionLabel(), 0, isSecondColumnRequired(),
                 !isSecondColumnRequired(), argTypeClasses[1]));
 

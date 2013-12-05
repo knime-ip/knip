@@ -62,12 +62,14 @@ import java.awt.event.MouseMotionAdapter;
 import javax.swing.JPanel;
 
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeDialog;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.knip.base.KNIMEKNIPPlugin;
 
 /**
+ * {@link NodeDialog} to configure {@link DimensionSwapperNodeFactory}
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -96,9 +98,14 @@ public class DialogComponentDimensionSwappingSelect extends DialogComponent {
 
     private int m_width;
 
+    /**
+     * Default Constructor
+     *
+     * @param model model storing the dialog configuration
+     */
     public DialogComponentDimensionSwappingSelect(final SettingsModelDimensionSwappingSelect model) {
         super(model);
-        m_dimlut = new int[model.getNumDimensions()];
+        m_dimlut = new int[model.numDimensions()];
         m_dragIndex = -1;
 
         getComponentPanel().setLayout(new GridBagLayout());
@@ -215,7 +222,7 @@ public class DialogComponentDimensionSwappingSelect extends DialogComponent {
                 m_canvas.repaint();
             }
         });
-        final Dimension d = new Dimension(100, (model.getNumDimensions() * 20) + 1);
+        final Dimension d = new Dimension(100, (model.numDimensions() * 20) + 1);
         m_canvas.setPreferredSize(d);
         m_canvas.setMaximumSize(d);
         gbc.gridx = 0;
@@ -254,7 +261,7 @@ public class DialogComponentDimensionSwappingSelect extends DialogComponent {
     @Override
     protected void updateComponent() {
         final SettingsModelDimensionSwappingSelect model = (SettingsModelDimensionSwappingSelect)getModel();
-        for (int i = 0; i < model.getNumDimensions(); i++) {
+        for (int i = 0; i < model.numDimensions(); i++) {
             m_dimlut[i] = model.getFwdDimensionLookup(i);
         }
         m_canvas.repaint();
@@ -266,7 +273,7 @@ public class DialogComponentDimensionSwappingSelect extends DialogComponent {
     @Override
     protected void validateSettingsBeforeSave() throws InvalidSettingsException {
         final SettingsModelDimensionSwappingSelect model = (SettingsModelDimensionSwappingSelect)getModel();
-        for (int i = 0; i < model.getNumDimensions(); i++) {
+        for (int i = 0; i < model.numDimensions(); i++) {
             model.setFwdDimensionLookup(m_dimlut[i], i);
         }
     }

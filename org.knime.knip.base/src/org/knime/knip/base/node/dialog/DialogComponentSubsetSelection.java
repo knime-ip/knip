@@ -83,15 +83,18 @@ import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
 
 /**
  * Dialog component to specify a orthogonal image subset.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 public class DialogComponentSubsetSelection extends DialogComponent implements ItemListener {
 
-    /* max length of points for a dimension to be selected */
-    public static final int MAX_DIM_LENGTH = 20;
+    /* max length of points for a dimension to be selected (shown in the list selection) */
+    private static final int MAX_DIM_LENGTH_LIST = 20;
+
+    /*Maximum number of points that can be selected per dimension*/
+    private static final int MAX_DIM_LENGTH_GENERAL = 10000;
 
     // Binary "semaphore" to prevent the ListenerEvent to interfere with our
     // textbox
@@ -112,6 +115,7 @@ public class DialogComponentSubsetSelection extends DialogComponent implements I
     private JCheckBox[] m_exclChkBoxes;
 
     /* The selections */
+    @SuppressWarnings("rawtypes")
     private JList[] m_selections;
 
     /* flag, whether the all checkboxes should be shown */
@@ -126,8 +130,10 @@ public class DialogComponentSubsetSelection extends DialogComponent implements I
     /**
      * Individual Image Plane selection. See {@link Subset} for a description, how the selection is represented in an
      * int[]-array.
-     * 
+     *
      * @param model
+     * @param showAllCheckBoxes if "all"-checkboxes should appear
+     * @param showExcludeCheckBoxes if "exclude"-checkboxes should appear
      */
     public DialogComponentSubsetSelection(final SettingsModelSubsetSelection model, final boolean showAllCheckBoxes,
                                           final boolean showExcludeCheckBoxes) {
@@ -137,8 +143,11 @@ public class DialogComponentSubsetSelection extends DialogComponent implements I
     /**
      * Individual Image Plane selection. See {@link Subset} for a description, how the selection is represented in an
      * int[]-array.
-     * 
+     *
      * @param model
+     * @param showAllCheckBoxes if "all"-checkboxes should appear
+     * @param showExcludeCheckBoxes if "exclude"-checkboxes should appear
+     * @param disabledDims dimension to be disabled
      */
     public DialogComponentSubsetSelection(final SettingsModelSubsetSelection model, final boolean showAllCheckBoxes,
                                           final boolean showExcludeCheckBoxes, final int[] disabledDims) {
@@ -167,7 +176,7 @@ public class DialogComponentSubsetSelection extends DialogComponent implements I
 
     }
 
-    public final void itemStateChanged() {
+    private final void itemStateChanged() {
 
         for (int i = 0; i < m_selections.length; i++) {
 
@@ -333,7 +342,7 @@ public class DialogComponentSubsetSelection extends DialogComponent implements I
         }
     }
 
-    private int[] parseTextinputToArray(final String s, final int comp) {
+    private int[] parseTextinputToArray(final String s, final int comp) throws InvalidSettingsException {
         String sub = "";
         String from = "";
         String func = "";
@@ -399,6 +408,11 @@ public class DialogComponentSubsetSelection extends DialogComponent implements I
                 sub += s.charAt(i);
             }
         }
+        if (indices.size() >= MAX_DIM_LENGTH_GENERAL) {
+            throw new InvalidSettingsException(
+                    "Maximum number of selected points per dimension exceeded. The maximum is "
+                            + MAX_DIM_LENGTH_GENERAL + ".");
+        }
         int[] ret = new int[indices.size()];
         for (int i = 0; i < ret.length; ++i) {
             ret[i] = indices.get(i);
@@ -407,7 +421,7 @@ public class DialogComponentSubsetSelection extends DialogComponent implements I
         return ret;
     }
 
-    public final void selectionChanged() {
+    private final void selectionChanged() {
 
         for (int i = 0; i < m_selections.length; i++) {
 
@@ -441,13 +455,14 @@ public class DialogComponentSubsetSelection extends DialogComponent implements I
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     protected final void updateComponent() {
 
         // updateModel();
         final SettingsModelSubsetSelection model = ((SettingsModelSubsetSelection)getModel());
 
-        final String[] listData = new String[MAX_DIM_LENGTH];
+        final String[] listData = new String[MAX_DIM_LENGTH_LIST];
         for (int i = 0; i < (listData.length - 1); i++) {
             listData[i] = " " + i + " ";
         }
@@ -586,7 +601,7 @@ public class DialogComponentSubsetSelection extends DialogComponent implements I
 
     }
 
-    private final void updateModel() {
+    private final void updateModel() throws InvalidSettingsException {
 
         final SettingsModelSubsetSelection model = ((SettingsModelSubsetSelection)getModel());
 

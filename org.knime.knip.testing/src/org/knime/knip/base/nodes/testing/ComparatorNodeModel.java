@@ -193,7 +193,7 @@ public abstract class ComparatorNodeModel<VIN1 extends DataValue, VIN2 extends D
             if (row.getCell(m_colIndices[0]).isMissing() && row.getCell(m_colIndices[1]).isMissing()) {
                 // both are missing => thats equal => do
                 // nothing
-            } else if (row.getCell(m_colIndices[0]).isMissing() && row.getCell(m_colIndices[1]).isMissing()) {
+            } else if (row.getCell(m_colIndices[0]).isMissing() || row.getCell(m_colIndices[1]).isMissing()) {
                 // only one is missing => exception
                 LOGGER.warn("comparing " + row.getCell(m_colIndices[0]) + " with " + row.getCell(m_colIndices[1])
                         + " failed because one of the two cells is missing");

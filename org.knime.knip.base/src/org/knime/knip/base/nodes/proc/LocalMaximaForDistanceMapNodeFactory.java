@@ -51,7 +51,7 @@ package org.knime.knip.base.nodes.proc;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.imglib2.img.sparse.NtreeImgFactory;
+import net.imglib2.exception.IncompatibleTypeException;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.img.UnaryObjectFactory;
 import net.imglib2.ops.operation.Operations;
@@ -105,9 +105,12 @@ public class LocalMaximaForDistanceMapNodeFactory<T extends RealType<T>> extends
 
                 @Override
                 public ImgPlus<BitType> instantiate(final ImgPlus<T> in) {
-                    final long[] dims = new long[in.numDimensions()];
-                    in.dimensions(dims);
-                    return new ImgPlus<BitType>(new NtreeImgFactory<BitType>().create(dims, new BitType()), in);
+                    try {
+                        return new ImgPlus<BitType>(in.factory().imgFactory(new BitType()).create(in, new BitType()),
+                                in);
+                    } catch (IncompatibleTypeException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             };
         }

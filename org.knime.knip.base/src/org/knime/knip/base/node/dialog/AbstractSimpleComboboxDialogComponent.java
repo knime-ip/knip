@@ -63,7 +63,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.port.PortObjectSpec;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -72,6 +72,7 @@ import org.knime.core.node.port.PortObjectSpec;
  */
 abstract class AbstractSimpleComboboxDialogComponent extends DialogComponent implements ChangeListener {
 
+    @SuppressWarnings("rawtypes")
     private final JComboBox m_combobox;
 
     private final JLabel m_label;
@@ -81,6 +82,7 @@ abstract class AbstractSimpleComboboxDialogComponent extends DialogComponent imp
      * @param labelName
      * @param content
      */
+    @SuppressWarnings({"rawtypes", "unchecked"})
     protected AbstractSimpleComboboxDialogComponent(final SettingsModel model, final String labelName,
                                                     final String[] content) {
         super(model);
