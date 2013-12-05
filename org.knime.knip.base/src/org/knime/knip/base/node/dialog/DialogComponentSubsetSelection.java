@@ -90,8 +90,11 @@ import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
  */
 public class DialogComponentSubsetSelection extends DialogComponent implements ItemListener {
 
-    /** max length of points for a dimension to be selected */
-    public static final int MAX_DIM_LENGTH = 20;
+    /* max length of points for a dimension to be selected (shown in the list selection) */
+    private static final int MAX_DIM_LENGTH_LIST = 20;
+
+    /*Maximum number of points that can be selected per dimension*/
+    private static final int MAX_DIM_LENGTH_GENERAL = 10000;
 
     // Binary "semaphore" to prevent the ListenerEvent to interfere with our
     // textbox
@@ -339,7 +342,7 @@ public class DialogComponentSubsetSelection extends DialogComponent implements I
         }
     }
 
-    private int[] parseTextinputToArray(final String s, final int comp) {
+    private int[] parseTextinputToArray(final String s, final int comp) throws InvalidSettingsException {
         String sub = "";
         String from = "";
         String func = "";
@@ -405,6 +408,11 @@ public class DialogComponentSubsetSelection extends DialogComponent implements I
                 sub += s.charAt(i);
             }
         }
+        if (indices.size() >= MAX_DIM_LENGTH_GENERAL) {
+            throw new InvalidSettingsException(
+                    "Maximum number of selected points per dimension exceeded. The maximum is "
+                            + MAX_DIM_LENGTH_GENERAL + ".");
+        }
         int[] ret = new int[indices.size()];
         for (int i = 0; i < ret.length; ++i) {
             ret[i] = indices.get(i);
@@ -454,7 +462,7 @@ public class DialogComponentSubsetSelection extends DialogComponent implements I
         // updateModel();
         final SettingsModelSubsetSelection model = ((SettingsModelSubsetSelection)getModel());
 
-        final String[] listData = new String[MAX_DIM_LENGTH];
+        final String[] listData = new String[MAX_DIM_LENGTH_LIST];
         for (int i = 0; i < (listData.length - 1); i++) {
             listData[i] = " " + i + " ";
         }
@@ -593,7 +601,7 @@ public class DialogComponentSubsetSelection extends DialogComponent implements I
 
     }
 
-    private final void updateModel() {
+    private final void updateModel() throws InvalidSettingsException {
 
         final SettingsModelSubsetSelection model = ((SettingsModelSubsetSelection)getModel());
 
