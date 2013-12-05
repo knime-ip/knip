@@ -60,9 +60,11 @@ import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.NodeFactory;
+import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
+import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
 import org.knime.core.node.defaultnodesettings.SettingsModelDoubleBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
@@ -103,6 +105,10 @@ public class DoGDetectorNodeFactory<T extends RealType<T> & NativeType<T>> exten
         return new SettingsModelString("outofboundsstrategy", OutOfBoundsStrategyEnum.BORDER.toString());
     }
 
+    static SettingsModelBoolean createNormalizeModel() {
+        return new SettingsModelBoolean("normalize_model", false);
+    }
+
     @Override
     protected ImgPlusToImgPlusNodeDialog<T> createNodeDialog() {
         return new ImgPlusToImgPlusNodeDialog<T>(2, Integer.MAX_VALUE, "X", "Y") {
@@ -114,6 +120,8 @@ public class DoGDetectorNodeFactory<T extends RealType<T> & NativeType<T>> exten
                         "Minima/Maxima?", EnumUtils.getStringListFromToString(ExtremaType.values())));
 
                 addDialogComponent("Options", "", new DialogComponentNumber(createThresholdModel(), "Threshold", 1.5));
+
+                addDialogComponent("Options", "", new DialogComponentBoolean(createNormalizeModel(), "Normalize Threshold?"));
 
                 addDialogComponent("Options", "", new DialogComponentNumber(createSigma1Model(), "Sigma 1", 1.5));
 
@@ -143,12 +151,14 @@ public class DoGDetectorNodeFactory<T extends RealType<T> & NativeType<T>> exten
 
             private SettingsModelString m_oob = createOutOfBoundsModel();
 
+            private final SettingsModelBoolean m_normalizeModel = createNormalizeModel();
+
             @Override
             protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<BitType>> op(final ImgPlus<T> imgPlus) {
                 return new DoGDetectorOp<T>(m_sigma1Model.getDoubleValue(), m_sigma2Model.getDoubleValue(),
                         ExtremaType.valueOf(m_extremaModel.getStringValue()),
                         OutOfBoundsStrategyFactory.getStrategy(m_oob.getStringValue(), imgPlus.firstElement()),
-                        m_thresholdModel.getDoubleValue(), getExecutorService());
+                        m_thresholdModel.getDoubleValue(), m_normalizeModel.getBooleanValue(), getExecutorService());
             }
 
             /**
@@ -175,6 +185,7 @@ public class DoGDetectorNodeFactory<T extends RealType<T> & NativeType<T>> exten
                 settingsModels.add(m_extremaModel);
                 settingsModels.add(m_oob);
                 settingsModels.add(m_thresholdModel);
+                settingsModels.add(m_normalizeModel);
             }
 
             @Override

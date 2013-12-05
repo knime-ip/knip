@@ -28,9 +28,13 @@
 			<option name="Maxima/Minima?">Select whether you want to detect minima or
 				maxima.
 			</option>
-			<option name="Sigma 1">Sigma for first Gaussian
+			<option name="Threshold">Threshold value for detected extrema. Maxima below or minima above the value will be disregarded.
 			</option>
-			<option name="Sigma 2">Sigma for second Gaussian
+			<option name="Normalize Threshold?"> Whether the peak value should be normalized. If this option is checked, the DoG will be scaled by Sigma1 / (Sigma2 - Sigma1).
+			</option>
+			<option name="Sigma 1">Sigma for the smaller scale
+			</option>
+			<option name="Sigma 2">Sigma for the larger scale
 			</option>
 			<option name="Out of Bounds Strategy">
 				The 'OutOfBounds Strategy' is used when an algorithm needs access to
