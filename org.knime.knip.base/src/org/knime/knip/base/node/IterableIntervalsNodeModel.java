@@ -329,7 +329,7 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
             }
         }
 
-        if (m_dimSelectionModel.getNumSelectedDimLabels(cellValue.getMetadata()) == 0
+        if (m_dimSelectionModel != null && m_dimSelectionModel.getNumSelectedDimLabels(cellValue.getMetadata()) == 0
                 && m_dimSelectionModel.getNumSelectedDimLabels() > 0) {
             throw new KNIPException("Not enough selected dimensions provided by image.");
         }
