@@ -318,7 +318,7 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
         V outType = getOutType(in.firstElement());
 
         int[] selectedDimIndices = null;
-        if (m_hasDimSelection && m_dimSelectionModel.isEnabled()) {
+        if (m_hasDimSelection) {
             selectedDimIndices = m_dimSelectionModel.getSelectedDimIndices(in);
         } else {
             // set all as selected
@@ -332,8 +332,14 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
         if (!isLabelingPresent()) {
 
             UnaryOperation<IterableInterval<T>, IterableInterval<V>> operation = operation();
-            SubsetOperations.iterate(ImgOperations.wrapII(operation, outType), selectedDimIndices, in, res,
-                                     getExecutorService());
+
+            if (selectedDimIndices.length != 0) {
+                SubsetOperations.iterate(ImgOperations.wrapII(operation, outType), selectedDimIndices, in, res,
+                                         getExecutorService());
+            } else {
+                ImgOperations.wrapII(operation, outType).compute(in, res);
+            }
+
         } else {
             for (L label : m_currentLabeling.getLabels()) {
                 IterableRegionOfInterest iterableRegionOfInterest =
