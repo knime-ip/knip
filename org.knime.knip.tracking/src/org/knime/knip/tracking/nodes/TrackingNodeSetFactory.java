@@ -56,7 +56,6 @@ import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSetFactory;
 import org.knime.core.node.config.ConfigRO;
-import org.knime.knip.tracking.nodes.logspot.LoGDetectorFactory;
 
 /**
  * 
@@ -113,9 +112,6 @@ public class TrackingNodeSetFactory implements NodeSetFactory {
 	 */
 	@Override
 	public Collection<String> getNodeFactoryIds() {
-
-		m_nodeFactories.put(LoGDetectorFactory.class.getCanonicalName(),
-				"/community/knip/image/process");
 
 		return m_nodeFactories.keySet();
 	}
