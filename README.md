@@ -15,7 +15,7 @@ Package Organization
 * org.knime.knip.scijava: SciJava Libraries used by several projects
 * org.knime.knip.scifio: Scifio Librarires used by several projects
 * org.knime.knip.exampleplugin: Easy example plugin to get an idea how we develop nodes for KNIME.
-* org.knime.knip.tracking: TrackMate Tracking integration
+* org.knime.knip.tracking: TrackMate Tracking integration. More soon...
 
 Installation and Development
 ====
