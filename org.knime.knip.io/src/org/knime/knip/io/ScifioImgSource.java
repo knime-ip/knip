@@ -184,7 +184,7 @@ public class ScifioImgSource implements ImgSource {
             throws Exception {
         ImgOptions options = new ImgOptions();
         options.setComputeMinMax(false);
-
+        options.setIndex(currentSeries);
         // boolean withCropping = false;
 
         if (axisSelectionConstraints != null
