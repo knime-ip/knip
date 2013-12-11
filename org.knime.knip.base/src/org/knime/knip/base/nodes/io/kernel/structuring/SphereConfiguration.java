@@ -51,27 +51,21 @@ package org.knime.knip.base.nodes.io.kernel.structuring;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.util.Arrays;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import net.imglib2.Cursor;
-import net.imglib2.RealPoint;
 import net.imglib2.img.Img;
-import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.roi.EllipseRegionOfInterest;
 import net.imglib2.type.logic.BitType;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.knip.base.nodes.io.kernel.ImgConfiguration;
-import org.knime.knip.base.nodes.io.kernel.SerializableConfiguration;
 import org.knime.knip.base.nodes.io.kernel.SerializableSetting;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -159,42 +153,3 @@ public class SphereConfiguration extends ImgConfiguration<BitType> {
     }
 }
 
-class SphereSetting extends SerializableSetting<Img<BitType>[]> {
-
-    private static final long serialVersionUID = 1L;
-
-    final int m_numDimensions;
-
-    final double m_radius;
-
-    public SphereSetting(final int numDimensions, final double radius) {
-        super();
-        m_numDimensions = numDimensions;
-        m_radius = radius;
-    }
-
-    @Override
-    protected SerializableConfiguration<Img<BitType>[]> createConfiguration() {
-        return new SphereConfiguration(this);
-    }
-
-    @Override
-    public Img<BitType>[] get() {
-        final double[] origin = new double[m_numDimensions];
-        Arrays.fill(origin, m_radius);
-        final long[] dim = new long[m_numDimensions];
-        for (int i = 0; i < origin.length; i++) {
-            origin[i] = Math.round(origin[i]);
-            dim[i] = (long)((2 * origin[i]) + 1);
-        }
-        final EllipseRegionOfInterest el = new EllipseRegionOfInterest(new RealPoint(origin), m_radius);
-        final ArrayImgFactory<BitType> fac = new ArrayImgFactory<BitType>();
-        final Img<BitType> img = fac.create(dim, new BitType());
-        final Cursor<BitType> c = el.getIterableIntervalOverROI(img).cursor();
-        while (c.hasNext()) {
-            c.next();
-            c.get().set(true);
-        }
-        return new Img[]{img};
-    }
-}
