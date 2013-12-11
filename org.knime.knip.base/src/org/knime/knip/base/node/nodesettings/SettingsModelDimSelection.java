@@ -49,6 +49,7 @@
 package org.knime.knip.base.node.nodesettings;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -218,7 +219,7 @@ public class SettingsModelDimSelection extends SettingsModel {
      * @return selected dimension labels
      */
     public final Set<String> getSelectedDimLabels() {
-        return m_selectedDims;
+        return Collections.unmodifiableSet(m_selectedDims);
     }
 
     /**
