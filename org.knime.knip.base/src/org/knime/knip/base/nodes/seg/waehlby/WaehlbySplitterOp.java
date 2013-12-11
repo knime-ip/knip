@@ -50,7 +50,6 @@
 package org.knime.knip.base.nodes.seg.waehlby;
 
 
-import net.imglib2.Cursor;
 import net.imglib2.Interval;
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessible;
@@ -74,12 +73,10 @@ import net.imglib2.ops.operation.BinaryOperation;
 import net.imglib2.ops.operation.BinaryOutputOperation;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.DistanceMap;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.morph.DilateGray;
-import net.imglib2.ops.operation.randomaccessibleinterval.unary.morph.StructuringElementCursor;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.AbstractRegionGrowing;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.CCA;
 import net.imglib2.ops.operation.real.unary.RealUnaryOperation;
 import net.imglib2.roi.BinaryMaskRegionOfInterest;
-import net.imglib2.roi.EllipseRegionOfInterest;
 import net.imglib2.type.Type;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
@@ -88,9 +85,14 @@ import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.view.Views;
 
 import org.knime.knip.base.nodes.io.kernel.structuring.SphereSetting;
+import org.knime.knip.base.nodes.proc.maxfinder.MaximumFinderOp;
 import org.knime.knip.core.ops.labeling.WatershedWithThreshold;
 
 //TODO: Make Integer more generic
+/**
+ *
+ * @author Jonathan Hale (University of Konstanz)
+ */
 public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> implements
         BinaryOutputOperation<Labeling<L>, RandomAccessibleInterval<T>, Labeling<Integer>> {
 
@@ -155,7 +157,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         if (m_segType == SEG_TYPE.SHAPE_BASED_SEGMENTATION) {
 
             /* Start with distance transform */
-            new DistanceMap< T >().compute(imgBin, tmp2);
+            new DistanceMap< BitType >().compute(imgBin, tmp2); //TODO: Formerly <T> ?
             /* Gaussian smoothing */
             try {
                 Gauss3.gauss(m_gaussSize, tmp2, tmp);
@@ -202,7 +204,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
                                 new SignedRealInvert<FloatType, FloatType>()), new FloatType());
 
         Img<BitType> tmp3 = new ArrayImgFactory<BitType>().create(img, new BitType());
-        new MaximumFinder<FloatType>(40, 0).compute(Views.interval(inverter, tmp2), tmp3);
+        new MaximumFinderOp<FloatType>(40, 0).compute(Views.interval(inverter, tmp2), tmp3);
 
         long[][] structuringElement = AbstractRegionGrowing.get4ConStructuringElement(img.numDimensions()); /* TODO: Cecog uses 8con */
 
@@ -257,29 +259,8 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
     /**
      * @return
      */
-    private RandomAccessibleInterval<BitType> createLabelingMask(final Labeling<L> inLab) {
-        return new BinaryMaskRegionOfInterest(new ConvertedRandomAccessible(inLab, new LabelingToMaskConverter()));
-    }
-
-    /**
-     * @param maxima_size
-     * @return
-     */
-    private Img<BitType> createDiscStructuringElement(final int radius) {
-        int s = radius * 2;
-
-        Img<BitType> strel = new ArrayImgFactory<BitType>().create(new long[]{s, s}, new BitType());
-
-        EllipseRegionOfInterest roi = new EllipseRegionOfInterest(2);
-        roi.setRadius(radius);
-
-        Cursor<BitType> c = roi.getIterableIntervalOverROI(strel).cursor();
-
-        while (c.hasNext()) {
-            c.next().set(true);
-        }
-
-        return StructuringElementCursor.createElementFromImg(strel);
+    private BinaryMaskRegionOfInterest createLabelingMaskROI(final RandomAccessibleInterval<LabelingType<L>> inLab) {
+        return new BinaryMaskRegionOfInterest<BitType, T>(Views.interval(new ConvertedRandomAccessible<LabelingType<L>, BitType>(inLab, new LabelingToMaskConverter<LabelingType<L>>(), new BitType())), inLab);
     }
 
     /**
