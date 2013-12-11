@@ -87,6 +87,7 @@ import net.imglib2.type.numeric.integer.ShortType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.view.Views;
 
+import org.knime.knip.base.nodes.io.kernel.structuring.SphereSetting;
 import org.knime.knip.core.ops.labeling.WatershedWithThreshold;
 
 //TODO: Make Integer more generic
@@ -171,7 +172,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         }
 
         /* Disc dilation */
-        new DilateGray<FloatType>(createDiscStructuringElement(maxima_size))
+        new DilateGray<FloatType>(new SphereSetting(img.numDimensions(), maxima_size).get()[0])
                 .compute(new ImgView<FloatType>(Views.interval(Views.extendBorder(tmp), tmp), new ArrayImgFactory<FloatType>()), tmp2);
 
         RandomAccessible<BitType> mask =
@@ -264,7 +265,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
      * @param maxima_size
      * @return
      */
-    private long[][] createDiscStructuringElement(final int radius) {
+    private Img<BitType> createDiscStructuringElement(final int radius) {
         int s = radius * 2;
 
         Img<BitType> strel = new ArrayImgFactory<BitType>().create(new long[]{s, s}, new BitType());

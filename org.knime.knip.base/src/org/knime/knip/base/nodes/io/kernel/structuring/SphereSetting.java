@@ -68,7 +68,7 @@ import org.knime.knip.base.nodes.io.kernel.SerializableSetting;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-class SphereSetting extends SerializableSetting<Img<BitType>[]> {
+public class SphereSetting extends SerializableSetting<Img<BitType>[]> {
 
     private static final long serialVersionUID = 1L;
 
