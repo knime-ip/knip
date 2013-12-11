@@ -61,11 +61,12 @@ import org.knime.knip.base.nodes.view.TableCellViewNodeView;
 import org.knime.node2012.KnimeNodeDocument;
 
 /**
- * TODO
- * 
+ * NodeFactory to {@link ApplyColorSettingsToLabelsNodeFactory}
+ *
+ * @param <L>
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 public class ApplyColorSettingsToLabelsNodeFactory<L extends Comparable<L>> extends
         DynamicNodeFactory<ApplyColorSettingsToLabelsNodeModel<L>> {
@@ -80,7 +81,9 @@ public class ApplyColorSettingsToLabelsNodeFactory<L extends Comparable<L>> exte
 
     /**
      * {@inheritDoc}
+     * @deprecated
      */
+    @Deprecated
     @Override
     protected void addNodeDescription(final KnimeNodeDocument doc) {
         XMLNodeUtils.addXMLNodeDescriptionTo(doc, getClass());
@@ -90,6 +93,7 @@ public class ApplyColorSettingsToLabelsNodeFactory<L extends Comparable<L>> exte
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("unchecked")
     @Override
     protected NodeDialogPane createNodeDialogPane() {
         return new DefaultNodeSettingsPane() {

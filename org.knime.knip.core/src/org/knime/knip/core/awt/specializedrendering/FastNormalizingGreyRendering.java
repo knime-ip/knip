@@ -49,41 +49,53 @@
 package org.knime.knip.core.awt.specializedrendering;
 
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.display.projectors.AbstractProjector2D;
-import net.imglib2.display.projectors.screenimages.ByteScreenImage;
-import net.imglib2.display.projectors.screenimages.ScreenImage;
-import net.imglib2.display.projectors.screenimages.ShortScreenImage;
-import net.imglib2.display.projectors.specializedprojectors.ArrayImgXYByteProjector;
-import net.imglib2.display.projectors.specializedprojectors.ArrayImgXYShortProjector;
-import net.imglib2.display.projectors.specializedprojectors.PlanarImgXYByteProjector;
-import net.imglib2.display.projectors.specializedprojectors.PlanarImgXYShortProjector;
+import net.imglib2.display.projector.AbstractProjector2D;
+import net.imglib2.display.projector.specialized.ArrayImgXYByteProjector;
+import net.imglib2.display.projector.specialized.ArrayImgXYShortProjector;
+import net.imglib2.display.projector.specialized.PlanarImgXYByteProjector;
+import net.imglib2.display.projector.specialized.PlanarImgXYShortProjector;
+import net.imglib2.display.screenimage.awt.AWTScreenImage;
+import net.imglib2.display.screenimage.awt.AWTScreenImageUtil;
+import net.imglib2.display.screenimage.awt.UnsignedByteAWTScreenImage;
+import net.imglib2.img.WrappedImg;
 import net.imglib2.img.array.ArrayImg;
 import net.imglib2.img.basictypeaccess.array.ByteArray;
 import net.imglib2.img.basictypeaccess.array.ShortArray;
 import net.imglib2.img.planar.PlanarImg;
-import net.imglib2.meta.ImgPlus;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.ByteType;
 import net.imglib2.type.numeric.integer.ShortType;
+import net.imglib2.type.numeric.integer.UnsignedByteType;
+import net.imglib2.type.numeric.integer.UnsignedShortType;
 
 import org.knime.knip.core.types.NativeTypes;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 public class FastNormalizingGreyRendering {
 
-    public static <R extends RealType<R>> ScreenImage tryRendering(RandomAccessibleInterval<R> source, final int dimX,
-                                                                   final int dimY, final long[] planePos,
-                                                                   final double normalizationFactor, final double min) {
+    /**
+     * @param source
+     * @param dimX
+     * @param dimY
+     * @param planePos
+     * @param normalizationFactor
+     * @param min
+     * @return {@link AWTScreenImage}
+     */
+    @SuppressWarnings("unchecked")
+    public static <R extends RealType<R>> AWTScreenImage
+            tryRendering(RandomAccessibleInterval<R> source, final int dimX, final int dimY, final long[] planePos,
+                         final double normalizationFactor, final double min) {
 
         // unwrap img plus if necessary
-        while (source instanceof ImgPlus) {
-            source = ((ImgPlus)source).getImg();
+        while (source instanceof WrappedImg) {
+            source = ((WrappedImg<R>)source).getImg();
         }
 
         RenderTripel match = new RenderTripel();
@@ -108,31 +120,36 @@ public class FastNormalizingGreyRendering {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static <R extends RealType<R>> RenderTripel
             tryArrayImage(final RandomAccessibleInterval<R> source, final int dimX, final int dimY,
                           final long[] planePos, final double normalizationFactor, final double min) {
 
         if ((dimX == 0) && (dimY == 1) && (source instanceof ArrayImg)) {
             AbstractProjector2D<?, ?> projector;
-            ScreenImage target;
+            AWTScreenImage target;
             final NativeTypes type = NativeTypes.getPixelType(source.randomAccess().get());
 
             final long w = source.dimension(dimX);
             final long h = source.dimension(dimY);
 
             if ((type == NativeTypes.BYTETYPE) || (type == NativeTypes.UNSIGNEDBYTETYPE)) {
-                target = new ByteScreenImage(new ByteArray(new byte[(int)(w * h)]), new long[]{w, h});
+                target =
+                        new UnsignedByteAWTScreenImage(new UnsignedByteType(), new ByteArray(new byte[(int)(w * h)]),
+                                new long[]{w, h});
 
                 projector =
                         new ArrayImgXYByteProjector<ByteType>((ArrayImg<ByteType, ByteArray>)source,
-                                ((ByteScreenImage)target), normalizationFactor, min);
+                                (ArrayImg<UnsignedByteType, ByteArray>)target, normalizationFactor, min);
                 return new RenderTripel(projector, target);
-            } else if ((type == NativeTypes.SHORTTYPE) || (type == NativeTypes.UNSIGNEDSHORTTYPE)) {
-                target = new ShortScreenImage(new ShortArray(new short[(int)(w * h)]), new long[]{w, h});
+            }
+
+            if ((type == NativeTypes.SHORTTYPE) || (type == NativeTypes.UNSIGNEDSHORTTYPE)) {
+                target = AWTScreenImageUtil.emptyScreenImage(new UnsignedShortType(), new long[]{w, h});
 
                 projector =
                         new ArrayImgXYShortProjector<ShortType>((ArrayImg<ShortType, ShortArray>)source,
-                                ((ShortScreenImage)target), normalizationFactor, min);
+                                ((ArrayImg<UnsignedShortType, ShortArray>)target), normalizationFactor, min);
                 return new RenderTripel(projector, target);
             }
         }
@@ -140,6 +157,7 @@ public class FastNormalizingGreyRendering {
         return new RenderTripel();
     }
 
+    @SuppressWarnings("unchecked")
     private static <R extends RealType<R>> RenderTripel tryPlanarImage(final RandomAccessibleInterval<R> source,
                                                                        final int dimX, final int dimY,
                                                                        final long[] planePos,
@@ -148,25 +166,27 @@ public class FastNormalizingGreyRendering {
 
         if ((dimX == 0) && (dimY == 1) && (source instanceof PlanarImg)) {
             AbstractProjector2D<?, ?> projector;
-            ScreenImage target;
+            AWTScreenImage target;
             final NativeTypes type = NativeTypes.getPixelType(source.randomAccess().get());
 
             final long w = source.dimension(dimX);
             final long h = source.dimension(dimY);
 
             if ((type == NativeTypes.BYTETYPE) || (type == NativeTypes.UNSIGNEDBYTETYPE)) {
-                target = new ByteScreenImage(new ByteArray(new byte[(int)(w * h)]), new long[]{w, h});
+                target =
+                        new UnsignedByteAWTScreenImage(new UnsignedByteType(), new ByteArray(new byte[(int)(w * h)]),
+                                new long[]{w, h});
 
                 projector =
                         new PlanarImgXYByteProjector<ByteType>((PlanarImg<ByteType, ByteArray>)source,
-                                ((ByteScreenImage)target), normalizationFactor, min);
+                                ((ArrayImg<UnsignedByteType, ByteArray>)target), normalizationFactor, min);
                 return new RenderTripel(projector, target);
             } else if ((type == NativeTypes.SHORTTYPE) || (type == NativeTypes.UNSIGNEDSHORTTYPE)) {
-                target = new ShortScreenImage(new ShortArray(new short[(int)(w * h)]), new long[]{w, h});
+                target = AWTScreenImageUtil.emptyScreenImage(new UnsignedShortType(), new long[]{w, h});
 
                 projector =
                         new PlanarImgXYShortProjector<ShortType>((PlanarImg<ShortType, ShortArray>)source,
-                                ((ShortScreenImage)target), normalizationFactor, min);
+                                ((ArrayImg<UnsignedShortType, ShortArray>)target), normalizationFactor, min);
                 return new RenderTripel(projector, target);
             }
         }

@@ -94,7 +94,7 @@ import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingValue;
-import org.knime.knip.base.node.NodeTools;
+import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.core.data.img.DefaultImageMetadata;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
 import org.knime.knip.core.data.img.LabelingMetadata;
@@ -102,12 +102,13 @@ import org.knime.knip.core.data.img.LabelingMetadata;
 /**
  * Labeling is converted into a KNIME table. For each possible label the region of interest is extracted and put into a
  * {@link IntervalCell} together with a {@link BitType} {@link Img}
- * 
+ *
  * @param <T>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
+@Deprecated
 public class Lab2TableNodeModel<L extends Comparable<L>, II extends IntegerType<II>> extends NodeModel {
 
     private static final NodeLogger LOGGER = NodeLogger.getLogger(Lab2TableNodeModel.class);
@@ -205,9 +206,11 @@ public class Lab2TableNodeModel<L extends Comparable<L>, II extends IntegerType<
                     min[j] = ii.min(j);
                 }
                 final LabelingMetadata lmdata = labVal.getLabelingMetadata();
+
                 final ImgPlusMetadata mdata =
                         new DefaultImgMetadata(lmdata, new DefaultNamed(label.toString()), new DefaultSourced(
                                 lmdata.getName()), new DefaultImageMetadata());
+
                 cells.add(imgCellFactory.createCell(createBinaryMask(ii), mdata, min));
 
                 // Segment label
@@ -230,7 +233,7 @@ public class Lab2TableNodeModel<L extends Comparable<L>, II extends IntegerType<
     private int getLabColIdx(final DataTableSpec inSpec) throws InvalidSettingsException {
         int idx = inSpec.findColumnIndex(m_labColumn.getStringValue());
         if (idx == -1) {
-            idx = NodeTools.autoOptionalColumnSelection(inSpec, m_labColumn, LabelingValue.class);
+            idx = NodeUtils.autoOptionalColumnSelection(inSpec, m_labColumn, LabelingValue.class);
             setWarningMessage("Auto-configure Labeling Column: " + m_labColumn.getStringValue());
         }
         if (idx == -1) {

@@ -59,12 +59,12 @@ import net.imglib2.Interval;
 import net.imglib2.RandomAccess;
 import net.imglib2.exception.IncompatibleTypeException;
 import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.ops.operation.BinaryObjectFactory;
 import net.imglib2.ops.operation.BinaryOutputOperation;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.iterableinterval.unary.MakeHistogram;
-import net.imglib2.ops.operation.subset.views.ImgView;
 import net.imglib2.sampler.special.ConstantRandomAccessible;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
@@ -73,11 +73,14 @@ import net.imglib2.util.IntervalIndexer;
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter;
 
 /**
- * GraphCut where the averge value for the sink and source are retrieved from a labeling.
- * 
+ * GraphCut where the average value for the sink and source are retrieved from a labeling.
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <T>
+ * @param <L>
  */
 public class GraphCut2DLab<T extends RealType<T>, L extends Comparable<L>> implements
         BinaryOutputOperation<Img<T>, Labeling<L>, Img<BitType>> {
@@ -103,7 +106,6 @@ public class GraphCut2DLab<T extends RealType<T>, L extends Comparable<L>> imple
     private final int m_dimFeat;
 
     /**
-     * @param factory factory of the source image
      * @param lambda
      * @param fgLabel foreground label (can contain wildcards)
      * @param bgLabel the background label (can contain wildcards
@@ -122,7 +124,6 @@ public class GraphCut2DLab<T extends RealType<T>, L extends Comparable<L>> imple
     }
 
     /**
-     * @param factory factory of the source image
      * @param lambda
      * @param fgLabel foreground label (can contain wildcards)
      * @param bgLabel the background label (can contain wildcards
@@ -135,8 +136,8 @@ public class GraphCut2DLab<T extends RealType<T>, L extends Comparable<L>> imple
 
     /**
      * {@inheritDoc}
-     * 
-     * @return
+     *
+     * @return the resulting BitType image
      */
     @Override
     public Img<BitType> compute(final Img<T> src, final Labeling<L> labeling, final Img<BitType> res) {
@@ -216,9 +217,9 @@ public class GraphCut2DLab<T extends RealType<T>, L extends Comparable<L>> imple
 
     /**
      * calculates the GraphCut on the Image Img
-     * 
-     * @param img The Image
-     * @return the processed Image with black and white values for sink and Source
+     *
+     * @param src the source {@link Img}
+     * @param res the res {@link Img}
      */
     private void calculateGraphCut(final Img<T> src, final Img<BitType> res) {
 
@@ -402,7 +403,7 @@ public class GraphCut2DLab<T extends RealType<T>, L extends Comparable<L>> imple
 
     /**
      * Gives the position of the node in the list from the pixel position in the image.
-     * 
+     *
      * @param imagePosition Coordinates of the pixel in x,y,z,... direction
      * @param dimensions overall image dimensions (width, height, depth,...)
      * @return the position of the node in the list
@@ -441,12 +442,19 @@ public class GraphCut2DLab<T extends RealType<T>, L extends Comparable<L>> imple
 
     }
 
+    /**
+     * @param src
+     * @param src2 {@link Labeling}
+     * @param dims dimensionality of the result {@link Img}
+     * @return empty result {@link Img}
+     * @throws IncompatibleTypeException
+     */
     public Img<BitType> createEmptyOutput(final Img<T> src, final Labeling<L> src2, final long[] dims)
             throws IncompatibleTypeException {
         return src.factory().imgFactory(new BitType()).create(dims, new BitType());
     }
 
-    public long[] resultDims(final Interval src, final Interval labeling) {
+    private long[] resultDims(final Interval src, final Interval labeling) {
         if (m_dimFeat != -1) {
 
             // check dimensionality

@@ -60,8 +60,8 @@ import org.knime.node2012.KnimeNodeDocument.KnimeNode;
  * Node factory mapping a data values to multiple data cell. Please note that if this factory is used, the node has to
  * be registered at a extension point using ONLY the {@link NodeSetFactory} class. Registering this class directly will
  * NOT work so far.
- * 
- * 
+ *
+ *
  * @param <VIN>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -72,7 +72,9 @@ public abstract class ValueToCellsNodeFactory<VIN extends DataValue> extends
 
     /**
      * {@inheritDoc}
+     * @deprecated
      */
+    @Deprecated
     @Override
     protected final void addNodeDescription(final KnimeNodeDocument doc) {
         createNodeDescription(doc);
@@ -103,7 +105,7 @@ public abstract class ValueToCellsNodeFactory<VIN extends DataValue> extends
     /**
      * Overwrite this method to add additional details programmatically to the already existing node description
      * (created either from an xml file or in {@link ValueToCellsNodeFactory#createNodeDescription(KnimeNodeDocument)}.
-     * 
+     *
      * @param node
      */
     protected void addNodeDescriptionContent(final KnimeNode node) {
@@ -113,9 +115,8 @@ public abstract class ValueToCellsNodeFactory<VIN extends DataValue> extends
     /**
      * Overwrite this method if you want to create the node description programmatically. A description in the xml file
      * named after the derived class will not be used.
-     * 
+     *
      * @param doc
-     * @return
      */
     protected void createNodeDescription(final KnimeNodeDocument doc) {
         // May be overwritten
@@ -148,7 +149,7 @@ public abstract class ValueToCellsNodeFactory<VIN extends DataValue> extends
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     @Override
     protected ValueToCellsNodeDialog<VIN> createNodeDialogPane() {
@@ -156,7 +157,8 @@ public abstract class ValueToCellsNodeFactory<VIN extends DataValue> extends
     }
 
     /**
-     * 
+     * Create {@link ValueToCellNodeDialog}
+     *
      * @return the new dialog
      */
     protected abstract ValueToCellsNodeDialog<VIN> createNodeDialog();

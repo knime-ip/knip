@@ -22,22 +22,24 @@
 		</intro>
 
 		<tab name="options">
-			<option name="lambda">The Parameter to determine the influence of the
+			<option name="Lambda">The Parameter to determine the influence of the
 				weights via weights^lambda. For lambda = 0 the filter becomes a
 				simple mean filter which filters the most noise but preserves no
 				edges. For lambda -> infinity only the most homogeneous area is
 				taken to get the new Pixel-Value thus Edges are most preserved but
-				the denoising is not as strong.</option>
+				the denoising is not as strong.
+			</option>
 			<option name="Window Span">The Window Span parameter determines the span of
 				the window in one direction. The resulting window size is given by:
 				span*2+1 in each dimension. So the bigger it gets, the more noise is
-				filtered out but the less details are preserved.</option>
+				filtered out but the less details are preserved.
+			</option>
 		</tab>
 	</fullDescription>
 
 	<ports>
-		<inPort index="0" name="Input images">Images to filter</inPort>
-		<outPort index="0" name="Output images">Filtered images
+		<inPort index="0" name="Input images">Images to Filter</inPort>
+		<outPort index="0" name="Output images">Filtered Images
 		</outPort>
 	</ports>
 </knimeNode>

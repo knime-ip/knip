@@ -7,33 +7,33 @@
 <knimeNode icon="icons/binarithmetic.png" type="Manipulator">
 	<name>Binary Image Operations</name>
 	<shortDescription>
-		Combines two binary images with and, or, xor.
-  </shortDescription>
+		Combines two binary images with AND, OR or XOR.
+	</shortDescription>
 
 	<fullDescription>
-		<intro>Allows to apply boolean operations (like and, or, xor)
-		to binary (black and white) images.
+		<intro>Allows to apply boolean operations (like AND, OR or XOR)
+			to binary (black and white) images.
 		</intro>
 		<tab name="Options">
-			<option name="Choose image column">
+			<option name="Choose Image Column">
 				Select the column to process here.
-    </option>
-			<option name="Method">
+			</option>
+			<option name="Operator">
 				<ul>
 					<li>AND</li>
 					<li>OR</li>
 					<li>XOR</li>
 				</ul>
 			</option>
-			<option name="Virtually extend">
+			<option name="Virtually Extend">
 				Select if the second labeling should be
 				synchronized to the size of the first selected labeling.
-    		</option>
+			</option>
 		</tab>
 	</fullDescription>
 
 	<ports>
-		<inPort index="0" name="Segmentation">Images</inPort>
-		<outPort index="0" name="Segmentation">Result</outPort>
+		<inPort index="0" name="Binary Image">Images</inPort>
+		<outPort index="0" name="Binary Image">Result</outPort>
 	</ports>
 </knimeNode>

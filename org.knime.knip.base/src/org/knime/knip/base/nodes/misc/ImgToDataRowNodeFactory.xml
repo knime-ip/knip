@@ -5,9 +5,8 @@
 	<shortDescription>
 		Converts an ImgPlus into a collection of NumericCells.
 	</shortDescription>
-
 	<fullDescription>
-		<intro>Converts an ImgPlus into a collection of Double Cells.</intro>
+		<intro>Converts an ImgPlus into a collection of Double Cells</intro>
 	</fullDescription>
 	<ports>
 		<inPort name="Imgs" index="0">Input Images</inPort>

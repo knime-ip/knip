@@ -57,16 +57,22 @@ import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.dialog.DialogComponentOutOfBoundsSelection;
 import org.knime.knip.core.types.NeighborhoodType;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
  * @author Manuel Wildner (University of Konstanz)
+ *
+ * @param <T>
  */
-public class SigmaFilterNodeDialog<T extends RealType<T>> extends ImgPlusToImgPlusNodeDialog {
+public class SigmaFilterNodeDialog<T extends RealType<T>> extends ImgPlusToImgPlusNodeDialog<T> {
 
+    /**
+     * Default Constructor
+     */
     public SigmaFilterNodeDialog() {
         super(SigmaFilterNodeModel.createDimSelectionModel(), 1, Integer.MAX_VALUE);
     }
@@ -79,9 +85,9 @@ public class SigmaFilterNodeDialog<T extends RealType<T>> extends ImgPlusToImgPl
 
         addDialogComponent("Options", "Neighborhood type",
                            new DialogComponentStringSelection(SigmaFilterNodeModel.createNeighborhoodTypeNodeModel(),
-                                   "Neighborhood Type", EnumListProvider.getStringList(NeighborhoodType.values())));
+                                   "Neighborhood Type", EnumUtils.getStringListFromName(NeighborhoodType.values())));
 
-        addDialogComponent("Options", "Parameters", new DialogComponentNumber(SigmaFilterNodeModel.createWindowSize(),
+        addDialogComponent("Options", "Parameters", new DialogComponentNumber(SigmaFilterNodeModel.createSpanModel(),
                 "Window Span", 1.0));
 
         final SettingsModelDouble sigmaFactor = SigmaFilterNodeModel.createSigmaFactorModel();

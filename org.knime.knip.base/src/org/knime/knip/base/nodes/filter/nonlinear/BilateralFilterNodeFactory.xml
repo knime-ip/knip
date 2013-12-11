@@ -3,18 +3,29 @@
 <knimeNode icon="../icons/bilateral.png" type="Manipulator">
 	<name>Bilateral filter</name>
 	<shortDescription>
-		Bilateral filter
+		Filter the input image using a bilateral filter.
 	</shortDescription>
 
 	<fullDescription>
 		<intro>
-			Filter the input image using a bilateral filter.
+			Filter the input image using a bilateral filter. Wikipedia: The
+			intensity value at each pixel in an image is replaced by a weighted
+			average of intensity values from nearby pixels. This weight can be
+			based on a Gaussian distribution. Crucially, the weights depend not
+			only on Euclidean distance of pixels, but also on the radiometric
+			differences. For example, the range difference such as color
+			intensity, depth distance, etc. This preserves sharp edges by
+			systematically looping through each pixel and adjusting weights to
+			the adjacent pixels accordingly.
 		</intro>
 
 		<tab name="Options">
-			<option name="SimgaR"></option>
-			<option name="SimgaS"></option>
-			<option name="Radius"></option>
+			<option name="SimgaR">Sigma of the Gaussian function smoothing the
+				differences in intensities.</option>
+			<option name="SimgaS">Sigma of the Gaussian function smoothing the
+				differences in coordinates.</option>
+			<option name="Radius">The radius of the neighborhood of pixels taken
+				into account.</option>
 		</tab>
 	</fullDescription>
 

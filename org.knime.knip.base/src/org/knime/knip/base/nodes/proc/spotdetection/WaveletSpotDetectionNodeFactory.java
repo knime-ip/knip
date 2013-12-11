@@ -61,18 +61,21 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
 import org.knime.knip.base.nodes.view.TableCellViewNodeView;
 
 /**
- * TODO Auto-generated
- * 
+ * NodeFactory for Wavelet SpotDetection
+ *
+ * @param <T>
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
  */
 public class WaveletSpotDetectionNodeFactory<T extends RealType<T>> extends
         NodeFactory<ImgPlusToImgPlusNodeModel<T, BitType>> {
 
     @Override
     protected NodeDialogPane createNodeDialogPane() {
-        return new ImgPlusToImgPlusNodeDialog(2, 2, "X", "Y") {
+        return new ImgPlusToImgPlusNodeDialog<T>(2, 2, "X", "Y") {
 
             @Override
             public void addDialogComponents() {

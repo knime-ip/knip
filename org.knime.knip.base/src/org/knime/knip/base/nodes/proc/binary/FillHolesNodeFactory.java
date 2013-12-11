@@ -50,7 +50,9 @@ package org.knime.knip.base.nodes.proc.binary;
 
 import java.util.List;
 
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.meta.ImgPlus;
+import net.imglib2.ops.operation.ImgOperations;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.ops.operation.UnaryOutputOperation;
@@ -66,7 +68,7 @@ import org.knime.knip.base.exceptions.ImageTypeNotCompatibleException;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
@@ -85,12 +87,12 @@ public final class FillHolesNodeFactory extends ImgPlusToImgPlusNodeFactory<BitT
      */
     @Override
     protected ImgPlusToImgPlusNodeDialog<BitType> createNodeDialog() {
-        return new ImgPlusToImgPlusNodeDialog(2, Integer.MAX_VALUE, "X", "Y") {
+        return new ImgPlusToImgPlusNodeDialog<BitType>(2, Integer.MAX_VALUE, "X", "Y") {
 
             @Override
             public void addDialogComponents() {
                 addDialogComponent("Options", "Settings", new DialogComponentStringSelection(createTypeModel(),
-                        "Connection Type", EnumListProvider.getStringList(ConnectedType.values())));
+                        "Connection Type", EnumUtils.getStringListFromToString(ConnectedType.values())));
             }
         };
     }
@@ -104,13 +106,14 @@ public final class FillHolesNodeFactory extends ImgPlusToImgPlusNodeFactory<BitT
 
             private final SettingsModelString m_conType = createTypeModel();
 
-            private UnaryOperation<ImgPlus<BitType>, ImgPlus<BitType>> m_op;
+            private UnaryOperation<RandomAccessibleInterval<BitType>, RandomAccessibleInterval<BitType>> m_op;
 
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
                 settingsModels.add(m_conType);
             }
 
+            @SuppressWarnings("cast")
             @Override
             protected UnaryOutputOperation<ImgPlus<BitType>, ImgPlus<BitType>> op(final ImgPlus<BitType> imgPlus) {
 
@@ -118,7 +121,8 @@ public final class FillHolesNodeFactory extends ImgPlusToImgPlusNodeFactory<BitT
                     throw new ImageTypeNotCompatibleException("fill holes", imgPlus.firstElement(), BitType.class);
                 }
 
-                return Operations.wrap(m_op, new ImgPlusFactory<BitType, BitType>(new BitType()));
+                return Operations.wrap(ImgOperations.wrapRA(m_op, new BitType()), new ImgPlusFactory<BitType, BitType>(
+                        new BitType()));
             }
 
             /**
@@ -127,9 +131,9 @@ public final class FillHolesNodeFactory extends ImgPlusToImgPlusNodeFactory<BitT
             @Override
             protected void prepareExecute(final ExecutionContext exec) {
                 if (m_conType.getStringValue().equals(ConnectedType.EIGHT_CONNECTED.name())) {
-                    m_op = new FillHoles<ImgPlus<BitType>>(ConnectedType.EIGHT_CONNECTED);
+                    m_op = new FillHoles(ConnectedType.EIGHT_CONNECTED);
                 } else {
-                    m_op = new FillHoles<ImgPlus<BitType>>(ConnectedType.FOUR_CONNECTED);
+                    m_op = new FillHoles(ConnectedType.FOUR_CONNECTED);
                 }
 
                 super.prepareExecute(exec);

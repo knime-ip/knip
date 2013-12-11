@@ -60,7 +60,6 @@ import net.imglib2.ops.operation.iterableinterval.unary.multilevelthresholder.Th
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.node.defaultnodesettings.SettingsModel;
-import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
@@ -68,12 +67,13 @@ import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
- * 
- * 
+ * Multi-Level OTSU Thresholding
+ *
  * @param <T> the pixel type of the input and output image
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
  * @author friedrichm, University of Konstanz
  */
 public class MultilevelThresholderNodeModel<T extends RealType<T>> extends ImgPlusToImgPlusNodeModel<T, T> {
@@ -82,11 +82,11 @@ public class MultilevelThresholderNodeModel<T extends RealType<T>> extends ImgPl
         return new SettingsModelDimSelection("dimselection", "X", "Y");
     }
 
-    static SettingsModelInteger createNumberOfIntensities() {
-        return new SettingsModelInteger("number_of_intensities", 256);
+    static SettingsModelIntegerBounded createNumberOfIntensities() {
+        return new SettingsModelIntegerBounded("number_of_intensities", 256, 2, Integer.MAX_VALUE);
     }
 
-    static SettingsModelInteger createNumberOfLevels() {
+    static SettingsModelIntegerBounded createNumberOfLevels() {
         return new SettingsModelIntegerBounded("number_of_levels", 3, 2, Integer.MAX_VALUE);
     }
 
@@ -94,14 +94,14 @@ public class MultilevelThresholderNodeModel<T extends RealType<T>> extends ImgPl
         return new SettingsModelString("thresholder", MultilevelThresholderType.OTSU.name());
     }
 
-    private final SettingsModelInteger m_numberOfIntensities = createNumberOfIntensities();
+    private final SettingsModelIntegerBounded m_numberOfIntensities = createNumberOfIntensities();
 
-    private final SettingsModelInteger m_numberOfLevels = createNumberOfLevels();
+    private final SettingsModelIntegerBounded m_numberOfLevels = createNumberOfLevels();
 
     private final SettingsModelString m_thresholder = createThresholderModel();
 
     /**
-     * @param colSuffix
+     * Constructor
      */
     protected MultilevelThresholderNodeModel() {
         super(createDimSelectionModel());

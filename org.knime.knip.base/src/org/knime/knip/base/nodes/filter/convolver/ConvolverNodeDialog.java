@@ -66,11 +66,11 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -123,9 +123,9 @@ public class ConvolverNodeDialog<T extends RealType<T>> extends ValueToCellNodeD
         addDialogComponent("Options", "Dimension Selection",
                            new DialogComponentDimSelection(ConvolverNodeModel.createDimSelectionModel(), ""));
 
-        addDialogComponent("Options", "Out of Bounds Strategy",
+        addDialogComponent("Options", "Out of Bounds Selection",
                            new DialogComponentStringSelection(ConvolverNodeModel.createOutOfBoundsModel(), "",
-                                   EnumListProvider.getStringList(OutOfBoundsStrategyEnum.values())));
+                                   EnumUtils.getStringListFromName(OutOfBoundsStrategyEnum.values())));
 
         addDialogComponent("Convolution Settings", "Implementation & Settings", new DialogComponentStringSelection(
                 smMode, "Implementation", MultiKernelImageConvolverManager.getConvolverNames()));
@@ -156,6 +156,13 @@ public class ConvolverNodeDialog<T extends RealType<T>> extends ValueToCellNodeD
 
             m_componentPanels.put(key, dialogComponent);
         }
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String getDefaultSuffixForAppend() {
+     return "_convolved";
     }
 }

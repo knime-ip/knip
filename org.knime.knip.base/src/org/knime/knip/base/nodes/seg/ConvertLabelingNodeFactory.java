@@ -132,15 +132,17 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.types.NativeTypes;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgUtils;
 
 /**
  * Factory class to produce the Histogram Operations Node.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @param <T>
+ * @param <L>
  */
 public class ConvertLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>, L extends Comparable<L>> extends
         ValueToCellNodeFactory<LabelingValue<L>> {
@@ -163,14 +165,23 @@ public class ConvertLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>
             /**
              * {@inheritDoc}
              */
+            @SuppressWarnings("deprecation")
             @Override
             public void addDialogComponents() {
                 addDialogComponent("Options", "Target Type",
                                    new DialogComponentStringSelection(createTargetTypeModel(), "Target format",
-                                           EnumListProvider.getStringList(NativeTypes.intTypeValues())));
+                                           EnumUtils.getStringListFromName(NativeTypes.intTypeValues())));
                 addDialogComponent("Options", "Factory Selection",
                                    new DialogComponentStringSelection(createFactorySelectionModel(), "Factory Type",
-                                           EnumListProvider.getStringList(ImgFactoryTypes.values())));
+                                           EnumUtils.getStringListFromName(ImgFactoryTypes.values())));
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_converted";
             }
         };
     }
@@ -197,7 +208,7 @@ public class ConvertLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>
 
             /**
              * {@inheritDoc}
-             * 
+             *
              * @throws IllegalArgumentException
              */
             @SuppressWarnings({"rawtypes", "unchecked"})
@@ -252,7 +263,12 @@ public class ConvertLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>
 
                 final LabelingMapping<L> mapping = ((NativeImgLabeling<L, T>)cellValue.getLabeling()).getMapping();
                 for (int i = 0; i < mapping.numLists(); i++) {
-                    resLab.getMapping().intern(mapping.listAtIndex(i));
+                    try {
+                        resLab.getMapping().intern(mapping.listAtIndex(i));
+                    } catch (AssertionError e) {
+                        throw new AssertionError(
+                                String.format("Too many labels: Maximal two labels can be converted to BITTYPE"));
+                    }
                 }
 
                 return m_labCellFactory.createCell(resLab, cellValue.getLabelingMetadata());

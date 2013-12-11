@@ -48,38 +48,35 @@
  */
 package org.knime.knip.base.nodes.testing;
 
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.DynamicNodeFactory;
 import org.knime.core.node.NodeDialogPane;
+import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.XMLNodeUtils;
-import org.knime.knip.base.nodes.view.TableCellViewNodeView;
 import org.knime.node2012.KnimeNodeDocument;
 
 /**
- * TODO Auto-generated
- * 
+ * {@link NodeFactory} to compare to Labeling
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <L>
  */
-public class LabelingComparatorNodeFactory<T extends NativeType<T> & RealType<T>> extends
-        DynamicNodeFactory<ComparatorNodeModel<LabelingValue<T>, LabelingValue<T>>> {
+public class LabelingComparatorNodeFactory<L extends Comparable<L>> extends
+        DynamicNodeFactory<ComparatorNodeModel<LabelingValue<L>, LabelingValue<L>>> {
 
+    @Deprecated
     @Override
     protected void addNodeDescription(final KnimeNodeDocument doc) {
         XMLNodeUtils.addXMLNodeDescriptionTo(doc, getClass());
-        //TODO: Column Selection Description
-        //        ValueToCellNodeDialog.addTabsDescriptionTo(doc.getKnimeNode().getFullDescription());
-        TableCellViewNodeView.addViewDescriptionTo(doc.getKnimeNode().addNewViews());
     }
 
     @Override
-    public ComparatorNodeModel<LabelingValue<T>, LabelingValue<T>> createNodeModel() {
-        return new LabelingComparatorNodeModel<T>();
+    public ComparatorNodeModel<LabelingValue<L>, LabelingValue<L>> createNodeModel() {
+        return new LabelingComparatorNodeModel<L>();
     }
 
     @Override
@@ -89,8 +86,8 @@ public class LabelingComparatorNodeFactory<T extends NativeType<T> & RealType<T>
 
     @Override
     public
-            NodeView<ComparatorNodeModel<LabelingValue<T>, LabelingValue<T>>>
-            createNodeView(final int viewIndex, final ComparatorNodeModel<LabelingValue<T>, LabelingValue<T>> nodeModel) {
+            NodeView<ComparatorNodeModel<LabelingValue<L>, LabelingValue<L>>>
+            createNodeView(final int viewIndex, final ComparatorNodeModel<LabelingValue<L>, LabelingValue<L>> nodeModel) {
         return null;
     }
 
@@ -101,7 +98,7 @@ public class LabelingComparatorNodeFactory<T extends NativeType<T> & RealType<T>
 
     @Override
     protected NodeDialogPane createNodeDialogPane() {
-        return new ComparatorNodeDialog<LabelingValue<T>, LabelingValue<T>>() {
+        return new ComparatorNodeDialog<LabelingValue<L>, LabelingValue<L>>() {
         };
     }
 

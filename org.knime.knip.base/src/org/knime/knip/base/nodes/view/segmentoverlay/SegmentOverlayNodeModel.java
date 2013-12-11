@@ -79,11 +79,11 @@ import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingValue;
-import org.knime.knip.base.node.NodeTools;
+import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.core.util.StringTransformer;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -158,22 +158,20 @@ public class SegmentOverlayNodeModel<T extends RealType<T>, L extends Comparable
         m_isDataSetToModel = false;
     }
 
-    private boolean areCompatible(final LabelingValue<L> labVal, final ImgPlusValue<T> imgPlusVal) {
-        return Arrays.equals(labVal.getDimensions(), imgPlusVal.getDimensions());
-    }
-
     /**
      * {@inheritDoc}
      */
     @Override
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
 
-        NodeTools.autoColumnSelection(inSpecs[0], m_labelingCol, LabelingValue.class, this.getClass());
+        if (m_labelingCol.getStringValue() != null) {
+            NodeUtils.autoColumnSelection(inSpecs[0], m_labelingCol, LabelingValue.class, this.getClass());
+        }
 
         if (m_imgCol.getStringValue() == null || m_imgCol.getStringValue().length() == 0) {
-            NodeTools.autoOptionalColumnSelection(inSpecs[0], m_imgCol, ImgPlusValue.class);
+            NodeUtils.autoOptionalColumnSelection(inSpecs[0], m_imgCol, ImgPlusValue.class);
         } else {
-            NodeTools.silentOptionalAutoColumnSelection(inSpecs[0], m_imgCol, ImgPlusValue.class);
+            NodeUtils.silentOptionalAutoColumnSelection(inSpecs[0], m_imgCol, ImgPlusValue.class);
         }
 
         return new DataTableSpec[0];
@@ -196,8 +194,22 @@ public class SegmentOverlayNodeModel<T extends RealType<T>, L extends Comparable
         m_imgTable = inData[PORT_IMG];
         m_segTable = inData[PORT_SEG];
 
-        final int imgColIdx = inData[0].getDataTableSpec().findColumnIndex(m_imgCol.getStringValue());
-        final int labelingColIdx = inData[0].getDataTableSpec().findColumnIndex(m_labelingCol.getStringValue());
+        int imgColIdx = -1;
+        if (m_imgCol.getStringValue() == null || m_imgCol.getStringValue().length() == 0) {
+            imgColIdx =
+                    NodeUtils.autoOptionalColumnSelection(inData[0].getDataTableSpec(), m_imgCol, ImgPlusValue.class);
+        } else {
+            imgColIdx =
+                    NodeUtils.silentOptionalAutoColumnSelection(inData[0].getDataTableSpec(), m_imgCol,
+                                                                ImgPlusValue.class);
+        }
+
+        int labelingColIdx = -1;
+        if (m_labelingCol.getStringValue() != null) {
+            labelingColIdx =
+                    NodeUtils.autoColumnSelection(inData[0].getDataTableSpec(), m_labelingCol, LabelingValue.class,
+                                                  this.getClass());
+        }
 
         DataTableSpec spec;
         if (imgColIdx != -1) {
@@ -234,11 +246,19 @@ public class SegmentOverlayNodeModel<T extends RealType<T>, L extends Comparable
                 // process
                 if (imgColIdx != -1) {
                     // check compatibility
-                    if (areCompatible((LabelingValue<L>)labCell, (ImgPlusCell<T>)imgCell)
-                            && !m_adjustVirtually.getBooleanValue()) {
-                        setWarningMessage("The dimensions are not compatible in row " + row.getKey());
-                    }
+                    long[] dim1 = ((LabelingValue<L>)labCell).getDimensions();
+                    long[] dim2 = ((ImgPlusValue<T>)imgCell).getDimensions();
 
+                    if (dim1.length != dim2.length) {
+                        setWarningMessage("The number of dimensions of some labelings and images. Rows have been skipped!");
+                        LOGGER.warn("The dimensions are not compatible in row " + row.getKey());
+                        continue;
+                    }
+                    if (!Arrays.equals(dim1, dim2) && !m_adjustVirtually.getBooleanValue()) {
+                        setWarningMessage("Some labelings and images do not have compatible sizes and have been skipped! Use the 'Virtually extend'-option to overcome this problem.");
+                        LOGGER.warn("The dimension sizes are not compatible in row " + row.getKey());
+                        continue;
+                    }
                     con.addRowToTable(new DefaultRow(row.getKey(), imgCell, labCell));
                 } else {
                     con.addRowToTable(new DefaultRow(row.getKey(), labCell));

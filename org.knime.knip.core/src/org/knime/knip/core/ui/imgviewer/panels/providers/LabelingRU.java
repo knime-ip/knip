@@ -54,7 +54,7 @@ import java.awt.Image;
 import java.util.Set;
 
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.display.projectors.screenimages.ScreenImage;
+import net.imglib2.display.screenimage.awt.AWTScreenImage;
 import net.imglib2.labeling.LabelingMapping;
 import net.imglib2.labeling.LabelingType;
 
@@ -71,6 +71,7 @@ import org.knime.knip.core.ui.imgviewer.events.HilitedLabelsChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.IntervalWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelColoringChangeEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelOptionsChangeEvent;
+import org.knime.knip.core.ui.imgviewer.events.LabelPanelIsHiliteModeEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelPanelVisibleLabelsChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelingWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter.Operator;
@@ -84,11 +85,11 @@ import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
  */
 /**
  * Combined label renderer. Supports label rendering, with filters, with hilite, with color tables with/without strings
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
- * 
+ *
  * @param <L> labeling based type of the rendered source
  */
 public class LabelingRU<L extends Comparable<L>> extends AbstractDefaultRU<LabelingType<L>> {
@@ -149,7 +150,7 @@ public class LabelingRU<L extends Comparable<L>> extends AbstractDefaultRU<Label
             r.setLabelingColorTable(m_labelingColorMapping);
         }
 
-        final ScreenImage ret =
+        final AWTScreenImage ret =
                 m_renderer.render(m_src, m_planeSelection.getPlaneDimIndex1(), m_planeSelection.getPlaneDimIndex2(),
                                   m_planeSelection.getPlanePos());
 
@@ -238,7 +239,7 @@ public class LabelingRU<L extends Comparable<L>> extends AbstractDefaultRU<Label
 
     /**
      * stores active labels and filter operators in members.
-     * 
+     *
      * @param e issued if labels get filtered.
      */
     @EventListener
@@ -249,7 +250,7 @@ public class LabelingRU<L extends Comparable<L>> extends AbstractDefaultRU<Label
 
     /**
      * stores hilited labels in a member.
-     * 
+     *
      * @param e contains all hilited labels.
      */
     @EventListener
@@ -257,9 +258,14 @@ public class LabelingRU<L extends Comparable<L>> extends AbstractDefaultRU<Label
         m_hilitedLabels = e.getHilitedLabels();
     }
 
+    @EventListener
+    public void onUpdated(final LabelPanelIsHiliteModeEvent e) {
+        m_isHiliteMode = e.isHiliteMode();
+    }
+
     /**
      * set all members that could hold expensive references to null or resets them to allow storage clean ups.
-     * 
+     *
      * @param event marker event
      */
     @EventListener

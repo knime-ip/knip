@@ -50,6 +50,7 @@ package org.knime.knip.base.nodes.filter;
 
 import java.util.List;
 
+import net.imglib2.algorithm.gauss3.Gauss3;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.UnaryOutputOperation;
@@ -57,6 +58,7 @@ import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
 import net.imglib2.type.numeric.RealType;
 
+import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelDoubleBounded;
@@ -73,16 +75,18 @@ import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 import org.knime.node2012.TabDocument.Tab;
 
 /**
- * TODO Auto-generated
- * 
+ * NodeModel to wrap {@link Gauss3} Algorithm
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <T> Type parameter of the input
  */
 public class GaussNativeTypeNodeFactory<T extends NumericType<T> & RealType<T> & NativeType<T>> extends
         ImgPlusToImgPlusNodeFactory<T, T> {
 
-    protected static SettingsModelString createOutOfBoundsModel() {
+    private static SettingsModelString createOutOfBoundsModel() {
         return new SettingsModelString("outofboundsstrategy", OutOfBoundsStrategyEnum.BORDER.toString());
     }
 
@@ -118,7 +122,7 @@ public class GaussNativeTypeNodeFactory<T extends NumericType<T> & RealType<T> &
         return new ImgPlusToImgPlusNodeModel<T, T>("X", "Y") {
 
             /*
-             *
+             *  SettingsModel to store OutOfBoundsStrategy
              */
             private final SettingsModelString m_outOfBoundsStrategy = createOutOfBoundsModel();
 
@@ -126,12 +130,21 @@ public class GaussNativeTypeNodeFactory<T extends NumericType<T> & RealType<T> &
              * Storing the sigmas. Since now sigmas in each
              * dimension are equal!
              */
-            private final SettingsModelDoubleBounded m_smSigma = createSigmaModel();
+            private final SettingsModelDoubleBounded m_sigma = createSigmaModel();
 
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
-                settingsModels.add(m_smSigma);
+                settingsModels.add(m_sigma);
                 settingsModels.add(m_outOfBoundsStrategy);
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected void prepareExecute(final ExecutionContext exec) {
+                enableParallelization(false);
+                super.prepareExecute(exec);
             }
 
             @Override
@@ -140,18 +153,18 @@ public class GaussNativeTypeNodeFactory<T extends NumericType<T> & RealType<T> &
                 final double[] sigmas = new double[m_dimSelection.getNumSelectedDimLabels(img)];
 
                 for (int d = 0; d < sigmas.length; d++) {
-                    sigmas[d] = m_smSigma.getDoubleValue();
+                    sigmas[d] = m_sigma.getDoubleValue();
                 }
 
-                return Operations.wrap(new GaussNativeTypeOp<T, ImgPlus<T>>(1, sigmas, OutOfBoundsStrategyFactory
-                                               .<T, ImgPlus<T>> getStrategy(m_outOfBoundsStrategy.getStringValue(),
-                                                                            img.firstElement())), ImgPlusFactory
+                return Operations.wrap(new GaussNativeTypeOp<T, ImgPlus<T>>(getExecutorService(), sigmas,
+                                               OutOfBoundsStrategyFactory
+                                                       .<T, ImgPlus<T>> getStrategy(m_outOfBoundsStrategy
+                                                               .getStringValue(), img.firstElement())), ImgPlusFactory
                                                .<T, T> get(img.firstElement()));
             }
 
             @Override
             protected int getMinDimensions() {
-                // TODO Auto-generated method stub
                 return 1;
             }
         };

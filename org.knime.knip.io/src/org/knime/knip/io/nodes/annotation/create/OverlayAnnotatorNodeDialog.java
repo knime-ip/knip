@@ -72,7 +72,7 @@ import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DataAwareDefaultNodeSettingsPane;
 import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.types.NativeTypes;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.io.nodes.annotation.DialogComponentOverlayAnnotator;
 import org.knime.knip.io.nodes.annotation.SettingsModelOverlayAnnotator;
 
@@ -85,122 +85,122 @@ import org.knime.knip.io.nodes.annotation.SettingsModelOverlayAnnotator;
  *         Zinsmaier</a>
  */
 public class OverlayAnnotatorNodeDialog<T extends RealType<T> & NativeType<T>>
-        extends DataAwareDefaultNodeSettingsPane {
+		extends DataAwareDefaultNodeSettingsPane {
 
-    private static final String APPEND_DEFAULT = "_Label";
+	private static final String APPEND_DEFAULT = "_Label";
 
-    private DialogComponentOverlayAnnotator<T> m_dialogComponentAnnotator;
+	private DialogComponentOverlayAnnotator<T> m_dialogComponentAnnotator;
 
-    private SettingsModelString m_smColCreationMode = ValueToCellNodeModel
-            .createColCreationModeModel();
+	private SettingsModelString m_smColCreationMode = ValueToCellNodeModel
+			.createColCreationModeModel();
 
-    private SettingsModelString m_smColumnSuffix = ValueToCellNodeModel
-            .createColSuffixNodeModel();
+	private SettingsModelString m_smColumnSuffix = ValueToCellNodeModel
+			.createColSuffixNodeModel();
 
-    @SuppressWarnings("unchecked")
-    public OverlayAnnotatorNodeDialog() {
-        super();
+	@SuppressWarnings("unchecked")
+	public OverlayAnnotatorNodeDialog() {
+		super();
 
-        removeTab("Options");
-        createNewTab("Selection");
-        createNewGroup("Image Annotation");
+		removeTab("Options");
+		createNewTab("Selection");
+		createNewGroup("Image Annotation");
 
-        SettingsModelOverlayAnnotator annotatorSM =
-                OverlayAnnotatorNodeModel.createAnnotatorSM();
-        m_dialogComponentAnnotator =
-                new DialogComponentOverlayAnnotator<T>(annotatorSM);
-        addDialogComponent(m_dialogComponentAnnotator);
-        closeCurrentGroup();
+		SettingsModelOverlayAnnotator annotatorSM = OverlayAnnotatorNodeModel
+				.createAnnotatorSM();
+		m_dialogComponentAnnotator = new DialogComponentOverlayAnnotator<T>(
+				annotatorSM);
+		addDialogComponent(m_dialogComponentAnnotator);
+		closeCurrentGroup();
 
-        // column selection dialog component
-        createNewTab("Column Selection");
-        createNewGroup("Creation Mode");
-        addDialogComponent(new DialogComponentStringSelection(
-                m_smColCreationMode, "Column Creation Mode",
-                ValueToCellNodeModel.COL_CREATION_MODES));
-        closeCurrentGroup();
+		// column selection dialog component
+		createNewTab("Column Selection");
+		createNewGroup("Creation Mode");
+		addDialogComponent(new DialogComponentStringSelection(
+				m_smColCreationMode, "Column Creation Mode",
+				ValueToCellNodeModel.COL_CREATION_MODES));
+		closeCurrentGroup();
 
-        createNewGroup("Column suffix");
-        addDialogComponent(new DialogComponentString(m_smColumnSuffix,
-                "Column suffix"));
-        closeCurrentGroup();
+		createNewGroup("Column suffix");
+		addDialogComponent(new DialogComponentString(m_smColumnSuffix,
+				"Column suffix"));
+		closeCurrentGroup();
 
-        createNewGroup("");
-        addDialogComponent(new DialogComponentColumnFilter(
-                ValueToCellNodeModel.createColumnSelectionModel(), 0, true,
-                ImgPlusValue.class));
-        closeCurrentGroup();
+		createNewGroup("");
+		addDialogComponent(new DialogComponentColumnFilter(
+				ValueToCellNodeModel.createColumnSelectionModel(), 0, true,
+				ImgPlusValue.class));
+		closeCurrentGroup();
 
-        // label settings
+		// label settings
 
-        createNewTab("Label Settings");
-        setHorizontalPlacement(true);
-        createNewGroup("Options");
+		createNewTab("Label Settings");
+		setHorizontalPlacement(true);
+		createNewGroup("Options");
 
-        addDialogComponent(new DialogComponentBoolean(
-                OverlayAnnotatorNodeModel.createWithSegmentidSM(),
-                "Add unique segment id as label"));
-        addDialogComponent(new DialogComponentStringSelection(
-                OverlayAnnotatorNodeModel.creatFactoryTypeSM(), "Factory Type",
-                EnumListProvider.getStringList(ImgFactoryTypes.values())));
-        addDialogComponent(new DialogComponentStringSelection(
-                OverlayAnnotatorNodeModel.createLabelingTypeSM(),
-                "Storage Img Type", EnumListProvider.getStringList(NativeTypes
-                        .intTypeValues())));
+		addDialogComponent(new DialogComponentBoolean(
+				OverlayAnnotatorNodeModel.createWithSegmentidSM(),
+				"Add unique segment id as label"));
+		addDialogComponent(new DialogComponentStringSelection(
+				OverlayAnnotatorNodeModel.creatFactoryTypeSM(), "Factory Type",
+				EnumUtils.getStringListFromName(ImgFactoryTypes.values())));
+		addDialogComponent(new DialogComponentStringSelection(
+				OverlayAnnotatorNodeModel.createLabelingTypeSM(),
+				"Storage Img Type", EnumUtils.getStringListFromName(NativeTypes
+						.intTypeValues())));
 
-        closeCurrentGroup();
+		closeCurrentGroup();
 
-        // add append suffix logic
-        m_smColCreationMode.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(final ChangeEvent e) {
-                if (m_smColCreationMode.getStringValue().equals(
-                        ValueToCellNodeModel.COL_CREATION_MODES[1])) {
-                    // append
-                    if (m_smColumnSuffix.getStringValue().isEmpty()) {
-                        m_smColumnSuffix.setStringValue(APPEND_DEFAULT);
-                    }
-                } else {
-                    if (m_smColumnSuffix.getStringValue()
-                            .equals(APPEND_DEFAULT)) {
-                        m_smColumnSuffix.setStringValue("");
-                    }
-                }
-            }
-        });
+		// add append suffix logic
+		m_smColCreationMode.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(final ChangeEvent e) {
+				if (m_smColCreationMode.getStringValue().equals(
+						ValueToCellNodeModel.COL_CREATION_MODES[1])) {
+					// append
+					if (m_smColumnSuffix.getStringValue().isEmpty()) {
+						m_smColumnSuffix.setStringValue(APPEND_DEFAULT);
+					}
+				} else {
+					if (m_smColumnSuffix.getStringValue()
+							.equals(APPEND_DEFAULT)) {
+						m_smColumnSuffix.setStringValue("");
+					}
+				}
+			}
+		});
 
-    }
+	}
 
-    @Override
-    public void onClose() {
-        m_dialogComponentAnnotator.reset();
-    }
+	@Override
+	public void onClose() {
+		m_dialogComponentAnnotator.reset();
+	}
 
-    @Override
-    public void loadAdditionalSettingsFrom(NodeSettingsRO settings,
-            PortObject[] input) throws NotConfigurableException {
+	@Override
+	public void loadAdditionalSettingsFrom(NodeSettingsRO settings,
+			PortObject[] input) throws NotConfigurableException {
 
-        // update input data dependent
-        BufferedDataTable inputTable = (BufferedDataTable)input[0];
-        DataTable filteredTable =
-                new FilterColumnTable(inputTable, ImgPlusValue.class);
-        m_dialogComponentAnnotator.updateDataTable(filteredTable);
-    }
+		// update input data dependent
+		BufferedDataTable inputTable = (BufferedDataTable) input[0];
+		DataTable filteredTable = new FilterColumnTable(inputTable,
+				ImgPlusValue.class);
+		m_dialogComponentAnnotator.updateDataTable(filteredTable);
+	}
 
-    /**
-     * If column creation mode is 'append', a suffix needs to be chosen!
-     */
-    @Override
-    public void saveAdditionalSettingsTo(final NodeSettingsWO settings)
-            throws InvalidSettingsException {
-        if (m_smColCreationMode.getStringValue().equals(
-                ValueToCellNodeModel.COL_CREATION_MODES[1])
-                && m_smColumnSuffix.getStringValue().trim().isEmpty()) {
-            throw new InvalidSettingsException(
-                    "If the selected column creation mode is 'append', a column suffix for the resulting column name must to be chosen!");
-        }
+	/**
+	 * If column creation mode is 'append', a suffix needs to be chosen!
+	 */
+	@Override
+	public void saveAdditionalSettingsTo(final NodeSettingsWO settings)
+			throws InvalidSettingsException {
+		if (m_smColCreationMode.getStringValue().equals(
+				ValueToCellNodeModel.COL_CREATION_MODES[1])
+				&& m_smColumnSuffix.getStringValue().trim().isEmpty()) {
+			throw new InvalidSettingsException(
+					"If the selected column creation mode is 'append', a column suffix for the resulting column name must to be chosen!");
+		}
 
-        super.saveAdditionalSettingsTo(settings);
-    }
+		super.saveAdditionalSettingsTo(settings);
+	}
 
 }

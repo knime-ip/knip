@@ -66,6 +66,7 @@ import net.imglib2.Interval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
+import net.imglib2.img.ImgView;
 import net.imglib2.meta.CalibratedAxis;
 import net.imglib2.meta.CalibratedSpace;
 import net.imglib2.meta.ImgPlus;
@@ -74,8 +75,6 @@ import net.imglib2.meta.MetadataUtil;
 import net.imglib2.meta.Named;
 import net.imglib2.meta.Sourced;
 import net.imglib2.ops.operation.SubsetOperations;
-import net.imglib2.ops.operation.imgplus.unary.ImgPlusCopy;
-import net.imglib2.ops.operation.subset.views.ImgView;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 
@@ -101,12 +100,11 @@ import org.knime.knip.core.data.img.DefaultImgMetadata;
 import org.knime.knip.core.io.externalization.BufferedDataInputStream;
 import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
 import org.knime.knip.core.io.externalization.ExternalizerManager;
-import org.knime.knip.core.util.ImgUtils;
 
 /**
- * 
+ *
  * File cell keeping {@link ImgPlus}.
- * 
+ *
  * @param <T> Type of cell
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -158,7 +156,7 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
 
     /**
      * Preferred value class of this cell implementation is ImageValue.class.
-     * 
+     *
      * @return ImageValue.class
      */
     public static Class<? extends DataValue> getPreferredValueClass() {
@@ -191,7 +189,7 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
     /**
      * Creates a new img plus cell using the given file store, i.e. writes the image data into the file provided by the
      * file store.
-     * 
+     *
      * @param img
      * @param metadata
      * @param fileStore
@@ -204,11 +202,11 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
     /**
      * Creates a new img plus cell using the given file store, i.e. writes the image data into the file provided by the
      * file store.
-     * 
+     *
      * @param img
      * @param metadata
      * @param min
-     * 
+     *
      * @param fileStore
      */
     protected ImgPlusCell(final Img<T> img, final ImgPlusMetadata metadata, final long[] min, final FileStore fileStore) {
@@ -231,9 +229,9 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
     /**
      * Creates a new img plus cell using the given file store, i.e. writes the image data into the file provided by the
      * file store.
-     * 
+     *
      * @param imgPlus
-     * 
+     *
      * @param fileStore
      */
     protected ImgPlusCell(final ImgPlus<T> imgPlus, final FileStore fileStore) {
@@ -288,9 +286,14 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
             }
         }
 
-        final Img<T> img = getSubImg(img2d, m_img.factory(), new FinalInterval(new long[img2d.numDimensions()], max));
+        final RandomAccessibleInterval<T> toRender;
+        if (img2d == m_img) {
+            toRender = SubsetOperations.subsetview(m_img, new FinalInterval(new long[img2d.numDimensions()], max));
+        } else {
+            toRender = img2d;
+        }
 
-        return AWTImageTools.renderScaledStandardColorImg(img, new Real2GreyColorRenderer<T>(2), factor,
+        return AWTImageTools.renderScaledStandardColorImg(toRender, new Real2GreyColorRenderer<T>(2), factor,
                                                           new long[max.length]);
     }
 
@@ -353,7 +356,13 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
     @Override
     public synchronized ImgPlus<T> getImgPlusCopy() {
         readImgData(m_fileMetadata.getOffset(), false);
-        return new ImgPlusCopy<T>().compute(getImgPlus(), new ImgPlus<T>(ImgUtils.createEmptyImg(m_img)));
+
+        final ImgPlus<T> source = getImgPlus();
+        final ImgPlus<T> dest = new ImgPlus<T>(source.copy());
+
+        MetadataUtil.copyImageMetadata(source, dest);
+
+        return dest;
     }
 
     /**
@@ -363,8 +372,14 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
     public synchronized long[] getMaximum() {
         readImgData(m_fileMetadata.getOffset(), true);
         final long[] max = new long[m_imgMetadata.getDimensions().length];
-        for (int i = 0; i < max.length; i++) {
-            max[i] = m_imgMetadata.getDimensions()[i] - 1;
+        if (m_imgMetadata.getMinimum() == null) {
+            for (int i = 0; i < max.length; i++) {
+                max[i] = m_imgMetadata.getDimensions()[i] - 1;
+            }
+        } else {
+            for (int i = 0; i < max.length; i++) {
+                max[i] = m_imgMetadata.getMinimum()[i] + m_imgMetadata.getDimensions()[i] - 1;
+            }
         }
         return max;
     }
@@ -509,7 +524,12 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
     }
 
     private int getThumbnailWidth(final int height) {
-        return (int)(((double)m_img.dimension(0) / m_img.dimension(1)) * height);
+        if (m_img.numDimensions() == 1) {
+            return (int)m_img.dimension(0);
+        } else {
+            return (int)(((double)m_img.dimension(0) / m_img.dimension(1)) * height);
+        }
+
     }
 
     /**
@@ -522,7 +542,7 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
 
     /**
      * Loads the cell content. To be called after the {@link #FileImgPlusCell(DataCellDataInput)} constructor.
-     * 
+     *
      * @param input
      * @throws IOException
      */

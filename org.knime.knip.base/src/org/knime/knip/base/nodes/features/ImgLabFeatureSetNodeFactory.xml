@@ -18,134 +18,103 @@
 		</intro>
 
 		<tab name="Features">
-			<option name="Selection of the features to be calculated">
+			<option name="Tamura">
 				<ul>
-					<li>Haralick:
-						see:
-						http://murphylab.web.cmu.edu/publications/boland/boland_node26.html</li>
+					<li>
+						Calculates 6 Tamura features: Granularity, Contrast, Kurtosis
+						of Directionality
+						Standard Deviation of Directionality, Maximal
+						directionality, Skewness
+					</li>
+				</ul>
+			</option>
 
+			<option name="Segment Geometry">
+				<ul>
+					<li>Basic geometric properties: e.g. size,
+						perimeter, centroid,
+						circulartiy, convexity, diameter, ...
+					</li>
+				</ul>
+			</option>
 
-					<li>First order statistics:
+			<option name="First order statistics">
+				<ul>
+					<li>
 						Calculates the moments of the first
-						order
-						statistics. The
-						following features are computed: Min, Max,
-						Mean,
-						Geometric Mean, Sum,
-						Square of Sums, Standard Deviation,
-						Variance,
-						Skewness, Kurtosis,
-						Quantil25, Quantil50, Quantil75.
+						order statistics. The
+						following features are computed: Min, Max, Mean,
+						Geometric Mean,
+						Sum,
+						Square of Sums, Standard Deviation, Variance,
+						Skewness,
+						Kurtosis,
+						Quantil25, Quantil50, Quantil75, user defined Quantil,
+						Histogram.
 						Please note that
 						the Geometric Mean
-						can only be computed on unsigned
+						can only be computed
+						on unsigned
 						datatypes.
 						Invalid
 						calculations
-						(i.e. NaN) result in missing cells.</li>
+						(i.e. NaN) result in
+						missing cells.
+					</li>
+				</ul>
+			</option>
 
-					<li>Zernike:
-						see:
-						http://murphylab.web.cmu.edu/publications/boland/boland_node25.html</li>
+			<option name="Haralick">
+				<ul>
+					<li>
+						Statistical features based on gray-level co-occurrence matrix.
+						Rotation invariance
+						can be reached by averaging over the four
+						directional co-occurrence matrices
+						(activate 'compute average').
+						See
+						http://murphylab.web.cmu.edu/publications/boland/boland_node26.html
+						for more information.
+					</li>
 				</ul>
 			</option>
 		</tab>
-		<tab name="ROI settings">
-			<option name="Append labels of overlapping ROIs?">
-				If region of interests are overlapping, the union
-				of this labels will
-				be append.			
+
+		<tab name="Region of Interest Settings">
+			<option name="Append non ROI labels?">
+				If true, non ROI labels will be appended
 			</option>
-			<option name="Depended ROIs don't need to completely overlap?">
+			<option name="Non ROI Labels must Completely Overlap with ROI?">
 				If selected, regions will also be counted as
 				overlapping, if so don't
-				overlap completely.</option>
-			<option name="Append ROI information">If selected, additional information of each
+				overlap completely.
+			</option>
+			<option name="Append ROI Information">If selected, additional information of each
 				region of interest will be add (e.g. bitmask, source labeling,
 				label). Useful, e.g., if the resulting segment table should be
-				composed again to a labeling (e.g. using the GroupBy-node).</option>
-			<option name="Filter labels">
-				If you have multi-labeled pixel positions, this
-				means that a
-				position
-				in
-				your image may have more than one label, the
-				set of pixels
-				with a
-				unique combination of labels would be regarded as
-				a single
-				segment.
-				<br />
-				<br />
-				To
-				avoid such calculations, you can filter the
-				labeling from
-				two sides:
-
-				a.
-				From the left side: Only labels which hold
-				the given rule
-				a
-				regarded
-				considered during the process of finding
-				individual segments
-				b. From
-				the right side: Only labels which hold the
-				given rule a
-				regarded as
-				class labels of the filtered labels from the
-				left.
-				<br />
-				<br />
-
-				<b>Examples :</b>
-
-
-				A pixel may have 3 labels and there are 3 pixels: px1 =
-				{classA,
-				segId15, track12}
-				<br />
-				px2 = {classB, segId14, track12}, px3 =
-				{XXclassA,
-				segId11, track11}
-				<br />
-				<br />
-
-				<i>e.g. 1 (not intersection mode):</i>
-				- filter
-				from the
-				left: Seg*
-				- filter from the
-				right: *Class*
-
-				Output:
-				Features for
-				segId15
-				(ClassA), segId14(ClassB)
-				and segId11(XXClassA)
-				<br />
-				<br />
-
-				<i>e.g. 2 (not
-					intersection mode):</i>
-				- filter from the left: *Class*
-				- filter from the
-				right: *
-
-				Output:
-				Features for XXclassA (segId15, segId11), classB
-				(segId14)
-				<br />
-				<br />
-
-				<b>Intersection mode vs. not intersection mode:</b>
-				Not intersection
-				mode: Only labels which always appear together are
-				considered to have
-				a dependency
-				Intersection mode: Labels which at
-				least appear one time
-				together are considered to have a dependency
+				composed again to a labeling (e.g. using the GroupBy-node).
+			</option>
+			<option name="Filter Labels">
+				<ul>
+					<li> Filter ROIs: Only labels which hold
+						the given rule considered
+						during the calculation
+					</li>
+					<li>Filtering non ROIs: Only labels which hold the
+						will be put into
+						the non ROI list.
+					</li>
+				</ul>
+			</option>
+			<option name="Intersection Mode">
+				<ul>
+					<li> Disabled: Only labels which always appear together are
+						considered to have a dependency
+					</li>
+					<li> Enabled: Labels which at least appear one time together are
+						considered to have a dependency
+					</li>
+				</ul>
 			</option>
 		</tab>
 

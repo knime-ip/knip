@@ -86,17 +86,19 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.core.util.TypeUtils;
 
 /**
  * Merges an images to one.
- * 
+ *
  * @param <T> source image type
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class MergerNodeModel<T extends RealType<T>> extends NodeModel implements BufferedDataTableHolder {
+public class MergerNodeModel<T extends RealType<T>, V extends RealType<V>> extends NodeModel implements
+        BufferedDataTableHolder {
 
     /**
      * Key to store the column to work on in the settings.
@@ -140,7 +142,7 @@ public class MergerNodeModel<T extends RealType<T>> extends NodeModel implements
 
     /**
      * One input one output.
-     * 
+     *
      */
     public MergerNodeModel() {
         super(1, 1);
@@ -210,6 +212,9 @@ public class MergerNodeModel<T extends RealType<T>> extends NodeModel implements
         while (it.hasNext()) {
             row = it.next();
 
+            RealType[] types = new RealType[selectedColIndices.length];
+            boolean resultTypeChanged = false;
+
             // determine total pixel number
             long numTotalPixels = 0;
             ImgPlus<T> img = null;
@@ -217,11 +222,21 @@ public class MergerNodeModel<T extends RealType<T>> extends NodeModel implements
             for (int i = 0; i < selectedColIndices.length; i++) {
                 cell = row.getCell(selectedColIndices[i]);
                 if (cell.isMissing()) {
+                    setWarningMessage("Some rows have been skipped due to missing cells!");
                     LOGGER.warn("Missing cell in row " + row.getKey() + ". Image skipped.");
                     continue;
                 }
                 img = ((ImgPlusValue<T>)cell).getImgPlus();
                 numTotalPixels += img.size();
+
+                types[i] = img.firstElement().createVariable();
+                if (i > 0 && types[i - 1] != null && types[i - 1].getClass() != types[i].getClass()) {
+                    resultTypeChanged = true;
+                }
+            }
+
+            if (resultTypeChanged) {
+                LOGGER.warn("Input images are not of the same pixel type. Result image has the least common pixel type.");
             }
 
             if (img == null) {
@@ -258,14 +273,15 @@ public class MergerNodeModel<T extends RealType<T>> extends NodeModel implements
             }
 
             // create result image
-            Img<T> res = null;
+            Img<V> res = null;
+            V leastCommonType = (V)TypeUtils.leastFittingRealType(types);
             if (m_imgFactory.getStringValue().equals(IMG_FACTORIES[0])) {
-                res = new ArrayImgFactory().create(dims, (NativeType)img.firstElement().createVariable());
+                res = new ArrayImgFactory().create(dims, (NativeType)leastCommonType);
             } else {
-                res = new PlanarImgFactory().create(dims, (NativeType)img.firstElement().createVariable());
+                res = new PlanarImgFactory().create(dims, (NativeType)leastCommonType);
             }
 
-            final Cursor<T> resCur = res.cursor();
+            final Cursor<V> resCur = res.cursor();
             for (int i = 0; i < selectedColIndices.length; i++) {
                 cell = row.getCell(selectedColIndices[i]);
                 if (cell.isMissing()) {
@@ -276,7 +292,7 @@ public class MergerNodeModel<T extends RealType<T>> extends NodeModel implements
                 while (imgCur.hasNext()) {
                     imgCur.fwd();
                     resCur.fwd();
-                    resCur.get().set(imgCur.get());
+                    resCur.get().setReal(imgCur.get().getRealDouble());
                 }
             }
 

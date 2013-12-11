@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (c) 2010 IBM Corporation 
+	and others. All rights reserved. This program and the accompanying materials 
+	are made available under the terms of the Eclipse Public License v1.0 which 
+	accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html 
+	Contributors: IBM Corporation - initial API and implementation -->
+
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="laptracker.png" type="Manipulator">
+	<name>LAPTracker (TrackMate)</name>
+
+	<shortDescription>
+		Tracking based on the TrackMate (see
+		http://fiji.sc/TrackMate).
+	</shortDescription>
+
+	<fullDescription>
+		<intro>The Linear Assignment Problem (LAP) trackers implemented here
+			follow a stripped down version of the renowned method contributed by
+			Jaqaman and colleagues[1]. We repeat here the ideas found in the
+			reference paper, then stresses the differences with the nominal
+			implementation. Particle-linking happens in two step: track segments
+			creation from frame-to-frame particle linking, then track segments
+			linking to achieve gap closing. The mathematical formulation used for
+			both steps is linear assignment problem (LAP): a cost matrix is
+			assembled contained all possible assignment costs. Actual assignments
+			are retrieved by solving this matrix for minimal total cost. We
+			describe first how cost matrices are arranged, then how individual
+			costs are calculated (from http://fiji.sc/TrackMate).
+		</intro>
+		<tab name="Options">
+			<option name="Algorithm">Choose the implementation. Munkres-Kuhn is faster
+				than Hungarian, but sometimes performs worse.
+			</option>
+			<option name="Maximum Object Distance">Maximum distance between to objects</option>
+			<option name="Tracking Dimension">Select the dimension which will be used for
+				tracking (in most cases its Time).
+			</option>
+			<option name="Allow Splitting">If checked, the algorithm tries to detect
+				splitting objects.
+			</option>
+			<option name="Max Distance (Splitting)">Maximum distance two splitting objects may have.
+			</option>
+			<option name="Allow Merging">If checked, the algorithm tries to detect
+				merging
+				objects
+			</option>
+			<option name="Max Distance (Merging)">Maximum distance two merging objects may have.
+			</option>
+			<option name="Allow Gap Closing">If checked, a missing object at a certain
+				frame
+				can be recovered using the following tracking frames.
+			</option>
+			<option name="Max Distance (Gap Distance)">Maximum distance two objects may have, such that
+				their track can be recovered using gap closing.
+			</option>
+			<option name="Max Gap Size (Frames)">Number of frames which can be skipped for
+				gap-closing.
+			</option>
+		</tab>
+		<tab name="Advanced">
+			<option name="Alternative Linking Cost Factor"> Factor used to compute alternative linking costs
+				(see http://fiji.sc/TrackMate for details). </option>
+			<option name="Cutoff Percentile">Cut-Off Percentile (see http://fiji.sc/TrackMate
+				for details).</option>
+		</tab>
+	</fullDescription>
+
+
+	<ports>
+		<inPort index="0" name="Table">Table with cells to be tracked</inPort>
+		<outPort index="0" name="Labeling">Labeling with tracked cells</outPort>
+	</ports>
+
+	<views>
+		<view name="Table Cell View" index="0">Resulting Tracking</view>
+	</views>
+
+</knimeNode>

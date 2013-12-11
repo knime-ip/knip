@@ -65,6 +65,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.node.TwoValuesToCellNodeDialog;
 import org.knime.knip.base.node.TwoValuesToCellNodeFactory;
 import org.knime.knip.base.node.TwoValuesToCellNodeModel;
@@ -75,10 +76,13 @@ import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
 import org.knime.knip.core.ops.img.algorithms.Aligner;
 
 /**
- * 
+ * AlignerNodeFactory
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <T>
+ * @param <V>
  */
 public class AlignerNodeFactory<T extends RealType<T>, V extends RealType<V>> extends
         TwoValuesToCellNodeFactory<ImgPlusValue<T>, ImgPlusValue<V>> {
@@ -152,6 +156,15 @@ public class AlignerNodeFactory<T extends RealType<T>, V extends RealType<V>> ex
             protected String getSecondColumnSelectionLabel() {
                 return "Filtered image";
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_aligned";
+            }
+
         };
     }
 
@@ -197,13 +210,13 @@ public class AlignerNodeFactory<T extends RealType<T>, V extends RealType<V>> ex
                 final int[] selectedDims2 = m_dimSelection2.getSelectedDimIndices(imgPlus);
 
                 if (selectedDims1.length != 2) {
-                    throw new IllegalStateException("Wrong number of valid image dimensions: '" + selectedDims1.length
+                    throw new KNIPException("Wrong number of valid image dimensions: '" + selectedDims1.length
                             + "' or dimensions do not exist in Image! Skipping Image "
                             + cellValueA.getMetadata().getName());
                 }
 
                 if (selectedDims2.length != 1) {
-                    throw new IllegalStateException("Wrong number of valid shift dimensions '" + selectedDims1.length
+                    throw new KNIPException("Wrong number of valid shift dimensions '" + selectedDims1.length
                             + "' or dimensions do not exist in Image! Skipping Image "
                             + cellValueA.getMetadata().getName());
                 }

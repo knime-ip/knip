@@ -56,17 +56,22 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.dialog.DialogComponentOutOfBoundsSelection;
 import org.knime.knip.base.node.dialog.DialogComponentSpanSelection;
 import org.knime.knip.core.types.NeighborhoodType;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <T>
  */
-public class SlidingWindowOperationNodeDialog<T extends RealType<T>> extends ImgPlusToImgPlusNodeDialog {
+public class SlidingWindowOperationNodeDialog<T extends RealType<T>> extends ImgPlusToImgPlusNodeDialog<T> {
 
+    /**
+     * Default Constructor
+     */
     public SlidingWindowOperationNodeDialog() {
         super(AbstractSlidingWindowOperationNodeModel.createDimSelectionModel(), 1, Integer.MAX_VALUE);
     }
@@ -84,9 +89,11 @@ public class SlidingWindowOperationNodeDialog<T extends RealType<T>> extends Img
         addDialogComponent("Options", "Out of Bounds Strategy", new DialogComponentOutOfBoundsSelection(
                 SlidingWindowOperationNodeFactory.createOutOfBoundsModel()));
 
-        addDialogComponent("Options", "Neighborhood Type", new DialogComponentStringSelection(
-                SlidingWindowOperationNodeFactory.createNeighborhoodTypeNodeModel(), "Neighborhood Type",
-                EnumListProvider.getStringList(NeighborhoodType.values())));
+        addDialogComponent("Options",
+                           "Neighborhood Type",
+                           new DialogComponentStringSelection(SlidingWindowOperationNodeFactory
+                                   .createNeighborhoodTypeNodeModel(), "Neighborhood Type", EnumUtils
+                                   .getStringCollectionFromToString(NeighborhoodType.values())));
 
     }
 

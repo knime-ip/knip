@@ -56,12 +56,12 @@ import net.imglib2.FinalInterval;
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccess;
 import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.ops.data.CooccurrenceMatrix;
 import net.imglib2.ops.data.CooccurrenceMatrix.MatrixOrientation;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.iterableinterval.unary.MakeCooccurrenceMatrix;
-import net.imglib2.ops.operation.subset.views.ImgView;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 
@@ -70,11 +70,11 @@ import org.knime.knip.core.data.labeling.Signature;
 import org.knime.knip.core.util.PolygonTools;
 
 /**
- * 
+ *
  * Utility class which calculates "caches" commonly used objects, i.e. as soon as one of the methods is called, the
  * demanded object is created and returned. On the second call the already created object is returned, if the parameter
  * object equals (object equality) the parameter object of the previous call.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>

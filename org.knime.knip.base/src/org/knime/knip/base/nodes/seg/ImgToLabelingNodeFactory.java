@@ -50,9 +50,13 @@ package org.knime.knip.base.nodes.seg;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import net.imglib2.Cursor;
 import net.imglib2.img.Img;
@@ -61,6 +65,7 @@ import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingMapping;
 import net.imglib2.labeling.LabelingType;
 import net.imglib2.labeling.NativeImgLabeling;
+import net.imglib2.meta.ImgPlus;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.IntegerType;
 
@@ -77,21 +82,23 @@ import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.node.port.PortObject;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingCellFactory;
 import org.knime.knip.base.data.labeling.LabelingValue;
+import org.knime.knip.base.exceptions.KNIPRuntimeException;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
 import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.types.ImgFactoryTypes;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * NodeFactory for the Lab2Table Node
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -121,24 +128,47 @@ public class ImgToLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>, 
     @Override
     protected ValueToCellNodeDialog<ImgPlusValue<T>> createNodeDialog() {
         return new ValueToCellNodeDialog<ImgPlusValue<T>>() {
+
             /**
              * {@inheritDoc}
              */
             @SuppressWarnings("unchecked")
             @Override
             public void addDialogComponents() {
-                addDialogComponent("Labeling Settings", "", new DialogComponentColumnNameSelection(
-                        createLabelingMapColModel(), "Labels from ...", 0, false, true, LabelingValue.class));
 
-                addDialogComponent("Labeling Settings", "",
-                                   new DialogComponentStringSelection(createFactoryTypeModel(), "Labeling factory",
-                                           EnumListProvider.getStringList(ImgFactoryTypes.values())));
+                final SettingsModelString labCol = createLabelingMapColModel();
+                final SettingsModelString labFac = createFactoryTypeModel();
+                labCol.addChangeListener(new ChangeListener() {
+                    @Override
+                    public void stateChanged(final ChangeEvent e) {
+                        if (labCol.getStringValue() == null || labCol.getStringValue().equals("")) {
+                            labFac.setEnabled(true);
+                        } else {
+                            labFac.setEnabled(false);
+                        }
+                    }
+                });
 
-                addDialogComponent("Options", "Background", new DialogComponentBoolean(createSetBackgroundModel(),
-                        "Use Background value as background?"));
+                addDialogComponent("Labeling Settings", "", new DialogComponentColumnNameSelection(labCol,
+                        "Labels from ...", 0, false, true, LabelingValue.class));
 
-                addDialogComponent("Options", "Background", new DialogComponentNumber(createBackgroundValueModel(),
-                        "Background Value", 1));
+                addDialogComponent("Labeling Settings", "", new DialogComponentStringSelection(labFac,
+                        "Labeling factory", EnumUtils.getStringListFromName(ImgFactoryTypes.values())));
+
+                final SettingsModelBoolean setBackground = createSetBackgroundModel();
+                final SettingsModelInteger backgroundValue = createBackgroundValueModel();
+                setBackground.addChangeListener(new ChangeListener() {
+                    @Override
+                    public void stateChanged(final ChangeEvent arg0) {
+                        backgroundValue.setEnabled(setBackground.getBooleanValue());
+
+                    }
+                });
+                addDialogComponent("Options", "Background", new DialogComponentBoolean(setBackground,
+                        "Use background value as background?"));
+
+                addDialogComponent("Options", "Background", new DialogComponentNumber(backgroundValue,
+                        "Background value", 1));
 
             }
         };
@@ -177,34 +207,56 @@ public class ImgToLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>, 
 
             /**
              * {@inheritDoc}
-             * 
+             *
              * @throws IOException
              */
             @SuppressWarnings("unchecked")
             @Override
             protected LabelingCell<L> compute(final ImgPlusValue<T> cellValue) throws IOException {
 
-                final Img<T> img = cellValue.getImgPlus();
+                final ImgPlus<T> img = cellValue.getImgPlus();
                 if (!(img.firstElement() instanceof IntegerType)) {
-                    LOGGER.warn("Only Images of type IntegerType can be converted into a Labeling. Use the converter to convert your Image e.g. to ShortType, IntType, ByteType or BitType");
+                    throw new KNIPRuntimeException(
+                            "Only Images of type IntegerType can be converted into a Labeling. Use the converter to convert your Image e.g. to ShortType, IntType, ByteType or BitType.");
                 }
 
-                final ImgFactory<T> imgFactory =
-                        ImgFactoryTypes.<T> getImgFactory(ImgFactoryTypes.valueOf(m_factoryType.getStringValue()), img);
-
                 final NativeImgLabeling<L, T> res;
+                final T background = img.firstElement().createVariable();
+                background.setReal(m_background.getIntValue());
 
-                if ((m_currentLabelingMapping != null) && img.factory().getClass().isInstance(imgFactory)) {
-                    res = new NativeImgLabeling<L, T>(cellValue.getImgPlusCopy());
-                    for (int i = 0; i < m_currentLabelingMapping.numLists(); i++) {
-                        res.getMapping().intern(m_currentLabelingMapping.listAtIndex(i));
+                if ((m_currentLabelingMapping != null)) {
+                    final Img<T> container = img.factory().create(img, img.firstElement());
+                    res = new NativeImgLabelingWithoutBackground(container);
+                    Cursor<LabelingType<L>> rc = res.cursor();
+                    Cursor<T> c = img.cursor();
+                    final Map<String, List<L>> labels = new HashMap<String, List<L>>();
+                    List<L> label;
+                    while (rc.hasNext()) {
+                        rc.fwd();
+                        c.fwd();
+                        if (c.get().getInteger() >= 0 && c.get().getInteger() < m_currentLabelingMapping.numLists()) {
+                            rc.get().setLabeling(m_currentLabelingMapping.listAtIndex(c.get().getInteger()));
+                        } else {
+                            label = labels.get(c.get().toString());
+                            if (label == null && m_setBackground.getBooleanValue()
+                                    && (c.get().compareTo(background) == 0)) {
+                                label = rc.get().getMapping().intern(Collections.EMPTY_LIST);
+                                labels.put(c.get().toString(), label);
+                            } else if (label == null) {
+                                final List<L> tmp = Arrays.asList((L)c.get().toString());
+                                label = rc.get().getMapping().intern(tmp);
+                                labels.put(c.get().toString(), label);
+                            }
+                            rc.get().setLabeling(label);
+                        }
                     }
-                } else {
-                    final Img<T> container = imgFactory.create(img, img.firstElement());
 
-                    final T background = img.firstElement().createVariable();
-                    background.setReal(m_background.getIntValue());
-                    res = (NativeImgLabeling<L, T>)new NativeImgLabeling<String, T>(container);
+                } else {
+                    ImgFactory<T> imgFactory =
+                            ImgFactoryTypes.<T> getImgFactory(ImgFactoryTypes.valueOf(m_factoryType.getStringValue()),
+                                                              img);
+                    final Img<T> container = imgFactory.create(img, img.firstElement());
+                    res = new NativeImgLabelingWithoutBackground(container);
                     final Cursor<T> c = img.cursor();
                     final Cursor<LabelingType<L>> rc = res.cursor();
                     final Map<String, List<L>> labels = new HashMap<String, List<L>>();
@@ -212,18 +264,16 @@ public class ImgToLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>, 
                     while (c.hasNext()) {
                         c.fwd();
                         rc.fwd();
-                        if (m_setBackground.getBooleanValue() && (c.get().compareTo(background) == 0)) {
-                            rc.get().setLabeling(rc.get().getMapping().emptyList());
-                        } else {
-                            if ((label = labels.get(c.get().toString())) == null) {
-
-                                final List<L> tmp = Arrays.asList((L)c.get().toString());
-                                labels.put(c.get().toString(), tmp);
-                                label = rc.get().getMapping().intern(tmp);
-
-                            }
-                            rc.get().setLabeling(label);
+                        label = labels.get(c.get().toString());
+                        if (label == null && m_setBackground.getBooleanValue() && (c.get().compareTo(background) == 0)) {
+                            label = rc.get().getMapping().intern(Collections.EMPTY_LIST);
+                            labels.put(c.get().toString(), label);
+                        } else if (label == null) {
+                            final List<L> tmp = Arrays.asList((L)c.get().toString());
+                            label = rc.get().getMapping().intern(tmp);
+                            labels.put(c.get().toString(), label);
                         }
+                        rc.get().setLabeling(label);
                     }
                 }
 
@@ -238,6 +288,11 @@ public class ImgToLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>, 
             @Override
             protected void computeDataRow(final DataRow row) {
                 if (m_labelingMappingColIdx != -1) {
+                    if (row.getCell(m_labelingMappingColIdx).isMissing()) {
+                        LOGGER.warn("Labeling is missing. No labeling mapping can be used.");
+                        m_currentLabelingMapping = null;
+                        return;
+                    }
                     final Labeling<?> tmp = ((LabelingValue<?>)row.getCell(m_labelingMappingColIdx)).getLabeling();
                     if (!(tmp.firstElement().getMapping().getLabels().get(0) instanceof String)) {
                         LOGGER.warn("Labeling for the Labeling Mapping not compatible with String. Labeling Mapping ignored for row  "
@@ -252,14 +307,17 @@ public class ImgToLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>, 
                 }
             }
 
+            /**
+             * {@inheritDoc}
+             */
             @Override
-            protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
-                    throws Exception {
-                m_labelingMappingColIdx = getLabelingMappingColIdx(inData[0].getDataTableSpec());
+            protected PortObject[] execute(final PortObject[] inObjects, final ExecutionContext exec) throws Exception {
+                BufferedDataTable inTable = (BufferedDataTable)inObjects[0];
+                m_labelingMappingColIdx = getLabelingMappingColIdx(inTable.getDataTableSpec());
                 if (m_labelingMappingColIdx == -1) {
                     m_currentLabelingMapping = null;
                 }
-                return super.execute(inData, exec);
+                return super.execute(inObjects, exec);
             }
 
             private int getLabelingMappingColIdx(final DataTableSpec inSpec) {
@@ -275,5 +333,23 @@ public class ImgToLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>, 
             }
 
         };
+    }
+
+    private class NativeImgLabelingWithoutBackground extends NativeImgLabeling<L, T> {
+
+        /**
+         * @param img
+         */
+        public NativeImgLabelingWithoutBackground(final Img<T> img) {
+            super(img);
+            super.mapping = new LabelingMapping<L>(img.firstElement().createVariable()) {
+                {
+                    //remove background from lists
+                    listsByIndex.clear();
+                    internedLists.clear();
+                }
+            };
+        }
+
     }
 }

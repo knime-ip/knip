@@ -34,6 +34,9 @@
 			<option name="Result column">Appends either a column with the complete voronoi
 				based segmentation, the voronoi segmentation without the seeds or
 				both.</option>
+	<option name="Dimension selection">
+	This component allows the selection of dimensions of interest. If an algorithm cannot, as it only supports fewer dimensions than the number of dimensions of the image, or shouldnot, as one wants to run the algorithm only on subsets of the image, be applied on the complete image, the dimension selection can be used to define the plane/cube/hypercube on which the algorithm is applied. Example 1 with three dimensional Image (X,Y,Time): An algorithm cannot be applied to the complete image, as it only supports two dimensional images. If you select e.g. X,Y then the algorithm will be applied to all X,Y planes individually. Example 2 with three dimensional Image (X,Y,Time): The algorithm can be applied in two, three or even more dimensions. Select the dimensions to define your plane/cube/hypercube on which the algorithm will be applied.
+	</option>
 		</tab>
 
 	</fullDescription>
@@ -47,7 +50,7 @@
 	</ports>
 
 	<views>
-		<view name="Table Cell View" index="0"></view>
+		<view name="Table Cell View" index="0">Alternative view on the result images and segmentation.</view>
 	</views>
 
 </knimeNode>

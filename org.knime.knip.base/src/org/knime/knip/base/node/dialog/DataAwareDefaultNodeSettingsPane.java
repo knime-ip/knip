@@ -65,10 +65,9 @@ import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 
-/*
- * Implementation of DefaultNodeSettingsPane for DataAware Dialogs
- * Note that the loadSettingsFrom / loadAdditionalSettingsFrom methods have changed
- * to suit the needs for DataAwareNodeDialogs
+/**
+ * Implementation of DefaultNodeSettingsPane for DataAware Dialogs Note that the loadSettingsFrom /
+ * loadAdditionalSettingsFrom methods have changed to suit the needs for DataAwareNodeDialogs
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -111,7 +110,7 @@ public class DataAwareDefaultNodeSettingsPane extends DataAwareNodeDialogPane {
 
     /**
      * Sets the title of the default tab that is created and used until you call {@link #createNewTab}.
-     * 
+     *
      * @param tabTitle the new title of the first tab. Can't be null or empty.
      * @throws IllegalArgumentException if the title is already used by another tab, or if the specified title is null
      *             or empty.
@@ -137,7 +136,7 @@ public class DataAwareDefaultNodeSettingsPane extends DataAwareNodeDialogPane {
      * new tab the previous tab is no longer accessible. If a tab with the same name was created before an Exception is
      * thrown. The new panel in the new tab has no group set (i.e. has no border). The new tab is placed at the
      * specified position (or at the right most position, if the index is too big).
-     * 
+     *
      * @param tabTitle the title of the new tab to use from now on. Can't be null or empty.
      * @param index the index to place the new tab at. Can't be negative.
      * @throws IllegalArgumentException if you specify a title that is already been used by another tab. Or if the
@@ -162,7 +161,7 @@ public class DataAwareDefaultNodeSettingsPane extends DataAwareNodeDialogPane {
      * new tab the previous tab is no longer accessible. If a tab with the same name was created before an Exception is
      * thrown. The new panel in the new tab has no group set (i.e. has no border). The tab is placed at the right most
      * position.
-     * 
+     *
      * @param tabTitle the title of the new tab to use from now on. Can't be null or empty.
      * @throws IllegalArgumentException if you specify a title that is already been used by another tab. Or if the
      *             specified title is null or empty.
@@ -174,7 +173,7 @@ public class DataAwareDefaultNodeSettingsPane extends DataAwareNodeDialogPane {
 
     /**
      * Brings the specified tab to front and shows its components.
-     * 
+     *
      * @param tabTitle the title of the tab to select. If the specified title doesn't exist, this method does nothing.
      */
     public void selectTab(final String tabTitle) {
@@ -184,7 +183,7 @@ public class DataAwareDefaultNodeSettingsPane extends DataAwareNodeDialogPane {
     /**
      * Creates a new dialog component group and closes the current one. From now on the dialog components added with the
      * addDialogComponent method are added to the current group. The group is a bordered and titled panel.
-     * 
+     *
      * @param title - the title of the new group.
      */
     public void createNewGroup(final String title) {
@@ -204,7 +203,7 @@ public class DataAwareDefaultNodeSettingsPane extends DataAwareNodeDialogPane {
 
     /**
      * Closes the current group. Further added dialog components are added to the default panel outside any border.
-     * 
+     *
      */
     public void closeCurrentGroup() {
         checkForEmptyBox();
@@ -219,7 +218,7 @@ public class DataAwareDefaultNodeSettingsPane extends DataAwareNodeDialogPane {
     /**
      * Add a new DialogComponent to the underlying dialog. It will automatically be added in the dialog and saved/loaded
      * from/to the config.
-     * 
+     *
      * @param diaC component to be added
      */
     public void addDialogComponent(final DialogComponent diaC) {
@@ -230,7 +229,7 @@ public class DataAwareDefaultNodeSettingsPane extends DataAwareNodeDialogPane {
 
     /**
      * Changes the orientation the components get placed in the dialog.
-     * 
+     *
      * @param horizontal <code>true</code> if the next components should be placed next to each other or
      *            <code>false</code> if the next components should be placed below each other.
      */
@@ -245,7 +244,7 @@ public class DataAwareDefaultNodeSettingsPane extends DataAwareNodeDialogPane {
 
     /**
      * Save settings of all registered <code>DialogComponents</code> into the configuration object.
-     * 
+     *
      * @param settings the <code>NodeSettings</code> to write into
      * @throws InvalidSettingsException if the user has entered wrong values
      */
@@ -260,7 +259,7 @@ public class DataAwareDefaultNodeSettingsPane extends DataAwareNodeDialogPane {
 
     /**
      * Load settings for all registered components.
-     * 
+     *
      * @param settings the <code>NodeSettings</code> to read from
      * @param input data at the input port
      * @throws NotConfigurableException if the node can currently not be configured
@@ -286,7 +285,7 @@ public class DataAwareDefaultNodeSettingsPane extends DataAwareNodeDialogPane {
 
     /**
      * Override hook to load additional settings.
-     * 
+     *
      * @param settings The settings of the node
      * @param input The input data.
      * @throws NotConfigurableException If not configurable
@@ -297,7 +296,7 @@ public class DataAwareDefaultNodeSettingsPane extends DataAwareNodeDialogPane {
 
     /**
      * This method can be overridden to save additional settings to the given settings object.
-     * 
+     *
      * @param settings the <code>NodeSettings</code> to write into
      * @throws InvalidSettingsException if the user has entered wrong values
      */

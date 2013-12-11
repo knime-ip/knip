@@ -75,8 +75,8 @@ import org.knime.knip.core.ops.iterable.SlidingMeanIntegralImgBinaryOp;
 import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
- * 
- * 
+ *
+ *
  * @param <T> the pixel type of the input and output image
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -150,24 +150,23 @@ public class LocalThresholderNodeModel2<T extends RealType<T>> extends
         switch (method) {
             case BERNSEN:
                 // TODO integral img?
-                thresholder =
-                        new Bernsen<T, Iterator<T>>(m_contrastThreshold.getDoubleValue(), inputValue.getMaxValue());
+                thresholder = new Bernsen<T>(m_contrastThreshold.getDoubleValue(), inputValue.getMaxValue());
                 break;
             case MEAN:
                 // TODO use integral img wrapper?!
-                thresholder = new MeanLocalThreshold<T, Iterator<T>>(m_c.getDoubleValue());
+                thresholder = new MeanLocalThreshold<T>(m_c.getDoubleValue());
                 break;
             case MEDIAN:
-                thresholder = new MedianLocalThreshold<T, Iterator<T>>(m_c.getDoubleValue());
+                thresholder = new MedianLocalThreshold<T>(m_c.getDoubleValue());
                 break;
             case MIDGREY:
                 thresholder = new MidGrey<T, Iterator<T>>(m_c.getDoubleValue());
                 break;
             case NIBLACK:
-                thresholder = new Niblack<T, Iterator<T>>(m_k.getDoubleValue(), m_c.getDoubleValue());
+                thresholder = new Niblack<T>(m_k.getDoubleValue(), m_c.getDoubleValue());
                 break;
             case SAUVOLA:
-                thresholder = new Sauvola<T, Iterator<T>>(m_k.getDoubleValue(), m_r.getDoubleValue());
+                thresholder = new Sauvola<T>(m_k.getDoubleValue(), m_r.getDoubleValue());
                 break;
             default:
                 throw new RuntimeException(new IllegalArgumentException("Unknown thresholding type"));

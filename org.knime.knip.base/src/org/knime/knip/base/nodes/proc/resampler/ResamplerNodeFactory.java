@@ -50,9 +50,19 @@ package org.knime.knip.base.nodes.proc.resampler;
 
 import java.util.List;
 
+import net.imglib2.FinalInterval;
+import net.imglib2.Interval;
 import net.imglib2.img.Img;
-import net.imglib2.ops.operation.iterableinterval.unary.Resample;
+import net.imglib2.img.ImgView;
+import net.imglib2.interpolation.randomaccess.LanczosInterpolatorFactory;
+import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
+import net.imglib2.interpolation.randomaccess.NearestNeighborInterpolatorFactory;
+import net.imglib2.meta.ImgPlus;
+import net.imglib2.realtransform.RealViews;
+import net.imglib2.realtransform.Scale;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.IntervalView;
+import net.imglib2.view.Views;
 
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
@@ -66,20 +76,24 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
-import org.knime.knip.core.util.EnumListProvider;
-import org.knime.knip.core.util.ImgUtils;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
- * Simple Scaling node
- * 
+ * Simple Scaling Node
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @param <T>
  */
 public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFactory<ImgPlusValue<T>> {
 
+    private enum Mode {
+        LINEAR, NEAREST_NEIGHBOR, PERIODICAL, LANCZOS;
+    }
+
     private static SettingsModelString createInterpolationModel() {
-        return new SettingsModelString("interpolation_mode", Resample.Mode.NEAREST_NEIGHBOR.toString());
+        return new SettingsModelString("interpolation_mode", Mode.NEAREST_NEIGHBOR.toString());
     }
 
     private static SettingsModelBoolean createRelDimsModel() {
@@ -97,15 +111,23 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
     protected ValueToCellNodeDialog<ImgPlusValue<T>> createNodeDialog() {
         return new ValueToCellNodeDialog<ImgPlusValue<T>>() {
 
+            @SuppressWarnings("deprecation")
             @Override
             public void addDialogComponents() {
                 addDialogComponent("Options", "Interpolation mode", new DialogComponentStringSelection(
-                        createInterpolationModel(), "", EnumListProvider.getStringList(Resample.Mode.values())));
-
+                        createInterpolationModel(), "", EnumUtils.getStringListFromName(Mode.values())));
                 addDialogComponent("Options", "New Dimension Sizes", new DialogComponentScalingValues(
                         createScalingModel()));
                 addDialogComponent("Options", "New Dimension Sizes", new DialogComponentBoolean(createRelDimsModel(),
-                        "relative"));
+                        "Relative?"));
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_resampled";
             }
         };
     }
@@ -136,25 +158,27 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
             @Override
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
 
-                final double[] scaling =
-                        m_newDimensions.getNewDimensions(cellValue.getImgPlus().numDimensions(),
-                                                         cellValue.getMetadata());
+                ImgPlus<T> img = cellValue.getImgPlus();
+
+                final double[] scaling = m_newDimensions.getNewDimensions(cellValue.getMetadata());
+                double[] scaleFactors = new double[scaling.length];
+
                 final long[] newDimensions = new long[scaling.length];
                 if (m_relativeDims.getBooleanValue()) {
                     for (int i = 0; i < scaling.length; i++) {
-                        newDimensions[i] = Math.round(cellValue.getImgPlus().dimension(i) * scaling[i]);
+                        newDimensions[i] = Math.round(img.dimension(i) * scaling[i]);
                     }
+                    scaleFactors = scaling;
                 } else {
                     for (int i = 0; i < scaling.length; i++) {
                         newDimensions[i] = Math.round(scaling[i]);
+                        scaleFactors[i] = scaling[i] / img.dimension(i);
                     }
                 }
 
-                return m_imgCellFactory.createCell(new Resample<T, Img<T>>(Resample.Mode
-                                                           .valueOf(m_interpolationSettings.getStringValue()))
-                                                           .compute(cellValue.getImgPlus(), ImgUtils
-                                                                   .createEmptyCopy(cellValue.getImgPlus(),
-                                                                                    newDimensions)), cellValue
+                return m_imgCellFactory.createCell(resample(img,
+                                                            Mode.valueOf(m_interpolationSettings.getStringValue()),
+                                                            new FinalInterval(newDimensions), scaleFactors), cellValue
                                                            .getMetadata());
             }
 
@@ -168,4 +192,34 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
         };
     }
 
+    private Img<T> resample(final Img<T> img, final Mode mode, final Interval newDims, final double[] scaleFactors) {
+        IntervalView<T> interval = null;
+        switch (mode) {
+            case LINEAR:
+                interval =
+                        Views.interval(Views.raster(RealViews.affineReal(Views.interpolate(Views.extendMirrorSingle(img),
+                                                                                           new NLinearInterpolatorFactory<T>()),
+                                                                         new Scale(scaleFactors))), newDims);
+                break;
+            case NEAREST_NEIGHBOR:
+                interval =
+                        Views.interval(Views.raster(RealViews.affineReal(Views.interpolate(Views
+                                .extendMirrorSingle(img), new NearestNeighborInterpolatorFactory<T>()), new Scale(
+                                scaleFactors))), newDims);
+                break;
+            case LANCZOS:
+                interval =
+                        Views.interval(Views.raster(RealViews.affineReal(Views.interpolate(Views.extendMirrorSingle(img),
+                                                                                           new LanczosInterpolatorFactory<T>()),
+                                                                         new Scale(scaleFactors))), newDims);
+                break;
+            case PERIODICAL:
+                interval = Views.interval(Views.extendPeriodic(img), newDims);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown mode in Resample.java");
+        }
+        return new ImgView<T>(interval, img.factory());
+
+    }
 }

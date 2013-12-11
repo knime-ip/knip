@@ -51,40 +51,47 @@ package org.knime.knip.base.nodes.proc;
 import java.util.List;
 
 import net.imglib2.meta.ImgPlus;
+import net.imglib2.ops.operation.ImgOperations;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.UnaryOutputOperation;
-import net.imglib2.ops.operation.randomaccessibleinterval.unary.CLAHE;
 import net.imglib2.type.numeric.RealType;
 
-import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
-import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
+import org.knime.knip.base.nodes.proc.clahe.ClaheND;
+import org.knime.knip.base.nodes.proc.clahe.ClaheNodeFactory;
 import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
- * Factory class to produce an image inverter node.
- * 
+ * Factory class to produce CLAHE Node. Deprecation: Use {@link ClaheNodeFactory}
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+
+ * @param <T>
  */
+@Deprecated
 public class CLAHENodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
 
-    private static SettingsModelInteger createCtxRegionXModel() {
-        return new SettingsModelInteger("number_context_regions_X", 8);
+    private static SettingsModelInteger createCtxNumberX() {
+        return new SettingsModelInteger("ctxX", 8);
     }
 
-    private static SettingsModelInteger createCtxRegionYModel() {
-        return new SettingsModelInteger("number_context_regions_Y", 8);
+    private static SettingsModelInteger createCtxNumberY() {
+        return new SettingsModelInteger("ctxY", 8);
     }
 
-    private static SettingsModelBoolean createEnableClippingModel() {
-        return new SettingsModelBoolean("enable_clipping", true);
+    private static SettingsModelInteger createCtxNumberOfBins() {
+        return new SettingsModelInteger("nrbins", 256);
+    }
+
+    private static SettingsModelInteger createCtxSlope() {
+        return new SettingsModelInteger("slope", 3);
     }
 
     /**
@@ -97,13 +104,16 @@ public class CLAHENodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNod
             @Override
             public void addDialogComponents() {
 
-                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxRegionXModel(),
-                        "Number of contextual regions in X direction.", 1));
-                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxRegionYModel(),
-                        "Number of contextual regions in Y direction.", 1));
+                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxNumberX(),
+                        "Number of contextual regions in X direction", 1));
 
-                addDialogComponent("Options", "CLAHE options", new DialogComponentBoolean(createEnableClippingModel(),
-                        "Clipping"));
+                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxNumberY(),
+                        "Number of contextual regions in Y direction", 1));
+
+                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxNumberOfBins(),
+                        "Number of bins", 1));
+
+                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxSlope(), "Slope", 1));
 
             }
         };
@@ -116,24 +126,30 @@ public class CLAHENodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNod
     public ImgPlusToImgPlusNodeModel<T, T> createNodeModel() {
         return new ImgPlusToImgPlusNodeModel<T, T>("X", "Y") {
 
-            private final SettingsModelInteger m_ctxRegionsX = createCtxRegionXModel();
+            private final SettingsModelInteger m_ctxX = createCtxNumberX();
 
-            private final SettingsModelInteger m_ctxRegionsY = createCtxRegionYModel();
+            private final SettingsModelInteger m_ctxY = createCtxNumberX();
 
-            private final SettingsModelBoolean m_enableClipping = createEnableClippingModel();
+            private final SettingsModelInteger m_numberOfBins = createCtxNumberOfBins();
+
+            private final SettingsModelInteger m_slope = createCtxSlope();
 
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
-                settingsModels.add(m_ctxRegionsX);
-                settingsModels.add(m_ctxRegionsY);
-                settingsModels.add(m_enableClipping);
+                settingsModels.add(m_ctxX);
+                settingsModels.add(m_ctxY);
+                settingsModels.add(m_numberOfBins);
+                settingsModels.add(m_slope);
             }
 
             @Override
             protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> op(final ImgPlus<T> imgPlus) {
-                return Operations.wrap(new CLAHE<T, ImgPlus<T>>(m_ctxRegionsX.getIntValue(), m_ctxRegionsY
-                                               .getIntValue(), m_enableClipping.getBooleanValue()), ImgPlusFactory
-                                               .<T, T> get(imgPlus.firstElement()));
+
+                ClaheND<T> clahe =
+                        new ClaheND<T>(m_ctxX.getIntValue(), m_numberOfBins.getIntValue(), m_slope.getIntValue());
+
+                return Operations.wrap(ImgOperations.wrapRA(clahe, imgPlus.firstElement().createVariable()),
+                                       ImgPlusFactory.<T, T> get(imgPlus.firstElement()));
             }
 
             @Override

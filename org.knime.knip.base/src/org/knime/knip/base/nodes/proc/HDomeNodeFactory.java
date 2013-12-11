@@ -52,6 +52,10 @@ import java.util.List;
 
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.exception.IncompatibleTypeException;
+import net.imglib2.img.Img;
+import net.imglib2.img.ImgFactory;
+import net.imglib2.img.ImgView;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.img.UnaryObjectFactory;
 import net.imglib2.ops.operation.UnaryOutputOperation;
@@ -71,11 +75,15 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
 import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
- * 
+ * HDomeNodeFactory
+ *
+ * @param <T>
+ * @param <TMP>
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @author muethingc, Univeristy of Konstanz
+ *
  */
 public class HDomeNodeFactory<T extends RealType<T>, TMP extends IterableInterval<T> & RandomAccessibleInterval<T>>
         extends ImgPlusToImgPlusNodeFactory<T, T> {
@@ -106,10 +114,10 @@ public class HDomeNodeFactory<T extends RealType<T>, TMP extends IterableInterva
                         createConnectionTypeModel(), "Connection Type", ConnectedType.NAMES));
 
                 addDialogComponent("Options", "Regional Maxima Options", new DialogComponentNumber(
-                        createSubtractModel(), "Subtract domes of height before extraction", 1));
+                        createSubtractModel(), "Subtract Domes of Height Before Extraction", 1));
 
                 addDialogComponent("Options", "Regional Maxima Options", new DialogComponentNumber(createHeightModel(),
-                        "Height of domes", 1));
+                        "Height of Domes", 1));
             }
         };
     }
@@ -123,15 +131,7 @@ public class HDomeNodeFactory<T extends RealType<T>, TMP extends IterableInterva
 
             final class HDomOp implements UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> {
 
-                private HDomeTransformation<T> hDomeTransformation;
-
                 private final T m_type;
-
-                {
-                    hDomeTransformation =
-                            new HDomeTransformation<T>(ConnectedType.value(m_connection.getStringValue()),
-                                    m_height.getDoubleValue(), m_subtract.getDoubleValue());
-                }
 
                 public HDomOp(final T type) {
                     m_type = type;
@@ -144,8 +144,35 @@ public class HDomeNodeFactory<T extends RealType<T>, TMP extends IterableInterva
 
                 @Override
                 public ImgPlus<T> compute(final ImgPlus<T> input, final ImgPlus<T> output) {
-                    hDomeTransformation.compute(input, output);
+                    HDomeTransformation<T> hDomeTransformation =
+                            new HDomeTransformation<T>(ConnectedType.value(m_connection.getStringValue()),
+                                    m_height.getDoubleValue(), m_subtract.getDoubleValue(),
+                                    wrappedFactory(input.factory()));
+
+                    // we really want to have the same buffer, that's why we
+                    hDomeTransformation.compute(new ImgView<T>(input, wrappedFactory(input.factory())), new ImgView<T>(
+                            output, wrappedFactory(output.factory())));
+
                     return output;
+                }
+
+                /**
+                 * @param factory
+                 * @return
+                 */
+                private ImgFactory<T> wrappedFactory(final ImgFactory<T> factory) {
+                    return new ImgFactory<T>() {
+
+                        @Override
+                        public Img<T> create(final long[] dim, final T type) {
+                            return new ImgView<T>(factory.create(dim, type), this);
+                        }
+
+                        @Override
+                        public <S> ImgFactory<S> imgFactory(final S type) throws IncompatibleTypeException {
+                            throw new UnsupportedOperationException("not supported by wrapped factory");
+                        }
+                    };
                 }
 
                 @Override

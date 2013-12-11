@@ -10,28 +10,60 @@
 	<fullDescription>
 
 		<intro>
-			Applies sigma filtering to the input images assuming normally
-			distributed noise.
+			This filter is based on the algorithm described in the
+			following paper:
+
+			Lee, Jong-Sen (1983), "Digital image smoothing and
+			the sigma filter",
+			Computer vision, graphics, and image processing 24
+			(2): 255-269,
+			CODEN: CVGPDB, ISSN 0734-189X
+
+			From the website:
+
+			"The
+			filter smooths an image by taking an average over the neighboring
+			pixels, but only includes those pixels that have a value not
+			deviating from the current pixel by more than a given range. The
+			range is defined by the standard deviation of the pixel values within
+			the neighborhood ("Use Pixels Within ... Sigmas").
+
+			If the number of
+			pixels in this range is too low (less than "Minimum
+			Pixel Fraction"),
+			averaging over all neighboring pixels is performed.
+			With the "Outlier
+			Aware" option, averaging over all neighboring
+			pixels excludes the
+			center pixel. Thus, outliers having a value very
+			different from the
+			surrounding are not included in the average and,
+			thus, completely
+			eliminated." (detail see: http://fiji.sc/wiki/index.php/Sigma_Filter)
 		</intro>
 
 		<tab name="options">
-			<option name="Window Span">The Window Span parameter determines the span of
+			<option name="Span">The Window Span parameter determines the span of
 				the window in one direction. The resulting window size is given by:
-				span*2+1 in each dimension. </option>
+				span*2+1 in each dimension.
+			</option>
 			<option name="Sigma Factor">Factor to scale sigma. It
 				modifies the size of the
-				interval.</option>
+				interval.
+			</option>
 			<option name="Pixel Fraction">The minimum fraction of pixels which have to be
 				in range. Otherwise the mean of all values inside the window is
-				calculated.</option>
+				calculated.
+			</option>
 			<option name="Outlier Detection">Extends the option "Pixel Fraction" by leaving
-				out the center pixel if the fraction of pixels is below the minimum.</option>
+				out the center pixel if the fraction of pixels is below the minimum.
+			</option>
 		</tab>
 	</fullDescription>
 
 	<ports>
-		<inPort index="0" name="Input images">Images to filter</inPort>
-		<outPort index="0" name="Output images">Filtered images
+		<inPort index="0" name="Input images">Images to Filter</inPort>
+		<outPort index="0" name="Output images">Filtered Images
 		</outPort>
 	</ports>
 </knimeNode>

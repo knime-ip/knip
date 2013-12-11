@@ -54,20 +54,15 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.imglib2.Cursor;
-import net.imglib2.img.Img;
 import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingMapping;
 import net.imglib2.labeling.LabelingType;
-import net.imglib2.labeling.NativeImgLabeling;
-import net.imglib2.type.numeric.IntegerType;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeSettingsRO;
-import org.knime.core.node.NotConfigurableException;
+import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.port.PortObjectSpec;
@@ -81,26 +76,15 @@ import org.knime.knip.core.util.StringTransformer;
 
 /**
  * Label Transformer Node Model
- * 
- * @param <T>
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <L>
+ *
  */
-public class LabelTransformerNodeFactory<L extends Comparable<L>, I extends IntegerType<I>> extends
-        ValueToCellNodeFactory<LabelingValue<L>> {
-
-    private class ExtNativeImgLabeling<LL extends Comparable<LL>, II extends IntegerType<II>> extends
-            NativeImgLabeling<LL, II> {
-        /**
-         * @param img
-         */
-        public ExtNativeImgLabeling(final Img<II> img, final LabelingMapping<LL> mapping) {
-            super(img);
-            super.mapping = mapping;
-        }
-
-    }
+public class LabelTransformerNodeFactory<L extends Comparable<L>> extends ValueToCellNodeFactory<LabelingValue<L>> {
 
     private static final String LABEL_VAR = "current_label";
 
@@ -117,33 +101,15 @@ public class LabelTransformerNodeFactory<L extends Comparable<L>, I extends Inte
     protected ValueToCellNodeDialog<LabelingValue<L>> createNodeDialog() {
         return new ValueToCellNodeDialog<LabelingValue<L>>() {
 
-            private DialogComponentStringTransformer m_dialogComponent;
-
             @Override
             public void addDialogComponents() {
-
-                m_dialogComponent = new DialogComponentStringTransformer(createExpressionModel());
-                addDialogComponent("Options", "", m_dialogComponent);
+                DialogComponent dc =
+                        new DialogComponentStringTransformer(createExpressionModel(), true, 0, null, new String[]{
+                                LABEL_VAR, ROW_VAR});
+                addDialogComponent("Options", "", dc);
 
             }
 
-            @Override
-            public void loadAdditionalSettingsFrom(final NodeSettingsRO settings, final DataTableSpec[] specs)
-                    throws NotConfigurableException {
-
-                final String[] colNames = new String[specs[0].getColumnNames().length + 2];
-                int i = 0;
-                for (final String col : specs[0].getColumnNames()) {
-                    colNames[i++] = col;
-                }
-
-                colNames[colNames.length - 2] = ROW_VAR;
-                colNames[colNames.length - 1] = LABEL_VAR;
-
-                m_dialogComponent.setVariables(colNames);
-
-                super.loadAdditionalSettingsFrom(settings, specs);
-            }
         };
     }
 
@@ -157,7 +123,7 @@ public class LabelTransformerNodeFactory<L extends Comparable<L>, I extends Inte
 
             private LabelingCellFactory m_labCellFactory;
 
-            private HashMap<String, Object> m_objects;
+            private final HashMap<String, Object> m_objects = new HashMap<String, Object>();
 
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
@@ -171,48 +137,26 @@ public class LabelTransformerNodeFactory<L extends Comparable<L>, I extends Inte
 
                 // The input labeling
                 final Labeling<L> labeling = cellLabelingVal.getLabeling();
-                Labeling<String> res = null;
-                if (labeling instanceof NativeImgLabeling) {
+                Labeling<String> res = labeling.<String> factory().create(labeling);
 
-                    final Img<I> nativeImgLabeling = ((NativeImgLabeling<L, I>)labeling).getStorageImg();
+                final Cursor<LabelingType<L>> inCursor = labeling.cursor();
+                final Cursor<LabelingType<String>> outCursor = res.cursor();
 
-                    final LabelingMapping<String> newMapping =
-                            new LabelingMapping<String>(nativeImgLabeling.firstElement().createVariable());
-                    final LabelingMapping<L> oldMapping = labeling.firstElement().getMapping();
-                    for (int i = 0; i < oldMapping.numLists(); i++) {
-                        final List<String> newList = new ArrayList<String>();
-                        for (final L label : oldMapping.listAtIndex(i)) {
-                            m_objects.put(LABEL_VAR, label);
-                            newList.add(transformer.transform(m_objects));
-                        }
+                while (inCursor.hasNext()) {
+                    inCursor.fwd();
+                    outCursor.fwd();
 
-                        newMapping.intern(newList);
+                    final List<L> inLabeling = inCursor.get().getLabeling();
+                    final ArrayList<String> labelList = new ArrayList<String>(inLabeling.size());
+
+                    for (final L label : inLabeling) {
+                        m_objects.put(LABEL_VAR, label);
+                        labelList.add(transformer.transform(m_objects));
                     }
 
-                    res = new ExtNativeImgLabeling<String, I>(nativeImgLabeling, newMapping);
-
-                } else {
-
-                    res = labeling.<String> factory().create(labeling);
-
-                    final Cursor<LabelingType<L>> inCursor = labeling.cursor();
-
-                    final Cursor<LabelingType<String>> outCursor = res.cursor();
-
-                    while (inCursor.hasNext()) {
-                        inCursor.fwd();
-                        outCursor.fwd();
-                        for (final L label : inCursor.get().getLabeling()) {
-                            m_objects.put(LABEL_VAR, label);
-                            final List<String> labelList = new ArrayList<String>(outCursor.get().getLabeling());
-
-                            labelList.add(transformer.transform(m_objects));
-                            outCursor.get().setLabeling(labelList);
-
-                        }
-
-                    }
+                    outCursor.get().setLabeling(labelList);
                 }
+
                 final LabelingCell<String> lab =
                         m_labCellFactory.createCell(res, cellLabelingVal.getLabelingMetadata());
                 return lab;
@@ -221,7 +165,7 @@ public class LabelTransformerNodeFactory<L extends Comparable<L>, I extends Inte
 
             @Override
             protected void computeDataRow(final DataRow row) {
-                m_objects = new HashMap<String, Object>();
+                m_objects.clear();
                 final Iterator<DataCell> rowIt = row.iterator();
 
                 int i = 0;

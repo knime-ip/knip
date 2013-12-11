@@ -51,7 +51,7 @@ package org.knime.knip.base.nodes.proc;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.imglib2.img.sparse.NtreeImgFactory;
+import net.imglib2.exception.IncompatibleTypeException;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.img.UnaryObjectFactory;
 import net.imglib2.ops.operation.Operations;
@@ -61,6 +61,7 @@ import net.imglib2.ops.operation.randomaccessibleinterval.unary.LocalMaximaForDi
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 
+import org.knime.core.node.NodeFactory;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
@@ -68,23 +69,25 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
 import org.knime.knip.core.ops.bittype.PositionsToBitTypeImage;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
- * LocalMaxima for DistanceMap Node Factory
- * 
+ * {@link NodeFactory} for {@link LocalMaximaForDistanceMap}
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
- * @author metznerj
+ *
+ * @author Jens Metzner (University of Konstanz)
+ *
+ * @param <T>
  */
 public class LocalMaximaForDistanceMapNodeFactory<T extends RealType<T>> extends
         ImgPlusToImgPlusNodeFactory<T, BitType> {
 
     private class CombinedLocalMaximaOp implements UnaryOutputOperation<ImgPlus<T>, ImgPlus<BitType>> {
 
-        private final LocalMaximaForDistanceMap<T, ImgPlus<T>> m_localMaximaOp;
+        private final LocalMaximaForDistanceMap<T> m_localMaximaOp;
 
         private final NeighborhoodType m_neighborhood;
 
@@ -92,7 +95,7 @@ public class LocalMaximaForDistanceMapNodeFactory<T extends RealType<T>> extends
 
         public CombinedLocalMaximaOp(final NeighborhoodType neighborhood) {
             m_neighborhood = neighborhood;
-            m_localMaximaOp = new LocalMaximaForDistanceMap<T, ImgPlus<T>>(neighborhood);
+            m_localMaximaOp = new LocalMaximaForDistanceMap<T>(neighborhood);
             m_posToBitType = new PositionsToBitTypeImage();
         }
 
@@ -102,9 +105,12 @@ public class LocalMaximaForDistanceMapNodeFactory<T extends RealType<T>> extends
 
                 @Override
                 public ImgPlus<BitType> instantiate(final ImgPlus<T> in) {
-                    final long[] dims = new long[in.numDimensions()];
-                    in.dimensions(dims);
-                    return new ImgPlus<BitType>(new NtreeImgFactory<BitType>().create(dims, new BitType()), in);
+                    try {
+                        return new ImgPlus<BitType>(in.factory().imgFactory(new BitType()).create(in, new BitType()),
+                                in);
+                    } catch (IncompatibleTypeException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             };
         }
@@ -136,7 +142,7 @@ public class LocalMaximaForDistanceMapNodeFactory<T extends RealType<T>> extends
             public void addDialogComponents() {
 
                 addDialogComponent("Options", "Options", new DialogComponentStringSelection(createNeighborhoodModel(),
-                        "Neighboorhood", EnumListProvider.getStringList(NeighborhoodType.values())));
+                        "Neighboorhood", EnumUtils.getStringListFromName(NeighborhoodType.values())));
 
             }
         };

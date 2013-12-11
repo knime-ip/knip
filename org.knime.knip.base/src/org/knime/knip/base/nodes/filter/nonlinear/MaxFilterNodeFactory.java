@@ -55,6 +55,7 @@ import net.imglib2.ops.operation.iterable.unary.Max;
 import net.imglib2.outofbounds.OutOfBoundsFactory;
 import net.imglib2.type.numeric.RealType;
 
+import org.knime.core.node.NodeModel;
 import org.knime.knip.base.nodes.filter.AbstractSlidingWindowOperationNodeModel;
 import org.knime.knip.base.nodes.filter.SlidingWindowOperationNodeDialog;
 import org.knime.knip.base.nodes.filter.SlidingWindowOperationNodeFactory;
@@ -63,10 +64,13 @@ import org.knime.node2012.KnimeNodeDocument;
 import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 
 /**
- * 
+ * {@link NodeModel} for implementation of Max Filter
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <T>
  */
 public class MaxFilterNodeFactory<T extends RealType<T>> extends SlidingWindowOperationNodeFactory<T, T> {
 
@@ -79,9 +83,9 @@ public class MaxFilterNodeFactory<T extends RealType<T>> extends SlidingWindowOp
         node.setIcon("../icons/imgfilter.png");
         node.setType(KnimeNode.Type.MANIPULATOR);
         node.setName("Max Filter");
-        node.setShortDescription("Applys max filtering to images in n-dimensions");
+        node.setShortDescription("Applys Max filtering to images in n-dimensions");
         final FullDescription desc = node.addNewFullDescription();
-        desc.addNewIntro().addNewP().newCursor().setTextValue("Applys max filtering to images in n-dimensions");
+        desc.addNewIntro().addNewP().newCursor().setTextValue("Applys Max filtering to images in n-dimensions");
     }
 
     @Override

@@ -89,9 +89,9 @@ import org.knime.knip.base.exceptions.KNIPRuntimeException;
 import org.knime.knip.base.exceptions.LoggerHelper;
 
 /**
- * 
+ *
  * Node Model to process table cells separately.
- * 
+ *
  * @param <VIN> the type of the input values
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -152,7 +152,7 @@ public abstract class ValueToCellsNodeModel<VIN extends DataValue> extends NodeM
      */
     private BufferedDataTable m_data;
 
-    /*
+    /**
      * Class of the first argument type.
      */
     protected Class<VIN> m_inValueClass;
@@ -178,13 +178,13 @@ public abstract class ValueToCellsNodeModel<VIN extends DataValue> extends NodeM
     /**
      * Contructor to add additional in-ports to the node. The data table port used within this model has index 0! Hence,
      * all additionally added ports will have a index > 0.
-     * 
+     *
      * If you want to overwrite the configure/execute-methods and still want to use the functionality provided by this
      * model, then make sure to overwrite the right methods:
-     * 
+     *
      * {@link #configure(PortObjectSpec[])} and {@link #execute(PortObject[], ExecutionContext)}, and don't forget to
      * call super.... .
-     * 
+     *
      * @param additionalPorts specifies additional ports
      */
     protected ValueToCellsNodeModel(final PortType[] additionalPorts) {
@@ -194,7 +194,7 @@ public abstract class ValueToCellsNodeModel<VIN extends DataValue> extends NodeM
 
     /**
      * Adds the settings model to be saved, load and validated.
-     * 
+     *
      * @param settingsModels
      */
     protected abstract void addSettingsModels(List<SettingsModel> settingsModels);
@@ -214,9 +214,9 @@ public abstract class ValueToCellsNodeModel<VIN extends DataValue> extends NodeM
 
     /**
      * Processes one single data cell. Exactly one of the compute-methods has to be overwritten.
-     * 
+     *
      * @param cellValue
-     * @return
+     * @return computed {@link DataCell}s
      * @throws Exception
      */
     protected abstract DataCell[] compute(VIN cellValue) throws Exception;
@@ -227,7 +227,8 @@ public abstract class ValueToCellsNodeModel<VIN extends DataValue> extends NodeM
     @Override
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
 
-        final int colIndex = getColIndex(inSpecs[0]);
+        final int colIndex = NodeUtils.getColumnIndex(m_column, inSpecs[0], m_inValueClass, this.getClass());
+
         final CellFactory cellFac = createCellFactory(colIndex);
         ColumnRearranger colRearranger;
 
@@ -337,7 +338,9 @@ public abstract class ValueToCellsNodeModel<VIN extends DataValue> extends NodeM
 
         BufferedDataTable[] res;
 
-        final int selectedColIndices = getColIndex(inTable.getDataTableSpec());
+        final int selectedColIndices =
+                NodeUtils.getColumnIndex(m_column, inTable.getDataTableSpec(), m_inValueClass, this.getClass());
+
         final CellFactory cellFac = createCellFactory(selectedColIndices);
 
         exec.setProgress("Processing ...");
@@ -369,7 +372,7 @@ public abstract class ValueToCellsNodeModel<VIN extends DataValue> extends NodeM
         }
 
         if (m_numOccurredErrors > 0) {
-            setWarningMessage(m_numOccurredErrors + " errors occurred while executing!");
+            setWarningMessage(m_numOccurredErrors + " errors occurred while executing! See console log for details!");
         }
 
         // data for the table cell view
@@ -379,20 +382,10 @@ public abstract class ValueToCellsNodeModel<VIN extends DataValue> extends NodeM
 
     }
 
-    protected int getColIndex(final DataTableSpec inSpec) throws InvalidSettingsException {
-
-        int colIdx = -1;
-        if (m_column.getStringValue() != null) {
-            colIdx = NodeTools.autoColumnSelection(inSpec, m_column, m_inValueClass, this.getClass());
-        }
-
-        return colIdx;
-    }
-
     /**
-     * 
+     *
      * Return the DataTypes and Names of the new cells
-     * 
+     *
      * @return the data out types
      */
     protected abstract Pair<DataType[], String[]> getDataOutTypeAndName();
@@ -405,7 +398,7 @@ public abstract class ValueToCellsNodeModel<VIN extends DataValue> extends NodeM
         return new BufferedDataTable[]{m_data};
     }
 
-    /*
+    /**
      * Retrieves the classes of the type arguments VIN and COUT.
      */
     @SuppressWarnings("unchecked")
@@ -451,8 +444,10 @@ public abstract class ValueToCellsNodeModel<VIN extends DataValue> extends NodeM
     /**
      * Will be called before calling the {@link ValueToCellsNodeModel#compute(DataValue)} multiple times. Has to be
      * overwritten if needed.
+     *
+     * @param exec the current {@link ExecutionContext}
      */
-    protected void prepareExecute(@SuppressWarnings("unused") final ExecutionContext exec) {
+    protected void prepareExecute(final ExecutionContext exec) {
         //
     }
 

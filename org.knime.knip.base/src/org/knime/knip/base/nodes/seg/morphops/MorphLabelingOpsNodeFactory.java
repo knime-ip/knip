@@ -48,15 +48,18 @@
  */
 package org.knime.knip.base.nodes.seg.morphops;
 
+import org.knime.core.node.NodeFactory;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 
 /**
- * TODO Auto-generated
- * 
+ * {@link NodeFactory} for Morphological Labeling Operations
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <L>
  */
 public class MorphLabelingOpsNodeFactory<L extends Comparable<L>> extends ValueToCellNodeFactory<LabelingValue<L>> {
 

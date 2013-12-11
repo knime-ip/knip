@@ -5,9 +5,10 @@
 	IBM Corporation - initial API and implementation -->
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="../icons/quantilefilter.png" type="Manipulator">
-	<name>QuantileFilter</name>
+	<name>Quantile Filter</name>
 	<shortDescription>
-		A constant-time Quantile Filter
+		A constant-time Quantile Filter. If you choose
+		quantile = 50, you approximate a median filter.
 	</shortDescription>
 
 	<fullDescription>
@@ -18,21 +19,17 @@
 			S. Perreault and P. Hebert,
 			<i>IEEE transactions on image processing
 				(2007)</i>
-			.
-			<b>Important note:</b>
-			the image stack is converted to UnsignedByteType!
 		</intro>
 		<tab name="Options">
-			<option name="Quantile">The quantile to be used (1-100, 50=median)
+			<option name="Quantile">The Quantile to be used (1-99). If you choose
+				quantile = 50, you approximate a median filter.
 			</option>
-			<option name="Radius">The radius of the moving box to compute the
-				quantile</option>
 		</tab>
 	</fullDescription>
 
 	<ports>
-		<inPort index="0" name="ImageStack">Imagestack to process</inPort>
-		<outPort index="0" name="Image">The filtered imagestack (converted to
-			UnsignedByteType!)</outPort>
+		<inPort index="0" name="Image">Image</inPort>
+		<outPort index="0" name="Filtered Image">Filtered Image
+		</outPort>
 	</ports>
 </knimeNode>

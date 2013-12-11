@@ -61,6 +61,7 @@ import net.imglib2.converter.Converter;
 import net.imglib2.converter.read.ConvertedRandomAccessible;
 import net.imglib2.exception.IncompatibleTypeException;
 import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingType;
@@ -77,7 +78,6 @@ import net.imglib2.ops.operation.randomaccessibleinterval.unary.morph.Structurin
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.AbstractRegionGrowing;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.CCA;
 import net.imglib2.ops.operation.real.unary.RealUnaryOperation;
-import net.imglib2.ops.operation.subset.views.ImgView;
 import net.imglib2.roi.BinaryMaskRegionOfInterest;
 import net.imglib2.roi.EllipseRegionOfInterest;
 import net.imglib2.type.Type;
@@ -87,7 +87,6 @@ import net.imglib2.type.numeric.integer.ShortType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.view.Views;
 
-import org.knime.knip.core.ops.interval.MaximumFinder;
 import org.knime.knip.core.ops.labeling.WatershedWithThreshold;
 
 //TODO: Make Integer more generic

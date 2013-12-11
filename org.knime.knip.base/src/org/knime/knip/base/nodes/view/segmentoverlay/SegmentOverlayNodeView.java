@@ -57,6 +57,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
@@ -67,8 +68,8 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingMapping;
+import net.imglib2.labeling.LabelingView;
 import net.imglib2.labeling.NativeImgLabeling;
-import net.imglib2.ops.operation.subset.views.LabelingView;
 import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.ByteType;
@@ -101,7 +102,7 @@ import org.knime.knip.core.ui.imgviewer.panels.providers.LabelingRU;
 import org.knime.knip.core.util.MiscViews;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -126,7 +127,7 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
     private LabelHiliteProvider<L, T> m_hiliteProvider;
 
     /* Image cell view pane */
-    private ImgViewer m_imgView;
+    private ImgViewer m_imgView = null;
 
     /* Current row */
     private int m_row;
@@ -153,42 +154,17 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
 
     /**
      * Constructor
-     * 
+     *
      * @param model
      */
     public SegmentOverlayNodeView(final SegmentOverlayNodeModel<T, L> model) {
         super(model);
         m_sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         m_row = -1;
-        m_tableContentView = new TableContentView();
-        m_tableContentView.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        m_tableContentView.getSelectionModel().addListSelectionListener(this);
-        m_tableContentView.getColumnModel().getSelectionModel().addListSelectionListener(this);
-        m_tableView = new TableView(m_tableContentView);
 
-        m_imgView = new ImgViewer();
-        m_imgView
-                .addViewerComponent(new AWTImageProvider(20, new CombinedRU(new ImageRU<T>(true), new LabelingRU<L>())));
-        m_imgView.addViewerComponent(new ImgLabelingViewInfoPanel<T, L>());
-        m_imgView.addViewerComponent(new ImgCanvas<T, Img<T>>());
-        m_imgView.addViewerComponent(ViewerComponents.MINIMAP.createInstance());
-        m_imgView.addViewerComponent(ViewerComponents.PLANE_SELECTION.createInstance());
-        m_imgView.addViewerComponent(ViewerComponents.IMAGE_ENHANCE.createInstance());
-        m_imgView.addViewerComponent(new RendererSelectionPanel<T>());
-
-        m_imgView.addViewerComponent(new TransparencyColorSelectionPanel());
-        m_imgView.addViewerComponent(new LabelFilterPanel<L>(
-                getNodeModel().getInternalTables().length > SegmentOverlayNodeModel.PORT_SEG));
-
-        if (getNodeModel().getInternalTables().length > SegmentOverlayNodeModel.PORT_SEG) {
-            m_hiliteProvider = new LabelHiliteProvider<L, T>();
-            m_imgView.addViewerComponent(m_hiliteProvider);
-        } else {
-            m_hiliteProvider = null;
-        }
-
-        m_sp.add(m_tableView);
-        m_sp.add(m_imgView);
+        initTableView();
+        m_sp.setLeftComponent(m_tableView);
+        m_sp.setRightComponent(new JPanel());
 
         setComponent(m_sp);
 
@@ -206,21 +182,60 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
         m_tableView.repaint();
     }
 
+    /*Initializes the table view (left side of the split pane)*/
+    private void initTableView() {
+        m_tableContentView = new TableContentView();
+        m_tableContentView.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        m_tableContentView.getSelectionModel().addListSelectionListener(this);
+        m_tableContentView.getColumnModel().getSelectionModel().addListSelectionListener(this);
+        m_tableView = new TableView(m_tableContentView);
+    }
+
+    /* Initializes the img view (right side of the split pane)*/
+    private void initImgView() {
+        m_imgView = new ImgViewer();
+        m_imgView
+                .addViewerComponent(new AWTImageProvider(20, new CombinedRU(new ImageRU<T>(true), new LabelingRU<L>())));
+        m_imgView.addViewerComponent(new ImgLabelingViewInfoPanel<T, L>());
+        m_imgView.addViewerComponent(new ImgCanvas<T, Img<T>>());
+        m_imgView.addViewerComponent(ViewerComponents.MINIMAP.createInstance());
+        m_imgView.addViewerComponent(ViewerComponents.PLANE_SELECTION.createInstance());
+        m_imgView.addViewerComponent(ViewerComponents.IMAGE_ENHANCE.createInstance());
+        m_imgView.addViewerComponent(new RendererSelectionPanel<T>());
+
+        m_imgView.addViewerComponent(new TransparencyColorSelectionPanel());
+        m_imgView.addViewerComponent(new LabelFilterPanel<L>(
+                getNodeModel().getInternalTables().length > SegmentOverlayNodeModel.PORT_SEG));
+
+        if (getNodeModel().getInternalTables().length > SegmentOverlayNodeModel.PORT_SEG) {
+            m_hiliteProvider = new LabelHiliteProvider<L, T>();
+            m_imgView.addViewerComponent(m_hiliteProvider);
+            final HiLiteHandler handler = getNodeModel().getInHiLiteHandler(getNodeModel().PORT_SEG);
+            m_hiliteProvider.updateInHandler(handler);
+
+        } else {
+            m_hiliteProvider = null;
+        }
+    }
+
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     @Override
     protected void modelChanged() {
         m_tableContentView.setModel(getNodeModel().getTableContentModel());
+        m_imgView = null;
+        m_sp.setRightComponent(new JPanel());
         if (m_hiliteProvider != null) {
             final HiLiteHandler handler = getNodeModel().getInHiLiteHandler(getNodeModel().PORT_SEG);
             m_hiliteProvider.updateInHandler(handler);
         }
+        m_row = -1;
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     @Override
@@ -233,8 +248,10 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
         m_tableView.removeAll();
         m_hiliteProvider = null;
         m_tableContentView.removeAll();
-        m_imgView.getEventService().publish(new ViewClosedEvent());
-        m_imgView.removeAll();
+        if (m_imgView != null) {
+            m_imgView.getEventService().publish(new ViewClosedEvent());
+            m_imgView.removeAll();
+        }
         m_imgView = null;
         m_tableContentView = null;
         m_tableView = null;
@@ -243,7 +260,7 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     @Override
@@ -255,8 +272,8 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
 
     /**
      * Updates the ViewPane with the selected image and labeling
-     * 
-     * 
+     *
+     *
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
@@ -267,6 +284,14 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
 
         if ((row == m_row) || e.getValueIsAdjusting()) {
             return;
+        }
+
+        //if the imgView isn't visible yet, add it to the spit pane -> happens when a cell is selected the first time
+        if (m_imgView == null) {
+            initImgView();
+            int tmp = m_sp.getDividerLocation();
+            m_sp.setRightComponent(m_imgView);
+            m_sp.setDividerLocation(tmp);
         }
 
         m_row = row;

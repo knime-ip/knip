@@ -61,21 +61,23 @@ import org.knime.node2012.KnimeNodeDocument.KnimeNode;
  * Node factory mapping two data values to a data cell. Please note that if this factory is used, the node has to be
  * registered at a extension point using ONLY the {@link NodeSetFactory} class. Registering this class directly will NOT
  * work so far.
- * 
- * 
- * @param <VIN1>
- * @param <VIN2>
- * @param <COUT>
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <VIN1>
+ * @param <VIN2>
  */
 public abstract class TwoValuesToCellNodeFactory<VIN1 extends DataValue, VIN2 extends DataValue> extends
         DynamicNodeFactory<TwoValuesToCellNodeModel<VIN1, VIN2, ? extends DataCell>> {
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated
      */
+    @Deprecated
     @Override
     protected final void addNodeDescription(final KnimeNodeDocument doc) {
         createNodeDescription(doc);
@@ -90,12 +92,12 @@ public abstract class TwoValuesToCellNodeFactory<VIN1 extends DataValue, VIN2 ex
         if (node != null) {
 
             // add description of this dialog
-            //TODO!
+            TwoValuesToCellNodeDialog.addTabsDescriptionTo(node.getFullDescription());
             TableCellViewNodeView.addViewDescriptionTo(node.addNewViews());
 
             if (node.getPorts() == null) {
                 //add default port description
-                //TODO!
+                TwoValuesToCellNodeDialog.addPortsDescriptionTo(node);
             }
 
             // Add user stuff
@@ -107,7 +109,7 @@ public abstract class TwoValuesToCellNodeFactory<VIN1 extends DataValue, VIN2 ex
      * Overwrite this method to add additional details programmatically to the already existing node description
      * (created either from an xml file or in
      * {@link TwoValuesToCellNodeFactory#createNodeDescription(KnimeNodeDocument)}.
-     * 
+     *
      * @param node
      */
     protected void addNodeDescriptionContent(final KnimeNode node) {
@@ -117,9 +119,8 @@ public abstract class TwoValuesToCellNodeFactory<VIN1 extends DataValue, VIN2 ex
     /**
      * Overwrite this method if you want to create the node description programmatically. A description in the xml file
      * named after the derived class will not be used.
-     * 
+     *
      * @param doc
-     * @return
      */
     protected void createNodeDescription(final KnimeNodeDocument doc) {
         // May be overwritten
@@ -153,7 +154,7 @@ public abstract class TwoValuesToCellNodeFactory<VIN1 extends DataValue, VIN2 ex
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     @Override
     protected TwoValuesToCellNodeDialog<VIN1, VIN2> createNodeDialogPane() {
@@ -161,7 +162,7 @@ public abstract class TwoValuesToCellNodeFactory<VIN1 extends DataValue, VIN2 ex
     }
 
     /**
-     * 
+     *
      * @return the new dialog
      */
     protected abstract TwoValuesToCellNodeDialog<VIN1, VIN2> createNodeDialog();

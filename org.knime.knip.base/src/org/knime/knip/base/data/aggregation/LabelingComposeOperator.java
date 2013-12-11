@@ -110,11 +110,11 @@ import org.knime.knip.core.data.img.LabelingMetadata;
 import org.knime.knip.core.types.ConstantLabelingType;
 import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.types.NativeTypes;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.Triple;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -134,6 +134,10 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>, L
 
     private static SettingsModelString createLabelColumnModel() {
         return new SettingsModelString("label_column", "");
+    }
+
+    private static SettingsModelString createLabelColorColumnModel() {
+        return new SettingsModelString("label_color_col_model", "");
     }
 
     private static SettingsModelString createLabelingFactoryModel() {
@@ -404,14 +408,14 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>, L
 
             m_dcLabelingType =
                     new DialogComponentStringSelection(createLabelingTypeModel(), "Result labeling type",
-                            EnumListProvider.getStringList(NativeTypes.SHORTTYPE, NativeTypes.BITTYPE,
+                            EnumUtils.getStringListFromName(NativeTypes.SHORTTYPE, NativeTypes.BITTYPE,
                                                            NativeTypes.BYTETYPE, NativeTypes.INTTYPE,
                                                            NativeTypes.UNSIGNEDSHORTTYPE, NativeTypes.UNSIGNEDINTTYPE,
                                                            NativeTypes.UNSIGNEDBYTETYPE));
 
             m_dcLabelingFactory =
                     new DialogComponentStringSelection(createLabelingFactoryModel(), "Result labeling factory",
-                            EnumListProvider.getStringList(ImgFactoryTypes.ARRAY_IMG_FACTORY,
+                            EnumUtils.getStringListFromName(ImgFactoryTypes.ARRAY_IMG_FACTORY,
                                                            ImgFactoryTypes.CELL_IMG_FACTORY,
                                                            ImgFactoryTypes.NTREE_IMG_FACTORY,
                                                            ImgFactoryTypes.PLANAR_IMG_FACTORY));

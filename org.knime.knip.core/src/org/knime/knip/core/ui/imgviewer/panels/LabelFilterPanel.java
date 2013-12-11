@@ -108,9 +108,9 @@ import org.knime.knip.core.util.MiscViews;
 
 /**
  * Panel to generate a Rulebased LabelFilter.
- * 
+ *
  * Publishes {@link RulebasedLabelFilter}
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -129,33 +129,34 @@ public class LabelFilterPanel<L extends Comparable<L>> extends ViewerComponent {
 
     private RulebasedLabelFilter<L> m_ruleFilter;
 
-    private NameSetbasedLabelFilter<L> m_hiliteFilter;
-
     private List<JTextField> m_textFields;
 
     private JComboBox m_operatorBox;
 
     private JPanel m_textFieldsPanel;
 
-    private HashSet<String> m_hilitedLabels;
-
     private Labeling<L> m_labeling;
-
-    private boolean m_hMode = false; // state of highlighting mode
 
     private final JTabbedPane m_filterTabbs = new JTabbedPane();
 
     private JScrollPane m_filters;
 
-    private boolean m_showHilitedOnly = false;
-
-    private boolean m_showUnhilitedOnly = false;
-
     private JPopupMenu m_contextMenu;
+
+    /*Hiliting*/
+    private boolean m_hMode = false; // state of highlighting mode
+
+    private HashSet<String> m_hilitedLabels;
+
+    private NameSetbasedLabelFilter<L> m_hiliteFilter;
 
     private JMenuItem m_hiliteSelected;
 
     private JMenuItem m_unhiliteSelected;
+
+    private boolean m_showHilitedOnly = false;
+
+    private boolean m_showUnhilitedOnly = false;
 
     public LabelFilterPanel() {
         this(false);
@@ -259,6 +260,10 @@ public class LabelFilterPanel<L extends Comparable<L>> extends ViewerComponent {
         m_filterTabbs.add("Labels", m_scrollPane);
         m_filterTabbs.add("Filter Rules", m_filters);
         add(confirmationPanel);
+
+        if (enableHilite) {
+            m_hilitedLabels = new HashSet<String>();
+        }
     }
 
     protected void addTextField(final String initValue) {
@@ -376,8 +381,8 @@ public class LabelFilterPanel<L extends Comparable<L>> extends ViewerComponent {
     }
 
     /**
-     * @param axes
-     * @param name
+     * @param e
+     *
      */
     @EventListener
     public void onLabelingUpdated(final IntervalWithMetadataChgEvent<LabelingType<L>> e) {
@@ -396,7 +401,8 @@ public class LabelFilterPanel<L extends Comparable<L>> extends ViewerComponent {
 
     @EventListener
     public void onHiliteChanged(final HilitedLabelsChgEvent e) {
-        m_hilitedLabels = new HashSet<String>(e.getHilitedLabels());
+        m_hilitedLabels.clear();
+        m_hilitedLabels.addAll(e.getHilitedLabels());
         m_jLabelList.setListData(m_activeLabels);
 
         if (m_showHilitedOnly || m_showUnhilitedOnly) {

@@ -45,7 +45,6 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ---------------------------------------------------------------------
  *
- * Created on Sep 9, 2013 by dietzc
  */
 package org.knime.knip.base.nodes.seg.colormanager;
 
@@ -74,18 +73,18 @@ import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.data.labeling.LabelingCellFactory;
 import org.knime.knip.base.data.labeling.LabelingValue;
-import org.knime.knip.base.node.NodeTools;
+import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
 import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 
 /**
  * Apply information of ColorModel (which is appended to column) to the LabelingColorTables of the Labelings in the
  * column.
- * 
+ *
  * @param <L>
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 public class ApplyColorSettingsToLabelsNodeModel<L extends Comparable<L>> extends NodeModel implements
         BufferedDataTableHolder {
@@ -110,19 +109,14 @@ public class ApplyColorSettingsToLabelsNodeModel<L extends Comparable<L>> extend
     private int m_selectedColumn;
 
     /**
-     * 
-     * SettingsModel to store if existing table should be overriden or not
-     * 
-     * @return
+     * @return SettingsModel to store if existing table should be overriden or not
      */
     protected static SettingsModelBoolean createOverrideExistingColorTablesModel() {
         return new SettingsModelBoolean("override_existing", false);
     }
 
     /**
-     * SettingsModel to store selected labeling column
-     * 
-     * @return
+     * @return SettingsModel to store selected labeling column
      */
     protected static SettingsModelString createLabelingColumnModel() {
         return new SettingsModelString("labeling_column", "-1");
@@ -139,7 +133,7 @@ public class ApplyColorSettingsToLabelsNodeModel<L extends Comparable<L>> extend
 
         if (m_selectedColumn == -1) {
             m_selectedColumn =
-                    NodeTools.autoColumnSelection(inSpecs[0], m_labelingColModel, LabelingValue.class,
+                    NodeUtils.autoColumnSelection(inSpecs[0], m_labelingColModel, LabelingValue.class,
                                                   ApplyColorSettingsToLabelsNodeModel.class);
         }
 
@@ -192,6 +186,7 @@ public class ApplyColorSettingsToLabelsNodeModel<L extends Comparable<L>> extend
             for (int i = 0; i < row.getNumCells(); i++) {
 
                 if (i == m_selectedColumn) {
+                    @SuppressWarnings("unchecked")
                     LabelingValue<L> labVal = (LabelingValue<L>)(row.getCell(m_selectedColumn));
                     DefaultLabelingMetadata resMetadata = new DefaultLabelingMetadata(labVal.getLabelingMetadata());
 

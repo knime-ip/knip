@@ -53,9 +53,9 @@ import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.type.numeric.RealType;
 
-import org.knime.core.data.DataCell;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.NodeLogger;
+import org.knime.core.node.NodeModel;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
@@ -63,41 +63,88 @@ import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 
 /**
- * TODO Auto-generated
- * 
+ * {@link NodeModel} to map from one {@link ImgPlus} to another {@link ImgPlus} rowwise
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <T> type of the incoming {@link ImgPlus}
+ * @param <V> type of the outgoing {@link ImgPlus}
  */
 public abstract class ImgPlusToImgPlusNodeModel<T extends RealType<T>, V extends RealType<V>> extends
         ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<V>> {
 
-    private final static NodeLogger LOGGER = NodeLogger.getLogger(ImgPlusToImgPlusNodeModel.class);
+    /**
+     * Global KNIME Logger
+     */
+    protected final static NodeLogger LOGGER = NodeLogger.getLogger(ImgPlusToImgPlusNodeModel.class);
 
+    /**
+     * Create the {@link SettingsModelDimSelection}
+     *
+     * @param axes default axes
+     * @return the {@link SettingsModelDimSelection}
+     */
     protected static SettingsModelDimSelection createDimSelectionModel(final String... axes) {
         return new SettingsModelDimSelection("dim_selection", axes);
     }
 
+    /**
+     * {@link SettingsModelDimSelection} to store dimension selection
+     */
     protected SettingsModelDimSelection m_dimSelection;
 
-    private ImgPlusCellFactory m_imgCellFactory;
+    /**
+     * {@link ImgPlusCellFactory} used to create {@link ImgPlusCell}
+     */
+    protected ImgPlusCellFactory m_imgCellFactory;
 
+    /**
+     * if true, parallelization is active
+     */
+    private boolean m_active = true;
+
+    /**
+     * Constructor
+     *
+     * @param isEnabled
+     * @param axes
+     */
     protected ImgPlusToImgPlusNodeModel(final boolean isEnabled, final String... axes) {
         m_dimSelection = createDimSelectionModel(axes);
         m_dimSelection.setEnabled(isEnabled);
     }
 
+    /**
+     * Constructor
+     *
+     * @param axes default axes
+     */
+    protected ImgPlusToImgPlusNodeModel(final String... axes) {
+        this(true, axes);
+    }
+
+    /**
+     * Will be removed in KNIP 2.0.0
+     *
+     * @param model
+     */
+    @Deprecated
     protected ImgPlusToImgPlusNodeModel(final SettingsModelDimSelection model) {
         this(model, true);
     }
 
+    /**
+     * Will be removed in KNIP 2.0.0
+     *
+     * @param model
+     * @param isEnabled
+     */
+    @Deprecated
     protected ImgPlusToImgPlusNodeModel(final SettingsModelDimSelection model, final boolean isEnabled) {
         m_dimSelection = model;
         m_dimSelection.setEnabled(isEnabled);
-    }
-
-    protected ImgPlusToImgPlusNodeModel(final String... axes) {
-        this(true, axes);
     }
 
     @Override
@@ -114,7 +161,7 @@ public abstract class ImgPlusToImgPlusNodeModel<T extends RealType<T>, V extends
         }
 
         if (m_dimSelection.getNumSelectedDimLabels(cellValue.getMetadata()) < getMinDimensions()) {
-            handleNotEnoughDims();
+            throw new KNIPException("not enough selected dimensions provided by image.");
         }
 
         final UnaryOutputOperation<ImgPlus<T>, ImgPlus<V>> op = op(cellValue.getImgPlus());
@@ -122,19 +169,35 @@ public abstract class ImgPlusToImgPlusNodeModel<T extends RealType<T>, V extends
         final int[] selection = m_dimSelection.getSelectedDimIndices(cellValue.getMetadata());
 
         return m_imgCellFactory.createCell(SubsetOperations.iterate(op, selection, cellValue.getImgPlus(), op
-                .bufferFactory().instantiate(cellValue.getImgPlus()), getExecutorService()), cellValue.getMinimum());
-    }
-
-    protected DataCell handleNotEnoughDims() throws KNIPException {
-        throw new KNIPException("not enough selected dimensions provided by image.");
+                                                   .bufferFactory().instantiate(cellValue.getImgPlus()), m_active
+                                                   ? getExecutorService() : null),
+                                           cellValue.getMinimum());
     }
 
     /**
-     * UnaryOperation is needed here
-     * 
-     * @return
+     * Create {@link UnaryOutputOperation} to map from one {@link ImgPlus} to another {@link ImgPlus}.
+     *
+     * @param imgPlus The incoming {@link ImgPlus}
+     * @return {@link UnaryOutputOperation} which will be used to map from {@link ImgPlus} to another {@link ImgPlus}
      */
     protected abstract UnaryOutputOperation<ImgPlus<T>, ImgPlus<V>> op(ImgPlus<T> imgPlus);
+
+    /**
+     * Enable/Disable plane-wise or rather hypercube-wise parallelization. NB: Disable parallelization, if the
+     * {@link UnaryOutputOperation} provided by the implementation is able to parallelize
+     *
+     * @param active
+     */
+    protected void enableParallelization(final boolean active) {
+        this.m_active = active;
+    }
+
+    /**
+     * @return true, if plane-wise parallelization is active
+     */
+    protected boolean isParallelization() {
+        return m_active;
+    }
 
     /**
      * {@inheritDoc}
@@ -144,6 +207,9 @@ public abstract class ImgPlusToImgPlusNodeModel<T extends RealType<T>, V extends
         m_imgCellFactory = new ImgPlusCellFactory(exec);
     }
 
+    /**
+     * @return number of dimensions which an {@link ImgPlus} must provide to run this node
+     */
     protected abstract int getMinDimensions();
 
 }

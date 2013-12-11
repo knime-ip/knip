@@ -62,16 +62,22 @@ import org.knime.core.node.KNIMEConstants;
 import org.knime.core.util.ThreadPool;
 
 /**
- * TODO Auto-generated
- * 
+ * ExecutorService for KNIME {@link ThreadPool}
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 public class ThreadPoolExecutorService implements ExecutorService {
 
+    // the underlying threadpool
     private final ThreadPool m_pool;
 
+    /**
+     * Create and {@link ThreadPoolExecutorService} given a {@link ThreadPool}
+     *
+     * @param pool
+     */
     public ThreadPoolExecutorService(final ThreadPool pool) {
         if (pool == KNIMEConstants.GLOBAL_THREAD_POOL) {
             throw new IllegalArgumentException("KNIME global threadpool can't be wrapped. Create subpool");
@@ -81,15 +87,29 @@ public class ThreadPoolExecutorService implements ExecutorService {
 
     @Override
     public boolean awaitTermination(final long timeout, final TimeUnit unit) throws InterruptedException {
-        m_pool.wait(timeout, (int)unit.toNanos(timeout));
+        // TODO: better time-out implementation
+        m_pool.waitForTermination();
         return isTerminated();
     }
 
     @Override
     public void execute(final Runnable command) {
-        m_pool.enqueue(command);
+        try {
+            m_pool.enqueue(command).get();
+        } catch (InterruptedException e) {
+            //TODO Handle this exception using a NodeLogger + warning
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            //TODO Handle this exception using a NodeLogger + warning
+            throw new RuntimeException(e);
+        }
     }
 
+    /**
+     * Get the underlying {@link ThreadPool}
+     *
+     * @return
+     */
     public ThreadPool getThreadPool() {
         return m_pool;
     }

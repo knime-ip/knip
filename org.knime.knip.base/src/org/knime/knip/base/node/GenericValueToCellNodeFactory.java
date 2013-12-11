@@ -61,13 +61,13 @@ import org.knime.node2012.KnimeNodeDocument.KnimeNode;
  * Node factory mapping one data value to a data cell. Please note that if this factory is used, the node has to be
  * registered at a extension point using ONLY the {@link NodeSetFactory} class. Registering this class directly will NOT
  * work so far.
- * 
- * 
- * @param <VIN>
- * @param <COUT>
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <VIN>
+ * @param <M>
  */
 public abstract class GenericValueToCellNodeFactory<VIN extends DataValue, M extends ValueToCellNodeModel<VIN, ? extends DataCell>>
         extends DynamicNodeFactory<M> {
@@ -75,6 +75,7 @@ public abstract class GenericValueToCellNodeFactory<VIN extends DataValue, M ext
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("deprecation")
     @Override
     protected final void addNodeDescription(final KnimeNodeDocument doc) {
         createNodeDescription(doc);
@@ -105,7 +106,7 @@ public abstract class GenericValueToCellNodeFactory<VIN extends DataValue, M ext
      * Overwrite this method to add additional details programmatically to the already existing node description
      * (created either from an xml file or in
      * {@link GenericValueToCellNodeFactory#createNodeDescription(KnimeNodeDocument)}.
-     * 
+     *
      * @param node
      */
     protected void addNodeDescriptionContent(final KnimeNode node) {
@@ -115,9 +116,8 @@ public abstract class GenericValueToCellNodeFactory<VIN extends DataValue, M ext
     /**
      * Overwrite this method if you want to create the node description programmatically. A description in the xml file
      * named after the derived class will not be used.
-     * 
+     *
      * @param doc
-     * @return
      */
     protected void createNodeDescription(final KnimeNodeDocument doc) {
         // May be overwritten
@@ -149,7 +149,7 @@ public abstract class GenericValueToCellNodeFactory<VIN extends DataValue, M ext
 
     /**
      * {@inheritDoc}
-     * 
+     *
      */
     @Override
     protected final ValueToCellNodeDialog<VIN> createNodeDialogPane() {
@@ -157,7 +157,7 @@ public abstract class GenericValueToCellNodeFactory<VIN extends DataValue, M ext
     }
 
     /**
-     * 
+     *
      * @return the new dialog
      */
     protected abstract ValueToCellNodeDialog<VIN> createNodeDialog();

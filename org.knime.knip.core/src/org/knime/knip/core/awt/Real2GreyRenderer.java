@@ -49,10 +49,10 @@
 package org.knime.knip.core.awt;
 
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.display.projectors.AbstractProjector2D;
-import net.imglib2.display.projectors.Projector2D;
-import net.imglib2.display.projectors.screenimages.ARGBScreenImage;
-import net.imglib2.display.projectors.screenimages.ScreenImage;
+import net.imglib2.display.projector.AbstractProjector2D;
+import net.imglib2.display.projector.Projector2D;
+import net.imglib2.display.screenimage.awt.ARGBScreenImage;
+import net.imglib2.display.screenimage.awt.AWTScreenImage;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.RealType;
 
@@ -62,7 +62,7 @@ import org.knime.knip.core.awt.specializedrendering.FastNormalizingGreyRendering
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -83,11 +83,11 @@ public class Real2GreyRenderer<R extends RealType<R>> extends ProjectingRenderer
     }
 
     @Override
-    public ScreenImage render(final RandomAccessibleInterval<R> source, final int dimX, final int dimY,
+    public AWTScreenImage render(final RandomAccessibleInterval<R> source, final int dimX, final int dimY,
                               final long[] planePos) {
 
         // speed up standard cases e.g. array image...
-        final ScreenImage fastResult =
+        final AWTScreenImage fastResult =
                 FastNormalizingGreyRendering.tryRendering(source, dimX, dimY, planePos, m_normalizationFactor, m_min);
 
         if (fastResult != null) {

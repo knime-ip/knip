@@ -52,8 +52,10 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.node.NodeLogger;
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeDialog;
 import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
@@ -67,10 +69,13 @@ import org.knime.knip.base.nodes.seg.morphops.MorphLabelingOpsNodeModel.LabelHan
 import org.knime.knip.base.nodes.seg.morphops.MorphLabelingOpsNodeModel.MorphOp;
 
 /**
- * 
+ * {@link NodeDialog} for Morphological Labeling Operations
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <L>
  */
 public class MorphLabelingOpsNodeDialog<L extends Comparable<L>> extends ValueToCellNodeDialog<LabelingValue<L>> {
 
@@ -78,54 +83,88 @@ public class MorphLabelingOpsNodeDialog<L extends Comparable<L>> extends ValueTo
 
     private boolean m_structProvided;
 
+    private SettingsModelString m_type;
+
     /**
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
     @Override
     public void addDialogComponents() {
-        final SettingsModelString type = MorphLabelingOpsNodeModel.createConnectionTypeModel();
-        addDialogComponent("Options", "Structuring Element", new DialogComponentStringSelection(type,
+        m_type = MorphLabelingOpsNodeModel.createConnectionTypeModel();
+        addDialogComponent("Options", "Structuring Element", new DialogComponentStringSelection(m_type,
                 "Connection Type", MorphLabelingOpsNodeModel.ConnectedType.NAMES));
         m_struct = MorphLabelingOpsNodeModel.createStructureColModel();
-        addDialogComponent("Options", "Structuring Element", new DialogComponentColumnNameSelection(m_struct, "Column",
-                1, false, true, ImgPlusValue.class));
+        addDialogComponent("Options", "Structuring Element", new DialogComponentColumnNameSelection(m_struct,
+                "Structuring Element", 1, false, true, ImgPlusValue.class));
+
+        final SettingsModelString structColumn = m_struct;
+        m_type.addChangeListener(new ChangeListener() {
+
+            @Override
+            public void stateChanged(final ChangeEvent e) {
+                // activate column selection if structuring element was selected
+                structColumn.setEnabled(isStructuringElement(m_type.getStringValue()));
+            }
+        });
 
         addDialogComponent("Options", "Operation",
                            new DialogComponentStringSelection(MorphLabelingOpsNodeModel.createOperationModel(), "",
                                    MorphOp.NAMES));
         addDialogComponent("Options", "Operation",
                            new DialogComponentStringSelection(MorphLabelingOpsNodeModel.createLabelingBasedModel(),
-                                   "Labeling-based", LabelHandling.NAMES));
-
-        type.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(final ChangeEvent e) {
-                if (MorphLabelingOpsNodeModel.ConnectedType.value(type.getStringValue()) != MorphLabelingOpsNodeModel.ConnectedType.STRUCTURING_ELEMENT) {
-                    m_struct.setStringValue(null);
-                } else if (!m_structProvided) {
-                    type.setStringValue(MorphLabelingOpsNodeModel.ConnectedType.FOUR_CONNECTED.toString());
-                    NodeLogger.getLogger(this.getClass())
-                            .warn("No strucutring element in inport 2 provided. Four-Connected is chosen by default.");
-                }
-            }
-        });
+                                   "Strategy", LabelHandling.NAMES));
 
         addDialogComponent("Options", "Operation",
                            new DialogComponentNumber(MorphLabelingOpsNodeModel.createIterationsModel(),
-                                   "Number of iterations", 1));
-        addDialogComponent("Options", "Dimension selection",
+                                   "Number of Iterations", 1));
+
+        addDialogComponent("Options", "Dimension Selection",
                            new DialogComponentDimSelection(MorphLabelingOpsNodeModel.createDimSelectionModel(), "", 2,
                                    Integer.MAX_VALUE));
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveAdditionalSettingsTo(final NodeSettingsWO settings) throws InvalidSettingsException {
+        super.saveAdditionalSettingsTo(settings);
+
+        if (MorphLabelingOpsNodeModel.ConnectedType.value(m_type.getStringValue()) == MorphLabelingOpsNodeModel.ConnectedType.STRUCTURING_ELEMENT
+                && !m_structProvided) {
+            throw new InvalidSettingsException(
+                    "You can't have a strucuturing element selection without providing a strucuturing element in the second in port!");
+        }
+
+    }
+
+    private boolean isStructuringElement(final String type) {
+        return type == null
+                || MorphLabelingOpsNodeModel.ConnectedType.value(type) == MorphLabelingOpsNodeModel.ConnectedType.STRUCTURING_ELEMENT;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void loadAdditionalSettingsFrom(final NodeSettingsRO settings, final DataTableSpec[] specs)
             throws NotConfigurableException {
         super.loadAdditionalSettingsFrom(settings, specs);
-
         m_structProvided = specs[1].getNumColumns() != 0;
-        m_struct.setEnabled(m_structProvided);
 
+        // if we dont have a structuring element anymore we select four connected as default
+        if (!m_structProvided && m_struct.getStringValue() != null && isStructuringElement(m_type.getStringValue())) {
+            // auto select something else
+            m_type.setStringValue(MorphLabelingOpsNodeModel.ConnectedType.FOUR_CONNECTED.toString());
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String getDefaultSuffixForAppend() {
+        return "_morphLab";
     }
 }

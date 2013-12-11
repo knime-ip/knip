@@ -52,6 +52,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -62,12 +63,12 @@ import net.imglib2.RandomAccess;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.labeling.Labeling;
+import net.imglib2.labeling.LabelingView;
 import net.imglib2.meta.CalibratedSpace;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.meta.ImgPlusMetadata;
 import net.imglib2.meta.MetadataUtil;
 import net.imglib2.ops.operation.Operations;
-import net.imglib2.ops.operation.subset.views.LabelingView;
 import net.imglib2.roi.IterableRegionOfInterest;
 import net.imglib2.sampler.special.ConstantRandomAccessible;
 import net.imglib2.type.logic.BitType;
@@ -104,7 +105,7 @@ import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
-import org.knime.knip.base.node.NodeTools;
+import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.node.nodesettings.SettingsModelFilterSelection;
 import org.knime.knip.base.nodes.features.providers.FeatureSetProvider;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
@@ -116,18 +117,18 @@ import org.knime.knip.core.util.MiscViews;
  * A abstract node model, which allows to calculate arbitrary features on {@link IterableInterval}s. That intervals can
  * be either derived from a single image, from a single segments of a labeling or from segments and the according source
  * image toghether (region of interest).
- * 
+ *
  * Subclasses basically only need to specify the type on what the features should be calculated (image, labeling,
  * image_and_labeling) which determines whether to select only an image column, only a labeling column, or an image and
  * a labeling column in the configuration dialog.
- * 
+ *
  * The method {@link IntervalFeatureSetNodeModel#getFeatureSetProviders()}, to be overwritten in the subclasses,
  * determines the available features sets (which provide additional dialog components to configure the features, and
  * actually calculates the feature values).
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
  * @param <L>
  * @param <T>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
@@ -199,7 +200,7 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
     /**
      * @param type the feature type, i.e. which objects are needed to calculate the features: there are either a single
      *            image, image AND labeling or only a labeling
-     * 
+     *
      */
     protected IntervalFeatureSetNodeModel(final FeatureType type,
                                           final FeatureSetProvider<ValuePair<IterableInterval<T>, CalibratedSpace>>[] fsetProviders) {
@@ -356,7 +357,7 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
 
             final Map<L, List<L>> dependencies = Operations.compute(dependencyOp, labeling);
 
-            final List<L> labels = labeling.firstElement().getMapping().getLabels();
+            final Collection<L> labels = labeling.getLabels();
 
             IterableRegionOfInterest labelRoi;
             for (final L label : labels) {
@@ -456,7 +457,7 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
         if ((m_type == FeatureType.IMAGE) || (m_type == FeatureType.IMAGE_AND_LABELING)) {
             imgColIndex = inSpec.findColumnIndex(m_imgColumn.getStringValue());
             if (imgColIndex == -1) {
-                if ((imgColIndex = NodeTools.autoOptionalColumnSelection(inSpec, m_imgColumn, ImgPlusValue.class)) >= 0) {
+                if ((imgColIndex = NodeUtils.autoOptionalColumnSelection(inSpec, m_imgColumn, ImgPlusValue.class)) >= 0) {
                     setWarningMessage("Auto-configure Image Column: " + m_imgColumn.getStringValue());
                 } else {
                     throw new InvalidSettingsException("No column selected!");
@@ -472,7 +473,7 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
         if ((m_type == FeatureType.LABELING) || (m_type == FeatureType.IMAGE_AND_LABELING)) {
             labColIndex = inSpec.findColumnIndex(m_labColumn.getStringValue());
             if (labColIndex == -1) {
-                if ((labColIndex = NodeTools.autoOptionalColumnSelection(inSpec, m_labColumn, LabelingValue.class)) >= 0) {
+                if ((labColIndex = NodeUtils.autoOptionalColumnSelection(inSpec, m_labColumn, LabelingValue.class)) >= 0) {
                     setWarningMessage("Auto-configure Labeling Column: " + m_labColumn.getStringValue());
                 } else {
                     throw new InvalidSettingsException("No column selected!");
@@ -501,6 +502,8 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
                 specs.add(new DataColumnSpecCreator("LabelDependencies", StringCell.TYPE).createSpec());
             }
         }
+
+
         for (final FeatureSetProvider<ValuePair<IterableInterval<T>, CalibratedSpace>> featSet : m_featSetProviders) {
             if (isFeatureSetActive(featSet.getFeatureSetId())) {
                 featSet.initAndAddColumnSpecs(specs);

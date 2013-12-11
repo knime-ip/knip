@@ -65,10 +65,8 @@ import net.imglib2.view.Views;
 
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
-import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
-import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
@@ -79,11 +77,12 @@ import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentSubsetSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
-import org.knime.knip.core.types.ImgFactoryTypes;
-import org.knime.knip.core.util.EnumListProvider;
 
 /**
- * 
+ * ImgCropperNodeFactory
+ *
+ * @param <T>
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -93,10 +92,6 @@ public class ImgCropperNodeFactory<T extends RealType<T> & NativeType<T>> extend
 
     private static SettingsModelBoolean createAdjustDimModel() {
         return new SettingsModelBoolean("cfg_adjust_dimensionality", true);
-    }
-
-    private static SettingsModelString createFactorySelectionModel() {
-        return new SettingsModelString("cfg_factory_selection", ImgFactoryTypes.SOURCE_FACTORY.toString());
     }
 
     private static SettingsModelSubsetSelection createSubsetSelectionModel() {
@@ -112,15 +107,20 @@ public class ImgCropperNodeFactory<T extends RealType<T> & NativeType<T>> extend
 
             @Override
             public void addDialogComponents() {
-                addDialogComponent("Options", "Subset selection", new DialogComponentSubsetSelection(
+                addDialogComponent("Options", "Subset Selection", new DialogComponentSubsetSelection(
                         createSubsetSelectionModel(), true, true));
 
-                addDialogComponent("Options", "Factory selection", new DialogComponentStringSelection(
-                        createFactorySelectionModel(), "", EnumListProvider.getStringList(ImgFactoryTypes.values())));
-
                 addDialogComponent("Options", "Options", new DialogComponentBoolean(createAdjustDimModel(),
-                        "Adjust dimensionality?"));
+                        "Adjust Dimensionality?"));
 
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_cropped";
             }
         };
     }
@@ -136,13 +136,10 @@ public class ImgCropperNodeFactory<T extends RealType<T> & NativeType<T>> extend
 
             private final SettingsModelBoolean m_smAdjustDimensionality = createAdjustDimModel();
 
-            private final SettingsModelString m_smFactorySelection = createFactorySelectionModel();
-
             private final SettingsModelSubsetSelection m_smSubsetSel = createSubsetSelectionModel();
 
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
-                settingsModels.add(m_smFactorySelection);
                 settingsModels.add(m_smSubsetSel);
                 settingsModels.add(m_smAdjustDimensionality);
             }
@@ -167,11 +164,8 @@ public class ImgCropperNodeFactory<T extends RealType<T> & NativeType<T>> extend
                         iis[i] = Views.iterable(Views.interval(img, intervals[i]));
                     }
 
-                    @SuppressWarnings("unchecked")
                     final MergeIterableIntervals<T> mergeOp =
-                            new MergeIterableIntervals<T>(ImgFactoryTypes.<T> getImgFactory(ImgFactoryTypes
-                                    .valueOf(m_smFactorySelection.getStringValue()), img),
-                                    m_smAdjustDimensionality.getBooleanValue());
+                            new MergeIterableIntervals<T>(img.factory(), m_smAdjustDimensionality.getBooleanValue());
 
                     if ((iis.length == 1) && m_smAdjustDimensionality.getBooleanValue()) {
                         // special case handling if dim
@@ -199,7 +193,7 @@ public class ImgCropperNodeFactory<T extends RealType<T> & NativeType<T>> extend
                     final List<CalibratedAxis> validAxes = new ArrayList<CalibratedAxis>();
                     for (int d = 0; d < img.numDimensions(); d++) {
                         if (!mergeOp.getInvalidDims().contains(d)) {
-                            validAxes.add((CalibratedAxis)cellValue.getMetadata().axis(d).copy());
+                            validAxes.add(cellValue.getMetadata().axis(d).copy());
                         }
                     }
 

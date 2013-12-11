@@ -19,6 +19,6 @@
 
 	<ports>
 		<inPort index="0" name="Images">Images</inPort>
-		<outPort index="0" name="Distance Images">Distance Images</outPort>
+		<outPort index="0" name="Distance Images">Distance Images with float type pixels</outPort>
 	</ports>
 </knimeNode>

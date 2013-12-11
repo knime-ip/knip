@@ -54,26 +54,30 @@ import net.imglib2.type.numeric.RealType;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
- * TODO Auto-generated
- * 
+ * NodeDialog
+ *
+ * @param <T>
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 public class MultilevelThresholderNodeDialog<T extends RealType<T>> extends ImgPlusToImgPlusNodeDialog<T> {
 
+    /**
+     * Constructor
+     */
     public MultilevelThresholderNodeDialog() {
-        super(MultilevelThresholderNodeModel.createDimSelectionModel(), 2, 2);
+        super(1, Integer.MAX_VALUE, "X", "Y");
     }
 
     @Override
     public void addDialogComponents() {
         addDialogComponent("Options", "Thresholding Method",
                            new DialogComponentStringSelection(MultilevelThresholderNodeModel.createThresholderModel(),
-                                   "", EnumListProvider.getStringList(MultilevelThresholderType.values())));
+                                   "", EnumUtils.getStringListFromName(MultilevelThresholderType.values())));
 
         addDialogComponent("Options", "Parameters",
                            new DialogComponentNumber(MultilevelThresholderNodeModel.createNumberOfLevels(),

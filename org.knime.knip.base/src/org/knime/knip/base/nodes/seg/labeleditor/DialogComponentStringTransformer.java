@@ -69,6 +69,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DialogComponent;
@@ -78,8 +79,8 @@ import org.knime.core.node.util.DataColumnSpecListCellRenderer;
 import org.knime.knip.core.util.StringTransformer;
 
 /**
- * TODO Auto-generated
- * 
+ * Dialog Component for String Transformations
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -90,15 +91,14 @@ public class DialogComponentStringTransformer extends DialogComponent {
      * Renderer that will display the rowindex and rowkey with different background.
      */
     private static class ListRenderer extends DataColumnSpecListCellRenderer {
-        /**
-         * 
-         */
+
         private static final long serialVersionUID = 1L;
 
         /** {@inheritDoc} */
         @Override
-        public Component getListCellRendererComponent(final JList list, final Object value, final int index,
-                                                      final boolean isSelected, final boolean cellHasFocus) {
+        public Component getListCellRendererComponent(@SuppressWarnings("rawtypes") final JList list,
+                                                      final Object value, final int index, final boolean isSelected,
+                                                      final boolean cellHasFocus) {
             final Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             if (value instanceof String) {
                 c.setFont(list.getFont().deriveFont(Font.ITALIC));
@@ -107,14 +107,44 @@ public class DialogComponentStringTransformer extends DialogComponent {
         }
     }
 
+    private static final String DELIM = "$";
+
     private final JEditorPane m_expEdit;
 
+    @SuppressWarnings("rawtypes")
     private final JList m_varList;
 
-    public DialogComponentStringTransformer(final SettingsModelString expressionModel) {
-        super(expressionModel);
+    private final String m_requiredVariable;
 
-        m_varList = new JList(new DefaultListModel());
+    private final boolean m_addColumnAsVariables;
+
+    private final int m_portIdx;
+
+    private DefaultListModel m_listModel;
+
+    /**
+     * @param expressionModel settings modelF
+     * @param addColumnAsVariables if true, the input columns will be added as variables, too
+     * @param portIdx input port of the data table (for input column variables)
+     * @param requiredVariable the variables the must appear in the expression, if <code>null</code> no required
+     *            variable is assumed
+     * @param variables all available variables
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public DialogComponentStringTransformer(final SettingsModelString expressionModel,
+                                            final boolean addColumnAsVariables, final int portIdx,
+                                            final String requiredVariable, final String... variables) {
+        super(expressionModel);
+        m_addColumnAsVariables = addColumnAsVariables;
+        m_portIdx = portIdx;
+        m_requiredVariable = requiredVariable;
+
+        m_listModel = new DefaultListModel();
+        for (int i = 0; i < variables.length; i++) {
+            m_listModel.addElement(variables[i]);
+        }
+
+        m_varList = new JList(m_listModel);
 
         m_expEdit = new JEditorPane();
 
@@ -147,36 +177,6 @@ public class DialogComponentStringTransformer extends DialogComponent {
         getComponentPanel().setLayout(new BorderLayout());
         getComponentPanel().add(finalPanel, BorderLayout.CENTER);
 
-        // m_expEdit.getDocument().addDocumentListener(
-        // new DocumentListener() {
-        // public void removeUpdate(
-        // final DocumentEvent e) {
-        // try {
-        // updateModel();
-        // } catch (final InvalidSettingsException ise) {
-        // // Ignore it here.
-        // }
-        // }
-        //
-        // public void insertUpdate(
-        // final DocumentEvent e) {
-        // try {
-        // updateModel();
-        // } catch (final InvalidSettingsException ise) {
-        // // Ignore it here.
-        // }
-        // }
-        //
-        // public void changedUpdate(
-        // final DocumentEvent e) {
-        // try {
-        // updateModel();
-        // } catch (final InvalidSettingsException ise) {
-        // // Ignore it here.
-        // }
-        // }
-        // });
-
         getModel().addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(final ChangeEvent arg0) {
@@ -189,8 +189,7 @@ public class DialogComponentStringTransformer extends DialogComponent {
 
     @Override
     protected void checkConfigurabilityBeforeLoad(final PortObjectSpec[] specs) throws NotConfigurableException {
-        // TODO Auto-generated method stub
-
+        // NB nothing to do
     }
 
     private JPanel createPanel() {
@@ -231,12 +230,10 @@ public class DialogComponentStringTransformer extends DialogComponent {
     }
 
     /**
-     * Return the expression transformer
-     * 
-     * @throws InvalidSettingsException
+     * @return the expression transformer
      */
     public StringTransformer getStringTransformer() {
-        return new StringTransformer(m_expEdit.getText().toString(), "$");
+        return new StringTransformer(m_expEdit.getText().toString(), DELIM);
     }
 
     @Override
@@ -251,18 +248,20 @@ public class DialogComponentStringTransformer extends DialogComponent {
         m_varList.setToolTipText(text);
     }
 
-    public void setVariables(final String... variables) {
-
-        final DefaultListModel listModel = (DefaultListModel)m_varList.getModel();
-        listModel.removeAllElements();
-        for (int i = 0; i < variables.length; i++) {
-            listModel.addElement(variables[i]);
-        }
-        m_varList.repaint();
-    }
-
     @Override
     protected void updateComponent() {
+        m_listModel.clear();
+        //variables from column
+        if (m_addColumnAsVariables) {
+            PortObjectSpec spec = getLastTableSpec(m_portIdx);
+            if (spec != null && spec instanceof DataTableSpec) {
+
+                for (final String col : ((DataTableSpec)spec).getColumnNames()) {
+                    ((DefaultListModel)m_varList.getModel()).addElement(col);
+                }
+            }
+        }
+
         // only update component if values are off
         final SettingsModelString model = (SettingsModelString)getModel();
         setEnabledComponents(model.isEnabled());
@@ -271,7 +270,7 @@ public class DialogComponentStringTransformer extends DialogComponent {
 
     /**
      * Transfers the current value from the component into the model.
-     * 
+     *
      * @throws InvalidSettingsException if the string was not accepted.
      */
     private void updateModel() throws InvalidSettingsException {
@@ -281,6 +280,10 @@ public class DialogComponentStringTransformer extends DialogComponent {
 
     @Override
     protected void validateSettingsBeforeSave() throws InvalidSettingsException {
+        if (m_requiredVariable != null && !m_expEdit.getText().contains(DELIM + m_requiredVariable + DELIM)) {
+            throw new InvalidSettingsException("Label transformation: Required variable " + m_requiredVariable
+                    + " is missing.");
+        }
         updateModel();
     }
 

@@ -62,16 +62,26 @@ import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelectio
 import org.knime.core.node.defaultnodesettings.DialogComponentString;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.node2012.FullDescriptionDocument.FullDescription;
+import org.knime.node2012.InPortDocument.InPort;
+import org.knime.node2012.KnimeNodeDocument.KnimeNode;
+import org.knime.node2012.OptionDocument.Option;
+import org.knime.node2012.OutPortDocument.OutPort;
+import org.knime.node2012.PortsDocument.Ports;
+import org.knime.node2012.TabDocument.Tab;
 
 /**
  * TODO: Standard description
- * 
+ *
  * Dialog corresponding to the {@link TwoValuesToCellNodeModel} which already contains dialog components, but others can
  * still be added (this {@link #addDialogComponent(String, String, DialogComponent)}.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <VIN1>
+ * @param <VIN2>
  */
 public abstract class TwoValuesToCellNodeDialog<VIN1 extends DataValue, VIN2 extends DataValue> extends
         LazyNodeDialogPane {
@@ -84,12 +94,68 @@ public abstract class TwoValuesToCellNodeDialog<VIN1 extends DataValue, VIN2 ext
 
     private SettingsModelString m_smColumnSuffix;
 
+    /**
+     * Adds the description of the column selection tab to the node description.
+     *
+     * @param desc
+     */
+    static void addTabsDescriptionTo(final FullDescription desc) {
+        final Tab tab = desc.addNewTab();
+        tab.setName("Column Selection");
+        Option opt = tab.addNewOption();
+        opt.setName("Column Creation Mode");
+        opt.addNewP()
+                .newCursor()
+                .setTextValue("Mode how to handle the selected column. The processed column can be added to a new table, appended to the end of the table, or the old columns can be replaced by the new result");
+        opt = tab.addNewOption();
+        opt.setName("Column Suffix");
+        opt.newCursor()
+                .setTextValue("A suffix appended to the column name. If \"Append\" is not selected, it can be left empty.");
+        opt = tab.addNewOption();
+        opt.setName("Column Selection");
+        opt.newCursor().setTextValue("Selection of the columns to be processed.");
+    }
+
+    /**
+     * Adds the port description to the node description.
+     *
+     * @param node
+     */
+    static void addPortsDescriptionTo(final KnimeNode node) {
+        final Ports ports = node.addNewPorts();
+        final InPort inPort = ports.addNewInPort();
+        inPort.newCursor().setTextValue("Images");
+        inPort.setName("Images");
+        inPort.setIndex(0);
+        inPort.newCursor().setTextValue("Images");
+        final OutPort outPort = ports.addNewOutPort();
+        outPort.setName("Processed Images");
+        outPort.setIndex(0);
+        outPort.newCursor().setTextValue("Processed Images");
+    }
+
+    /**
+     * Default Constructor
+     */
     public TwoValuesToCellNodeDialog() {
+        this(false);
+    }
 
+    /**
+     * Possible lazy constructor
+     *
+     * If lazy is true addDialogComponents(); buildDialog();
+     *
+     * Must be called manually!
+     *
+     * @param lazy indicator whether lazy or not
+     */
+    public TwoValuesToCellNodeDialog(final boolean lazy) {
         addDCs();
-        addDialogComponents();
-        buildDialog();
-
+        if (!lazy) {
+            addDialogComponents();
+            buildDialog();
+        }
     }
 
     /*
@@ -112,13 +178,13 @@ public abstract class TwoValuesToCellNodeDialog<VIN1 extends DataValue, VIN2 ext
 
         m_firstColumnSettingsModel = TwoValuesToCellNodeModel.createFirstColModel();
 
-        addDialogComponent("Column Selection", "Choose", new DialogComponentColumnNameSelection(
+        addDialogComponent("Column Selection", "Column Selection", new DialogComponentColumnNameSelection(
                 m_firstColumnSettingsModel, getFirstColumnSelectionLabel(), 0, isFirstColumnRequired(),
                 !isFirstColumnRequired(), argTypeClasses[0]));
 
         m_secondColumnSettingsModel = TwoValuesToCellNodeModel.createSecondColModel();
 
-        addDialogComponent("Column Selection", "Choose", new DialogComponentColumnNameSelection(
+        addDialogComponent("Column Selection", "Column Selection", new DialogComponentColumnNameSelection(
                 m_secondColumnSettingsModel, getSecondColumnSelectionLabel(), 0, isSecondColumnRequired(),
                 !isSecondColumnRequired(), argTypeClasses[1]));
 
@@ -162,6 +228,9 @@ public abstract class TwoValuesToCellNodeDialog<VIN1 extends DataValue, VIN2 ext
         return "First column";
     }
 
+    /**
+     * @return settings model of first column
+     */
     protected SettingsModelString getFirstColumnSettingsModel() {
         return m_firstColumnSettingsModel;
     }
@@ -173,6 +242,9 @@ public abstract class TwoValuesToCellNodeDialog<VIN1 extends DataValue, VIN2 ext
         return "Second column";
     }
 
+    /**
+     * @return settings model of second column
+     */
     protected SettingsModelString getSecondColumnSettingsModel() {
         return m_secondColumnSettingsModel;
     }
@@ -206,8 +278,8 @@ public abstract class TwoValuesToCellNodeDialog<VIN1 extends DataValue, VIN2 ext
 
     /**
      * Indicates whether the first column is required to be selected or not
-     * 
-     * @return
+     *
+     * @return true, if first column is required
      */
     public boolean isFirstColumnRequired() {
         return true;
@@ -215,8 +287,8 @@ public abstract class TwoValuesToCellNodeDialog<VIN1 extends DataValue, VIN2 ext
 
     /**
      * Indicates whether the second column is required to be selected or not
-     * 
-     * @return
+     *
+     * @return true, if second column is required
      */
     public boolean isSecondColumnRequired() {
         return true;

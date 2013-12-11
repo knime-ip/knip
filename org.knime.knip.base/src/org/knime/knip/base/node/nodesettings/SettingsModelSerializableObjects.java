@@ -71,8 +71,8 @@ import org.knime.knip.core.io.externalization.ExternalizerManager;
 /**
  * Saves serializable objects as base64 encoded string. Base64 is used to increase the performance of the serialization
  * because the NodeSettingsWO addByteArray method writes the byte array as single bytes.
- * 
- * 
+ *
+ *
  * @param <S>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -88,8 +88,12 @@ public class SettingsModelSerializableObjects<S extends Serializable> extends Se
 
     private final List<S> m_objects;
 
-    /*
+    /**
      * Copy constructor.
+     *
+     * @param configName
+     * @param objects
+     * @param objExternalizer
      */
     protected SettingsModelSerializableObjects(final String configName, final Collection<S> objects,
                                                final Externalizer<Object> objExternalizer) {
@@ -99,6 +103,10 @@ public class SettingsModelSerializableObjects<S extends Serializable> extends Se
         m_objectExternalizerToUse = objExternalizer;
     }
 
+    /**
+     * @param configName
+     * @param objExternalizer
+     */
     public SettingsModelSerializableObjects(final String configName, final Externalizer<Object> objExternalizer) {
         m_configName = configName;
         m_objects = new ArrayList<S>();
@@ -132,6 +140,9 @@ public class SettingsModelSerializableObjects<S extends Serializable> extends Se
         return "SMID_kernel_selection";
     }
 
+    /**
+     * @return all objects
+     */
     public List<S> getObjects() {
         return m_objects;
     }
@@ -211,6 +222,9 @@ public class SettingsModelSerializableObjects<S extends Serializable> extends Se
         settings.addString(m_configName, res);
     }
 
+    /**
+     * @param objects objects to be serialized
+     */
     public void setObjects(final Collection<S> objects) {
         m_objects.clear();
         m_objects.addAll(objects);

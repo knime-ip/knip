@@ -7,15 +7,14 @@
 		labeling column</shortDescription>
 
 	<fullDescription>
-		<intro>This node can list properties of labeling in an labeling
-			column.
+		<intro>This node can list properties of labeling in an labeling column.
 			It supports the number of dimensions, number of pixels, data type,
 			number of labels, container type, etc</intro>
 
 		<tab name="Options">
 			<option name="Labeling to analyse">Select an image column which images
-				shall be analyzed.</option>
-			<option name="Select Properties">Select which properties shall be analyzed.
+				shall be analyzed. (Number of dimensions, number of pixels etc.)</option>
+			<option name="Features">Select which features shall be analyzed.
 			</option>
 		</tab>
 	</fullDescription>

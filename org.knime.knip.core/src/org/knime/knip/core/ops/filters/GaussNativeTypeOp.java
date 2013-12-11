@@ -48,6 +48,8 @@
  */
 package org.knime.knip.core.ops.filters;
 
+import java.util.concurrent.ExecutorService;
+
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.algorithm.gauss3.Gauss3;
@@ -61,12 +63,13 @@ import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.view.Views;
 
 /**
- * 
+ *
  * @param <T>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @author dietyc
+ * @param <TYPE>
  */
 public class GaussNativeTypeOp<T extends RealType<T> & NativeType<T>, TYPE extends RandomAccessibleInterval<T>>
         implements UnaryOperation<TYPE, TYPE> {
@@ -75,31 +78,28 @@ public class GaussNativeTypeOp<T extends RealType<T> & NativeType<T>, TYPE exten
 
     private final OutOfBoundsFactory<T, TYPE> m_fac;
 
-    private final int m_numThreads;
+    private final ExecutorService m_service;
 
     /**
-     * @param numThreads
+     * @param service
      * @param sigmas
      * @param factory
      */
-    public GaussNativeTypeOp(final int numThreads, final double[] sigmas, final OutOfBoundsFactory<T, TYPE> factory) {
+    public GaussNativeTypeOp(final ExecutorService service, final double[] sigmas,
+                             final OutOfBoundsFactory<T, TYPE> factory) {
         m_sigmas = sigmas.clone();
         m_fac = factory;
-        m_numThreads = 1;
+        m_service = service;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public TYPE compute(final TYPE input, final TYPE output) {
 
-        if (m_sigmas.length != input.numDimensions()) {
-            throw new IllegalArgumentException("Size of sigma array doesn't fit to input image");
-        }
-
         final RandomAccessible<FloatType> rIn = (RandomAccessible<FloatType>)Views.extend(input, m_fac);
 
         try {
-            SeparableSymmetricConvolution.convolve(Gauss3.halfkernels(m_sigmas), rIn, output, 1);
+            SeparableSymmetricConvolution.convolve(Gauss3.halfkernels(m_sigmas), rIn, output, m_service);
 
         } catch (final IncompatibleTypeException e) {
             throw new RuntimeException(e);
@@ -110,7 +110,7 @@ public class GaussNativeTypeOp<T extends RealType<T> & NativeType<T>, TYPE exten
 
     @Override
     public UnaryOperation<TYPE, TYPE> copy() {
-        return new GaussNativeTypeOp<T, TYPE>(m_numThreads, m_sigmas.clone(), m_fac);
+        return new GaussNativeTypeOp<T, TYPE>(m_service, m_sigmas.clone(), m_fac);
     }
 
 }

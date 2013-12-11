@@ -51,6 +51,7 @@ package org.knime.knip.base.nodes.proc;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.SubsetOperations;
@@ -67,6 +68,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.node.TwoValuesToCellNodeDialog;
 import org.knime.knip.base.node.TwoValuesToCellNodeFactory;
 import org.knime.knip.base.node.TwoValuesToCellNodeModel;
@@ -74,17 +76,34 @@ import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 
 /**
+ * Grayscale Reconstruction NodeFactory
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @author muethingc, University of Konstanz
+ *
+ * @param <T>
  */
 public final class GrayscaleReconstructionNodeFactory<T extends RealType<T>> extends
         TwoValuesToCellNodeFactory<ImgPlusValue<T>, ImgPlusValue<T>> {
 
+    /**
+     * Operating type
+     */
     public enum OperationType {
-        DILATE("By Dilation"), ERODE("By Erosion");
 
+        /**
+         * dilate operator
+         */
+        DILATE("By Dilation"),
+        /**
+         * erode operator
+         */
+        ERODE("By Erosion");
+
+        /**
+         * Names of operators
+         */
         public static final List<String> NAMES = new ArrayList<String>();
 
         static {
@@ -93,6 +112,10 @@ public final class GrayscaleReconstructionNodeFactory<T extends RealType<T>> ext
             }
         }
 
+        /**
+         * @param name string representation of the {@link OperationType}
+         * @return return operator according to name
+         */
         public static OperationType value(final String name) {
             return values()[NAMES.indexOf(name)];
         }
@@ -130,7 +153,7 @@ public final class GrayscaleReconstructionNodeFactory<T extends RealType<T>> ext
 
             @Override
             public void addDialogComponents() {
-                addDialogComponent("Options", "Dim Selection", new DialogComponentDimSelection(
+                addDialogComponent("Options", "Dimension Selection", new DialogComponentDimSelection(
                         createDimSelectionModel(), "Dimension selection", 2, 5));
 
                 addDialogComponent("Options", "Grayscale Reconstruction Options", new DialogComponentStringSelection(
@@ -178,18 +201,39 @@ public final class GrayscaleReconstructionNodeFactory<T extends RealType<T>> ext
                 final ImgPlus<T> mask = cellValue1.getImgPlus();
                 final ImgPlus<T> marker = cellValue2.getImgPlus();
 
-                final ConnectedType type = ConnectedType.value(m_connection.getStringValue());
-                UnaryOperation<Img<T>, Img<T>> op;
-
-                if (OperationType.value(m_operation.getStringValue()) == OperationType.DILATE) {
-                    op = new GrayscaleReconstructionByDilation<T, T, Img<T>, Img<T>>(type);
-                } else {
-                    op = new GrayscaleReconstructionByErosion<T, T, Img<T>, Img<T>>(type);
+                if (mask.numDimensions() == 1) {
+                    throw new KNIPException("One dimensional images are not supported by GrayScaleReconstruction");
+                }
+                if (mask.numDimensions() != marker.numDimensions()) {
+                    throw new KNIPException(
+                            "Dimensions of image in column one does not fit to dimension of image in column two!");
                 }
 
-                final Img<T> out =
-                        SubsetOperations.iterate(op, m_dimSelection.getSelectedDimIndices(mask), mask, marker.copy(),
-                                                 getExecutorService());
+                final int[] selectedDimIndices = m_dimSelection.getSelectedDimIndices(mask);
+
+                int dim1 = 0;
+                for (int idx : selectedDimIndices) {
+                    if (mask.dimension(idx) <= 1) {
+                        dim1++;
+                    }
+                }
+
+                if (selectedDimIndices.length - dim1 <= 1) {
+                    throw new KNIPException(
+                            "Image would be reduced to a one dimensional image, which can't be processed using the Grayscale Reconstruction. Please select different dimensions in the dimension selection.");
+                }
+
+                final ConnectedType type = ConnectedType.value(m_connection.getStringValue());
+                UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> op;
+
+                if (OperationType.value(m_operation.getStringValue()) == OperationType.DILATE) {
+                    op = new GrayscaleReconstructionByDilation<T, T>(type);
+                } else {
+                    op = new GrayscaleReconstructionByErosion<T, T>(type);
+                }
+
+                Img<T> out = marker.copy();
+                SubsetOperations.iterate(op, selectedDimIndices, mask, out, getExecutorService());
 
                 return m_imgCellFactory.createCell(out, cellValue1.getMetadata());
             }

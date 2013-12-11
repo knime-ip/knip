@@ -56,8 +56,8 @@ import javax.swing.event.ChangeListener;
 import net.imglib2.Cursor;
 import net.imglib2.FinalInterval;
 import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
 import net.imglib2.meta.ImgPlus;
-import net.imglib2.ops.operation.subset.views.ImgView;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Intervals;
 import net.imglib2.view.Views;
@@ -81,10 +81,11 @@ import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 
 /**
  * Automatically crops an image.
- * 
+ *
+ * @param <T>
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 public class AutoCropNodeFactory<T extends RealType<T>> extends ValueToCellNodeFactory<ImgPlusValue<T>> {
 
@@ -146,6 +147,14 @@ public class AutoCropNodeFactory<T extends RealType<T>> extends ValueToCellNodeF
                         "Keep result within image borders"));
                 addDialogComponent("Margin", "", new DialogComponentNumber(outOfBoundsVal, "Out of bounds value", 1));
 
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_autoCrop";
             }
         };
     }
@@ -220,6 +229,11 @@ public class AutoCropNodeFactory<T extends RealType<T>> extends ValueToCellNodeF
 
                 // crop
                 final FinalInterval interval = new FinalInterval(min, max);
+                for (int i = 0; i < max.length; i++) {
+                    if (min[i] > max[i]) {
+                        throw new KNIPRuntimeException("Illegal bounding box size.");
+                    }
+                }
                 if (Intervals.numElements(interval) <= 0) {
                     throw new KNIPRuntimeException("Illegal bounding box size.");
                 }
@@ -233,7 +247,7 @@ public class AutoCropNodeFactory<T extends RealType<T>> extends ValueToCellNodeF
                 }
                 final Img<T> res = img.factory().create(view, img.firstElement().createVariable());
                 final Cursor<T> cur1 = view.cursor();
-                final Cursor<T> cur2 = res.cursor();
+                final Cursor<T> cur2 = Views.flatIterable(res).cursor();
                 while (cur1.hasNext()) {
                     cur1.fwd();
                     cur2.fwd();

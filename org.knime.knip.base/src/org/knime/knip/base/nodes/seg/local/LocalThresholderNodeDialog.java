@@ -60,7 +60,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.core.types.NeighborhoodType;
 import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * @author friedrichm, dietzc (University of Konstanz)
@@ -68,7 +68,7 @@ import org.knime.knip.core.util.EnumListProvider;
 // TODO Remove with 2.0
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -86,11 +86,11 @@ public class LocalThresholderNodeDialog<T extends RealType<T>> extends ImgPlusTo
         final SettingsModelString method = LocalThresholderNodeModel.createThresholderModel();
 
         addDialogComponent("Options", "Thresholding method", new DialogComponentStringSelection(method, "Method",
-                EnumListProvider.getStringList(LocalThresholdingMethodsEnum.values())));
+                EnumUtils.getStringListFromName(LocalThresholdingMethodsEnum.values())));
         addDialogComponent("Options",
                            "Out of bounds strategy",
                            new DialogComponentStringSelection(LocalThresholderNodeModel.createOutOfBoundsModel(),
-                                   "Out of bounds strategy", EnumListProvider.getStringList(OutOfBoundsStrategyEnum
+                                   "Out of bounds strategy", EnumUtils.getStringListFromName(OutOfBoundsStrategyEnum
                                            .values())));
 
         final SettingsModelDouble k = LocalThresholderNodeModel.createKModel();
@@ -112,8 +112,8 @@ public class LocalThresholderNodeDialog<T extends RealType<T>> extends ImgPlusTo
         addDialogComponent("Options",
                            "Neighborhood type",
                            new DialogComponentStringSelection(LocalThresholderNodeModel
-                                   .createNeighborhoodTypeNodeModel(), "Neighborhood Type", EnumListProvider
-                                   .getStringList(NeighborhoodType.values())));
+                                   .createNeighborhoodTypeNodeModel(), "Neighborhood Type", EnumUtils
+                                   .getStringListFromName(NeighborhoodType.values())));
 
         // Init
         contrastThreshold.setEnabled(true);

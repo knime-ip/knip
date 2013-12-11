@@ -54,7 +54,7 @@ import java.util.Arrays;
 
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.display.ColorTable;
-import net.imglib2.display.projectors.screenimages.ScreenImage;
+import net.imglib2.display.screenimage.awt.AWTScreenImage;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.RealType;
 
@@ -81,11 +81,11 @@ import org.knime.knip.core.ui.imgviewer.panels.transfunc.LookupTableChgEvent;
 /**
  * Combined image renderer. Supports basic rendering of pure images with grey, color, color table renderers as well as
  * pure grey rendering (e.g. as background for labels) and rendering using transfer functions.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
- * 
+ *
  * @param <T> number based type of the rendered image
  */
 public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
@@ -139,7 +139,7 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
 
     /**
      * Creates a {@link RenderUnit} for image data.
-     * 
+     *
      * @param enforceGreyScale false => depends on renderer selection <br>
      *            true => always uses a {@link Real2GreyRenderer}
      */
@@ -173,7 +173,7 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
             ((RendererWithColorTable)m_renderer).setColorTables(m_colorTables);
         }
 
-        final ScreenImage ret;
+        final AWTScreenImage ret;
         if (!m_enforceGreyScale) {
             ret =
                     m_renderer.render(convertedSrc, m_planeSelection.getPlaneDimIndex1(),
@@ -216,7 +216,7 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
 
     /**
      * stores normalization parameters into a member.
-     * 
+     *
      * @param normalizationParameters saturation ... used for rendering.
      */
     @EventListener
@@ -227,7 +227,7 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
     /**
      * {@link EventListener} for {@link LookupTableChgEvent}. The {@link LookupTable} is stored in a member and is used
      * for transfer function handling.
-     * 
+     *
      * @param event holds a lookup table
      */
     @EventListener
@@ -237,7 +237,7 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
 
     /**
      * changes the stored image (for rendering) additionally updates the color table member.
-     * 
+     *
      * @param e image and MetaData
      */
     @EventListener
@@ -254,7 +254,7 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
 
     /**
      * changes the stored image (for rendering).
-     * 
+     *
      * @param e contains a image.
      */
     @EventListener
@@ -264,7 +264,7 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
 
     /**
      * set all members that could hold expensive references to null or resets them to allow storage clean ups.
-     * 
+     *
      * @param event marker event
      */
     @EventListener
@@ -278,7 +278,7 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
     }
 
     /**
-     * @param event {@link #onClose2()}
+     * @param event onClose2()
      */
     @EventListener
     public void onAnnotatorReset(final AnnotatorResetEvent event) {

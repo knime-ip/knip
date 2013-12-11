@@ -76,8 +76,8 @@ import org.knime.knip.core.types.OutOfBoundsStrategyFactory;
 import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
- * 
- * 
+ *
+ *
  * @param <T> the pixel type of the input and output image
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -145,46 +145,71 @@ public class SigmaFilterNodeModel<T extends RealType<T>> extends ImgPlusToImgPlu
         }
     }
 
+    /**
+     * @return {@link SettingsModel} storing dimension selection
+     */
+    @Deprecated
     protected static SettingsModelDimSelection createDimSelectionModel() {
         return new SettingsModelDimSelection("dimselection", "X", "Y");
     }
 
+    /**
+     * @return {@link SettingsModel} storing neighborhood type
+     */
     protected static SettingsModelString createNeighborhoodTypeNodeModel() {
         return new SettingsModelString("neighborhood_type", NeighborhoodType.RECTANGULAR.toString());
     }
 
+    /**
+     * @return {@link SettingsModel} storing outlier detection model
+     */
     protected static SettingsModelBoolean createOutlierDetectionModel() {
         return new SettingsModelBoolean("outlier_detection", false);
     }
 
+    /**
+     * @return {@link SettingsModel} storing out of bounds model
+     */
     protected static SettingsModelString createOutOfBoundsModel() {
         return new SettingsModelString("outofboundsstrategy", OutOfBoundsStrategyEnum.BORDER.toString());
     }
 
+    /**
+     * @return {@link SettingsModel} storing pixel fraction
+     */
     protected static SettingsModelDouble createPixelFractionModel() {
         return new SettingsModelDouble("pixel_fraction", 0.05);
     }
 
+    /**
+     * @return {@link SettingsModel} storing sigma factor
+     */
     protected static SettingsModelDouble createSigmaFactorModel() {
         return new SettingsModelDouble("sigma_factor", 1.0);
     }
 
-    protected static SettingsModelInteger createWindowSize() {
+    /**
+     * @return {@link SettingsModel} storing the span
+     */
+    protected static SettingsModelInteger createSpanModel() {
         return new SettingsModelInteger("window_radius", 3);
     }
 
-    private final SettingsModelString m_neighborhoodType = createNeighborhoodTypeNodeModel();
+    private final SettingsModelString m_neighborhoodTypeModel = createNeighborhoodTypeNodeModel();
 
-    private final SettingsModelBoolean m_outlierDetection = createOutlierDetectionModel();
+    private final SettingsModelBoolean m_outlierDetectionModel = createOutlierDetectionModel();
 
-    private final SettingsModelString m_outOfBoundsStrategy = createOutOfBoundsModel();
+    private final SettingsModelString m_outOfBoundsStrategyModel = createOutOfBoundsModel();
 
-    private final SettingsModelDouble m_pixelFraction = createPixelFractionModel();
+    private final SettingsModelDouble m_pixelFractionModel = createPixelFractionModel();
 
-    private final SettingsModelDouble m_sigmaFactor = createSigmaFactorModel();
+    private final SettingsModelDouble m_sigmaFactorModel = createSigmaFactorModel();
 
-    private final SettingsModelInteger m_span = createWindowSize();
+    private final SettingsModelInteger m_spanModel = createSpanModel();
 
+    /**
+     * Default Constructor
+     */
     protected SigmaFilterNodeModel() {
         super(createDimSelectionModel());
     }
@@ -195,22 +220,23 @@ public class SigmaFilterNodeModel<T extends RealType<T>> extends ImgPlusToImgPlu
     @Override
     public void addSettingsModels(final List<SettingsModel> settingsModels) {
 
-        settingsModels.add(m_outOfBoundsStrategy);
-        settingsModels.add(m_span);
-        settingsModels.add(m_neighborhoodType);
-        settingsModels.add(m_pixelFraction);
-        settingsModels.add(m_sigmaFactor);
-        settingsModels.add(m_outlierDetection);
+        settingsModels.add(m_outOfBoundsStrategyModel);
+        settingsModels.add(m_spanModel);
+        settingsModels.add(m_neighborhoodTypeModel);
+        settingsModels.add(m_pixelFractionModel);
+        settingsModels.add(m_sigmaFactorModel);
+        settingsModels.add(m_outlierDetectionModel);
     }
 
     @Override
     protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> op(final ImgPlus<T> imgPlus) {
-        return Operations.wrap(new CombinedSigmaFilterOp(NeighborhoodType.getNeighborhood(NeighborhoodType
-                                       .valueOf(m_neighborhoodType.getStringValue()), m_span.getIntValue()),
-                                       OutOfBoundsStrategyFactory.<T, ImgPlus<T>> getStrategy(m_outOfBoundsStrategy
-                                               .getStringValue(), imgPlus.firstElement()), m_sigmaFactor
-                                               .getDoubleValue(), m_pixelFraction.getDoubleValue(), m_outlierDetection
-                                               .getBooleanValue()), ImgPlusFactory.<T, T> get(imgPlus.firstElement()));
+        return Operations
+                .wrap(new CombinedSigmaFilterOp(NeighborhoodType.getNeighborhood(NeighborhoodType
+                              .valueOf(m_neighborhoodTypeModel.getStringValue()), m_spanModel.getIntValue()),
+                              OutOfBoundsStrategyFactory.<T, ImgPlus<T>> getStrategy(m_outOfBoundsStrategyModel
+                                      .getStringValue(), imgPlus.firstElement()), m_sigmaFactorModel.getDoubleValue(),
+                              m_pixelFractionModel.getDoubleValue(), m_outlierDetectionModel.getBooleanValue()),
+                      ImgPlusFactory.<T, T> get(imgPlus.firstElement()));
     }
 
     /**

@@ -85,21 +85,32 @@ import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <T>
  */
 public class SobelNodeFactory<T extends RealType<T> & NativeType<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
 
+    /**
+     * @return {@link SettingsModelString} to store {@link OutOfBoundsFactory}
+     */
     protected static SettingsModelString createOutOfBoundsModel() {
         return new SettingsModelString("outofboundsstrategy", OutOfBoundsStrategyEnum.BORDER.toString());
     }
 
+    /**
+     * @return {@link SettingsModelString} to store selected convolver
+     */
     protected static SettingsModelString createConvolverSelectionModel() {
         return new SettingsModelString("convolver", getConvolverNames().iterator().next());
     }
 
+    /**
+     * @return the names of the available convolvers
+     */
     public static Set<String> getConvolverNames() {
 
         Set<String> result = new HashSet<String>();
@@ -242,7 +253,7 @@ class SobelOp<T extends RealType<T> & NativeType<T>> implements UnaryOutputOpera
                 return null;
             }
 
-        }).compute(resx, resy, resx);
+        }).compute(Views.flatIterable(resx), Views.flatIterable(resy), Views.flatIterable(resx));
 
         return resx;
 

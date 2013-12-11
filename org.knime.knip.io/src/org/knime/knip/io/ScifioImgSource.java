@@ -96,6 +96,7 @@ public class ScifioImgSource implements ImgSource {
 
     private final ImgOpener m_imgOpener;
 
+    @SuppressWarnings("rawtypes")
     private final ImgFactory m_imgFactory;
 
     private final boolean m_isGroupFiles;
@@ -114,12 +115,14 @@ public class ScifioImgSource implements ImgSource {
         this(true);
     }
 
+    @SuppressWarnings("rawtypes")
     public ScifioImgSource(boolean checkFileFormat) {
         this(new ArrayImgFactory(), checkFileFormat, true);
     }
 
-    public ScifioImgSource(final ImgFactory imgFactory,
-            boolean checkFileFormat, final boolean isGroupFiles) {
+    public ScifioImgSource(@SuppressWarnings("rawtypes")
+    final ImgFactory imgFactory, boolean checkFileFormat,
+            final boolean isGroupFiles) {
         m_isGroupFiles = isGroupFiles;
         m_checkFileFormat = checkFileFormat;
         m_imgOpener = new ImgOpener();
@@ -166,12 +169,14 @@ public class ScifioImgSource implements ImgSource {
         return xml;
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public ImgPlus<RealType> getImg(final String imgRef, final int currentSeries)
             throws Exception {
         return getImg(imgRef, currentSeries, null);
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public ImgPlus<RealType> getImg(final String imgRef,
             final int currentSeries,
@@ -179,7 +184,7 @@ public class ScifioImgSource implements ImgSource {
             throws Exception {
         ImgOptions options = new ImgOptions();
         options.setComputeMinMax(false);
-
+        options.setIndex(currentSeries);
         // boolean withCropping = false;
 
         if (axisSelectionConstraints != null
@@ -197,6 +202,7 @@ public class ScifioImgSource implements ImgSource {
             options.setRegion(new SubRegion(axes, ranges));
         }
 
+        @SuppressWarnings("unchecked")
         ImgPlus<RealType> ret =
                 MiscViews.cleanImgPlus(m_imgOpener.openImg(getReader(imgRef),
                         getPixelType(imgRef, currentSeries), m_imgFactory,
@@ -269,6 +275,7 @@ public class ScifioImgSource implements ImgSource {
      * @throws IOException
      * @throws FormatException
      */
+    @SuppressWarnings("rawtypes")
     @Override
     public RealType getPixelType(final String imgRef, final int currentSeries)
             throws IOException, FormatException {

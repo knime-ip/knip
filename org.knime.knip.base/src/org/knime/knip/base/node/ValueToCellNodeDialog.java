@@ -73,16 +73,18 @@ import org.knime.node2012.TabDocument.Tab;
 /**
  * Dialog corresponding to the {@link ValueToCellNodeModel} which already contains dialog components, but others can
  * still be added (this {@link #addDialogComponent(String, String, DialogComponent)}.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <VIN>
  */
 public abstract class ValueToCellNodeDialog<VIN extends DataValue> extends LazyNodeDialogPane {
 
     /**
      * Adds the port description to the node description.
-     * 
+     *
      * @param node
      */
     static void addPortsDescriptionTo(final KnimeNode node) {
@@ -100,7 +102,7 @@ public abstract class ValueToCellNodeDialog<VIN extends DataValue> extends LazyN
 
     /**
      * Adds the description of the column selection tab to the node description.
-     * 
+     *
      * @param desc
      */
     static void addTabsDescriptionTo(final FullDescription desc) {
@@ -112,7 +114,7 @@ public abstract class ValueToCellNodeDialog<VIN extends DataValue> extends LazyN
                 .newCursor()
                 .setTextValue("Mode how to handle the selected column. The processed column can be added to a new table, appended to the end of the table, or the old column can be replaced by the new result");
         opt = tab.addNewOption();
-        opt.setName("Column suffix");
+        opt.setName("Column Suffix");
         opt.newCursor()
                 .setTextValue("A suffix appended to the column name. If \"Append\" is not selected, it can be left empty.");
         opt = tab.addNewOption();
@@ -124,18 +126,31 @@ public abstract class ValueToCellNodeDialog<VIN extends DataValue> extends LazyN
 
     private SettingsModelString m_smColumnSuffix;
 
+    /**
+     * Created and added
+     */
     public ValueToCellNodeDialog() {
-
-        addDCs();
-        addDialogComponents();
-        buildDialog();
-
+        this(false);
     }
 
-    /*
-     * Helper add the dialog components needed for the this dialog and the
-     * ValueToCellNodeModel, respectively.
+    /**
+     * Possible lazy constructor
+     *
+     * If lazy is true addDialogComponents(); buildDialog();
+     *
+     * Must be called manually!
+     *
+     * @param lazy indicator whether lazy or not
      */
+    public ValueToCellNodeDialog(final boolean lazy) {
+        addDCs();
+        if (!lazy) {
+            addDialogComponents();
+            buildDialog();
+        } else {
+        }
+    }
+
     @SuppressWarnings("unchecked")
     private void addDCs() {
         m_smColCreationMode = ValueToCellNodeModel.createColCreationModeModel();

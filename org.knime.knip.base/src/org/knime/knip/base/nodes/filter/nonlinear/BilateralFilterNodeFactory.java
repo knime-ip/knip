@@ -55,6 +55,7 @@ import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.type.numeric.RealType;
 
+import org.knime.core.node.NodeModel;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
@@ -62,15 +63,20 @@ import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
+import org.knime.knip.base.node.dialog.DescriptionHelper;
+import org.knime.knip.base.node.dialog.DialogComponentSpanSelection;
 import org.knime.knip.core.ops.filters.BilateralFilter;
 import org.knime.knip.core.util.ImgPlusFactory;
+import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 
 /**
- * TODO Auto-generated
- * 
+ * {@link NodeModel} for {@link BilateralFilter}
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <T>
  */
 public class BilateralFilterNodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
 
@@ -86,6 +92,16 @@ public class BilateralFilterNodeFactory<T extends RealType<T>> extends ImgPlusTo
         return new SettingsModelDouble("sigma_s", 5.0);
     }
 
+    @Override
+    protected void addNodeDescriptionContent(final KnimeNode node) {
+
+        int optIndex = DescriptionHelper.findTabIndex("Options", node.getFullDescription().getTabList());
+        DialogComponentSpanSelection.createNodeDescription(node.getFullDescription().getTabList().get(optIndex)
+                .addNewOption());
+
+        super.addNodeDescriptionContent(node);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -99,8 +115,8 @@ public class BilateralFilterNodeFactory<T extends RealType<T>> extends ImgPlusTo
                         "Sigma_r (intensity domain)", 15));
                 addDialogComponent("Options", "Deviations", new DialogComponentNumber(createSigmaSModel(),
                         "Sigma_s (spacial domain)", 5));
-                addDialogComponent("Options", "Radius", new DialogComponentNumber(createRadiusModel(),
-                        "Radius to consider", 10));
+                addDialogComponent("Options", "Parameters",
+                                   new DialogComponentSpanSelection(BilateralFilterNodeFactory.createRadiusModel()));
             }
         };
     }

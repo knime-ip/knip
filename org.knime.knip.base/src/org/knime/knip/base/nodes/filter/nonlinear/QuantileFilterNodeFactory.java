@@ -52,34 +52,44 @@ import java.util.List;
 
 import net.imglib2.converter.read.ConvertedRandomAccessibleInterval;
 import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
 import net.imglib2.meta.ImgPlus;
+import net.imglib2.ops.operation.ImgOperations;
 import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.ops.operation.iterableinterval.unary.QuantileFilter;
 import net.imglib2.ops.operation.real.unary.Convert;
 import net.imglib2.ops.operation.real.unary.Convert.TypeConversionTypes;
-import net.imglib2.ops.operation.subset.views.ImgPlusView;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 
 import org.knime.core.node.ExecutionContext;
+import org.knime.core.node.NodeModel;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
+import org.knime.knip.base.node.dialog.DescriptionHelper;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
+import org.knime.knip.base.node.dialog.DialogComponentSpanSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
-import org.knime.knip.core.ops.img.ImgPlusToImgPlusWrapperOp;
+import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 
 /**
- * 
+ *
+ * {@link NodeModel} for Linear time {@link QuantileFilter}
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <T>
  */
 public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCellNodeFactory<ImgPlusValue<T>> {
 
@@ -88,11 +98,21 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
     }
 
     private static SettingsModelIntegerBounded createlRadiusModel() {
-        return new SettingsModelIntegerBounded("radius", 3, 1, 100);
+        return new SettingsModelIntegerBounded("radius", 3, 1, Integer.MAX_VALUE);
     }
 
     private static SettingsModelIntegerBounded createQuantileModel() {
-        return new SettingsModelIntegerBounded("quantile", 50, 1, 100);
+        return new SettingsModelIntegerBounded("quantile", 50, 1, 99);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void addNodeDescriptionContent(final KnimeNode node) {
+        int index = DescriptionHelper.findTabIndex("Options", node.getFullDescription().getTabList());
+        DialogComponentSpanSelection.createNodeDescription(node.getFullDescription().getTabArray(index).addNewOption());
+        DialogComponentDimSelection.createNodeDescription(node.getFullDescription().getTabList().get(0).addNewOption());
     }
 
     /**
@@ -107,11 +127,19 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
 
                 addDialogComponent("Options", "", new DialogComponentNumber(createQuantileModel(), "Quantile", 1));
 
-                addDialogComponent("Options", "", new DialogComponentNumber(createlRadiusModel(), "Radius", 1));
+                addDialogComponent("Options", "", new DialogComponentNumber(createlRadiusModel(), "Span", 1));
 
-                addDialogComponent(new DialogComponentDimSelection(createDimSelectionModel(), "Dimension selection", 2,
+                addDialogComponent(new DialogComponentDimSelection(createDimSelectionModel(), "Dimension Selection", 2,
                         2));
 
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_quantile";
             }
         };
     }
@@ -147,12 +175,10 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
                 settingsModels.add(m_smRadius);
             }
 
-            /*
+            /**
              * (non-Javadoc)
              *
-             * @see
-             * org.knime.knip.base.node.ValueToCellNodeModel#compute
-             * (org.knime.core.data.DataValue)
+             * @see org.knime.knip.base.node.ValueToCellNodeModel#compute (org.knime.core.data.DataValue)
              */
             @SuppressWarnings("unchecked")
             @Override
@@ -160,6 +186,23 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
 
                 final ImgPlus<T> inImg = cellValue.getImgPlus();
                 final T type = cellValue.getImgPlus().firstElement();
+                int[] selectedDimIndices = m_smDimSel.getSelectedDimIndices(inImg);
+
+                if (selectedDimIndices.length == 1) {
+                    throw new KNIPException("One dimensional images can't be processed with the Quantil Filter.");
+                }
+
+                int dim1 = 0;
+                for (int idx : selectedDimIndices) {
+                    if (inImg.dimension(idx) <= 1) {
+                        dim1++;
+                    }
+                }
+
+                if (selectedDimIndices.length - dim1 <= 1) {
+                    throw new KNIPException(
+                            "Image would be reduced to a one dimensional image, which can't be processed using the Quantil Filter. Please select different dimensions in the dimension selection.");
+                }
 
                 ImgPlus<UnsignedByteType> unsignedByteTypeImg = null;
                 if (!(type instanceof UnsignedByteType)) {
@@ -171,18 +214,17 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
                                     new UnsignedByteType());
 
                     unsignedByteTypeImg =
-                            new ImgPlusView<UnsignedByteType>(randomAccessibleInterval, inImg.factory()
-                                    .imgFactory(new UnsignedByteType()), inImg);
+                            new ImgPlus<UnsignedByteType>(new ImgView<UnsignedByteType>(randomAccessibleInterval, inImg
+                                    .factory().imgFactory(new UnsignedByteType())), inImg);
                 } else {
                     unsignedByteTypeImg = (ImgPlus<UnsignedByteType>)inImg;
                 }
 
                 ImgPlus<UnsignedByteType> wrappedImgPlus = new ImgPlus<UnsignedByteType>(unsignedByteTypeImg, inImg);
 
-                ImgPlusToImgPlusWrapperOp<UnsignedByteType, UnsignedByteType> wrappedOp =
-                        new ImgPlusToImgPlusWrapperOp<UnsignedByteType, UnsignedByteType>(
-                                new QuantileFilter<UnsignedByteType>(m_smRadius.getIntValue(),
-                                        m_smQuantile.getIntValue()), new UnsignedByteType());
+                UnaryOutputOperation<ImgPlus<UnsignedByteType>, ImgPlus<UnsignedByteType>> wrappedOp =
+                        ImgOperations.wrapRA(new QuantileFilter<UnsignedByteType>(m_smRadius.getIntValue(),
+                                m_smQuantile.getIntValue()), new UnsignedByteType());
 
                 final Img<UnsignedByteType> unsignedByteTypeResImg =
                         SubsetOperations.iterate(wrappedOp, m_smDimSel.getSelectedDimIndices(inImg), wrappedImgPlus,
@@ -198,7 +240,7 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
                             new ConvertedRandomAccessibleInterval<UnsignedByteType, T>(unsignedByteTypeResImg,
                                     convertOp, type);
 
-                    resImg = new ImgPlusView<T>(randomAccessibleInterval, inImg.factory(), inImg);
+                    resImg = new ImgPlus<T>(new ImgView<T>(randomAccessibleInterval, inImg.factory()), inImg);
                 } else {
                     resImg = (Img<T>)unsignedByteTypeResImg;
                 }
@@ -214,7 +256,7 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
             protected void prepareExecute(final ExecutionContext exec) {
                 m_imgCellFactory = new ImgPlusCellFactory(exec);
             }
+
         };
     }
-
 }

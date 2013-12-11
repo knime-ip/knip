@@ -81,12 +81,12 @@ import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
 import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.types.ImgFactoryTypes;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgUtils;
 
 /**
  * Factory class to produce a Connected Component Analysis Node.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -121,16 +121,26 @@ public class ConnectedCompAnalysisNodeFactory<T extends RealType<T> & Comparable
 
             @Override
             public void addDialogComponents() {
-                addDialogComponent("Settings", "Factory Selection", new DialogComponentStringSelection(
-                        createFactoryModel(), "Factory Type", EnumListProvider.getStringList(ImgFactoryTypes.values())));
+                addDialogComponent("Settings",
+                                   "Factory Selection",
+                                   new DialogComponentStringSelection(createFactoryModel(), "Factory Type", EnumUtils
+                                           .getStringListFromName(ImgFactoryTypes.values())));
 
                 addDialogComponent("Options", "Settings", new DialogComponentStringSelection(createTypeModel(),
-                        "Connection Type", EnumListProvider.getStringList(ConnectedType.values())));
+                        "Connection Type", EnumUtils.getStringListFromName(ConnectedType.values())));
                 addDialogComponent("Options", "Settings", new DialogComponentNumber(createBackgroundModel(),
                         "Background", 1));
 
                 addDialogComponent("Options", "Dimensions", new DialogComponentDimSelection(createDimSelectionModel(),
                         "Dimensions", 2, 5));
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_cca";
             }
         };
     }
@@ -169,11 +179,13 @@ public class ConnectedCompAnalysisNodeFactory<T extends RealType<T> & Comparable
             protected LabelingCell<Integer> compute(final ImgPlusValue<T> cellValue) throws IOException {
                 final ImgPlus<T> img = cellValue.getImgPlus();
                 final T background = img.firstElement().createVariable();
-                //                if (background instanceof RealType) {
                 background.setReal(m_background.getIntValue());
-                //                else {
-                //                    setWarningMessage("Can't use the specified value as the input image isn't numeric.");
-                //                }
+                if (((int)background.getRealDouble()) != m_background.getIntValue()) {
+                    background.setReal(Math.min(background.getMaxValue(),
+                                                Math.max(background.getMinValue(), m_background.getIntValue())));
+                    setWarningMessage("Background value has been adopted to the range of the input image (e.g. "
+                            + m_background.getIntValue() + "->" + background.getRealDouble() + ")");
+                }
 
                 long[][] structuringElement;
                 if (m_type.getStringValue().equals(ConnectedType.EIGHT_CONNECTED.name())) {

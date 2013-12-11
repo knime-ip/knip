@@ -50,13 +50,13 @@ package org.knime.knip.base.node.dialog;
 
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
-import org.knime.knip.core.util.EnumListProvider;
+import org.knime.knip.core.util.EnumUtils;
 import org.knime.node2012.ADocument.A;
 import org.knime.node2012.OptionDocument.Option;
 import org.knime.node2012.PDocument.P;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -65,9 +65,12 @@ import org.knime.node2012.PDocument.P;
  */
 public class DialogComponentOutOfBoundsSelection extends AbstractSimpleComboboxDialogComponent {
 
-    @SuppressWarnings("javadoc")
+    /**
+     * @param model
+     */
+    @SuppressWarnings({"deprecation"})
     public DialogComponentOutOfBoundsSelection(final SettingsModel model) {
-        super(model, "Out of Bounds Strategy:", EnumListProvider.getStringList(OutOfBoundsStrategyEnum.values()));
+        super(model, "Out of Bounds Strategy:", EnumUtils.getStringListFromName(OutOfBoundsStrategyEnum.values()));
     }
 
     @SuppressWarnings("javadoc")

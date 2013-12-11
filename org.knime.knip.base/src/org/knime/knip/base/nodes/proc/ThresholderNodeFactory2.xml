@@ -5,7 +5,7 @@
 	IBM Corporation - initial API and implementation -->
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="icons/thresholder.png" type="Manipulator">
-	<name>Global Thresholder</name>
+	<name>Global Thresholder (Deprecated)</name>
 	<shortDescription>
 		A threshold is determined manually or calculated
 		automatically to

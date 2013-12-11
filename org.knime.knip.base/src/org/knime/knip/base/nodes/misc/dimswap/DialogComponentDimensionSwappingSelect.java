@@ -53,27 +53,24 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Point;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeDialog;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.knip.base.KNIMEKNIPPlugin;
 
 /**
- * 
+ * {@link NodeDialog} to configure {@link DimensionSwapperNodeFactory}
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -97,17 +94,18 @@ public class DialogComponentDimensionSwappingSelect extends DialogComponent {
 
     private int m_dropIndex;
 
-    private final JTextField[] m_jtfOffsets;
-
-    private final JTextField[] m_jtfSizes;
-
     private int m_rectSize;
 
     private int m_width;
 
+    /**
+     * Default Constructor
+     *
+     * @param model model storing the dialog configuration
+     */
     public DialogComponentDimensionSwappingSelect(final SettingsModelDimensionSwappingSelect model) {
         super(model);
-        m_dimlut = new int[model.getNumDimensions()];
+        m_dimlut = new int[model.numDimensions()];
         m_dragIndex = -1;
 
         getComponentPanel().setLayout(new GridBagLayout());
@@ -116,7 +114,7 @@ public class DialogComponentDimensionSwappingSelect extends DialogComponent {
 
         m_canvas = new JPanel() {
             /**
-             * 
+             *
              */
             private static final long serialVersionUID = 1L;
 
@@ -224,57 +222,13 @@ public class DialogComponentDimensionSwappingSelect extends DialogComponent {
                 m_canvas.repaint();
             }
         });
-        final Dimension d = new Dimension(100, (model.getNumDimensions() * 20) + 1);
+        final Dimension d = new Dimension(100, (model.numDimensions() * 20) + 1);
         m_canvas.setPreferredSize(d);
         m_canvas.setMaximumSize(d);
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.insets = new Insets(0, 0, 0, 5);
         getComponentPanel().add(m_canvas, gbc);
-
-        JPanel jp = new JPanel(new GridLayout(1, 2, 0, 2));
-        jp.add(new JLabel("Offset"));
-        jp.add(new JLabel("Size"));
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.insets = new Insets(0, 0, 0, 0);
-        getComponentPanel().add(jp, gbc);
-
-        jp = new JPanel(new GridLayout(model.getNumDimensions(), 2, 0, 2));
-        m_jtfOffsets = new JTextField[model.getNumDimensions()];
-        m_jtfSizes = new JTextField[model.getNumDimensions()];
-        for (int i = 0; i < model.getNumDimensions(); i++) {
-            m_jtfOffsets[i] = new JTextField();
-            jp.add(m_jtfOffsets[i]);
-            m_jtfSizes[i] = new JTextField();
-            m_jtfSizes[i].addFocusListener(new FocusAdapter() {
-                @Override
-                public void focusGained(final FocusEvent e) {
-                    final JTextField jtf = (JTextField)e.getSource();
-                    if (jtf.getText().equals("all")) {
-                        jtf.setText("");
-                    }
-                    jtf.setForeground(Color.BLACK);
-                }
-
-                @Override
-                public void focusLost(final FocusEvent e) {
-                    final JTextField jtf = (JTextField)e.getSource();
-                    try {
-                        jtf.setText(String.valueOf(Integer.parseInt(jtf.getText())));
-                        jtf.setForeground(Color.BLACK);
-                    } catch (final NumberFormatException e1) {
-                        jtf.setText("all");
-                        jtf.setForeground(Color.GRAY);
-                    }
-                }
-            });
-            jp.add(m_jtfSizes[i]);
-        }
-        gbc.weightx = 1;
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        getComponentPanel().add(jp, gbc);
     }
 
     /**
@@ -307,16 +261,8 @@ public class DialogComponentDimensionSwappingSelect extends DialogComponent {
     @Override
     protected void updateComponent() {
         final SettingsModelDimensionSwappingSelect model = (SettingsModelDimensionSwappingSelect)getModel();
-        for (int i = 0; i < model.getNumDimensions(); i++) {
+        for (int i = 0; i < model.numDimensions(); i++) {
             m_dimlut[i] = model.getFwdDimensionLookup(i);
-            m_jtfOffsets[i].setText(String.valueOf(model.getOffset(i)));
-            if (model.getSize(i) < 0) {
-                m_jtfSizes[i].setText("all");
-                m_jtfSizes[i].setForeground(Color.GRAY);
-            } else {
-                m_jtfSizes[i].setText(String.valueOf(model.getSize(i)));
-                m_jtfSizes[i].setForeground(Color.BLACK);
-            }
         }
         m_canvas.repaint();
     }
@@ -327,22 +273,8 @@ public class DialogComponentDimensionSwappingSelect extends DialogComponent {
     @Override
     protected void validateSettingsBeforeSave() throws InvalidSettingsException {
         final SettingsModelDimensionSwappingSelect model = (SettingsModelDimensionSwappingSelect)getModel();
-        for (int i = 0; i < model.getNumDimensions(); i++) {
+        for (int i = 0; i < model.numDimensions(); i++) {
             model.setFwdDimensionLookup(m_dimlut[i], i);
-            try {
-                model.setOffset(Integer.parseInt(m_jtfOffsets[i].getText()), i);
-            } catch (final NumberFormatException e) {
-                m_jtfOffsets[i].setText("0");
-                model.setOffset(0, i);
-            }
-            try {
-                model.setSize(Integer.parseInt(m_jtfSizes[i].getText()), i);
-                m_jtfSizes[i].setForeground(Color.BLACK);
-            } catch (final NumberFormatException e) {
-                m_jtfSizes[i].setText("all");
-                m_jtfSizes[i].setForeground(Color.GRAY);
-                model.setSize(-1, i);
-            }
         }
     }
 }

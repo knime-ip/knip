@@ -4,18 +4,19 @@
 	<name>Image Comparator</name>
 
 	<shortDescription>
-		Compares to images pixelwise. Throws Exception if they are invalid.
-    </shortDescription>
+		Compares two images pixel-wise and also their
+		metadata. Throws IllegalStateException if they are invalid.
+	</shortDescription>
 
 	<fullDescription>
-		<intro>Compares to images pixelwise. Throws IllegalStateException if they are invalid.
+		<intro>Compares two images pixel-wise and also their metadata. Throws
+			IllegalStateException if they are invalid.
 		</intro>
 	</fullDescription>
 
 	<ports>
-		<inPort index="0" name="Input images">Incoming images to be compared</inPort>
-		<outPort index="0" name="BooleanValue">Outgoing images
+		<inPort index="0" name="Input Images">Incoming images to be compared</inPort>
+		<outPort index="0" name="Boolean"> True, if the two images are equal
 		</outPort>
-		<!-- possibly more output ports here -->
 	</ports>
 </knimeNode>

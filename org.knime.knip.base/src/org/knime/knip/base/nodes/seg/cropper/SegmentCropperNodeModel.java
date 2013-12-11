@@ -56,15 +56,19 @@ import java.util.Map;
 
 import net.imglib2.Cursor;
 import net.imglib2.FinalInterval;
-import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccess;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
+import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.labeling.Labeling;
+import net.imglib2.labeling.LabelingView;
+import net.imglib2.labeling.NativeImgLabeling;
+import net.imglib2.meta.DefaultNamed;
+import net.imglib2.meta.DefaultSourced;
 import net.imglib2.meta.ImgPlus;
+import net.imglib2.meta.ImgPlusMetadata;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.iterable.unary.Fill;
-import net.imglib2.ops.operation.subset.views.LabelingView;
 import net.imglib2.roi.IterableRegionOfInterest;
 import net.imglib2.sampler.special.ConstantRandomAccessible;
 import net.imglib2.type.logic.BitType;
@@ -76,7 +80,6 @@ import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.DataType;
 import org.knime.core.data.RowIterator;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.StringCell;
@@ -99,81 +102,74 @@ import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingValue;
-import org.knime.knip.base.node.NodeTools;
+import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.node.nodesettings.SettingsModelFilterSelection;
 import org.knime.knip.core.data.img.DefaultImageMetadata;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
+import org.knime.knip.core.data.img.LabelingMetadata;
 import org.knime.knip.core.ops.misc.LabelingDependency;
-import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter;
 import org.knime.knip.core.util.MiscViews;
 
 /**
- * TODO Auto-generated
- * 
+ * Crop BitMasks or parts of images according to a Labeling
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @param <L>
+ * @param <T>
  */
-public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType<T>, O extends RealType<O>> extends
-        NodeModel implements BufferedDataTableHolder {
+public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType<T>> extends NodeModel implements
+        BufferedDataTableHolder {
 
     private static enum BACKGROUND {
-        MIN, MAX;
+        MIN, MAX, ZERO;
     }
 
-    static final String[] BACKGROUND_OPTIONS = new String[]{"min value", "max value"};
+    static final String[] BACKGROUND_OPTIONS = new String[]{"Min Value of Result", "Max Value of Result", "Zero"};
 
     /**
      * Helper
-     * 
+     *
      * @return SettingsModel to store img column
      */
-    public static SettingsModelBoolean createSMAddDependency() {
+    static SettingsModelBoolean createAddNonRoiLabels() {
         return new SettingsModelBoolean("cfg_add_dependendcy", false);
     }
 
     /**
      * Helper
-     * 
-     * @return SettingsModel to store factory selection
-     */
-    public static SettingsModelString createSMFactorySelection() {
-        return new SettingsModelString("cfg_factory_selection", "");
-    }
-
-    /**
-     * Helper
-     * 
+     *
      * @return SettingsModel to store img column
      */
-    public static SettingsModelString createSMImgColumnSelection() {
+    static SettingsModelString createImgColumnSelectionModel() {
         return new SettingsModelString("cfg_img_col", "");
     }
 
     /**
      * @return selected value for the background (parts of a bounding box that do not belong to the label.
      */
-    static SettingsModelString createSMBackgroundSelection() {
+    static SettingsModelString createBackgroundSelectionModel() {
         return new SettingsModelString("backgroundOptions", BACKGROUND_OPTIONS[BACKGROUND.MIN.ordinal()]);
     }
 
     /**
      * Helper
-     * 
+     *
      * @return SettingsModelFilterSelection to store left filter selection
      */
-    public static <LL extends Comparable<LL>> SettingsModelFilterSelection<LL> createSMLabelFilterLeft() {
+    static <LL extends Comparable<LL>> SettingsModelFilterSelection<LL> createROIFilterModel() {
         return new SettingsModelFilterSelection<LL>("cfg_label_filter_left");
     }
 
     /**
      * Helper
-     * 
+     *
      * @return SettingsModelFilterSelection to store right filter selection
      */
-    public static <LL extends Comparable<LL>> SettingsModelFilterSelection<LL>
-            createSMLabelFilterRight(final boolean isEnabled) {
+    static <LL extends Comparable<LL>> SettingsModelFilterSelection<LL>
+            createNONRoiFilterModel(final boolean isEnabled) {
         final SettingsModelFilterSelection<LL> sm = new SettingsModelFilterSelection<LL>("cfg_label_filter_right");
         sm.setEnabled(isEnabled);
         return sm;
@@ -181,39 +177,36 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
     /**
      * Helper
-     * 
+     *
      * @return SettingsModel to store labeling column
      */
-    public static SettingsModelString createSMLabelingColumnSelection() {
+    static SettingsModelString createSMLabelingColumnSelection() {
         return new SettingsModelString("cfg_labeling_column", "");
     }
 
     // SM addDependencies
-    private final SettingsModelBoolean m_addDependencies = createSMAddDependency();
+    private final SettingsModelBoolean m_addNonRoiLabels = createAddNonRoiLabels();
 
     /* Resulting BufferedDataTable */
     private BufferedDataTable m_data;
 
-    // SettingsModel to store factory type of resulting img snippets
-    private final SettingsModelString m_factorySelection = createSMFactorySelection();
-
     // SettingsModel to store Img column
-    private final SettingsModelString m_imgColumn = createSMImgColumnSelection();
+    private final SettingsModelString m_imgColumn = createImgColumnSelectionModel();
 
     // SettingsModel to store Labeling column
     private final SettingsModelString m_labelingColumn = createSMLabelingColumnSelection();
 
     // SM left filter
-    private final SettingsModelFilterSelection<L> m_leftFilter = createSMLabelFilterLeft();
+    private final SettingsModelFilterSelection<L> m_roiFilter = createROIFilterModel();
 
     /* Specification of the resulting table */
     private DataTableSpec m_outSpec;
 
     // SM right filter
-    private final SettingsModelFilterSelection<L> m_rightFilter = createSMLabelFilterRight(false);
+    private final SettingsModelFilterSelection<L> m_nonROIFilter = createNONRoiFilterModel(false);
 
     //value for the label background
-    private final SettingsModelString m_backgroundSelection = createSMBackgroundSelection();
+    private final SettingsModelString m_backgroundSelection = createBackgroundSelectionModel();
 
     // List of all SettingsModels
     private final ArrayList<SettingsModel> m_settings;
@@ -226,11 +219,11 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
         m_settings = new ArrayList<SettingsModel>();
         m_settings.add(m_imgColumn);
         m_settings.add(m_labelingColumn);
-        m_settings.add(m_factorySelection);
-        m_settings.add(m_leftFilter);
-        m_settings.add(m_rightFilter);
-        m_settings.add(m_addDependencies);
+        m_settings.add(m_roiFilter);
+        m_settings.add(m_nonROIFilter);
+        m_settings.add(m_addNonRoiLabels);
         m_settings.add(m_backgroundSelection);
+        m_backgroundSelection.setEnabled(!m_imgColumn.getStringValue().equals(""));
     }
 
     /**
@@ -240,7 +233,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
         int labColIndex = inSpecs[0].findColumnIndex(m_labelingColumn.getStringValue());
         if (labColIndex == -1) {
-            if ((labColIndex = NodeTools.autoOptionalColumnSelection(inSpecs[0], m_labelingColumn, LabelingValue.class)) >= 0) {
+            if ((labColIndex = NodeUtils.autoOptionalColumnSelection(inSpecs[0], m_labelingColumn, LabelingValue.class)) >= 0) {
                 setWarningMessage("Auto-configure Label Column: " + m_labelingColumn.getStringValue());
             } else {
                 throw new InvalidSettingsException("No column selected!");
@@ -250,17 +243,23 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
         final ArrayList<DataColumnSpec> specs = new ArrayList<DataColumnSpec>();
         specs.add(new DataColumnSpecCreator("CroppedImg", ImgPlusCell.TYPE).createSpec());
-        DataColumnSpecCreator colspecCreator = new DataColumnSpecCreator("Source Image", ImgPlusCell.TYPE);
-        colspecCreator.setProperties(new DataColumnProperties(Collections
-                .singletonMap(DataValueRenderer.PROPERTY_PREFERRED_RENDERER, "String")));
-        specs.add(colspecCreator.createSpec());
+
+        DataColumnSpecCreator colspecCreator;
+        int imgColIndex = inSpecs[0].findColumnIndex(m_imgColumn.getStringValue());
+        if (imgColIndex != -1) {
+            colspecCreator = new DataColumnSpecCreator("Source Image", ImgPlusCell.TYPE);
+            colspecCreator.setProperties(new DataColumnProperties(Collections
+                    .singletonMap(DataValueRenderer.PROPERTY_PREFERRED_RENDERER, "String")));
+            specs.add(colspecCreator.createSpec());
+        }
+
         colspecCreator = new DataColumnSpecCreator("Source Labeling", LabelingCell.TYPE);
         colspecCreator.setProperties(new DataColumnProperties(Collections
                 .singletonMap(DataValueRenderer.PROPERTY_PREFERRED_RENDERER, "String")));
         specs.add(colspecCreator.createSpec());
         specs.add(new DataColumnSpecCreator("Label", StringCell.TYPE).createSpec());
 
-        if (m_addDependencies.getBooleanValue()) {
+        if (m_addNonRoiLabels.getBooleanValue()) {
             specs.add(new DataColumnSpecCreator("DependedLabels", StringCell.TYPE).createSpec());
         }
 
@@ -272,7 +271,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
      * {@inheritDoc}
      */
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
             throws Exception {
 
@@ -280,7 +279,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
         int labColIndex = inData[0].getDataTableSpec().findColumnIndex(m_labelingColumn.getStringValue());
         if (labColIndex == -1) {
             if ((labColIndex =
-                    NodeTools.autoOptionalColumnSelection(inData[0].getDataTableSpec(), m_labelingColumn,
+                    NodeUtils.autoOptionalColumnSelection(inData[0].getDataTableSpec(), m_labelingColumn,
                                                           LabelingValue.class)) >= 0) {
                 setWarningMessage("Auto-configure Label Column: " + m_labelingColumn.getStringValue());
             } else {
@@ -291,11 +290,9 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
         final BufferedDataContainer con = exec.createDataContainer(m_outSpec);
 
-        final RulebasedLabelFilter<L> leftFilter = m_leftFilter.getRulebasedFilter();
+        final RulebasedLabelFilter<L> leftFilter = m_roiFilter.getRulebasedFilter();
 
-        final RulebasedLabelFilter<L> rightFilter = m_rightFilter.getRulebasedFilter();
-
-        final ImgFactory<O> fac = ImgFactoryTypes.getImgFactory(m_factorySelection.getStringValue(), null);
+        final RulebasedLabelFilter<L> rightFilter = m_nonROIFilter.getRulebasedFilter();
 
         final RowIterator it = inData[0].iterator();
         final int rowCount = inData[0].getRowCount();
@@ -305,6 +302,10 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
         while (it.hasNext()) {
             row = it.next();
 
+            if (row.getCell(labColIndex).isMissing()) {
+                setWarningMessage("Rows with missing cells (labeling) have been skipped!");
+                continue;
+            }
             final LabelingValue<L> labelingValue = (LabelingValue<L>)row.getCell(labColIndex);
 
             final LabelingDependency<L> labelingDependency = new LabelingDependency<L>(leftFilter, rightFilter, false);
@@ -312,6 +313,10 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
             // If no img selected, create bitmasks
             ImgPlus<T> img = null;
             if (imgColIndex != -1) {
+                if (row.getCell(imgColIndex).isMissing()) {
+                    setWarningMessage("Rows with missing cells (image) have been skipped!");
+                    continue;
+                }
                 img = ((ImgPlusValue<T>)row.getCell(imgColIndex)).getImgPlus();
             }
 
@@ -323,9 +328,19 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
                                                                                 img, img), labeling.<L> factory());
             }
 
+            ImgFactory<T> fac = null;
+            if (labeling instanceof NativeImgLabeling) {
+                fac = ((NativeImgLabeling)labeling).getStorageImg().factory();
+            } else if (img != null) {
+                fac = img.factory();
+            } else {
+                // if we don't have an image and no labeling where we can derive the factory from we simply create ArrayImg BitMasks
+                fac = (ImgFactory<T>)new ArrayImgFactory<BitType>();
+            }
+
             final Map<L, List<L>> dependedLabels = Operations.compute(labelingDependency, labeling);
 
-            for (final L l : labeling.firstElement().getMapping().getLabels()) {
+            for (final L l : labeling.getLabels()) {
 
                 if (!leftFilter.isValid(l)) {
                     continue;
@@ -340,24 +355,26 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
                 }
                 final FinalInterval interval = new FinalInterval(min, max);
 
-                Img<O> res = null;
+                Img<T> res = null;
                 if (img != null) {
-                    O type = (O)img.firstElement().createVariable();
-                    O minType = type.createVariable();
+                    T type = img.firstElement().createVariable();
+                    T minType = type.createVariable();
                     minType.setReal(type.getMinValue());
-                    O maxType = type.createVariable();
+                    T maxType = type.createVariable();
                     maxType.setReal(type.getMaxValue());
 
                     res = fac.create(interval, type.createVariable());
 
-                    Cursor<O> roiCursor = (Cursor<O>)roi.getIterableIntervalOverROI(img).cursor();
-                    RandomAccess<O> ra = res.randomAccess();
+                    Cursor<T> roiCursor = roi.getIterableIntervalOverROI(img).cursor();
+                    RandomAccess<T> ra = res.randomAccess();
 
-                    Fill<O, IterableInterval<O>> fill = new Fill<O, IterableInterval<O>>();
-                    if (m_backgroundSelection.getStringValue().equals(BACKGROUND_OPTIONS[BACKGROUND.MIN.ordinal()])) {
-                        fill.compute(minType, res);
-                    } else {
-                        fill.compute(maxType, res);
+                    Fill<T> fill = new Fill<T>();
+                    if (m_backgroundSelection.getStringValue().equals(BACKGROUND_OPTIONS[BACKGROUND.MIN.ordinal()])
+                            && minType.getRealDouble() != 0) {
+                        fill.compute(minType, res.iterator());
+                    } else if (m_backgroundSelection.getStringValue().equals(BACKGROUND_OPTIONS[BACKGROUND.MAX
+                                                                                     .ordinal()])) {
+                        fill.compute(maxType, res.iterator());
                     }
 
                     long[] pos = new long[img.numDimensions()];
@@ -371,7 +388,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
                         ra.get().setReal(roiCursor.get().getRealDouble());
                     }
                 } else {
-                    res = fac.create(interval, (O)new BitType());
+                    res = fac.create(interval, (T)new BitType());
 
                     final RandomAccess<BitType> maskRA = (RandomAccess<BitType>)res.randomAccess();
 
@@ -381,7 +398,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
                     while (cur.hasNext()) {
                         cur.fwd();
-                        for (int d = 0; d < 2; d++) {
+                        for (int d = 0; d < cur.numDimensions(); d++) {
                             maskRA.setPosition(cur.getLongPosition(d) - interval.min(d), d);
                         }
                         maskRA.get().set(true);
@@ -392,21 +409,19 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
                 final List<DataCell> cells = new ArrayList<DataCell>();
 
                 // TODO: What about color tables?
-                final DefaultImgMetadata metadata =
-                        new DefaultImgMetadata(labelingValue.getLabelingMetadata(),
-                                labelingValue.getLabelingMetadata(), labelingValue.getLabelingMetadata(),
-                                new DefaultImageMetadata());
+                final LabelingMetadata lmdata = labelingValue.getLabelingMetadata();
+                final ImgPlusMetadata metadata =
+                        new DefaultImgMetadata(lmdata, new DefaultNamed(l.toString()), new DefaultSourced(
+                                lmdata.getName()), new DefaultImageMetadata());
 
                 cells.add(imgCellFactory.createCell(res, metadata, min));
                 if (imgColIndex != -1) {
                     cells.add(row.getCell(imgColIndex));
-                } else {
-                    cells.add(DataType.getMissingCell());
                 }
                 cells.add(row.getCell(labColIndex));
                 cells.add(new StringCell(l.toString()));
 
-                if (m_addDependencies.getBooleanValue()) {
+                if (m_addNonRoiLabels.getBooleanValue()) {
                     cells.add(new StringCell(dependedLabels.get(l).toString()));
                 }
 
