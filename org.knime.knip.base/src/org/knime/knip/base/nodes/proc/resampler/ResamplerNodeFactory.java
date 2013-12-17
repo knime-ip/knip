@@ -104,8 +104,8 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
         return new SettingsModelScalingValues("scaling");
     }
 
-    private static SettingsModelBoolean createPersistModel() {
-        return new SettingsModelBoolean("persist", false);
+    private static SettingsModelBoolean createVirtualInterpolationModel() {
+        return new SettingsModelBoolean("virtual_interpolation", false);
     }
 
     /**
@@ -124,8 +124,8 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
                         createScalingModel()));
                 addDialogComponent("Options", "New Dimension Sizes", new DialogComponentBoolean(createRelDimsModel(),
                         "Relative?"));
-                addDialogComponent("Options", "Persistence", new DialogComponentBoolean(createRelDimsModel(),
-                        "Persist?"));
+                addDialogComponent("Options", "Virtual Interpolation", new DialogComponentBoolean(
+                        createVirtualInterpolationModel(), "Virtual Interpolation?"));
             }
 
             /**
@@ -153,7 +153,7 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
 
             private final SettingsModelBoolean m_relativeDims = createRelDimsModel();
 
-            private final SettingsModelBoolean m_persistModel = createPersistModel();
+            private final SettingsModelBoolean m_persistModel = createVirtualInterpolationModel();
 
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
@@ -202,7 +202,7 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
     }
 
     private Img<T> resample(final Img<T> img, final Mode mode, final Interval newDims, final double[] scaleFactors,
-                            final boolean persist) {
+                            final boolean virtualCalculation) {
         IntervalView<T> interval = null;
         switch (mode) {
             case LINEAR:
@@ -230,7 +230,7 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
                 throw new IllegalArgumentException("Unknown mode in Resample.java");
         }
         ImgView<T> imgView = new ImgView<T>(interval, img.factory());
-        if (persist) {
+        if (!virtualCalculation) {
             return imgView.copy();
         } else {
             return imgView;
