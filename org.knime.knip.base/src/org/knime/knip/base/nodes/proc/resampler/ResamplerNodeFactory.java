@@ -104,6 +104,10 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
         return new SettingsModelScalingValues("scaling");
     }
 
+    private static SettingsModelBoolean createPersistModel() {
+        return new SettingsModelBoolean("persist", false);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -114,12 +118,14 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
             @SuppressWarnings("deprecation")
             @Override
             public void addDialogComponents() {
-                addDialogComponent("Options", "Interpolation mode", new DialogComponentStringSelection(
+                addDialogComponent("Options", "Interpolation Mode", new DialogComponentStringSelection(
                         createInterpolationModel(), "", EnumUtils.getStringListFromName(Mode.values())));
                 addDialogComponent("Options", "New Dimension Sizes", new DialogComponentScalingValues(
                         createScalingModel()));
                 addDialogComponent("Options", "New Dimension Sizes", new DialogComponentBoolean(createRelDimsModel(),
                         "Relative?"));
+                addDialogComponent("Options", "Persistence", new DialogComponentBoolean(createRelDimsModel(),
+                        "Persist?"));
             }
 
             /**
@@ -147,11 +153,14 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
 
             private final SettingsModelBoolean m_relativeDims = createRelDimsModel();
 
+            private final SettingsModelBoolean m_persistModel = createPersistModel();
+
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
                 settingsModels.add(m_interpolationSettings);
                 settingsModels.add(m_newDimensions);
                 settingsModels.add(m_relativeDims);
+                settingsModels.add(m_persistModel);
 
             }
 
@@ -178,8 +187,8 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
 
                 return m_imgCellFactory.createCell(resample(img,
                                                             Mode.valueOf(m_interpolationSettings.getStringValue()),
-                                                            new FinalInterval(newDimensions), scaleFactors), cellValue
-                                                           .getMetadata());
+                                                            new FinalInterval(newDimensions), scaleFactors,
+                                                            m_persistModel.getBooleanValue()), cellValue.getMetadata());
             }
 
             /**
@@ -192,7 +201,8 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
         };
     }
 
-    private Img<T> resample(final Img<T> img, final Mode mode, final Interval newDims, final double[] scaleFactors) {
+    private Img<T> resample(final Img<T> img, final Mode mode, final Interval newDims, final double[] scaleFactors,
+                            final boolean persist) {
         IntervalView<T> interval = null;
         switch (mode) {
             case LINEAR:
@@ -219,7 +229,11 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
             default:
                 throw new IllegalArgumentException("Unknown mode in Resample.java");
         }
-        return new ImgView<T>(interval, img.factory());
-
+        ImgView<T> imgView = new ImgView<T>(interval, img.factory());
+        if (persist) {
+            return imgView.copy();
+        } else {
+            return imgView;
+        }
     }
 }

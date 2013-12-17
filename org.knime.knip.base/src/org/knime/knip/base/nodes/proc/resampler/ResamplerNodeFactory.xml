@@ -27,8 +27,9 @@
 			<option name="Interpolation Mode">
 				Determines how to interpolate the pixels.
 			</option>
-
-
+			<option name="Persist?">
+				If checked, the interpolation is done right away. If unchecked, the calculation is done on the fly when the image data is accessed. For larger calculations we suggest to check "Persist". 
+			</option>
 		</tab>
 
 	</fullDescription>
