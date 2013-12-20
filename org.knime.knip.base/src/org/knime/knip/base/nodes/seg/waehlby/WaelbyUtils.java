@@ -54,8 +54,10 @@ import net.imglib2.RandomAccessible;
 import net.imglib2.combiner.Combiner;
 import net.imglib2.combiner.read.CombinedRandomAccessible;
 import net.imglib2.converter.Converter;
+import net.imglib2.converter.read.ConvertedRandomAccessible;
 import net.imglib2.labeling.LabelingType;
 import net.imglib2.ops.img.BinaryOperationAssignment;
+import net.imglib2.ops.img.UnaryOperationBasedConverter;
 import net.imglib2.ops.operation.BinaryOperation;
 import net.imglib2.ops.operation.real.unary.RealUnaryOperation;
 import net.imglib2.type.Type;
@@ -78,9 +80,22 @@ public class WaelbyUtils {
     }
 
     /**
+     * @param img the img to invert
+     * @param type Type of values of img
+     * @return ConvertedRandomAccessible with SignedRealInvert converter
+     */
+    public static <T extends RealType<T>> ConvertedRandomAccessible<T, T> invertImg(final RandomAccessible<T> img, final T type) {
+        return new ConvertedRandomAccessible<T, T>(img,
+                new UnaryOperationBasedConverter<T, T>(
+                        new SignedRealInvert<T, T>()), type);
+    }
+
+    /**
      * Inverter for signed RealTypes
      *
      * @author Christian Dietz (University of Konstanz)
+     * @param <I>
+     * @param <O>
      */
     public static class SignedRealInvert<I extends RealType<I>, O extends RealType<O>> implements RealUnaryOperation<I, O> {
 
@@ -208,8 +223,22 @@ public class WaelbyUtils {
      * @param type
      * @return a {@link CombinedRandomAccessible} of the two input RandomAccessibles combined with a ConditionalCombiner
      */
-    public static <X extends Type<X>, Y extends Type<Y>, Z extends Type<Z>> CombinedRandomAccessible<X, Y, Z> combineConditioned(final RandomAccessible<X> a, final RandomAccessible<Y> b, final IfThenElse<X, Y, Z> condition, final Z type) {
+    public static <X extends Type<X>, Y extends Type<Y>, Z extends Type<Z>> CombinedRandomAccessible<X, Y, Z>
+                combineConditioned(final RandomAccessible<X> a, final RandomAccessible<Y> b, final IfThenElse<X, Y, Z> condition, final Z type) {
         return new CombinedRandomAccessible<X, Y, Z>(a, b, new ConditionalCombiner<X, Y, Z>(condition), type);
 
+    }
+
+    public static <T extends RealType<T> > ConvertedRandomAccessible<T, BitType> makeFgBgMask(final RandomAccessible<T> img, final T type) {
+        return new ConvertedRandomAccessible<T, BitType>(img, new Converter<T, BitType>() {
+            @Override
+            public void convert(final T input, final BitType output) {
+                if (input.getRealDouble() == type.getMinValue()) {
+                    output.setZero();
+                } else {
+                    output.setOne();
+                }
+            }
+        }, new BitType());
     }
 }

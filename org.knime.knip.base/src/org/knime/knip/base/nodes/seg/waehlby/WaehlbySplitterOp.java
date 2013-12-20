@@ -50,7 +50,6 @@
 package org.knime.knip.base.nodes.seg.waehlby;
 
 import net.imglib2.Interval;
-import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.algorithm.gauss3.Gauss3;
 import net.imglib2.combiner.read.CombinedRandomAccessible;
@@ -62,13 +61,13 @@ import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingType;
 import net.imglib2.labeling.NativeImgLabeling;
-import net.imglib2.ops.img.UnaryOperationBasedConverter;
 import net.imglib2.ops.operation.BinaryObjectFactory;
 import net.imglib2.ops.operation.BinaryOutputOperation;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.DistanceMap;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.morph.DilateGray;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.AbstractRegionGrowing;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.CCA;
+import net.imglib2.outofbounds.OutOfBoundsBorderFactory;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.ShortType;
@@ -79,10 +78,11 @@ import org.knime.knip.base.nodes.io.kernel.structuring.SphereSetting;
 import org.knime.knip.base.nodes.proc.maxfinder.MaximumFinderOp;
 import org.knime.knip.base.nodes.seg.waehlby.WaelbyUtils.IfThenElse;
 import org.knime.knip.base.nodes.seg.waehlby.WaelbyUtils.LabelingToBitConverter;
-import org.knime.knip.base.nodes.seg.waehlby.WaelbyUtils.SignedRealInvert;
+import org.knime.knip.core.awt.AWTImageTools;
 import org.knime.knip.core.ops.labeling.WatershedWithThreshold;
+import org.knime.knip.core.util.MiscViews;
 
-//TODO: Make Integer more generic
+//TODO: Make Integer more generic, TODO: Why? It's the output
 /**
  *
  * @author Jonathan Hale (University of Konstanz)
@@ -102,7 +102,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         SHAPE_BASED_SEGMENTATION
     }
 
-    private SEG_TYPE m_segType;
+    protected SEG_TYPE m_segType;
 
     protected int m_gaussSize;
 
@@ -132,6 +132,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
 
     private RandomAccessibleInterval<FloatType> createBorderedImg(final Interval interval) {
         Img<FloatType> img = m_floatFactory.create(interval, new FloatType());
+
         return Views.interval(Views.extendBorder(img), interval);
     }
 
@@ -172,14 +173,26 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
             }
         }
 
-        /* Disc dilation */
-        new DilateGray<FloatType>(new SphereSetting(img.numDimensions(), maxima_size).get()[0])
-                .compute(new ImgView<FloatType>(Views.interval(Views.extendBorder(tmp), tmp),
-                        new ArrayImgFactory<FloatType>()), tmp2);
+//        Labeling<L> l = null;
+//        for(L label : l.getLabels()){
+//            IterableRegionOfInterest iterableRegionOfInterest = l.getIterableRegionOfInterest(label);
+//            iterableRegionOfInterest.getIterableIntervalOverROI(null).cursor();
+//            iterableRegionOfInterest.getIterableIntervalOverROI(null).cursor();
+//
+//        }
 
-        RandomAccessible<BitType> mask =
-                new ConvertedRandomAccessible<LabelingType<L>, BitType>(inLab,
-                        new LabelingToBitConverter<LabelingType<L>>(), new BitType());
+
+        /* Disc dilation */
+        new DilateGray<FloatType>(
+                new SphereSetting(img.numDimensions(), maxima_size).get()[0],
+                new OutOfBoundsBorderFactory()
+                )
+                .compute(
+                        new ImgView<FloatType>(Views.interval(Views.extendBorder(tmp), tmp), new ArrayImgFactory<FloatType>()),
+                        tmp2);
+
+        debugImage(tmp2, "After Dilate");
+
 
         /* Combine Images */
         //(S) Combine, if src1 < src2, else set as background
@@ -198,11 +211,10 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
 
                 }, new FloatType());
 
+
         /* Label the found Minima */
-        ConvertedRandomAccessible<FloatType, FloatType> inverter =
-                new ConvertedRandomAccessible<FloatType, FloatType>(combined,
-                        new UnaryOperationBasedConverter<FloatType, FloatType>(
-                                new SignedRealInvert<FloatType, FloatType>()), new FloatType());
+        ConvertedRandomAccessible<FloatType, FloatType> inverter = WaelbyUtils.invertImg(combined, new FloatType());
+
 
         Img<BitType> tmp3 = new ArrayImgFactory<BitType>().create(img, new BitType());
 
@@ -224,24 +236,16 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         watershed.setIntensityImage(tmp);
         watershed.process();
 
-        CombinedRandomAccessible<BitType, BitType, BitType> maskBgFg =
-                WaelbyUtils.combineConditioned(new ConvertedRandomAccessible<LabelingType<Integer>, BitType>(outLab,
-                                                       new LabelingToBitConverter<LabelingType<Integer>>(),
-                                                       new BitType()),
-                                               mask,
-                                               new IfThenElse<BitType, BitType, BitType>() {
-                                                   @Override
-                                                   public BitType test(final BitType a, final BitType b,
-                                                                       final BitType out) {
-                                                       boolean ret = true;
-
-                                                       ret = a.get() && b.get();
-
-                                                       out.set(ret);
-
-                                                       return out;
-                                                   }
-                                               }, new BitType());
+//        transformImageIf(srcImageRange(labels),
+//                         maskImage(img_bin),
+//                         destImage(img_bin),
+//                         ifThenElse(
+//                                 Arg1() == Param(background),
+//                                 Param(background),
+//                                 Param(foreground))
+//                         );
+//        CombinedRandomAccessible<BitType, BitType, BitType> maskBgFg =
+//                WaelbyUtils.makeFgBgMask(outLab, new FloatType()); //TODO: paramters may be completely incorrect.
 
         /* Object Merge */
 
@@ -257,6 +261,14 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
 
         //...
         return outLab;
+    }
+
+    /**
+     * @param tmp2
+     * @param string
+     */
+    private void debugImage(final RandomAccessibleInterval<FloatType> tmp2, final String string) {
+        AWTImageTools.showInFrame(MiscViews.imgView(tmp2, null), "After Dilate");
     }
 
     /**
