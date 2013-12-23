@@ -58,6 +58,7 @@ import net.imglib2.interpolation.randomaccess.LanczosInterpolatorFactory;
 import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
 import net.imglib2.interpolation.randomaccess.NearestNeighborInterpolatorFactory;
 import net.imglib2.meta.ImgPlus;
+import net.imglib2.ops.operation.img.unary.ImgCopyOperation;
 import net.imglib2.realtransform.RealViews;
 import net.imglib2.realtransform.Scale;
 import net.imglib2.type.numeric.RealType;
@@ -104,10 +105,6 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
         return new SettingsModelScalingValues("scaling");
     }
 
-    private static SettingsModelBoolean createVirtualInterpolationModel() {
-        return new SettingsModelBoolean("virtual_interpolation", false);
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -124,8 +121,6 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
                         createScalingModel()));
                 addDialogComponent("Options", "New Dimension Sizes", new DialogComponentBoolean(createRelDimsModel(),
                         "Relative?"));
-                addDialogComponent("Options", "Virtual Interpolation", new DialogComponentBoolean(
-                        createVirtualInterpolationModel(), "Virtual Interpolation?"));
             }
 
             /**
@@ -153,15 +148,11 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
 
             private final SettingsModelBoolean m_relativeDims = createRelDimsModel();
 
-            private final SettingsModelBoolean m_persistModel = createVirtualInterpolationModel();
-
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
                 settingsModels.add(m_interpolationSettings);
                 settingsModels.add(m_newDimensions);
                 settingsModels.add(m_relativeDims);
-                settingsModels.add(m_persistModel);
-
             }
 
             @Override
@@ -187,8 +178,8 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
 
                 return m_imgCellFactory.createCell(resample(img,
                                                             Mode.valueOf(m_interpolationSettings.getStringValue()),
-                                                            new FinalInterval(newDimensions), scaleFactors,
-                                                            m_persistModel.getBooleanValue()), cellValue.getMetadata());
+                                                            new FinalInterval(newDimensions), scaleFactors), cellValue
+                                                           .getMetadata());
             }
 
             /**
@@ -201,8 +192,7 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
         };
     }
 
-    private Img<T> resample(final Img<T> img, final Mode mode, final Interval newDims, final double[] scaleFactors,
-                            final boolean virtualCalculation) {
+    private Img<T> resample(final Img<T> img, final Mode mode, final Interval newDims, final double[] scaleFactors) {
         IntervalView<T> interval = null;
         switch (mode) {
             case LINEAR:
@@ -229,11 +219,10 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
             default:
                 throw new IllegalArgumentException("Unknown mode in Resample.java");
         }
-        ImgView<T> imgView = new ImgView<T>(interval, img.factory());
-        if (!virtualCalculation) {
-            return imgView.copy();
-        } else {
-            return imgView;
-        }
+
+        // create copy of Img
+        return (Img<T>)new ImgCopyOperation<T>().compute(new ImgView<T>(interval, img.factory()),
+                                                         img.factory().create(interval,
+                                                                              img.firstElement().createVariable()));
     }
 }
