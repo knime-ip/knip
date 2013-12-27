@@ -11,10 +11,10 @@
 	<classpathentry exported="true" kind="lib" path="lib/mvn/mdbtools-java-4.4.9.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/metakit-4.4.9.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/netcdf-4.0.03.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/ome-formats-0.3.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/ome-xml-4.4.9.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/poi-loci-4.4.9.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/scifio-4.4.9.jar" sourcepath="lib/mvn-knipio-source-collection.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/scifio-bf-compat-1.3.2.jar" sourcepath="lib/mvn-knipio-source-collection.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/ome-formats-0.4.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
