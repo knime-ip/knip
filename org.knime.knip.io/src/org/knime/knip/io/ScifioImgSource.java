@@ -48,8 +48,10 @@
  */
 package org.knime.knip.io;
 
+import io.scif.Format;
 import io.scif.FormatException;
 import io.scif.Metadata;
+import io.scif.Parser;
 import io.scif.Plane;
 import io.scif.Reader;
 import io.scif.filters.PlaneSeparator;
@@ -292,11 +294,15 @@ public class ScifioImgSource implements ImgSource {
 			IOException {
 		if (m_reader == null
 				|| (!m_reader.getCurrentFile().equals(imgRef) && m_checkFileFormat)) {
-			ReaderFilter r = ScifioGateway.getSCIFIO().initializer()
-					.initializeReader(imgRef, true);
+			
+			
+			Format format = ScifioGateway.getSCIFIO().format().getFormat(imgRef, true);
+			ReaderFilter r = new ReaderFilter(format.createReader());
+			Parser p = format.createParser();
+			p.setGroupFiles(m_isGroupFiles);
+			r.setMetadata(p.parse(imgRef));
 
 			r.enable(PlaneSeparator.class);
-			r.setGroupFiles(m_isGroupFiles);
 
 			if (m_reader != null
 					&& !(m_reader.getFormat().getClass().equals(r.getFormat()
