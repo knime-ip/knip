@@ -65,11 +65,12 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.knip.base.KNIMEKNIPPlugin;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
+@Deprecated
 public class DialogComponentScalingValues extends DialogComponent implements ItemListener {
 
     /**
@@ -89,7 +90,7 @@ public class DialogComponentScalingValues extends DialogComponent implements Ite
     private final JTextField[] m_scalingValues;
 
     /**
-     * 
+     *
      * @param model
      */
     public DialogComponentScalingValues(final SettingsModelScalingValues model) {

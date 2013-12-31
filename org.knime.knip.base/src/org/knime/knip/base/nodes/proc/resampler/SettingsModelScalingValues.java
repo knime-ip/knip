@@ -68,6 +68,7 @@ import org.knime.core.node.port.PortObjectSpec;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
+@Deprecated
 public class SettingsModelScalingValues extends SettingsModel {
 
     private static String CFG_NEWDIMENSION = "new_dimensions";
