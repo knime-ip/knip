@@ -74,7 +74,7 @@ import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.util.EnumUtils;
 
 /**
- * Factory class to produce an image inverter node.
+ * Factory class to produce the image projector node.
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>

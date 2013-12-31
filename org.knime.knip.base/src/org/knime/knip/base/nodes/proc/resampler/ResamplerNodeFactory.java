@@ -87,6 +87,7 @@ import org.knime.knip.core.util.EnumUtils;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @param <T>
  */
+@Deprecated
 public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFactory<ImgPlusValue<T>> {
 
     private enum Mode {
@@ -112,7 +113,6 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
     protected ValueToCellNodeDialog<ImgPlusValue<T>> createNodeDialog() {
         return new ValueToCellNodeDialog<ImgPlusValue<T>>() {
 
-            @SuppressWarnings("deprecation")
             @Override
             public void addDialogComponents() {
                 addDialogComponent("Options", "Interpolation Mode", new DialogComponentStringSelection(

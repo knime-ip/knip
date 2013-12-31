@@ -46,7 +46,7 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.base.nodes.proc.resampler;
+package org.knime.knip.base.nodes.proc.resizer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -68,8 +68,7 @@ import org.knime.core.node.port.PortObjectSpec;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-@Deprecated
-public class SettingsModelScalingValues extends SettingsModel {
+public class SettingsModelResizeInputValues extends SettingsModel {
 
     private static String CFG_NEWDIMENSION = "new_dimensions";
 
@@ -86,7 +85,7 @@ public class SettingsModelScalingValues extends SettingsModel {
      *
      * @param configName
      */
-    public SettingsModelScalingValues(final String configName) {
+    public SettingsModelResizeInputValues(final String configName) {
         m_configName = configName;
         m_newDimensions = new HashMap<String, Double>(5);
     }
@@ -96,8 +95,8 @@ public class SettingsModelScalingValues extends SettingsModel {
      */
     @Override
     @SuppressWarnings("unchecked")
-    protected final SettingsModelScalingValues createClone() {
-        final SettingsModelScalingValues clone = new SettingsModelScalingValues(m_configName);
+    protected final SettingsModelResizeInputValues createClone() {
+        final SettingsModelResizeInputValues clone = new SettingsModelResizeInputValues(m_configName);
         clone.m_newDimensions.putAll(m_newDimensions);
         return clone;
     }

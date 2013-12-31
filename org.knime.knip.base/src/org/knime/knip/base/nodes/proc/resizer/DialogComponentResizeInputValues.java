@@ -46,7 +46,7 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.base.nodes.proc.resampler;
+package org.knime.knip.base.nodes.proc.resizer;
 
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -65,13 +65,12 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.knip.base.KNIMEKNIPPlugin;
 
 /**
- *
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-@Deprecated
-public class DialogComponentScalingValues extends DialogComponent implements ItemListener {
+public class DialogComponentResizeInputValues extends DialogComponent implements ItemListener {
 
     /**
      * max length of points for a dimension to be selected
@@ -90,10 +89,10 @@ public class DialogComponentScalingValues extends DialogComponent implements Ite
     private final JTextField[] m_scalingValues;
 
     /**
-     *
+     * 
      * @param model
      */
-    public DialogComponentScalingValues(final SettingsModelScalingValues model) {
+    public DialogComponentResizeInputValues(final SettingsModelResizeInputValues model) {
         super(model);
 
         getComponentPanel().setLayout(new BoxLayout(getComponentPanel(), BoxLayout.Y_AXIS));
@@ -155,7 +154,7 @@ public class DialogComponentScalingValues extends DialogComponent implements Ite
     protected final void updateComponent() {
 
         // updateModel();
-        final SettingsModelScalingValues model = ((SettingsModelScalingValues)getModel());
+        final SettingsModelResizeInputValues model = ((SettingsModelResizeInputValues)getModel());
 
         for (int t = 0; t < m_scalingValues.length; t++) {
             m_scalingValues[t].setText("" + model.getNewDimensions(m_dimLabels[t].type().getLabel()));
@@ -169,7 +168,7 @@ public class DialogComponentScalingValues extends DialogComponent implements Ite
      *
      */
     private final void updateModel() {
-        final SettingsModelScalingValues model = (SettingsModelScalingValues)getModel();
+        final SettingsModelResizeInputValues model = (SettingsModelResizeInputValues)getModel();
 
         for (int t = 0; t < m_scalingValues.length; t++) {
             model.setScalingValue(m_dimLabels[t].type().getLabel(), Double.parseDouble((m_scalingValues[t].getText())));
