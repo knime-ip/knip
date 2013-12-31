@@ -93,6 +93,14 @@ public class DimExtendNodeFactory<T extends RealType<T>> extends ValueToCellNode
                         createNewDimLabelModel(), "New Dimension Labels (separated by ',')"));
 
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_dimExtended";
+            }
         };
     }
 

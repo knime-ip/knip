@@ -87,8 +87,22 @@ import org.knime.knip.core.util.MiscViews;
 public final class BinaryArithmeticNodeFactory extends
         TwoValuesToCellNodeFactory<ImgPlusValue<BitType>, ImgPlusValue<BitType>> {
 
+    /**
+     * Binary Operation Applied to BitType Images
+     */
     public enum Method {
-        AND, OR, XOR;
+        /**
+         * true, if both are true
+         */
+        AND,
+        /**
+         * true, if one is true
+         */
+        OR,
+        /**
+         * true, if only one is true and the other false
+         */
+        XOR;
     }
 
     private static NodeLogger LOGGER = NodeLogger.getLogger(BinaryArithmeticNodeFactory.class);
@@ -110,9 +124,10 @@ public final class BinaryArithmeticNodeFactory extends
 
             @Override
             public void addDialogComponents() {
-                addDialogComponent("Options", "Binary operation",
-                                   new DialogComponentStringSelection(createMethodNameModel(), "Method",
-                                           EnumUtils.getStringListFromName(BinaryArithmeticNodeFactory.Method.values())));
+                addDialogComponent("Options",
+                                   "Binary Operation",
+                                   new DialogComponentStringSelection(createMethodNameModel(), "Method", EnumUtils
+                                           .getStringListFromName(BinaryArithmeticNodeFactory.Method.values())));
 
                 addDialogComponent("Options", "", new DialogComponentBoolean(createVirtuallySynchronizeModel(),
                         "Virtually Extend?"));
@@ -156,6 +171,7 @@ public final class BinaryArithmeticNodeFactory extends
             /**
              *
              */
+            @SuppressWarnings("cast")
             @Override
             protected ImgPlusCell<BitType> compute(final ImgPlusValue<BitType> cellValue1,
                                                    final ImgPlusValue<BitType> cellValue2) throws Exception {

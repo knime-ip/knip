@@ -58,6 +58,7 @@ import net.imglib2.ops.operation.randomaccessibleinterval.unary.DistanceMap;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.FloatType;
 
+import org.knime.core.node.NodeDialog;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
@@ -65,10 +66,12 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
 import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
+ * {@link NodeDialog} for {@link DistanceMap}
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @param <T>
  */
 public class DistanceMapNodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNodeFactory<T, FloatType> {
 
@@ -77,7 +80,7 @@ public class DistanceMapNodeFactory<T extends RealType<T>> extends ImgPlusToImgP
      */
     @Override
     protected ImgPlusToImgPlusNodeDialog<T> createNodeDialog() {
-        return new ImgPlusToImgPlusNodeDialog(DistanceMap.MIN_DIMS, DistanceMap.MAX_DIMS, "X", "Y") {
+        return new ImgPlusToImgPlusNodeDialog<T>(DistanceMap.MIN_DIMS, DistanceMap.MAX_DIMS, "X", "Y") {
 
             @Override
             public void addDialogComponents() {

@@ -88,7 +88,7 @@ import org.knime.knip.core.util.NeighborhoodUtils;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -127,6 +127,14 @@ public class SeedGeneratorNodeFactory<T extends RealType<T>> extends ValueToCell
 
                 addDialogComponent(new DialogComponentBoolean(createMoveToMinModel(),
                         "Move seeding point to minimum in local neighborhood"));
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_seeds";
             }
         };
     }

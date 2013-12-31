@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="labelingtostring.png" type="Manipulator">
+	<name>Data Row to Image</name>
+	<shortDescription>
+		Converts a collection of numbers into an image.
+	</shortDescription>
+	<fullDescription>
+		<intro>Converts a collection of numbers into an image.</intro>
+		<tab name="Options">
+		<option name="Dimensions"><p>Specify the dimensions of the result images here (comma-separated). If the overall number of pixels of the result image is larger or smaller than the number of provided values (collection), the values will be skipped or the image filled with 0, respectively.</p>
+		<p>If the dimension count is one less than the number of specified dimension labels than the size of the last dimension will be automatically determined in accordance with the number of provided values.</p>
+		</option>
+		<option name="Dimension labels">The names (and therewith the number) of the dimensions of the result images (list of comma-separated strings).</option>
+		<option name="Image Pixel Type">The pixel type of the result images. Please note that the input values must fit into the range of the specified pixel type, otherwise it might lead to unexpected results.</option>
+		</tab>
+	</fullDescription>
+	<ports>
+		<inPort name="Collection of numbers" index="0">Collection of numbers, e.g. a collection of DoubleCells</inPort>
+		<outPort name="Images" index="0">The resulting images.</outPort>
+	</ports>
+
+</knimeNode>

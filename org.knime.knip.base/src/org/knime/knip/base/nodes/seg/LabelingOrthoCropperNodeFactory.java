@@ -110,6 +110,14 @@ public class LabelingOrthoCropperNodeFactory<L extends Comparable<L>> extends Va
                 addDialogComponent("Options", "Options", new DialogComponentBoolean(createAdjustDimModel(),
                         "Adjust Dimensionality?"));
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_cropped";
+            }
         };
     }
 

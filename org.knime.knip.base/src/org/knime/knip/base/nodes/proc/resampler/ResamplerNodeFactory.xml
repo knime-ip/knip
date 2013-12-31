@@ -27,8 +27,10 @@
 			<option name="Interpolation Mode">
 				Determines how to interpolate the pixels.
 			</option>
-
-
+			<option name="Virtual Interpolation?">
+				If checked, the interpolation is done on the fly, whenever the image data is accessed. This means, accessing the image is more expensive, but memory is saved.
+				If unchecked, the interpolation is done right away. For larger calculations we suggest to uncheck "Virtual Interpolation". 
+			</option>
 		</tab>
 
 	</fullDescription>

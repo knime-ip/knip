@@ -136,6 +136,14 @@ public class CellClumpedSplitterNodeFactory<T extends RealType<T>, L extends Com
                         "Dimensions", 2, 5));
 
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_splittedClumps";
+            }
         };
     }
 

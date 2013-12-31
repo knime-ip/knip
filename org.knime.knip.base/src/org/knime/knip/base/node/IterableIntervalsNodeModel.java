@@ -75,6 +75,7 @@ import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
+import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgUtils;
@@ -328,11 +329,23 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
             }
         }
 
+        if (m_dimSelectionModel != null && m_dimSelectionModel.getNumSelectedDimLabels(cellValue.getMetadata()) == 0
+                && m_dimSelectionModel.getNumSelectedDimLabels() > 0) {
+            throw new KNIPException("Not enough selected dimensions provided by image.");
+        }
+
         prepareOperation(in.firstElement());
         if (!isLabelingPresent()) {
+
             UnaryOperation<IterableInterval<T>, IterableInterval<V>> operation = operation();
-            SubsetOperations.iterate(ImgOperations.wrapII(operation, outType), selectedDimIndices, in, res,
-                                     getExecutorService());
+
+            if (selectedDimIndices.length != 0) {
+                SubsetOperations.iterate(ImgOperations.wrapII(operation, outType), selectedDimIndices, in, res,
+                                         getExecutorService());
+            } else {
+                ImgOperations.wrapII(operation, outType).compute(in, res);
+            }
+
         } else {
             for (L label : m_currentLabeling.getLabels()) {
                 IterableRegionOfInterest iterableRegionOfInterest =

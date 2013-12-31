@@ -51,10 +51,10 @@ package org.knime.knip.core.ui.imgviewer.events;
 import net.imglib2.Interval;
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.meta.CalibratedAxis;
 import net.imglib2.meta.CalibratedSpace;
 import net.imglib2.meta.Named;
 import net.imglib2.meta.Sourced;
-import net.imglib2.meta.TypedAxis;
 import net.imglib2.meta.TypedSpace;
 import net.imglib2.type.Type;
 import net.imglib2.view.Views;
@@ -76,7 +76,7 @@ public abstract class IntervalWithMetadataChgEvent<T extends Type<T>> implements
 
     private final Named m_name;
 
-    private final TypedSpace<? extends TypedAxis> m_tspace;
+    private final CalibratedSpace<? extends CalibratedAxis> m_tspace;
 
     private final Sourced m_source;
 
@@ -89,7 +89,7 @@ public abstract class IntervalWithMetadataChgEvent<T extends Type<T>> implements
      * @param tspace typed space of the interval
      */
     public IntervalWithMetadataChgEvent(final RandomAccessibleInterval<T> interval, final Named name,
-                                        final Sourced source, final TypedSpace<? extends TypedAxis> tspace) {
+                                        final Sourced source, final CalibratedSpace<? extends CalibratedAxis> tspace) {
         m_interval = interval;
         m_name = name;
         m_source = source;
@@ -140,7 +140,7 @@ public abstract class IntervalWithMetadataChgEvent<T extends Type<T>> implements
     /**
      * @return the axes
      */
-    public TypedSpace<? extends TypedAxis> getTypedSpace() {
+    public CalibratedSpace<? extends CalibratedAxis> getTypedSpace() {
         return m_tspace;
     }
 

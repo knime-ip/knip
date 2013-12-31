@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="labelingtostring.png" type="Manipulator">
-	<name>Img to DataRow</name>
+	<name>Image to DataRow</name>
 	<shortDescription>
-		Converts an ImgPlus into a collection of NumericCells.
+		Converts an image (ImgPlusCell) into a collection of numbers (DoubleCells).
 	</shortDescription>
 	<fullDescription>
-		<intro>Converts an ImgPlus into a collection of Double Cells</intro>
+		<intro>Converts an image (ImgPlusCell) into a collection of numbers (DoubleCells).</intro>
 	</fullDescription>
 	<ports>
-		<inPort name="Imgs" index="0">Input Images</inPort>
+		<inPort name="Image" index="0">Input Images</inPort>
 		<outPort name="CollectionCell" index="0">Collection of Double Cells</outPort>
 	</ports>
 

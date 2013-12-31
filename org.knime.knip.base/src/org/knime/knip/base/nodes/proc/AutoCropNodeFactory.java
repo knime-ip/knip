@@ -148,6 +148,14 @@ public class AutoCropNodeFactory<T extends RealType<T>> extends ValueToCellNodeF
                 addDialogComponent("Margin", "", new DialogComponentNumber(outOfBoundsVal, "Out of bounds value", 1));
 
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_autoCrop";
+            }
         };
     }
 
@@ -221,6 +229,11 @@ public class AutoCropNodeFactory<T extends RealType<T>> extends ValueToCellNodeF
 
                 // crop
                 final FinalInterval interval = new FinalInterval(min, max);
+                for (int i = 0; i < max.length; i++) {
+                    if (min[i] > max[i]) {
+                        throw new KNIPRuntimeException("Illegal bounding box size.");
+                    }
+                }
                 if (Intervals.numElements(interval) <= 0) {
                     throw new KNIPRuntimeException("Illegal bounding box size.");
                 }
@@ -234,7 +247,7 @@ public class AutoCropNodeFactory<T extends RealType<T>> extends ValueToCellNodeF
                 }
                 final Img<T> res = img.factory().create(view, img.firstElement().createVariable());
                 final Cursor<T> cur1 = view.cursor();
-                final Cursor<T> cur2 = res.cursor();
+                final Cursor<T> cur2 = Views.flatIterable(res).cursor();
                 while (cur1.hasNext()) {
                     cur1.fwd();
                     cur2.fwd();

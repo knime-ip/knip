@@ -25,11 +25,11 @@ Bundle-ClassPath: knip-io.jar,
  lib/mvn/mdbtools-java-4.4.9.jar,
  lib/mvn/metakit-4.4.9.jar,
  lib/mvn/netcdf-4.0.03.jar,
- lib/mvn/ome-formats-0.3.0.jar,
  lib/mvn/ome-xml-4.4.9.jar,
  lib/mvn/poi-loci-4.4.9.jar,
  lib/mvn/scifio-4.4.9.jar,
- lib/mvn/scifio-bf-compat-1.3.2.jar
+ lib/mvn/ome-formats-0.4.0.jar,
+ lib/mvn/scifio-bf-compat-1.4.0.jar
 Export-Package: loci.common,
  loci.common.enumeration,
  loci.common.services,

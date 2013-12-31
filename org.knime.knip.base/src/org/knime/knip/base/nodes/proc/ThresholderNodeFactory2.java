@@ -160,6 +160,14 @@ public class ThresholderNodeFactory2<T extends RealType<T>> extends ValueToCellN
                     }
                 });
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_thresholded";
+            }
         };
     }
 

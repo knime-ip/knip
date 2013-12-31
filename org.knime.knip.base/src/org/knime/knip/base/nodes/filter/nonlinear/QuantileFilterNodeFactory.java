@@ -133,6 +133,14 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
                         2));
 
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_quantile";
+            }
         };
     }
 

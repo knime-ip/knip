@@ -121,6 +121,14 @@ public class Rotation2DNodeFactory<T extends RealType<T>> extends ValueToCellNod
                 addDialogComponent("Options", "", new DialogComponentNumber(createCenterDim2Model(), "Center Dim 2", 1));
 
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_rotated";
+            }
         };
     }
 

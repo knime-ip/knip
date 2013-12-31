@@ -73,6 +73,7 @@ public class MiscNodeSetFactory implements NodeSetFactory {
     @Override
     public Collection<String> getNodeFactoryIds() {
         m_nodeFactories.put(ImgToDataRowNodeFactory.class.getCanonicalName(), "/community/knip/image/misc");
+        m_nodeFactories.put(DataRowToImgNodeFactory.class.getCanonicalName(), "/community/knip/image/misc");
         return m_nodeFactories.keySet();
     }
 

@@ -165,4 +165,12 @@ public class MorphImgOpsNodeDialog extends ValueToCellNodeDialog<ImgPlusValue<Bi
             m_type.setStringValue(MorphImgOpsNodeModel.ConnectedType.FOUR_CONNECTED.toString());
         }
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String getDefaultSuffixForAppend() {
+        return "_morphOps";
+    }
 }

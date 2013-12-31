@@ -106,6 +106,14 @@ public class UCMNodeFactory<T extends RealType<T>, L extends Comparable<L>> exte
                 addDialogComponent("Options", "Dimension selection",
                                    new DialogComponentDimSelection(UCMNodeModel.createDimSelectionModel(), "", 2, 2));
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_ucm";
+            }
         };
     }
 

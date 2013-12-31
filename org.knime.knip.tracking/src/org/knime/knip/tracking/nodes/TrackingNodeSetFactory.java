@@ -46,82 +46,73 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.base.nodes.proc.spotdetection;
+package org.knime.knip.tracking.nodes;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
-import net.imglib2.meta.ImgPlus;
-import net.imglib2.ops.operation.UnaryOutputOperation;
-import net.imglib2.type.NativeType;
-import net.imglib2.type.logic.BitType;
-import net.imglib2.type.numeric.RealType;
-
-import org.knime.core.node.ExecutionContext;
-import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
-import org.knime.core.node.defaultnodesettings.SettingsModel;
-import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
-import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
-import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
-import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
-import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
-import org.knime.knip.core.algorithm.logtrackmate.LoGDetectorOp;
+import org.knime.core.node.NodeFactory;
+import org.knime.core.node.NodeModel;
+import org.knime.core.node.NodeSetFactory;
+import org.knime.core.node.config.ConfigRO;
 
 /**
- * NodeFactory for {@link LoGDetectorFactory}
- *
- * @param <T>
- *
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
+ * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
+ *         Zinsmaier</a>
  */
-public class LoGDetectorFactory<T extends RealType<T> & NativeType<T>> extends ImgPlusToImgPlusNodeFactory<T, BitType> {
+public class TrackingNodeSetFactory implements NodeSetFactory {
 
-    static SettingsModelIntegerBounded createSpanModel() {
-        return new SettingsModelIntegerBounded("radius value", 5, 0, Integer.MAX_VALUE);
-    }
+	private final Map<String, String> m_nodeFactories = new HashMap<String, String>();
 
-    @Override
-    protected ImgPlusToImgPlusNodeDialog<T> createNodeDialog() {
-        return new ImgPlusToImgPlusNodeDialog<T>(2, 2, "X", "Y") {
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ConfigRO getAdditionalSettings(final String id) {
+		return null;
+	}
 
-            @Override
-            public void addDialogComponents() {
-                addDialogComponent("Options", "", new DialogComponentNumber(createSpanModel(), "Span", 5));
-            }
-        };
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getAfterID(final String id) {
+		return "";
+	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getCategoryPath(final String id) {
+		return m_nodeFactories.get(id);
+	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public Class<? extends NodeFactory<? extends NodeModel>> getNodeFactory(
+			final String id) {
+		try {
+			return (Class<? extends NodeFactory<? extends NodeModel>>) Class
+					.forName(id);
+		} catch (final ClassNotFoundException e) {
+		}
+		return null;
+	}
 
-    @Override
-    public ImgPlusToImgPlusNodeModel<T, BitType> createNodeModel() {
-        return new ImgPlusToImgPlusNodeModel<T, BitType>("X", "Y") {
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Collection<String> getNodeFactoryIds() {
 
-            private SettingsModelInteger m_spanModel = createSpanModel();
-
-            @Override
-            protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<BitType>> op(final ImgPlus<T> imgPlus) {
-                return new LoGDetectorOp<T>(m_spanModel.getIntValue() / 2);
-            }
-
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            protected void prepareExecute(final ExecutionContext exec) {
-                enableParallelization(false);
-                super.prepareExecute(exec);
-            }
-
-            @Override
-            protected void addSettingsModels(final List<SettingsModel> settingsModels) {
-                settingsModels.add(m_spanModel);
-            }
-
-            @Override
-            protected int getMinDimensions() {
-                return 2;
-            }
-        };
-    }
+		return m_nodeFactories.keySet();
+	}
 }

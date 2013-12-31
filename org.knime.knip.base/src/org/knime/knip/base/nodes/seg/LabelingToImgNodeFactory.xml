@@ -31,7 +31,6 @@
 
 	<ports>
 		<inPort index="0" name="Segmentations">Arbitrary segmentation columns</inPort>
-		<outPort index="0" name="Images">Segmentations
-		</outPort>
+		<outPort index="0" name="Images">Images</outPort>
 	</ports>
 </knimeNode>
