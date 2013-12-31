@@ -113,7 +113,6 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
     protected ValueToCellNodeDialog<ImgPlusValue<T>> createNodeDialog() {
         return new ValueToCellNodeDialog<ImgPlusValue<T>>() {
 
-            @SuppressWarnings("deprecation")
             @Override
             public void addDialogComponents() {
                 addDialogComponent("Options", "Interpolation Mode", new DialogComponentStringSelection(
