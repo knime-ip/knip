@@ -425,7 +425,7 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
      * @param name
      */
     @EventListener
-    public void onImgUpdated(final IntervalWithMetadataChgEvent<T> e) {
+    public void onImgUpdated(final IntervalWithMetadataChgEvent<?, ?> e) {
 
         if (m_dims == null) {
             m_dims = new long[e.getTypedSpace().numDimensions()];

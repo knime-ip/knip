@@ -48,7 +48,7 @@
  */
 package org.knime.knip.core.ui.imgviewer.events;
 
-import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.Img;
 import net.imglib2.meta.ImgPlusMetadata;
 import net.imglib2.type.Type;
 
@@ -56,22 +56,22 @@ import org.knime.knip.core.data.img.DefaultImageMetadata;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class ImgWithMetadataChgEvent<T extends Type<T>> extends IntervalWithMetadataChgEvent<T> {
+public class ImgWithMetadataChgEvent<T extends Type<T>> extends IntervalWithMetadataChgEvent<T, Img<T>> {
 
     private final ImgPlusMetadata m_imgMetaData;
 
-    public ImgWithMetadataChgEvent(final RandomAccessibleInterval<T> interval, final ImgPlusMetadata imageMetaData) {
-        super(interval, imageMetaData, imageMetaData, imageMetaData);
+    public ImgWithMetadataChgEvent(final Img<T> img, final ImgPlusMetadata imageMetaData) {
+        super(img, imageMetaData, imageMetaData, imageMetaData);
         m_imgMetaData = imageMetaData;
     }
 
     /**
-     * 
+     *
      * @return metadata of the image. This might be an empty instance of {@link DefaultImageMetadata}
      */
     public ImgPlusMetadata getImgMetaData() {

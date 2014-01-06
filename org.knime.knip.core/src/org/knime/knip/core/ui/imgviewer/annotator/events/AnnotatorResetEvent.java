@@ -46,7 +46,7 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.core.ui.imgviewer.annotator;
+package org.knime.knip.core.ui.imgviewer.annotator.events;
 
 import org.knime.knip.core.ui.event.KNIPEvent;
 

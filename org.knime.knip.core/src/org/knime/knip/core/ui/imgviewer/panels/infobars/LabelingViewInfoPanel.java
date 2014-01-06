@@ -54,14 +54,15 @@ import java.io.ObjectOutput;
 
 import net.imglib2.Interval;
 import net.imglib2.RandomAccess;
+import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingType;
 import net.imglib2.meta.TypedAxis;
 import net.imglib2.meta.TypedSpace;
 
 /**
- * 
- * 
- * 
+ *
+ *
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -78,6 +79,13 @@ public class LabelingViewInfoPanel<L extends Comparable<L>> extends ViewInfoPane
     protected String updateMouseLabel(final StringBuffer buffer, final Interval interval,
                                       final TypedSpace<? extends TypedAxis> axes,
                                       final RandomAccess<LabelingType<L>> rndAccess, final long[] coords) {
+
+
+        if (!(interval instanceof Labeling)) {
+             //hack to exit the method if it is e.g. called with an image. In the long run ViewInfoPanel
+            //should be adapted such that this can't happen any more. The problem is the IntervalChang method.
+            return null;
+        }
 
         if (interval == null) {
             return "";
@@ -133,6 +141,12 @@ public class LabelingViewInfoPanel<L extends Comparable<L>> extends ViewInfoPane
     protected String updateImageLabel(final StringBuffer buffer, final Interval interval,
                                       final RandomAccess<LabelingType<L>> rndAccess, final String imgName) {
 
+        if (!(interval instanceof Labeling)) {
+             //hack to exit the method if it is e.g. called with an image. In the long run ViewInfoPanel
+            //should be adapted such that this can't happen any more. The problem is the IntervalChang method.
+            return null;
+        }
+
         if (interval == null) {
             return "No image set";
         }
@@ -147,10 +161,6 @@ public class LabelingViewInfoPanel<L extends Comparable<L>> extends ViewInfoPane
         buffer.append(rndAccess.get().getClass().getSimpleName());
 
         return buffer.toString();
-    }
-
-    public void onLabelingChanged() {
-
     }
 
     @Override

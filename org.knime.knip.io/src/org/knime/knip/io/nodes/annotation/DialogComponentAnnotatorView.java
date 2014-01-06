@@ -53,22 +53,16 @@ import java.awt.GridBagLayout;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.data.DataTable;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
-import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
-import org.knime.knip.io.nodes.annotation.create.AnnotatorView;
-import org.knime.knip.io.nodes.annotation.create.OverlayAnnotatorView;
 
 /**
  * Adapter class that ties a SettingsModel and a {@link AnnotatorView} together.
- * Which allows you to use the {@link AnnotatorView} as Dialogcomponent.
+ * Which allows you to use the {@link AnnotatorView} as DialogComponent.
  * 
  * 
  * @param <T>
@@ -77,85 +71,85 @@ import org.knime.knip.io.nodes.annotation.create.OverlayAnnotatorView;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
  */
-public class DialogComponentOverlayAnnotator<T extends RealType<T> & NativeType<T>>
-        extends DialogComponent {
+public class DialogComponentAnnotatorView<A>
+		extends DialogComponent {
 
-    /* wrapped by this component */
-    private AnnotatorView m_annotatorView = new OverlayAnnotatorView<T>();
+	/* wrapped by this component */
+	private AnnotatorView<A> m_annotatorView;
 
-    public DialogComponentOverlayAnnotator(
-            final SettingsModelOverlayAnnotator model) {
-        super(model);
+	public DialogComponentAnnotatorView(final AnnotatorView<A> annotatorView,
+			final SettingsModelAnnotatorView<A> model) {
+		super(model);
 
-        // set the view panel
-        getComponentPanel().setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.weightx = 1.0d;
-        gbc.weighty = 1.0d;
+		m_annotatorView = annotatorView;
+		
+		// set the view panel
+		getComponentPanel().setLayout(new GridBagLayout());
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.weightx = 1.0d;
+		gbc.weighty = 1.0d;
 
-        getComponentPanel().add(m_annotatorView.getAnnotatorPanel(), gbc);
-    }
+		getComponentPanel().add(m_annotatorView.getAnnotatorPanel(), gbc);
+	}
 
-    public void updateDataTable(DataTable inputTable) {
-        // note that the order in which updateDataTable and updateComponent are
-        // called should
-        // ideally be the other way around. However the forgiving implementation
-        // of the OverlayAnnotatorView
-        // makes it possible to add the overlays before the input table.
-        m_annotatorView.setInputTable(inputTable);
-    }
+	public void updateDataTable(DataTable inputTable) {
+		// note that the order in which updateDataTable and updateComponent are
+		// called should
+		// ideally be the other way around. However the forgiving implementation
+		// of the OverlayAnnotatorView
+		// makes it possible to add the overlays before the input table.
+		m_annotatorView.setInputTable(inputTable);
+	}
 
-    @Override
-    protected void updateComponent() {
-        // note that the order in which updateDataTable and updateComponent are
-        // called should
-        // ideally be the other way around. However the forgiving implementation
-        // of the OverlayAnnotatorView
-        // makes it possible to add the overlays before the input table.
-        SettingsModelOverlayAnnotator model =
-                (SettingsModelOverlayAnnotator)getModel();
-        Map<RowColKey, Overlay> map = model.getOverlayMap();
+	@Override
+	protected void updateComponent() {
+		// note that the order in which updateDataTable and updateComponent are
+		// called should
+		// ideally be the other way around. However the forgiving implementation
+		// of the OverlayAnnotatorView
+		// makes it possible to add the overlays before the input table.
+		SettingsModelAnnotatorView<A> model = (SettingsModelAnnotatorView<A>) getModel();
+		Map<RowColKey, A> map = model.getAnnotationMap();
 
-        m_annotatorView.reset();
-        for (RowColKey key : map.keySet()) {
-            m_annotatorView.setOverlay(key, map.get(key));
-        }
-    }
+		m_annotatorView.reset();
+		for (RowColKey key : map.keySet()) {
+			m_annotatorView.setAnnotation(key, map.get(key));
+		}
+	}
 
-    @Override
-    protected void validateSettingsBeforeSave() throws InvalidSettingsException {
-        SettingsModelOverlayAnnotator model =
-                (SettingsModelOverlayAnnotator)getModel();
+	@Override
+	protected void validateSettingsBeforeSave() throws InvalidSettingsException {
+		SettingsModelAnnotatorView<A> model = (SettingsModelAnnotatorView<A>) getModel();
 
-        HashMap<RowColKey, Overlay> map = new HashMap<RowColKey, Overlay>();
-        for (RowColKey key : m_annotatorView.getOverlayKeys()) {
-            map.put(key, m_annotatorView.getOverlay(key));
-        }
+		HashMap<RowColKey, A> map = new HashMap<RowColKey, A>();
+		for (RowColKey key : m_annotatorView.getIdentifiersOfManagedSources()) {
+			map.put(key, m_annotatorView.getAnnotation(key));
+		}
 
-        model.setOverlayMap(map);
-    }
+		model.setAnnotationMap(map);
+	}
 
-    @Override
-    protected void checkConfigurabilityBeforeLoad(PortObjectSpec[] specs)
-            throws NotConfigurableException {
-        // TODO Auto-generated method stub
+	@Override
+	protected void checkConfigurabilityBeforeLoad(PortObjectSpec[] specs)
+			throws NotConfigurableException {
+		// TODO Auto-generated method stub
 
-    }
+	}
 
-    @Override
-    protected void setEnabledComponents(boolean enabled) {
-        // TODO Auto-generated method stub
+	@Override
+	protected void setEnabledComponents(boolean enabled) {
+		// TODO Auto-generated method stub
 
-    }
+	}
 
-    @Override
-    public void setToolTipText(String text) {
-        // TODO Auto-generated method stub
-    }
+	@Override
+	public void setToolTipText(String text) {
+		// TODO Auto-generated method stub
+	}
 
-    public void reset() {
-        m_annotatorView.reset();
-    }
+	public void reset() {
+		m_annotatorView.reset();
+	}
 
 }

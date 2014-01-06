@@ -66,9 +66,8 @@ import org.knime.knip.core.awt.labelingcolortable.RandomMissingColorHandler;
 import org.knime.knip.core.awt.parametersupport.RendererWithHilite;
 import org.knime.knip.core.awt.parametersupport.RendererWithLabels;
 import org.knime.knip.core.ui.event.EventListener;
-import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorResetEvent;
+import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorResetEvent;
 import org.knime.knip.core.ui.imgviewer.events.HilitedLabelsChgEvent;
-import org.knime.knip.core.ui.imgviewer.events.IntervalWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelColoringChangeEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelOptionsChangeEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelPanelIsHiliteModeEvent;
@@ -163,46 +162,48 @@ public class LabelingRU<L extends Comparable<L>> extends AbstractDefaultRU<Label
     @Override
     public int generateHashCode() {
         int hash = super.generateHashCode();
-        ////////
-        hash += m_src.hashCode();
-        hash *= 31;
-        hash += m_labelingColorMapping.hashCode();
-        hash *= 31;
-        hash += m_labelMapping.hashCode();
-        hash *= 31;
-        ////////
-        if (m_activeLabels != null) {
-            hash += m_activeLabels.hashCode();
+        if (isActive()) {
+            ////////
+            hash += m_src.hashCode();
             hash *= 31;
-            hash += m_operator.ordinal();
+            hash += m_labelingColorMapping.hashCode();
             hash *= 31;
+            hash += m_labelMapping.hashCode();
+            hash *= 31;
+            ////////
+            if (m_activeLabels != null) {
+                hash += m_activeLabels.hashCode();
+                hash *= 31;
+                hash += m_operator.ordinal();
+                hash *= 31;
+            }
+            ////////
+            hash += m_boundingBoxColor.hashCode();
+            hash *= 31;
+            hash += m_colorMapGeneration;
+            hash *= 31;
+            ////////
+            if (m_withLabelStrings) {
+                hash += 1;
+            } else {
+                hash += 2;
+            }
+            hash *= 31;
+            /////////
+            if (m_isHiliteMode) {
+                hash = (hash * 31) + 1;
+            }
+            if ((m_hilitedLabels != null)) {
+                hash = (hash * 31) + m_hilitedLabels.hashCode();
+            }
+            /////////
         }
-        ////////
-        hash += m_boundingBoxColor.hashCode();
-        hash *= 31;
-        hash += m_colorMapGeneration;
-        hash *= 31;
-        ////////
-        if (m_withLabelStrings) {
-            hash += 1;
-        } else {
-            hash += 2;
-        }
-        hash *= 31;
-        /////////
-        if (m_isHiliteMode) {
-            hash = (hash * 31) + 1;
-        }
-        if ((m_hilitedLabels != null)) {
-            hash = (hash * 31) + m_hilitedLabels.hashCode();
-        }
-        /////////
         return hash;
     }
 
     @Override
     public boolean isActive() {
-        return true;
+        return (m_src != null);
     }
 
     //event handling
@@ -212,12 +213,12 @@ public class LabelingRU<L extends Comparable<L>> extends AbstractDefaultRU<Label
      *            variables.
      */
     @EventListener
-    public void onUpdated(final IntervalWithMetadataChgEvent<LabelingType<L>> e) {
+    public void onUpdated(final LabelingWithMetadataChgEvent<L> e) {
         m_src = e.getRandomAccessibleInterval();
         m_labelMapping = e.getIterableInterval().firstElement().getMapping();
         m_labelingColorMapping =
-                LabelingColorTableUtils.extendLabelingColorTable(((LabelingWithMetadataChgEvent<L>)e)
-                        .getLabelingMetaData().getLabelingColorTable(), new RandomMissingColorHandler());
+                LabelingColorTableUtils.extendLabelingColorTable(e.getLabelingMetaData().getLabelingColorTable(),
+                                                                 new RandomMissingColorHandler());
     }
 
     /**

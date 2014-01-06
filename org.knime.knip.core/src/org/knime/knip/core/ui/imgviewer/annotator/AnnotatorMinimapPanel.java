@@ -46,10 +46,10 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.io.nodes.annotation.create;
+package org.knime.knip.core.ui.imgviewer.annotator;
 
 import org.knime.knip.core.ui.event.EventListener;
-import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorResetEvent;
+import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorResetEvent;
 import org.knime.knip.core.ui.imgviewer.panels.MinimapPanel;
 
 /**

@@ -78,7 +78,6 @@ import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.types.NativeTypes;
 import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
-import org.knime.knip.io.nodes.annotation.SettingsModelOverlayAnnotator;
 
 /**
  * TODO Auto-generated
@@ -158,7 +157,7 @@ public class OverlayAnnotatorNodeModel<T extends RealType<T> & NativeType<T>>
     protected LabelingCell<String> compute(ImgPlusValue<T> cellValue)
             throws Exception {
 
-        Map<RowColKey, Overlay> overlayMap = m_annotationsSM.getOverlayMap();
+        Map<RowColKey, Overlay> overlayMap = m_annotationsSM.getAnnotationMap();
         ImgPlus<?> imgPlus = cellValue.getImgPlus();
 
         // calculate key

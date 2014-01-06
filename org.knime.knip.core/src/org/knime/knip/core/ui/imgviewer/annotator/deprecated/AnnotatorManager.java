@@ -60,9 +60,9 @@ import net.imglib2.type.numeric.RealType;
 
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.imgviewer.annotator.AbstractAnnotatorManager;
-import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorResetEvent;
 import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorFilelistChgEvent;
+import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorResetEvent;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
 
 /*

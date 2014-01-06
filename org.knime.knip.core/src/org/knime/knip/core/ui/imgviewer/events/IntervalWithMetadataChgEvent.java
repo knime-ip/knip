@@ -70,9 +70,9 @@ import org.knime.knip.core.ui.event.KNIPEvent;
  *
  * @param <T>
  */
-public abstract class IntervalWithMetadataChgEvent<T extends Type<T>> implements KNIPEvent {
+public abstract class IntervalWithMetadataChgEvent<T extends Type<T>, DATA extends RandomAccessibleInterval<T>> implements KNIPEvent {
 
-    private final RandomAccessibleInterval<T> m_interval;
+    private final DATA m_interval;
 
     private final Named m_name;
 
@@ -88,7 +88,7 @@ public abstract class IntervalWithMetadataChgEvent<T extends Type<T>> implements
      * @param source source of the interval
      * @param tspace typed space of the interval
      */
-    public IntervalWithMetadataChgEvent(final RandomAccessibleInterval<T> interval, final Named name,
+    public IntervalWithMetadataChgEvent(final DATA interval, final Named name,
                                         final Sourced source, final CalibratedSpace<? extends CalibratedAxis> tspace) {
         m_interval = interval;
         m_name = name;
@@ -116,6 +116,13 @@ public abstract class IntervalWithMetadataChgEvent<T extends Type<T>> implements
         return m_interval;
     }
 
+    /**
+     * @return the interval in its concrete format
+     */
+    public DATA getData() {
+        return m_interval;
+    }
+    
     /**
      * @return the {@link IterableInterval} which triggered this event
      */

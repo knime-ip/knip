@@ -60,8 +60,8 @@ import net.imglib2.labeling.LabelingType;
 
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
-import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorResetEvent;
-import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorImgAndOverlayChgEvent;
+import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorResetEvent;
+import org.knime.knip.core.ui.imgviewer.events.IntervalWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.OverlayChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.TransparencyPanelValueChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
@@ -75,7 +75,6 @@ import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @param <L>
- * @param <T>
  */
 public class OverlayRU<L extends Comparable<L>> extends AbstractDefaultRU<LabelingType<L>> {
 
@@ -155,10 +154,9 @@ public class OverlayRU<L extends Comparable<L>> extends AbstractDefaultRU<Labeli
      * @param e update overlay member and readout dims of the annotated image.
      */
     @EventListener
-    public void onUpdated(final AnnotatorImgAndOverlayChgEvent<?> e) {
-        m_overlay = e.getOverlay();
-        m_srcDims = new long[e.getImg().numDimensions()];
-        e.getImg().dimensions(m_srcDims);
+    public void onUpdated(final IntervalWithMetadataChgEvent<?,?> e) {
+        m_srcDims = new long[e.getIterableInterval().numDimensions()];
+        e.getIterableInterval().dimensions(m_srcDims);
     }
 
     /**

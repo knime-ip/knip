@@ -43,45 +43,114 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
+ * Created on 25.09.2013 by zinsmaie
  */
-package org.knime.knip.core.ui.imgviewer.events;
+package org.knime.knip.core.ui.imgviewer.annotator.edit;
+
+import java.awt.Dimension;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.util.Collections;
+import java.util.Vector;
+
+import javax.swing.BoxLayout;
+import javax.swing.JList;
+import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
 
 import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
 
-import org.knime.knip.core.data.img.LabelingMetadata;
+import org.knime.knip.core.ui.event.EventListener;
+import org.knime.knip.core.ui.event.EventService;
+import org.knime.knip.core.ui.imgviewer.ViewerComponent;
+import org.knime.knip.core.ui.imgviewer.events.LabelingWithMetadataChgEvent;
 
 /**
- * Labeling Changed Event
+ * TODO Auto-generated
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
- *
- * @param <L>
  */
-public class LabelingWithMetadataChgEvent<L extends Comparable<L>> extends
-        IntervalWithMetadataChgEvent<LabelingType<L>, Labeling<L>> {
+public class EditAnnotatorLabelPanel<L extends Comparable<L>> extends ViewerComponent {
 
-    private final LabelingMetadata m_labelingMetadata;
+        private static final long serialVersionUID = 1L;
 
-    /**
-     * Default Constructor
-     *
-     * @param labeling the labeling
-     * @param metadata metadata of the labeling
-     */
-    public LabelingWithMetadataChgEvent(final Labeling<L> labeling, final LabelingMetadata metadata) {
-        super(labeling, metadata, metadata, metadata);
-        m_labelingMetadata = metadata;
-    }
+        private JList<L> m_jLabelList;
 
-    /**
-     * @return metadata of the labeling.
-     */
-    public LabelingMetadata getLabelingMetaData() {
-        return m_labelingMetadata;
-    }
+        private Vector<L> m_labels;
+
+        private EventService m_eventService;
+
+
+        public EditAnnotatorLabelPanel() {
+            super("Labels", false);
+            setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+
+            m_labels = new Vector<L>();
+            m_jLabelList = new JList<L>();
+            m_jLabelList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+            JScrollPane scrollPane = new JScrollPane(m_jLabelList);
+            scrollPane.setPreferredSize(new Dimension(150, 1));
+
+            add(scrollPane);
+        }
+
+
+
+        @EventListener
+        public void onLabelingUpdated(final LabelingWithMetadataChgEvent<L> e) {
+            Labeling<L> labeling = e.getData();
+
+            m_labels.clear();
+            for (final L label : labeling.firstElement().getMapping().getLabels()) {
+                    m_labels.add(label);
+            }
+
+            Collections.sort(m_labels);
+            m_jLabelList.setListData(m_labels);
+        }
+
+
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Position getPosition() {
+            return Position.EAST;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void setEventService(final EventService eventService) {
+            m_eventService = eventService;
+            eventService.subscribe(this);
+        }
+
+
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void saveComponentConfiguration(final ObjectOutput out) throws IOException {
+            //nothing to do
+        }
+
+
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void loadComponentConfiguration(final ObjectInput in) throws IOException, ClassNotFoundException {
+            //nothing to do
+        }
+
 }

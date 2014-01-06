@@ -65,7 +65,7 @@ import org.knime.knip.core.awt.parametersupport.RendererWithColorTable;
 import org.knime.knip.core.awt.parametersupport.RendererWithLookupTable;
 import org.knime.knip.core.awt.parametersupport.RendererWithNormalization;
 import org.knime.knip.core.ui.event.EventListener;
-import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorResetEvent;
+import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorResetEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgAndLabelingChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.NormalizationParametersChgEvent;
@@ -277,6 +277,7 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
         m_colorTables = new ColorTable[]{};
     }
 
+
     /**
      * @param event onClose2()
      */
@@ -288,5 +289,4 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
         //=> RenderUnits listen to AnnotatorResetEvents as well
         onClose2(new ViewClosedEvent());
     }
-
 }

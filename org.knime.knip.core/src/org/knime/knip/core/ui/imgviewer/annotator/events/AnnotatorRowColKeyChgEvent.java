@@ -43,47 +43,38 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
+ * Created on 25.09.2013 by zinsmaie
  */
 package org.knime.knip.core.ui.imgviewer.annotator.events;
 
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.type.Type;
-
 import org.knime.knip.core.ui.event.KNIPEvent;
-import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
+import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
 
 /**
- * 
+ * Event that indicates that the cell selection inside an annotator has changed. The mapping between annotated cells
+ * and annotations is based on unique table based {@link RowColKey}s.
+ *
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class AnnotatorImgAndOverlayChgEvent<T extends Type<T>> implements KNIPEvent {
+public class AnnotatorRowColKeyChgEvent implements KNIPEvent {
 
-    private final RandomAccessibleInterval<T> m_randomAccessibleInterval;
+    private final RowColKey m_key;
 
-    private final Overlay m_overlay;
-
-    public AnnotatorImgAndOverlayChgEvent(final RandomAccessibleInterval<T> randInterval, final Overlay overlay) {
-        m_randomAccessibleInterval = randInterval;
-        m_overlay = overlay;
-
+    public AnnotatorRowColKeyChgEvent(final RowColKey key) {
+        m_key = key;
     }
 
     /**
-     * @return the img
+     * @return table based {@link RowColKey} that identifies the cell that is currently selected in the associated
+     *         annotator node.
      */
-    public RandomAccessibleInterval<T> getImg() {
-        return m_randomAccessibleInterval;
-    }
-
-    /**
-     * @return the overlay
-     */
-    public Overlay getOverlay() {
-        return m_overlay;
+    public RowColKey getKey() {
+        return m_key;
     }
 
     @Override
