@@ -77,80 +77,71 @@ import org.knime.knip.core.ui.imgviewer.events.LabelingWithMetadataChgEvent;
  */
 public class EditAnnotatorLabelPanel<L extends Comparable<L>> extends ViewerComponent {
 
-        private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-        private JList<L> m_jLabelList;
+    private JList m_jLabelList;
 
-        private Vector<L> m_labels;
+    private Vector<L> m_labels;
 
-        private EventService m_eventService;
+    private EventService m_eventService;
 
+    public EditAnnotatorLabelPanel() {
+        super("Labels", false);
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-        public EditAnnotatorLabelPanel() {
-            super("Labels", false);
-            setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        m_labels = new Vector<L>();
+        m_jLabelList = new JList();
+        m_jLabelList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        JScrollPane scrollPane = new JScrollPane(m_jLabelList);
+        scrollPane.setPreferredSize(new Dimension(150, 1));
 
-            m_labels = new Vector<L>();
-            m_jLabelList = new JList<L>();
-            m_jLabelList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-            JScrollPane scrollPane = new JScrollPane(m_jLabelList);
-            scrollPane.setPreferredSize(new Dimension(150, 1));
+        add(scrollPane);
+    }
 
-            add(scrollPane);
+    @EventListener
+    public void onLabelingUpdated(final LabelingWithMetadataChgEvent<L> e) {
+        Labeling<L> labeling = e.getData();
+
+        m_labels.clear();
+        for (final L label : labeling.firstElement().getMapping().getLabels()) {
+            m_labels.add(label);
         }
 
+        Collections.sort(m_labels);
+        m_jLabelList.setListData(m_labels);
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Position getPosition() {
+        return Position.EAST;
+    }
 
-        @EventListener
-        public void onLabelingUpdated(final LabelingWithMetadataChgEvent<L> e) {
-            Labeling<L> labeling = e.getData();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setEventService(final EventService eventService) {
+        m_eventService = eventService;
+        eventService.subscribe(this);
+    }
 
-            m_labels.clear();
-            for (final L label : labeling.firstElement().getMapping().getLabels()) {
-                    m_labels.add(label);
-            }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveComponentConfiguration(final ObjectOutput out) throws IOException {
+        //nothing to do
+    }
 
-            Collections.sort(m_labels);
-            m_jLabelList.setListData(m_labels);
-        }
-
-
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public Position getPosition() {
-            return Position.EAST;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void setEventService(final EventService eventService) {
-            m_eventService = eventService;
-            eventService.subscribe(this);
-        }
-
-
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void saveComponentConfiguration(final ObjectOutput out) throws IOException {
-            //nothing to do
-        }
-
-
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void loadComponentConfiguration(final ObjectInput in) throws IOException, ClassNotFoundException {
-            //nothing to do
-        }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadComponentConfiguration(final ObjectInput in) throws IOException, ClassNotFoundException {
+        //nothing to do
+    }
 
 }
