@@ -215,6 +215,14 @@ public class WaelbyUtils {
     }
 
     /**
+     * @param labeling
+     * @return
+     */
+    public static <L extends LabelingType<?>> ConvertedRandomAccessible<L, BitType> convertLabelingToBit(final RandomAccessible<L> labeling) {
+        return new ConvertedRandomAccessible<L, BitType>(labeling, new LabelingToBitConverter<L>(), new BitType());
+    }
+
+    /**
      * Combine two images based on a condition
      *
      * @param a
@@ -229,15 +237,17 @@ public class WaelbyUtils {
 
     }
 
-    public static <T extends RealType<T> > ConvertedRandomAccessible<T, BitType> makeFgBgMask(final RandomAccessible<T> img, final T type) {
-        return new ConvertedRandomAccessible<T, BitType>(img, new Converter<T, BitType>() {
+    public static <T extends RealType<T> > CombinedRandomAccessible<T, BitType, BitType> makeFgBgMask(final RandomAccessible<T> img, final RandomAccessible<BitType> mask, final T type) {
+        return combineConditioned(img, mask, new IfThenElse<T, BitType, BitType>() {
             @Override
-            public void convert(final T input, final BitType output) {
-                if (input.getRealDouble() == type.getMinValue()) {
+            public BitType test(final T a, final BitType b, final BitType output) {
+                if (!b.get() && a.getRealDouble() == type.getMinValue()) {
                     output.setZero();
                 } else {
                     output.setOne();
                 }
+
+                return output;
             }
         }, new BitType());
     }
