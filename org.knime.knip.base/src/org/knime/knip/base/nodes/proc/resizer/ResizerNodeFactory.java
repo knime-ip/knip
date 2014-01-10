@@ -292,7 +292,7 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
                 return new ImgView<T>(Views.interval(Views.extendValue(img, min), resultingInterval), img.factory());
             case MAX_VALUE:
                 T max = img.firstElement().createVariable();
-                max.setReal(max.getMinValue());
+                max.setReal(max.getMaxValue());
                 return new ImgView<T>(Views.interval(Views.extendValue(img, max), resultingInterval), img.factory());
             case BORDER:
                 return new ImgView<T>(Views.interval(Views.extendBorder(img), resultingInterval), img.factory());
