@@ -5,7 +5,7 @@
 	IBM Corporation - initial API and implementation -->
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="resampler.png" type="Manipulator">
-	<name>Resampler</name>
+	<name>Image Resizer</name>
 	<shortDescription>
 		Resizes the image.
 	</shortDescription>
@@ -37,6 +37,6 @@
 
 	<ports>
 		<inPort index="0" name="Images">Images</inPort>
-		<outPort index="0" name="Resampled Image">Resampled Image</outPort>
+		<outPort index="0" name="Resized Image">Resized Image</outPort>
 	</ports>
 </knimeNode>
