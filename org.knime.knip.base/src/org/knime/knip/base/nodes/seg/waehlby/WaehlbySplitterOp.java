@@ -49,6 +49,8 @@
  */
 package org.knime.knip.base.nodes.seg.waehlby;
 
+import net.imglib2.Interval;
+import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.algorithm.gauss3.Gauss3;
 import net.imglib2.combiner.read.CombinedRandomAccessible;
@@ -137,7 +139,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
     public Labeling<Integer> compute(final Labeling<L> inLab, final RandomAccessibleInterval<T> img,
                                      final Labeling<Integer> outLab) {
 
-        int maxima_size = 4;
+        int maxima_size = 3;
 
         Img<FloatType> img_tmp = m_floatFactory.create(img, new FloatType());
         Img<FloatType> img_tmp2 = m_floatFactory.create(img, new FloatType());
@@ -205,26 +207,27 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
                 }, new FloatType());
 
         /* Label the found Minima */
-        ConvertedRandomAccessible<FloatType, FloatType> inverter = WaelbyUtils.invertImg(combined, new FloatType());
+        ConvertedRandomAccessible<FloatType, FloatType> inverted = WaelbyUtils.invertImg(combined, new FloatType());
 
         Img<BitType> tmp3 = new ArrayImgFactory<BitType>().create(img, new BitType());
 
-        new MaximumFinderOp<FloatType>(40, 0).compute(Views.interval(inverter, tmp2), tmp3);
+        new MaximumFinderOp<FloatType>(40, 0).compute(Views.interval(combined, tmp2), tmp3);
 
         long[][] structuringElement = AbstractRegionGrowing.get4ConStructuringElement(img.numDimensions()); /* TODO: Cecog uses 8con */
 
-        final CCA<BitType> cca = new CCA<BitType>(structuringElement, new BitType(false));
+        final CCA<FloatType> cca = new CCA<FloatType>(structuringElement, new FloatType());
 
         Labeling<Integer> seeds = inLab.<Integer> factory().create(inLab);
         new NativeImgLabeling<Integer, ShortType>(new ArrayImgFactory<ShortType>().create(getDimensions(img),
                                                                                           new ShortType()));
-        cca.compute(tmp3, seeds);
+        cca.compute(Views.interval(combined, img), seeds);
 
         /* Seeded Watershed */
         WatershedWithThreshold<FloatType, Integer> watershed = new WatershedWithThreshold<FloatType, Integer>();
         watershed.setSeeds(seeds);
         watershed.setOutputLabeling(outLab);
         watershed.setIntensityImage(tmp);
+        watershed.setThreshold(2.5);
         watershed.process();
 
         //        transformImageIf(srcImageRange(labels),
@@ -236,8 +239,12 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         //                                 Param(foreground))
         //                         );
 
-        //        CombinedRandomAccessible<LabelingType<Integer>, BitType, BitType> maskBgFg =
-        //                WaelbyUtils.makeFgBgMask(outLab, WaelbyUtils.convertLabelingToBit(inLab), new FloatType()); //TODO: paramters may be completely incorrect.
+        CombinedRandomAccessible<BitType, BitType, BitType> maskBgFg =
+                WaelbyUtils.refineLabelingMask(WaelbyUtils.convertLabelingToBit(outLab), WaelbyUtils.convertLabelingToBit(inLab));
+
+        debugImage(WaelbyUtils.convertLabelingToBit(outLab), img, "After Watershed");
+        debugImage(WaelbyUtils.convertLabelingToBit(inLab), img, "Actual");
+        debugImage(maskBgFg, img, "maskBgFg");
 
         /* Object Merge */
 
@@ -263,11 +270,17 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         FloatType min = new FloatType(0);
         FloatType max = new FloatType((float)min.getMaxValue());
         min.set((float)max.getMinValue());
-        IterableIntervalNormalize<FloatType> norm = new IterableIntervalNormalize<FloatType>(1.0, new FloatType(), new ValuePair<FloatType, FloatType>(min, max), true);
+        IterableIntervalNormalize<FloatType> norm =
+                new IterableIntervalNormalize<FloatType>(1.0, new FloatType(), new ValuePair<FloatType, FloatType>(min,
+                        max), true);
         norm.compute(img, img);
-        AWTImageTools.showInFrame(img, "After Dilate");
+        AWTImageTools.showInFrame(img, string);
     }
 
+    private void debugImage(final RandomAccessible<BitType> img, final Interval interval, final String string) {
+        ArrayImgFactory<BitType> bitFactory = new ArrayImgFactory<BitType>();
+        AWTImageTools.showInFrame(new ImgView<BitType>(Views.interval(img, interval), bitFactory), string);
+    }
     /**
      * {@inheritDoc}
      */

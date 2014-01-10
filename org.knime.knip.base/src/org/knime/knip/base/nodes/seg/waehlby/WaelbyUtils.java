@@ -59,6 +59,7 @@ import net.imglib2.labeling.LabelingType;
 import net.imglib2.ops.img.BinaryOperationAssignment;
 import net.imglib2.ops.img.UnaryOperationBasedConverter;
 import net.imglib2.ops.operation.BinaryOperation;
+import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.ops.operation.real.unary.RealUnaryOperation;
 import net.imglib2.type.Type;
 import net.imglib2.type.logic.BitType;
@@ -91,6 +92,16 @@ public class WaelbyUtils {
     }
 
     /**
+     * @param img
+     * @return
+     */
+    public static ConvertedRandomAccessible<BitType, BitType> invertBitImg(final RandomAccessible<BitType> img) {
+        return new ConvertedRandomAccessible<BitType, BitType>(img,
+                new UnaryOperationBasedConverter<BitType, BitType>(
+                        new BitInvert()), new BitType() );
+    }
+
+    /**
      * Inverter for signed RealTypes
      *
      * @author Christian Dietz (University of Konstanz)
@@ -109,6 +120,25 @@ public class WaelbyUtils {
         @Override
         public SignedRealInvert<I, O> copy() {
             return new SignedRealInvert<I, O>();
+        }
+
+    }
+
+    /**
+     *
+     * @author squareys
+     */
+    public static class BitInvert implements UnaryOperation<BitType, BitType> {
+
+        @Override
+        public BitType compute(final BitType b, final BitType output) {
+            output.set(!b.get());
+            return output;
+        }
+
+        @Override
+        public BitInvert copy() {
+            return new BitInvert();
         }
 
     }
@@ -234,9 +264,14 @@ public class WaelbyUtils {
     public static <X extends Type<X>, Y extends Type<Y>, Z extends Type<Z>> CombinedRandomAccessible<X, Y, Z>
                 combineConditioned(final RandomAccessible<X> a, final RandomAccessible<Y> b, final IfThenElse<X, Y, Z> condition, final Z type) {
         return new CombinedRandomAccessible<X, Y, Z>(a, b, new ConditionalCombiner<X, Y, Z>(condition), type);
-
     }
 
+    /**
+     * @param img
+     * @param mask
+     * @param type
+     * @return
+     */
     public static <T extends RealType<T> > CombinedRandomAccessible<T, BitType, BitType> makeFgBgMask(final RandomAccessible<T> img, final RandomAccessible<BitType> mask, final T type) {
         return combineConditioned(img, mask, new IfThenElse<T, BitType, BitType>() {
             @Override
@@ -248,6 +283,20 @@ public class WaelbyUtils {
                 }
 
                 return output;
+            }
+        }, new BitType());
+    }
+
+    /**
+     * @param source
+     * @param mask
+     * @return
+     */
+    public static CombinedRandomAccessible<BitType,BitType,BitType> refineLabelingMask (final RandomAccessible<BitType> source, final RandomAccessible<BitType> mask) {
+        return new CombinedRandomAccessible<BitType,BitType, BitType>(source, mask, new Combiner<BitType, BitType, BitType>() {
+            @Override
+            public void combine(final BitType inputA, final BitType inputB, final BitType output) {
+                output.set((!inputB.get()) ? inputA.get() : !inputB.get());
             }
         }, new BitType());
     }
