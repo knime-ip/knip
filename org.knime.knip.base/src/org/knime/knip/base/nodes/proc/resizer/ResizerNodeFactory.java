@@ -147,8 +147,10 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
 
             @Override
             public void addDialogComponents() {
-                addDialogComponent("Options", "Resize Strategy", new DialogComponentStringSelection(
-                        createResizingStrategyModel(), "", EnumUtils.getStringListFromToString(ResizeStrategy.values())));
+                addDialogComponent("Options",
+                                   "Resize Strategy",
+                                   new DialogComponentStringSelection(createResizingStrategyModel(), "", EnumUtils
+                                           .getStringListFromToString(ResizeStrategy.values())));
 
                 addDialogComponent("Options", "New Dimension Sizes (will affect calibration)",
                                    new DialogComponentResizeInputValues(createInputFactorsModel()));
@@ -236,10 +238,9 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
                             .dimension(i)) / newDimensions[i])), i);
                 }
 
-                return m_imgCellFactory.createCell(resample(img, ResizeStrategy.valueOf(m_extensionTypeModel
-                                                                    .getStringValue()),
-                                                            new FinalInterval(newDimensions),
-                                                            scaleFactors), metadata);
+                return m_imgCellFactory.createCell(resample(img, EnumUtils.valueForName(m_extensionTypeModel
+                                                                    .getStringValue(), ResizeStrategy.values()),
+                                                            new FinalInterval(newDimensions), scaleFactors), metadata);
             }
 
             /**
