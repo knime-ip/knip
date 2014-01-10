@@ -109,7 +109,7 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
     }
 
     private enum InputFactors {
-        DIM_SIZE("Output Image Size"), DIM_FACTOR("Scaling Factor"), CALIBRATION("Output Image Calibration");
+        DIM_SIZE("Absolute Image Size"), DIM_FACTOR("Relative Scaling Factor"), CALIBRATION("Image Calibration");
 
         private String displayedName;
 
