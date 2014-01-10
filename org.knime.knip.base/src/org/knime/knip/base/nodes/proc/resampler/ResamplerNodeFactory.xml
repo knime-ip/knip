@@ -5,15 +5,13 @@
 	IBM Corporation - initial API and implementation -->
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="resampler.png" type="Manipulator">
-	<name>Image Resizer</name>
+	<name>Resampler (Deprecated)</name>
 	<shortDescription>
-		Resizes the image.
+		Deprecation. Use new node "Image Resizer".
 	</shortDescription>
 
 	<fullDescription>
-		<intro>Resizes the image in each dimension according to given new
-			sizes
-		</intro>
+		<intro>Deprecation. Use new node "Image Resizer".</intro>
 		<tab name="Options">
 			<option name="New Dimensions">
 				Size of the resulting image in each dimension.
@@ -28,8 +26,12 @@
 				Determines how to interpolate the pixels.
 			</option>
 			<option name="Virtual Interpolation?">
-				If checked, the interpolation is done on the fly, whenever the image data is accessed. This means, accessing the image is more expensive, but memory is saved.
-				If unchecked, the interpolation is done right away. For larger calculations we suggest to uncheck "Virtual Interpolation". 
+				If checked, the interpolation is done on the fly,
+				whenever the image data is accessed. This means, accessing the image
+				is more expensive, but memory is saved.
+				If unchecked, the
+				interpolation is done right away. For larger calculations we suggest
+				to uncheck "Virtual Interpolation".
 			</option>
 		</tab>
 

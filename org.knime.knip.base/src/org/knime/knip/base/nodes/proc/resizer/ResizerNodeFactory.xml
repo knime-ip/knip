@@ -1,0 +1,111 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="resizer.png" type="Manipulator">
+	<name>Image Resizer</name>
+	<shortDescription>
+		Resizes an image.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>Resizes the image in each dimension. The resulting values at
+			each position in the image are set according to the resizing
+			strategy. Please note, that the input values for each dimension can
+			be interpreted in several ways.
+		</intro>		
+		<tab name="Options">
+		<option name="Resizing Strategy">
+				Determines the strategy, how to fill the resized
+				image.
+				<ol>
+					<li>
+						<b>Linear Interpolation:</b>
+						Pixel values are linear interpolated.
+					</li>
+					<li>
+						<b>Nearest Neighbor Interpolation:</b>
+						Pixel values are interpolated according to their neighbors.
+					</li>
+					<li>
+						<b>Lanczos Interpolation:</b>
+						Pixel values are interpolated using lanczos interpolation.
+					</li>
+					<li>
+						<b>Periodical Extension:</b>
+						Pixel values are repeated periodically.
+					</li>
+					<li>
+						<b>Border Extension:</b>
+						Pixel values on the border of the image are repeated.
+					</li>
+					<li>
+						<b>Fill with Minimum Value:</b>
+						Fill pixel values with minimum value of the input image.
+					</li>
+					<li>
+						<b>Fill with Maximum Value:</b>
+						Fill pixel values with maximum value of the input image.
+					</li>
+					<li>
+						<b>Fill with Zero Value:</b>
+						Fill pixel values with zero value of the input image.
+					</li>
+				</ol>
+				<p>
+					Remark:
+					Extensions and Filling Strategies are only useful in the
+					case that the output image is larger than the input image.
+				</p>
+			</option>
+		
+			<option name="New Dimension Sizes">
+				<p>
+					Specify here the size of the resulting image for each dimension. If a dimension doesn't exist in the image at hand the according dimension will be ignored.
+					There are three different ways of how the dimensions of the result images will be calculated with respected to the specified values for each dimension: 
+				</p>
+
+				<ol>
+					<li>
+						<b>Absolute Image Size:</b>
+						<br />
+						Size of the resulting image for each dimension. Output dimension =
+						specified value.
+					</li>
+					<li>
+						<b>Scaling Factor:</b>
+						<br />
+						Factor to scale dimensions of input image for each dimension.
+						Output dimensions = input dimension * specified value.
+					</li>
+					<li>
+						<b>Calibration:</b>
+						<br />
+						Input values are interpreted as the new calibration values. For
+						example, this is useful for arbitrarily calibrated images, to
+						enforce, that the calibration in each dimension is one.
+						Due to
+						rounding
+						errors, the resulting
+						calibration will only approach this
+						definition (depending on the
+						image size).
+						Output dimensions =
+						((calibration of input image) / (specified value)) * (input
+						dimension).
+					</li>
+				</ol>
+			</option>
+
+			
+		</tab>
+
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Images">Images</inPort>
+		<outPort index="0" name="Resized Images">Resized Images</outPort>
+	</ports>
+</knimeNode>
