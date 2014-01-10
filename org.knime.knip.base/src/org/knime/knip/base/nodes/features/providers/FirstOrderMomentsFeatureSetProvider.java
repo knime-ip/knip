@@ -53,6 +53,9 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
 import net.imglib2.Cursor;
 import net.imglib2.IterableInterval;
 import net.imglib2.meta.CalibratedSpace;
@@ -226,12 +229,33 @@ public class FirstOrderMomentsFeatureSetProvider<T extends RealType<T>> implemen
     @Override
     public void initAndAddDialogComponents(final List<DialogComponent> dialogComponents) {
 
+        final SettingsModelBoolean appendHistogram = createAppendHistModel();
+        final SettingsModelIntegerBounded numBins = createHistBinsModel();
+        numBins.setEnabled(false);
+        appendHistogram.addChangeListener(new ChangeListener() {
+
+            @Override
+            public void stateChanged(final ChangeEvent e) {
+                numBins.setEnabled(appendHistogram.getBooleanValue());
+            }
+        });
+
+        // necessary to avoid the enabling of this component from outside
+        numBins.addChangeListener(new ChangeListener() {
+
+            @Override
+            public void stateChanged(final ChangeEvent e) {
+                numBins.setEnabled(appendHistogram.getBooleanValue());
+
+            }
+        });
+
         dialogComponents.add(new DialogComponentStringListSelection(createFosFeatModel(), "Features", Arrays
                 .asList(FirstOrderMomentsFeatureSet.FEATURES), false, 5));
 
-        dialogComponents.add(new DialogComponentBoolean(createAppendHistModel(), "Append Histogram"));
+        dialogComponents.add(new DialogComponentBoolean(appendHistogram, "Append Histogram"));
 
-        dialogComponents.add(new DialogComponentNumberEdit(createHistBinsModel(), "Histogram bins"));
+        dialogComponents.add(new DialogComponentNumberEdit(numBins, "Histogram bins"));
 
         dialogComponents.add(new DialogComponentString(createPercentilesModel(),
                 "The pth percentile (comma-separated list of p's)"));
