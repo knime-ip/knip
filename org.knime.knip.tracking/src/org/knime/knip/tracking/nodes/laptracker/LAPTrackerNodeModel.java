@@ -161,9 +161,9 @@ public class LAPTrackerNodeModel extends NodeModel implements
 				StringValue.class,
 				inSpecs[0],
 				getColIndices(m_bitMaskColumnModel, ImgPlusValue.class,
+						inSpecs[0]),
+				getColIndices(m_sourceLabelingColumn, LabelingValue.class,
 						inSpecs[0]));
-
-		getColIndices(m_sourceLabelingColumn, LabelingValue.class, inSpecs[0]);
 
 		return createOutSpec();
 	}
