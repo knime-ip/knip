@@ -72,9 +72,9 @@ import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DataAwareDefaultNodeSettingsPane;
 import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.types.NativeTypes;
+import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
 import org.knime.knip.core.util.EnumUtils;
-import org.knime.knip.io.nodes.annotation.DialogComponentOverlayAnnotator;
-import org.knime.knip.io.nodes.annotation.SettingsModelOverlayAnnotator;
+import org.knime.knip.io.nodes.annotation.DialogComponentAnnotatorView;
 
 /**
  * TODO Auto-generated
@@ -89,8 +89,7 @@ public class OverlayAnnotatorNodeDialog<T extends RealType<T> & NativeType<T>>
 
 	private static final String APPEND_DEFAULT = "_Label";
 
-	private DialogComponentOverlayAnnotator<T> m_dialogComponentAnnotator;
-
+	private DialogComponentAnnotatorView<Overlay> m_dialogComponentAnnotator;
 	private SettingsModelString m_smColCreationMode = ValueToCellNodeModel
 			.createColCreationModeModel();
 
@@ -107,8 +106,8 @@ public class OverlayAnnotatorNodeDialog<T extends RealType<T> & NativeType<T>>
 
 		SettingsModelOverlayAnnotator annotatorSM = OverlayAnnotatorNodeModel
 				.createAnnotatorSM();
-		m_dialogComponentAnnotator = new DialogComponentOverlayAnnotator<T>(
-				annotatorSM);
+		m_dialogComponentAnnotator = new DialogComponentAnnotatorView<Overlay>(new OverlayAnnotatorView<T>(), annotatorSM);
+				
 		addDialogComponent(m_dialogComponentAnnotator);
 		closeCurrentGroup();
 

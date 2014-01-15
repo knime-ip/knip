@@ -1,6 +1,6 @@
 package org.knime.knip.core.ui.imgviewer.annotator.events;
 
-import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.Img;
 import net.imglib2.meta.ImgPlusMetadata;
 import net.imglib2.type.Type;
 
@@ -11,9 +11,9 @@ public class AnnotatorImgWithMetadataChgEvent<T extends Type<T>> extends ImgWith
 
     private final RowColKey m_key;
 
-    public AnnotatorImgWithMetadataChgEvent(final RandomAccessibleInterval<T> interval,
+    public AnnotatorImgWithMetadataChgEvent(final Img<T> img,
                                             final ImgPlusMetadata imageMetaData, final RowColKey key) {
-        super(interval, imageMetaData);
+        super(img, imageMetaData);
         m_key = key;
     }
 

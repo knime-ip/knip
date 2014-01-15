@@ -196,7 +196,7 @@ public class AWTImageProvider extends HiddenViewerComponent {
      * 
      * @param e new selected Interval (Image, Labeling)
      */
-    private void checkRendererAndPlaneSelection(final IntervalWithMetadataChgEvent<?> e) {
+    private void checkRendererAndPlaneSelection(final IntervalWithMetadataChgEvent<?,?> e) {
         final long[] dims = new long[e.getRandomAccessibleInterval().numDimensions()];
         e.getRandomAccessibleInterval().dimensions(dims);
 
@@ -270,7 +270,7 @@ public class AWTImageProvider extends HiddenViewerComponent {
      * @param e new selected Interval (Image, Labeling)
      */
     @EventListener
-    public void onUpdated(final IntervalWithMetadataChgEvent<?> e) {
+    public void onUpdated(final IntervalWithMetadataChgEvent<?,?> e) {
         checkRendererAndPlaneSelection(e);
     }
 

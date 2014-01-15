@@ -146,7 +146,7 @@ public class SetThresholdPanel<T extends RealType<T>, I extends RandomAccessible
     }
 
     @EventListener
-    public void onImgUpdated(final IntervalWithMetadataChgEvent<T> evt) {
+    public void onImgUpdated(final IntervalWithMetadataChgEvent<T, ?> evt) {
         final T type = evt.getIterableInterval().firstElement().createVariable();
         m_thresholdSlider.setMinimum((int)type.getMinValue());
         m_thresholdSlider.setMaximum((int)type.getMaxValue());

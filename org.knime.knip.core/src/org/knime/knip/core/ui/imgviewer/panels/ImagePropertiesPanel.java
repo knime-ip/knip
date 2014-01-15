@@ -71,7 +71,7 @@ import org.knime.knip.core.ui.imgviewer.events.IntervalWithMetadataChgEvent;
 
 /**
  * Panel containing image properties.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -101,7 +101,7 @@ public class ImagePropertiesPanel<T extends Type<T>, I extends IterableInterval<
      * @param name
      */
     @EventListener
-    public void onImgUpdated(final IntervalWithMetadataChgEvent<T> e) {
+    public void onImgUpdated(final IntervalWithMetadataChgEvent<?, ?> e) {
         final String[][] properties = new String[2 + e.getRandomAccessibleInterval().numDimensions()][2];
         properties[0][0] = "Type";
         properties[0][1] = e.getIterableInterval().firstElement().createVariable().getClass().getCanonicalName();

@@ -51,10 +51,10 @@ package org.knime.knip.core.ui.imgviewer.events;
 import net.imglib2.Interval;
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.meta.CalibratedAxis;
 import net.imglib2.meta.CalibratedSpace;
 import net.imglib2.meta.Named;
 import net.imglib2.meta.Sourced;
-import net.imglib2.meta.TypedAxis;
 import net.imglib2.meta.TypedSpace;
 import net.imglib2.type.Type;
 import net.imglib2.view.Views;
@@ -70,13 +70,13 @@ import org.knime.knip.core.ui.event.KNIPEvent;
  *
  * @param <T>
  */
-public abstract class IntervalWithMetadataChgEvent<T extends Type<T>> implements KNIPEvent {
+public abstract class IntervalWithMetadataChgEvent<T extends Type<T>, DATA extends RandomAccessibleInterval<T>> implements KNIPEvent {
 
-    private final RandomAccessibleInterval<T> m_interval;
+    private final DATA m_interval;
 
     private final Named m_name;
 
-    private final TypedSpace<? extends TypedAxis> m_tspace;
+    private final CalibratedSpace<? extends CalibratedAxis> m_tspace;
 
     private final Sourced m_source;
 
@@ -88,8 +88,8 @@ public abstract class IntervalWithMetadataChgEvent<T extends Type<T>> implements
      * @param source source of the interval
      * @param tspace typed space of the interval
      */
-    public IntervalWithMetadataChgEvent(final RandomAccessibleInterval<T> interval, final Named name,
-                                        final Sourced source, final TypedSpace<? extends TypedAxis> tspace) {
+    public IntervalWithMetadataChgEvent(final DATA interval, final Named name,
+                                        final Sourced source, final CalibratedSpace<? extends CalibratedAxis> tspace) {
         m_interval = interval;
         m_name = name;
         m_source = source;
@@ -117,6 +117,13 @@ public abstract class IntervalWithMetadataChgEvent<T extends Type<T>> implements
     }
 
     /**
+     * @return the interval in its concrete format
+     */
+    public DATA getData() {
+        return m_interval;
+    }
+    
+    /**
      * @return the {@link IterableInterval} which triggered this event
      */
     public IterableInterval<T> getIterableInterval() {
@@ -140,7 +147,7 @@ public abstract class IntervalWithMetadataChgEvent<T extends Type<T>> implements
     /**
      * @return the axes
      */
-    public TypedSpace<? extends TypedAxis> getTypedSpace() {
+    public CalibratedSpace<? extends CalibratedAxis> getTypedSpace() {
         return m_tspace;
     }
 

@@ -63,7 +63,7 @@ import org.knime.knip.core.awt.AWTImageTools;
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.events.HistogramChgEvent;
-import org.knime.knip.core.ui.imgviewer.events.IntervalWithMetadataChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 
@@ -138,7 +138,7 @@ public class HistogramRU<T extends RealType<T>> implements RenderUnit {
      * @param e updates the source member (source image is used to calculate the histogram)
      */
     @EventListener
-    public void onUpdated(final IntervalWithMetadataChgEvent<T> e) {
+    public void onUpdated(final ImgWithMetadataChgEvent<T> e) {
         m_src = e.getRandomAccessibleInterval();
     }
 

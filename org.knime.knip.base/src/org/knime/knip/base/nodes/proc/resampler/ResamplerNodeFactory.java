@@ -58,6 +58,7 @@ import net.imglib2.interpolation.randomaccess.LanczosInterpolatorFactory;
 import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
 import net.imglib2.interpolation.randomaccess.NearestNeighborInterpolatorFactory;
 import net.imglib2.meta.ImgPlus;
+import net.imglib2.ops.operation.img.unary.ImgCopyOperation;
 import net.imglib2.realtransform.RealViews;
 import net.imglib2.realtransform.Scale;
 import net.imglib2.type.numeric.RealType;
@@ -86,6 +87,7 @@ import org.knime.knip.core.util.EnumUtils;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @param <T>
  */
+@Deprecated
 public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFactory<ImgPlusValue<T>> {
 
     private enum Mode {
@@ -111,10 +113,9 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
     protected ValueToCellNodeDialog<ImgPlusValue<T>> createNodeDialog() {
         return new ValueToCellNodeDialog<ImgPlusValue<T>>() {
 
-            @SuppressWarnings("deprecation")
             @Override
             public void addDialogComponents() {
-                addDialogComponent("Options", "Interpolation mode", new DialogComponentStringSelection(
+                addDialogComponent("Options", "Interpolation Mode", new DialogComponentStringSelection(
                         createInterpolationModel(), "", EnumUtils.getStringListFromName(Mode.values())));
                 addDialogComponent("Options", "New Dimension Sizes", new DialogComponentScalingValues(
                         createScalingModel()));
@@ -152,7 +153,6 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
                 settingsModels.add(m_interpolationSettings);
                 settingsModels.add(m_newDimensions);
                 settingsModels.add(m_relativeDims);
-
             }
 
             @Override
@@ -219,7 +219,10 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
             default:
                 throw new IllegalArgumentException("Unknown mode in Resample.java");
         }
-        return new ImgView<T>(interval, img.factory());
 
+        // create copy of Img
+        return (Img<T>)new ImgCopyOperation<T>().compute(new ImgView<T>(interval, img.factory()),
+                                                         img.factory().create(interval,
+                                                                              img.firstElement().createVariable()));
     }
 }

@@ -80,10 +80,9 @@ import javax.swing.JScrollBar;
 import javax.swing.KeyStroke;
 
 import net.imglib2.Interval;
-import net.imglib2.meta.LinearSpace;
+import net.imglib2.meta.CalibratedAxis;
+import net.imglib2.meta.CalibratedSpace;
 import net.imglib2.meta.TypedAxis;
-import net.imglib2.meta.TypedSpace;
-import net.imglib2.meta.axis.LinearAxis;
 import net.imglib2.type.Type;
 
 import org.knime.knip.core.ui.event.EventListener;
@@ -98,10 +97,10 @@ import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 
 /**
  * Allows the user to select a plane in a multdimensional space.
- * 
+ *
  * Publishes {@link PlaneSelectionEvent}
- * 
- * 
+ *
+ *
  * @param <T> image type
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -148,7 +147,7 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
 
     private JCheckBox m_calibrationCheckbox;
 
-    private TypedSpace<? extends TypedAxis> m_calibratedSpace;
+    private CalibratedSpace<? extends CalibratedAxis> m_calibratedSpace;
 
     public PlaneSelectionPanel() {
         super("Plane selection", false);
@@ -285,7 +284,7 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
     }
 
     /**
-     * 
+     *
      * @param e
      * @param id
      */
@@ -368,11 +367,11 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
         }
 
         //TODO: Make it possible to use non-linear axis
-        if (m_useCalibration && (m_calibratedSpace != null) && m_calibratedSpace instanceof LinearSpace) {
+        if (m_useCalibration && (m_calibratedSpace != null)) {
             final double[] tmpFactors = new double[scaleFactors.length];
 
             for (int d = 0; d < scaleFactors.length; d++) {
-                tmpFactors[d] = ((LinearAxis)m_calibratedSpace.axis(d)).scale();
+                tmpFactors[d] = m_calibratedSpace.axis(d).averageScale(0, 1);
             }
 
             double min = Double.MAX_VALUE;
@@ -408,7 +407,7 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
     }
 
     /**
-     * 
+     *
      * @return the coordinates of the currently selected image (a newly generated array)
      */
     protected long[] getImageCoordinate() {
@@ -426,7 +425,7 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
      * @param name
      */
     @EventListener
-    public void onImgUpdated(final IntervalWithMetadataChgEvent<T> e) {
+    public void onImgUpdated(final IntervalWithMetadataChgEvent<?, ?> e) {
 
         if (m_dims == null) {
             m_dims = new long[e.getTypedSpace().numDimensions()];

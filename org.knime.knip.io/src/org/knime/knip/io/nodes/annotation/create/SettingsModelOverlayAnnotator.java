@@ -1,4 +1,4 @@
-package org.knime.knip.io.nodes.annotation;
+package org.knime.knip.io.nodes.annotation.create;
 
 /*
  * ------------------------------------------------------------------------
@@ -62,14 +62,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.xmlbeans.impl.util.Base64;
-import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
-import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
-import org.knime.core.node.port.PortObjectSpec;
 import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
+import org.knime.knip.io.nodes.annotation.SettingsModelAnnotatorView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,7 +80,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @param <L>
  */
-public class SettingsModelOverlayAnnotator extends SettingsModel {
+public class SettingsModelOverlayAnnotator extends SettingsModelAnnotatorView<Overlay> {
 
 	/* Logger */
 	private final Logger LOGGER = LoggerFactory
@@ -95,20 +93,23 @@ public class SettingsModelOverlayAnnotator extends SettingsModel {
 	public SettingsModelOverlayAnnotator(String configName) {
 		m_configName = configName;
 	}
-
-	public void setOverlayMap(HashMap<RowColKey, Overlay> map) {
+	
+	@Override
+	public void setAnnotationMap(HashMap<RowColKey, Overlay> map) {
 		m_labelingMap = map;
 	}
 
-	public Map<RowColKey, Overlay> getOverlayMap() {
+	@Override
+	public Map<RowColKey, Overlay> getAnnotationMap() {
 		return m_labelingMap;
 	}
+
 
 	//
 	// helpers
 	//
 
-	private void saveSettings(NodeSettingsWO settings) {
+	protected void saveSettings(NodeSettingsWO settings) {
 		// save the labeling hashmap
 		try {
 			settings.addInt("numOverlayEntries", m_labelingMap.size());
@@ -135,7 +136,7 @@ public class SettingsModelOverlayAnnotator extends SettingsModel {
 		}
 	}
 
-	private void loadSettings(NodeSettingsRO settings) {
+	protected void loadSettings(NodeSettingsRO settings) {
 		// load the labeling hashmap
 		try {
 			int numOverlays = settings.getInt("numOverlayEntries");
@@ -166,39 +167,13 @@ public class SettingsModelOverlayAnnotator extends SettingsModel {
 		}
 	}
 
-	//
-	// standard methods
-	//
-
-	@Override
-	protected void loadSettingsForDialog(NodeSettingsRO settings,
-			PortObjectSpec[] specs) throws NotConfigurableException {
-		loadSettings(settings);
-	}
-
-	@Override
-	protected void saveSettingsForDialog(NodeSettingsWO settings)
-			throws InvalidSettingsException {
-		saveSettings(settings);
-	}
-
-	@Override
-	protected void loadSettingsForModel(NodeSettingsRO settings)
-			throws InvalidSettingsException {
-		loadSettings(settings);
-	}
-
-	@Override
-	protected void saveSettingsForModel(NodeSettingsWO settings) {
-		saveSettings(settings);
-	}
-
-	@SuppressWarnings("unchecked")
+	// remaining standard methods
+	
 	@Override
 	protected <T extends SettingsModel> T createClone() {
 		SettingsModelOverlayAnnotator clone = new SettingsModelOverlayAnnotator(
 				m_configName);
-		clone.setOverlayMap((HashMap<RowColKey, Overlay>) m_labelingMap.clone());
+		clone.setAnnotationMap((HashMap<RowColKey, Overlay>) m_labelingMap.clone());
 		return (T) clone;
 	}
 
@@ -217,9 +192,4 @@ public class SettingsModelOverlayAnnotator extends SettingsModel {
 		return m_configName;
 	}
 
-	@Override
-	protected void validateSettingsForModel(NodeSettingsRO settings)
-			throws InvalidSettingsException {
-		// Nothing to do here
-	}
 }

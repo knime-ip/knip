@@ -46,7 +46,7 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.core.ui.imgviewer.annotator;
+package org.knime.knip.core.ui.imgviewer.annotator.create;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -302,7 +302,7 @@ public class AnnotatorLabelPanel extends ViewerComponent {
         return Position.EAST;
     }
 
-    public static String[] objectArrayAsStringArray(final Object[] o) {
+    private String[] objectArrayAsStringArray(final Object[] o) {
         final String[] s = new String[o.length];
 
         for (int i = 0; i < o.length; i++) {

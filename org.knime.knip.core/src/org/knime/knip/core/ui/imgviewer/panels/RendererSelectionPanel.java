@@ -74,9 +74,9 @@ import org.knime.knip.core.ui.imgviewer.events.RendererSelectionChgEvent;
 
 /**
  * Allows the user to select a certain renderer.
- * 
+ *
  * Publishes {@link RendererSelectionChgEvent}
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -128,7 +128,7 @@ public class RendererSelectionPanel<T extends Type<T>> extends ViewerComponent {
      * @param name
      */
     @EventListener
-    public void onIntervalUpdated(final IntervalWithMetadataChgEvent<T> e) {
+    public void onIntervalUpdated(final IntervalWithMetadataChgEvent<T, ?> e) {
         if (e instanceof ImgWithMetadataChgEvent) {
             // event already processed
             return;

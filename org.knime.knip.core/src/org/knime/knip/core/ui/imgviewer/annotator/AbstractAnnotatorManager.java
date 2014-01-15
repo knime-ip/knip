@@ -51,23 +51,25 @@ package org.knime.knip.core.ui.imgviewer.annotator;
 import java.util.ArrayList;
 import java.util.Map;
 
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.knip.core.awt.labelingcolortable.RandomMissingColorHandler;
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
-import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorImgAndOverlayChgEvent;
-import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorImgWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorLabelEditEvent;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorLabelsColResetEvent;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorLabelsDelEvent;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorLabelsSelChgEvent;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorLabelsSetEvent;
+import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorResetEvent;
+import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorRowColKeyChgEvent;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorToolChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgViewerMouseDraggedEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgViewerMousePressedEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgViewerMouseReleasedEvent;
+import org.knime.knip.core.ui.imgviewer.events.IntervalWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.OverlayChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
@@ -81,7 +83,6 @@ import org.knime.knip.core.ui.imgviewer.panels.HiddenViewerComponent;
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
- * @author Christian
  */
 public abstract class AbstractAnnotatorManager<T extends RealType<T>> extends HiddenViewerComponent {
 
@@ -100,6 +101,8 @@ public abstract class AbstractAnnotatorManager<T extends RealType<T>> extends Hi
     protected Overlay m_currentOverlay;
 
     protected AnnotatorTool<?> m_currentTool;
+
+    private RandomAccessibleInterval<?> m_src;
 
     public AbstractAnnotatorManager() {
         m_selectedLabels = new String[]{"Unknown"};
@@ -172,25 +175,27 @@ public abstract class AbstractAnnotatorManager<T extends RealType<T>> extends Hi
      * @param axes
      */
     @EventListener
-    public void onUpdate(final AnnotatorImgWithMetadataChgEvent<T> e) {
-        m_currentOverlay = getOverlayMap().get(e.getKey());
-
-        if (m_currentOverlay == null) {
-            m_currentOverlay = new Overlay(e.getRandomAccessibleInterval());
-            getOverlayMap().put(e.getKey(), m_currentOverlay);
-            m_currentOverlay.setEventService(m_eventService);
-        }
-
+    public void onUpdate(final IntervalWithMetadataChgEvent<?,?> e) {
         final long[] dims = new long[e.getRandomAccessibleInterval().numDimensions()];
         e.getRandomAccessibleInterval().dimensions(dims);
+        m_src = e.getRandomAccessibleInterval();
 
         if ((m_sel == null) || !isInsideDims(m_sel.getPlanePos(), dims)) {
             m_sel = new PlaneSelectionEvent(0, 1, new long[e.getRandomAccessibleInterval().numDimensions()]);
         }
+    }
 
-        m_eventService.publish(new AnnotatorImgAndOverlayChgEvent(e.getRandomAccessibleInterval(), m_currentOverlay));
+    @EventListener
+    public void onCellChange(final AnnotatorRowColKeyChgEvent e) {
+        m_currentOverlay = getOverlayMap().get(e.getKey());
 
-        m_eventService.publish(new ImgRedrawEvent());
+        if (m_currentOverlay == null) {
+            m_currentOverlay = new Overlay(m_src);
+            getOverlayMap().put(e.getKey(), m_currentOverlay);
+            m_currentOverlay.setEventService(m_eventService);
+        }
+
+        m_eventService.publish(new OverlayChgEvent(m_currentOverlay));
     }
 
     private boolean isInsideDims(final long[] planePos, final long[] dims) {
@@ -264,6 +269,7 @@ public abstract class AbstractAnnotatorManager<T extends RealType<T>> extends Hi
     @EventListener
     public void reset(final AnnotatorResetEvent e) {
         m_currentOverlay = null;
+        m_src = null;
         m_selectedLabels = new String[]{"Unknown"};
     }
 

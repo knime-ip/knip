@@ -87,7 +87,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
 
 import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableUtils;
 import org.knime.knip.core.ui.event.EventListener;
@@ -96,15 +95,14 @@ import org.knime.knip.core.ui.imgviewer.ViewerComponent;
 import org.knime.knip.core.ui.imgviewer.events.ForcePlanePosEvent;
 import org.knime.knip.core.ui.imgviewer.events.HilitedLabelsChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
-import org.knime.knip.core.ui.imgviewer.events.IntervalWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelPanelHiliteSelectionChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelPanelIsHiliteModeEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelPanelVisibleLabelsChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.LabelingWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.NameSetbasedLabelFilter;
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter;
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter.Operator;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
-import org.knime.knip.core.util.MiscViews;
 
 /**
  * Panel to generate a Rulebased LabelFilter.
@@ -385,8 +383,8 @@ public class LabelFilterPanel<L extends Comparable<L>> extends ViewerComponent {
      *
      */
     @EventListener
-    public void onLabelingUpdated(final IntervalWithMetadataChgEvent<LabelingType<L>> e) {
-        m_labeling = MiscViews.labelingView(e.getRandomAccessibleInterval(), null);
+    public void onLabelingUpdated(final LabelingWithMetadataChgEvent<L> e) {
+        m_labeling = e.getData();
 
         m_activeLabels.clear();
         for (final L label : m_labeling.firstElement().getMapping().getLabels()) {

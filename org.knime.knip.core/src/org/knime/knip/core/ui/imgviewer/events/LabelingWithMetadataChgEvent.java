@@ -63,7 +63,7 @@ import org.knime.knip.core.data.img.LabelingMetadata;
  * @param <L>
  */
 public class LabelingWithMetadataChgEvent<L extends Comparable<L>> extends
-        IntervalWithMetadataChgEvent<LabelingType<L>> {
+        IntervalWithMetadataChgEvent<LabelingType<L>, Labeling<L>> {
 
     private final LabelingMetadata m_labelingMetadata;
 

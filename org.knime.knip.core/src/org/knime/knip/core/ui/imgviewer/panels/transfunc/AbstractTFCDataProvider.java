@@ -78,13 +78,13 @@ import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.ViewerComponent;
 import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
-import org.knime.knip.core.ui.imgviewer.events.IntervalWithMetadataChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.RendererSelectionChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 
 /**
  * Class that wraps the panel and connects it to the knip event service.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -139,7 +139,7 @@ public abstract class AbstractTFCDataProvider<T extends RealType<T>, KEY> extend
 
     /**
      * Set up a new instance and wrap the passed panel.
-     * 
+     *
      * @param panel the panel that should be wrapped
      */
     AbstractTFCDataProvider(final TransferFunctionControlPanel panel) {
@@ -187,7 +187,7 @@ public abstract class AbstractTFCDataProvider<T extends RealType<T>, KEY> extend
 
     /**
      * This method is called everytime the src changes and must return the key that corresponds to the current settings.<br>
-     * 
+     *
      * @return the key to store the first memento.
      */
     protected abstract KEY updateKey(final Interval src);
@@ -196,7 +196,7 @@ public abstract class AbstractTFCDataProvider<T extends RealType<T>, KEY> extend
 
     /**
      * Use this if the concrete base class has intercepted an event that needs to set a new Memento.<br>
-     * 
+     *
      * @param key the key to look up or to save the new memento under
      * @param interval the interval to use for calculating the histogram if the key is not yet saved in the map of
      *            mementos
@@ -237,7 +237,7 @@ public abstract class AbstractTFCDataProvider<T extends RealType<T>, KEY> extend
     }
 
     @EventListener
-    public final void onImgUpdated(final IntervalWithMetadataChgEvent<T> event) {
+    public final void onImgUpdated(final ImgWithMetadataChgEvent<T> event) {
 
         /*
          * because of the way the AWTImageProvider reacts to new images

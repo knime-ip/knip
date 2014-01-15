@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-Name: KNIME Image IO
 Bundle-SymbolicName: org.knime.knip.io;singleton:=true
 Bundle-ManifestVersion: 2
-Bundle-Version: 1.1.0.qualifier
+Bundle-Version: 1.1.1.qualifier
 Eclipse-RegisterBuddy: org.knime.knip.scijava
 Bundle-Vendor: University of Konstanz
 Require-Bundle: org.knime.base;bundle-version="[2.8.0,3.0.0)",
@@ -25,11 +25,11 @@ Bundle-ClassPath: knip-io.jar,
  lib/mvn/mdbtools-java-4.4.9.jar,
  lib/mvn/metakit-4.4.9.jar,
  lib/mvn/netcdf-4.0.03.jar,
- lib/mvn/ome-formats-0.3.0.jar,
  lib/mvn/ome-xml-4.4.9.jar,
  lib/mvn/poi-loci-4.4.9.jar,
  lib/mvn/scifio-4.4.9.jar,
- lib/mvn/scifio-bf-compat-1.3.2.jar
+ lib/mvn/ome-formats-0.4.0.jar,
+ lib/mvn/scifio-bf-compat-1.4.0.jar
 Export-Package: loci.common,
  loci.common.enumeration,
  loci.common.services,

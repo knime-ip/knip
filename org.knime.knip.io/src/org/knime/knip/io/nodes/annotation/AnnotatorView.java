@@ -46,7 +46,7 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.io.nodes.annotation.create;
+package org.knime.knip.io.nodes.annotation;
 
 import java.util.List;
 
@@ -55,15 +55,14 @@ import javax.swing.JPanel;
 import org.knime.core.data.DataTable;
 import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
-import org.knime.knip.io.nodes.annotation.DialogComponentOverlayAnnotator;
 
 /**
  * Decouples visual annotator components from the component that uses them.
- * Allows you to use the implemented component in dialogs, views, ... see
- * {@link DialogComponentOverlayAnnotator}.<br>
+ * Allows you to use the implemented component in dialogs, views, ... see e.g.
+ * {@link DialogComponentAnnotatorView}.<br>
  * <br>
- * An AnnotatorView allows to create annotations for images from a table. An
- * image can have zero or one associated annotations. The AnnotatorView allows
+ * A AnnotatorView allows to create/alter annotations for sources from a table. A
+ * source can have zero or one associated annotations. The AnnotatorView allows
  * to edit and create these annotations.
  * 
  * 
@@ -72,50 +71,53 @@ import org.knime.knip.io.nodes.annotation.DialogComponentOverlayAnnotator;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
  */
-public interface AnnotatorView {
+public interface AnnotatorView<T> {
 
-    /**
-     * @return a panel that holds all components and functionality to annotate
-     *         images
-     */
-    public JPanel getAnnotatorPanel();
+	/**
+	 * @return a panel that holds all components and functionality to annotate
+	 *         images
+	 */
+	public JPanel getAnnotatorPanel();
 
-    /**
-     * @return a list of table based image keys. Each key identifies an
-     *         {@link Overlay} that is managed by this component. The
-     *         {@link Overlay} annotates the associated image from the input
-     *         table.
-     */
-    public List<RowColKey> getOverlayKeys();
+	/**
+	 * @return a list of the source names of all sources that have been annotated
+	 * by the view (may also be a change of a existing annotation).
+	 */
+	public List<RowColKey> getIdentifiersOfManagedSources();
 
-    /**
-     * @param key table based image identifier for an associated {@link Overlay}
-     * @return the {@link Overlay} that is associated with the image source name
-     *         or <code>null</code> if no such Overlay exists.
-     */
-    public Overlay getOverlay(RowColKey key);
+	/**
+	 * @param key
+	 *            (table based) source identifier for the associated annotation data structure (e.g. a {@link Overlay})
+	 * @return the annotation data structure that is associated with the source name
+	 *         or <code>null</code> if no annotation exists.
+	 */
+	public T getAnnotation(RowColKey key);
 
-    /**
-     * Adds an already existing overlay to the AnnotatorView. An image with the
-     * given key (table based identifier) has to exist in the inputTable. This
-     * method exist to allow recreation after serialization.
-     * 
-     * @param key table identifier of the associated image.
-     * @param overlay the overlay that should be set for the image.
-     */
-    public void setOverlay(RowColKey key, Overlay overlay);
+	/**
+	 * Adds an already existing annotation to the AnnotatorView. A source that can be
+	 * addressed with the given identifier has to exist in the inputTable. This method exist to
+	 * allow recreation after serialization.
+	 * 
+	 * @param srcName
+	 *            source name of the associated source
+	 * @param annotation
+	 *            annotation data structure
+	 */
+	public void setAnnotation(RowColKey key, T annotation);
 
-    /**
-     * Deletes all managed overlays.
-     */
-    public void reset();
 
-    /**
-     * Sets the input table. The input table holds the images that can be
-     * annotated using this component.
-     * 
-     * @param inputTable a table that contains some image columns.
-     */
-    public void setInputTable(final DataTable inputTable);
+	/**
+	 * Deletes all managed annotations.
+	 */
+	public void reset();
+
+	/**
+	 * Sets the input table. The input table holds the sources that can be
+	 * annotated using this component.
+	 * 
+	 * @param inputTable
+	 *            a table that contains some image columns.
+	 */
+	public void setInputTable(final DataTable inputTable);
 
 }

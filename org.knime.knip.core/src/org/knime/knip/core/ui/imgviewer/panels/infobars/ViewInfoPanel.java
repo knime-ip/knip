@@ -73,9 +73,9 @@ import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 
 /**
- * 
- * 
- * 
+ *
+ *
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -166,7 +166,7 @@ public abstract class ViewInfoPanel<T extends Type<T>> extends ViewerComponent {
      * @param name
      */
     @EventListener
-    public void onImgChanged(final IntervalWithMetadataChgEvent<T> e) {
+    public void onImgChanged(final IntervalWithMetadataChgEvent<T, ?> e) {
         m_randomAccessible = e.getRandomAccessibleInterval();
         m_iterable = Views.iterable(m_randomAccessible);
 
@@ -183,8 +183,13 @@ public abstract class ViewInfoPanel<T extends Type<T>> extends ViewerComponent {
                     .numDimensions()]));
         }
 
-        m_imageInfoLabel
-                .setText(updateImageLabel(m_infoBuffer, m_randomAccessible, m_rndAccess, e.getName().getName()));
+
+        //TODO instead of testing for null to indicate that something went wrong make sure the method is never
+        //called with wrong parameters
+        String text = updateImageLabel(m_infoBuffer, m_randomAccessible, m_rndAccess, e.getName().getName());
+        if (text != null) {
+            m_imageInfoLabel.setText(text);
+        }
     }
 
     @EventListener
@@ -199,7 +204,13 @@ public abstract class ViewInfoPanel<T extends Type<T>> extends ViewerComponent {
             m_pos[m_sel.getPlaneDimIndex2()] = -1;
         }
 
-        m_mouseInfoLabel.setText(updateMouseLabel(m_infoBuffer, m_randomAccessible, m_imgAxes, m_rndAccess, m_pos));
+        //TODO instead of testing for null to indicate that something went wrong make sure the method is never
+        //called with wrong parameters
+        String text = updateMouseLabel(m_infoBuffer, m_randomAccessible, m_imgAxes, m_rndAccess, m_pos);
+        if (text != null) {
+            m_mouseInfoLabel.setText(text);
+        }
+
 
         m_infoBuffer.setLength(0);
     }
@@ -209,7 +220,14 @@ public abstract class ViewInfoPanel<T extends Type<T>> extends ViewerComponent {
         m_currentCoords = e;
         if (m_currentCoords.isInsideImgView(m_dims[m_sel.getPlaneDimIndex1()], m_dims[m_sel.getPlaneDimIndex2()])) {
             m_pos = m_sel.getPlanePos(m_currentCoords.getPosX(), m_currentCoords.getPosY());
-            m_mouseInfoLabel.setText(updateMouseLabel(m_infoBuffer, m_randomAccessible, m_imgAxes, m_rndAccess, m_pos));
+
+            //TODO instead of testing for null to indicate that something went wrong make sure the method is never
+            //called with wrong parameters
+            String text = updateMouseLabel(m_infoBuffer, m_randomAccessible, m_imgAxes, m_rndAccess, m_pos);
+            if (text != null) {
+                m_mouseInfoLabel.setText(text);
+            }
+
             m_infoBuffer.setLength(0);
         }
     }
@@ -238,7 +256,7 @@ public abstract class ViewInfoPanel<T extends Type<T>> extends ViewerComponent {
     /**
      * sets the mouse and image info labels. This method is intended to be used if a subclass reacts to additional
      * events ... that should change the labels.
-     * 
+     *
      * @param mouseInfoText
      * @param imageInfoText
      */

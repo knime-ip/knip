@@ -64,7 +64,7 @@ import org.knime.knip.core.awt.AWTImageTools;
 import org.knime.knip.core.awt.parametersupport.RendererWithNormalization;
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
-import org.knime.knip.core.ui.imgviewer.events.IntervalWithMetadataChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.NormalizationParametersChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ThresholdValChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
@@ -141,7 +141,7 @@ public class ThresholdRU<T extends RealType<T>> extends AbstractDefaultRU<BitTyp
      * @param e update the stored source image
      */
     @EventListener
-    public void onUpdated(final IntervalWithMetadataChgEvent<T> e) {
+    public void onUpdated(final ImgWithMetadataChgEvent<T> e) {
         m_src = e.getRandomAccessibleInterval();
     }
 

@@ -43,35 +43,105 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
+ * Created on 25.09.2013 by zinsmaie
  */
-package org.knime.knip.core.ui.imgviewer.annotator;
+package org.knime.knip.core.ui.imgviewer.annotator.edit;
 
-import org.knime.knip.core.ui.event.KNIPEvent;
+import java.awt.Dimension;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.util.Collections;
+import java.util.Vector;
+
+import javax.swing.BoxLayout;
+import javax.swing.JList;
+import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
+
+import net.imglib2.labeling.Labeling;
+
+import org.knime.knip.core.ui.event.EventListener;
+import org.knime.knip.core.ui.event.EventService;
+import org.knime.knip.core.ui.imgviewer.ViewerComponent;
+import org.knime.knip.core.ui.imgviewer.events.LabelingWithMetadataChgEvent;
 
 /**
- * 
+ * TODO Auto-generated
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class AnnotatorResetEvent implements KNIPEvent {
+public class EditAnnotatorLabelPanel<L extends Comparable<L>> extends ViewerComponent {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ExecutionPriority getExecutionOrder() {
-        return ExecutionPriority.NORMAL;
+    private static final long serialVersionUID = 1L;
+
+    private JList m_jLabelList;
+
+    private Vector<L> m_labels;
+
+    private EventService m_eventService;
+
+    public EditAnnotatorLabelPanel() {
+        super("Labels", false);
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+
+        m_labels = new Vector<L>();
+        m_jLabelList = new JList();
+        m_jLabelList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        JScrollPane scrollPane = new JScrollPane(m_jLabelList);
+        scrollPane.setPreferredSize(new Dimension(150, 1));
+
+        add(scrollPane);
+    }
+
+    @EventListener
+    public void onLabelingUpdated(final LabelingWithMetadataChgEvent<L> e) {
+        Labeling<L> labeling = e.getData();
+
+        m_labels.clear();
+        for (final L label : labeling.firstElement().getMapping().getLabels()) {
+            m_labels.add(label);
+        }
+
+        Collections.sort(m_labels);
+        m_jLabelList.setListData(m_labels);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public <E extends KNIPEvent> boolean isRedundant(final E thatEvent) {
-        return thatEvent instanceof AnnotatorResetEvent;
+    public Position getPosition() {
+        return Position.EAST;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setEventService(final EventService eventService) {
+        m_eventService = eventService;
+        eventService.subscribe(this);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveComponentConfiguration(final ObjectOutput out) throws IOException {
+        //nothing to do
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadComponentConfiguration(final ObjectInput in) throws IOException, ClassNotFoundException {
+        //nothing to do
     }
 
 }

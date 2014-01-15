@@ -129,7 +129,7 @@ public class CombinedRU implements RenderUnit {
 
         if (i < m_renderUnits.length) {
             //at least one active image
-            Image img = m_renderUnits[0].createImage();
+            Image img = m_renderUnits[i].createImage();
             Image joinedImg =
                     m_graphicsConfig.createCompatibleImage(img.getWidth(null), img.getHeight(null),
                                                            java.awt.Transparency.TRANSLUCENT);
@@ -179,9 +179,9 @@ public class CombinedRU implements RenderUnit {
      */
     @Override
     public boolean isActive() {
-        boolean isActive = true;
+        boolean isActive = false;
         for (RenderUnit ru : m_renderUnits) {
-            isActive = isActive & ru.isActive();
+            isActive = isActive | ru.isActive();
         }
 
         return isActive;
