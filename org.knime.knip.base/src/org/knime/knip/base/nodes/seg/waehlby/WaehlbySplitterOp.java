@@ -84,7 +84,6 @@ import org.knime.knip.core.awt.AWTImageTools;
 import org.knime.knip.core.ops.img.IterableIntervalNormalize;
 import org.knime.knip.core.ops.labeling.WatershedWithThreshold;
 
-//TODO: Make Integer more generic, TODO: Why? It's the output
 /**
  *
  * @author Jonathan Hale (University of Konstanz)
@@ -111,11 +110,11 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
     /**
      * Contructor for WaehlbySplitter operation.
      *
-     * @param segtype
+     * @param segType
      */
-    public WaehlbySplitterOp(final SEG_TYPE segtype) {
+    public WaehlbySplitterOp(final SEG_TYPE segType) {
         super();
-        m_segType = segtype;
+        m_segType = segType;
 
         m_gaussSize = 10;
     }
