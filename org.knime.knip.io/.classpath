@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/scifio-bf-compat-1.4.0.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/bio-formats-4.4.9.jar" sourcepath="lib/mvn-knipio-source-collection.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/args4j-2.0.25.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/bio-formats-4.4.10.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/forms-1.2.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/jai_imageio-4.4.9.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/loci-common-4.4.9.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/lwf-stubs-4.4.9.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/mdbtools-java-4.4.9.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/metakit-4.4.9.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/jai_imageio-4.4.10.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/loci-common-4.4.10.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/lwf-stubs-4.4.10.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/mdbtools-java-4.4.10.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/metakit-4.4.10.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/netcdf-4.0.03.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/ome-xml-4.4.9.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/poi-loci-4.4.9.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/scifio-4.4.9.jar" sourcepath="lib/mvn-knipio-source-collection.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/ome-formats-0.4.0.jar" sourcepath="/home/dietzc/.m2/repository/io/scif/ome-formats/0.4.0/ome-formats-0.4.0-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/ome-formats-0.5.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/ome-xml-4.4.10.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/poi-loci-4.4.10.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/scifio-4.4.10.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/scifio-bf-compat-1.4.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/scifio-tools-0.8.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
