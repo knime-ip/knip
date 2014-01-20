@@ -45,7 +45,7 @@ import net.imglib2.type.numeric.RealType;
  * @author dietzc, hornm, zinsmaierm, seebacherd, riesst (University of Konstanz)
  * @param <T> extends RealType<T>
  */
-public class QuantileFilter2<T extends RealType<T>> implements
+public class QuantileFilter<T extends RealType<T>> implements
         UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> {
 
     private int m_radius = 3;
@@ -56,7 +56,7 @@ public class QuantileFilter2<T extends RealType<T>> implements
      * @param radius the radius of the kernel used for the quantile filtering
      * @param percentile the desired percentile used for the filtering (50 is equal to the median)
      */
-    public QuantileFilter2(final int radius, final int percentile) {
+    public QuantileFilter(final int radius, final int percentile) {
         m_radius = radius;
         m_percentile = percentile;
     }
@@ -178,7 +178,7 @@ public class QuantileFilter2<T extends RealType<T>> implements
      */
     @Override
     public UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> copy() {
-        return new QuantileFilter2<T>(m_radius, m_percentile);
+        return new QuantileFilter<T>(m_radius, m_percentile);
     }
 
     /**

@@ -57,7 +57,6 @@ import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.ImgOperations;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.UnaryOutputOperation;
-import net.imglib2.ops.operation.iterableinterval.unary.QuantileFilter;
 import net.imglib2.ops.operation.real.unary.Convert;
 import net.imglib2.ops.operation.real.unary.Convert.TypeConversionTypes;
 import net.imglib2.type.numeric.RealType;
