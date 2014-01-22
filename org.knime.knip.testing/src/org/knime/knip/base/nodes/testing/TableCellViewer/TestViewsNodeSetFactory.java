@@ -46,7 +46,7 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.base.nodes.testing;
+package org.knime.knip.base.nodes.testing.TableCellViewer;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -63,7 +63,7 @@ import org.knime.core.node.config.ConfigRO;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class TestingNodeSetFactory implements NodeSetFactory {
+public class TestViewsNodeSetFactory implements NodeSetFactory {
 
     private final Map<String, String> m_nodeFactories = new HashMap<String, String>();
 
@@ -71,32 +71,8 @@ public class TestingNodeSetFactory implements NodeSetFactory {
      * {@inheritDoc}
      */
     @Override
-    public Collection<String> getNodeFactoryIds() {
-        m_nodeFactories.put(ImgComparatorNodeFactory.class.getCanonicalName(), "/community/knip/kniptesting");
-        m_nodeFactories.put(LabelingComparatorNodeFactory.class.getCanonicalName(), "/community/knip/kniptesting");
-//        m_nodeFactories.put(TestTableCellViewNodeFactory.class.getCanonicalName(), "/community/knip/kniptesting");
-        return m_nodeFactories.keySet();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @SuppressWarnings("unchecked")
-    @Override
-    public Class<? extends NodeFactory<? extends NodeModel>> getNodeFactory(final String id) {
-        try {
-            return (Class<? extends NodeFactory<? extends NodeModel>>)Class.forName(id);
-        } catch (final ClassNotFoundException e) {
-        }
+    public ConfigRO getAdditionalSettings(final String id) {
         return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getCategoryPath(final String id) {
-        return m_nodeFactories.get(id);
     }
 
     /**
@@ -111,8 +87,29 @@ public class TestingNodeSetFactory implements NodeSetFactory {
      * {@inheritDoc}
      */
     @Override
-    public ConfigRO getAdditionalSettings(final String id) {
+    public String getCategoryPath(final String id) {
+        return m_nodeFactories.get(id);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Class<? extends NodeFactory<? extends NodeModel>> getNodeFactory(final String id) {
+        try {
+            return (Class<? extends NodeFactory<? extends NodeModel>>)Class.forName(id);
+        } catch (final ClassNotFoundException e) {
+        }
         return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Collection<String> getNodeFactoryIds() {
+        m_nodeFactories.put(TestTableCellViewNodeFactory.class.getCanonicalName(), "/community/knip/kniptesting");
+        return m_nodeFactories.keySet();
     }
 
 }

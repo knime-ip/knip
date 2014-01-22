@@ -46,16 +46,13 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.base.nodes.testing;
+package org.knime.knip.base.nodes.testing.TableCellViewer;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.knime.core.node.NodeFactory;
-import org.knime.core.node.NodeModel;
-import org.knime.core.node.NodeSetFactory;
-import org.knime.core.node.config.ConfigRO;
+import org.knime.core.node.DynamicNodeFactory;
+import org.knime.core.node.NodeDialogPane;
+import org.knime.core.node.NodeView;
+import org.knime.knip.base.node.XMLNodeUtils;
+import org.knime.node2012.KnimeNodeDocument;
 
 /**
  *
@@ -63,31 +60,23 @@ import org.knime.core.node.config.ConfigRO;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class TestingNodeSetFactory implements NodeSetFactory {
-
-    private final Map<String, String> m_nodeFactories = new HashMap<String, String>();
+public class TestTableCellViewNodeFactory extends DynamicNodeFactory<TestTableCellViewNodeModel> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Collection<String> getNodeFactoryIds() {
-        m_nodeFactories.put(ImgComparatorNodeFactory.class.getCanonicalName(), "/community/knip/kniptesting");
-        m_nodeFactories.put(LabelingComparatorNodeFactory.class.getCanonicalName(), "/community/knip/kniptesting");
-//        m_nodeFactories.put(TestTableCellViewNodeFactory.class.getCanonicalName(), "/community/knip/kniptesting");
-        return m_nodeFactories.keySet();
+    protected void addNodeDescription(final KnimeNodeDocument doc) {
+        XMLNodeUtils.addXMLNodeDescriptionTo(doc, this.getClass());
+        TestTableCellViewNodeView.addViewDescriptionTo(doc.getKnimeNode().addNewViews());
     }
 
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
+
     @Override
-    public Class<? extends NodeFactory<? extends NodeModel>> getNodeFactory(final String id) {
-        try {
-            return (Class<? extends NodeFactory<? extends NodeModel>>)Class.forName(id);
-        } catch (final ClassNotFoundException e) {
-        }
+    protected NodeDialogPane createNodeDialogPane() {
         return null;
     }
 
@@ -95,24 +84,32 @@ public class TestingNodeSetFactory implements NodeSetFactory {
      * {@inheritDoc}
      */
     @Override
-    public String getCategoryPath(final String id) {
-        return m_nodeFactories.get(id);
+    public TestTableCellViewNodeModel createNodeModel() {
+        return new TestTableCellViewNodeModel();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public String getAfterID(final String id) {
-        return "";
+    public NodeView<TestTableCellViewNodeModel> createNodeView(final int viewIndex, final TestTableCellViewNodeModel nodeModel) {
+        return new TestTableCellViewNodeView(nodeModel);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public ConfigRO getAdditionalSettings(final String id) {
-        return null;
+    protected int getNrNodeViews() {
+        return 1;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean hasDialog() {
+        return false;
     }
 
 }
