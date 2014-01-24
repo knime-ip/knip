@@ -82,7 +82,6 @@ import org.knime.knip.base.nodes.seg.waehlby.WaelbyUtils.LabelingToBitConverter;
 import org.knime.knip.core.awt.AWTImageTools;
 import org.knime.knip.core.ops.img.IterableIntervalNormalize;
 import org.knime.knip.core.ops.labeling.WatershedWithSheds;
-import org.knime.knip.core.ops.labeling.WatershedWithThreshold;
 
 /**
  *
@@ -106,6 +105,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
     protected SEG_TYPE m_segType;
 
     protected int m_gaussSize;
+    protected int m_maximaSize;
 
     /**
      * Contructor for WaehlbySplitter operation.
@@ -115,8 +115,8 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
     public WaehlbySplitterOp(final SEG_TYPE segType) {
         super();
         m_segType = segType;
-
-        m_gaussSize = 4;
+        m_gaussSize = 6;
+        m_maximaSize = 15;
     }
 
     private long[] getDimensions(final RandomAccessibleInterval<T> img) {
@@ -138,8 +138,6 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
     public Labeling<Integer> compute(final Labeling<L> inLab, final RandomAccessibleInterval<T> img,
                                      final Labeling<Integer> outLab) {
 
-        int maxima_size = 10; // TODO: some random number still
-
         Img<FloatType> imgAlice = m_floatFactory.create(img, new FloatType());
         Img<FloatType> imgBob   = m_floatFactory.create(img, new FloatType());
 
@@ -152,38 +150,31 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
                 Views.interval(new ConvertedRandomAccessible<LabelingType<L>, BitType>(inLab,
                         new LabelingToBitConverter<LabelingType<L>>(), new BitType()), inLab);
 
-        // TODO: REMEMBER... this is cool: inLab.getIterableRegionOfInterest(inLab.getLabels());
-
         if (m_segType == SEG_TYPE.SHAPE_BASED_SEGMENTATION) {
-
-            /* Start with distance transform */
-            new DistanceMap<BitType>().compute(inLabMasked, imgBobExt); //TODO: Formerly <T> ?
-
-            /* Gaussian smoothing */
+            /*c distance transform */
+            new DistanceMap<BitType>().compute(inLabMasked, imgBobExt);
 
             try {
+                /* Gaussian smoothing */
                 Gauss3.gauss(m_gaussSize, imgBobExt, imgAliceExt);
-            } catch (IncompatibleTypeException e) {
-                System.out.println("Incompatible Type Exception in Gauss.");
-            }
+            } catch (IncompatibleTypeException e) {}
         } else {
-            /* Gaussian smoothing */
             try {
+                /* Gaussian smoothing */
                 Gauss3.gauss(m_gaussSize, Views.extendBorder(img), imgAliceExt);
-            } catch (IncompatibleTypeException e) {
-                // TODO Auto-generated catch block
-            }
+            } catch (IncompatibleTypeException e) {}
         }
+
         /* Disc dilation */
-        new DilateGray<FloatType>(new SphereSetting(img.numDimensions(), maxima_size).get()[0],
-                new OutOfBoundsBorderFactory()).compute(imgAliceExt, imgBobExt);
+        new DilateGray<FloatType>(new SphereSetting(img.numDimensions(), m_maximaSize).get()[0],
+                new OutOfBoundsBorderFactory<FloatType, RandomAccessibleInterval<FloatType>>()).compute(imgAliceExt, imgBobExt);
 
         //debugImage(imgBob, "After Dilate");
 
         /* Combine Images */
-        //(S) Combine, if src1 < src2, else set as background
-        CombinedRandomAccessible<FloatType, FloatType, FloatType> combined =
-                WaelbyUtils.combineConditioned(imgAliceExt, imgBobExt, new IfThenElse<FloatType, FloatType, FloatType>() {
+        // if src1 < src2, set as background else set as src2
+        CombinedRandomAccessible<FloatType, BitType, FloatType> combined =
+                WaelbyUtils.combineConditionedMasked(imgAliceExt, imgBobExt, new IfThenElse<FloatType, FloatType, FloatType>() {
                     @Override
                     public FloatType test(final FloatType a, final FloatType b, final FloatType out) {
                         if (a.compareTo(b) < 0) {
@@ -195,28 +186,32 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
                         return out;
                     }
 
-                }, new FloatType());
+                }, inLabMasked, new FloatType());
 
-        /* Label the found Minima */
-        ConvertedRandomAccessible<FloatType, FloatType> inverted = WaelbyUtils.invertImg(combined, new FloatType());
+        //debugImage(new ImgView<FloatType>(Views.interval(combined, img), new ArrayImgFactory<FloatType>()), "After combination (a < b) ? BG : b;");
 
 //        Img<BitType> imgChris = new ArrayImgFactory<BitType>().create(img, new BitType());
 //        new MaximumFinderOp<T>(20, 0).compute(img, imgChris); //Why img? Cause it's faster...
 
+        // label
         long[][] structuringElement = AbstractRegionGrowing.get8ConStructuringElement(img.numDimensions()); /* TODO: Cecog uses 8con */
 
         final CCA<FloatType> cca = new CCA<FloatType>(structuringElement, new FloatType());
-
-        Labeling<Integer> seeds = inLab.<Integer> factory().create(inLab);
-        new NativeImgLabeling<Integer, ShortType>(new ArrayImgFactory<ShortType>().create(getDimensions(img),
+        NativeImgLabeling<Integer, ShortType> seeds = new NativeImgLabeling<Integer, ShortType>(new ArrayImgFactory<ShortType>().create(getDimensions(img),
                                                                                           new ShortType()));
         cca.compute(Views.interval(combined, img), seeds);
 
+//        final CCA<BitType> cca = new CCA<BitType>(structuringElement, new BitType());
+//        NativeImgLabeling<Integer, ShortType> seeds = new NativeImgLabeling<Integer, ShortType>(new ArrayImgFactory<ShortType>().create(getDimensions(img),
+//                                                                                        new ShortType()));
+//        cca.compute(imgChris, seeds);
+
+//        debugImage(seeds.getStorageImg(), "Seeds for WS");
+
+        Labeling<String> watershedResult = new NativeImgLabeling<String, ShortType>(new ArrayImgFactory<ShortType>().create(getDimensions(img), new ShortType()));
         /* Seeded Watershed */
         WatershedWithSheds<FloatType, Integer> watershed = new WatershedWithSheds<FloatType, Integer>(structuringElement);
-        watershed.compute(imgAliceExt, seeds, outLab);
-
-        WatershedWithSheds shit = new WatershedWithSheds<RealType<T>, Comparable<L>>()
+        watershed.compute(WaelbyUtils.invertImg(imgAlice, new FloatType()), seeds, watershedResult);
 
         //        transformImageIf(srcImageRange(labels),
         //                         maskImage(img_bin),
@@ -230,7 +225,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         CombinedRandomAccessible<BitType, BitType, BitType> maskBgFg =
                 WaelbyUtils.refineLabelingMask(WaelbyUtils.convertLabelingToBit(outLab), inLabMasked);
 
-        debugImage(WaelbyUtils.convertLabelingToBit(outLab), img, "After Watershed");
+        debugImage(WaelbyUtils.convertWatershedsToBit(watershedResult), img, "After Watershed");
         debugImage(maskBgFg, img, "maskBgFg");
 
 
@@ -262,15 +257,22 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
      * @param img
      * @param string
      */
-    private void debugImage(final Img<FloatType> img, final String string) {
-        FloatType min = new FloatType(0);
-        FloatType max = new FloatType((float)min.getMaxValue());
-        min.set((float)max.getMinValue());
+    private  <T extends RealType<T>>void debugImage(final Img<T> img, final String string) {
+        T min = img.firstElement().createVariable();
+        T max = min.createVariable();
 
-        Img<FloatType> myImg = m_floatFactory.create(img, new FloatType());
+        max.setReal((float)min.getMaxValue());
+        min.setReal((float)max.getMinValue());
 
-        IterableIntervalNormalize<FloatType> norm =
-                new IterableIntervalNormalize<FloatType>(0.0, new FloatType(), new ValuePair<FloatType, FloatType>(min,
+        Img<T> myImg = null;
+        try {
+            myImg = m_floatFactory.imgFactory(max).create(img, max);
+        } catch (IncompatibleTypeException e) {
+            System.out.println("Debug image threw incompatible type exception...");
+        }
+
+        IterableIntervalNormalize<T> norm =
+                new IterableIntervalNormalize<T>(0.0, max, new ValuePair<T, T>(min,
                         max), true);
         norm.compute(img, myImg);
         AWTImageTools.showInFrame(myImg, string);
