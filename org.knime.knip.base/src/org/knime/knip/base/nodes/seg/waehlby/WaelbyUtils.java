@@ -275,7 +275,7 @@ public class WaelbyUtils {
          */
         @Override
         public void convert(final T input, final BitType output) {
-            output.set(!input.getLabeling().contains("Watershed"));
+            output.set(input.getLabeling().get(0).equals("Watershed"));
         }
 
     }
@@ -317,13 +317,10 @@ public class WaelbyUtils {
                 new ConditionalCombiner<X, Y, Z>(condition), type), mask, new MaskCombiner<Z>(), type);
     }
 
-    public static <X extends Type<X>, Y extends RealType<Y>, Z extends RealType<Z>>
-            CombinedRandomAccessible<X, Y, Z> combineConditioned(final RandomAccessible<X> a,
-                                                                             final RandomAccessible<Y> b,
-                                                                             final IfThenElse<X, Y, Z> condition,
-                                                                             final Z type) {
-        return new CombinedRandomAccessible<X, Y, Z>(a, b,
-                new ConditionalCombiner<X, Y, Z>(condition), type);
+    public static <X extends Type<X>, Y extends RealType<Y>, Z extends RealType<Z>> CombinedRandomAccessible<X, Y, Z>
+            combineConditioned(final RandomAccessible<X> a, final RandomAccessible<Y> b,
+                               final IfThenElse<X, Y, Z> condition, final Z type) {
+        return new CombinedRandomAccessible<X, Y, Z>(a, b, new ConditionalCombiner<X, Y, Z>(condition), type);
     }
 
     /**
