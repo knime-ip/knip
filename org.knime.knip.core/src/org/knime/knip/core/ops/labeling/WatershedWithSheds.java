@@ -42,7 +42,9 @@ import net.imglib2.view.Views;
  * able to add the watersheds as well (e.g. for region merging by means of the
  * boundaries).
  *
- * @author Lee Kamentsky, Martin Horn
+ * @author Lee Kamentsky
+ * @author Martin Horn
+ * @author Jonathan Hale (University of Konstanz)
  *
  *
  * @param <T> Type of input RandomAccessibleInterval
