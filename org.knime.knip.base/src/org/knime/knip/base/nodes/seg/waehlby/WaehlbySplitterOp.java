@@ -81,6 +81,7 @@ import org.knime.knip.base.nodes.seg.waehlby.WaelbyUtils.IfThenElse;
 import org.knime.knip.base.nodes.seg.waehlby.WaelbyUtils.LabelingToBitConverter;
 import org.knime.knip.core.awt.AWTImageTools;
 import org.knime.knip.core.ops.img.IterableIntervalNormalize;
+import org.knime.knip.core.ops.labeling.WatershedWithSheds;
 import org.knime.knip.core.ops.labeling.WatershedWithThreshold;
 
 /**
@@ -202,7 +203,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
 //        Img<BitType> imgChris = new ArrayImgFactory<BitType>().create(img, new BitType());
 //        new MaximumFinderOp<T>(20, 0).compute(img, imgChris); //Why img? Cause it's faster...
 
-        long[][] structuringElement = AbstractRegionGrowing.get4ConStructuringElement(img.numDimensions()); /* TODO: Cecog uses 8con */
+        long[][] structuringElement = AbstractRegionGrowing.get8ConStructuringElement(img.numDimensions()); /* TODO: Cecog uses 8con */
 
         final CCA<FloatType> cca = new CCA<FloatType>(structuringElement, new FloatType());
 
@@ -212,12 +213,10 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         cca.compute(Views.interval(combined, img), seeds);
 
         /* Seeded Watershed */
-        WatershedWithThreshold<FloatType, Integer> watershed = new WatershedWithThreshold<FloatType, Integer>();
-        watershed.setSeeds(seeds);
-        watershed.setOutputLabeling(outLab);
-        watershed.setIntensityImage(imgAliceExt);
-        watershed.setThreshold(2);
-        watershed.process();
+        WatershedWithSheds<FloatType, Integer> watershed = new WatershedWithSheds<FloatType, Integer>(structuringElement);
+        watershed.compute(imgAliceExt, seeds, outLab);
+
+        WatershedWithSheds shit = new WatershedWithSheds<RealType<T>, Comparable<L>>()
 
         //        transformImageIf(srcImageRange(labels),
         //                         maskImage(img_bin),
