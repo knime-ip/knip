@@ -147,14 +147,13 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
     public static void addViewDescriptionTo(final Views views) {
         final View view = views.addNewView();
         view.setIndex(0);
-        view.setName("Table Cell View Test");
+        view.setName("Test Table Cell Viewt");
 
         final Map<Class<? extends DataValue>, List<String>> descs =
                 TableCellViewsManager.getInstance().getTableCellViewDescriptions();
         view.newCursor()
                 .setTextValue("This views purpose is to enable testing of the underlying classes. Testable views are: ");
         view.addNewBr();
-        TableCellViewsManager.getInstance().addTableCellViewFactory(new TestImgCellViewFactory());
 //        for (final Entry<Class<? extends DataValue>, List<String>> entry : descs.entrySet()) {
 //
 //            view.addB("- " + entry.getKey().getSimpleName());
@@ -265,7 +264,7 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
             // configuration and put
             // it to the cache
             cellView =
-                    TableCellViewsManager.getInstance().createTableCellViews(m_currentCell.getType().getValueClasses());
+                    TestTableCellViewsManager.getInstance().createTableCellViews(m_currentCell.getType().getValueClasses());
 
             // if no cell view exists for the selected cell
             if (cellView.size() == 0) {
@@ -350,11 +349,18 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
             }
         };
 
+        m_tableContentView.setRowSelectionInterval(0, 0);
+        m_tableContentView.setColumnSelectionInterval(0, 0);
+
+
         m_cellViewTabs.addChangeListener(m_changeListener);
         m_sp.setDividerLocation(300);
         m_sp.add(m_cellViewTabs);
 
         setComponent(m_sp);
+
+        System.out.println(m_tableContentView.getColumnCount());
+        System.out.println(m_tableContentView.getRowCount());
 
     }
 

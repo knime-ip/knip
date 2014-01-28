@@ -62,8 +62,14 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.ui.ViewerFactory;
 import org.knime.knip.base.nodes.view.TableCellView;
 import org.knime.knip.base.nodes.view.TableCellViewFactory;
+import org.knime.knip.core.awt.ImageRenderer;
+import org.knime.knip.core.awt.RendererFactory;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
+import org.knime.knip.core.ui.imgviewer.events.CalibrationUpdateEvent;
+import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
+import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
+import org.knime.knip.core.ui.imgviewer.events.RendererSelectionChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ResetCacheEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewZoomfactorChgEvent;
@@ -71,7 +77,7 @@ import org.knime.knip.core.ui.imgviewer.panels.MinimapPanel;
 
 /**
  *
- * @author Andreas
+ * @author Andreas Burger
  */
 public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> implements TableCellViewFactory {
 
@@ -143,7 +149,42 @@ public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> imple
                // Minimap
                System.out.println("-DEBUG: Minimap Test-");
                service.publish(new ViewZoomfactorChgEvent(MinimapPanel.ZOOM_MIN / 100d));
+               service.publish(new ImgRedrawEvent());
                service.publish(new ViewZoomfactorChgEvent(MinimapPanel.ZOOM_MAX / 100d));
+               service.publish(new ImgRedrawEvent());
+
+               // PlaneSelection
+               System.out.println("-DEBUG: PlaneSelection Test-");
+               long[] coords = new long[imgPlusValue.getMetadata().numDimensions()];
+               double[] scaleFactors = new double[coords.length];
+               for(int i = 0; i < coords.length; ++i) {
+                coords[i] = 1;
+                scaleFactors[i] = 2;
+            }
+               service.publish(new PlaneSelectionEvent(0,imgPlusValue.getMetadata().numDimensions()-1,coords));
+               service.publish(new ImgRedrawEvent());
+
+               service.publish(new PlaneSelectionEvent(0,1,coords));
+               service.publish(new ImgRedrawEvent());
+
+               service.publish(new CalibrationUpdateEvent(scaleFactors, new int[]{0,imgPlusValue.getMetadata().numDimensions()-1}));
+               service.publish(new ImgRedrawEvent());
+
+               // RendererSelection
+               System.out.println("-DEBUG: RendererSelection Test-");
+
+               ImageRenderer<T>[] tmp = RendererFactory.createSuitableRenderer(imgPlusValue.getImgPlus());
+
+               for(ImageRenderer<T> ir: tmp)
+               {
+                   service.publish(new RendererSelectionChgEvent(ir));
+                   service.publish(new ImgRedrawEvent());
+               }
+
+
+
+
+
 
             }
 
