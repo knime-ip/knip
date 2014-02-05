@@ -154,16 +154,16 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
         view.newCursor()
                 .setTextValue("This views purpose is to enable testing of the underlying classes. Testable views are: ");
         view.addNewBr();
-//        for (final Entry<Class<? extends DataValue>, List<String>> entry : descs.entrySet()) {
-//
-//            view.addB("- " + entry.getKey().getSimpleName());
-//            view.addNewBr();
-//            for (final String d : entry.getValue()) {
-//                view.addI("-- " + d);
-//                view.addNewBr();
-//            }
-//
-//        }
+        //        for (final Entry<Class<? extends DataValue>, List<String>> entry : descs.entrySet()) {
+        //
+        //            view.addB("- " + entry.getKey().getSimpleName());
+        //            view.addNewBr();
+        //            for (final String d : entry.getValue()) {
+        //                view.addI("-- " + d);
+        //                view.addNewBr();
+        //            }
+        //
+        //        }
 
     }
 
@@ -229,13 +229,22 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
 
     }
 
+    private void cellSelectionChanged() {
+        cellSelectionChanged(-1, -1);
+    }
+
     /*
      * called if the selected cell changes
      */
-    private void cellSelectionChanged() {
-
-        final int row = m_tableContentView.getSelectionModel().getLeadSelectionIndex();
-        final int col = m_tableContentView.getColumnModel().getSelectionModel().getLeadSelectionIndex();
+    private void cellSelectionChanged(final int setCol, final int setRow) {
+        final int row, col;
+        if (setCol == -1 || setRow == -1) {
+            row = m_tableContentView.getSelectionModel().getLeadSelectionIndex();
+            col = m_tableContentView.getColumnModel().getSelectionModel().getLeadSelectionIndex();
+        } else {
+            row = setRow;
+            col = setCol;
+        }
 
         // if neither the row nor the column changed, do nothing
         if ((row == m_row) && (col == m_col)) {
@@ -264,7 +273,8 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
             // configuration and put
             // it to the cache
             cellView =
-                    TestTableCellViewsManager.getInstance().createTableCellViews(m_currentCell.getType().getValueClasses());
+                    TestTableCellViewsManager.getInstance().createTableCellViews(m_currentCell.getType()
+                                                                                         .getValueClasses());
 
             // if no cell view exists for the selected cell
             if (cellView.size() == 0) {
@@ -349,18 +359,11 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
             }
         };
 
-        m_tableContentView.setRowSelectionInterval(0, 0);
-        m_tableContentView.setColumnSelectionInterval(0, 0);
-
-
         m_cellViewTabs.addChangeListener(m_changeListener);
         m_sp.setDividerLocation(300);
         m_sp.add(m_cellViewTabs);
 
         setComponent(m_sp);
-
-        System.out.println(m_tableContentView.getColumnCount());
-        System.out.println(m_tableContentView.getRowCount());
 
     }
 
@@ -382,23 +385,23 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
      */
     @Override
     protected void modelChanged() {
-        if ((getNodeModel().getInternalTables() == null) || (getNodeModel().getInternalTables().length == 0)
-                || (getNodeModel().getInternalTables()[m_portIdx] == null)) {
-            if (m_cellViews != null) {
-                for (final String key : m_cellViews.keySet()) {
-                    for (final TableCellView v : m_cellViews.get(key)) {
-                        v.onReset();
-                    }
-                }
-            }
-            m_row = -1;
-            m_col = -1;
-            final JLabel nodata = new JLabel("No data table available!");
-            nodata.setPreferredSize(new Dimension(500, 500));
-            setComponent(nodata);
-        } else {
-            loadPortContent();
-        }
+//        if ((getNodeModel().getInternalTables() == null) || (getNodeModel().getInternalTables().length == 0)
+//                || (getNodeModel().getInternalTables()[m_portIdx] == null)) {
+//            if (m_cellViews != null) {
+//                for (final String key : m_cellViews.keySet()) {
+//                    for (final TableCellView v : m_cellViews.get(key)) {
+//                        v.onReset();
+//                    }
+//                }
+//            }
+//            m_row = -1;
+//            m_col = -1;
+//            final JLabel nodata = new JLabel("No data table available!");
+//            nodata.setPreferredSize(new Dimension(500, 500));
+//            setComponent(nodata);
+//        } else {
+//            loadPortContent();
+//        }
     }
 
     /**
@@ -440,7 +443,13 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
      */
     @Override
     protected void onOpen() {
-        // NB
+        loadPortContent();
+        for(int i = 0; i < m_tableContentView.getRowCount(); ++i)
+        {
+            cellSelectionChanged(0, i);
+            m_cellViewTabs.setSelectedIndex(1);
+//            tabSelectionChanged();
+        }
     }
 
     /*

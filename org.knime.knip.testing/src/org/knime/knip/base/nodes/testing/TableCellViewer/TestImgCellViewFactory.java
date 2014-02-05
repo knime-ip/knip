@@ -181,14 +181,81 @@ public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> imple
                    service.publish(new ImgRedrawEvent());
                }
 
+            }
 
+        }, new TableCellView() {
+            private ImgViewer m_view = null;
 
+            @Override
+            public String getDescription() {
+                return "";
+            }
 
+            @Override
+            public String getName() {
+                return "Histogram";
+            }
 
+            @Override
+            public Component getViewComponent() {
+                if (m_view == null) {
+                    m_view = ViewerFactory.createHistViewer(KNIMEKNIPPlugin.getCacheSizeForBufferedImages());
+                }
+
+                return m_view;
+            }
+
+            @Override
+            public void loadConfigurationFrom(final ConfigRO config) {
+                //
 
             }
 
-        }};
+            @Override
+            public void onClose() {
+                m_view.getEventService().publish(new ViewClosedEvent());
+            }
+
+            @Override
+            public void onReset() {
+                m_view.getEventService().publish(new ResetCacheEvent());
+            }
+
+            @Override
+            public void saveConfigurationTo(final ConfigWO config) {
+                //
+
+            }
+
+            @Override
+            public void updateComponent(final DataValue valueToView) {
+                final ImgPlusValue<T> imgPlusValue = (ImgPlusValue<T>)valueToView;
+                m_view.setImg(imgPlusValue.getImgPlus());
+                testComponent(imgPlusValue);
+            }
+
+            private void testComponent(final ImgPlusValue<T> imgPlusValue)
+            {
+               EventService service =  m_view.getEventService();
+
+               // HistogramRU reacts only to PlaneSelectionEvents
+               System.out.println("-DEBUG: Histogram PlaneSelection Test-");
+               long[] coords = new long[imgPlusValue.getMetadata().numDimensions()];
+               double[] scaleFactors = new double[coords.length];
+               for(int i = 0; i < coords.length; ++i) {
+                coords[i] = 1;
+                scaleFactors[i] = 2;
+            }
+               service.publish(new PlaneSelectionEvent(0,imgPlusValue.getMetadata().numDimensions()-1,coords));
+               service.publish(new ImgRedrawEvent());
+
+               service.publish(new PlaneSelectionEvent(0,1,coords));
+               service.publish(new ImgRedrawEvent());
+
+
+            }
+        }
+        };
     }
 
     /**

@@ -104,6 +104,8 @@ public class TestTableCellViewNodeFactory extends DynamicNodeFactory<TestTableCe
         return 1;
     }
 
+
+
     /**
      * {@inheritDoc}
      */

@@ -116,7 +116,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.tableview.TableContentModel;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -125,13 +125,13 @@ public class TestTableCellViewNodeModel extends NodeModel implements BufferedDat
 
     /**
      * A TableContentModel with custom chunk and cache sizes.
-     * 
+     *
      * @author hornm, University of Konstanz
      */
     class CustomTableContentModel extends TableContentModel {
 
         /**
-         * 
+         *
          */
         private static final long serialVersionUID = 1L;
 
@@ -160,7 +160,7 @@ public class TestTableCellViewNodeModel extends NodeModel implements BufferedDat
      * @param nrOutDataPorts
      */
     protected TestTableCellViewNodeModel() {
-        super(1, 0);
+        super(1, 1);
     }
 
     /**
@@ -189,7 +189,7 @@ public class TestTableCellViewNodeModel extends NodeModel implements BufferedDat
         m_data = inData[0];
         // m_contModel.setHiLiteHandler(inProp);
         // assert (m_tableModel.hasData());
-        return new BufferedDataTable[0];
+        return inData;
 
     }
 
@@ -252,7 +252,7 @@ public class TestTableCellViewNodeModel extends NodeModel implements BufferedDat
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     @Override
