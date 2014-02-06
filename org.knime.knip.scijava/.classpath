@@ -4,7 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/eventbus-1.4.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/sezpoz-1.9-imagej.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/scijava-common-2.8.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/scijava-common-2.9.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
