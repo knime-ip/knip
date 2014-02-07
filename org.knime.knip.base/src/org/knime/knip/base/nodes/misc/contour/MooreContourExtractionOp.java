@@ -177,12 +177,12 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
             BitType s = cInput.next();
 
             //we are looking for a black pixel
-            if (s.get()) {
+            if (!s.get()) {
                 cInput.localize(position);
                 raInput.setPosition(position);
 
                 //add to polygon
-                output.addPoint(position[0], position[1]); //TODO: Dirty casting!
+                output.addPoint(position[0], position[1]);
 
                 BitType curBoundaryPixel = s;
 
@@ -194,7 +194,7 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
 
                 //TODO: Jackob's stopping criteria must go somewhere here.
                 while (cNeigh.hasNext() && c == s) {
-                        if (c.get()) {
+                        if (!c.get()) {
                             //add to polygon
                             raInput.localize(position);
                             output.addPoint(position[0], position[1]);
