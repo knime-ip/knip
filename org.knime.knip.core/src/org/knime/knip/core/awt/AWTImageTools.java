@@ -80,6 +80,7 @@ import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.interpolation.randomaccess.NearestNeighborInterpolatorFactory;
+import net.imglib2.labeling.Labeling;
 import net.imglib2.outofbounds.OutOfBoundsBorderFactory;
 import net.imglib2.realtransform.AffineGet;
 import net.imglib2.realtransform.AffineTransform2D;
@@ -92,9 +93,9 @@ import net.imglib2.view.Views;
 import org.knime.knip.core.util.MiscViews;
 
 /**
- * 
+ *
  * Methods to convert data (e.g. an imglib image or a histogram) to a java.awt.BufferedImage
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -161,7 +162,7 @@ public final class AWTImageTools {
 
     /**
      * Draws the histogram of the {@link ImagePlane} onto a {@link BufferedImage}.
-     * 
+     *
      * @param ip
      * @param width the width of the image containing the histogram
      * @param height the height of the image containing the histogram
@@ -178,7 +179,7 @@ public final class AWTImageTools {
 
     /**
      * Draws the histogram of the {@link ImagePlane} onto a {@link BufferedImage}.
-     * 
+     *
      * @param ip
      * @param width the width of the image containing the histogram
      * @param height the height of the image containing the histogram
@@ -243,7 +244,7 @@ public final class AWTImageTools {
 
     /**
      * Adds a subtitle to the given image.
-     * 
+     *
      * @param source
      * @param txt
      * @return
@@ -263,7 +264,7 @@ public final class AWTImageTools {
 
     /**
      * Shows the first image plane in the dimension 0,1 in a JFrame.
-     * 
+     *
      * @param ip the image plane
      * @param title a title for the frame
      */
@@ -273,7 +274,7 @@ public final class AWTImageTools {
 
     /**
      * Shows first image plane in the dimension 0,1, scaled with the specified factor in a JFrame.
-     * 
+     *
      * @param ip the image plane
      * @param factor the scaling factor
      */
@@ -283,7 +284,7 @@ public final class AWTImageTools {
 
     /**
      * Shows the selected ImagePlane in a JFrame.
-     * 
+     *
      * @param img the image plane
      * @param factor the scaling factor
      */
@@ -316,7 +317,7 @@ public final class AWTImageTools {
 
     /**
      * Shows an AWT-image in a JFrame.
-     * 
+     *
      * @param img the image to show.
      */
 
@@ -344,6 +345,26 @@ public final class AWTImageTools {
         frame.pack();
         frame.setVisible(true);
 
+    }
+
+    public static <L extends Comparable<L>> void showInFrame(final Labeling<L> lab, String title) {
+        final int w = (int)lab.dimension(0);
+        final int h = (int)lab.dimension(1);
+        title = title + " (" + w + "x" + h + ")";
+
+        final JLabel label = new JLabel();
+
+        final JFrame frame = new JFrame(title);
+        frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        frame.setSize(w, h);
+        frame.getContentPane().add(label);
+
+        ColorLabelingRenderer<L> renderer = new ColorLabelingRenderer<L>();
+        final java.awt.Image awtImage = renderer.render(lab, 0, 1, new long[lab.numDimensions()]).image();
+        label.setIcon(new ImageIcon(awtImage));
+
+        frame.pack();
+        frame.setVisible(true);
     }
 
     public static <T extends Type<T>> BufferedImage renderScaledStandardColorImg(RandomAccessibleInterval<T> img,
