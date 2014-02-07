@@ -19,7 +19,7 @@
     	</option>
 			<option name="Method">
 				<ul>
-					<li>INTERSECT: intersection of two labelings at any pixel position</li>
+					<li>INTERSECT: intersection of two labelings at any pixel position, i.e. checks if both labelings contain the same label at pixel position.</li>
 					<li>DIFFERENCE: difference of two labelings at any pixel position</li>
 					<li>CONGRUENT: if two labelings at a pixel position are congruent,
 						the labels at this position will be set. else empty list.</li>
