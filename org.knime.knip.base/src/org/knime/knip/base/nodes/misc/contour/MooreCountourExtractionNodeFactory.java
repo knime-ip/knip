@@ -49,10 +49,77 @@
  */
 package org.knime.knip.base.nodes.misc.contour;
 
+import java.util.List;
+
+import net.imglib2.type.logic.BitType;
+import net.imglib2.type.numeric.RealType;
+
+import org.knime.core.data.DataCell;
+import org.knime.core.node.defaultnodesettings.SettingsModel;
+import org.knime.knip.base.data.PolygonCell;
+import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.base.node.ValueToCellNodeDialog;
+import org.knime.knip.base.node.ValueToCellNodeFactory;
+import org.knime.knip.base.node.ValueToCellNodeModel;
+import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
+import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
+import org.knime.knip.core.data.algebra.ExtendedPolygon;
+
 /**
  *
  * @author squareys
  */
-public class MooreCountourExtractionNodeFactory implements {
+@SuppressWarnings("deprecation")
+public class MooreCountourExtractionNodeFactory<T extends RealType<T>, L extends Comparable<L>> extends
+ValueToCellNodeFactory<ImgPlusValue<BitType>> {
 
+    class MooreContourExtractionNodeModel extends ValueToCellNodeModel<ImgPlusValue<BitType>, PolygonCell> {
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        protected void addSettingsModels(final List<SettingsModel> settingsModels) {
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        protected PolygonCell compute(final ImgPlusValue<BitType> cellValue) throws Exception {
+            MooreContourExtractionOp op = new MooreContourExtractionOp();
+
+            ExtendedPolygon output = new ExtendedPolygon();
+
+            return new PolygonCell(op.compute(cellValue.getImgPlus(), output));
+        }
+
+    }
+
+    private static SettingsModelDimSelection createDimSelectionModel() {
+        return new SettingsModelDimSelection("dim_selection", "X", "Y");
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected ValueToCellNodeDialog<ImgPlusValue<BitType>> createNodeDialog() {
+        return new ValueToCellNodeDialog<ImgPlusValue<BitType>>() {
+
+            @Override
+            public void addDialogComponents() {
+                addDialogComponent("Options", "Dimensions", new DialogComponentDimSelection(createDimSelectionModel(),
+                        "Dimensions", 2, 2));
+
+            }
+        };
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ValueToCellNodeModel<ImgPlusValue<BitType>, ? extends DataCell> createNodeModel() {
+        return new MooreContourExtractionNodeModel();
+    }
 }
