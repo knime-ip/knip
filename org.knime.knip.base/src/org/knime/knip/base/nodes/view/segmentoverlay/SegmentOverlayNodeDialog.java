@@ -87,8 +87,8 @@ public class SegmentOverlayNodeDialog extends DefaultNodeSettingsPane {
         createNewTab("Label Transformation");
         final DialogComponentStringTransformer dialogComponentStringTransformer =
                 new DialogComponentStringTransformer(new SettingsModelString(SegmentOverlayNodeModel.CFG_EXPRESSION,
-                        "$" + LabelTransformVariables.Label + "$"), false, 0, LabelTransformVariables.Label.toString(),
-                        EnumUtils.getStringListFromName(LabelTransformVariables.values()));
+                        "$" + LabelTransformVariables.Label + "$"), false, 1, LabelTransformVariables.Label.toString(),
+                        EnumUtils.getStringListFromToString(LabelTransformVariables.values()));
         addDialogComponent(dialogComponentStringTransformer);
 
     }
