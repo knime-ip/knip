@@ -165,7 +165,7 @@ public class ScifioImgSource implements ImgSource {
         OMEMetadata omexml =
                 new OMEMetadata(ScifioGateway.getSCIFIO().getContext());
 
-        ScifioGateway.getSCIFIO().translator().translate(meta, omexml, true);
+        ScifioGateway.getSCIFIO().translator().translate(meta, omexml, false);
         String xml = omexml.getRoot().dumpXML();
         return xml;
     }
