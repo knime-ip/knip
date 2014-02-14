@@ -45,7 +45,7 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ---------------------------------------------------------------------
  *
- * Created on Jan 31, 2014 by squareys
+ * Created on Jan 31, 2014 by Jonathan Hale
  */
 package org.knime.knip.base.nodes.misc.contour;
 
@@ -62,16 +62,27 @@ import net.imglib2.view.Views;
 import org.knime.knip.core.data.algebra.ExtendedPolygon;
 
 /**
+ * MooreContourExtractionOp
+ *
+ * Implementation of the Moore contour extraction algorithm.
+ * Input: BitType RandomAccessible
+ * Output: A list of Polygons representing the found contours. Warning! There will be alot of duplicates.
  *
  * @author Jonathan Hale (University of Konstanz)
  */
-@SuppressWarnings("deprecation") //TODO: Remove
+@SuppressWarnings("deprecation") //TODO: We need better Polygons. Remove this when they made it.
 public class MooreContourExtractionOp implements UnaryOperation<RandomAccessibleInterval<BitType>, List<ExtendedPolygon>> {
 
-    class ClockwiseMooreNeighborhoodIterator<T extends Type<T>> implements java.util.Iterator<T> {
-        RandomAccess<T> m_ra;
+    /**
+     * ClockwiseMooreNeighborhoodIterator
+     * Iterates clockwise through a 2D Moore Neighborhood (8 connected Neighborhood)
+     *
+     * @author Jonathan Hale (University of Konstanz)
+     */
+    final class ClockwiseMooreNeighborhoodIterator<T extends Type<T>> implements java.util.Iterator<T> {
+        final private RandomAccess<T> m_ra;
 
-        final int[][] CLOCKWISE_OFFSETS = {
+        final private int[][] CLOCKWISE_OFFSETS = {
                 { 0, -1},
                 { 1,  0},
                 { 1,  0},
@@ -82,7 +93,7 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
                 { 0, -1}
         };
 
-        final int[][] CCLOCKWISE_OFFSETS = {
+        final private int[][] CCLOCKWISE_OFFSETS = {
                 { 0,  1},
                 { 0,  1},
                 {-1,  0},
@@ -93,12 +104,13 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
                 { 1,  0}
         };
 
-        int[] lastPos = new int[2];
+        //index of offset to be executed at next next() call.
+        private int m_curOffset = 0;
 
-        final short NUM_OFFSETS = 8;
-
-        int m_curOffset = 0;
-        int m_startIndex= 7;
+        //startIndex basically tells the Cursor when it performed
+        //every relative movement in CLOCKWISE_OFFSETS once. After
+        //backtrack, this is reset to go through all 8 offsets again.
+        private int m_startIndex = 7;
 
         public ClockwiseMooreNeighborhoodIterator(final RandomAccess<T> ra) {
             m_ra = ra;
@@ -108,18 +120,17 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
          * {@inheritDoc}
          */
         @Override
-        public boolean hasNext() {
-            return m_curOffset != m_startIndex;
+        public final boolean hasNext() {
+            return (m_curOffset != m_startIndex);
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        public T next() {
-            m_ra.localize(lastPos);
+        public final T next() {
             m_ra.move(CLOCKWISE_OFFSETS[m_curOffset]);
-            m_curOffset = (m_curOffset + 1) % 8; //<=> (m_curOffset+1) % 8
+            m_curOffset = (m_curOffset + 1) & 7; //<=> (m_curOffset+1) % 8
             return m_ra.get();
         }
 
@@ -127,44 +138,47 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
          * {@inheritDoc}
          */
         @Override
-        public void remove() {
+        public final void remove() {
             throw new UnsupportedOperationException();
         }
 
-        public void backtrack() {
-            int[] back = CCLOCKWISE_OFFSETS[m_curOffset];
+        public final void backtrack() {
+            final int[] back = CCLOCKWISE_OFFSETS[m_curOffset];
             m_ra.move(back); //undo last move
 
-            int[] nowPos = new int[2];
-            m_ra.localize(nowPos);
-
-            if (nowPos[0] != lastPos[0] || nowPos[1] != lastPos[1]) {
-                System.out.println("ASSERT! Bad Backtrack."); //TODO: Remove, was for debugging
-                return;
+            //find out, where to continue:
+            if (back[0] == 0) {
+                if (back[1] == 1) {
+                    m_curOffset = 6;
+                } else {
+                    m_curOffset = 2;
+                }
+            } else {
+                if (back[0] == 1) {
+                    m_curOffset = 4;
+                } else {
+                    m_curOffset = 0;
+                }
             }
 
-            //find out, where to continue: //TODO: Optimize!
-            if (back[0] > 0) {
-                m_curOffset = 4;
-            } else if (back[0] < 0){
-                m_curOffset = 0;
-            }
-
-            if (back[1] > 0) {
-                m_curOffset = 6;
-            } else if (back[1] < 0){
-                m_curOffset = 2;
-            }
-
-            m_startIndex = (m_curOffset + 7) % 8;
+            m_startIndex = (m_curOffset + 7) & 7; //set the Pixel to stop at
         }
 
-        public int getIndex() {
+        public final int getIndex() {
             return m_curOffset;
+        }
+
+        /**
+         * Reset the current offset index. This does not influence the RandomAccess.
+         */
+        public final void reset() {
+            m_curOffset = 0;
+            m_startIndex = 7;
         }
     }
 
-    final boolean m_jacobs;
+    final private boolean m_jacobs;
+
     /**
      * MooreContourExtractionOp
      * Performs Moore Contour Extraction
@@ -173,7 +187,7 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
      */
     public MooreContourExtractionOp(final boolean useJacobsCriteria) {
         m_jacobs = useJacobsCriteria;
-        //TODO: Toggle for crack/chain code output, or Polygon to code conversion.
+        //TODO: Toggle for crack/chain code output, or maybe Polygon to code conversion?
     }
 
     /**
@@ -182,66 +196,55 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
     @Override
     public List<ExtendedPolygon> compute(final RandomAccessibleInterval<BitType> input, final List<ExtendedPolygon> output) {
 
-        RandomAccess<BitType> raInput = input.randomAccess();
-        Cursor<BitType> cInput = Views.flatIterable(input).cursor();
-        ClockwiseMooreNeighborhoodIterator<BitType> cNeigh = new ClockwiseMooreNeighborhoodIterator<BitType>(raInput);
+        final RandomAccess<BitType> raInput = input.randomAccess();
+        final Cursor<BitType> cInput = Views.flatIterable(input).cursor();
+        final ClockwiseMooreNeighborhoodIterator<BitType> cNeigh = new ClockwiseMooreNeighborhoodIterator<BitType>(raInput);
 
         int[] position = new int[2];
         int[] startPos = new int[2];
 
-        AlgorithmVisualizer<BitType> vis = new AlgorithmVisualizer<BitType>(input);
-        vis.setPosition(position);
+        final int[] firstBacktrack = new int[]{-1, 0};
+
+        ExtendedPolygon curPolygon = null;
 
         while(cInput.hasNext()) {
-            BitType s = cInput.next();
-
             //we are looking for a black pixel
-            if (!s.get()) {
-                ExtendedPolygon polygon = new ExtendedPolygon();
-                output.add(polygon);
+            if (!cInput.next().get()) {
+                curPolygon = new ExtendedPolygon();
+                output.add(curPolygon);
 
-                cInput.localize(startPos);
-                raInput.setPosition(startPos);
+                raInput.setPosition(cInput);
+                raInput.localize(startPos);
 
                 //add to polygon
-                polygon.addPoint(startPos[0], startPos[1]);
+                curPolygon.addPoint(startPos[0], startPos[1]);
 
-                // backtrack:
-                raInput.move(new int[]{-1, 0}); //manual moving back one on x-axis
+                //backtrack:
+                raInput.move(firstBacktrack); //manual moving back one on x-axis
 
-                BitType c = null;
+                cNeigh.reset();
 
                 while (cNeigh.hasNext()) {
-                    c = cNeigh.next();
-                    raInput.localize(position);
-                    if (!c.get()) {
+                    if (!cNeigh.next().get()) {
+                        raInput.localize(position);
                         if (startPos[0] == position[0] && startPos[1] == position[1]) {
                             //startPoint was found.
-
                             if (m_jacobs) {
                                 //jacobs stopping criteria
                                 if ((cNeigh.getIndex() - 2) < 2) {
                                     //if index is 2 or 3, we entered the pixel
-                                    //by moving {1, 0}, therefor in the same way.
+                                    //by moving {1, 0}, therefore in the same way.
                                     break;
-                                } //else criteria not fullfilled, continue.
+                                } //else criteria not fulfilled, continue.
                             } else {
                                 break;
                             }
                         }
                         //add found point to polygon
-                        polygon.addPoint(position[0], position[1]);
+                        curPolygon.addPoint(position[0], position[1]);
                         cNeigh.backtrack();
                     }
-
-                    vis.update();
-                    try {
-                        Thread.sleep(5);
-                    } catch (InterruptedException e) {
-                        // TODO Auto-generated catch block
-                    }
                 }
-                break;
             }
 
         }
