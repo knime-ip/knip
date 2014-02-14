@@ -75,7 +75,7 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
 
     /**
      * ClockwiseMooreNeighborhoodIterator
-     * Iterates clockwise through a 2D Moore Neighborhood (8 connected Neighborhood)
+     * Iterates clockwise through a 2D Moore Neighborhood (8 connected Neighborhood).
      *
      * @author Jonathan Hale (University of Konstanz)
      */
@@ -178,15 +178,18 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
     }
 
     final private boolean m_jacobs;
+    private boolean m_findOnlyOne = false;
 
     /**
      * MooreContourExtractionOp
      * Performs Moore Contour Extraction
      *
      * @param useJacobsCriteria - Set this flag to use "Jacobs stopping criteria"
+     * @param findOnlyOne - Set this flag to stop after one contour was extracted.
      */
-    public MooreContourExtractionOp(final boolean useJacobsCriteria) {
+    public MooreContourExtractionOp(final boolean useJacobsCriteria, final boolean findOnlyOne) {
         m_jacobs = useJacobsCriteria;
+        setFindOnlyOne(findOnlyOne);
         //TODO: Toggle for crack/chain code output, or maybe Polygon to code conversion?
     }
 
@@ -207,9 +210,14 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
 
         ExtendedPolygon curPolygon = null;
 
+        //flag to prevent obvious duplicate extraction
+        boolean lastPixelWhite = false;
+
         while(cInput.hasNext()) {
             //we are looking for a black pixel
-            if (!cInput.next().get()) {
+            if (!cInput.next().get() && lastPixelWhite) {
+                lastPixelWhite = false;
+
                 curPolygon = new ExtendedPolygon();
                 output.add(curPolygon);
 
@@ -245,6 +253,12 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
                         cNeigh.backtrack();
                     }
                 }
+
+                if (m_findOnlyOne) {
+                    break;
+                }
+            } else {
+                lastPixelWhite = true;
             }
 
         }
@@ -253,11 +267,23 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
     }
 
     /**
+     * Set whether to stop after one contour was found.
+     *
+     * Huge speedup, since otherwise contours are extracted
+     * multiple times for each pixel its corresponding the shape.
+     *
+     * @param b
+     */
+    public void setFindOnlyOne(final boolean b) {
+        m_findOnlyOne = b;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
     public UnaryOperation<RandomAccessibleInterval<BitType>, List<ExtendedPolygon>> copy() {
-        return new MooreContourExtractionOp(m_jacobs);
+        return new MooreContourExtractionOp(m_jacobs, m_findOnlyOne);
     }
 
 }
