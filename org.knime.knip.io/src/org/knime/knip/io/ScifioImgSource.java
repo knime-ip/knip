@@ -95,6 +95,9 @@ public class ScifioImgSource implements ImgSource {
 
 	private Reader m_reader;
 
+	/* The currently used file by the reader */
+	private String m_currentFile;
+
 	private final ImgOpener m_imgOpener;
 
 	@SuppressWarnings("rawtypes")
@@ -291,8 +294,16 @@ public class ScifioImgSource implements ImgSource {
 
 	private Reader getReader(final String imgRef) throws FormatException,
 			IOException {
+		if (imgRef.equals(m_currentFile) && m_reader.getMetadata() == null) {
+			// to make sure that an reader is initialized multiple times for the
+			// same file, after reading the image data (getImg(...)) the reader
+			// is closed and the ScifioImgSource should not be used anymore to
+			// get image (meta)data, as it has already been read
+			throw new IllegalStateException("Image data for the file " + imgRef
+					+ " has already been read and reader is closed!");
+		}
 		if (m_reader == null
-				|| (!m_reader.getCurrentFile().equals(imgRef) && m_checkFileFormat)) {
+				|| (!m_currentFile.equals(imgRef) && m_checkFileFormat)) {
 
 			Format format = ScifioGateway.getSCIFIO().format()
 					.getFormat(imgRef, new SCIFIOConfig().checkerSetOpen(true));
@@ -326,6 +337,8 @@ public class ScifioImgSource implements ImgSource {
 					new SCIFIOConfig().groupableSetGroupFiles(m_isGroupFiles)));
 		}
 
+		// sets the file the reader currently points to
+		m_currentFile = imgRef;
 		return m_reader;
 	}
 
