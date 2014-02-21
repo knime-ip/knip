@@ -211,7 +211,7 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
         ExtendedPolygon curPolygon = null;
 
         //flag to prevent obvious duplicate extraction
-        boolean lastPixelWhite = false;
+        boolean lastPixelWhite = true;
 
         while(cInput.hasNext()) {
             //we are looking for a black pixel
@@ -219,7 +219,6 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
                 lastPixelWhite = false;
 
                 curPolygon = new ExtendedPolygon();
-                output.add(curPolygon);
 
                 raInput.setPosition(cInput);
                 raInput.localize(startPos);
@@ -253,6 +252,8 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
                         cNeigh.backtrack();
                     }
                 }
+
+                output.add(curPolygon);
 
                 if (m_findOnlyOne) {
                     break;
