@@ -49,8 +49,6 @@
  */
 package org.knime.knip.base.nodes.misc.contour;
 
-import java.util.List;
-
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
@@ -68,10 +66,18 @@ import org.knime.knip.core.data.algebra.ExtendedPolygon;
  * Input: BitType RandomAccessible
  * Output: A list of Polygons representing the found contours. Warning! There will be alot of duplicates.
  *
+ *
+ * This operation only extracts one contour and then terminates. If you have multiple contours you want to
+ * extract, you may want to perform a CCA on them and then use BitMaskProvider to extract contours from the
+ * images of the labels.
+ *
+ * Also, using the the Jacobs Stopping Criterion is recommended, but turned on by default anyway. It leads to
+ * better results and doesn't significantly slow down the extraction.
+ *
  * @author Jonathan Hale (University of Konstanz)
  */
-@SuppressWarnings("deprecation") //TODO: We need better Polygons. Remove this when they made it.
-public class MooreContourExtractionOp implements UnaryOperation<RandomAccessibleInterval<BitType>, List<ExtendedPolygon>> {
+@SuppressWarnings("deprecation") //TODO: We need better Polygons. Remove this when they made them.
+public class MooreContourExtractionOp implements UnaryOperation<RandomAccessibleInterval<BitType>, ExtendedPolygon> {
 
     /**
      * ClockwiseMooreNeighborhoodIterator
@@ -178,26 +184,33 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
     }
 
     final private boolean m_jacobs;
-    private boolean m_findOnlyOne = false;
 
     /**
      * MooreContourExtractionOp
-     * Performs Moore Contour Extraction
+     * Default Constructor
+     *
+     * 'useJacobsCriteria' is turned on by default.
+     */
+    public MooreContourExtractionOp() {
+        this(true);
+    }
+    /**
+     * MooreContourExtractionOp
      *
      * @param useJacobsCriteria - Set this flag to use "Jacobs stopping criteria"
-     * @param findOnlyOne - Set this flag to stop after one contour was extracted.
      */
-    public MooreContourExtractionOp(final boolean useJacobsCriteria, final boolean findOnlyOne) {
+    public MooreContourExtractionOp(final boolean useJacobsCriteria) {
         m_jacobs = useJacobsCriteria;
-        setFindOnlyOne(findOnlyOne);
         //TODO: Toggle for crack/chain code output, or maybe Polygon to code conversion?
     }
 
     /**
      * {@inheritDoc}
+     *
+     * Note that the output Polygon is cleared before the contour extraction.
      */
     @Override
-    public List<ExtendedPolygon> compute(final RandomAccessibleInterval<BitType> input, final List<ExtendedPolygon> output) {
+    public ExtendedPolygon compute(final RandomAccessibleInterval<BitType> input, final ExtendedPolygon output) {
 
         final RandomAccess<BitType> raInput = input.randomAccess();
         final Cursor<BitType> cInput = Views.flatIterable(input).cursor();
@@ -206,28 +219,23 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
         int[] position = new int[2];
         int[] startPos = new int[2];
 
-        final int[] firstBacktrack = new int[]{-1, 0};
+        final int[] FIRST_BACKTRACK = new int[]{-1, 0};
 
-        ExtendedPolygon curPolygon = null;
+        //clear out all the points
+        output.reset();
 
-        //flag to prevent obvious duplicate extraction
-        boolean lastPixelWhite = true;
-
+        //find first black pixel
         while(cInput.hasNext()) {
             //we are looking for a black pixel
-            if (!cInput.next().get() && lastPixelWhite) {
-                lastPixelWhite = false;
-
-                curPolygon = new ExtendedPolygon();
-
+            if (!cInput.next().get()) {
                 raInput.setPosition(cInput);
                 raInput.localize(startPos);
 
                 //add to polygon
-                curPolygon.addPoint(startPos[0], startPos[1]);
+                output.addPoint(startPos[0], startPos[1]);
 
                 //backtrack:
-                raInput.move(firstBacktrack); //manual moving back one on x-axis
+                raInput.move(FIRST_BACKTRACK); //manual moving back one on x-axis
 
                 cNeigh.reset();
 
@@ -248,43 +256,24 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
                             }
                         }
                         //add found point to polygon
-                        curPolygon.addPoint(position[0], position[1]);
+                        output.addPoint(position[0], position[1]);
                         cNeigh.backtrack();
                     }
                 }
 
-                output.add(curPolygon);
-
-                if (m_findOnlyOne) {
-                    break;
-                }
-            } else {
-                lastPixelWhite = true;
+                break; //we only need to extract one contour.
             }
-
         }
 
         return output;
     }
 
     /**
-     * Set whether to stop after one contour was found.
-     *
-     * Huge speedup, since otherwise contours are extracted
-     * multiple times for each pixel its corresponding the shape.
-     *
-     * @param b
-     */
-    public void setFindOnlyOne(final boolean b) {
-        m_findOnlyOne = b;
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
-    public UnaryOperation<RandomAccessibleInterval<BitType>, List<ExtendedPolygon>> copy() {
-        return new MooreContourExtractionOp(m_jacobs, m_findOnlyOne);
+    public UnaryOperation<RandomAccessibleInterval<BitType>, ExtendedPolygon> copy() {
+        return new MooreContourExtractionOp(m_jacobs);
     }
 
 }
