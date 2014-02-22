@@ -372,12 +372,19 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 									calibAxes
 											.toArray(new CalibratedAxis[calibAxes
 													.size()]));
+					
+					// reads the ome xml metadata
+                    if (m_omexml) {
+                        result[result.length - 1] = XMLCellFactory
+                                .create(m_imgSource
+                                        .getOMEXMLMetadata(currentFile));
+                    }
+					
 
 					// One _can_ be sure that if and only if
 					// some dims are removed (as they are of
 					// size 1) an optimized iterable interval
 					// is created
-
 					final ImgPlus<T> resImgPlus = (ImgPlus<T>) m_imgSource
 							.getImg(currentFile, currentSeries,
 									axisSelectionConstraints);
@@ -394,13 +401,7 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 					if (seriesCount > 1) {
 						rowKey += "_" + currentSeries;
 					}
-
-					// reads the ome xml metadata
-					if (m_omexml) {
-						result[result.length - 1] = XMLCellFactory
-								.create(m_imgSource
-										.getOMEXMLMetadata(currentFile));
-					}
+					
 
 				} catch (final FormatException e) {
 					LOGGER.warn("Format not supported for file " + currentFile

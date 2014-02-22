@@ -15,8 +15,8 @@
 	<classpathentry exported="true" kind="lib" path="lib/mvn/ome-xml-4.4.10.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/poi-loci-4.4.10.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/scifio-4.4.10.jar" sourcepath="/scifio/src"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/ome-formats-0.6.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/scifio-bf-compat-1.5.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/ome-formats-0.6.0.jar" sourcepath="lib/mvn-knipio-source-collection.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/scifio-bf-compat-1.5.1.jar" sourcepath="lib/mvn-knipio-source-collection.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/scifio-tools-0.9.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
