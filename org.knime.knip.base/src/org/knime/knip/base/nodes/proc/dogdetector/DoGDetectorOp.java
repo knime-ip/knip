@@ -103,8 +103,8 @@ public class DoGDetectorOp<T extends RealType<T> & NativeType<T>> implements
      * @param service executionservice to be used
      */
     public DoGDetectorOp(final double sigma1, final double sigma2, final ExtremaType type,
-                         final OutOfBoundsFactory<T, RandomAccessibleInterval<T>> oob, final double threshold, final boolean normalize,
-                         final ExecutorService service) {
+                         final OutOfBoundsFactory<T, RandomAccessibleInterval<T>> oob, final double threshold,
+                         final boolean normalize, final ExecutorService service) {
         this.m_sigma1 = sigma1;
         this.m_sigma2 = sigma2;
         this.m_type = type;
@@ -125,10 +125,12 @@ public class DoGDetectorOp<T extends RealType<T> & NativeType<T>> implements
 
         DogDetection<T> dogDetection =
                 new DogDetection<T>(Views.extend(input, m_oob), input, calibration, m_sigma1, m_sigma2, m_type,
-                        m_threshold, m_normalize, m_service);
+                        m_threshold, m_normalize);
+
+        dogDetection.setExecutorService(m_service);
 
         RandomAccess<BitType> randomAccess = output.randomAccess();
-        for (Point peak : dogDetection.getPeaks(m_service)) {
+        for (Point peak : dogDetection.getPeaks()) {
             randomAccess.setPosition(peak);
             randomAccess.get().set(true);
         }
