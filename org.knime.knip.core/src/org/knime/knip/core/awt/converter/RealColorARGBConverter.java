@@ -64,8 +64,23 @@ public class RealColorARGBConverter<R extends RealType<R>> implements Converter<
 
     private final double m_localMin;
 
+    /*if -1, no normalization is applied*/
     private final double m_normalizationFactor;
 
+    /**
+     * Color converter without any normalization
+     */
+    public RealColorARGBConverter() {
+        m_localMin = 0;
+        m_normalizationFactor = -1;
+    }
+
+    /**
+     * Color converter where normalization is applied too.
+     *
+     * @param normalizationFactor
+     * @param localMin
+     */
     public RealColorARGBConverter(final double normalizationFactor, final double localMin) {
 
         m_localMin = localMin;
@@ -78,22 +93,28 @@ public class RealColorARGBConverter<R extends RealType<R>> implements Converter<
 
         int i = 0;
         final int[] rgb = new int[3];
+        double val;
 
         while (input.hasNext() && (i < 3)) {
 
-            final double val = input.get().getRealDouble();
-            double value = ((val - m_localMin) * m_normalizationFactor);
-
-            // normalize to be between 0 and 1
-            value = (value - input.get().getMinValue()) / (input.get().getMaxValue() - input.get().getMinValue());
-
-            if (value < 0) {
-                value = 0;
-            } else if (value > 1) {
-                value = 1;
+            val = input.get().getRealDouble();
+            if (m_normalizationFactor == -1) {
+                //no normalization, but make it unsigned
+                val = val - input.get().getMinValue();
+            } else {
+                val = ((val - m_localMin) * m_normalizationFactor);
             }
 
-            rgb[i] = (int)Math.round(value * 255);
+            // normalize to be between 0 and 1
+            val = val / (input.get().getMaxValue() - input.get().getMinValue());
+
+            if (val < 0) {
+                val = 0;
+            } else if (val > 1) {
+                val = 1;
+            }
+
+            rgb[i] = (int)Math.round(val * 255);
             i++;
             input.fwd();
         }
