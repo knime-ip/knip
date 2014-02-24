@@ -83,6 +83,9 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
      * ClockwiseMooreNeighborhoodIterator
      * Iterates clockwise through a 2D Moore Neighborhood (8 connected Neighborhood).
      *
+     * This iterator encourages reuse! Reset the iterator and move the underlying random accessible,
+     * do not create new ones. That is more resource efficient and faster.
+     *
      * @author Jonathan Hale (University of Konstanz)
      */
     final class ClockwiseMooreNeighborhoodIterator<T extends Type<T>> implements java.util.Iterator<T> {

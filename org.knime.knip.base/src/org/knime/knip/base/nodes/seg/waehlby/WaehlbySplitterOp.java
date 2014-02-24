@@ -117,8 +117,8 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
     public WaehlbySplitterOp(final SEG_TYPE segType) {
         super();
         m_segType = segType;
-        m_gaussSize = 3;
-        m_maximaSize = 8;
+        m_gaussSize = 5;
+        m_maximaSize = 10;
     }
 
     private long[] getDimensions(final RandomAccessibleInterval<T> img) {
@@ -194,7 +194,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
 
                                                      }, inLabMasked, new FloatType());
 
-        debugImage(new ImgView<FloatType>(Views.interval(WaelbyUtils.invertImg(combined, new FloatType()), img), m_floatFactory), "Combined");
+       // debugImage(new ImgView<FloatType>(Views.interval(WaelbyUtils.invertImg(combined, new FloatType()), img), m_floatFactory), "Combined");
         //        Img<BitType> imgChris = new ArrayImgFactory<BitType>().create(img, new BitType());
         //        new MaximumFinderOp<T>(20, 0).compute(img, imgChris); //Why img? Cause it's faster...
 
@@ -220,7 +220,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
                 new WatershedWithSheds<FloatType, Integer>(structuringElement);
         //        watershed.compute(Views.interval(WaelbyUtils.invertImg(imgAlice, new FloatType()), img), seeds, watershedResult);
 
-//        debugImage(imgAlice, "Alice");
+        debugImage(imgAlice, "Alice");
 //        debugImage(new ImgView<BitType>(Views.interval(WaelbyUtils.convertLabelingToBit(seeds), seeds), null), "Seeds");
         watershed.compute(imgAlice, seeds, watershedResult);
 
