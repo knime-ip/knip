@@ -62,6 +62,7 @@ import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.ops.img.UnaryOperationAssignment;
 import net.imglib2.ops.operation.UnaryOperation;
+import net.imglib2.ops.operation.complex.real.unary.ComplexImaginaryToRealAdapter;
 import net.imglib2.ops.operation.complex.real.unary.ComplexRealToRealAdapter;
 import net.imglib2.type.numeric.real.FloatType;
 
@@ -73,7 +74,7 @@ import org.knime.knip.core.algorithm.convolvers.filter.linear.Gabor;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -218,8 +219,9 @@ class GaborSetting extends SerializableSetting<Img<FloatType>[]> {
     public Img<FloatType>[] get() {
         final Img<FloatType>[] kernels =
                 new Img[m_supportRadius.length * m_theta.length * m_scale.length * m_frequency.length
-                        * m_elongation.length];
-        final UnaryOperation op = new UnaryOperationAssignment(new ComplexRealToRealAdapter());
+                        * m_elongation.length * 2];
+        final UnaryOperation op_real = new UnaryOperationAssignment(new ComplexRealToRealAdapter());
+        final UnaryOperation op_imag = new UnaryOperationAssignment(new ComplexImaginaryToRealAdapter());
         int i = 0;
         for (final int r : m_supportRadius) {
             for (final double t : m_theta) {
@@ -228,8 +230,11 @@ class GaborSetting extends SerializableSetting<Img<FloatType>[]> {
                         for (final double e : m_elongation) {
                             final Gabor g = new Gabor(r, t * 2 * Math.PI, s, f, e);
                             kernels[i] = new ArrayImgFactory().create(g, new FloatType());
-                            op.compute(g, kernels[i]);
-                            ++i;
+                            op_real.compute(g, kernels[i]);
+                            i++;
+                            kernels[i] = new ArrayImgFactory().create(g, new FloatType());
+                            op_imag.compute(g, kernels[i]);
+                            i++;
                         }
                     }
                 }
