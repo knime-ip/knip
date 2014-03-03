@@ -49,8 +49,13 @@
  */
 package org.knime.knip.base.nodes.seg.waehlby;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.imglib2.Cursor;
 import net.imglib2.Interval;
+import net.imglib2.IterableInterval;
+import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.algorithm.gauss3.Gauss3;
@@ -70,6 +75,7 @@ import net.imglib2.ops.operation.randomaccessibleinterval.unary.morph.DilateGray
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.AbstractRegionGrowing;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.CCA;
 import net.imglib2.outofbounds.OutOfBoundsBorderFactory;
+import net.imglib2.roi.IterableRegionOfInterest;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.ShortType;
@@ -78,9 +84,12 @@ import net.imglib2.util.ValuePair;
 import net.imglib2.view.Views;
 
 import org.knime.knip.base.nodes.io.kernel.structuring.SphereSetting;
+import org.knime.knip.base.nodes.misc.contour.MooreContourExtractionOp;
+import org.knime.knip.base.nodes.proc.maxfinder.MaximumFinderOp;
 import org.knime.knip.base.nodes.seg.waehlby.WaelbyUtils.IfThenElse;
 import org.knime.knip.base.nodes.seg.waehlby.WaelbyUtils.LabelingToBitConverter;
 import org.knime.knip.core.awt.AWTImageTools;
+import org.knime.knip.core.data.algebra.ExtendedPolygon;
 import org.knime.knip.core.ops.img.IterableIntervalNormalize;
 import org.knime.knip.core.ops.labeling.WatershedWithSheds;
 
@@ -117,7 +126,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
     public WaehlbySplitterOp(final SEG_TYPE segType) {
         super();
         m_segType = segType;
-        m_gaussSize = 5;
+        m_gaussSize = 8;
         m_maximaSize = 10;
     }
 
@@ -172,8 +181,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         new DilateGray<FloatType>(new SphereSetting(img.numDimensions(), m_maximaSize).get()[0],
                 new OutOfBoundsBorderFactory<FloatType, RandomAccessibleInterval<FloatType>>()).compute(imgAliceExt,
                                                                                                         imgBobExt);
-
-        debugImage(imgBob, "After Dilate");
+//        debugImage(imgBob, "After Dilate");
 
         /* Combine Images */
         // if src1 < src2, set as background else set as src2
@@ -195,8 +203,8 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
                                                      }, inLabMasked, new FloatType());
 
        // debugImage(new ImgView<FloatType>(Views.interval(WaelbyUtils.invertImg(combined, new FloatType()), img), m_floatFactory), "Combined");
-        //        Img<BitType> imgChris = new ArrayImgFactory<BitType>().create(img, new BitType());
-        //        new MaximumFinderOp<T>(20, 0).compute(img, imgChris); //Why img? Cause it's faster...
+        Img<BitType> imgChris = new ArrayImgFactory<BitType>().create(img, new BitType());
+        new MaximumFinderOp<FloatType>(20, 0).compute(imgAlice, imgChris);
 
         // label
         long[][] structuringElement = AbstractRegionGrowing.get8ConStructuringElement(img.numDimensions()); /* TODO: Cecog uses 8con */
@@ -205,6 +213,8 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         NativeImgLabeling<Integer, ShortType> seeds =
                 new NativeImgLabeling<Integer, ShortType>(new ArrayImgFactory<ShortType>().create(getDimensions(img),
                                                                                                   new ShortType()));
+
+
         cca.compute(Views.interval(WaelbyUtils.invertImg(combined, new FloatType()), img), seeds);
 
         //        final CCA<BitType> cca = new CCA<BitType>(structuringElement, new BitType());
@@ -220,7 +230,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
                 new WatershedWithSheds<FloatType, Integer>(structuringElement);
         //        watershed.compute(Views.interval(WaelbyUtils.invertImg(imgAlice, new FloatType()), img), seeds, watershedResult);
 
-        debugImage(imgAlice, "Alice");
+//        debugImage(imgAlice, "Alice");
 //        debugImage(new ImgView<BitType>(Views.interval(WaelbyUtils.convertLabelingToBit(seeds), seeds), null), "Seeds");
         watershed.compute(imgAlice, seeds, watershedResult);
 
@@ -239,17 +249,41 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         debugImage(WaelbyUtils.convertWatershedsToBit(watershedResult), img, "After Watershed");
         //debugImage(maskBgFg, img, "maskBgFg");
 
-        //        Labeling<L> l = null;
-        //        for(L label : l.getLabels()){
-        //            IterableRegionOfInterest iterableRegionOfInterest = l.getIterableRegionOfInterest(label);
-        //            iterableRegionOfInterest.getIterableIntervalOverROI(null).cursor();
-        //            iterableRegionOfInterest.getIterableIntervalOverROI(null).cursor();
-        //
-        //        }
+
+        List<ExtendedPolygon> contours = new ArrayList<ExtendedPolygon>();
+        MooreContourExtractionOp contourExtraction = new MooreContourExtractionOp(true);
+
+        ArrayImgFactory<BitType> bitFactory = new ArrayImgFactory<BitType>();
+
+        RandomAccessible<BitType> src = WaelbyUtils.invertBitImg(WaelbyUtils.convertWatershedsToBit(watershedResult));
+        for(String label : watershedResult.getLabels()){
+            IterableRegionOfInterest iROI = watershedResult.getIterableRegionOfInterest(label);
+
+            IterableInterval<BitType> intervalOverSrc = iROI.getIterableIntervalOverROI(src);
+
+            Img<BitType> objImage = bitFactory.create(intervalOverSrc, new BitType());
+            final long[] offset = new long[2];
+            intervalOverSrc.min(offset);
+            offset[0] *= -1;
+            offset[1] *= -1;
+
+            RandomAccess<BitType> ra = objImage.randomAccess();
+            Cursor<BitType> curs = intervalOverSrc.cursor();
+
+            curs.fwd();
+            while (curs.hasNext()) {
+                ra.setPosition(curs);
+                ra.move(offset);
+                ra.get().set(curs.next());
+            }
+
+            debugImage(objImage, "Object");
+
+            ExtendedPolygon poly = new ExtendedPolygon();
+            contourExtraction.compute(Views.interval(Views.extendValue(objImage, new BitType(true)), objImage), poly);
+        }
 
         /* Object Merge */
-
-        /* weird complex algorithm with CrackContourCirculation */
 
         /* Merge objects (Big part, since own algorithm) */
 
@@ -261,12 +295,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
 
         //...
 
-        Cursor<LabelingType<Integer>> seedsCursor = seeds.cursor();
-        Cursor<LabelingType<Integer>> cursor = outLab.cursor();
 
-        while (seedsCursor.hasNext()) {
-            cursor.next().set(seedsCursor.next());
-        }
 
         return outLab;
     }

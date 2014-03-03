@@ -227,6 +227,8 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
         //clear out all the points
         output.reset();
 
+        cInput.fwd();
+
         //find first black pixel
         while(cInput.hasNext()) {
             //we are looking for a black pixel
