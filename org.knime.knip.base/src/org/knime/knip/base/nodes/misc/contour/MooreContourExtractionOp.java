@@ -187,6 +187,7 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
     }
 
     final private boolean m_jacobs;
+    final private boolean m_inverted;
 
     /**
      * MooreContourExtractionOp
@@ -197,14 +198,25 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
     public MooreContourExtractionOp() {
         this(true);
     }
+
     /**
      * MooreContourExtractionOp
      *
      * @param useJacobsCriteria - Set this flag to use "Jacobs stopping criteria"
      */
     public MooreContourExtractionOp(final boolean useJacobsCriteria) {
+        this(useJacobsCriteria, false);
+    }
+
+    /**
+     * MooreContourExtractionOp
+     *
+     * @param useJacobsCriteria - Set this flag to use "Jacobs stopping criteria"
+     * @param inverted - Set this to your foreground value (default false)
+     */
+    public MooreContourExtractionOp(final boolean useJacobsCriteria, final boolean inverted) {
         m_jacobs = useJacobsCriteria;
-        //TODO: Toggle for crack/chain code output, or maybe Polygon to code conversion?
+        m_inverted = inverted;
     }
 
     /**
@@ -215,7 +227,7 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
     @Override
     public ExtendedPolygon compute(final RandomAccessibleInterval<BitType> input, final ExtendedPolygon output) {
 
-        final RandomAccess<BitType> raInput = input.randomAccess();
+        final RandomAccess<BitType> raInput = Views.extendValue(input, new BitType(!m_inverted)).randomAccess();
         final Cursor<BitType> cInput = Views.flatIterable(input).cursor();
         final ClockwiseMooreNeighborhoodIterator<BitType> cNeigh = new ClockwiseMooreNeighborhoodIterator<BitType>(raInput);
 
@@ -232,7 +244,7 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
         //find first black pixel
         while(cInput.hasNext()) {
             //we are looking for a black pixel
-            if (!cInput.next().get()) {
+            if (cInput.next().get() == m_inverted) {
                 raInput.setPosition(cInput);
                 raInput.localize(startPos);
 
@@ -245,7 +257,7 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
                 cNeigh.reset();
 
                 while (cNeigh.hasNext()) {
-                    if (!cNeigh.next().get()) {
+                    if (cNeigh.next().get() == m_inverted) {
                         raInput.localize(position);
                         if (startPos[0] == position[0] && startPos[1] == position[1]) {
                             //startPoint was found.
