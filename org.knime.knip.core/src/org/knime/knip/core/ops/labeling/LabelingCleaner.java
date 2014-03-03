@@ -54,9 +54,12 @@ import net.imglib2.labeling.LabelingType;
 import net.imglib2.ops.operation.UnaryOperation;
 
 /**
- * 
- * 
- * 
+ * LabelingCleaner
+ *
+ *
+ * For every label in {@link Labeling} "op", copies all labeled pixels to {@link Labeling} "res".
+ * This gets rid of labeled pixels whose labels have been deleted from "op".
+ *
  * @param <L>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
