@@ -251,11 +251,13 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
 
 
         List<ExtendedPolygon> contours = new ArrayList<ExtendedPolygon>();
-        MooreContourExtractionOp contourExtraction = new MooreContourExtractionOp(true);
+        MooreContourExtractionOp contourExtraction = new MooreContourExtractionOp(false);
 
         ArrayImgFactory<BitType> bitFactory = new ArrayImgFactory<BitType>();
 
-        RandomAccessible<BitType> src = WaelbyUtils.invertBitImg(WaelbyUtils.convertWatershedsToBit(watershedResult));
+
+        RandomAccessible<BitType> src = WaelbyUtils.convertWatershedsToBit(watershedResult);
+
         for(String label : watershedResult.getLabels()){
             IterableRegionOfInterest iROI = watershedResult.getIterableRegionOfInterest(label);
 
@@ -277,10 +279,8 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
                 ra.get().set(curs.next());
             }
 
-            debugImage(objImage, "Object");
-
             ExtendedPolygon poly = new ExtendedPolygon();
-            contourExtraction.compute(Views.interval(Views.extendValue(objImage, new BitType(true)), objImage), poly);
+            contourExtraction.compute(objImage, poly);
         }
 
         /* Object Merge */
