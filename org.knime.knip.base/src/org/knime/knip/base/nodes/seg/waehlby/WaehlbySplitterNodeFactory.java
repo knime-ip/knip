@@ -99,8 +99,8 @@ public class WaehlbySplitterNodeFactory<T extends RealType<T>, L extends Compara
     }
 
     @Override
-    public TwoValuesToCellNodeModel<LabelingValue<L>, ImgPlusValue<T>, LabelingCell<Integer>> createNodeModel() {
-        return new TwoValuesToCellNodeModel<LabelingValue<L>, ImgPlusValue<T>, LabelingCell<Integer>>() {
+    public TwoValuesToCellNodeModel<LabelingValue<L>, ImgPlusValue<T>, LabelingCell<String>> createNodeModel() {
+        return new TwoValuesToCellNodeModel<LabelingValue<L>, ImgPlusValue<T>, LabelingCell<String>>() {
 
             private LabelingCellFactory m_labCellFactory;
 
@@ -112,11 +112,11 @@ public class WaehlbySplitterNodeFactory<T extends RealType<T>, L extends Compara
             }
 
             @Override
-            protected LabelingCell<Integer> compute(final LabelingValue<L> cellLabelingVal, final ImgPlusValue<T> imgValue)
+            protected LabelingCell<String> compute(final LabelingValue<L> cellLabelingVal, final ImgPlusValue<T> imgValue)
                     throws Exception {
 
                 final Labeling<L> labeling = cellLabelingVal.getLabeling();
-                Labeling<Integer> out = labeling.<Integer> factory().create(labeling);
+                Labeling<String> out = labeling.<String> factory().create(labeling);
 
                 int[] selectedDimIndices =
                         m_smDimSelection.getSelectedDimIndices(cellLabelingVal.getLabelingMetadata());
