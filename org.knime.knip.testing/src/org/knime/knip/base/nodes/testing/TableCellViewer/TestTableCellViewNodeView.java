@@ -51,6 +51,7 @@ package org.knime.knip.base.nodes.testing.TableCellViewer;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -75,6 +76,7 @@ import org.knime.core.node.tableview.TableContentView;
 import org.knime.core.node.tableview.TableView;
 import org.knime.knip.base.nodes.view.TableCellView;
 import org.knime.knip.base.nodes.view.TableCellViewsManager;
+import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.node2012.ViewDocument.View;
 import org.knime.node2012.ViewsDocument.Views;
 
@@ -210,6 +212,8 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
 
     private Map<String, Component> m_viewComponents;
 
+    private List<HiddenImageLogger> m_imageLogger;
+
     private boolean m_hiliteAdded = false;
 
     public TestTableCellViewNodeView(final T nodeModel) {
@@ -295,6 +299,12 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
 
         // add the components to the tabs
         for (final TableCellView v : cellView) {
+            // Required for storing of the component images as png.
+            ImgViewer comp = (ImgViewer) v.getViewComponent();
+            HiddenImageLogger imgLogger = new HiddenImageLogger();
+            comp.addViewerComponent(imgLogger);
+            m_imageLogger.add(imgLogger);
+
             try {
                 m_cellViewTabs.addTab(v.getName(), m_viewComponents.get(currentDataCellClass + ":" + v.getName()));
             } catch (final Exception ex) {
@@ -307,6 +317,9 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
     }
 
     private void initViewComponents() {
+
+        // TODO !
+        m_imageLogger = new LinkedList<HiddenImageLogger>();
 
         m_sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
@@ -365,6 +378,14 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
 
         setComponent(m_sp);
 
+    }
+
+    protected void prepareContent() {
+        loadPortContent();
+    }
+
+    protected List<HiddenImageLogger> getImageLogger() {
+        return m_imageLogger;
     }
 
     private void loadPortContent() {

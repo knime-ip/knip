@@ -106,7 +106,7 @@ public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> imple
             @Override
             public Component getViewComponent() {
                 if (m_view == null) {
-                    m_view = ViewerFactory.createImgViewer(KNIMEKNIPPlugin.getCacheSizeForBufferedImages());
+                    m_view = TestViewerFactory.createImgViewer(KNIMEKNIPPlugin.getCacheSizeForBufferedImages());
                 }
 
                 return m_view;
@@ -144,14 +144,18 @@ public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> imple
 
             private void testComponent(final ImgPlusValue<T> imgPlusValue)
             {
+               m_view.addViewerComponent(new HiddenImageLogger());
                EventService service =  m_view.getEventService();
 
                // Minimap
                System.out.println("-DEBUG: Minimap Test-");
                service.publish(new ViewZoomfactorChgEvent(MinimapPanel.ZOOM_MIN / 100d));
                service.publish(new ImgRedrawEvent());
+               service.publish(new TestCompleteEvent());
+
                service.publish(new ViewZoomfactorChgEvent(MinimapPanel.ZOOM_MAX / 100d));
                service.publish(new ImgRedrawEvent());
+               service.publish(new TestCompleteEvent());
 
                // PlaneSelection
                System.out.println("-DEBUG: PlaneSelection Test-");
@@ -163,12 +167,15 @@ public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> imple
             }
                service.publish(new PlaneSelectionEvent(0,imgPlusValue.getMetadata().numDimensions()-1,coords));
                service.publish(new ImgRedrawEvent());
+               service.publish(new TestCompleteEvent());
 
                service.publish(new PlaneSelectionEvent(0,1,coords));
                service.publish(new ImgRedrawEvent());
+               service.publish(new TestCompleteEvent());
 
                service.publish(new CalibrationUpdateEvent(scaleFactors, new int[]{0,imgPlusValue.getMetadata().numDimensions()-1}));
                service.publish(new ImgRedrawEvent());
+               service.publish(new TestCompleteEvent());
 
                // RendererSelection
                System.out.println("-DEBUG: RendererSelection Test-");
