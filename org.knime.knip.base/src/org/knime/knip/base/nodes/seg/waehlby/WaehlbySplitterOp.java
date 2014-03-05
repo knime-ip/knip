@@ -86,7 +86,7 @@ import org.knime.knip.base.nodes.seg.waehlby.WaelbyUtils.LabelingToBitConverter;
 import org.knime.knip.core.awt.AWTImageTools;
 import org.knime.knip.core.data.algebra.ExtendedPolygon;
 import org.knime.knip.core.ops.img.IterableIntervalNormalize;
-import org.knime.knip.core.ops.labeling.WatershedWithSheds;
+import org.knime.knip.core.ops.labeling.WatershedWithThreshold;
 
 /**
  *
@@ -121,8 +121,8 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
     public WaehlbySplitterOp(final SEG_TYPE segType) {
         super();
         m_segType = segType;
-        m_gaussSize = 12;
-        m_maximaSize = 12;
+        m_gaussSize = 6;
+        m_maximaSize = 10;
     }
 
     private long[] getDimensions(final RandomAccessibleInterval<T> img) {
@@ -201,7 +201,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         Img<BitType> imgChris = new ArrayImgFactory<BitType>().create(img, new BitType());
         new MaximumFinderOp<FloatType>(0, 0).compute(imgAlice, imgChris);
 
-        debugImage(imgChris, "Seeds");
+//        debugImage(imgChris, "Seeds");
         // label
         long[][] structuringElement = AbstractRegionGrowing.get8ConStructuringElement(img.numDimensions()); /* TODO: Cecog uses 8con */
 
@@ -217,17 +217,23 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         //                                                                                        new ShortType()));
         //        cca.compute(imgChris, seeds);
 
-        Labeling<String> watershedResult =
-                new NativeImgLabeling<String, ShortType>(new ArrayImgFactory<ShortType>().create(getDimensions(img),
+        Labeling<Integer> watershedResult =
+                new NativeImgLabeling<Integer, ShortType>(new ArrayImgFactory<ShortType>().create(getDimensions(img),
                                                                                                  new ShortType()));
         /* Seeded Watershed */
-        WatershedWithSheds<FloatType, Integer> watershed =
-                new WatershedWithSheds<FloatType, Integer>(structuringElement);
+//        WatershedWithSheds<FloatType, Integer> watershed =
+//                new WatershedWithSheds<FloatType, Integer>(structuringElement);
         //        watershed.compute(Views.interval(WaelbyUtils.invertImg(imgAlice, new FloatType()), img), seeds, watershedResult);
-
+        debugImage(imgBob, "Intensity Image");
+        WatershedWithThreshold<FloatType, Integer> watershed = new WatershedWithThreshold<FloatType, Integer>();
+        watershed.setThreshold(-.2);
+        watershed.setIntensityImage(WaelbyUtils.invertImg(imgBob, new FloatType()));
+        watershed.setSeeds(seeds);
+        watershed.setOutputLabeling(watershedResult);
         //        debugImage(imgAlice, "Alice");
         //        debugImage(new ImgView<BitType>(Views.interval(WaelbyUtils.convertLabelingToBit(seeds), seeds), null), "Seeds");
-        watershed.compute(imgAlice, seeds, watershedResult);
+        //watershed.compute(imgAlice, seeds, watershedResult);
+        watershed.process();
 
         //        transformImageIf(srcImageRange(labels),
         //                         maskImage(img_bin),
@@ -241,7 +247,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         //        CombinedRandomAccessible<BitType, BitType, BitType> maskBgFg =
         //                WaelbyUtils.refineLabelingMask(WaelbyUtils.convertLabelingToBit(outLab), inLabMasked);
 
-        debugImage(WaelbyUtils.convertWatershedsToBit(watershedResult), img, "After Watershed");
+        AWTImageTools.showInFrame(watershedResult, "Watershed Result");
         //debugImage(maskBgFg, img, "maskBgFg");
         return outLab;
         /*//remove background Label from the watershed result

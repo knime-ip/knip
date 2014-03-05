@@ -51,6 +51,7 @@ package org.knime.knip.base.nodes.seg.waehlby;
 
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessible;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.combiner.Combiner;
 import net.imglib2.combiner.read.CombinedRandomAccessible;
 import net.imglib2.converter.Converter;
@@ -64,6 +65,8 @@ import net.imglib2.ops.operation.real.unary.RealUnaryOperation;
 import net.imglib2.type.Type;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.IntervalView;
+import net.imglib2.view.Views;
 
 /**
  *
@@ -90,6 +93,12 @@ public class WaelbyUtils {
                                                                                     final T type) {
         return new ConvertedRandomAccessible<T, T>(img, new UnaryOperationBasedConverter<T, T>(
                 new SignedRealInvert<T, T>()), type);
+    }
+
+    public static <T extends RealType<T>> IntervalView<T> invertImg(final RandomAccessibleInterval<T> rai,
+                                                                                    final T type) {
+        return Views.interval(new ConvertedRandomAccessible<T, T>(rai, new UnaryOperationBasedConverter<T, T>(
+                new SignedRealInvert<T, T>()), type), rai);
     }
 
     /**
