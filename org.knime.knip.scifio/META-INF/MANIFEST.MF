@@ -16,7 +16,7 @@ Bundle-ClassPath: scifio.jar,
  lib/mvn/xalan-2.7.1.jar,
  lib/mvn/xml-apis-1.3.04.jar,
  lib/mvn/mapdb-0.9.7.jar,
- lib/mvn/scifio-0.9.4.jar
+ lib/mvn/scifio-0.10.0.jar
 Export-Package: io.scif,
  io.scif.app,
  io.scif.codec,
