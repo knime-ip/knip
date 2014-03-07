@@ -78,8 +78,8 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.NodeUtils;
 
 /**
- * 
- * 
+ *
+ *
  * @param <T> image type
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -205,7 +205,7 @@ public class ImgWriterNodeModel<T extends RealType<T>> extends NodeModel {
 
     /**
      * One input one output.
-     * 
+     *
      */
     public ImgWriterNodeModel() {
         super(1, 0);
@@ -260,6 +260,10 @@ public class ImgWriterNodeModel<T extends RealType<T>> extends NodeModel {
     @Override
     protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
             final ExecutionContext exec) throws Exception {
+
+    	if(m_directory.getStringValue().equals("")){
+    		throw new InvalidSettingsException("No output path selected!");
+    	}
 
         final int imgColIndex =
                 inData[0].getDataTableSpec().findColumnIndex(
