@@ -59,26 +59,35 @@ import io.scif.filters.PlaneSeparator;
 import io.scif.filters.ReaderFilter;
 import io.scif.gui.AWTImageTools;
 import io.scif.img.DimRange;
+import io.scif.img.IO;
 import io.scif.img.ImgOpener;
 import io.scif.img.ImgUtilityService;
+import io.scif.img.SCIFIOImgPlus;
 import io.scif.img.SubRegion;
 import io.scif.ome.xml.meta.OMEMetadata;
+import io.scif.refs.RefManagerService;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
 
+import net.imglib2.Cursor;
 import net.imglib2.Pair;
+import net.imglib2.RandomAccess;
+import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.img.array.ArrayImgFactory;
+import net.imglib2.img.cell.CellImgFactory;
 import net.imglib2.meta.AxisType;
 import net.imglib2.meta.CalibratedAxis;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.meta.TypedAxis;
 import net.imglib2.type.numeric.RealType;
 
+import org.knime.core.node.NodeLogger;
 import org.knime.knip.core.types.NativeTypes;
 import org.knime.knip.core.util.MiscViews;
+import org.scijava.Context;
 
 /**
  * TODO Auto-generated
@@ -90,256 +99,296 @@ import org.knime.knip.core.util.MiscViews;
  */
 public class ScifioImgSource implements ImgSource {
 
-	/* ID of the source */
-	private static final String SOURCE_ID = "Scifio Image Source";
+    private static final NodeLogger LOGGER = NodeLogger
+            .getLogger(ScifioImgSource.class);
 
-	private Reader m_reader;
+    /* ID of the source */
+    private static final String SOURCE_ID = "Scifio Image Source";
 
-	/* The currently used file by the reader */
-	private String m_currentFile;
+    private Reader m_reader;
 
-	private final ImgOpener m_imgOpener;
+    /* The currently used file by the reader */
+    private String m_currentFile;
 
-	@SuppressWarnings("rawtypes")
-	private final ImgFactory m_imgFactory;
+    private final ImgOpener m_imgOpener;
 
-	private final boolean m_isGroupFiles;
+    @SuppressWarnings("rawtypes")
+    private final ImgFactory m_imgFactory;
 
-	private ImgUtilityService m_imgUtilsService;
+    private final boolean m_isGroupFiles;
 
-	private boolean m_checkFileFormat;
+    private ImgUtilityService m_imgUtilsService;
 
-	/*
-	 * helps do decide if the checkFileFormat option could have been set to
-	 * false.
-	 */
-	private boolean m_usedDifferentReaders;
+    private boolean m_checkFileFormat;
 
-	public ScifioImgSource() {
-		this(true);
-	}
+    /*
+     * helps do decide if the checkFileFormat option could have been set to
+     * false.
+     */
+    private boolean m_usedDifferentReaders;
 
-	@SuppressWarnings("rawtypes")
-	public ScifioImgSource(boolean checkFileFormat) {
-		this(new ArrayImgFactory(), checkFileFormat, true);
-	}
+    public ScifioImgSource() {
+        this(true);
+    }
 
-	public ScifioImgSource(
-			@SuppressWarnings("rawtypes") final ImgFactory imgFactory,
-			boolean checkFileFormat, final boolean isGroupFiles) {
-		m_isGroupFiles = isGroupFiles;
-		m_checkFileFormat = checkFileFormat;
-		m_imgOpener = new ImgOpener();
-		m_imgFactory = imgFactory;
-		m_usedDifferentReaders = false;
-	}
+    @SuppressWarnings("rawtypes")
+    public ScifioImgSource(boolean checkFileFormat) {
+        this(new ArrayImgFactory(), checkFileFormat, true);
+    }
 
-	@Override
-	public void close() {
-		if (m_reader != null) {
-			try {
-				m_reader.close();
-			} catch (IOException e) {
-			}
-		}
-	}
+    public ScifioImgSource(@SuppressWarnings("rawtypes")
+    final ImgFactory imgFactory, boolean checkFileFormat,
+            final boolean isGroupFiles) {
+        m_isGroupFiles = isGroupFiles;
+        m_checkFileFormat = checkFileFormat;
+        m_imgOpener = new ImgOpener(ScifioGateway.getSCIFIO().getContext());
+        m_imgFactory = imgFactory;
+        m_usedDifferentReaders = false;
+    }
 
-	@Override
-	public String getSource(final String imgRef) throws Exception {
-		return SOURCE_ID;
-	}
+    @Override
+    public void close() {
+        if (m_reader != null) {
+            try {
+                m_reader.close();
+            } catch (IOException e) {
+            }
+        }
+    }
 
-	/**
-	 * @param ref
-	 * @return number of images contained in the specified file
-	 * @throws Exception
-	 */
-	public int getSeriesCount(final String imgRef) throws Exception {
-		return getReader(imgRef).getImageCount();
-	}
+    @Override
+    public String getSource(final String imgRef) throws Exception {
+        return SOURCE_ID;
+    }
 
-	/**
-	 * @param ref
-	 * @return
-	 * @throws Exception
-	 */
-	public String getOMEXMLMetadata(final String imgRef) throws Exception {
-		Metadata meta = getReader(imgRef).getMetadata();
-		OMEMetadata omexml = new OMEMetadata(ScifioGateway.getSCIFIO()
-				.getContext());
+    /**
+     * @param ref
+     * @return number of images contained in the specified file
+     * @throws Exception
+     */
+    public int getSeriesCount(final String imgRef) throws Exception {
+        return getReader(imgRef).getImageCount();
+    }
 
-		ScifioGateway.getSCIFIO().translator().translate(meta, omexml, false);
-		String xml = omexml.getRoot().dumpXML();
-		return xml;
-	}
+    /**
+     * @param ref
+     * @return
+     * @throws Exception
+     */
+    public String getOMEXMLMetadata(final String imgRef) throws Exception {
+        Metadata meta = getReader(imgRef).getMetadata();
+        OMEMetadata omexml =
+                new OMEMetadata(ScifioGateway.getSCIFIO().getContext());
 
-	@SuppressWarnings("rawtypes")
-	@Override
-	public ImgPlus<RealType> getImg(final String imgRef, final int currentSeries)
-			throws Exception {
-		return getImg(imgRef, currentSeries, null);
-	}
+        ScifioGateway.getSCIFIO().translator().translate(meta, omexml, false);
+        String xml = omexml.getRoot().dumpXML();
+        return xml;
+    }
 
-	@SuppressWarnings("rawtypes")
-	@Override
-	public ImgPlus<RealType> getImg(final String imgRef,
-			final int currentSeries,
-			final Pair<TypedAxis, long[]>[] axisSelectionConstraints)
-			throws Exception {
-		SCIFIOConfig options = new SCIFIOConfig();
-		options.imgOpenerSetComputeMinMax(false);
-		options.imgOpenerSetIndex(currentSeries);
-		// boolean withCropping = false;
+    @SuppressWarnings("rawtypes")
+    @Override
+    public ImgPlus<RealType> getImg(final String imgRef, final int currentSeries)
+            throws Exception {
+        return getImg(imgRef, currentSeries, null);
+    }
 
-		if (axisSelectionConstraints != null
-				&& axisSelectionConstraints.length > 0) {
+    @SuppressWarnings("rawtypes")
+    @Override
+    public ImgPlus<RealType> getImg(final String imgRef,
+            final int currentSeries,
+            final Pair<TypedAxis, long[]>[] axisSelectionConstraints)
+            throws Exception {
 
-			// withCropping = true;
-			// TODO: Still WRONG WRONG WRONG only 5d support?
-			DimRange[] ranges = new DimRange[axisSelectionConstraints.length];
-			AxisType[] axes = new AxisType[axisSelectionConstraints.length];
-			for (int i = 0; i < ranges.length; i++) {
-				ranges[i] = new DimRange(axisSelectionConstraints[i].getB());
-				axes[i] = axisSelectionConstraints[i].getA().type();
-			}
+        // FIXME: WORKAROUND till bug 3391 is fixed (support for
+        // SCIFIOImgPlus)
+        if (m_imgFactory instanceof CellImgFactory) {
 
-			options.imgOpenerSetRegion(new SubRegion(axes, ranges));
-		}
+            LOGGER.warn("Cell images are not fully supported, yet. Images are read but potential subset selection are ignored.");
 
-		@SuppressWarnings("unchecked")
-		ImgPlus<RealType> ret = MiscViews.cleanImgPlus(m_imgOpener.openImg(
-				getReader(imgRef), getPixelType(imgRef, currentSeries),
-				m_imgFactory, options));
+            // copy scifio img plus to an ordinary cell img
+            SCIFIOImgPlus<RealType> scifio =
+                    (SCIFIOImgPlus<RealType>)IO.open(imgRef);
+            Img<RealType> tmp =
+                    new CellImgFactory().create(scifio, scifio.firstElement()
+                            .createVariable());
+            Cursor<RealType> inCur = scifio.cursor();
+            RandomAccess<RealType> outRA = tmp.randomAccess();
+            while (inCur.hasNext()) {
+                inCur.fwd();
+                outRA.setPosition(inCur);
+                outRA.get().set(inCur.get());
+            }
+            ImgPlus<RealType> res = new ImgPlus<RealType>(tmp, scifio);
+            // register
+            final Context ctx = m_imgOpener.getContext();
+            final RefManagerService refManagerService =
+                    ctx.getService(RefManagerService.class);
+            refManagerService.manage(res, ctx);
+            return res;
+        }
 
-		return ret;
-	}
+        SCIFIOConfig options = new SCIFIOConfig();
+        options.imgOpenerSetComputeMinMax(false);
+        options.imgOpenerSetIndex(currentSeries);
+        // boolean withCropping = false;
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public BufferedImage getThumbnail(final String imgRef, final int planeNo)
-			throws Exception {
-		Reader r = getReader(imgRef);
-		int sizeX = (int) r.getMetadata().get(0).getThumbSizeX();
-		int sizeY = (int) r.getMetadata().get(0).getThumbSizeY();
+        if (axisSelectionConstraints != null
+                && axisSelectionConstraints.length > 0) {
 
-		// image index / plane index
-		Plane pl = r.openThumbPlane(0, 0);
+            // withCropping = true;
+            // TODO: Still WRONG WRONG WRONG only 5d support?
+            DimRange[] ranges = new DimRange[axisSelectionConstraints.length];
+            AxisType[] axes = new AxisType[axisSelectionConstraints.length];
+            for (int i = 0; i < ranges.length; i++) {
+                ranges[i] = new DimRange(axisSelectionConstraints[i].getB());
+                axes[i] = axisSelectionConstraints[i].getA().type();
+            }
 
-		return AWTImageTools.makeImage(pl.getBytes(), sizeX, sizeY, NativeTypes
-				.getPixelType(getPixelType(imgRef, 0)).isSigned());
-	}
+            options.imgOpenerSetRegion(new SubRegion(axes, ranges));
+        }
 
-	// META DATA
+        @SuppressWarnings("unchecked")
+        ImgPlus<RealType> ret =
+                MiscViews.cleanImgPlus(m_imgOpener.openImg(getReader(imgRef),
+                        getPixelType(imgRef, currentSeries), m_imgFactory,
+                        options));
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<CalibratedAxis> getAxes(final String imgRef,
-			final int currentSeries) throws Exception {
-		return getReader(imgRef).getMetadata().get(currentSeries).getAxes();
-	}
+        return ret;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public long[] getDimensions(final String imgRef, final int currentSeries)
-			throws Exception {
-		long[] tmp = getReader(imgRef).getMetadata().get(currentSeries)
-				.getAxesLengths();
-		long[] ret = new long[tmp.length];
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BufferedImage getThumbnail(final String imgRef, final int planeNo)
+            throws Exception {
+        Reader r = getReader(imgRef);
+        int sizeX = (int)r.getMetadata().get(0).getThumbSizeX();
+        int sizeY = (int)r.getMetadata().get(0).getThumbSizeY();
 
-		for (int i = 0; i < tmp.length; i++) {
-			ret[i] = tmp[i];
-		}
+        // image index / plane index
+        Plane pl = r.openThumbPlane(0, 0);
 
-		return ret;
-	}
+        return AWTImageTools.makeImage(pl.getBytes(), sizeX, sizeY, NativeTypes
+                .getPixelType(getPixelType(imgRef, 0)).isSigned());
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getName(final String imgRef) throws Exception {
-		return getReader(imgRef).getMetadata().getDatasetName();
-	}
+    // META DATA
 
-	public boolean usedDifferentReaders() {
-		return m_usedDifferentReaders;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<CalibratedAxis> getAxes(final String imgRef,
+            final int currentSeries) throws Exception {
+        return getReader(imgRef).getMetadata().get(currentSeries).getAxes();
+    }
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @throws IOException
-	 * @throws FormatException
-	 */
-	@SuppressWarnings("rawtypes")
-	@Override
-	public RealType getPixelType(final String imgRef, final int currentSeries)
-			throws IOException, FormatException {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long[] getDimensions(final String imgRef, final int currentSeries)
+            throws Exception {
+        long[] tmp =
+                getReader(imgRef).getMetadata().get(currentSeries)
+                        .getAxesLengths();
+        long[] ret = new long[tmp.length];
 
-		if (m_imgUtilsService == null) {
-			m_imgUtilsService = ScifioGateway.getSCIFIO().getContext()
-					.getService(ImgUtilityService.class);
-		}
+        for (int i = 0; i < tmp.length; i++) {
+            ret[i] = tmp[i];
+        }
 
-		RealType type = m_imgUtilsService.makeType(getReader(imgRef)
-				.getMetadata().get(currentSeries).getPixelType());
-		return type;
-	}
+        return ret;
+    }
 
-	private Reader getReader(final String imgRef) throws FormatException,
-			IOException {
-		if (imgRef.equals(m_currentFile) && m_reader.getMetadata() == null) {
-			// to make sure that an reader is initialized multiple times for the
-			// same file, after reading the image data (getImg(...)) the reader
-			// is closed and the ScifioImgSource should not be used anymore to
-			// get image (meta)data, as it has already been read
-			throw new IllegalStateException("Image data for the file " + imgRef
-					+ " has already been read and reader is closed!");
-		}
-		if (m_reader == null
-				|| (!m_currentFile.equals(imgRef) && m_checkFileFormat)) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getName(final String imgRef) throws Exception {
+        return getReader(imgRef).getMetadata().getDatasetName();
+    }
 
-			Format format = ScifioGateway.getSCIFIO().format()
-					.getFormat(imgRef, new SCIFIOConfig().checkerSetOpen(true));
-			ReaderFilter r = new ReaderFilter(format.createReader());
-			Parser p = format.createParser();
+    public boolean usedDifferentReaders() {
+        return m_usedDifferentReaders;
+    }
 
-			r.setMetadata(p.parse(imgRef,
-					new SCIFIOConfig().groupableSetGroupFiles(m_isGroupFiles)));
+    /**
+     * {@inheritDoc}
+     * 
+     * @throws IOException
+     * @throws FormatException
+     */
+    @SuppressWarnings("rawtypes")
+    @Override
+    public RealType getPixelType(final String imgRef, final int currentSeries)
+            throws IOException, FormatException {
 
-			r.enable(PlaneSeparator.class);
+        if (m_imgUtilsService == null) {
+            m_imgUtilsService =
+                    ScifioGateway.getSCIFIO().getContext()
+                            .getService(ImgUtilityService.class);
+        }
 
-			if (m_reader != null
-					&& !(m_reader.getFormat().getClass().equals(r.getFormat()
-							.getClass()))) {
-				// more than one reader (class) has been used
-				m_usedDifferentReaders = true;
-			}
-			m_reader = r;
-		}
+        RealType type =
+                m_imgUtilsService.makeType(getReader(imgRef).getMetadata()
+                        .get(currentSeries).getPixelType());
+        return type;
+    }
 
-		if (!m_checkFileFormat) {
-			m_reader.setSource(imgRef);
+    private Reader getReader(final String imgRef) throws FormatException,
+            IOException {
+        if (imgRef.equals(m_currentFile) && m_reader.getMetadata() == null) {
+            // to make sure that an reader is initialized multiple times for the
+            // same file, after reading the image data (getImg(...)) the reader
+            // is closed and the ScifioImgSource should not be used anymore to
+            // get image (meta)data, as it has already been read
+            throw new IllegalStateException("Image data for the file " + imgRef
+                    + " has already been read and reader is closed!");
+        }
+        if (m_reader == null
+                || (!m_currentFile.equals(imgRef) && m_checkFileFormat)) {
 
-			// WORKAROUND!! TODO: make the workaround unnecessary
-			// according to issue https://github.com/scifio/scifio/issues/115
-			// setSource overwrites the metadata and therewith, for instance,
-			// the set group-files option -> the metadata has to be re-set, what
-			// is a bit ugly but necessary till the issue is solved
-			Parser p = m_reader.getFormat().createParser();
-			m_reader.setMetadata(p.parse(imgRef,
-					new SCIFIOConfig().groupableSetGroupFiles(m_isGroupFiles)));
-		}
+            Format format =
+                    ScifioGateway
+                            .getSCIFIO()
+                            .format()
+                            .getFormat(imgRef,
+                                    new SCIFIOConfig().checkerSetOpen(true));
+            ReaderFilter r = new ReaderFilter(format.createReader());
+            Parser p = format.createParser();
 
-		// sets the file the reader currently points to
-		m_currentFile = imgRef;
-		return m_reader;
-	}
+            r.setMetadata(p.parse(imgRef,
+                    new SCIFIOConfig().groupableSetGroupFiles(m_isGroupFiles)));
+
+            r.enable(PlaneSeparator.class);
+
+            if (m_reader != null
+                    && !(m_reader.getFormat().getClass().equals(r.getFormat()
+                            .getClass()))) {
+                // more than one reader (class) has been used
+                m_usedDifferentReaders = true;
+            }
+            m_reader = r;
+        }
+
+        if (!m_checkFileFormat) {
+            m_reader.setSource(imgRef);
+
+            // WORKAROUND!! TODO: make the workaround unnecessary
+            // according to issue https://github.com/scifio/scifio/issues/115
+            // setSource overwrites the metadata and therewith, for instance,
+            // the set group-files option -> the metadata has to be re-set, what
+            // is a bit ugly but necessary till the issue is solved
+            Parser p = m_reader.getFormat().createParser();
+            m_reader.setMetadata(p.parse(imgRef,
+                    new SCIFIOConfig().groupableSetGroupFiles(m_isGroupFiles)));
+        }
+
+        // sets the file the reader currently points to
+        m_currentFile = imgRef;
+        return m_reader;
+    }
 
 }
