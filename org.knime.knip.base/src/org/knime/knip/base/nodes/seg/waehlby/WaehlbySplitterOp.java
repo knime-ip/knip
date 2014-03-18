@@ -49,14 +49,18 @@
  */
 package org.knime.knip.base.nodes.seg.waehlby;
 
+import java.util.ArrayList;
+
 import net.imglib2.Cursor;
 import net.imglib2.Interval;
+import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.algorithm.gauss3.Gauss3;
 import net.imglib2.algorithm.region.localneighborhood.Neighborhood;
-import net.imglib2.combiner.read.CombinedRandomAccessible;
+import net.imglib2.algorithm.region.localneighborhood.RectangleShape;
+import net.imglib2.algorithm.region.localneighborhood.RectangleShape.NeighborhoodsAccessible;
 import net.imglib2.converter.read.ConvertedRandomAccessible;
 import net.imglib2.exception.IncompatibleTypeException;
 import net.imglib2.img.Img;
@@ -72,6 +76,7 @@ import net.imglib2.ops.operation.randomaccessibleinterval.unary.morph.DilateGray
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.AbstractRegionGrowing;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.CCA;
 import net.imglib2.outofbounds.OutOfBoundsBorderFactory;
+import net.imglib2.roi.IterableRegionOfInterest;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.ShortType;
@@ -80,17 +85,21 @@ import net.imglib2.util.ValuePair;
 import net.imglib2.view.Views;
 
 import org.knime.knip.base.nodes.io.kernel.structuring.SphereSetting;
+import org.knime.knip.base.nodes.misc.contour.MooreContourExtractionOp;
 import org.knime.knip.base.nodes.proc.maxfinder.MaximumFinderOp;
-import org.knime.knip.base.nodes.seg.waehlby.WaelbyUtils.IfThenElse;
-import org.knime.knip.base.nodes.seg.waehlby.WaelbyUtils.LabelingToBitConverter;
+import org.knime.knip.base.nodes.seg.waehlby.WaehlbyUtils.LabelingToBitConverter;
 import org.knime.knip.core.awt.AWTImageTools;
 import org.knime.knip.core.data.algebra.ExtendedPolygon;
 import org.knime.knip.core.ops.img.IterableIntervalNormalize;
-import org.knime.knip.core.ops.labeling.WatershedWithThreshold;
+import org.knime.knip.core.ops.labeling.LabelingCleaner;
+import org.knime.knip.core.ops.labeling.WatershedWithSheds;
 
 /**
  *
  * @author Jonathan Hale (University of Konstanz)
+ *
+ * @param <L>
+ * @param <T>
  */
 public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> implements
         BinaryOutputOperation<Labeling<L>, RandomAccessibleInterval<T>, Labeling<String>> {
@@ -107,11 +116,15 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         SHAPE_BASED_SEGMENTATION
     }
 
-    protected SEG_TYPE m_segType;
+    private SEG_TYPE m_segType;
 
-    protected int m_gaussSize;
+    private int m_gaussSize;
 
-    protected int m_maximaSize;
+    private int m_maximaSize;
+
+    private int m_rsize;
+
+    private int m_minMergeSize;
 
     /**
      * Contructor for WaehlbySplitter operation.
@@ -120,9 +133,13 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
      */
     public WaehlbySplitterOp(final SEG_TYPE segType) {
         super();
+        m_rsize = 2;
+
         m_segType = segType;
-        m_gaussSize = 6;
-        m_maximaSize = 10;
+
+        m_gaussSize = 1;
+        m_maximaSize = 5;
+        m_minMergeSize = 8;
     }
 
     private long[] getDimensions(final RandomAccessibleInterval<T> img) {
@@ -157,8 +174,10 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
 
         if (m_segType == SEG_TYPE.SHAPE_BASED_SEGMENTATION) {
             /*c distance transform */
+//            debugImage(inLabMasked, inLabMasked, "Distancemap Input", new BitType());
             new DistanceMap<BitType>().compute(Views.interval(inLabMasked, img), imgBobExt);
 
+            debugImage(imgBob, "After Distance Map");
             try {
                 /* Gaussian smoothing */
                 Gauss3.gauss(m_gaussSize, imgBobExt, imgAliceExt);
@@ -172,104 +191,88 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
             }
         }
 
+        debugImage(imgAlice, "After Blur (and Distancemap)");
+
         /* Disc dilation */
         new DilateGray<FloatType>(new SphereSetting(img.numDimensions(), m_maximaSize).get()[0],
                 new OutOfBoundsBorderFactory<FloatType, RandomAccessibleInterval<FloatType>>()).compute(imgAliceExt,
                                                                                                         imgBobExt);
-        //        debugImage(imgBob, "After Dilate");
+//        debugImage(imgBob, "After Dilate");
 
         /* Combine Images */
         // if src1 < src2, set as background else set as src2
-        CombinedRandomAccessible<FloatType, BitType, FloatType> combined =
-                WaelbyUtils.combineConditionedMasked(imgAliceExt, WaelbyUtils.invertImg(imgBobExt, new FloatType()),
-                                                     new IfThenElse<FloatType, FloatType, FloatType>() {
-                                                         @Override
-                                                         public FloatType test(final FloatType a, final FloatType b,
-                                                                               final FloatType out) {
-                                                             if (a.compareTo(b) < 0) {
-                                                                 out.set((float)out.getMinValue()); //background
-                                                             } else {
-                                                                 out.set(1);
-                                                             }
+//        CombinedRandomAccessible<FloatType, BitType, FloatType> combined =
+//                WaehlbyUtils.combineConditionedMasked(imgAliceExt, WaehlbyUtils.invertImg(imgBobExt, new FloatType()),
+//                                                     new IfThenElse<FloatType, FloatType, FloatType>() {
+//                                                         @Override
+//                                                         public FloatType test(final FloatType a, final FloatType b,
+//                                                                               final FloatType out) {
+//                                                             if (a.compareTo(b) < 0) {
+//                                                                 out.setReal(a.getMinValue()); //background
+//                                                             } else {
+//                                                                 out.setReal(b.getRealDouble());
+//                                                             }
+//
+//                                                             return out;
+//                                                         }
+//
+//                                                     }, inLabMasked, new FloatType());
 
-                                                             return out;
-                                                         }
+//        debugImage(combined, img, "Combined", new FloatType());
 
-                                                     }, inLabMasked, new FloatType());
-
-        // debugImage(new ImgView<FloatType>(Views.interval(WaelbyUtils.invertImg(combined, new FloatType()), img), m_floatFactory), "Combined");
-        Img<BitType> imgChris = new ArrayImgFactory<BitType>().create(img, new BitType());
-        new MaximumFinderOp<FloatType>(0, 0).compute(imgAlice, imgChris);
-
-//        debugImage(imgChris, "Seeds");
         // label
         long[][] structuringElement = AbstractRegionGrowing.get8ConStructuringElement(img.numDimensions()); /* TODO: Cecog uses 8con */
 
-        final CCA<FloatType> cca = new CCA<FloatType>(structuringElement, new FloatType());
-        NativeImgLabeling<Integer, ShortType> seeds =
-                new NativeImgLabeling<Integer, ShortType>(new ArrayImgFactory<ShortType>().create(getDimensions(img),
-                                                                                                  new ShortType()));
+//        final CCA<FloatType> cca = new CCA<FloatType>(structuringElement, new FloatType());
+//        NativeImgLabeling<Integer, ShortType> seeds =
+//                new NativeImgLabeling<Integer, ShortType>(new ArrayImgFactory<ShortType>().create(getDimensions(img),
+//                                                                                                  new ShortType()));
+//
+//        cca.compute(Views.interval(WaehlbyUtils.invertImg(combined, new FloatType()), img), seeds);
 
-        cca.compute(Views.interval(WaelbyUtils.invertImg(combined, new FloatType()), img), seeds);
+        final CCA<BitType> cca = new CCA<BitType>(structuringElement, new BitType());
+        NativeImgLabeling<Integer, ShortType> seeds = new NativeImgLabeling<Integer, ShortType>(new ArrayImgFactory<ShortType>().create(getDimensions(img),
+                                                                                        new ShortType()));
 
-        //        final CCA<BitType> cca = new CCA<BitType>(structuringElement, new BitType());
-        //        NativeImgLabeling<Integer, ShortType> seeds = new NativeImgLabeling<Integer, ShortType>(new ArrayImgFactory<ShortType>().create(getDimensions(img),
-        //                                                                                        new ShortType()));
-        //        cca.compute(imgChris, seeds);
+        Img<BitType> imgChris = new ArrayImgFactory<BitType>().create(img, new BitType());
+        new MaximumFinderOp<FloatType>(0, 0).compute(imgBob, imgChris);
 
-        Labeling<Integer> watershedResult =
-                new NativeImgLabeling<Integer, ShortType>(new ArrayImgFactory<ShortType>().create(getDimensions(img),
+        debugImage(imgChris, "Maximum Finder");
+        cca.compute(imgChris, seeds);
+
+//        AWTImageTools.showInFrame(seeds, "Seeds");
+        Labeling<String> watershedResult =
+                new NativeImgLabeling<String, ShortType>(new ArrayImgFactory<ShortType>().create(getDimensions(img),
                                                                                                  new ShortType()));
         /* Seeded Watershed */
-//        WatershedWithSheds<FloatType, Integer> watershed =
-//                new WatershedWithSheds<FloatType, Integer>(structuringElement);
-        //        watershed.compute(Views.interval(WaelbyUtils.invertImg(imgAlice, new FloatType()), img), seeds, watershedResult);
-        debugImage(imgBob, "Intensity Image");
-        WatershedWithThreshold<FloatType, Integer> watershed = new WatershedWithThreshold<FloatType, Integer>();
-        watershed.setThreshold(-.2);
-        watershed.setIntensityImage(WaelbyUtils.invertImg(imgBob, new FloatType()));
-        watershed.setSeeds(seeds);
-        watershed.setOutputLabeling(watershedResult);
+        WatershedWithSheds<FloatType, Integer> watershed =
+                new WatershedWithSheds<FloatType, Integer>(structuringElement);
+        watershed.compute(WaehlbyUtils.invertImg(imgAlice, new FloatType()), seeds, watershedResult);
+//                watershed.compute(Views.interval(WaelbyUtils.invertImg(imgAlice, new FloatType()), img), seeds, watershedResult);
+//        debugImage(imgAlice, "Intensity Image");
+//        WatershedWithThreshold<FloatType, Integer> watershed = new WatershedWithThreshold<FloatType, Integer>();
+//        watershed.setThreshold(-.2);
+//        watershed.setIntensityImage(WaelbyUtils.invertImg(imgBob, new FloatType()));
+//        watershed.setSeeds(seeds);
+//        watershed.setOutputLabeling(watershedResult);
         //        debugImage(imgAlice, "Alice");
-        //        debugImage(new ImgView<BitType>(Views.interval(WaelbyUtils.convertLabelingToBit(seeds), seeds), null), "Seeds");
         //watershed.compute(imgAlice, seeds, watershedResult);
-        watershed.process();
+//        watershed.process();
 
-        //        transformImageIf(srcImageRange(labels),
-        //                         maskImage(img_bin),
-        //                         destImage(img_bin),
-        //                         ifThenElse(
-        //                                 Arg1() == Param(background),
-        //                                 Param(background),
-        //                                 Param(foreground))
-        //                         );
+//        transformImageIf(srcImageRange(labels),
+//                         maskImage(img_bin),
+//                         destImage(img_bin),
+//                         ifThenElse(
+//                                 Arg1() == Param(background),
+//                                 Param(background),
+//                                 Param(foreground))
+//                         );
 
-        //        CombinedRandomAccessible<BitType, BitType, BitType> maskBgFg =
-        //                WaelbyUtils.refineLabelingMask(WaelbyUtils.convertLabelingToBit(outLab), inLabMasked);
+//        AWTImageTools.showInFrame(watershedResult, "Watershed Result");
 
-        AWTImageTools.showInFrame(watershedResult, "Watershed Result");
-        //debugImage(maskBgFg, img, "maskBgFg");
-        return outLab;
-        /*//remove background Label from the watershed result
-        Cursor<LabelingType<String>> c = watershedResult.getIterableRegionOfInterest("Watershed").getIterableIntervalOverROI(watershedResult).cursor();
-        if (c.hasNext()) {
-            List<String> theEmptyList = c.next().getMapping().emptyList();
+        WaehlbyUtils.split("Watershed", watershedResult, inLabMasked);
 
-            c.get().setLabeling(theEmptyList);
-            while (c.hasNext()) {
-                c.next().setLabeling(theEmptyList);
-            }
-        }
-
-        c = watershedResult.getIterableRegionOfInterest("1").getIterableIntervalOverROI(watershedResult).cursor();
-        if (c.hasNext()) {
-            List<String> theEmptyList = c.next().getMapping().emptyList();
-
-            c.get().setLabeling(theEmptyList);
-            while (c.hasNext()) {
-                c.next().setLabeling(theEmptyList);
-            }
-        }
+//        AWTImageTools.showInFrame(watershedResult, "Watershed Split");
 
         new LabelingCleaner().compute(watershedResult, watershedResult);
 
@@ -277,7 +280,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         ArrayImgFactory<BitType> bitFactory = new ArrayImgFactory<BitType>();
         ArrayList<LabeledObject> objects = new ArrayList<LabeledObject>();
 
-        RandomAccessible<BitType> src = WaelbyUtils.convertWatershedsToBit(watershedResult);
+        RandomAccessible<BitType> src = WaehlbyUtils.convertWatershedsToBit(watershedResult);
 
         for (String label : watershedResult.getLabels()) {
             IterableRegionOfInterest iROI = watershedResult.getIterableRegionOfInterest(label);
@@ -310,11 +313,11 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         }
 
         /* Object Merge */
-        /*new LabelingCleaner().compute(watershedResult, outLab);
+        new LabelingCleaner().compute(watershedResult, outLab);
 
-        int[] point1 = null, point2 = null;
+        ArrayList<int[]> points = new ArrayList<int[]>();
 
-        int squaredRSize = 200; // TODO
+        int squaredRSize = m_rsize; //this is a bug from the cecog code. Seems to work better, though ;P
 
         boolean found = false;
         for (int i = 0; i < objects.size(); ++i) {
@@ -340,8 +343,8 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
                             if (distanceSq(iPoint, jPoint) < 4) {
                                 found = true;
 
-                                point1 = iPoint;
-                                point2 = jPoint;
+                                points.add(iPoint);
+                                points.add(jPoint);
                             }
                         }
                     }
@@ -358,31 +361,29 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
                         //overwrite i to have label of j
                         Cursor<LabelingType<String>> curs = watershedResult.getIterableRegionOfInterest(objects.get(i).getLabel()).getIterableIntervalOverROI(watershedResult).cursor();
 
-                        curs.fwd();
                         while (curs.hasNext()) {
-                            LabelingType<String> pixl = curs.next();
+                            curs.fwd();
 
                             raOut.setPosition(curs);
                             raOut.get().setLabel(ijLabel);
-                            //c.next().setLabel(ijLabel);
                         }
 
                         //set label of both pointes
-                        raOut.setPosition(point1);
-                        raOut.get().setLabel(ijLabel);
-
-                        raOut.setPosition(point2);
-                        raOut.get().setLabel(ijLabel);
+                        for(int[] point : points) {
+                            raOut.setPosition(point);
+                            raOut.get().setLabel(ijLabel);
+                        }
 
                         //fill remaining gap for both points
-                        remainingGapFill(raNeighOut.randomAccess(), point1, ijLabel);
-                        remainingGapFill(raNeighOut.randomAccess(), point1, ijLabel);
+                        for (int[] point : points) {
+                            remainingGapFill(raNeighOut.randomAccess(), point, ijLabel);
+                        }
                     }
                 }
             }
         }
 
-        new LabelingCleaner().compute(outLab, outLab);
+        new LabelingCleaner().compute(watershedResult, outLab);
 
         /* transform Images if ... */
 
@@ -392,7 +393,6 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
 
         //...
 
-        /*
         return outLab;
         /* end*/
     }
@@ -467,15 +467,20 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
             System.out.println("Debug image threw incompatible type exception...");
         }
 
+        /* this code does not change the contents of img. tested! */
         IterableIntervalNormalize<T> norm =
                 new IterableIntervalNormalize<T>(0.0, max, new ValuePair<T, T>(min, max), true);
         norm.compute(img, myImg);
+        norm.compute(img, img);
         AWTImageTools.showInFrame(myImg, string);
     }
 
-    private void debugImage(final RandomAccessible<BitType> img, final Interval interval, final String string) {
-        ArrayImgFactory<BitType> bitFactory = new ArrayImgFactory<BitType>();
-        AWTImageTools.showInFrame(new ImgView<BitType>(Views.interval(img, interval), bitFactory), string);
+    private <T extends RealType<T>> void debugImage(final RandomAccessible<T> img, final Interval interval, final String string, final T type) {
+        try {
+            debugImage(new ImgView<T>(Views.interval(img, interval), m_floatFactory.imgFactory(type)), string);
+        } catch (IncompatibleTypeException e) {
+            // TODO Auto-generated catch block
+        }
     }
 
     /**

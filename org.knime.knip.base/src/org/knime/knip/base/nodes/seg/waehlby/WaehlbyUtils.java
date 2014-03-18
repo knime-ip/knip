@@ -49,13 +49,16 @@
  */
 package org.knime.knip.base.nodes.seg.waehlby;
 
+import net.imglib2.Cursor;
 import net.imglib2.IterableInterval;
+import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.combiner.Combiner;
 import net.imglib2.combiner.read.CombinedRandomAccessible;
 import net.imglib2.converter.Converter;
 import net.imglib2.converter.read.ConvertedRandomAccessible;
+import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingType;
 import net.imglib2.ops.img.BinaryOperationAssignment;
 import net.imglib2.ops.img.UnaryOperationBasedConverter;
@@ -72,7 +75,7 @@ import net.imglib2.view.Views;
  *
  * @author squareys
  */
-public class WaelbyUtils {
+public class WaehlbyUtils {
     /**
      * Function to map a BinaryOperation onto an Image (?)
      *
@@ -207,11 +210,7 @@ public class WaelbyUtils {
          */
         @Override
         public void combine(final Z inputA, final BitType inputB, final Z output) {
-            if (!inputB.get()) {
-                output.setReal(inputA.getMinValue());
-            } else {
-                output.set(inputA);
-            }
+                output.setReal(inputB.get() ? inputA.getRealDouble(): inputA.getMinValue());
         }
     }
 
@@ -368,5 +367,27 @@ public class WaelbyUtils {
                         output.set((!inputB.get()) ? inputA.get() : !inputB.get());
                     }
                 }, new BitType());
+    }
+
+    /**
+     * @param shedLabel
+     * @param watershedResult
+     * @param inLabMasked
+     */
+    public static void
+            split(final String shedLabel, final Labeling<String> watershedResult, final RandomAccessibleInterval<BitType> inLabMasked) {
+        Cursor<LabelingType<String>> cursor = watershedResult.cursor();
+        RandomAccess<BitType> ra = inLabMasked.randomAccess();
+
+        while (cursor.hasNext()) {
+            LabelingType<String> type = cursor.next();
+
+            ra.setPosition(cursor);
+
+            if (type.getLabeling().contains(shedLabel) || !ra.get().get()) {
+                type.setLabeling(type.getMapping().emptyList());
+            }
+        }
+
     }
 }
