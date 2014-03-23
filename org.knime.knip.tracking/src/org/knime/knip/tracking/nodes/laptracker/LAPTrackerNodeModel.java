@@ -63,9 +63,10 @@ import org.knime.knip.core.data.img.LabelingMetadata;
 import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.tracking.data.TrackedNode;
 
-import fiji.plugin.trackmate.TrackableObjectCollection;
+import fiji.plugin.trackmate.tracking.DefaultTOCollection;
 import fiji.plugin.trackmate.tracking.LAPUtils;
-import fiji.plugin.trackmate.tracking.TrackingUtils;
+import fiji.plugin.trackmate.tracking.TrackableObjectCollection;
+import fiji.plugin.trackmate.tracking.TrackableObjectUtils;
 
 public class LAPTrackerNodeModel extends NodeModel implements
 		BufferedDataTableHolder {
@@ -202,14 +203,7 @@ public class LAPTrackerNodeModel extends NodeModel implements
 		String sourceLabelingName = "";
 		LabelingMetadata sourceLabelingMetadata = null;
 
-		// Set-Up the tracker
-		GenericLapTracker<String> tracker = new GenericLapTracker<String>(
-				EnumUtils.valueForName(
-						m_trackingAlgorithmModel.getStringValue(),
-						LAPTrackerAlgorithm.values()));
-		initTracker(tracker);
-
-		TrackableObjectCollection<TrackedNode<String>> trackedNodes = new TrackableObjectCollection<TrackedNode<String>>();
+		TrackableObjectCollection<TrackedNode<String>> trackedNodes = new DefaultTOCollection<TrackedNode<String>>();
 		for (DataRow row : inData[0]) {
 			exec.checkCanceled();
 			ImgPlusValue<BitType> bitMaskValue = ((ImgPlusValue<BitType>) row
@@ -255,8 +249,14 @@ public class LAPTrackerNodeModel extends NodeModel implements
 			trackedNodes.add(trackedNode, trackedNode.frame());
 		}
 
+		// Set-Up the tracker
+		GenericLapTracker<String> tracker = new GenericLapTracker<String>(
+				EnumUtils.valueForName(
+						m_trackingAlgorithmModel.getStringValue(),
+						LAPTrackerAlgorithm.values()), trackedNodes,
+				initSettings());
+
 		// Start tracking
-		tracker.setTarget(trackedNodes, initTracker(tracker));
 		tracker.setNumThreads(Runtime.getRuntime().availableProcessors());
 		tracker.process();
 
@@ -271,7 +271,7 @@ public class LAPTrackerNodeModel extends NodeModel implements
 
 		for (final Set<TrackedNode<String>> set : unsortedSegments) {
 			final SortedSet<TrackedNode<String>> sortedSet = new TreeSet<TrackedNode<String>>(
-					TrackingUtils.frameComparator());
+					TrackableObjectUtils.frameComparator());
 			sortedSet.addAll(set);
 			trackSegments.add(sortedSet);
 		}
@@ -317,7 +317,7 @@ public class LAPTrackerNodeModel extends NodeModel implements
 		return new BufferedDataTable[] { m_resultTable = container.getTable() };
 	}
 
-	private Map<String, Object> initTracker(GenericLapTracker<String> tracker) {
+	private Map<String, Object> initSettings() {
 		// Set the tracking settings
 		final Map<String, Object> settings = LAPUtils
 				.getDefaultLAPSettingsMap();

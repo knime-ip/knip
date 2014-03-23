@@ -5,10 +5,11 @@ import java.util.Map;
 import net.imglib2.RealPoint;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.type.logic.BitType;
+import fiji.plugin.trackmate.FeatureHolder;
 import fiji.plugin.trackmate.tracking.TrackableObject;
 
 public class TrackedNode<L extends Comparable<L>> implements
-		Comparable<TrackedNode<L>>, TrackableObject {
+		Comparable<TrackedNode<L>>, TrackableObject, FeatureHolder {
 
 	private final RealPoint m_point;
 	private final Map<String, Double> m_features;
@@ -16,6 +17,7 @@ public class TrackedNode<L extends Comparable<L>> implements
 	private final int m_timeIdx;
 	private final ImgPlus<BitType> m_bitMask;
 	private final long[] m_offset;
+	private boolean isVisible = true;
 
 	public TrackedNode(ImgPlus<BitType> bitMask, long[] offset, L label,
 			int timeIdx, Map<String, Double> features) {
@@ -81,20 +83,6 @@ public class TrackedNode<L extends Comparable<L>> implements
 	}
 
 	@Override
-	public Double getFeature(String feature) {
-		if (m_features.containsKey(feature)) {
-			return m_features.get(feature);
-		} else {
-			throw new IllegalArgumentException("Can't find feature");
-		}
-	}
-
-	@Override
-	public void putFeature(String feature, Double value) {
-		m_features.put(feature, value);
-	}
-
-	@Override
 	public int frame() {
 		return (int) m_point.getFloatPosition(m_timeIdx);
 	}
@@ -114,5 +102,51 @@ public class TrackedNode<L extends Comparable<L>> implements
 
 	public long offset(int d) {
 		return m_offset[d];
+	}
+
+	@Override
+	public String getName() {
+		return m_bitMask.toString();
+	}
+
+	@Override
+	public boolean isVisible() {
+		return isVisible;
+	}
+
+	@Override
+	public double radius() {
+		// TODO find better solution here
+		return Math.max(m_bitMask.dimension(0), m_bitMask.dimension(1));
+	}
+
+	@Override
+	public void setFrame(int timeIdx) {
+		throw new UnsupportedOperationException("can't set frame");
+	}
+
+	@Override
+	public void setName(String name) {
+		throw new UnsupportedOperationException("can't set name");
+	}
+
+	@Override
+	public void setVisible(boolean isVisible) {
+		this.isVisible = isVisible;
+	}
+
+	@Override
+	public Double getFeature(String feature) {
+		return m_features.get(feature);
+	}
+
+	@Override
+	public Map<String, Double> getFeatures() {
+		return m_features;
+	}
+
+	@Override
+	public void putFeature(String feature, Double value) {
+		m_features.put(feature, value);
 	}
 }
