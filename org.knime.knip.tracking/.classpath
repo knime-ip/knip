@@ -6,5 +6,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/jgrapht_0.8.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/TrackMate_-2.3.0-SNAPSHOT.jar" sourcepath="lib/TrackMate_-2.3.0-SNAPSHOT-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jama-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/legacy-imglib1-2.0.0-20130818.134407-7.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

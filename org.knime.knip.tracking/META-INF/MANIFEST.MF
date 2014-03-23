@@ -16,5 +16,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ClassPath: kniptracking.jar,
  lib/jgrapht_0.8.3.jar,
  lib/TrackMate_-2.3.0-SNAPSHOT.jar,
- lib/jama-1.0.2.jar
+ lib/jama-1.0.2.jar,
+ lib/legacy-imglib1-2.0.0-20130818.134407-7.jar
 
