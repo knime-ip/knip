@@ -27,6 +27,7 @@ import net.imglib2.labeling.LabelingType;
 import net.imglib2.meta.Axes;
 import net.imglib2.meta.AxisType;
 import net.imglib2.meta.ImgPlus;
+import net.imglib2.ops.operation.iterableinterval.unary.Centroid;
 import net.imglib2.type.logic.BitType;
 
 import org.jgrapht.alg.ConnectivityInspector;
@@ -242,9 +243,17 @@ public class LAPTrackerNodeModel extends NodeModel implements
 						((DoubleValue) row.getCell(idx)).getDoubleValue());
 			}
 
+			final Centroid centroid = new Centroid();
+			double[] pos = centroid.compute(bitMask,
+					new double[bitMask.numDimensions()]);
+
+			for (int d = 0; d < pos.length; d++) {
+				pos[d] += bitMaskValue.getMinimum()[d];
+			}
+
 			// add the node
 			TrackedNode<String> trackedNode = new TrackedNode<String>(bitMask,
-					bitMaskValue.getMinimum(), label, timeIdx, featureMap);
+					pos, bitMaskValue.getMinimum(), label, timeIdx, featureMap);
 
 			trackedNodes.add(trackedNode, trackedNode.frame());
 		}

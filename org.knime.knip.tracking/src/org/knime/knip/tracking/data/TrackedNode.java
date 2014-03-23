@@ -2,39 +2,49 @@ package org.knime.knip.tracking.data;
 
 import java.util.Map;
 
-import net.imglib2.RealPoint;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.type.logic.BitType;
 import fiji.plugin.trackmate.FeatureHolder;
-import fiji.plugin.trackmate.tracking.TrackableObject;
+import fiji.plugin.trackmate.tracking.AbstractTrackableObject;
 
-public class TrackedNode<L extends Comparable<L>> implements
-		Comparable<TrackedNode<L>>, TrackableObject, FeatureHolder {
+public class TrackedNode<L extends Comparable<L>> extends
+		AbstractTrackableObject implements Comparable<TrackedNode<L>>,
+		FeatureHolder {
 
-	private final RealPoint m_point;
 	private final Map<String, Double> m_features;
 	private final L m_label;
-	private int m_timeIdx;
 	private final ImgPlus<BitType> m_bitMask;
 	private final long[] m_offset;
-	private boolean isVisible = true;
 
-	public TrackedNode(ImgPlus<BitType> bitMask, long[] offset, L label,
-			int timeIdx, Map<String, Double> features) {
+	private int m_frame;
+	private boolean m_isVisible;
+
+	public TrackedNode(final ImgPlus<BitType> bitMask, final double[] center,
+			final long[] offset, final L label, final int timeIdx,
+			final Map<String, Double> features) {
+		super(position(center, timeIdx), label.toString(),
+				(int) center[timeIdx]);
 		m_features = features;
 		m_label = label;
-		m_timeIdx = timeIdx;
 		m_bitMask = bitMask;
 		m_offset = offset;
+		m_frame = (int) center[timeIdx];
+		m_isVisible = true;
+	}
 
-		double[] centroid = new BitMaskCentroid(offset).compute(bitMask,
-				new double[bitMask.numDimensions()]);
+	private static double[] position(final double[] centroid, final int timeIdx) {
 
-		for (int d = 0; d < centroid.length; d++) {
-			centroid[d] += offset[d];
+		double[] positionWithoutTime = new double[centroid.length];
+
+		int offset = 0;
+		for (int i = 0; i < centroid.length; i++) {
+			if (timeIdx == i)
+				offset = 1;
+
+			positionWithoutTime[i - offset] = centroid[i];
 		}
 
-		m_point = new RealPoint(centroid);
+		return positionWithoutTime;
 	}
 
 	@Override
@@ -55,36 +65,6 @@ public class TrackedNode<L extends Comparable<L>> implements
 	@Override
 	public int hashCode() {
 		return m_label.hashCode();
-	}
-
-	@Override
-	public void localize(float[] position) {
-		m_point.localize(position);
-	}
-
-	@Override
-	public void localize(double[] position) {
-		m_point.localize(position);
-	}
-
-	@Override
-	public float getFloatPosition(int d) {
-		return m_point.getFloatPosition(d);
-	}
-
-	@Override
-	public double getDoublePosition(int d) {
-		return m_point.getDoublePosition(d);
-	}
-
-	@Override
-	public int numDimensions() {
-		return m_point.numDimensions();
-	}
-
-	@Override
-	public int frame() {
-		return (int) m_point.getFloatPosition(m_timeIdx);
 	}
 
 	@Override
@@ -110,29 +90,14 @@ public class TrackedNode<L extends Comparable<L>> implements
 	}
 
 	@Override
-	public boolean isVisible() {
-		return isVisible;
-	}
-
-	@Override
 	public double radius() {
 		// TODO find better solution here
 		return Math.max(m_bitMask.dimension(0), m_bitMask.dimension(1));
 	}
 
 	@Override
-	public void setFrame(int frame) {
-		m_point.setPosition(frame, m_timeIdx);
-	}
-
-	@Override
 	public void setName(String name) {
 		throw new UnsupportedOperationException("can't set name");
-	}
-
-	@Override
-	public void setVisible(boolean isVisible) {
-		this.isVisible = isVisible;
 	}
 
 	@Override
@@ -148,5 +113,26 @@ public class TrackedNode<L extends Comparable<L>> implements
 	@Override
 	public void putFeature(String feature, Double value) {
 		m_features.put(feature, value);
+	}
+
+	// FIXME (should be moved in abstract super class)
+	@Override
+	public int frame() {
+		return m_frame;
+	}
+
+	@Override
+	public void setFrame(int frame) {
+		this.m_frame = frame;
+	}
+
+	@Override
+	public boolean isVisible() {
+		return m_isVisible;
+	}
+
+	@Override
+	public void setVisible(boolean isVisible) {
+		this.m_isVisible = isVisible;
 	}
 }
