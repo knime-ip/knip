@@ -14,7 +14,7 @@ public class TrackedNode<L extends Comparable<L>> implements
 	private final RealPoint m_point;
 	private final Map<String, Double> m_features;
 	private final L m_label;
-	private final int m_timeIdx;
+	private int m_timeIdx;
 	private final ImgPlus<BitType> m_bitMask;
 	private final long[] m_offset;
 	private boolean isVisible = true;
@@ -121,8 +121,8 @@ public class TrackedNode<L extends Comparable<L>> implements
 	}
 
 	@Override
-	public void setFrame(int timeIdx) {
-		throw new UnsupportedOperationException("can't set frame");
+	public void setFrame(int frame) {
+		m_point.setPosition(frame, m_timeIdx);
 	}
 
 	@Override
