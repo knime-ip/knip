@@ -122,6 +122,8 @@ public class DialogComponentStringTransformer extends DialogComponent {
 
     private DefaultListModel m_listModel;
 
+    private String[] m_variables;
+
     /**
      * @param expressionModel settings modelF
      * @param addColumnAsVariables if true, the input columns will be added as variables, too
@@ -140,9 +142,13 @@ public class DialogComponentStringTransformer extends DialogComponent {
         m_requiredVariable = requiredVariable;
 
         m_listModel = new DefaultListModel();
+
+        // Add default variables
         for (int i = 0; i < variables.length; i++) {
             m_listModel.addElement(variables[i]);
         }
+
+        m_variables = variables;
 
         m_varList = new JList(m_listModel);
 
@@ -251,6 +257,12 @@ public class DialogComponentStringTransformer extends DialogComponent {
     @Override
     protected void updateComponent() {
         m_listModel.clear();
+
+        // Add default variables
+        for (int i = 0; i < m_variables.length; i++) {
+            m_listModel.addElement(m_variables[i]);
+        }
+
         //variables from column
         if (m_addColumnAsVariables) {
             PortObjectSpec spec = getLastTableSpec(m_portIdx);

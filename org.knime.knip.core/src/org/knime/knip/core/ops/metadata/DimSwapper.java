@@ -90,17 +90,21 @@ public class DimSwapper {
         // Swapping of Dimensions to fulfill the mapping resulting in an ordered RandomAccessibleInterval
         ArrayList<Integer> swappingState = new ArrayList<Integer>(nDims);
         for (int i = 0; i < nDims; i++) {
-            swappingState.add(i);
+            swappingState.add(backMapping[i]);
         }
+
+        int lastValid = -1;
         for (int d = 0; d < nDims; d++) {
-            if (backMapping[d] == swappingState.get(d)) {
+            if (swappingState.get(d) == d) {
+                lastValid = d;
                 continue;
             }
 
-            int dimIndex = swappingState.indexOf(backMapping[d]);
-            permuted = Views.permute(permuted, d, dimIndex);
+            permuted = Views.permute(permuted, d, swappingState.get(d));
 
-            Collections.swap(swappingState, d, dimIndex);
+            Collections.swap(swappingState, d, swappingState.get(d));
+
+            d = lastValid;
         }
 
         return permuted;

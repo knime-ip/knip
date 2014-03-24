@@ -60,7 +60,7 @@ import org.knime.knip.core.awt.parametersupport.RendererWithNormalization;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -74,7 +74,7 @@ public class Real2ColorRenderer<R extends RealType<R>> extends ProjectingRendere
 
     public Real2ColorRenderer(final int projectedDimension) {
         m_projectedDimension = projectedDimension;
-        m_converter = new RealColorARGBConverter<R>(1.0, 0.0);
+        m_converter = new RealColorARGBConverter<R>();
     }
 
     @Override

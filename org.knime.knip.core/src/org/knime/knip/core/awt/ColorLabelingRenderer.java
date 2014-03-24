@@ -62,9 +62,12 @@ import net.imglib2.type.numeric.ARGBType;
 
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 import org.knime.knip.core.awt.converter.LabelingTypeARGBConverter;
+import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
+import org.knime.knip.core.awt.labelingcolortable.ExtendedLabelingColorTable;
 import org.knime.knip.core.awt.labelingcolortable.LabelingColorTable;
 import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableRenderer;
 import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableUtils;
+import org.knime.knip.core.awt.labelingcolortable.RandomMissingColorHandler;
 import org.knime.knip.core.awt.parametersupport.RendererWithHilite;
 import org.knime.knip.core.awt.parametersupport.RendererWithLabels;
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter.Operator;
@@ -148,6 +151,14 @@ public class ColorLabelingRenderer<L extends Comparable<L>> extends ProjectingRe
 
         if (m_rebuildRequired) {
             m_rebuildRequired = false;
+            //check whether all necessary fields are set, if not, use the default values
+            if (m_labelMapping == null) {
+                m_labelMapping = source.randomAccess().get().getMapping();
+            }
+            if (m_colorMapping == null) {
+                m_colorMapping =
+                        new ExtendedLabelingColorTable(new DefaultLabelingColorTable(), new RandomMissingColorHandler());
+            }
             rebuildLabelConverter();
         }
 

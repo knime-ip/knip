@@ -3,8 +3,9 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry exported="true" kind="lib" path="lib/legacy-imglib1-2.0.0-20130818.134407-7.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jgrapht_0.8.3.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/trackmate2_1_1_beta.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/TrackMate_-2.3.0-SNAPSHOT.jar" sourcepath="lib/TrackMate_-2.3.0-SNAPSHOT-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jama-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/legacy-imglib1-2.0.0-20130818.134407-7.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

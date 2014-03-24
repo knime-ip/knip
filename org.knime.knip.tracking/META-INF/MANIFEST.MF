@@ -14,7 +14,8 @@ Require-Bundle: org.knime.base,
  org.knime.knip.base;bundle-version="[1.1.0,2.0.0)"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ClassPath: kniptracking.jar,
- lib/legacy-imglib1-2.0.0-20130818.134407-7.jar,
  lib/jgrapht_0.8.3.jar,
- lib/trackmate2_1_1_beta.jar
+ lib/TrackMate_-2.3.0-SNAPSHOT.jar,
+ lib/jama-1.0.2.jar,
+ lib/legacy-imglib1-2.0.0-20130818.134407-7.jar
 
