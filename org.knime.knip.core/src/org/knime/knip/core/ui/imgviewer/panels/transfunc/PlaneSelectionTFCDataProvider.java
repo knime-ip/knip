@@ -54,6 +54,7 @@ import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.Intervals;
 
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
@@ -61,7 +62,7 @@ import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -111,7 +112,9 @@ public class PlaneSelectionTFCDataProvider<T extends RealType<T>, I extends Rand
     protected final Integer updateKey(final Interval src) {
         m_src = src;
 
-        if (m_src.numDimensions() != m_pos.length) {
+        //if the new source image doesn't fit into the histogram interval or they have varying numbers of dimensions
+        //-> reset the histogram interval accordingly
+        if (m_src.numDimensions() != m_pos.length || !Intervals.contains(m_src, m_histogramInterval)) {
             m_pos = new long[src.numDimensions()];
             Arrays.fill(m_pos, 0);
 
