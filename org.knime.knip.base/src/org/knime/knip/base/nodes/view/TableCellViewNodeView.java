@@ -129,7 +129,7 @@ import org.knime.node2012.ViewsDocument.Views;
  */
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -140,7 +140,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     /**
      * Add the description of the view.
-     * 
+     *
      * @param views
      */
     public static void addViewDescriptionTo(final Views views) {
@@ -166,21 +166,21 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     }
 
-    private Map<String, List<TableCellView>> m_cellViews;
+    protected Map<String, List<TableCellView>> m_cellViews;
 
-    private JTabbedPane m_cellViewTabs;
+    protected JTabbedPane m_cellViewTabs;
 
-    private ChangeListener m_changeListener;
+    protected ChangeListener m_changeListener;
 
-    private int m_col = -1;
+    protected int m_col = -1;
 
-    private DataCell m_currentCell;
+    protected DataCell m_currentCell;
 
-    private ListSelectionListener m_listSelectionListenerA;
+    protected ListSelectionListener m_listSelectionListenerA;
 
-    private ListSelectionListener m_listSelectionListenerB;
+    protected ListSelectionListener m_listSelectionListenerB;
 
-    private final int m_portIdx;
+    protected final int m_portIdx;
 
     // private static final ExecutorService UPDATE_EXECUTOR = Executors
     // .newCachedThreadPool(new ThreadFactory() {
@@ -197,19 +197,19 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
     // }
     // });
 
-    private int m_row = -1;
+    protected int m_row = -1;
 
-    private JSplitPane m_sp;
+    protected JSplitPane m_sp;
 
-    private TableContentView m_tableContentView;
+    protected TableContentView m_tableContentView;
 
-    private TableContentModel m_tableModel;
+    protected TableContentModel m_tableModel;
 
-    private TableView m_tableView;
+    protected TableView m_tableView;
 
-    private Map<String, Component> m_viewComponents;
+    protected Map<String, Component> m_viewComponents;
 
-    private boolean m_hiliteAdded = false;
+    protected boolean m_hiliteAdded = false;
 
     public TableCellViewNodeView(final T nodeModel) {
         this(nodeModel, 0);
@@ -295,7 +295,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     }
 
-    private void initViewComponents() {
+    protected void initViewComponents() {
 
         m_sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
@@ -356,7 +356,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     }
 
-    private void loadPortContent() {
+    protected void loadPortContent() {
         // UPDATE_EXECUTOR.execute(new Runnable() {
         // @Override
         // public void run() {
