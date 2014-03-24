@@ -111,11 +111,6 @@ public class HiddenImageLogger extends ViewerComponent {
         m_collectedImages.add(e.getImage());
     }
 
-//    @EventListener
-//    public void onTestComplete(final TestCompleteEvent e) {
-//        m_collectedImages.add(m_image);
-//    }
-
     public List<BufferedImage> getImages()
     {
         return m_collectedImages;

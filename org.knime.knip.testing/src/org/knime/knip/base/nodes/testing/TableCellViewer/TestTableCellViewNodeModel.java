@@ -102,7 +102,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -116,7 +115,6 @@ import net.imglib2.meta.ImgPlus;
 import net.imglib2.meta.axis.DefaultLinearAxis;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 
-import org.knime.core.data.DataCell;
 import org.knime.core.data.DataTable;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
@@ -133,7 +131,6 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
-import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.tableview.TableContentModel;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
@@ -147,7 +144,7 @@ import org.knime.knip.core.types.ImgFactoryTypes;
  */
 public class TestTableCellViewNodeModel extends NodeModel implements BufferedDataTableHolder {
 
-   private ImgPlusCellFactory m_imgCellFactory;
+    private ImgPlusCellFactory m_imgCellFactory;
 
     /**
      * A TableContentModel with custom chunk and cache sizes.
@@ -168,7 +165,7 @@ public class TestTableCellViewNodeModel extends NodeModel implements BufferedDat
         }
     }
 
-    public static final String CFG_THUMBNAIL_SIZE = "thumbnail-size";
+    //    public static final String CFG_THUMBNAIL_SIZE = "thumbnail-size";
 
     private BufferedDataTable m_data;
 
@@ -178,15 +175,15 @@ public class TestTableCellViewNodeModel extends NodeModel implements BufferedDat
      */
     // private ModelContent m_config;
 
-    private final SettingsModelInteger m_thumbnailSize = new SettingsModelInteger(
-            TestTableCellViewNodeModel.CFG_THUMBNAIL_SIZE, 150);
+    //    private final SettingsModelInteger m_thumbnailSize = new SettingsModelInteger(
+    //            TestTableCellViewNodeModel.CFG_THUMBNAIL_SIZE, 150);
 
     /**
      * @param nrInDataPorts
      * @param nrOutDataPorts
      */
     protected TestTableCellViewNodeModel() {
-        super(1,1);
+        super(1, 1);
     }
 
     /**
@@ -218,37 +215,35 @@ public class TestTableCellViewNodeModel extends NodeModel implements BufferedDat
 
         m_imgCellFactory = new ImgPlusCellFactory(exec);
 
-
         // Open view and prepare it.
-        TestTableCellViewNodeView view = new TestTableCellViewNodeView(this,0);
-        view.onOpen(); // Dirty
-        List<HiddenImageLogger> imagefetchingComponents = view.getImageLogger();
+        @SuppressWarnings({"rawtypes", "unchecked"})
+        TestTableCellViewNodeView view = new TestTableCellViewNodeView(this, 0);
+        view.onOpen(); // Manual preparation
 
-        final BufferedDataContainer con = exec.createDataContainer(new DataTableSpec(DataTableSpec.createColumnSpecs(new String[]{"Images"}, new DataType[]{PNGImageContent.TYPE})));
+        // After the call of onOpen(), every testview has run on every image.
+        // Fetch the logger.
+        List<HiddenImageLogger> imageFetchingComponents = view.getImageLogger();
+        final BufferedDataContainer con =
+                exec.createDataContainer(new DataTableSpec(DataTableSpec
+                        .createColumnSpecs(new String[]{"Images"}, new DataType[]{ImgPlusCell.TYPE})));
         int i = 0;
 
-        for(HiddenImageLogger r : imagefetchingComponents)
-        {
-            List<DataCell> cells = new LinkedList<DataCell>();
-            for(BufferedImage img: r.getImages())
-            {
-                // TODO: ImgPlusCells
+        for (HiddenImageLogger logger : imageFetchingComponents) {
+            for (BufferedImage img : logger.getImages()) {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ImageIO.write( img, "png", baos );
+                ImageIO.write(img, "png", baos);
                 baos.flush();
                 byte[] imageInByte = baos.toByteArray();
                 baos.close();
 
-                DataCell pngCell = new PNGImageContent(imageInByte).toImageCell();
-                cells.add(pngCell);
-                con.addRowToTable(new DefaultRow(new RowKey("" + (i++)), pngCell));
+                PNGImageContent pngCell = new PNGImageContent(imageInByte);
+                ImgPlusCell<UnsignedByteType> imgPlusCell = compute(pngCell);
+                con.addRowToTable(new DefaultRow(new RowKey("" + (i++)), imgPlusCell));
 
             }
-
         }
+
         con.close();
-
-
 
         BufferedDataTable[] res = new BufferedDataTable[]{con.getTable()};
 
@@ -285,7 +280,7 @@ public class TestTableCellViewNodeModel extends NodeModel implements BufferedDat
      */
     @Override
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
-        m_thumbnailSize.loadSettingsFrom(settings);
+        //        m_thumbnailSize.loadSettingsFrom(settings);
     }
 
     /**
@@ -311,7 +306,7 @@ public class TestTableCellViewNodeModel extends NodeModel implements BufferedDat
      */
     @Override
     protected void saveSettingsTo(final NodeSettingsWO settings) {
-        m_thumbnailSize.saveSettingsTo(settings);
+        //        m_thumbnailSize.saveSettingsTo(settings);
     }
 
     /**
@@ -334,24 +329,23 @@ public class TestTableCellViewNodeModel extends NodeModel implements BufferedDat
      */
     @Override
     protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
-        m_thumbnailSize.validateSettings(settings);
+        //        m_thumbnailSize.validateSettings(settings);
     }
 
-    protected ImgPlusCell compute(final BufferedImage cellValue) throws IOException {
+    private ImgPlusCell<UnsignedByteType> compute(final PNGImageContent imageCell) throws IOException {
 
-
-
-        final BufferedImage image = cellValue;
-
-        final ImgFactory imgFactory = ImgFactoryTypes.getImgFactory(ImgFactoryTypes.ARRAY_IMG_FACTORY, null);
+        final BufferedImage cellBufferedImage = (BufferedImage)imageCell.getImage();
 
         @SuppressWarnings("unchecked")
+        final ImgFactory<UnsignedByteType> imgFactory =
+                ImgFactoryTypes.getImgFactory(ImgFactoryTypes.ARRAY_IMG_FACTORY, null);
+
         final Img<UnsignedByteType> img =
-                imgFactory.create(new long[]{image.getWidth(null), image.getHeight(null), 3},
+                imgFactory.create(new long[]{cellBufferedImage.getWidth(null), cellBufferedImage.getHeight(null), 3},
                                   new UnsignedByteType());
 
         final LocalizingIntervalIterator iter =
-                new LocalizingIntervalIterator(new long[]{image.getWidth(), image.getHeight()});
+                new LocalizingIntervalIterator(new long[]{cellBufferedImage.getWidth(), cellBufferedImage.getHeight()});
 
         final RandomAccess<UnsignedByteType> access = img.randomAccess();
 
@@ -365,7 +359,7 @@ public class TestTableCellViewNodeModel extends NodeModel implements BufferedDat
             access.setPosition(pos[1], 1);
 
             // read rgb
-            final int pixelCol = image.getRGB(pos[0], pos[1]);
+            final int pixelCol = cellBufferedImage.getRGB(pos[0], pos[1]);
 
             for (int c = 0; c < img.dimension(2); c++) {
                 access.setPosition(c, 2);
@@ -381,6 +375,5 @@ public class TestTableCellViewNodeModel extends NodeModel implements BufferedDat
 
         return m_imgCellFactory.createCell(imgPlus);
     }
-
 
 }

@@ -63,7 +63,8 @@ import org.knime.knip.core.ui.imgviewer.ImgCanvas;
  * @author Andreas
  * @param <T>
  */
-public class TestImgCanvas<T extends Type<T>, I extends IterableInterval<T> & RandomAccessible<T>> extends ImgCanvas<T, I> {
+public class TestImgCanvas<T extends Type<T>, I extends IterableInterval<T> & RandomAccessible<T>> extends
+        ImgCanvas<T, I> {
 
     /**
      *
@@ -73,12 +74,18 @@ public class TestImgCanvas<T extends Type<T>, I extends IterableInterval<T> & Ra
     @EventListener
     public void onTestComplete(final TestCompleteEvent e) {
 
-        final BufferedImage currImage = new BufferedImage(m_imageCanvas.getWidth(), m_imageCanvas.getHeight(),  BufferedImage.TYPE_INT_RGB);
+        int width = m_imageCanvas.getWidth();
+        int height = m_imageCanvas.getHeight();
+        if (width == 0) {
+            width = 1;
+        }
+        if (height == 0) {
+            height = 1;
+        }
+        final BufferedImage currImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         m_imageCanvas.paint(currImage.getGraphics());
 
         m_eventService.publish(new TestImageEvent(currImage));
     }
-
-
 
 }

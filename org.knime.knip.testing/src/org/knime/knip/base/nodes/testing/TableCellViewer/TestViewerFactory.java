@@ -51,23 +51,17 @@
 package org.knime.knip.base.nodes.testing.TableCellViewer;
 
 import net.imglib2.img.Img;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
-import org.knime.knip.core.ui.imgviewer.ImgCanvas;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.ui.imgviewer.ViewerComponents;
 import org.knime.knip.core.ui.imgviewer.events.SetCachingEvent;
-import org.knime.knip.core.ui.imgviewer.panels.LabelOptionPanel;
 import org.knime.knip.core.ui.imgviewer.panels.infobars.HistogramViewInfoPanel;
 import org.knime.knip.core.ui.imgviewer.panels.infobars.ImgViewInfoPanel;
-import org.knime.knip.core.ui.imgviewer.panels.infobars.LabelingViewInfoPanel;
 import org.knime.knip.core.ui.imgviewer.panels.providers.AWTImageProvider;
 import org.knime.knip.core.ui.imgviewer.panels.providers.HistogramRU;
 import org.knime.knip.core.ui.imgviewer.panels.providers.ImageRU;
-import org.knime.knip.core.ui.imgviewer.panels.providers.LabelingRU;
 import org.knime.knip.core.ui.imgviewer.panels.transfunc.PlaneSelectionTFCDataProvider;
 import org.knime.knip.core.ui.imgviewer.panels.transfunc.TransferFunctionControlPanel;
 
@@ -125,26 +119,27 @@ public class TestViewerFactory {
 
     }
 
+    // TODO: NYI
     public static <L extends Comparable<L>> ImgViewer createLabelingViewer(final int cacheSize) {
         final ImgViewer viewer = new ImgViewer();
 
-        new AWTImageProvider(cacheSize, new LabelingRU<L>()).setEventService(viewer.getEventService());
-
-        viewer.addViewerComponent(new LabelingViewInfoPanel<L>());
-
-        viewer.addViewerComponent(new ImgCanvas<LabelingType<L>, Labeling<L>>());
-
-        viewer.addViewerComponent(ViewerComponents.MINIMAP.createInstance());
-
-        viewer.addViewerComponent(ViewerComponents.PLANE_SELECTION.createInstance());
-
-        viewer.addViewerComponent(ViewerComponents.RENDERER_SELECTION.createInstance());
-
-        viewer.addViewerComponent(ViewerComponents.IMAGE_PROPERTIES.createInstance());
-
-        viewer.addViewerComponent(new LabelOptionPanel());
-
-        viewer.addViewerComponent(ViewerComponents.LABEL_FILTER.createInstance());
+//        new AWTImageProvider(cacheSize, new LabelingRU<L>()).setEventService(viewer.getEventService());
+//
+//        viewer.addViewerComponent(new LabelingViewInfoPanel<L>());
+//
+//        viewer.addViewerComponent(new ImgCanvas<LabelingType<L>, Labeling<L>>());
+//
+//        viewer.addViewerComponent(ViewerComponents.MINIMAP.createInstance());
+//
+//        viewer.addViewerComponent(ViewerComponents.PLANE_SELECTION.createInstance());
+//
+//        viewer.addViewerComponent(ViewerComponents.RENDERER_SELECTION.createInstance());
+//
+//        viewer.addViewerComponent(ViewerComponents.IMAGE_PROPERTIES.createInstance());
+//
+//        viewer.addViewerComponent(new LabelOptionPanel());
+//
+//        viewer.addViewerComponent(ViewerComponents.LABEL_FILTER.createInstance());
 
         return viewer;
     }
@@ -163,7 +158,7 @@ public class TestViewerFactory {
         realProvider.onSetCachingStrategy(new SetCachingEvent(false));
 
         viewer.addViewerComponent(new ImgViewInfoPanel<T>());
-        viewer.addViewerComponent(new ImgCanvas<T, Img<T>>());
+        viewer.addViewerComponent(new TestImgCanvas<T, Img<T>>());
 
         viewer.addViewerComponent(ViewerComponents.MINIMAP.createInstance());
         viewer.addViewerComponent(ViewerComponents.PLANE_SELECTION.createInstance());
