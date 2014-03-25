@@ -85,7 +85,6 @@ import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 
 import org.knime.knip.base.nodes.io.kernel.structuring.SphereSetting;
-import org.knime.knip.base.nodes.misc.contour.MooreContourExtractionOp;
 import org.knime.knip.base.nodes.proc.maxfinder.MaximumFinderOp;
 import org.knime.knip.core.data.algebra.ExtendedPolygon;
 import org.knime.knip.core.ops.labeling.LabelingCleaner;
@@ -189,7 +188,9 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         }
 
         // disc dilation TODO: one could expose the '3' as setting
-        new DilateGray<FloatType>(new SphereSetting(2, 3).get()[0], new OutOfBoundsBorderFactory<FloatType, RandomAccessibleInterval<FloatType>>()).compute(imgAliceExt, imgBob);
+        new DilateGray<FloatType>(new SphereSetting(2, 3).get()[0],
+                new OutOfBoundsBorderFactory<FloatType, RandomAccessibleInterval<FloatType>>()).compute(imgAliceExt,
+                                                                                                        imgBob);
 
         // label
         long[][] structuringElement = AbstractRegionGrowing.get8ConStructuringElement(img.numDimensions());
@@ -419,7 +420,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
                 ra.setPosition(cNeigh);
                 Cursor<LabelingType<String>> curs = ra.get().cursor();
 
-                while(curs.hasNext()) {
+                while (curs.hasNext()) {
                     if (!curs.next().getLabeling().contains(label)) {
                         ++numNonij;
 
@@ -476,11 +477,10 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
 
         final long[] m_topleft;
 
-
         final IterableInterval<LabelingType<String>> m_overSrc;
 
-        public LabeledObject(final ExtendedPolygon c, final String l,
-                             final long[] tl, final IterableInterval<LabelingType<String>> oSrc) {
+        public LabeledObject(final ExtendedPolygon c, final String l, final long[] tl,
+                             final IterableInterval<LabelingType<String>> oSrc) {
 
             m_contour = c;
             m_label = l;

@@ -47,7 +47,7 @@
  *
  * Created on Jan 31, 2014 by Jonathan Hale
  */
-package org.knime.knip.base.nodes.misc.contour;
+package org.knime.knip.base.nodes.seg.waehlby;
 
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccess;

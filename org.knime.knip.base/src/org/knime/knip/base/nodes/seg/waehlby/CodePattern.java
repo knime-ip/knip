@@ -47,7 +47,7 @@
  *
  * Created on Feb 5, 2014 by squareys
  */
-package org.knime.knip.base.nodes.misc.contour;
+package org.knime.knip.base.nodes.seg.waehlby;
 
 import java.util.Iterator;
 
