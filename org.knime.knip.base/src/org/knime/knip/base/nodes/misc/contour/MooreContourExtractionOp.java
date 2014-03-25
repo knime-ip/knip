@@ -263,7 +263,8 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
                             //startPoint was found.
                             if (m_jacobs) {
                                 //jacobs stopping criteria
-                                if ((cNeigh.getIndex() - 2) < 2) {
+                                final int index = cNeigh.getIndex();
+                                if ( index == 2 || index == 3 ) {
                                     //if index is 2 or 3, we entered the pixel
                                     //by moving {1, 0}, therefore in the same way.
                                     break;

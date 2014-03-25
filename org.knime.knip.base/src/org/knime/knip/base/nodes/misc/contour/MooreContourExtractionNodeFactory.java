@@ -88,7 +88,7 @@ ValueToCellNodeFactory<ImgPlusValue<BitType>> {
          */
         @Override
         protected PolygonCell compute(final ImgPlusValue<BitType> cellValue) throws Exception {
-            MooreContourExtractionOp op = new MooreContourExtractionOp();
+            MooreContourExtractionOp op = new MooreContourExtractionOp(true);
 
             ExtendedPolygon output = new ExtendedPolygon();
 
