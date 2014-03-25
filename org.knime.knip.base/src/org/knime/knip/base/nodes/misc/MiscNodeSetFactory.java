@@ -56,7 +56,6 @@ import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSetFactory;
 import org.knime.core.node.config.ConfigRO;
-import org.knime.knip.base.nodes.misc.contour.MooreContourExtractionNodeFactory;
 
 /**
  *
@@ -75,7 +74,6 @@ public class MiscNodeSetFactory implements NodeSetFactory {
     public Collection<String> getNodeFactoryIds() {
         m_nodeFactories.put(ImgToDataRowNodeFactory.class.getCanonicalName(), "/community/knip/image/misc");
         m_nodeFactories.put(DataRowToImgNodeFactory.class.getCanonicalName(), "/community/knip/image/misc");
-        m_nodeFactories.put(MooreContourExtractionNodeFactory.class.getCanonicalName(), "/community/knip/image/misc");
         return m_nodeFactories.keySet();
     }
 
