@@ -51,41 +51,31 @@
 			</option>
 		</tab>
 
-		<tab name="Region of Interest Settings">
-			<option name="Append non ROI labels?">
-				If true, non ROI labels will be appended
+		<tab name="Segment Settings">
+			<option name="Append labels of overlapping segments">
+				If true, the labels of overlapping segments will
+				be appended in an additional column (';'-separated).
 			</option>
-			<option name="Non ROI Labels must Completely Overlap with ROI?">
-				If selected, regions will also be counted as
+			<option name="Overlapping segments do NOT need to completely overlap">
+				If selected, segments will also be counted as
 				overlapping, if so don't
 				overlap completely.
 			</option>
-			<option name="Append ROI Information">If selected, additional information of each
-				region of interest will be add (e.g. bitmask, source labeling,
-				label). Useful, e.g., if the resulting segment table should be
-				composed again to a labeling (e.g. using the GroupBy-node).
+			<option name="Append segment information">If selected, additional information of each
+				segment will be add (e.g. bitmask, source labeling,
+				label). Useful,
+				e.g., if the resulting segment table should be
+				composed again to a
+				labeling (e.g. using the GroupBy-node).
 			</option>
-			<option name="Filter Labels">
-				<ul>
-					<li> Filter ROIs: Only labels which hold
-						the given rule considered
-						during the calculation
-					</li>
-					<li>Filtering non ROIs: Only labels which hold the
-						will be put into
-						the non ROI list.
-					</li>
-				</ul>
+			<option name="Filter on segment labels">
+				Only labels which hold
+				the given rule considered
+				during the calculation.
 			</option>
-			<option name="Intersection Mode">
-				<ul>
-					<li> Disabled: Only labels which always appear together are
-						considered to have a dependency
-					</li>
-					<li> Enabled: Labels which at least appear one time together are
-						considered to have a dependency
-					</li>
-				</ul>
+			<option name="Filter overlapping segment labels">
+				Only the labels that comply with the specified
+				rules will appear in the list of overlapping labels.
 			</option>
 		</tab>
 

@@ -74,7 +74,7 @@ import org.knime.knip.base.nodes.features.providers.FeatureSetProvider;
  * Abstract node model to calculate various features (arbitrary {@link DataCell}s) on an {@link IterableInterval}. The
  * {@link IterableInterval} stems either from a complete image, a labeling (multiple {@link IterableInterval}s, aka.
  * ROIs) or a labeling and an image (multiple {@link IterableInterval}s, aka ROIs).
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -97,27 +97,27 @@ public abstract class IntervalFeatureSetNodeFactory<L extends Comparable<L>, T e
                                                                  IntervalFeatureSetNodeModel.createLabColumnModel(),
                                                                  "Labeling", 0, LabelingValue.class));
 
-            dialogComponentCollection.addDialogComponent("ROI Settings", "Settings", new DialogComponentBoolean(
-                    IntervalFeatureSetNodeModel.createAppendDependenciesModel(), "Append labels of overlapping ROIs?"));
+            dialogComponentCollection.addDialogComponent("Segment Settings", "Settings", new DialogComponentBoolean(
+                    IntervalFeatureSetNodeModel.createAppendDependenciesModel(), "Append labels of overlapping segments"));
 
-            dialogComponentCollection.addDialogComponent("ROI Settings", "Settings", new DialogComponentBoolean(
+            dialogComponentCollection.addDialogComponent("Segment Settings", "Settings", new DialogComponentBoolean(
                     IntervalFeatureSetNodeModel.createIntersectionModeModel(),
-                    "Dependend ROIs don't need to completely overlap?"));
+                    "Overlapping segments do NOT need to completely overlap"));
 
-            dialogComponentCollection.addDialogComponent("ROI Settings",
-                                                         "Filter on ROIs",
+            dialogComponentCollection.addDialogComponent("Segment Settings",
+                                                         "Filter on segment labels",
                                                          new DialogComponentFilterSelection<L>(
                                                                  IntervalFeatureSetNodeModel
                                                                          .<L> createLeftFilterSelectionModel()));
 
-            dialogComponentCollection.addDialogComponent("ROI Settings",
-                                                         "Filter depended objects",
+            dialogComponentCollection.addDialogComponent("Segment Settings",
+                                                         "Filter overlapping segment labels",
                                                          new DialogComponentFilterSelection<L>(
                                                                  IntervalFeatureSetNodeModel
                                                                          .<L> createRightFilterSelectionModel()));
 
-            dialogComponentCollection.addDialogComponent("ROI Settings", "Settings", new DialogComponentBoolean(
-                    IntervalFeatureSetNodeModel.createAppendSegmentInfoModel(), "Append ROI information?"));
+            dialogComponentCollection.addDialogComponent("Segment Settings", "Settings", new DialogComponentBoolean(
+                    IntervalFeatureSetNodeModel.createAppendSegmentInfoModel(), "Append segment information"));
         }
         if ((type == FeatureType.IMAGE) || (type == FeatureType.IMAGE_AND_LABELING)) {
             dialogComponentCollection.addDialogComponent("Column selection", "Columns",
