@@ -115,16 +115,16 @@ public class SegmentCropperNodeDialog<L extends Comparable<L>> extends DefaultNo
 
         closeCurrentGroup();
 
-        createNewTab("Label Filter");
+        createNewTab("Segment Label Filter");
 
-        createNewGroup("ROI Filter");
-        addDialogComponent(new DialogComponentFilterSelection<L>(SegmentCropperNodeModel.<L> createROIFilterModel()));
+        createNewGroup("Filter on segment labels");
+        addDialogComponent(new DialogComponentFilterSelection<L>(SegmentCropperNodeModel.<L> createLabelFilterModel()));
         closeCurrentGroup();
 
-        createNewGroup("Non-ROI Filter");
-        final SettingsModelBoolean addDependencies = SegmentCropperNodeModel.createAddNonRoiLabels();
+        createNewGroup("Overlapping segment labels");
+        final SettingsModelBoolean addDependencies = SegmentCropperNodeModel.createAddOverlappingLabels();
         final SettingsModelFilterSelection<L> nonRoiFilterModel =
-                SegmentCropperNodeModel.<L> createNONRoiFilterModel(false);
+                SegmentCropperNodeModel.<L> createOverlappingLabelFilterModel(false);
         final SettingsModelBoolean noCompleteOverlap =
                 SegmentCropperNodeModel.createNotEnforceCompleteOverlapModel(false);
 
@@ -137,11 +137,10 @@ public class SegmentCropperNodeDialog<L extends Comparable<L>> extends DefaultNo
             }
         });
 
-        addDialogComponent(new DialogComponentBoolean(addDependencies, "Add non ROI Labels?"));
-        addDialogComponent(new DialogComponentBoolean(noCompleteOverlap, "Segments DON'T need to completely overlap"));
-
+        addDialogComponent(new DialogComponentBoolean(addDependencies, "Append labels of overlapping segments"));
+        addDialogComponent(new DialogComponentBoolean(noCompleteOverlap,
+                "Overlapping segments do NOT need to completely overlap"));
         addDialogComponent(new DialogComponentFilterSelection<L>(nonRoiFilterModel));
-
         closeCurrentGroup();
 
     }

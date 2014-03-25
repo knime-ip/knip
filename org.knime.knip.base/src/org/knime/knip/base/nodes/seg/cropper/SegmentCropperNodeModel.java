@@ -133,7 +133,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
      *
      * @return SettingsModel to store img column
      */
-    static SettingsModelBoolean createAddNonRoiLabels() {
+    static SettingsModelBoolean createAddOverlappingLabels() {
         return new SettingsModelBoolean("cfg_add_dependendcy", false);
     }
 
@@ -164,7 +164,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
      *
      * @return SettingsModelFilterSelection to store left filter selection
      */
-    static <LL extends Comparable<LL>> SettingsModelFilterSelection<LL> createROIFilterModel() {
+    static <LL extends Comparable<LL>> SettingsModelFilterSelection<LL> createLabelFilterModel() {
         return new SettingsModelFilterSelection<LL>("cfg_label_filter_left");
     }
 
@@ -174,7 +174,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
      * @return SettingsModelFilterSelection to store right filter selection
      */
     static <LL extends Comparable<LL>> SettingsModelFilterSelection<LL>
-            createNONRoiFilterModel(final boolean isEnabled) {
+            createOverlappingLabelFilterModel(final boolean isEnabled) {
         final SettingsModelFilterSelection<LL> sm = new SettingsModelFilterSelection<LL>("cfg_label_filter_right");
         sm.setEnabled(isEnabled);
         return sm;
@@ -190,7 +190,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
     }
 
     // SM addDependencies
-    private final SettingsModelBoolean m_addNonRoiLabels = createAddNonRoiLabels();
+    private final SettingsModelBoolean m_addOverlappingLabels = createAddOverlappingLabels();
 
     //if segments have to completely overlap or not
     private final SettingsModelBoolean m_noCompleteOverlap = createNotEnforceCompleteOverlapModel(false);
@@ -205,13 +205,13 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
     private final SettingsModelString m_labelingColumn = createSMLabelingColumnSelection();
 
     // SM left filter
-    private final SettingsModelFilterSelection<L> m_roiFilter = createROIFilterModel();
+    private final SettingsModelFilterSelection<L> m_labelFilter = createLabelFilterModel();
 
     /* Specification of the resulting table */
     private DataTableSpec m_outSpec;
 
     // SM right filter
-    private final SettingsModelFilterSelection<L> m_nonROIFilter = createNONRoiFilterModel(false);
+    private final SettingsModelFilterSelection<L> m_overlappingLabelFilter = createOverlappingLabelFilterModel(false);
 
     //value for the label background
     private final SettingsModelString m_backgroundSelection = createBackgroundSelectionModel();
@@ -257,7 +257,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
         specs.add(colspecCreator.createSpec());
         specs.add(new DataColumnSpecCreator("Label", StringCell.TYPE).createSpec());
 
-        if (m_addNonRoiLabels.getBooleanValue()) {
+        if (m_addOverlappingLabels.getBooleanValue()) {
             specs.add(new DataColumnSpecCreator("DependedLabels", StringCell.TYPE).createSpec());
         }
 
@@ -288,9 +288,9 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
         final BufferedDataContainer con = exec.createDataContainer(m_outSpec);
 
-        final RulebasedLabelFilter<L> leftFilter = m_roiFilter.getRulebasedFilter();
+        final RulebasedLabelFilter<L> leftFilter = m_labelFilter.getRulebasedFilter();
 
-        final RulebasedLabelFilter<L> rightFilter = m_nonROIFilter.getRulebasedFilter();
+        final RulebasedLabelFilter<L> rightFilter = m_overlappingLabelFilter.getRulebasedFilter();
 
         final RowIterator it = inData[0].iterator();
         final int rowCount = inData[0].getRowCount();
@@ -420,7 +420,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
                 cells.add(row.getCell(labColIndex));
                 cells.add(new StringCell(l.toString()));
 
-                if (m_addNonRoiLabels.getBooleanValue()) {
+                if (m_addOverlappingLabels.getBooleanValue()) {
                     List<L> labels;
                     if ((labels = dependedLabels.get(l)) != null) {
                         stringBuffer.setLength(0);
@@ -473,9 +473,9 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
         m_imgColumn.loadSettingsFrom(settings);
         m_labelingColumn.loadSettingsFrom(settings);
-        m_roiFilter.loadSettingsFrom(settings);
-        m_nonROIFilter.loadSettingsFrom(settings);
-        m_addNonRoiLabels.loadSettingsFrom(settings);
+        m_labelFilter.loadSettingsFrom(settings);
+        m_overlappingLabelFilter.loadSettingsFrom(settings);
+        m_addOverlappingLabels.loadSettingsFrom(settings);
         m_backgroundSelection.loadSettingsFrom(settings);
         try {
             m_noCompleteOverlap.loadSettingsFrom(settings);
@@ -507,9 +507,9 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
     protected void saveSettingsTo(final NodeSettingsWO settings) {
         m_imgColumn.saveSettingsTo(settings);
         m_labelingColumn.saveSettingsTo(settings);
-        m_roiFilter.saveSettingsTo(settings);
-        m_nonROIFilter.saveSettingsTo(settings);
-        m_addNonRoiLabels.saveSettingsTo(settings);
+        m_labelFilter.saveSettingsTo(settings);
+        m_overlappingLabelFilter.saveSettingsTo(settings);
+        m_addOverlappingLabels.saveSettingsTo(settings);
         m_backgroundSelection.saveSettingsTo(settings);
         m_noCompleteOverlap.saveSettingsTo(settings);
     }
@@ -529,9 +529,9 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
     protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
         m_imgColumn.validateSettings(settings);
         m_labelingColumn.validateSettings(settings);
-        m_roiFilter.validateSettings(settings);
-        m_nonROIFilter.validateSettings(settings);
-        m_addNonRoiLabels.validateSettings(settings);
+        m_labelFilter.validateSettings(settings);
+        m_overlappingLabelFilter.validateSettings(settings);
+        m_addOverlappingLabels.validateSettings(settings);
         m_backgroundSelection.validateSettings(settings);
         try {
             m_noCompleteOverlap.validateSettings(settings);

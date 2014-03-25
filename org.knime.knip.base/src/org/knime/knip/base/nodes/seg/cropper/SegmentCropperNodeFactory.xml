@@ -46,18 +46,25 @@
 				</ul>
 			</option>
 		</tab>
-		<tab name="ROI Filter">
-			<option name="ROI Filter">
-				Segment whose label DON'T comply with the
-				specified rules (wildcards * are
-				allowed) will not be part of the
-				result table.
+		<tab name="Segment Label Filter">
+			<option name="Filter on segment labels">
+				Only labels which hold
+				the given rule considered
+				during the calculation.
 			</option>
-			<option name="Add non ROI Labels as List?">
-				If true, one can add the non-ROI labels as a
-				list.
-				Non-ROI labels are labels, which are filtered out using the ROI
-				filter.
+			<option name="Append labels of overlapping segments">
+				If true, the labels of overlapping segments will
+				be appended in an additional column (';'-separated).
+			</option>
+			<option name="Overlapping segments do NOT need to completely overlap">
+				If selected, segments will also be counted as
+				overlapping, if so don't
+				overlap completely.
+			</option>
+
+			<option name="Filter on overlapping segment labels">
+				Only the labels that comply with the specified
+				rules will appear in the list of overlapping labels.
 			</option>
 		</tab>
 	</fullDescription>
