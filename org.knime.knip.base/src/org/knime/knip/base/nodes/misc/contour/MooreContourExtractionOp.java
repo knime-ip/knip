@@ -62,56 +62,36 @@ import org.knime.knip.core.data.algebra.ExtendedPolygon;
 /**
  * MooreContourExtractionOp
  *
- * Implementation of the Moore contour extraction algorithm.
- * Input: BitType RandomAccessible
- * Output: A list of Polygons representing the found contours. Warning! There will be alot of duplicates.
+ * Implementation of the Moore contour extraction algorithm. Input: BitType RandomAccessible Output: A list of Polygons
+ * representing the found contours. Warning! There will be alot of duplicates.
  *
  *
- * This operation only extracts one contour and then terminates. If you have multiple contours you want to
- * extract, you may want to perform a CCA on them and then use BitMaskProvider to extract contours from the
- * images of the labels.
+ * This operation only extracts one contour and then terminates. If you have multiple contours you want to extract, you
+ * may want to perform a CCA on them and then use BitMaskProvider to extract contours from the images of the labels.
  *
- * Also, using the the Jacobs Stopping Criterion is recommended, but turned on by default anyway. It leads to
- * better results and doesn't significantly slow down the extraction.
+ * Also, using the the Jacobs Stopping Criterion is recommended, but turned on by default anyway. It leads to better
+ * results and doesn't significantly slow down the extraction.
  *
  * @author Jonathan Hale (University of Konstanz)
  */
-@SuppressWarnings("deprecation") //TODO: We need better Polygons. Remove this when they made them.
+@SuppressWarnings("deprecation")
+//TODO: We need better Polygons. Remove this when they made them.
 public class MooreContourExtractionOp implements UnaryOperation<RandomAccessibleInterval<BitType>, ExtendedPolygon> {
 
     /**
-     * ClockwiseMooreNeighborhoodIterator
-     * Iterates clockwise through a 2D Moore Neighborhood (8 connected Neighborhood).
+     * ClockwiseMooreNeighborhoodIterator Iterates clockwise through a 2D Moore Neighborhood (8 connected Neighborhood).
      *
-     * This iterator encourages reuse! Reset the iterator and move the underlying random accessible,
-     * do not create new ones. That is more resource efficient and faster.
+     * This iterator encourages reuse! Reset the iterator and move the underlying random accessible, do not create new
+     * ones. That is more resource efficient and faster.
      *
      * @author Jonathan Hale (University of Konstanz)
      */
     final class ClockwiseMooreNeighborhoodIterator<T extends Type<T>> implements java.util.Iterator<T> {
         final private RandomAccess<T> m_ra;
 
-        final private int[][] CLOCKWISE_OFFSETS = {
-                { 0, -1},
-                { 1,  0},
-                { 1,  0},
-                { 0,  1},
-                { 0,  1},
-                {-1,  0},
-                {-1,  0},
-                { 0, -1}
-        };
+        final private int[][] CLOCKWISE_OFFSETS = {{0, -1}, {1, 0}, {1, 0}, {0, 1}, {0, 1}, {-1, 0}, {-1, 0}, {0, -1}};
 
-        final private int[][] CCLOCKWISE_OFFSETS = {
-                { 0,  1},
-                { 0,  1},
-                {-1,  0},
-                {-1,  0},
-                { 0, -1},
-                { 0, -1},
-                { 1,  0},
-                { 1,  0}
-        };
+        final private int[][] CCLOCKWISE_OFFSETS = {{0, 1}, {0, 1}, {-1, 0}, {-1, 0}, {0, -1}, {0, -1}, {1, 0}, {1, 0}};
 
         //index of offset to be executed at next next() call.
         private int m_curOffset = 0;
@@ -187,11 +167,11 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
     }
 
     final private boolean m_jacobs;
+
     final private boolean m_inverted;
 
     /**
-     * MooreContourExtractionOp
-     * Default Constructor
+     * MooreContourExtractionOp Default Constructor
      *
      * 'useJacobsCriteria' is turned on by default.
      */
@@ -229,7 +209,8 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
 
         final RandomAccess<BitType> raInput = Views.extendValue(input, new BitType(!m_inverted)).randomAccess();
         final Cursor<BitType> cInput = Views.flatIterable(input).cursor();
-        final ClockwiseMooreNeighborhoodIterator<BitType> cNeigh = new ClockwiseMooreNeighborhoodIterator<BitType>(raInput);
+        final ClockwiseMooreNeighborhoodIterator<BitType> cNeigh =
+                new ClockwiseMooreNeighborhoodIterator<BitType>(raInput);
 
         int[] position = new int[2];
         int[] startPos = new int[2];
@@ -242,7 +223,7 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
         cInput.fwd();
 
         //find first black pixel
-        while(cInput.hasNext()) {
+        while (cInput.hasNext()) {
             //we are looking for a black pixel
             if (cInput.next().get() == m_inverted) {
                 raInput.setPosition(cInput);
@@ -264,7 +245,7 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
                             if (m_jacobs) {
                                 //jacobs stopping criteria
                                 final int index = cNeigh.getIndex();
-                                if ( index == 2 || index == 3 ) {
+                                if (index == 2 || index == 3) {
                                     //if index is 2 or 3, we entered the pixel
                                     //by moving {1, 0}, therefore in the same way.
                                     break;

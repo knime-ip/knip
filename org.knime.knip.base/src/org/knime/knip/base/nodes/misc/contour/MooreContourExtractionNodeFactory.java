@@ -72,7 +72,7 @@ import org.knime.knip.core.data.algebra.ExtendedPolygon;
  */
 @SuppressWarnings("deprecation")
 public class MooreContourExtractionNodeFactory<T extends RealType<T>, L extends Comparable<L>> extends
-ValueToCellNodeFactory<ImgPlusValue<BitType>> {
+        ValueToCellNodeFactory<ImgPlusValue<BitType>> {
 
     class MooreContourExtractionNodeModel extends ValueToCellNodeModel<ImgPlusValue<BitType>, PolygonCell> {
 
@@ -102,6 +102,7 @@ ValueToCellNodeFactory<ImgPlusValue<BitType>> {
     private static SettingsModelDimSelection createDimSelectionModel() {
         return new SettingsModelDimSelection("dim_selection", "X", "Y");
     }
+
     /**
      * {@inheritDoc}
      */
