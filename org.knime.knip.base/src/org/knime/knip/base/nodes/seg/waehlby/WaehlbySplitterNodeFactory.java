@@ -55,7 +55,9 @@ import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.node.ExecutionContext;
+import org.knime.core.node.defaultnodesettings.DialogComponentNumberEdit;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
+import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingCellFactory;
@@ -70,6 +72,7 @@ import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
  * Cell Clump Splitter.
  *
  * @param <T>
+ * @author Jonathan Hale (University of Konstanz)
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -81,6 +84,18 @@ public class WaehlbySplitterNodeFactory<T extends RealType<T>, L extends Compara
         return new SettingsModelDimSelection("dim_selection", "X", "Y");
     }
 
+    private static SettingsModelInteger createDistanceThresholdModel() {
+        return new SettingsModelInteger("dist_thresh", 6);
+    }
+
+    private static SettingsModelInteger createMergeSizeThresholdModel() {
+        return new SettingsModelInteger("size_thresh", 10);
+    }
+
+    private static SettingsModelInteger createGaussSizeModel() {
+        return new SettingsModelInteger("gauss_size", 3);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -90,6 +105,9 @@ public class WaehlbySplitterNodeFactory<T extends RealType<T>, L extends Compara
 
             @Override
             public void addDialogComponents() {
+                addDialogComponent("Options", "General", new DialogComponentNumberEdit(createDistanceThresholdModel(), "Distance Merge Threshold"));
+                addDialogComponent("Options", "General", new DialogComponentNumberEdit(createGaussSizeModel(), "Gauss Size"));
+                addDialogComponent("Options", "General", new DialogComponentNumberEdit(createMergeSizeThresholdModel(), "Size Merge Threshold"));
 
                 addDialogComponent("Options", "Dimensions", new DialogComponentDimSelection(createDimSelectionModel(),
                         "Dimensions", 2, 2)); //2, 5
@@ -105,10 +123,17 @@ public class WaehlbySplitterNodeFactory<T extends RealType<T>, L extends Compara
             private LabelingCellFactory m_labCellFactory;
 
             private final SettingsModelDimSelection m_smDimSelection = createDimSelectionModel();
+            private final SettingsModelInteger m_smDistanceThreshold = createDistanceThresholdModel();
+            private final SettingsModelInteger m_smMergeThreshold = createMergeSizeThresholdModel();
+            private final SettingsModelInteger m_smGaussSize = createGaussSizeModel();
+
 
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
                 settingsModels.add(m_smDimSelection);
+                settingsModels.add(m_smDistanceThreshold);
+                settingsModels.add(m_smMergeThreshold);
+                settingsModels.add(m_smGaussSize);
             }
 
             @Override
@@ -121,7 +146,8 @@ public class WaehlbySplitterNodeFactory<T extends RealType<T>, L extends Compara
                 int[] selectedDimIndices =
                         m_smDimSelection.getSelectedDimIndices(cellLabelingVal.getLabelingMetadata());
 
-                WaehlbySplitterOp<L, T> op = new WaehlbySplitterOp<L, T>(WaehlbySplitterOp.SEG_TYPE.SHAPE_BASED_SEGMENTATION);
+                WaehlbySplitterOp<L, T> op = new WaehlbySplitterOp<L, T>(WaehlbySplitterOp.SEG_TYPE.SHAPE_BASED_SEGMENTATION,
+                        m_smDistanceThreshold.getIntValue(), m_smMergeThreshold.getIntValue(), m_smGaussSize.getIntValue());
 
                 SubsetOperations.iterate(op, selectedDimIndices, labeling, imgValue.getImgPlus(), out,
                                          getExecutorService());
