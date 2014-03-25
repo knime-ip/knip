@@ -1,0 +1,52 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./waehlbyseg.png" type="Manipulator">
+	<name>Waehlby Cell Clump Splitter</name>
+	<shortDescription></shortDescription>
+
+	<fullDescription>
+		<intro>
+			<p>
+			Waehlby Cell Clump Splitter performs object split and merge by shape on a labeling.
+			This may greatly improve quality of a labeling, especially for cell segmentation.
+			</p><p>
+			If your Image contains a lot of holes, you may want to consider preprocessing the input
+			with the "Fill Holes" node or other kinds of hole filling.
+			</p><p>
+			The method used was mainly inspired by a paper by C. Waehlby, "Combining intensity,
+			edge and shape information for 2D and 3D segmentation of cell nuclei in tissue sections", 
+			and the method use by CellCognition (cellcognition.org). </p>
+		</intro>
+		<tab name="Options">
+			<option name="Distance Merge Threshold">
+				Objects closer than this distance threshold (in pixels) will be
+				considered candidates for merging. Higher values usually result in
+				longer computation times.
+			</option>
+			<option name="Gauss Size">
+				Since this split and merge method performs gaussian convolution in
+				it's preprocessing step, you may here enter the size parameter for it.
+				Usually higher gauss size leads to less splitting, but longer computation times.
+			</option>
+			<option name="Size Merge Threshold">
+				Objects which contain less pixels than "Size Merge Threshold" will be merged regardless
+				of their shape, presuming there is another object close enough. Higher values may slightly
+				result in longer computation duration.
+			</option>
+		</tab>
+	</fullDescription>
+	<ports>
+		<inPort index="0" name="">
+			Table containing labeling and image columns. Which will be used can be chosen in the
+			"Column Selection" tab.
+		</inPort>
+		<outPort index="0" name="">
+			Table containing or consiting of the refined labeling. The resulting table can be modified
+			over the "Column Selection" tab.
+		</outPort>
+	</ports>
+</knimeNode>

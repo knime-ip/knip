@@ -43,46 +43,48 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
+ * Created on Sep 25, 2013 by squareys
  */
-package org.knime.knip.core.ops.labeling;
+package org.knime.knip.base.nodes.seg.merge;
 
-import net.imglib2.Cursor;
 import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
-import net.imglib2.ops.operation.UnaryOperation;
+import net.imglib2.ops.img.UnaryObjectFactory;
+import net.imglib2.ops.operation.UnaryOutputOperation;
 
 /**
- * LabelingCleaner
  *
- *
- * For every label in {@link Labeling} "op", copies all labeled pixels to {@link Labeling} "res".
- * This gets rid of labeled pixels whose labels have been deleted from "op".
- *
- * @param <L>
- * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
- * @author schoenen
+ * @author jonathan.hale
  */
-public final class LabelingCleaner<L extends Comparable<L>> implements UnaryOperation<Labeling<L>, Labeling<L>> {
+public class MergeOp<L extends Comparable<L>> implements
+        UnaryOutputOperation<Labeling<L>, Labeling<L>> {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public final Labeling<L> compute(final Labeling<L> op, final Labeling<L> res) {
-        for (final L l : op.getLabels()) {
-            final Cursor<LabelingType<L>> c =
-                    op.getIterableRegionOfInterest(l).getIterableIntervalOverROI(res).cursor();
-            while (c.hasNext()) {
-                c.next().setLabel(l);
-            }
-        }
-
-        return res;
+    public Labeling<L> compute(final Labeling<L> input, final Labeling<L> output) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public UnaryOperation<Labeling<L>, Labeling<L>> copy() {
-        return new LabelingCleaner<L>();
+    public UnaryObjectFactory<Labeling<L>, Labeling<L>> bufferFactory() {
+        // TODO Auto-generated method stub
+        return null;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public UnaryOutputOperation<Labeling<L>, Labeling<L>> copy() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

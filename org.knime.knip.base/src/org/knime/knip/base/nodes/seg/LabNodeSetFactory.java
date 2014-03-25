@@ -70,6 +70,7 @@ import org.knime.knip.base.nodes.seg.labeleditor.LabelTransformerNodeFactory;
 import org.knime.knip.base.nodes.seg.labeltopng.LabelingToPNGValueNodeFactory;
 import org.knime.knip.base.nodes.seg.morphops.MorphLabelingOpsNodeFactory;
 import org.knime.knip.base.nodes.seg.voronoi.VoronoiSegNodeFactory;
+import org.knime.knip.base.nodes.seg.waehlby.WaehlbySplitterNodeFactory;
 
 /**
  *
@@ -149,6 +150,8 @@ public class LabNodeSetFactory implements NodeSetFactory {
         m_nodeFactories.put(LabelingToPNGValueNodeFactory.class.getCanonicalName(), "/community/knip/labeling");
         m_nodeFactories.put(ApplyColorSettingsToLabelsNodeFactory.class.getCanonicalName(), "/community/knip/labeling");
         m_nodeFactories.put(CompareSegmentsNodeFactory.class.getCanonicalName(), "/community/knip/image/misc");
+        m_nodeFactories.put(WaehlbySplitterNodeFactory.class.getCanonicalName(), "/community/knip/labeling");
+
         return m_nodeFactories.keySet();
     }
 
