@@ -80,6 +80,7 @@ import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DataType;
 import org.knime.core.data.RowIterator;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.StringCell;
@@ -422,7 +423,12 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
                 cells.add(new StringCell(l.toString()));
 
                 if (m_addNonRoiLabels.getBooleanValue()) {
-                    cells.add(new StringCell(dependedLabels.get(l).toString()));
+                    List<L> label;
+                    if ((label = dependedLabels.get(l)) != null) {
+                        cells.add(new StringCell(label.toString()));
+                    } else {
+                        cells.add(DataType.getMissingCell());
+                    }
                 }
 
                 con.addRowToTable(new DefaultRow(row.getKey().toString() + KNIPConstants.IMGID_LABEL_DELIMITER
