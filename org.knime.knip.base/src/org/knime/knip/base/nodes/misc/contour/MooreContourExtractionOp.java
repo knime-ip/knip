@@ -273,7 +273,7 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
                                 //Jacobs stopping criteria
                                 final int index = cNeigh.getIndex();
                                 if (index == 1 || index == 0) {
-                                    // Jonathan's refinement to the non-terminating jacobs criteria
+                                    // Jonathans refinement to the non-terminating jacobs criteria
                                     specialBacktrack = true;
                                 } else if (index == 2 || index == 3) {
                                     //if index is 2 or 3, we entered the pixel
