@@ -69,9 +69,10 @@ import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 
 /**
- * Cell Clump Splitter.
+ * Waehlby Cell Clump Splitter node factory
  *
  * @param <T>
+ * @param <L>
  * @author Jonathan Hale (University of Konstanz)
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -88,12 +89,12 @@ public class WaehlbySplitterNodeFactory<T extends RealType<T>, L extends Compara
         return new SettingsModelInteger("dist_thresh", 6);
     }
 
-    private static SettingsModelInteger createMergeSizeThresholdModel() {
-        return new SettingsModelInteger("size_thresh", 10);
+    private static SettingsModelInteger createGaussSizeModel() {
+        return new SettingsModelInteger("gauss_size", 1);
     }
 
-    private static SettingsModelInteger createGaussSizeModel() {
-        return new SettingsModelInteger("gauss_size", 3);
+    private static SettingsModelInteger createMergeSizeThresholdModel() {
+        return new SettingsModelInteger("size_thresh", 25);
     }
 
     /**

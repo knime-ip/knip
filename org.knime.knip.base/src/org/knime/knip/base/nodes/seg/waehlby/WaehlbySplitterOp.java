@@ -71,9 +71,11 @@ import net.imglib2.ops.img.UnaryOperationBasedConverter;
 import net.imglib2.ops.operation.BinaryObjectFactory;
 import net.imglib2.ops.operation.BinaryOutputOperation;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.DistanceMap;
+import net.imglib2.ops.operation.randomaccessibleinterval.unary.morph.DilateGray;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.AbstractRegionGrowing;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.CCA;
 import net.imglib2.ops.operation.real.unary.RealUnaryOperation;
+import net.imglib2.outofbounds.OutOfBoundsBorderFactory;
 import net.imglib2.roi.IterableRegionOfInterest;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
@@ -82,6 +84,7 @@ import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 
+import org.knime.knip.base.nodes.io.kernel.structuring.SphereSetting;
 import org.knime.knip.base.nodes.misc.contour.MooreContourExtractionOp;
 import org.knime.knip.base.nodes.proc.maxfinder.MaximumFinderOp;
 import org.knime.knip.core.data.algebra.ExtendedPolygon;
@@ -185,6 +188,9 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
             }
         }
 
+        // disc dilation TODO: one could expose the '3' as setting
+        new DilateGray<FloatType>(new SphereSetting(2, 3).get()[0], new OutOfBoundsBorderFactory<FloatType, RandomAccessibleInterval<FloatType>>()).compute(imgAliceExt, imgBob);
+
         // label
         long[][] structuringElement = AbstractRegionGrowing.get8ConStructuringElement(img.numDimensions());
 
@@ -193,7 +199,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
                 new NativeImgLabeling<Integer, ShortType>(new ArrayImgFactory<ShortType>().create(img, new ShortType()));
 
         Img<BitType> imgChris = new ArrayImgFactory<BitType>().create(img, new BitType());
-        new MaximumFinderOp<FloatType>(0, 0).compute(imgAlice, imgChris);
+        new MaximumFinderOp<FloatType>(0, 0).compute(imgBob, imgChris);
 
         cca.compute(imgChris, seeds);
 
@@ -379,7 +385,6 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
                     raOut.setPosition(curs);
                     raOut.get().setLabel(label);
                 }
-
             }
         }
 
