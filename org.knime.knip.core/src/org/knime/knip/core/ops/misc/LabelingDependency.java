@@ -63,8 +63,8 @@ import net.imglib2.ops.operation.UnaryOutputOperation;
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter;
 
 /**
- * Dependencies of labels to each other are computed. e.g. if one LabelingType contains two labels A and B, then A has
- * reflexive relation to B.
+ * Dependencies of labels (i.e. the overlap of segments with the according labels ...) to each other are computed. e.g.
+ * if one LabelingType contains two labels A and B, then A has reflexive relation to B.
  *
  * The node can be used in two modes:
  *
@@ -89,9 +89,12 @@ public class LabelingDependency<L extends Comparable<L>> implements UnaryOutputO
     private final boolean m_intersectionMode;
 
     /**
+     *
+     *
      * @param leftFilter
      * @param rightFilter
-     * @param intersectionMode
+     * @param intersectionMode false - segments have to completely overlap to be added as dependent label, true -
+     *            partial overlap is sufficient to be counted as dependent
      */
     public LabelingDependency(final RulebasedLabelFilter<L> leftFilter, final RulebasedLabelFilter<L> rightFilter,
                               final boolean intersectionMode) {
