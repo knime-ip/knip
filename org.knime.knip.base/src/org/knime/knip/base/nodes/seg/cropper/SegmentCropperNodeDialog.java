@@ -122,19 +122,23 @@ public class SegmentCropperNodeDialog<L extends Comparable<L>> extends DefaultNo
         closeCurrentGroup();
 
         createNewGroup("Non-ROI Filter");
+        final SettingsModelBoolean addDependencies = SegmentCropperNodeModel.createAddNonRoiLabels();
         final SettingsModelFilterSelection<L> nonRoiFilterModel =
                 SegmentCropperNodeModel.<L> createNONRoiFilterModel(false);
-        final SettingsModelBoolean addDependencies = SegmentCropperNodeModel.createAddNonRoiLabels();
+        final SettingsModelBoolean noCompleteOverlap =
+                SegmentCropperNodeModel.createNotEnforceCompleteOverlapModel(false);
 
         addDependencies.addChangeListener(new ChangeListener() {
 
             @Override
             public void stateChanged(final ChangeEvent e) {
                 nonRoiFilterModel.setEnabled(addDependencies.getBooleanValue());
+                noCompleteOverlap.setEnabled(addDependencies.getBooleanValue());
             }
         });
 
         addDialogComponent(new DialogComponentBoolean(addDependencies, "Add non ROI Labels?"));
+        addDialogComponent(new DialogComponentBoolean(noCompleteOverlap, "Segments DON'T need to completely overlap"));
 
         addDialogComponent(new DialogComponentFilterSelection<L>(nonRoiFilterModel));
 

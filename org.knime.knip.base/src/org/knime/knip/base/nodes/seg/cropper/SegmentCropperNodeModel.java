@@ -80,7 +80,6 @@ import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.DataType;
 import org.knime.core.data.RowIterator;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.StringCell;
@@ -94,7 +93,6 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
-import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.KNIPConstants;
@@ -137,6 +135,12 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
      */
     static SettingsModelBoolean createAddNonRoiLabels() {
         return new SettingsModelBoolean("cfg_add_dependendcy", false);
+    }
+
+    static SettingsModelBoolean createNotEnforceCompleteOverlapModel(final boolean enabled) {
+        SettingsModelBoolean sm = new SettingsModelBoolean("no_complete_overlap", false);
+        sm.setEnabled(enabled);
+        return sm;
     }
 
     /**
@@ -188,6 +192,9 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
     // SM addDependencies
     private final SettingsModelBoolean m_addNonRoiLabels = createAddNonRoiLabels();
 
+    //if segments have to completely overlap or not
+    private final SettingsModelBoolean m_noCompleteOverlap = createNotEnforceCompleteOverlapModel(false);
+
     /* Resulting BufferedDataTable */
     private BufferedDataTable m_data;
 
@@ -209,21 +216,11 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
     //value for the label background
     private final SettingsModelString m_backgroundSelection = createBackgroundSelectionModel();
 
-    // List of all SettingsModels
-    private final ArrayList<SettingsModel> m_settings;
-
     /**
      * Constructor SegementCropperNodeModel
      */
     public SegmentCropperNodeModel() {
         super(1, 1);
-        m_settings = new ArrayList<SettingsModel>();
-        m_settings.add(m_imgColumn);
-        m_settings.add(m_labelingColumn);
-        m_settings.add(m_roiFilter);
-        m_settings.add(m_nonROIFilter);
-        m_settings.add(m_addNonRoiLabels);
-        m_settings.add(m_backgroundSelection);
         m_backgroundSelection.setEnabled(!m_imgColumn.getStringValue().equals(""));
     }
 
@@ -309,7 +306,8 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
             }
             final LabelingValue<L> labelingValue = (LabelingValue<L>)row.getCell(labColIndex);
 
-            final LabelingDependency<L> labelingDependency = new LabelingDependency<L>(leftFilter, rightFilter, false);
+            final LabelingDependency<L> labelingDependency =
+                    new LabelingDependency<L>(leftFilter, rightFilter, m_noCompleteOverlap.getBooleanValue());
 
             // If no img selected, create bitmasks
             ImgPlus<T> img = null;
@@ -340,7 +338,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
             }
 
             final Map<L, List<L>> dependedLabels = Operations.compute(labelingDependency, labeling);
-
+            final StringBuffer stringBuffer = new StringBuffer();
             for (final L l : labeling.getLabels()) {
 
                 if (!leftFilter.isValid(l)) {
@@ -423,11 +421,20 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
                 cells.add(new StringCell(l.toString()));
 
                 if (m_addNonRoiLabels.getBooleanValue()) {
-                    List<L> label;
-                    if ((label = dependedLabels.get(l)) != null) {
-                        cells.add(new StringCell(label.toString()));
+                    List<L> labels;
+                    if ((labels = dependedLabels.get(l)) != null) {
+                        stringBuffer.setLength(0);
+                        for (final L s : labels) {
+                            stringBuffer.append(s.toString());
+                            stringBuffer.append(";");
+                        }
+
+                        if (stringBuffer.length() > 0) {
+                            stringBuffer.deleteCharAt(stringBuffer.length() - 1);
+                        }
+                        cells.add(new StringCell(stringBuffer.toString()));
                     } else {
-                        cells.add(DataType.getMissingCell());
+                        cells.add(new StringCell(""));
                     }
                 }
 
@@ -464,8 +471,16 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
      */
     @Override
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
-        for (final SettingsModel sm : m_settings) {
-            sm.loadSettingsFrom(settings);
+        m_imgColumn.loadSettingsFrom(settings);
+        m_labelingColumn.loadSettingsFrom(settings);
+        m_roiFilter.loadSettingsFrom(settings);
+        m_nonROIFilter.loadSettingsFrom(settings);
+        m_addNonRoiLabels.loadSettingsFrom(settings);
+        m_backgroundSelection.loadSettingsFrom(settings);
+        try {
+            m_noCompleteOverlap.loadSettingsFrom(settings);
+        } catch (InvalidSettingsException e) {
+            //new setting with 1.1.2, use default if not existent
         }
     }
 
@@ -490,9 +505,13 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
      */
     @Override
     protected void saveSettingsTo(final NodeSettingsWO settings) {
-        for (final SettingsModel sm : m_settings) {
-            sm.saveSettingsTo(settings);
-        }
+        m_imgColumn.saveSettingsTo(settings);
+        m_labelingColumn.saveSettingsTo(settings);
+        m_roiFilter.saveSettingsTo(settings);
+        m_nonROIFilter.saveSettingsTo(settings);
+        m_addNonRoiLabels.saveSettingsTo(settings);
+        m_backgroundSelection.saveSettingsTo(settings);
+        m_noCompleteOverlap.saveSettingsTo(settings);
     }
 
     /**
@@ -508,9 +527,16 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
      */
     @Override
     protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
-        for (final SettingsModel sm : m_settings) {
-            sm.validateSettings(settings);
+        m_imgColumn.validateSettings(settings);
+        m_labelingColumn.validateSettings(settings);
+        m_roiFilter.validateSettings(settings);
+        m_nonROIFilter.validateSettings(settings);
+        m_addNonRoiLabels.validateSettings(settings);
+        m_backgroundSelection.validateSettings(settings);
+        try {
+            m_noCompleteOverlap.validateSettings(settings);
+        } catch (InvalidSettingsException e) {
+            //new setting with 1.1.2, use default if not existent
         }
     }
-
 }
