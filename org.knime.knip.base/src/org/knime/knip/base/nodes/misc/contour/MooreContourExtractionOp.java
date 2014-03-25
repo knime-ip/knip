@@ -70,7 +70,8 @@ import org.knime.knip.core.data.algebra.ExtendedPolygon;
  * may want to perform a CCA on them and then use BitMaskProvider to extract contours from the images of the labels.
  *
  * Also, using the the Jacobs Stopping Criterion is recommended, but turned on by default anyway. It leads to better
- * results and doesn't significantly slow down the extraction.
+ * results and doesn't significantly slow down the extraction. The original Jacobs stopping cirteria does not guarantee
+ * termination, therefore it was refined by Jonathan Hale for this implementation.
  *
  * @author Jonathan Hale (University of Konstanz)
  */
@@ -164,6 +165,31 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
             m_curOffset = 0;
             m_startIndex = 7;
         }
+
+        /**
+         * backtrack and set only part of the neighborhood to be iterated.
+         */
+        public void backtrackSpecial() {
+            final int[] back = CCLOCKWISE_OFFSETS[m_curOffset];
+            m_ra.move(back); //undo last move
+
+            //find out, where to continue:
+            if (back[0] == 0) {
+                if (back[1] == 1) {
+                    m_curOffset = 6;
+                } else {
+                    m_curOffset = 2;
+                }
+            } else {
+                if (back[0] == 1) {
+                    m_curOffset = 4;
+                } else {
+                    m_curOffset = 0;
+                }
+            }
+
+            m_startIndex = (m_curOffset + 5) & 7; //set the Pixel to stop at
+        }
     }
 
     final private boolean m_jacobs;
@@ -182,7 +208,7 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
     /**
      * MooreContourExtractionOp
      *
-     * @param useJacobsCriteria - Set this flag to use "Jacobs stopping criteria"
+     * @param useJacobsCriteria - Set this flag to use "Jonathans refined Jacobs stopping criteria"
      */
     public MooreContourExtractionOp(final boolean useJacobsCriteria) {
         this(useJacobsCriteria, false);
@@ -191,7 +217,7 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
     /**
      * MooreContourExtractionOp
      *
-     * @param useJacobsCriteria - Set this flag to use "Jacobs stopping criteria"
+     * @param useJacobsCriteria - Set this flag to use "Jonathans refined Jacobs stopping criteria"
      * @param inverted - Set this to your foreground value (default false)
      */
     public MooreContourExtractionOp(final boolean useJacobsCriteria, final boolean inverted) {
@@ -220,8 +246,6 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
         //clear out all the points
         output.reset();
 
-        cInput.fwd();
-
         //find first black pixel
         while (cInput.hasNext()) {
             //we are looking for a black pixel
@@ -239,13 +263,19 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
 
                 while (cNeigh.hasNext()) {
                     if (cNeigh.next().get() == m_inverted) {
+
+                        boolean specialBacktrack = false;
+
                         raInput.localize(position);
                         if (startPos[0] == position[0] && startPos[1] == position[1]) {
                             //startPoint was found.
                             if (m_jacobs) {
-                                //jacobs stopping criteria
+                                //Jacobs stopping criteria
                                 final int index = cNeigh.getIndex();
-                                if (index == 2 || index == 3) {
+                                if (index == 7 || index == 0) {
+                                    // Jonathan's refinement to the non-terminating jacobs criteria
+                                    specialBacktrack = true;
+                                } else if (index == 2 || index == 3) {
                                     //if index is 2 or 3, we entered the pixel
                                     //by moving {1, 0}, therefore in the same way.
                                     break;
@@ -256,7 +286,11 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
                         }
                         //add found point to polygon
                         output.addPoint(position[0], position[1]);
-                        cNeigh.backtrack();
+                        if (specialBacktrack) {
+                            cNeigh.backtrackSpecial();
+                        } else {
+                            cNeigh.backtrack();
+                        }
                     }
                 }
 
