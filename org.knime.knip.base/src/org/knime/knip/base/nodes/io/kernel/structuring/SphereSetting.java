@@ -43,46 +43,67 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
+ * Created on Dec 11, 2013 by squareys
  */
-package org.knime.knip.core.ops.labeling;
+package org.knime.knip.base.nodes.io.kernel.structuring;
+
+import java.util.Arrays;
 
 import net.imglib2.Cursor;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
-import net.imglib2.ops.operation.UnaryOperation;
+import net.imglib2.RealPoint;
+import net.imglib2.img.Img;
+import net.imglib2.img.array.ArrayImgFactory;
+import net.imglib2.roi.EllipseRegionOfInterest;
+import net.imglib2.type.logic.BitType;
+
+import org.knime.knip.base.nodes.io.kernel.SerializableConfiguration;
+import org.knime.knip.base.nodes.io.kernel.SerializableSetting;
 
 /**
- * LabelingCleaner
+ * TODO Auto-generated
  *
- *
- * For every label in {@link Labeling} "op", copies all labeled pixels to {@link Labeling} "res".
- * This gets rid of labeled pixels whose labels have been deleted from "op".
- *
- * @param <L>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
- * @author schoenen
  */
-public final class LabelingCleaner<L extends Comparable<L>> implements UnaryOperation<Labeling<L>, Labeling<L>> {
+public class SphereSetting extends SerializableSetting<Img<BitType>[]> {
 
-    @Override
-    public final Labeling<L> compute(final Labeling<L> op, final Labeling<L> res) {
-        for (final L l : op.getLabels()) {
-            final Cursor<LabelingType<L>> c =
-                    op.getIterableRegionOfInterest(l).getIterableIntervalOverROI(res).cursor();
-            while (c.hasNext()) {
-                c.next().setLabel(l);
-            }
-        }
+    private static final long serialVersionUID = 1L;
 
-        return res;
+    final int m_numDimensions;
+
+    final double m_radius;
+
+    public SphereSetting(final int numDimensions, final double radius) {
+        super();
+        m_numDimensions = numDimensions;
+        m_radius = radius;
     }
 
     @Override
-    public UnaryOperation<Labeling<L>, Labeling<L>> copy() {
-        return new LabelingCleaner<L>();
+    protected SerializableConfiguration<Img<BitType>[]> createConfiguration() {
+        return new SphereConfiguration(this);
+    }
+
+    @Override
+    public Img<BitType>[] get() {
+        final double[] origin = new double[m_numDimensions];
+        Arrays.fill(origin, m_radius);
+        final long[] dim = new long[m_numDimensions];
+        for (int i = 0; i < origin.length; i++) {
+            origin[i] = Math.round(origin[i]);
+            dim[i] = (long)((2 * origin[i]) + 1);
+        }
+        final EllipseRegionOfInterest el = new EllipseRegionOfInterest(new RealPoint(origin), m_radius);
+        final ArrayImgFactory<BitType> fac = new ArrayImgFactory<BitType>();
+        final Img<BitType> img = fac.create(dim, new BitType());
+        final Cursor<BitType> c = el.getIterableIntervalOverROI(img).cursor();
+        while (c.hasNext()) {
+            c.next();
+            c.get().set(true);
+        }
+        return new Img[]{img};
     }
 }

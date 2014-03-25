@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2013
+ *  Copyright (C) 2003 - 2014
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -43,46 +43,70 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
+ * Created on Feb 14, 2014 by squareys
  */
-package org.knime.knip.core.ops.labeling;
+package org.knime.knip.base.nodes.seg.waehlby;
 
-import net.imglib2.Cursor;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
-import net.imglib2.ops.operation.UnaryOperation;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+
+import javax.swing.JFrame;
+
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.type.numeric.RealType;
+
+import org.knime.knip.core.awt.AWTImageTools;
+import org.knime.knip.core.awt.Real2GreyRenderer;
 
 /**
- * LabelingCleaner
  *
- *
- * For every label in {@link Labeling} "op", copies all labeled pixels to {@link Labeling} "res".
- * This gets rid of labeled pixels whose labels have been deleted from "op".
- *
- * @param <L>
- * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
- * @author schoenen
+ * @author Jonathan Hale (University of Konstanz)
  */
-public final class LabelingCleaner<L extends Comparable<L>> implements UnaryOperation<Labeling<L>, Labeling<L>> {
+public class AlgorithmVisualizer<T extends RealType<T>> extends JFrame {
 
-    @Override
-    public final Labeling<L> compute(final Labeling<L> op, final Labeling<L> res) {
-        for (final L l : op.getLabels()) {
-            final Cursor<LabelingType<L>> c =
-                    op.getIterableRegionOfInterest(l).getIterableIntervalOverROI(res).cursor();
-            while (c.hasNext()) {
-                c.next().setLabel(l);
-            }
-        }
+    RandomAccessibleInterval<T> m_interval;
+    BufferedImage m_img;
 
-        return res;
+    int[] m_pos;
+
+    public AlgorithmVisualizer(final RandomAccessibleInterval<T> i) {
+        setImage(i);
+
+        m_pos = new int[]{0, 0};
+
+        this.setVisible(true);
+    }
+
+    public void setImage(final RandomAccessibleInterval<T> i) {
+        m_interval = i;
+        m_img = AWTImageTools.renderScaledStandardColorImg(m_interval, new Real2GreyRenderer(), 1.0, new long[]{0, 0});
+
+        this.setPreferredSize(new Dimension(m_img.getWidth(), m_img.getHeight()));
+        this.setSize(new Dimension(m_img.getWidth(), m_img.getHeight()));
     }
 
     @Override
-    public UnaryOperation<Labeling<L>, Labeling<L>> copy() {
-        return new LabelingCleaner<L>();
+    public void paint(final Graphics g) {
+        g.drawImage(m_img, 0, 0, this);
+
+        g.setColor(Color.RED);
+        g.drawRect(m_pos[0], m_pos[1], 1, 1);
+    }
+
+    public void setPosition(final int[] pos){
+        m_pos = pos;
+    }
+
+    public void setPosition(final int x, final int y) {
+        m_pos[0] = x;
+        m_pos[1] = y;
+    }
+
+    public void update() {
+        this.repaint();
     }
 }
