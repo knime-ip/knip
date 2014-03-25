@@ -208,7 +208,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         // use the sheds from the watershed to split the labeled objects
         split("Watershed", watershedResult, inLabMasked);
 
-        MooreContourExtractionOp contourExtraction = new MooreContourExtractionOp(false); //TODO: true causes infinite loops (Bug in moore contour extraction op)!!!
+        MooreContourExtractionOp contourExtraction = new MooreContourExtractionOp(true);
         ArrayImgFactory<BitType> bitFactory = new ArrayImgFactory<BitType>();
         ArrayList<LabeledObject> objects = new ArrayList<LabeledObject>();
 
