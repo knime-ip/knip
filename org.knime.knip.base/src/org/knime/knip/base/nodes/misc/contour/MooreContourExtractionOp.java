@@ -228,7 +228,7 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
     /**
      * {@inheritDoc}
      *
-     * Note that the output Polygon is cleared before the contour extraction.
+     * Note that the output Polygon is cleared before the contour extraction!
      */
     @Override
     public ExtendedPolygon compute(final RandomAccessibleInterval<BitType> input, final ExtendedPolygon output) {
@@ -272,7 +272,7 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
                             if (m_jacobs) {
                                 //Jacobs stopping criteria
                                 final int index = cNeigh.getIndex();
-                                if (index == 7 || index == 0) {
+                                if (index == 1 || index == 0) {
                                     // Jonathan's refinement to the non-terminating jacobs criteria
                                     specialBacktrack = true;
                                 } else if (index == 2 || index == 3) {
