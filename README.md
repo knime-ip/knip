@@ -11,6 +11,9 @@ http://tech.knime.org/community/image-processing
 Example Workflows can be found at:
 http://tech.knime.org/community/image-processing#exampleworkflows
 
+KNIME Image Processing Webinar on YouTube(03/25/2013):
+http://www.youtube.com/watch?v=MqSIyqmm3EU&feature=youtu.be&a 
+
 Package Organization
 ====
 
