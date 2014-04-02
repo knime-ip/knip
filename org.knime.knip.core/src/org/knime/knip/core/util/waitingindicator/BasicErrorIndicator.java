@@ -62,9 +62,8 @@ import javax.swing.JComponent;
 import org.knime.knip.core.util.waitingindicator.libs.WaitIndicator;
 
 /**
- * Basic error indicator style.
- * Prints a big (50pt) "ERROR" in white and adds the message text in (14pts) bellow it.
- * All on a grey background.
+ * Basic error indicator style. Prints a big (50pt) "ERROR" in white and adds the message text in (14pts) bellow it. All
+ * on a grey background.
  *
  * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
  */
@@ -72,6 +71,13 @@ public class BasicErrorIndicator extends WaitIndicator {
 
     private String[] m_errorText = {"Error"};
 
+    /**
+     * Basic error indicator style. Prints a big (50pt) "ERROR" in white and adds the message text in (14pts) bellow it.
+     * All on a grey background.
+     *
+     * @param target The {@link JComponent} that the ErrorIndicator will be applied to.
+     * @param message The error message to display.
+     */
     public BasicErrorIndicator(final JComponent target, final String[] message) {
         super(target);
         getPainter().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -100,7 +106,8 @@ public class BasicErrorIndicator extends WaitIndicator {
         int newline = g.getFontMetrics().getHeight() + 5;
         int y = 200;
         for (int i = 0; i < m_errorText.length; i++) {
-            g.drawString(m_errorText[i], 10, y += newline);
+            y += newline;
+            g.drawString(m_errorText[i], 10, y);
         }
         g.dispose();
     }

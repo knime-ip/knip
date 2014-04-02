@@ -62,7 +62,13 @@ import org.knime.knip.core.util.waitingindicator.libs.WaitIndicator;
  *
  * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
  */
-public class WaitingIndicatorUtils {
+public final class WaitingIndicatorUtils {
+
+    /**
+     * Hiding constructor
+     */
+    private WaitingIndicatorUtils() {
+    }
 
     /**
      * Display a waiting indicator on top of the selected JPanel.
@@ -114,8 +120,8 @@ public class WaitingIndicatorUtils {
      * @param display if <code>true</code> the waiting indicator will be displayed, if <code>false</code> any waiting
      *            indicator on the Jpanel is discarded.
      * @param message the error message to display.
-     * @param style Sublclass of {@link WaitIndicator}, must implement a constructor that has exactly  the following signature:
-     *   <code>Waitindicator(final JComponent target, final String[] message)</code>
+     * @param style Sublclass of {@link WaitIndicator}, must implement a constructor that has exactly the following
+     *            signature: <code>Waitindicator(final JComponent target, final String[] message)</code>
      * @throws NoSuchMethodException
      * @throws SecurityException
      * @throws InstantiationException
