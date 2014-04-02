@@ -49,28 +49,94 @@
  */
 package org.knime.knip.core.util.waitingindicator;
 
+import java.lang.reflect.InvocationTargetException;
+
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 
 import org.knime.knip.core.util.waitingindicator.libs.SpinningDialWaitIndicator;
+import org.knime.knip.core.util.waitingindicator.libs.WaitIndicator;
 
 /**
  * Helper Class that provides a waiting indicator and an error overlay.
+ *
  * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
  */
 public class WaitingIndicatorUtils {
 
-    public static void setWaiting(final JComponent jc, final boolean on) {
-        SpinningDialWaitIndicator w = (SpinningDialWaitIndicator) jc
-                .getClientProperty("waiter");
+    /**
+     * Display a waiting indicator on top of the selected JPanel.
+     *
+     * @param jc The JPanel that the waiting indicator will be placed upon
+     * @param display if <code>true</code> the waiting indicator will be displayed, if <code>false</code> any waiting
+     *            indicator on the Jpanel is discarded.
+     */
+    public static final void setWaiting(final JComponent jc, final boolean display) {
+        SpinningDialWaitIndicator w = (SpinningDialWaitIndicator)jc.getClientProperty("waiter");
         if (w == null) {
-            if (on) {
+            if (display) {
                 w = new SpinningDialWaitIndicator(jc);
             }
-        } else if (!on) {
+        } else if (!display) {
             w.dispose();
             w = null;
         }
         jc.putClientProperty("waiter", w);
+    }
+
+    /**
+     * Displays an error on top of the specified JPanel, in the style of {@link BasicErrorIndicator}.
+     *
+     * @param jc The JPanel that the waiting indicator will be placed upon
+     * @param display if <code>true</code> the waiting indicator will be displayed, if <code>false</code> any waiting
+     *            indicator on the JPanel is discarded.
+     * @param message the error message to display.
+     */
+    public static final void showError(final JComponent jc, final String[] message, final boolean display) {
+
+        BasicErrorIndicator w = (BasicErrorIndicator)jc.getClientProperty("error");
+        if (w == null) {
+            if (display) {
+                w = new BasicErrorIndicator(jc, message);
+            }
+        } else if (!display) {
+            w.dispose();
+            w = null;
+        }
+        jc.putClientProperty("error", w);
+    }
+
+    /**
+     * Shows an error overlay on the selected JPanel, using the style of the style class. <br>
+     * See {@link BasicErrorIndicator} for an example.
+     *
+     * @param jc The JPanel that the waiting indicator will be placed upon
+     * @param display if <code>true</code> the waiting indicator will be displayed, if <code>false</code> any waiting
+     *            indicator on the Jpanel is discarded.
+     * @param message the error message to display.
+     * @param style Sublclass of {@link WaitIndicator}, must implement a constructor that has exactly  the following signature:
+     *   <code>Waitindicator(final JComponent target, final String[] message)</code>
+     * @throws NoSuchMethodException
+     * @throws SecurityException
+     * @throws InstantiationException
+     * @throws IllegalAccessException
+     * @throws IllegalArgumentException
+     * @throws InvocationTargetException
+     */
+    public static final void showError(final JComponent jc, final String[] message, final Class<WaitIndicator> style,
+                                       final boolean display) throws NoSuchMethodException, SecurityException,
+            InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+
+        WaitIndicator w = (WaitIndicator)jc.getClientProperty("error");
+        if (w == null) {
+            if (display) {
+                w = style.getConstructor(new Class[]{JPanel.class, String.class}).newInstance(jc, message);
+            }
+        } else if (!display) {
+            w.dispose();
+            w = null;
+        }
+        jc.putClientProperty("error", w);
     }
 
 }
