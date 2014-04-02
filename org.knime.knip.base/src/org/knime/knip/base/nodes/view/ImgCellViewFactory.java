@@ -128,7 +128,7 @@ public class ImgCellViewFactory<T extends RealType<T> & NativeType<T>> implement
             @Override
             public void updateComponent(final DataValue valueToView) {
 
-                WaitingIndicatorUtils.setWaiting(m_view.getRootPane(), true);
+                WaitingIndicatorUtils.setWaiting(m_view, true);
 
                 SwingWorker<ImgPlusValue<T>, Integer> worker = new SwingWorker<ImgPlusValue<T>, Integer>() {
 
@@ -141,7 +141,7 @@ public class ImgCellViewFactory<T extends RealType<T> & NativeType<T>> implement
 
                     @Override
                     protected void done() {
-                        WaitingIndicatorUtils.setWaiting(m_view.getRootPane(), false);
+                        WaitingIndicatorUtils.setWaiting(m_view, false);
                     }
                 };
 
@@ -193,7 +193,7 @@ public class ImgCellViewFactory<T extends RealType<T> & NativeType<T>> implement
 
             public void updateComponent(final DataValue valueToView) {
 
-                WaitingIndicatorUtils.setWaiting(m_view.getRootPane(), true);
+                WaitingIndicatorUtils.setWaiting(m_view, true);
 
                 SwingWorker<ImgPlusValue<T>, Integer> worker = new SwingWorker<ImgPlusValue<T>, Integer>() {
 
@@ -206,7 +206,7 @@ public class ImgCellViewFactory<T extends RealType<T> & NativeType<T>> implement
 
                     @Override
                     protected void done() {
-                        WaitingIndicatorUtils.setWaiting(m_view.getRootPane(), false);
+                        WaitingIndicatorUtils.setWaiting(m_view, false);
                     }
                 };
 
@@ -258,7 +258,7 @@ public class ImgCellViewFactory<T extends RealType<T> & NativeType<T>> implement
 
             public void updateComponent(final DataValue valueToView) {
 
-                WaitingIndicatorUtils.setWaiting(m_view.getRootPane(), true);
+                WaitingIndicatorUtils.setWaiting(m_view, true);
 
                 SwingWorker<ImgPlusValue<T>, Integer> worker = new SwingWorker<ImgPlusValue<T>, Integer>() {
 
@@ -271,7 +271,7 @@ public class ImgCellViewFactory<T extends RealType<T> & NativeType<T>> implement
 
                     @Override
                     protected void done() {
-                        WaitingIndicatorUtils.setWaiting(m_view.getRootPane(), false);
+                        WaitingIndicatorUtils.setWaiting(m_view, false);
                     }
                 };
 
