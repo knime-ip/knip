@@ -73,7 +73,8 @@ public class LAPTrackerNodeModel extends NodeModel implements
 		BufferedDataTableHolder {
 
 	public enum LAPTrackerAlgorithm {
-		HUNGARIAN("Hungarian"), MUNKRESKUHN("Munkres Kuhn");
+		HUNGARIAN("Hungarian"), MUNKRESKUHN("Munkres Kuhn"), JONKERVOLGENANT(
+				"Jonker Volgenant");
 
 		private String name;
 
