@@ -60,6 +60,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
@@ -74,6 +75,7 @@ import org.knime.core.node.NodeView;
 import org.knime.core.node.tableview.TableContentModel;
 import org.knime.core.node.tableview.TableContentView;
 import org.knime.core.node.tableview.TableView;
+import org.knime.knip.core.util.waitingindicator.WaitingIndicatorUtils;
 import org.knime.node2012.ViewDocument.View;
 import org.knime.node2012.ViewsDocument.Views;
 
@@ -129,7 +131,7 @@ import org.knime.node2012.ViewsDocument.Views;
  */
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -140,7 +142,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     /**
      * Add the description of the view.
-     * 
+     *
      * @param views
      */
     public static void addViewDescriptionTo(final Views views) {
@@ -339,7 +341,23 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         m_viewComponents = new HashMap<String, Component>();
 
         m_cellViewTabs = new JTabbedPane();
-        m_tableContentView.setModel(m_tableModel);
+
+        WaitingIndicatorUtils.setWaiting(m_sp, true);
+        SwingWorker<T, Integer> worker = new SwingWorker<T, Integer>() {
+
+            @Override
+            protected T doInBackground() throws Exception {
+                m_tableContentView.setModel(m_tableModel);
+                return null;
+            }
+
+            @Override
+            protected void done() {
+               WaitingIndicatorUtils.setWaiting(m_sp, false);
+            }
+        };
+
+        worker.execute();
 
         m_changeListener = new ChangeListener() {
             @Override
