@@ -372,14 +372,13 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 									calibAxes
 											.toArray(new CalibratedAxis[calibAxes
 													.size()]));
-					
+
 					// reads the ome xml metadata
-                    if (m_omexml) {
-                        result[result.length - 1] = XMLCellFactory
-                                .create(m_imgSource
-                                        .getOMEXMLMetadata(currentFile));
-                    }
-					
+					if (m_omexml) {
+						result[result.length - 1] = XMLCellFactory
+								.create(m_imgSource
+										.getOMEXMLMetadata(currentFile));
+					}
 
 					// One _can_ be sure that if and only if
 					// some dims are removed (as they are of
@@ -401,7 +400,6 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 					if (seriesCount > 1) {
 						rowKey += "_" + currentSeries;
 					}
-					
 
 				} catch (final FormatException e) {
 					LOGGER.warn("Format not supported for file " + currentFile
@@ -417,6 +415,7 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 					m_error = true;
 				} catch (final Exception e) {
 					LOGGER.error(e);
+					e.printStackTrace();
 					m_error = true;
 				}
 
