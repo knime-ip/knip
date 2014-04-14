@@ -329,14 +329,14 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 				final Vector<DataCell> row = new Vector<DataCell>();
 
 				final DataCell[] result = new DataCell[m_omexml ? 2 : 1];
-				try {
-					progressCount++;
+				try {					
 					if ((currentSeries + 1) < seriesCount
 							&& m_selectedSeries == -1) {
 						// if there still is a series left and ALL series are
 						// selected to be read (m_selectedSeries!=-1)
 						currentSeries++;
 					} else {
+						progressCount++;
 						currentFile = fileIterator.next().trim();
 
 						// replace relative file pathes knime://knime.workflow
