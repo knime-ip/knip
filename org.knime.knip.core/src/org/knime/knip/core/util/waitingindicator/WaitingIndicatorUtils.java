@@ -81,7 +81,7 @@ public final class WaitingIndicatorUtils {
         SpinningDialWaitIndicator w = (SpinningDialWaitIndicator)jc.getClientProperty("waiter");
         if (w == null) {
             if (display) {
-                w = new SpinningDialWaitIndicator(jc);
+                w = new SpinningDialWaitIndicator(jc, "loading");
             }
         } else if (!display) {
             w.dispose();
