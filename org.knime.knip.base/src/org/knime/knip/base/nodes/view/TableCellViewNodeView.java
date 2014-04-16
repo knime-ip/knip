@@ -56,10 +56,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -215,7 +215,6 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     public TableCellViewNodeView(final T nodeModel) {
         this(nodeModel, 0);
-
     }
 
     /**
@@ -281,7 +280,6 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
                 m_viewComponents.put(currentDataCellClass + ":" + v.getName(), comp);
 
             }
-
         }
 
         // add the components to the tabs
@@ -297,7 +295,11 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     }
 
-    private void initViewComponents() {
+    private synchronized void initViewComponents() {
+
+        //temporary panel to display loading indicator.
+        final JPanel loadpanel = new JPanel();
+        loadpanel.setPreferredSize(new Dimension(600, 400));
 
         m_sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
@@ -342,7 +344,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
         m_cellViewTabs = new JTabbedPane();
 
-        WaitingIndicatorUtils.setWaiting(m_sp, true);
+        WaitingIndicatorUtils.setWaiting(loadpanel, true);
         SwingWorker<T, Integer> worker = new SwingWorker<T, Integer>() {
 
             @Override
@@ -353,7 +355,8 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
             @Override
             protected void done() {
-               WaitingIndicatorUtils.setWaiting(m_sp, false);
+               WaitingIndicatorUtils.setWaiting(loadpanel, false);
+               setComponent(m_sp);
             }
         };
 
@@ -370,7 +373,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         m_sp.setDividerLocation(300);
         m_sp.add(m_cellViewTabs);
 
-        setComponent(m_sp);
+        setComponent(loadpanel);
 
     }
 
@@ -470,14 +473,14 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         // occurs if we just switch tabs without switching the image to
         // be
         // painted
-        if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    m_cellViewTabs.repaint();
-                }
-            });
+//        if (System.getProperty("os.name").toLowerCase().contains("win")) {
+//            SwingUtilities.invokeLater(new Runnable() {
+//                @Override
+//                public void run() {
+//                    m_cellViewTabs.repaint();
+//                }
+//            });
         }
     }
 
-}
+//}
