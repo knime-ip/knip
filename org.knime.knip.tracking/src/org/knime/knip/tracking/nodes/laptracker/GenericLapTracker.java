@@ -8,6 +8,7 @@ import org.knime.knip.tracking.nodes.laptracker.LAPTrackerNodeModel.LAPTrackerAl
 import fiji.plugin.trackmate.tracking.TrackableObjectCollection;
 import fiji.plugin.trackmate.tracking.hungarian.AssignmentAlgorithm;
 import fiji.plugin.trackmate.tracking.hungarian.HungarianAlgorithm;
+import fiji.plugin.trackmate.tracking.hungarian.JonkerVolgenantAlgorithm;
 import fiji.plugin.trackmate.tracking.hungarian.MunkresKuhnAlgorithm;
 import fiji.plugin.trackmate.tracking.trackers.LAPTracker;
 
@@ -28,6 +29,8 @@ public class GenericLapTracker<L extends Comparable<L>> extends
 			return new MunkresKuhnAlgorithm();
 		case HUNGARIAN:
 			return new HungarianAlgorithm();
+		case JONKERVOLGENANT:
+			return new JonkerVolgenantAlgorithm();
 		default:
 			throw new IllegalArgumentException("Unknown LAPTracker");
 		}

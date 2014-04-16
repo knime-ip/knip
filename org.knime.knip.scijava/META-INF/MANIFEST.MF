@@ -10,7 +10,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: scijava.jar,
  lib/mvn/eventbus-1.4.jar,
- lib/mvn/scijava-common-2.10.0.jar
+ lib/mvn/scijava-common-2.14.0.jar
 Export-Package: org.bushe.swing.event,
  org.bushe.swing.event.annotation,
  org.bushe.swing.event.generics,

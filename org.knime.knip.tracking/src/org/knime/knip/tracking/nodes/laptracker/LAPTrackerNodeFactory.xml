@@ -29,7 +29,9 @@
 		</intro>
 		<tab name="Options">
 			<option name="Algorithm">Choose the implementation. Munkres-Kuhn is faster
-				than Hungarian, but sometimes performs worse.
+				than Hungarian, but sometimes performs worse. Another alternative is
+				Jonker Volgenant Algorithm, which
+				is very fast and accurate.
 			</option>
 			<option name="Maximum Object Distance">Maximum distance between to objects</option>
 			<option name="Tracking Dimension">Select the dimension which will be used for
@@ -59,9 +61,11 @@
 		</tab>
 		<tab name="Advanced">
 			<option name="Alternative Linking Cost Factor"> Factor used to compute alternative linking costs
-				(see http://fiji.sc/TrackMate for details). </option>
+				(see http://fiji.sc/TrackMate for details).
+			</option>
 			<option name="Cutoff Percentile">Cut-Off Percentile (see http://fiji.sc/TrackMate
-				for details).</option>
+				for details).
+			</option>
 		</tab>
 	</fullDescription>
 
