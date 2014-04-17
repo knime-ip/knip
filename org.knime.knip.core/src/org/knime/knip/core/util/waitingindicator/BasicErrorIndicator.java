@@ -105,9 +105,8 @@ public class BasicErrorIndicator extends WaitIndicator {
         g.setFont(new Font("TimesRoman", Font.BOLD, 14));
         int newline = g.getFontMetrics().getHeight() + 5;
         int y = 200;
-        for (int i = 0; i < m_errorText.length; i++) {
-            y += newline;
-            g.drawString(m_errorText[i], 10, y);
+        for (String s : m_errorText) {
+            g.drawString(s, 10, y += newline);
         }
         g.dispose();
     }
