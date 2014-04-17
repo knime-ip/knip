@@ -314,21 +314,20 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
                     return;
                 }
                 cellSelectionChanged();
-
             }
         };
+
         m_tableContentView.getSelectionModel().addListSelectionListener(m_listSelectionListenerA);
         m_listSelectionListenerB = new ListSelectionListener() {
-
             @Override
             public void valueChanged(final ListSelectionEvent e) {
                 if (e.getValueIsAdjusting()) {
                     return;
                 }
                 cellSelectionChanged();
-
             }
         };
+
         m_tableContentView.getColumnModel().getSelectionModel().addListSelectionListener(m_listSelectionListenerB);
         m_tableView = new TableView(m_tableContentView);
         m_sp.add(m_tableView);
@@ -344,6 +343,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
         m_cellViewTabs = new JTabbedPane();
 
+        // Show waiting indicator and work in background.
         WaitingIndicatorUtils.setWaiting(loadpanel, true);
         SwingWorker<T, Integer> worker = new SwingWorker<T, Integer>() {
 
@@ -355,8 +355,8 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
             @Override
             protected void done() {
-               WaitingIndicatorUtils.setWaiting(loadpanel, false);
-               setComponent(m_sp);
+                WaitingIndicatorUtils.setWaiting(loadpanel, false);
+                setComponent(m_sp);
             }
         };
 
@@ -370,24 +370,18 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         };
 
         m_cellViewTabs.addChangeListener(m_changeListener);
-        m_sp.setDividerLocation(300);
+        m_sp.setDividerLocation(250);
         m_sp.add(m_cellViewTabs);
 
+//        Temporarily add loadpanel as component, so that the ui stays responsive.
         setComponent(loadpanel);
-
     }
 
     private void loadPortContent() {
-        // UPDATE_EXECUTOR.execute(new Runnable() {
-        // @Override
-        // public void run() {
         m_tableModel = new TableContentModel();
         m_tableModel.setDataTable(getNodeModel().getInternalTables()[m_portIdx]);
 
         initViewComponents();
-
-        // }
-        // });
     }
 
     /**
@@ -468,19 +462,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         m_cellViews.get(m_currentCell.getClass().getCanonicalName()).get(m_cellViewTabs.getSelectedIndex())
                 .updateComponent(m_currentCell);
 
-        // This fixes the bug on windows in the 3D Viewer where no
-        // repainting
-        // occurs if we just switch tabs without switching the image to
-        // be
-        // painted
-//        if (System.getProperty("os.name").toLowerCase().contains("win")) {
-//            SwingUtilities.invokeLater(new Runnable() {
-//                @Override
-//                public void run() {
-//                    m_cellViewTabs.repaint();
-//                }
-//            });
-        }
     }
+}
 
 //}
