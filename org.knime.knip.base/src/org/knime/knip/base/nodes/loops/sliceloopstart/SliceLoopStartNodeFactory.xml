@@ -1,0 +1,13 @@
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="icons/threshold.png" type="LoopStart">
+	<name>Slice Loop Start</name>
+	<shortDescription>
+	</shortDescription>
+
+	<fullDescription>
+		<intro></intro>
+	</fullDescription>
+
+	<ports>
+	</ports>
+</knimeNode>
