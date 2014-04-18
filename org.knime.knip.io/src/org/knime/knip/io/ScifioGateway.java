@@ -50,6 +50,7 @@ package org.knime.knip.io;
 
 import io.scif.Format;
 import io.scif.SCIFIO;
+import io.scif.img.converters.PlaneConverterService;
 
 import java.util.Collections;
 import java.util.List;
@@ -100,6 +101,9 @@ public class ScifioGateway {
         }
 
         FORMATS = m_scifio.format().getAllFormats();
+        
+        // TODO remove after this method is thread-safe in scifio
+        m_scifio.get(PlaneConverterService.class).getDefaultConverter();
     }
 
     /**
