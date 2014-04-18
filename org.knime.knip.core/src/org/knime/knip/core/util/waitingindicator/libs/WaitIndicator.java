@@ -1,4 +1,4 @@
-/* Copyright (c) 006-2007 Timothy Wall, All Rights Reserved
+/* Copyright (c) 2006-2007 Timothy Wall, All Rights Reserved
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -9,6 +9,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
+ *
+ * http://sourceforge.net/projects/furbelow/
  */
 package org.knime.knip.core.util.waitingindicator.libs;
 
