@@ -50,6 +50,8 @@ package org.knime.knip.base.nodes.view;
 
 import java.awt.Component;
 
+import javax.swing.SwingWorker;
+
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
@@ -62,13 +64,15 @@ import org.knime.knip.base.data.ui.ViewerFactory;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.ui.imgviewer.events.ResetCacheEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
+import org.knime.knip.core.util.waitingindicator.WaitingIndicatorUtils;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
  */
 public class ImgCellViewFactory<T extends RealType<T> & NativeType<T>> implements TableCellViewFactory {
 
@@ -124,8 +128,25 @@ public class ImgCellViewFactory<T extends RealType<T> & NativeType<T>> implement
 
             @Override
             public void updateComponent(final DataValue valueToView) {
-                final ImgPlusValue<T> imgPlusValue = (ImgPlusValue<T>)valueToView;
-                m_view.setImg(imgPlusValue.getImgPlus());
+
+                WaitingIndicatorUtils.setWaiting(m_view, true);
+
+                SwingWorker<ImgPlusValue<T>, Integer> worker = new SwingWorker<ImgPlusValue<T>, Integer>() {
+
+                    @Override
+                    protected ImgPlusValue<T> doInBackground() throws Exception {
+                        final ImgPlusValue<T> imgPlusValue = (ImgPlusValue<T>)valueToView;
+                        m_view.setImg(imgPlusValue.getImgPlus());
+                        return null;
+                    }
+
+                    @Override
+                    protected void done() {
+                        WaitingIndicatorUtils.setWaiting(m_view, false);
+                    }
+                };
+
+                worker.execute();
             }
         }, new TableCellView() {
             private ImgViewer m_view = null;
@@ -171,10 +192,26 @@ public class ImgCellViewFactory<T extends RealType<T> & NativeType<T>> implement
 
             }
 
-            @Override
             public void updateComponent(final DataValue valueToView) {
-                final ImgPlusValue<T> imgPlusValue = (ImgPlusValue<T>)valueToView;
-                m_view.setImg(imgPlusValue.getImgPlus());
+
+                WaitingIndicatorUtils.setWaiting(m_view, true);
+
+                SwingWorker<ImgPlusValue<T>, Integer> worker = new SwingWorker<ImgPlusValue<T>, Integer>() {
+
+                    @Override
+                    protected ImgPlusValue<T> doInBackground() throws Exception {
+                        final ImgPlusValue<T> imgPlusValue = (ImgPlusValue<T>)valueToView;
+                        m_view.setImg(imgPlusValue.getImgPlus());
+                        return null;
+                    }
+
+                    @Override
+                    protected void done() {
+                        WaitingIndicatorUtils.setWaiting(m_view, false);
+                    }
+                };
+
+                worker.execute();
             }
         }, new TableCellView() {
             private ImgViewer m_view = null;
@@ -220,14 +257,28 @@ public class ImgCellViewFactory<T extends RealType<T> & NativeType<T>> implement
 
             }
 
-            @Override
             public void updateComponent(final DataValue valueToView) {
-                final ImgPlusValue<T> imgPlusValue = (ImgPlusValue<T>)valueToView;
-                m_view.setImg(imgPlusValue.getImgPlus());
-            }
-        }
 
-        };
+                WaitingIndicatorUtils.setWaiting(m_view, true);
+
+                SwingWorker<ImgPlusValue<T>, Integer> worker = new SwingWorker<ImgPlusValue<T>, Integer>() {
+
+                    @Override
+                    protected ImgPlusValue<T> doInBackground() throws Exception {
+                        final ImgPlusValue<T> imgPlusValue = (ImgPlusValue<T>)valueToView;
+                        m_view.setImg(imgPlusValue.getImgPlus());
+                        return null;
+                    }
+
+                    @Override
+                    protected void done() {
+                        WaitingIndicatorUtils.setWaiting(m_view, false);
+                    }
+                };
+
+                worker.execute();
+            }
+        }};
     }
 
     @Override
