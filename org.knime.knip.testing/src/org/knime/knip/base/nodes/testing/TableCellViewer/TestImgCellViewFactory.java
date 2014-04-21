@@ -278,69 +278,6 @@ public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> imple
               }
             }
 
-        }
-        //TODO: Implement/Fix
-//          , new TableCellView() {
-//            private ImgViewer m_view = null;
-//
-//            @Override
-//            public String getDescription() {
-//                return "";
-//            }
-//
-//            @Override
-//            public String getName() {
-//                return "Test Transfer Function";
-//            }
-//
-//            @Override
-//            public Component getViewComponent() {
-//                if (m_view == null) {
-//                    m_view =
-//                            TestViewerFactory.createTransferFunctionViewer(KNIMEKNIPPlugin.getCacheSizeForBufferedImages());
-//                }
-//                return m_view;
-//            }
-//
-//            @Override
-//            public void loadConfigurationFrom(final ConfigRO config) {
-//                //
-//
-//            }
-//
-//            @Override
-//            public void onClose() {
-//                m_view.getEventService().publish(new ViewClosedEvent());
-//            }
-//
-//            @Override
-//            public void onReset() {
-//                m_view.getEventService().publish(new ResetCacheEvent());
-//            }
-//
-//            @Override
-//            public void saveConfigurationTo(final ConfigWO config) {
-//                //
-//
-//            }
-//
-//            @Override
-//            public void updateComponent(final DataValue valueToView) {
-//                final ImgPlusValue<T> imgPlusValue = (ImgPlusValue<T>)valueToView;
-//                m_view.setImg(imgPlusValue.getImgPlus());
-//                testComponent(imgPlusValue);
-//            }
-//
-//            private void testComponent(final ImgPlusValue<T> imgPlusValue) {
-//                EventService service = m_view.getEventService();
-//
-//                // HistogramRU reacts only to PlaneSelectionEvents
-//                System.out.println("-DEBUG: Transfer Test-");
-////                service.publish(new ImgRedrawEvent());
-//                service.publish(new TestCompleteEvent());
-//            }
-//        }
-        };
         }};
     }
 
