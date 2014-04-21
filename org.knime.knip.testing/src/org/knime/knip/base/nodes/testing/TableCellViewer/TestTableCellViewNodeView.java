@@ -259,15 +259,17 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
                 // cache the view component
                 final Component comp = v.getViewComponent();
 
-                // add the image-logger to every component before storing it.
-                ImgViewer viewer = (ImgViewer)comp;
-                HiddenImageLogger logger = new HiddenImageLogger();
-                viewer.addViewerComponent(logger);
-                m_logger.add(logger);
+                if(isLogging)
+                {
+                    // add the image-logger to every component before storing it.
+                    ImgViewer viewer = (ImgViewer)comp;
+                    HiddenImageLogger logger = new HiddenImageLogger();
+
+                    viewer.addViewerComponent(logger);
+                    m_logger.add(logger);
+                }
 
                 m_viewComponents.put(currentDataCellClass + ":" + v.getName(), comp);
-
-
 
             }
 
