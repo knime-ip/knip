@@ -119,27 +119,26 @@ public class TestViewerFactory {
 
     }
 
-    // TODO: NYI
     public static <L extends Comparable<L>> ImgViewer createLabelingViewer(final int cacheSize) {
         final ImgViewer viewer = new ImgViewer();
 
-//        new AWTImageProvider(cacheSize, new LabelingRU<L>()).setEventService(viewer.getEventService());
-//
-//        viewer.addViewerComponent(new LabelingViewInfoPanel<L>());
-//
-//        viewer.addViewerComponent(new ImgCanvas<LabelingType<L>, Labeling<L>>());
-//
-//        viewer.addViewerComponent(ViewerComponents.MINIMAP.createInstance());
-//
-//        viewer.addViewerComponent(ViewerComponents.PLANE_SELECTION.createInstance());
-//
-//        viewer.addViewerComponent(ViewerComponents.RENDERER_SELECTION.createInstance());
-//
-//        viewer.addViewerComponent(ViewerComponents.IMAGE_PROPERTIES.createInstance());
-//
-//        viewer.addViewerComponent(new LabelOptionPanel());
-//
-//        viewer.addViewerComponent(ViewerComponents.LABEL_FILTER.createInstance());
+        new AWTImageProvider(cacheSize, new LabelingRU<L>()).setEventService(viewer.getEventService());
+
+        viewer.addViewerComponent(new LabelingViewInfoPanel<L>());
+
+        viewer.addViewerComponent(new TestImgCanvas<LabelingType<L>, Labeling<L>>());
+
+        viewer.addViewerComponent(ViewerComponents.MINIMAP.createInstance());
+
+        viewer.addViewerComponent(ViewerComponents.PLANE_SELECTION.createInstance());
+
+        viewer.addViewerComponent(ViewerComponents.RENDERER_SELECTION.createInstance());
+
+        viewer.addViewerComponent(ViewerComponents.IMAGE_PROPERTIES.createInstance());
+
+        viewer.addViewerComponent(new LabelOptionPanel());
+
+        viewer.addViewerComponent(ViewerComponents.LABEL_FILTER.createInstance());
 
         return viewer;
     }

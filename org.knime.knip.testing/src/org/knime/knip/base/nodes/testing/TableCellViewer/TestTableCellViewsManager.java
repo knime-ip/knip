@@ -101,6 +101,7 @@ public final class TestTableCellViewsManager {
      */
     private TestTableCellViewsManager() {
         addTableCellViewFactory(new TestImgCellViewFactory());
+        addTableCellViewFactory(new TestLabelingCellViewFactory());
     }
 
     /**
