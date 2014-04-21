@@ -93,12 +93,12 @@ public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> imple
              */
             @Override
             public String getDescription() {
-                return "";
+                return "Logging image view.";
             }
 
             @Override
             public String getName() {
-                return "Test Image Viewer";
+                return "Image Viewer Test View";
             }
 
             @Override
@@ -140,11 +140,32 @@ public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> imple
                 testComponent(imgPlusValue);
             }
 
+
+            /**
+             * This method handles the actual testing.
+             * @param imgPlusValue The Image to be displayed, used in tests.
+             */
             private void testComponent(final ImgPlusValue<T> imgPlusValue) {
                 EventService service = m_view.getEventService();
 
-                // Minimap
-//                System.out.println("-DEBUG: Minimap Test-");
+                //              Calibration
+
+                service.publish(new ImgWithMetadataChgEvent(imgPlusValue.getImgPlus(), imgPlusValue.getMetadata()));
+                service.publish(new TestCompleteEvent());
+
+                //              Normalization
+
+                service.publish(new NormalizationParametersChgEvent(0, false));
+                service.publish(new TestCompleteEvent());
+
+                service.publish(new NormalizationParametersChgEvent(25, true));
+                service.publish(new TestCompleteEvent());
+
+                service.publish(new NormalizationParametersChgEvent(50, true));
+                service.publish(new TestCompleteEvent());
+
+                //                Minimap
+
                 service.publish(new ViewZoomfactorChgEvent(MinimapPanel.ZOOM_MIN / 100d));
                 service.publish(new ImgRedrawEvent());
                 service.publish(new TestCompleteEvent());
@@ -157,8 +178,8 @@ public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> imple
                 service.publish(new ImgRedrawEvent());
                 service.publish(new TestCompleteEvent());
 
-                // PlaneSelection
-//                System.out.println("-DEBUG: PlaneSelection Test-");
+                //                PlaneSelection
+
                 if (imgPlusValue.getMetadata().numDimensions() > 1) {
                     long[] coords = new long[imgPlusValue.getMetadata().numDimensions()];
                     double[] scaleFactors = new double[coords.length];
@@ -166,6 +187,14 @@ public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> imple
                         coords[i] = imgPlusValue.getDimensions()[i];
                         if(coords[i] > 0) {
                             coords[i] = 1;
+
+                    for (int i = 2; i < imgPlusValue.getMetadata().numDimensions(); ++i) {
+                        if (imgPlusValue.getDimensions()[i] > 1) {
+                            long[] tempcords = new long[imgPlusValue.getMetadata().numDimensions()];
+                            tempcords[i] = 1;
+                            service.publish(new PlaneSelectionEvent(0, i, tempcords));
+                            service.publish(new ImgRedrawEvent());
+                            service.publish(new TestCompleteEvent());
                         }
                         scaleFactors[i] = 2;
                     }
@@ -192,6 +221,7 @@ public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> imple
 
                 // RendererSelection
 //                System.out.println("-DEBUG: RendererSelection Test-");
+                //              RendererSelection
 
                 ImageRenderer<T>[] tmp = RendererFactory.createSuitableRenderer(imgPlusValue.getImgPlus());
 
@@ -257,10 +287,23 @@ public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> imple
             private void testComponent(final ImgPlusValue<T> imgPlusValue) {
                 EventService service = m_view.getEventService();
 
-                // HistogramRU reacts only to PlaneSelectionEvents
-//                System.out.println("-DEBUG: Histogram Test-");
-                service.publish(new ImgRedrawEvent());
-                service.publish(new TestCompleteEvent());
+//              HistogramRU reacts only to PlaneSelectionEvents
+
+//              PlaneSelection
+
+              if (imgPlusValue.getMetadata().numDimensions() > 1) {
+
+
+                  for (int i = 2; i < imgPlusValue.getMetadata().numDimensions(); ++i) {
+                      if (imgPlusValue.getDimensions()[i] > 1) {
+                          long[] tempcords = new long[imgPlusValue.getMetadata().numDimensions()];
+                          tempcords[i] = 1;
+                          service.publish(new PlaneSelectionEvent(0, i, tempcords));
+                          service.publish(new ImgRedrawEvent());
+                          service.publish(new TestCompleteEvent());
+                      }
+                  }
+              }
             }
 
         }
@@ -326,6 +369,7 @@ public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> imple
 //            }
 //        }
         };
+        }};
     }
 
     /**
