@@ -57,24 +57,18 @@ import org.knime.core.data.DataValue;
 import org.knime.core.node.NodeLogger;
 import org.knime.knip.base.nodes.view.TableCellView;
 import org.knime.knip.base.nodes.view.TableCellViewFactory;
+import org.knime.knip.base.nodes.view.TableCellViewsManager;
 
 /**
- *
+ * A simple reimplementation/copy of {@link TableCellViewsManager} using classes made for logging.
  *
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author Andreas Burger, University of Konstanz
  */
 public final class TestTableCellViewsManager {
-
-//    /**
-//     * The attribute of the table cell view extension point pointing to the factory class
-//     */
-//    public static final String EXT_POINT_ATTR_DF = "TableCellViewFactory";
-//
-//    /** The id of the TableCellView extension point. */
-//    public static final String EXT_POINT_ID = "org.knime.knip.base.TableCellView";
 
     private static TestTableCellViewsManager instance;
 

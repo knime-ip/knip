@@ -52,8 +52,10 @@ package org.knime.knip.base.nodes.testing.TableCellViewer;
 import org.knime.knip.core.ui.event.KNIPEvent;
 
 /**
+ * Internally used event-class. When received by a {@link TestImgCanvas} it will store the currently loaded image into
+ * an {@link TestImageEvent} and publish it to the event service.
  *
- * @author Andreas Burger
+ * @author Andreas Burger, University of Konstanz
  */
 public class TestCompleteEvent implements KNIPEvent {
 

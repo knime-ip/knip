@@ -59,12 +59,15 @@ import org.knime.node2012.KnimeNodeDocument;
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author Andreas Burger, University of Konstanz
  */
 public class TestTableCellViewNodeFactory extends DynamicNodeFactory<TestTableCellViewNodeModel> {
 
     /**
      * {@inheritDoc}
+     * @deprecated
      */
+    @Deprecated
     @Override
     protected void addNodeDescription(final KnimeNodeDocument doc) {
         XMLNodeUtils.addXMLNodeDescriptionTo(doc, this.getClass());

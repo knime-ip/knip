@@ -62,17 +62,23 @@ import org.knime.knip.core.ui.imgviewer.ViewerComponent;
 
 /**
  *
- * @author Andreas
+ * This class represents a hidden component in the test-viewer which logs the displayed images whenever a
+ * {@link TestCompleteEvent} is fired. These stored images can later be retrieved.
+ *
+ * @author Andreas Burger, University of Konstanz
  */
 public class HiddenImageLogger extends ViewerComponent {
 
-    private EventService m_eventService;
-
-    private BufferedImage m_image;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 4255350884948223971L;
 
     private List<BufferedImage> m_collectedImages;
 
     /**
+     * See {@link ViewerComponent#ViewerComponent(String, boolean)}
+     *
      * @param title
      * @param isBorderHidden
      */
@@ -81,8 +87,10 @@ public class HiddenImageLogger extends ViewerComponent {
         m_collectedImages = new LinkedList<BufferedImage>();
     }
 
-    public HiddenImageLogger()
-    {
+    /**
+     * Default Constructor for an invisible image-logger.
+     */
+    public HiddenImageLogger() {
         this("", false);
     }
 
@@ -101,18 +109,26 @@ public class HiddenImageLogger extends ViewerComponent {
      */
     @Override
     public Position getPosition() {
-        // TODO Auto-generated method stub
         return Position.HIDDEN;
     }
 
+    /**
+     * Called, when a TestImageEvent is recieved. Stores the contained image for retrieval.
+     *
+     * @param e Received Message
+     */
     @EventListener
     public void onTestImageEvent(final TestImageEvent e) {
         // Keep track of most recent image
         m_collectedImages.add(e.getImage());
     }
 
-    public List<BufferedImage> getImages()
-    {
+    /**
+     * This method returns all images stored in this logging component, or an empty list if there are none.
+     *
+     * @return Images stored in this viewer
+     */
+    public List<BufferedImage> getImages() {
         return m_collectedImages;
     }
 

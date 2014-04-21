@@ -131,9 +131,11 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.tableview.TableContentModel;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
+import org.knime.knip.base.nodes.view.TableCellViewNodeModel;
 import org.knime.knip.core.types.ImgFactoryTypes;
 
 /**
@@ -141,6 +143,7 @@ import org.knime.knip.core.types.ImgFactoryTypes;
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author Andreas Burger, University of Konstanz
  */
 public class TestTableCellViewNodeModel extends NodeModel implements BufferedDataTableHolder {
 
@@ -217,24 +220,27 @@ public class TestTableCellViewNodeModel extends NodeModel implements BufferedDat
 
         // Open view and prepare it.
         @SuppressWarnings({"rawtypes", "unchecked"})
-        TestTableCellViewNodeView view = new TestTableCellViewNodeView(this, 0);
+        TestTableCellViewNodeView view = new TestTableCellViewNodeView(this, 0, true);
         view.onOpen(); // Manual preparation
 
-        // After the call of onOpen(), every testview has run on every image.
+        // After the call of onOpen(), every test-view has run on every image.
         // Fetch the logger.
         List<HiddenImageLogger> imageFetchingComponents = view.getImageLogger();
+
+        // Prepare output schema (One column, images only)
         final BufferedDataContainer con =
                 exec.createDataContainer(new DataTableSpec(DataTableSpec
                         .createColumnSpecs(new String[]{"Images"}, new DataType[]{ImgPlusCell.TYPE})));
         int i = 0;
 
+        // Convert every BufferedImage to png and then to ImgPlus and add it to the output container.
         for (HiddenImageLogger logger : imageFetchingComponents) {
             for (BufferedImage img : logger.getImages()) {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ImageIO.write(img, "png", baos);
-                baos.flush();
-                byte[] imageInByte = baos.toByteArray();
-                baos.close();
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                ImageIO.write(img, "png", os);
+                os.flush();
+                byte[] imageInByte = os.toByteArray();
+                os.close();
 
                 PNGImageContent pngCell = new PNGImageContent(imageInByte);
                 ImgPlusCell<UnsignedByteType> imgPlusCell = compute(pngCell);

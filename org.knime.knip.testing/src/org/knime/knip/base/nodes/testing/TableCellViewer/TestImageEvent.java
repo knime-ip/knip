@@ -54,20 +54,30 @@ import java.awt.image.BufferedImage;
 import org.knime.knip.core.ui.event.KNIPEvent;
 
 /**
+ * This event wraps images. It is used to transfer the currently displayed image to the {@link HiddenImageLogger}
+ * whenever a test is complete.
  *
- * @author Andreas Burger
+ * @author Andreas Burger, University of Konstanz
  */
 public class TestImageEvent implements KNIPEvent {
 
     private BufferedImage m_img;
 
-    public TestImageEvent(final BufferedImage image)
-    {
+    /**
+     * Create a new message, containing the given image.
+     *
+     * @param image The image to be sent
+     */
+    public TestImageEvent(final BufferedImage image) {
         m_img = image;
     }
 
-    public BufferedImage getImage()
-    {
+    /**
+     * Retrieve the stored image
+     *
+     * @return The stored image
+     */
+    public BufferedImage getImage() {
         return m_img;
     }
 

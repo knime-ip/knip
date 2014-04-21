@@ -123,6 +123,7 @@ import org.knime.node2012.ViewsDocument.Views;
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author Andreas Burger, University of Konstanz
  */
 public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder> extends TableCellViewNodeView<T> {
 
@@ -160,12 +161,16 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
 
     private boolean isLogging = false;
 
+    /**
+     * @param nodeModel
+     */
     public TestTableCellViewNodeView(final T nodeModel) {
         this(nodeModel, 0);
     }
 
     /**
      * @param nodeModel
+     * @param portIdx
      */
     public TestTableCellViewNodeView(final T nodeModel, final int portIdx) {
         super(nodeModel, portIdx);
@@ -175,18 +180,32 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
 
     }
 
-    public TestTableCellViewNodeView(final T nodeModel, final int portIdx, final boolean loggingEnabled)
-    {
+    /**
+     * Same as {@link TestTableCellViewNodeView#TestTableCellViewNodeView(NodeModel, int)}, but allows enabling of image
+     * logging
+     *
+     * @param nodeModel
+     * @param portIdx
+     * @param loggingEnabled
+     */
+    public TestTableCellViewNodeView(final T nodeModel, final int portIdx, final boolean loggingEnabled) {
         this(nodeModel, portIdx);
         isLogging = loggingEnabled;
     }
 
+    /**
+     * Replaces the old CellSelectionChanged method and forwards the appropriate call to the new one.
+     */
     private void cellSelectionChanged() {
         cellSelectionChanged(-1, -1);
     }
 
-    /*
-     * called if the selected cell changes
+    /**
+     * Called if the selected cell changes or should change. If any of the passed values is -1, the current selection of
+     * the content view will be used, otherwise the passed index is selected.
+     *
+     * @param setCol Column to select
+     * @param setRow Row to select
      */
     private void cellSelectionChanged(final int setCol, final int setRow) {
         final int row, col;
@@ -268,32 +287,12 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
 
     }
 
+    /**
+     * Returns all loggers associated with views in this View.
+     * @return A list of loggers if there exist any, an empty list otherwise
+     */
     protected List<HiddenImageLogger> getImageLogger() {
         return m_logger;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void modelChanged() {
-        //        if ((getNodeModel().getInternalTables() == null) || (getNodeModel().getInternalTables().length == 0)
-        //                || (getNodeModel().getInternalTables()[m_portIdx] == null)) {
-        //            if (m_cellViews != null) {
-        //                for (final String key : m_cellViews.keySet()) {
-        //                    for (final TableCellView v : m_cellViews.get(key)) {
-        //                        v.onReset();
-        //                    }
-        //                }
-        //            }
-        //            m_row = -1;
-        //            m_col = -1;
-        //            final JLabel nodata = new JLabel("No data table available!");
-        //            nodata.setPreferredSize(new Dimension(500, 500));
-        //            setComponent(nodata);
-        //        } else {
-        //            loadPortContent();
-        //        }
     }
 
     /**
@@ -328,7 +327,9 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
         m_logger.clear();
     }
 
+
     /**
+     * <b>Selects all rows and columns once.</b><br>
      * {@inheritDoc}
      */
     @Override

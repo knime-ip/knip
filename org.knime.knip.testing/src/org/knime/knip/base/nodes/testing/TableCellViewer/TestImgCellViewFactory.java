@@ -66,6 +66,8 @@ import org.knime.knip.core.awt.RendererFactory;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
+import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.NormalizationParametersChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
 import org.knime.knip.core.ui.imgviewer.events.RendererSelectionChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ResetCacheEvent;
@@ -74,8 +76,10 @@ import org.knime.knip.core.ui.imgviewer.events.ViewZoomfactorChgEvent;
 import org.knime.knip.core.ui.imgviewer.panels.MinimapPanel;
 
 /**
+ * This Class is an implementation of the {@link TableCellViewFactory} interface providing additional Methods for testing.
  *
- * @author Andreas Burger
+ * <b>NOTE:</b> Currently, no testing of the transfer function view is done.
+ * @author Andreas Burger, University of Konstanz
  */
 public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> implements TableCellViewFactory {
 
@@ -256,6 +260,10 @@ public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> imple
                 testComponent(imgPlusValue);
             }
 
+            /**
+             * This method handles the actual testing.
+             * @param imgPlusValue The Image to be displayed, used in tests.
+             */
             private void testComponent(final ImgPlusValue<T> imgPlusValue) {
                 EventService service = m_view.getEventService();
 

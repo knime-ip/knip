@@ -59,8 +59,9 @@ import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.imgviewer.ImgCanvas;
 
 /**
+ * This class is a small extension of the {@link ImgCanvas} class, listening to an additional event-type.
  *
- * @author Andreas
+ * @author Andreas Burger, University of Konstanz
  * @param <T>
  */
 public class TestImgCanvas<T extends Type<T>, I extends IterableInterval<T> & RandomAccessible<T>> extends
@@ -71,6 +72,12 @@ public class TestImgCanvas<T extends Type<T>, I extends IterableInterval<T> & Ra
      */
     private static final long serialVersionUID = -3376351028351404404L;
 
+    /**
+     * Called whenever a TestCompleteEvent arrives. This method causes the TestImgCanvas to emit a
+     * {@link TestImageEvent} containing the currently displayed image.
+     *
+     * @param e The received event.
+     */
     @EventListener
     public void onTestComplete(final TestCompleteEvent e) {
 
