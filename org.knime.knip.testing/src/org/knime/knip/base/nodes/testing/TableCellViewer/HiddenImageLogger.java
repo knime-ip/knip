@@ -99,7 +99,6 @@ public class HiddenImageLogger extends ViewerComponent {
      */
     @Override
     public void setEventService(final EventService eventService) {
-        m_eventService = eventService;
         eventService.subscribe(this);
 
     }
@@ -137,8 +136,6 @@ public class HiddenImageLogger extends ViewerComponent {
      */
     @Override
     public void saveComponentConfiguration(final ObjectOutput out) throws IOException {
-        // TODO Auto-generated method stub
-
     }
 
     /**
@@ -146,8 +143,6 @@ public class HiddenImageLogger extends ViewerComponent {
      */
     @Override
     public void loadComponentConfiguration(final ObjectInput in) throws IOException, ClassNotFoundException {
-        // TODO Auto-generated method stub
-
     }
 
 }

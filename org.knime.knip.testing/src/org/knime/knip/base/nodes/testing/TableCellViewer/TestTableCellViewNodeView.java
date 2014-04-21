@@ -342,8 +342,7 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
             for (int j = 1; j < m_cellViewTabs.getTabCount(); ++j) {
                 m_cellViewTabs.setSelectedIndex(j);
 
-                //TODO: Fix doubled entries when this fix is active
-                //               tabSelectionChanged();
+
             }
         }
 
