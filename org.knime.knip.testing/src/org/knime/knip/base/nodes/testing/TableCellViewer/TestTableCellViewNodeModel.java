@@ -168,7 +168,7 @@ public class TestTableCellViewNodeModel extends NodeModel implements BufferedDat
         }
     }
 
-    //    public static final String CFG_THUMBNAIL_SIZE = "thumbnail-size";
+//    public static final String CFG_THUMBNAIL_SIZE = "thumbnail-size";
 
     private BufferedDataTable m_data;
 
@@ -178,8 +178,8 @@ public class TestTableCellViewNodeModel extends NodeModel implements BufferedDat
      */
     // private ModelContent m_config;
 
-    //    private final SettingsModelInteger m_thumbnailSize = new SettingsModelInteger(
-    //            TestTableCellViewNodeModel.CFG_THUMBNAIL_SIZE, 150);
+    private final SettingsModelInteger m_thumbnailSize = new SettingsModelInteger(
+            TableCellViewNodeModel.CFG_THUMBNAIL_SIZE, 150);
 
     /**
      * @param nrInDataPorts
@@ -196,10 +196,6 @@ public class TestTableCellViewNodeModel extends NodeModel implements BufferedDat
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
         return null;
     }
-
-    // protected final Config getConfig() {
-    // return m_config;
-    // }
 
     /**
      * {@inheritDoc}
@@ -286,7 +282,7 @@ public class TestTableCellViewNodeModel extends NodeModel implements BufferedDat
      */
     @Override
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
-        //        m_thumbnailSize.loadSettingsFrom(settings);
+//        m_thumbnailSize.loadSettingsFrom(settings);
     }
 
     /**
@@ -312,7 +308,7 @@ public class TestTableCellViewNodeModel extends NodeModel implements BufferedDat
      */
     @Override
     protected void saveSettingsTo(final NodeSettingsWO settings) {
-        //        m_thumbnailSize.saveSettingsTo(settings);
+//        m_thumbnailSize.saveSettingsTo(settings);
     }
 
     /**
@@ -335,9 +331,12 @@ public class TestTableCellViewNodeModel extends NodeModel implements BufferedDat
      */
     @Override
     protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
-        //        m_thumbnailSize.validateSettings(settings);
+//        m_thumbnailSize.validateSettings(settings);
     }
 
+    /**
+     * Converts png images to ImgPlusCells.
+     */
     private ImgPlusCell<UnsignedByteType> compute(final PNGImageContent imageCell) throws IOException {
 
         final BufferedImage cellBufferedImage = (BufferedImage)imageCell.getImage();
