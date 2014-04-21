@@ -7,14 +7,11 @@
 
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="tablecellviewer.png" type="Visualizer">
-	<name>Table Cell Viewer</name>
-	<shortDescription>
-		Let one have another view on single table cells. 
-	</shortDescription>
+	<name>Table Cell Test Viewer</name>
+	<shortDescription>Test viewer useful for automated testing.</shortDescription>
 
 	<fullDescription>
-		<intro>Another, possibly interactive, view on table cells.	 
-	 </intro>
+		<intro>A variant of the Cell Viewer to be used in testing.</intro>
 
 	</fullDescription>
 

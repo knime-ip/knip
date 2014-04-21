@@ -210,12 +210,12 @@ public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> imple
 
             @Override
             public String getDescription() {
-                return "";
+                return "Logging histogram view.";
             }
 
             @Override
             public String getName() {
-                return "Test Histogram";
+                return "Histogram Test View";
             }
 
             @Override
