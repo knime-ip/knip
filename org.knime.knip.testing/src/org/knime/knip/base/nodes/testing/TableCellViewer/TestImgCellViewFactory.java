@@ -181,12 +181,6 @@ public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> imple
                 //                PlaneSelection
 
                 if (imgPlusValue.getMetadata().numDimensions() > 1) {
-                    long[] coords = new long[imgPlusValue.getMetadata().numDimensions()];
-                    double[] scaleFactors = new double[coords.length];
-                    for (int i = 0; i < coords.length; ++i) {
-                        coords[i] = imgPlusValue.getDimensions()[i];
-                        if(coords[i] > 0) {
-                            coords[i] = 1;
 
                     for (int i = 2; i < imgPlusValue.getMetadata().numDimensions(); ++i) {
                         if (imgPlusValue.getDimensions()[i] > 1) {
@@ -196,31 +190,9 @@ public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> imple
                             service.publish(new ImgRedrawEvent());
                             service.publish(new TestCompleteEvent());
                         }
-                        scaleFactors[i] = 2;
                     }
-//                    System.out.println("-DEBUG: PlaneSelection Test - 1 -");
-                    service.publish(new PlaneSelectionEvent(0, imgPlusValue.getMetadata().numDimensions() - 1, coords));
-                    service.publish(new ImgRedrawEvent());
-                    service.publish(new TestCompleteEvent());
-
-//                    System.out.println("-DEBUG: PlaneSelection Test - 2 -");
-                    //TODO: Crashes when CellImageFactory and z = 1. Why?
-                    service.publish(new PlaneSelectionEvent(0, 1, coords));
-                    service.publish(new ImgRedrawEvent());
-                    service.publish(new TestCompleteEvent());
-
-//                    System.out.println("-DEBUG: PlaneSelection Test - Done -");
-
                 }
 
-//              System.out.println("-DEBUG: Calibration Test");
-//              service.publish(new CalibrationUpdateEvent(scaleFactors, new int[]{0,
-//                      imgPlusValue.getMetadata().numDimensions() - 1}));
-//              service.publish(new ImgRedrawEvent());
-//              service.publish(new TestCompleteEvent());
-
-                // RendererSelection
-//                System.out.println("-DEBUG: RendererSelection Test-");
                 //              RendererSelection
 
                 ImageRenderer<T>[] tmp = RendererFactory.createSuitableRenderer(imgPlusValue.getImgPlus());
