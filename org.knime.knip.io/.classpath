@@ -30,7 +30,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/mvn/lwf-stubs-5.0.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/mdbtools-java-5.0.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/metakit-5.0.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/native-lib-loader-2.0-SNAPSHOT.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/netcdf-4.3.19.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/ome-poi-5.0.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/ome-xml-5.0.0.jar"/>
@@ -45,5 +44,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/mvn/testng-6.8.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/turbojpeg-5.0.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/xercesImpl-2.6.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/native-lib-loader-2.0-20131121.170307-1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
