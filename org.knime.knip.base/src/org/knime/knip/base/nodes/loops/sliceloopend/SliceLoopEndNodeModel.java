@@ -52,13 +52,13 @@ package org.knime.knip.base.nodes.loops.sliceloopend;
 import java.io.File;
 import java.io.IOException;
 
-import org.knime.base.node.flowvariable.tablerowtovariable.TableToVariableNodeModel;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.workflow.LoopEndNode;
@@ -67,7 +67,16 @@ import org.knime.knip.base.nodes.loops.sliceloopstart.SliceLoopStartNodeModel;
 /**
  * @author dietzc, University of Konstanz
  */
-public class SliceLoopEndNodeModel extends TableToVariableNodeModel implements LoopEndNode {
+public class SliceLoopEndNodeModel extends NodeModel implements LoopEndNode {
+
+    /**
+     * @param nrInDataPorts
+     * @param nrOutDataPorts
+     */
+    protected SliceLoopEndNodeModel(final int nrInDataPorts, final int nrOutDataPorts) {
+        super(nrInDataPorts, nrOutDataPorts);
+
+    }
 
     /**
      * {@inheritDoc}
@@ -105,6 +114,7 @@ public class SliceLoopEndNodeModel extends TableToVariableNodeModel implements L
 
         if (loopStartNode.terminateImg()) {
             // start a new img or whatever
+
         }
 
         if (loopStartNode.terminateLoop()) {
@@ -113,6 +123,7 @@ public class SliceLoopEndNodeModel extends TableToVariableNodeModel implements L
         } else {
             super.continueLoop();
         }
+        return inData;
     }
 
     /**

@@ -225,4 +225,17 @@
               tooltip="Image Processing and Analysis">
         </splashExtension>
      </extension>
+     <extension
+           point="org.knime.workbench.repository.nodes">
+        <node
+              expert-flag="false"
+              factory-class="org.knime.knip.base.nodes.loops.sliceloopstart.SliceLoopStartNodeFactory"
+              id="SliceLoopStart">
+        </node>
+        <node
+              expert-flag="false"
+              factory-class="org.knime.knip.base.nodes.loops.sliceloopend.SliceLoopEndNodeFactory"
+              id="SliceLoopEnde">
+        </node>
+     </extension>
 </plugin>

@@ -78,7 +78,7 @@ public class SliceLoopEndNodeFactory extends
 	 */
 	@Override
 	public SliceLoopEndNodeModel createNodeModel() {
-		return new SliceLoopEndNodeModel();
+		return new SliceLoopEndNodeModel(1,1);
 	}
 
 	@Override

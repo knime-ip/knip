@@ -18,7 +18,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/mvn/imglib2-algorithms-gpl-2.0.0-knip-SNAPSHOT.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/imglib2-algorithms-legacy-2.0.0-knip-SNAPSHOT.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/imglib2-meta-2.0.0-knip-SNAPSHOT.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/imglib2-ops-2.0.0-knip-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/imglib2-ops-2.0.0-knip-SNAPSHOT.jar" sourcepath="lib/mvn-imglib2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/imglib2-realtransform-2.0.0-knip-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -50,6 +50,7 @@ package org.knime.knip.base.nodes.loops.sliceloopstart;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import net.imglib2.Interval;
 import net.imglib2.img.ImgFactory;
@@ -61,8 +62,9 @@ import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
-import org.knime.base.node.flowvariable.tablerowtovariable.TableToVariableNodeModel;
+import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DataType;
 import org.knime.core.data.container.CloseableRowIterator;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.node.BufferedDataContainer;
@@ -71,19 +73,31 @@ import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeLogger;
+import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.workflow.LoopStartNodeTerminator;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 
 /**
- * @author dietzc, University of Konstanz
+ *
+ * @author andreasgraumann
  */
-public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>> extends TableToVariableNodeModel implements
+public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>> extends NodeModel implements
         LoopStartNodeTerminator {
+
+    /**
+     * @param nrInDataPorts
+     * @param nrOutDataPorts
+     */
+    protected SliceLoopStartNodeModel(final int nrInDataPorts, final int nrOutDataPorts) {
+        super(nrInDataPorts, nrOutDataPorts);
+    }
 
     private SettingsModelDimSelection m_dimSelection = createDimSelection();
 
@@ -105,15 +119,17 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>> exte
 
     private ImgPlusCellFactory m_imgPlusCellFactory;
 
+    static NodeLogger LOGGER = NodeLogger.getLogger(SliceLoopStartNodeModel.class);
+
     /**
      * {@inheritDoc}
      */
     @Override
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
-
-        // Hier: Gebe die Definition/Spezifikation von der resultierenden Tabelle zur체ck (layout der tabelle).
-        // Das ist nat체rlich abh채ngig von den selektieren Spalten, d.h. falls du Labeling und Img selektiert hast, kommt hinten auch labeling bzw. img wieder raus.
-        return new DataTableSpec[]{createResSpec()};
+        // we just have one output
+        DataTableSpec[] specs = new DataTableSpec[1];
+        specs[0] = createResSpec(inSpecs[0]);
+        return specs;
     }
 
     /**
@@ -133,8 +149,24 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>> exte
     /**
      * @return
      */
-    private DataTableSpec createResSpec() {
-        return null;
+    private DataTableSpec createResSpec(final DataTableSpec inSpec) {
+        int numCol = inSpec.getNumColumns();
+        ArrayList<String> names = new ArrayList<String>();
+        ArrayList<DataType> types = new ArrayList<DataType>();
+
+        for (int i = 0; i < numCol; i++) {
+            DataColumnSpec colSpec = inSpec.getColumnSpec(i);
+
+            DataType colType = colSpec.getType();
+            if (!colType.isCompatible(ImgPlusValue.class) || colType.isCompatible(LabelingValue.class)) {
+                LOGGER.warn("Waning: Column " + colSpec.getName() + " will be ignored! Only ImgPlusValue and LabelingValue allowed!");
+            } else {
+                names.add(colSpec.getName());
+                types.add(colType);
+            }
+        }
+
+        return new DataTableSpec((String[])names.toArray(), (DataType[])types.toArray());
     }
 
     /**
@@ -144,6 +176,10 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>> exte
     protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
             throws Exception {
 
+        // check input spec
+        DataTableSpec inSpec = inData[0].getSpec();
+        DataTableSpec outSpec = createResSpec(inSpec);
+
         if (m_iterator == null) {
             final BufferedDataTable inTable = inData[0];
             m_iterator = inTable.iterator();
@@ -151,7 +187,7 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>> exte
         }
 
         if (m_curr == null) {
-            m_curr = ((ImgPlusValue<T>)m_iterator.next().getCell(m_imgIndex)).getImgPlus();
+            m_curr = ((ImgPlusValue<T>)m_iterator.next().getCell(0)).getImgPlus();
         }
 
         if (m_intervals == null) {
@@ -159,10 +195,9 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>> exte
             m_currIdx = 0;
         }
 
-        // das ist deine input table.
+        final BufferedDataContainer container = exec.createDataContainer(outSpec);
 
-        final BufferedDataContainer container = exec.createDataContainer(createResSpec());
-
+        // create view with slices, depending on chunk size
         for (int i = m_currIdx; i < (Math.min(i + m_chunkSize.getIntValue(), m_intervals.length)); i++) {
             container.addRowToTable(new DefaultRow("Slice " + i, m_imgPlusCellFactory
                     .createCell(getImgPlusAsView(m_curr, m_intervals[i], new ArrayImgFactory<T>()))));
@@ -180,8 +215,6 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>> exte
             }
         }
 
-        // f체lle container mit slices. je nach dem wieviele slices der user eingestellt hat.
-
         container.close();
 
         return new BufferedDataTable[]{container.getTable()};
@@ -192,7 +225,7 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>> exte
      */
     @Override
     protected void reset() {
-        // Setze alles zur체ck auf null
+        // Setze alles zur웒k auf null
     }
 
     @Override
@@ -210,16 +243,19 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>> exte
     @Override
     protected void saveSettingsTo(final NodeSettingsWO settings) {
         m_dimSelection.saveSettingsTo(settings);
+        m_chunkSize.saveSettingsTo(settings);
     }
 
     @Override
     protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
         m_dimSelection.validateSettings(settings);
+        m_chunkSize.validateSettings(settings);
     }
 
     @Override
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
         m_dimSelection.loadSettingsFrom(settings);
+        m_chunkSize.loadSettingsFrom(settings);
     }
 
     public boolean terminateImg() {
