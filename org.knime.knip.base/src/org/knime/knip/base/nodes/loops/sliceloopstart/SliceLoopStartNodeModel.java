@@ -134,8 +134,6 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
 
     private LabelingCellFactory m_labelingCellFactory;
 
-    private int m_numImages = -1;
-
     private DataRow m_currentRow;
 
     static NodeLogger LOGGER = NodeLogger.getLogger(SliceLoopStartNodeModel.class);
@@ -148,6 +146,7 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
         // we just have one output
         DataTableSpec[] specs = new DataTableSpec[1];
         specs[0] = createResSpec(inSpecs[0]);
+
         reset();
         return specs;
     }
@@ -171,6 +170,7 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
      */
     private DataTableSpec createResSpec(final DataTableSpec inSpec) {
         int numCol = inSpec.getNumColumns();
+
         ArrayList<String> names = new ArrayList<String>();
         ArrayList<DataType> types = new ArrayList<DataType>();
 
@@ -204,7 +204,6 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
         // no iterator, yet!
         if (m_iterator == null) {
             final BufferedDataTable inTable = inData[0];
-            m_numImages = inTable.getRowCount();
             m_iterator = inTable.iterator();
             if (m_iterator.hasNext()) {
                 m_currentRow = m_iterator.next();
@@ -343,12 +342,13 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
     protected void reset() {
         m_currIdx = 0;
         m_currImageInCol = null;
+        m_currLabeling = null;
         m_intervals = null;
         imgTerminated = false;
         isAllTerminated = false;
         m_iterator = null;
-        m_numImages = -1;
     }
+
 
     @Override
     protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec) throws IOException,
