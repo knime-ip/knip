@@ -178,7 +178,7 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
             DataColumnSpec colSpec = inSpec.getColumnSpec(i);
 
             DataType colType = colSpec.getType();
-            if (!colType.isCompatible(ImgPlusValue.class) || colType.isCompatible(LabelingValue.class)) {
+            if (!colType.isCompatible(ImgPlusValue.class) && !colType.isCompatible(LabelingValue.class)) {
                 LOGGER.warn("Waning: Column " + colSpec.getName()
                         + " will be ignored! Only ImgPlusValue and LabelingValue allowed!");
             } else {
@@ -214,20 +214,42 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
         }
 
         // no current image/label
-        if (m_currImageInCol == null) {
-            m_currImageInCol = ((ImgPlusValue<T>)m_currentRow.getCell(0)).getImgPlus();
+        if (m_currImageInCol == null || m_currLabeling == null) {
+
+
+            DataColumnSpec colSpec = inSpec.getColumnSpec(0);
+            DataType colType = colSpec.getType();
+
+            // Input column is of type ImgPlusValue!
+            if (colType.isCompatible(ImgPlusValue.class)) {
+
+                m_currImageInCol = ((ImgPlusValue<T>)m_currentRow.getCell(0)).getImgPlus();
+            }
+            else if (colType.isCompatible(LabelingValue.class)) {
+
+                m_currLabeling = ((LabelingValue<L>)m_currentRow.getCell(0)).getLabeling();
+            }
         }
 
-        // no interval
         if (m_intervals == null) {
-            m_intervals = m_dimSelection.getIntervals(m_currImageInCol, m_currImageInCol);
+            DataColumnSpec colSpec = inSpec.getColumnSpec(0);
+            DataType colType = colSpec.getType();
+
+            // Input column is of type ImgPlusValue!
+            if (colType.isCompatible(ImgPlusValue.class)) {
+
+                m_intervals = m_dimSelection.getIntervals(m_currImageInCol, m_currImageInCol);
+            }
+            else if (colType.isCompatible(LabelingValue.class)) {
+
+                LabelingMetadata meta =  ((LabelingValue<L>)m_currentRow.getCell(0)).getLabelingMetadata();
+                m_intervals = m_dimSelection.getIntervals(meta, ((LabelingValue<L>)m_currentRow.getCell(0)).getLabeling());
+            }
             m_currIdx = 0;
         }
 
         // prepare container for output
         final BufferedDataContainer container = exec.createDataContainer(outSpec);
-
-        //while (m_iterator.hasNext()) {
 
         // create view with slices, depending on chunk size
         for (int i = m_currIdx; i < (Math.min(m_currIdx + m_chunkSize.getIntValue(), m_intervals.length)); i++) {
@@ -268,12 +290,18 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
                 else if (colType.isCompatible(LabelingValue.class)) {
 
                     // get labeling in cell
-                    m_currLabeling = ((LabelingValue<L>)m_iterator.next().getCell(j)).getLabeling();
-                    LabelingMetadata oldMetaData = ((LabelingValue<L>)m_iterator.next().getCell(j)).getLabelingMetadata();
+                    m_currLabeling = ((LabelingValue<L>)m_currentRow.getCell(j)).getLabeling();
+
+                    // meta data
+                    LabelingMetadata oldMetaData = ((LabelingValue<L>)m_currentRow.getCell(j)).getLabelingMetadata();
+
+                    // get intervals of image
+                    m_intervals = m_dimSelection.getIntervals(oldMetaData, ((LabelingValue<L>)m_currentRow.getCell(j)).getLabeling());
 
                     LabelingMetadata newMetaData = new DefaultLabelingMetadata(oldMetaData.numDimensions()-1, oldMetaData.getLabelingColorTable());
                     newMetaData.setName(oldMetaData.getName());
                     newMetaData.setSource(oldMetaData.getSource());
+                    MetadataUtil.copyAndCleanTypedSpace(m_intervals[i], oldMetaData, newMetaData);
                     // create DataCell
                     DataCell cell = m_labelingCellFactory.createCell(getLabelingAsView(m_currLabeling, m_intervals[i],
                                                                                m_currLabeling.factory()), newMetaData);
