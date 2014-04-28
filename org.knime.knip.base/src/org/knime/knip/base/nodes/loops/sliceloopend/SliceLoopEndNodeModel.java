@@ -83,7 +83,6 @@ public class SliceLoopEndNodeModel extends NodeModel implements LoopEndNode {
      */
     @Override
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
-        // TODO Auto-generated method stub
         return createOutSpec(inSpecs[0]);
     }
 
@@ -92,8 +91,9 @@ public class SliceLoopEndNodeModel extends NodeModel implements LoopEndNode {
      * @return
      */
     private DataTableSpec[] createOutSpec(final DataTableSpec dataTableSpec) {
-        // only this and that columns should be recognized, i.e. all images or labelings or whatever
-        return null;
+        DataTableSpec[] specs = new DataTableSpec[1];
+        specs[0] = dataTableSpec;
+        return specs;
     }
 
     /**
@@ -104,13 +104,17 @@ public class SliceLoopEndNodeModel extends NodeModel implements LoopEndNode {
             throws Exception {
 
         if (!(getLoopStartNode() instanceof SliceLoopStartNodeModel)) {
-            throw new IllegalStateException("wahteve");
+            throw new IllegalStateException("End node without correct start node!");
         }
 
         final SliceLoopStartNodeModel loopStartNode = (SliceLoopStartNodeModel)getLoopStartNode();
 
+
+
         // collect resutls from inData and create image etc
         // using method getIterationIndices from loop start
+
+        // save all slices of an image,
 
         if (loopStartNode.terminateImg()) {
             // start a new img or whatever
