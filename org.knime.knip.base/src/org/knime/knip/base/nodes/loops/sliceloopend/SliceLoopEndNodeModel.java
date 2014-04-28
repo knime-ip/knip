@@ -98,7 +98,6 @@ public class SliceLoopEndNodeModel<T extends RealType<T>> extends NodeModel impl
 
     private LabelingCellFactory m_labelingCellFactory = null;
 
-    private int m_count = 0;
 
     /**
      * @param nrInDataPorts
@@ -145,7 +144,6 @@ public class SliceLoopEndNodeModel<T extends RealType<T>> extends NodeModel impl
         DataTableSpec inSpec = inData[0].getSpec();
         DataTableSpec outSpec = createOutSpec(inSpec)[0];
 
-        System.out.println(m_count++);
 
         if (m_cells == null) {
             m_cells = new HashMap<Integer, ArrayList<DataCell>>();
