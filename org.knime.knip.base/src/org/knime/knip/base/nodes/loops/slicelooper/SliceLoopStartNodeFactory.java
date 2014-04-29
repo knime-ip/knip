@@ -47,7 +47,7 @@
  *
  * Created on 11.03.2013 by dietyc
  */
-package org.knime.knip.base.nodes.loops.sliceloopstart;
+package org.knime.knip.base.nodes.loops.slicelooper;
 
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;

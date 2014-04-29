@@ -46,25 +46,21 @@
  * ---------------------------------------------------------------------
  *
  */
-package org.knime.knip.base.nodes.loops.sliceloopstart;
+package org.knime.knip.base.nodes.loops.slicelooper;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
 import net.imglib2.Interval;
-import net.imglib2.img.Img;
-import net.imglib2.img.ImgFactory;
-import net.imglib2.img.ImgView;
 import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingFactory;
-import net.imglib2.labeling.LabelingView;
+import net.imglib2.meta.CalibratedSpace;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.meta.ImgPlusMetadata;
 import net.imglib2.meta.MetadataUtil;
-import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.Intervals;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
@@ -98,6 +94,8 @@ import org.knime.knip.core.data.img.LabelingMetadata;
  *
  * @author Andreas Graumann, University of Konstanz
  * @author Christian Dietz, University of Konstanz
+ * @param <T>
+ * @param <L>
  */
 public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L extends Comparable<L>> extends NodeModel
         implements LoopStartNodeTerminator {
@@ -114,27 +112,27 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
 
     private SettingsModelInteger m_chunkSize = createChunkSizeModel();
 
-    private ImgPlus<T> m_currImageInCol = null;
-
-    private Labeling<L> m_currLabeling = null;
-
-    private int m_imgIndex = -1;
-
     private int m_currIdx = -1;
 
     private CloseableRowIterator m_iterator;
 
     private Interval[] m_intervals;
 
-    private boolean imgTerminated;
+    private boolean isRowTerminated;
 
-    private boolean isAllTerminated;
+    private boolean areAllRowsTerminated;
 
     private ImgPlusCellFactory m_imgPlusCellFactory;
 
     private LabelingCellFactory m_labelingCellFactory;
 
     private DataRow m_currentRow;
+
+    private ArrayList<Integer> m_colIndices;
+
+    private Interval m_refValue;
+
+    private CalibratedSpace<?> m_refSpace;
 
     static NodeLogger LOGGER = NodeLogger.getLogger(SliceLoopStartNodeModel.class);
 
@@ -143,51 +141,21 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
      */
     @Override
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
-        // we just have one output
-        DataTableSpec[] specs = new DataTableSpec[1];
-        specs[0] = createResSpec(inSpecs[0]);
-
-        reset();
-        return specs;
+        return new DataTableSpec[]{SliceLooperUtils.createResSpec(LOGGER, inSpecs[0])};
     }
 
     /**
-     * @return
+     * @return settings model for chunk size
      */
     protected static SettingsModelInteger createChunkSizeModel() {
         return new SettingsModelInteger("chunk_size", 1);
     }
 
     /**
-     * @return
+     * @return settings model for dim selection
      */
     protected static SettingsModelDimSelection createDimSelection() {
         return new SettingsModelDimSelection("dim_selection", "X", "Y");
-    }
-
-    /**
-     * @return
-     */
-    private DataTableSpec createResSpec(final DataTableSpec inSpec) {
-        int numCol = inSpec.getNumColumns();
-
-        ArrayList<String> names = new ArrayList<String>();
-        ArrayList<DataType> types = new ArrayList<DataType>();
-
-        for (int i = 0; i < numCol; i++) {
-            DataColumnSpec colSpec = inSpec.getColumnSpec(i);
-
-            DataType colType = colSpec.getType();
-            if (!colType.isCompatible(ImgPlusValue.class) && !colType.isCompatible(LabelingValue.class)) {
-                LOGGER.warn("Waning: Column " + colSpec.getName()
-                        + " will be ignored! Only ImgPlusValue and LabelingValue allowed!");
-            } else {
-                names.add(colSpec.getName());
-                types.add(colType);
-            }
-        }
-
-        return new DataTableSpec(names.toArray(new String[names.size()]), types.toArray(new DataType[types.size()]));
     }
 
     /**
@@ -198,8 +166,8 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
             throws Exception {
 
         // check input spec
-        DataTableSpec inSpec = inData[0].getSpec();
-        DataTableSpec outSpec = createResSpec(inSpec);
+        final DataTableSpec inSpec = inData[0].getSpec();
+        final DataTableSpec outSpec = SliceLooperUtils.createResSpec(LOGGER, inSpec);
 
         // no iterator, yet!
         if (m_iterator == null) {
@@ -208,128 +176,122 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
             if (m_iterator.hasNext()) {
                 m_currentRow = m_iterator.next();
             }
-            m_imgPlusCellFactory = new ImgPlusCellFactory(exec);
-            m_labelingCellFactory = new LabelingCellFactory(exec);
-        }
+        } else {
+            // new current index
+            m_currIdx = (Math.min(m_currIdx + m_chunkSize.getIntValue(), m_intervals.length));
 
-        // no current image/label
-        if (m_currImageInCol == null || m_currLabeling == null) {
+            // are we finished?
+            if (m_currIdx == m_intervals.length) {
+                isRowTerminated = true;
+                areAllRowsTerminated = !m_iterator.hasNext();
 
-
-            DataColumnSpec colSpec = inSpec.getColumnSpec(0);
-            DataType colType = colSpec.getType();
-
-            // Input column is of type ImgPlusValue!
-            if (colType.isCompatible(ImgPlusValue.class)) {
-
-                m_currImageInCol = ((ImgPlusValue<T>)m_currentRow.getCell(0)).getImgPlus();
-            }
-            else if (colType.isCompatible(LabelingValue.class)) {
-
-                m_currLabeling = ((LabelingValue<L>)m_currentRow.getCell(0)).getLabeling();
+                if (!areAllRowsTerminated) {
+                    m_intervals = null;
+                    m_currentRow = m_iterator.next();
+                    m_currIdx = 0;
+                }
             }
         }
 
-        if (m_intervals == null) {
-            DataColumnSpec colSpec = inSpec.getColumnSpec(0);
-            DataType colType = colSpec.getType();
+        // loop over all columns, init intervals and check compatibility
+        if (m_currIdx == 0) {
+            m_colIndices = new ArrayList<Integer>();
+            m_refValue = null;
 
-            // Input column is of type ImgPlusValue!
-            if (colType.isCompatible(ImgPlusValue.class)) {
+            for (int j = 0; j < inSpec.getNumColumns(); j++) {
+                final DataColumnSpec colSpec = inSpec.getColumnSpec(j);
+                final DataType colType = colSpec.getType();
 
-                m_intervals = m_dimSelection.getIntervals(m_currImageInCol, m_currImageInCol);
+                Interval value = null;
+                CalibratedSpace<?> axes = null;
+
+                if (colType.isCompatible(ImgPlusValue.class)) {
+
+                    @SuppressWarnings("unchecked")
+                    final ImgPlusValue<T> imgPlusValue = ((ImgPlusValue<T>)m_currentRow.getCell(j));
+                    value = imgPlusValue.getImgPlus();
+                    axes = imgPlusValue.getMetadata();
+                    if (m_imgPlusCellFactory == null) {
+                        m_imgPlusCellFactory = new ImgPlusCellFactory(exec);
+                    }
+
+                } else if (colType.isCompatible(LabelingValue.class)) {
+                    @SuppressWarnings("unchecked")
+                    final LabelingValue<T> labelingValue = ((LabelingValue<T>)m_currentRow.getCell(j));
+                    value = labelingValue.getLabeling();
+                    axes = labelingValue.getLabelingMetadata();
+                    if (m_labelingCellFactory == null) {
+                        m_labelingCellFactory = new LabelingCellFactory(exec);
+                    }
+                }
+
+                if (value != null && m_colIndices.size() == 0) {
+                    m_refValue = value;
+                }
+
+                // we do nothing but warn
+                if (!Intervals.equalDimensions(m_refValue, value)) {
+                    value = null;
+                    m_intervals = m_dimSelection.getIntervals(axes, value);
+                    LOGGER.warn("We ignored img/labeling in column " + j
+                            + " as the dimensions are to compatible to a previously discovered img/labeling");
+                }
+
+                if (value != null) {
+                    m_colIndices.add(j);
+                }
             }
-            else if (colType.isCompatible(LabelingValue.class)) {
-
-                LabelingMetadata meta =  ((LabelingValue<L>)m_currentRow.getCell(0)).getLabelingMetadata();
-                m_intervals = m_dimSelection.getIntervals(meta, ((LabelingValue<L>)m_currentRow.getCell(0)).getLabeling());
-            }
-            m_currIdx = 0;
         }
 
-        // prepare container for output
         final BufferedDataContainer container = exec.createDataContainer(outSpec);
 
         // create view with slices, depending on chunk size
         for (int i = m_currIdx; i < (Math.min(m_currIdx + m_chunkSize.getIntValue(), m_intervals.length)); i++) {
 
-            ArrayList<DataCell> cells = new ArrayList<DataCell>();
+            final DataCell[] cells = new DataCell[m_colIndices.size()];
 
-            // loop over all columns
-            for (int j = 0; j < inSpec.getNumColumns(); j++) {
+            for (int j = 0; j < cells.length; j++) {
+                final Interval currInterval = m_intervals[i];
+                int idx = m_colIndices.get(j);
 
-                DataColumnSpec colSpec = inSpec.getColumnSpec(j);
-                DataType colType = colSpec.getType();
+                // idx is negative, we have a labeling
+                if (Math.signum(idx) < 0) {
+                    @SuppressWarnings("unchecked")
+                    final LabelingValue<L> value = ((LabelingValue<L>)m_currentRow.getCell(idx * -1));
+                    final Labeling<L> labeling = value.getLabeling();
+                    final LabelingMetadata inMetadata = value.getLabelingMetadata();
 
-                // Input column is of type ImgPlusValue!
-                if (colType.isCompatible(ImgPlusValue.class)) {
+                    final LabelingMetadata outMetadata =
+                            new DefaultLabelingMetadata(inMetadata.numDimensions() - 1,
+                                    inMetadata.getLabelingColorTable());
 
-                    // get image in cell
-                    m_currImageInCol = ((ImgPlusValue<T>)m_currentRow.getCell(j)).getImgPlus();
+                    MetadataUtil.copyName(inMetadata, outMetadata);
+                    MetadataUtil.copySource(inMetadata, outMetadata);
+                    MetadataUtil.copyAndCleanTypedSpace(currInterval, inMetadata, outMetadata);
 
-                    // get intervals of image
-                    m_intervals = m_dimSelection.getIntervals(m_currImageInCol, m_currImageInCol);
+                    cells[j] =
+                            m_labelingCellFactory
+                                    .createCell(SliceLooperUtils.getLabelingAsView(labeling, currInterval,
+                                                                                   labeling.<L> factory()), outMetadata);
+                } else {
+                    @SuppressWarnings("unchecked")
+                    final ImgPlusValue<T> value = ((ImgPlusValue<T>)m_currentRow.getCell(idx));
+                    final ImgPlus<T> imgPlus = value.getImgPlus();
+                    final ImgPlusMetadata inMetadata = value.getMetadata();
 
-                    // get meta data
-                    ImgPlusMetadata oldMetaData = ((ImgPlusValue<T>)m_currentRow.getCell(j)).getMetadata();
+                    final ImgPlusMetadata outMetadata =
+                            MetadataUtil.copyAndCleanImgPlusMetadata(currInterval, inMetadata, new DefaultImgMetadata(
+                                    inMetadata.numDimensions() - 1));
 
-                    // create new meta data
-                    ImgPlusMetadata newMetaData = new DefaultImgMetadata(oldMetaData.numDimensions()-1);
-                    newMetaData.setName(oldMetaData.getName());
-                    newMetaData.setSource(oldMetaData.getSource());
-                    MetadataUtil.copyAndCleanTypedSpace(m_intervals[i], oldMetaData, newMetaData);
-
-                    // create DataCell
-                    DataCell cell =
-                            m_imgPlusCellFactory.createCell(getImgPlusAsView(m_currImageInCol, m_intervals[i],
-                                                                             m_currImageInCol.factory()), newMetaData);
-                    cells.add(cell);
-                }
-                // Input column is of type LabelingValue
-                else if (colType.isCompatible(LabelingValue.class)) {
-
-                    // get labeling in cell
-                    m_currLabeling = ((LabelingValue<L>)m_currentRow.getCell(j)).getLabeling();
-
-                    // meta data
-                    LabelingMetadata oldMetaData = ((LabelingValue<L>)m_currentRow.getCell(j)).getLabelingMetadata();
-
-                    // get intervals of image
-                    m_intervals = m_dimSelection.getIntervals(oldMetaData, ((LabelingValue<L>)m_currentRow.getCell(j)).getLabeling());
-
-                    LabelingMetadata newMetaData = new DefaultLabelingMetadata(oldMetaData.numDimensions()-1, oldMetaData.getLabelingColorTable());
-                    newMetaData.setName(oldMetaData.getName());
-                    newMetaData.setSource(oldMetaData.getSource());
-                    MetadataUtil.copyAndCleanTypedSpace(m_intervals[i], oldMetaData, newMetaData);
-                    // create DataCell
-                    DataCell cell = m_labelingCellFactory.createCell(getLabelingAsView(m_currLabeling, m_intervals[i],
-                                                                               m_currLabeling.factory()), newMetaData);
-
-                    cells.add(cell);
+                    cells[j] =
+                            m_imgPlusCellFactory.createCell(SliceLooperUtils.getImgPlusAsView(imgPlus, currInterval,
+                                                                                              imgPlus.factory()),
+                                                            outMetadata);
                 }
             }
-
-            // write cells to row
-            DataRow row = new DefaultRow("Slice " + i, cells.toArray(new DataCell[cells.size()]));
-            container.addRowToTable(row);
+            container.addRowToTable(new DefaultRow("Slice " + i, cells));
         }
 
-        // new current index
-        m_currIdx = (Math.min(m_currIdx + m_chunkSize.getIntValue(), m_intervals.length));
-
-        // are we finished?
-        if (m_currIdx == m_intervals.length) {
-            imgTerminated = true;
-            isAllTerminated = !m_iterator.hasNext();
-
-            if (!isAllTerminated) {
-                m_currImageInCol = null;
-                m_intervals = null;
-                m_currentRow = m_iterator.next();
-            }
-        }
-
-        //}
         container.close();
 
         return new BufferedDataTable[]{container.getTable()};
@@ -341,14 +303,12 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
     @Override
     protected void reset() {
         m_currIdx = 0;
-        m_currImageInCol = null;
-        m_currLabeling = null;
         m_intervals = null;
-        imgTerminated = false;
-        isAllTerminated = false;
+        isRowTerminated = false;
+        areAllRowsTerminated = false;
         m_iterator = null;
+        m_refValue = null;
     }
-
 
     @Override
     protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec) throws IOException,
@@ -380,20 +340,36 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
         m_chunkSize.loadSettingsFrom(settings);
     }
 
-    public boolean terminateImg() {
-        return imgTerminated;
+    public Interval[] getRefIntervals() {
+        return m_intervals;
+    }
+
+    /**
+     * @return the...
+     */
+    long[] getResDimensions(final Interval resInterval) {
+        long[] dims = new long[m_refValue.numDimensions()];
+        m_refValue.dimensions(dims);
+
+        int[] selectedDimIndices = m_dimSelection.getSelectedDimIndices(m_refSpace);
+
+        int i = 0;
+        for (final int j : selectedDimIndices) {
+            dims[j] = resInterval.dimension(i++);
+        }
+
+        return dims;
     }
 
     @Override
     public boolean terminateLoop() {
-        return isAllTerminated;
+        return areAllRowsTerminated;
     }
 
-    private Img<T> getImgPlusAsView(final Img<T> in, final Interval i, final ImgFactory<T> fac) {
-        return new ImgView<T>(SubsetOperations.subsetview(in, i), fac);
-    }
-
-    private Labeling<L> getLabelingAsView(final Labeling<L> in, final Interval i, final LabelingFactory fac) {
-        return new LabelingView<L>(SubsetOperations.subsetview(in, i), fac);
+    /**
+     * @return
+     */
+    public boolean isRowTerminated() {
+        return isRowTerminated;
     }
 }
