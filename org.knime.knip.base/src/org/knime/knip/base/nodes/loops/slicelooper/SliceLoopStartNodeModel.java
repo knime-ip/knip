@@ -53,7 +53,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import net.imglib2.Interval;
+import net.imglib2.img.Img;
 import net.imglib2.labeling.Labeling;
+import net.imglib2.meta.CalibratedAxis;
 import net.imglib2.meta.CalibratedSpace;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.meta.ImgPlusMetadata;
@@ -112,7 +114,7 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
 
     private SettingsModelInteger m_chunkSize = createChunkSizeModel();
 
-    private int m_currIdx = -1;
+    private int m_currIdx = 0;
 
     private CloseableRowIterator m_iterator;
 
@@ -132,7 +134,8 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
 
     private Interval m_refValue;
 
-    private CalibratedSpace<?> m_refSpace;
+    private CalibratedSpace<CalibratedAxis> m_refSpace;
+
 
     static NodeLogger LOGGER = NodeLogger.getLogger(SliceLoopStartNodeModel.class);
 
@@ -168,6 +171,7 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
         // check input spec
         final DataTableSpec inSpec = inData[0].getSpec();
         final DataTableSpec outSpec = SliceLooperUtils.createResSpec(LOGGER, inSpec);
+        isRowTerminated = false;
 
         // no iterator, yet!
         if (m_iterator == null) {
@@ -178,19 +182,18 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
             }
         } else {
             // new current index
-            m_currIdx = (Math.min(m_currIdx + m_chunkSize.getIntValue(), m_intervals.length));
 
-            // are we finished?
-            if (m_currIdx == m_intervals.length) {
-                isRowTerminated = true;
-                areAllRowsTerminated = !m_iterator.hasNext();
-
-                if (!areAllRowsTerminated) {
-                    m_intervals = null;
-                    m_currentRow = m_iterator.next();
-                    m_currIdx = 0;
-                }
-            }
+            //            // are we finished?
+            //            if (m_currIdx >= m_intervals.length) {
+            //                isRowTerminated = true;
+            //                areAllRowsTerminated = !m_iterator.hasNext();
+            //
+            //                if (!areAllRowsTerminated) {
+            //                    m_intervals = null;
+            //                    m_currentRow = m_iterator.next();
+            //                    m_currIdx = 0;
+            //                }
+            //            }
         }
 
         // loop over all columns, init intervals and check compatibility
@@ -198,12 +201,12 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
             m_colIndices = new ArrayList<Integer>();
             m_refValue = null;
 
-            for (int j = 0; j < inSpec.getNumColumns(); j++) {
+            for (int j : SliceLooperUtils.getValidIdx(inSpec)) {
                 final DataColumnSpec colSpec = inSpec.getColumnSpec(j);
                 final DataType colType = colSpec.getType();
 
                 Interval value = null;
-                CalibratedSpace<?> axes = null;
+                CalibratedSpace<CalibratedAxis> axes = null;
 
                 if (colType.isCompatible(ImgPlusValue.class)) {
 
@@ -223,16 +226,18 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
                     if (m_labelingCellFactory == null) {
                         m_labelingCellFactory = new LabelingCellFactory(exec);
                     }
+                    j *= -1;
                 }
 
                 if (value != null && m_colIndices.size() == 0) {
                     m_refValue = value;
+                    m_refSpace = axes;
+                    m_intervals = m_dimSelection.getIntervals(axes, value);
                 }
 
                 // we do nothing but warn
-                if (!Intervals.equalDimensions(m_refValue, value)) {
+                if (m_refValue != null && !Intervals.equalDimensions(m_refValue, value)) {
                     value = null;
-                    m_intervals = m_dimSelection.getIntervals(axes, value);
                     LOGGER.warn("We ignored img/labeling in column " + j
                             + " as the dimensions are to compatible to a previously discovered img/labeling");
                 }
@@ -261,35 +266,53 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
                     final Labeling<L> labeling = value.getLabeling();
                     final LabelingMetadata inMetadata = value.getLabelingMetadata();
 
+                    final Labeling<L> outLabeling =
+                            SliceLooperUtils.getLabelingAsView(labeling, currInterval, labeling.<L> factory());
+                    final int deltaDim = labeling.numDimensions() - outLabeling.numDimensions();
+
                     final LabelingMetadata outMetadata =
-                            new DefaultLabelingMetadata(inMetadata.numDimensions() - 1,
+                            new DefaultLabelingMetadata(inMetadata.numDimensions() - deltaDim,
                                     inMetadata.getLabelingColorTable());
 
                     MetadataUtil.copyName(inMetadata, outMetadata);
                     MetadataUtil.copySource(inMetadata, outMetadata);
                     MetadataUtil.copyAndCleanTypedSpace(currInterval, inMetadata, outMetadata);
 
-                    cells[j] =
-                            m_labelingCellFactory
-                                    .createCell(SliceLooperUtils.getLabelingAsView(labeling, currInterval,
-                                                                                   labeling.<L> factory()), outMetadata);
+                    cells[j] = m_labelingCellFactory.createCell(outLabeling, outMetadata);
                 } else {
                     @SuppressWarnings("unchecked")
                     final ImgPlusValue<T> value = ((ImgPlusValue<T>)m_currentRow.getCell(idx));
                     final ImgPlus<T> imgPlus = value.getImgPlus();
                     final ImgPlusMetadata inMetadata = value.getMetadata();
 
+                    final Img<T> outImg = SliceLooperUtils.getImgPlusAsView(imgPlus, currInterval, imgPlus.factory());
+                    final int deltaDim = imgPlus.numDimensions() - outImg.numDimensions();
+
                     final ImgPlusMetadata outMetadata =
                             MetadataUtil.copyAndCleanImgPlusMetadata(currInterval, inMetadata, new DefaultImgMetadata(
-                                    inMetadata.numDimensions() - 1));
+                                    inMetadata.numDimensions() - deltaDim));
 
-                    cells[j] =
-                            m_imgPlusCellFactory.createCell(SliceLooperUtils.getImgPlusAsView(imgPlus, currInterval,
-                                                                                              imgPlus.factory()),
-                                                            outMetadata);
+                    MetadataUtil.copyName(inMetadata, outMetadata);
+                    MetadataUtil.copySource(inMetadata, outMetadata);
+                    MetadataUtil.copyAndCleanTypedSpace(currInterval, inMetadata, outMetadata);
+
+                    cells[j] = m_imgPlusCellFactory.createCell(outImg, outMetadata);
                 }
             }
             container.addRowToTable(new DefaultRow("Slice " + i, cells));
+        }
+
+        m_currIdx = (Math.min(m_currIdx + m_chunkSize.getIntValue(), m_intervals.length));
+        // are we finished?
+        if (m_currIdx >= m_intervals.length) {
+            isRowTerminated = true;
+            areAllRowsTerminated = !m_iterator.hasNext();
+
+            if (!areAllRowsTerminated && m_iterator.hasNext()) {
+                //m_intervals = null;
+                m_currentRow = m_iterator.next();
+                m_currIdx = 0;
+            }
         }
 
         container.close();
@@ -307,6 +330,10 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
         isRowTerminated = false;
         areAllRowsTerminated = false;
         m_iterator = null;
+        m_refValue = null;
+        m_imgPlusCellFactory = null;
+        m_labelingCellFactory = null;
+        m_refSpace = null;
         m_refValue = null;
     }
 
@@ -359,6 +386,11 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
         }
 
         return dims;
+    }
+
+
+    CalibratedSpace<CalibratedAxis> getRefSpace() {
+        return m_refSpace;
     }
 
     @Override

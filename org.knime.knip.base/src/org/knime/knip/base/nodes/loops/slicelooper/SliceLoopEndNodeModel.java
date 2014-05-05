@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2013
+@   *  Copyright (C) 2003 - 2013
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -54,20 +54,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import net.imglib2.Cursor;
 import net.imglib2.Interval;
-import net.imglib2.RandomAccess;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
+import net.imglib2.labeling.Labeling;
+import net.imglib2.labeling.LabelingFactory;
+import net.imglib2.meta.CalibratedAxis;
+import net.imglib2.meta.CalibratedSpace;
 import net.imglib2.meta.ImgPlus;
+import net.imglib2.meta.ImgPlusMetadata;
+import net.imglib2.meta.MetadataUtil;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.data.DataCell;
-import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.DataType;
 import org.knime.core.data.DataValue;
 import org.knime.core.data.container.CloseableRowIterator;
 import org.knime.core.data.def.DefaultRow;
@@ -86,6 +88,9 @@ import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingCellFactory;
 import org.knime.knip.base.data.labeling.LabelingValue;
+import org.knime.knip.core.data.img.DefaultImgMetadata;
+import org.knime.knip.core.data.img.DefaultLabelingMetadata;
+import org.knime.knip.core.data.img.LabelingMetadata;
 
 /**
  * @author dietzc, University of Konstanz
@@ -101,11 +106,13 @@ public class SliceLoopEndNodeModel<T extends RealType<T> & NativeType<T>, L exte
 
     private DataRow m_currentRow = null;
 
+    private BufferedDataContainer m_resultContainer = null;
+
     private ImgPlusCellFactory m_imgPlusCellFactory = null;
 
     private LabelingCellFactory m_labelingCellFactory = null;
 
-    private ArrayList<Integer> m_colIndices;
+    private int m_count = -1;
 
     private static NodeLogger LOGGER = NodeLogger.getLogger(SliceLoopEndNodeModel.class);
 
@@ -123,12 +130,14 @@ public class SliceLoopEndNodeModel<T extends RealType<T> & NativeType<T>, L exte
      */
     @Override
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
+        //reset();
         return new DataTableSpec[]{SliceLooperUtils.createResSpec(LOGGER, inSpecs[0])};
     }
 
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("unchecked")
     @Override
     protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
             throws Exception {
@@ -147,60 +156,63 @@ public class SliceLoopEndNodeModel<T extends RealType<T> & NativeType<T>, L exte
 
         final BufferedDataTable inTable = inData[0];
         // prepare container for output
-        final BufferedDataContainer container = exec.createDataContainer(outSpec);
+        //final BufferedDataContainer container = exec.createDataContainer(outSpec);
+
+        if (m_resultContainer == null) {
+            m_resultContainer = exec.createDataContainer(outSpec);
+        }
 
         if (m_iterator == null) {
             m_iterator = inTable.iterator();
             if (m_iterator.hasNext()) {
-                m_currentRow = m_iterator.next();
+                //m_currentRow = m_iterator.next();
             }
 
             m_imgPlusCellFactory = new ImgPlusCellFactory(exec);
             m_labelingCellFactory = new LabelingCellFactory(exec);
 
-            // fill m_colIndices and init factories..
         }
-
-        // collect resutls from inData and create image etc
-        // using method getIterationIndices from loop start
-        // loop over all columns
 
         // hier nur durch valide spalten gehen. und auch nur, wenn eine row terminated wurde
 
         if (m_cells == null) {
             m_cells = new HashMap<Integer, ArrayList<DataValue>>();
+        }
 
-            for (final int j : m_colIndices) {
+        while (m_iterator.hasNext()) {
+            m_currentRow = m_iterator.next();
+            for (final int j : SliceLooperUtils.getValidIdx(inSpec)) {
+
                 ArrayList<DataValue> list = m_cells.get(j);
                 if (list == null) {
                     m_cells.put(j, list = new ArrayList<DataValue>());
                 }
                 list.add(m_currentRow.getCell(j));
             }
-
         }
+        m_iterator = null;
+
         // save all slices of an image,
         if (loopStartNode.isRowTerminated()) {
 
-            final DataCell[] outCells = new ArrayList<DataCell>();
+            final DataCell[] outCells = new DataCell[outSpec.getNumColumns()];
 
-
-            for (final int j : m_colIndices) {
+            for (final int j : SliceLooperUtils.getValidIdx(inSpec)) {
 
                 final DataValue firstValue = m_cells.get(j).get(0);
+
+                final Interval[] refIntervals = loopStartNode.getRefIntervals();
 
                 if (firstValue instanceof ImgPlusValue) {
                     // it is an img
 
                     final ImgPlusValue<T> firstImgValue = (ImgPlusValue<T>)firstValue;
+
                     final ImgFactory<T> fac = firstImgValue.getImgPlus().factory();
 
                     final Img<T> res =
-                            fac.create(loopStartNode.getResDimensions(firstImgValue.getImgPlus()), firstImgValue.getImgPlus().firstElement()
-                                    .createVariable());
-
-                    // loope über die ganzen intervals
-                    final Interval[] refIntervals = loopStartNode.getRefIntervals();
+                            fac.create(loopStartNode.getResDimensions(firstImgValue.getImgPlus()), firstImgValue
+                                    .getImgPlus().firstElement().createVariable());
 
                     int i = 0;
                     for (final DataValue value : m_cells.get(j)) {
@@ -209,90 +221,66 @@ public class SliceLoopEndNodeModel<T extends RealType<T> & NativeType<T>, L exte
                         SliceLooperUtils.copy(imgPlus, outSlice);
                     }
 
-                    cells.
+                    final ImgPlusMetadata outMetadata =
+                            MetadataUtil.copyImgPlusMetadata(firstImgValue.getMetadata(),
+                                                             new DefaultImgMetadata(res.numDimensions()));
+
+                    MetadataUtil.copySource(firstImgValue.getMetadata(), outMetadata);
+                    CalibratedSpace<CalibratedAxis> space = loopStartNode.getRefSpace();
+                    MetadataUtil.copyTypedSpace(space, outMetadata);
+
+                    outCells[j] = m_imgPlusCellFactory.createCell(res, outMetadata);
 
                 } else {
                     // it must be a labeling
-                }
+                    final LabelingValue<L> firstLabelingValue = (LabelingValue<L>)firstValue;
+                    final LabelingFactory<L> fac = firstLabelingValue.getLabeling().factory();
 
-            }
+                    final Labeling<L> res =
+                            fac.create(loopStartNode.getResDimensions(firstLabelingValue.getLabeling()));
 
-            // get factory
-
-            // wieder array mit validen indices. Annahme (DOKU!!) reihenfolge der spalten == reihenfolge der spalten in input
-            // und: anzahl
-
-            for (int j = 0; j < inSpec.getNumColumns(); j++) {
-
-                // get type: image/labeling
-                DataColumnSpec colSpec = inSpec.getColumnSpec(0);
-                DataType colType = colSpec.getType();
-
-                if (colType.isCompatible(ImgPlusValue.class)) {
-
-                    ArrayList<DataCell> list = m_cells.get(j);
-
-                    ImgPlus<T> tmp = ((ImgPlusValue<T>)list.get(0)).getImgPlus();
-                    long[] dim = new long[tmp.numDimensions()];
-                    tmp.dimensions(dim);
-                    long[] dimNew = new long[tmp.numDimensions() + 1];
-
-                    for (int i = 0; i < tmp.numDimensions(); i++) {
-                        dimNew[i] = dim[i];
+                    int i = 0;
+                    for (final DataValue value : m_cells.get(j)) {
+                        final Labeling<L> outSlice = SliceLooperUtils.getLabelingAsView(res, refIntervals[i++], fac);
+                        final Labeling<L> labeling = ((LabelingValue<L>)value).getLabeling();
+                        SliceLooperUtils.copy(labeling, outSlice);
                     }
 
-                    dimNew[tmp.numDimensions()] = list.size();
+                    final LabelingMetadata outMetadata =
+                            new DefaultLabelingMetadata(res.numDimensions(), firstLabelingValue.getLabelingMetadata()
+                                    .getLabelingColorTable());
 
-                    Img<T> resultingImageTmp = tmp.factory().create(dimNew, tmp.firstElement());
-                    ImgPlus<T> resultingImage = new ImgPlus<T>(resultingImageTmp);
-                    RandomAccess<T> ra = resultingImage.randomAccess();
+                    MetadataUtil.copyName(firstLabelingValue.getLabelingMetadata(), outMetadata);
+                    MetadataUtil.copySource(firstLabelingValue.getLabelingMetadata(), outMetadata);
 
-                    for (int i = 0; i < list.size(); i++) {
-                        ImgPlus<T> img = ((ImgPlusValue<T>)list.get(i)).getImgPlus();
+                    CalibratedSpace<CalibratedAxis> space = loopStartNode.getRefSpace();
+                    MetadataUtil.copyTypedSpace(space, outMetadata);
 
-                        Cursor<T> it = img.cursor();
-                        while (it.hasNext()) {
-                            it.next();
-                            int[] p = new int[it.numDimensions()];
-                            it.localize(p);
-
-                            int[] pos = new int[it.numDimensions() + 1];
-                            for (int d = 0; d < it.numDimensions(); d++) {
-                                pos[d] = p[d];
-                            }
-                            pos[it.numDimensions()] = i;
-
-                            ra.setPosition(pos);
-                            ra.get().set(it.get());
-                        }
-                    }
-
-                    // create DataCell
-                    DataCell cell = m_imgPlusCellFactory.createCell(resultingImage);
-                    outCells.add(cell);
-                } else if (colType.isCompatible(LabelingValue.class)) {
-
+                    outCells[j] = m_labelingCellFactory.createCell(res, outMetadata);
                 }
             }
+
+            m_cells.clear();
+            m_cells = null;
 
             // write cells to row
-            DataRow row = new DefaultRow("Slice ", outCells.toArray(new DataCell[outCells.size()]));
-            container.addRowToTable(row);
-        } else {
-            m_iterator.next();
+            DataRow row = new DefaultRow("Row" + ++m_count, outCells);
+            m_resultContainer.addRowToTable(row);
+
         }
 
         if (loopStartNode.terminateLoop()) {
             //
             //            return alle zusammengesammelten Bildchen
-            container.close();
-            return new BufferedDataTable[]{container.getTable()};
+            m_resultContainer.close();
+            return new BufferedDataTable[]{m_resultContainer.getTable()};
         } else {
             super.continueLoop();
+            return new BufferedDataTable[1];
         }
         //
 
-        return null;
+        //  return null;
     }
 
     /**
@@ -303,13 +291,13 @@ public class SliceLoopEndNodeModel<T extends RealType<T> & NativeType<T>, L exte
         m_cells = null;
 
         m_iterator = null;
+        m_resultContainer = null;
 
         m_currentRow = null;
 
         m_imgPlusCellFactory = null;
-
         m_labelingCellFactory = null;
-        m_count = 0;
+        m_count = -1;
     }
 
     @Override

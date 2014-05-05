@@ -127,4 +127,25 @@ public class SliceLooperUtils {
         return new DataTableSpec(names.toArray(new String[names.size()]), types.toArray(new DataType[types.size()]));
     }
 
+    /**
+     *
+     * @param inSpec
+     * @return
+     */
+    static Integer[] getValidIdx(final DataTableSpec inSpec) {
+
+        ArrayList<Integer> validIdx = new ArrayList<Integer>();
+
+        int numCol = inSpec.getNumColumns();
+        for (int i = 0; i < numCol; i++) {
+            DataColumnSpec colSpec = inSpec.getColumnSpec(i);
+            DataType colType = colSpec.getType();
+            if (colType.isCompatible(ImgPlusValue.class) || colType.isCompatible(LabelingValue.class)) {
+                validIdx.add(i);
+            }
+        }
+
+        return validIdx.toArray(new Integer[validIdx.size()]);
+    }
+
 }
