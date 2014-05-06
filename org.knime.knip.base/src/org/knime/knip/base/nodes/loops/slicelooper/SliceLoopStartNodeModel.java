@@ -81,6 +81,7 @@ import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.workflow.LoopStartNodeTerminator;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
@@ -114,6 +115,8 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
 
     private SettingsModelInteger m_chunkSize = createChunkSizeModel();
 
+    private final SettingsModelFilterString m_columns = createColumnSelectionModel();
+
     private int m_currIdx = 0;
 
     private CloseableRowIterator m_iterator;
@@ -144,7 +147,7 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
      */
     @Override
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
-        return new DataTableSpec[]{SliceLooperUtils.createResSpec(LOGGER, inSpecs[0])};
+        return new DataTableSpec[]{SliceLooperUtils.createResSpec(inSpecs[0],m_columns,LOGGER)};
     }
 
     /**
@@ -162,6 +165,13 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
     }
 
     /**
+     * @return settings model for the column selection
+     */
+    public static SettingsModelFilterString createColumnSelectionModel() {
+        return new SettingsModelFilterString("column_selection");
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -170,7 +180,7 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
 
         // check input spec
         final DataTableSpec inSpec = inData[0].getSpec();
-        final DataTableSpec outSpec = SliceLooperUtils.createResSpec(LOGGER, inSpec);
+        final DataTableSpec outSpec = SliceLooperUtils.createResSpec(inSpec,m_columns,LOGGER);
         isRowTerminated = false;
 
         // no iterator, yet!
@@ -180,20 +190,6 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
             if (m_iterator.hasNext()) {
                 m_currentRow = m_iterator.next();
             }
-        } else {
-            // new current index
-
-            //            // are we finished?
-            //            if (m_currIdx >= m_intervals.length) {
-            //                isRowTerminated = true;
-            //                areAllRowsTerminated = !m_iterator.hasNext();
-            //
-            //                if (!areAllRowsTerminated) {
-            //                    m_intervals = null;
-            //                    m_currentRow = m_iterator.next();
-            //                    m_currIdx = 0;
-            //                }
-            //            }
         }
 
         // loop over all columns, init intervals and check compatibility
@@ -201,7 +197,7 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
             m_colIndices = new ArrayList<Integer>();
             m_refValue = null;
 
-            for (int j : SliceLooperUtils.getValidIdx(inSpec)) {
+            for (int j : SliceLooperUtils.getSelectedAndValidIdx(inSpec, m_columns, LOGGER)) {
                 final DataColumnSpec colSpec = inSpec.getColumnSpec(j);
                 final DataType colType = colSpec.getType();
 
@@ -353,18 +349,21 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
     protected void saveSettingsTo(final NodeSettingsWO settings) {
         m_dimSelection.saveSettingsTo(settings);
         m_chunkSize.saveSettingsTo(settings);
+        m_columns.saveSettingsTo(settings);
     }
 
     @Override
     protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
         m_dimSelection.validateSettings(settings);
         m_chunkSize.validateSettings(settings);
+        m_columns.validateSettings(settings);
     }
 
     @Override
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
         m_dimSelection.loadSettingsFrom(settings);
         m_chunkSize.loadSettingsFrom(settings);
+        m_columns.loadSettingsFrom(settings);
     }
 
     public Interval[] getRefIntervals() {

@@ -70,12 +70,14 @@ import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.node.NodeLogger;
+import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
 
 /**
  *
- * @author Christian Dietz
+ *
+ * @author andreasgraumann
  */
 public class SliceLooperUtils {
 
@@ -103,49 +105,70 @@ public class SliceLooperUtils {
     }
 
     /**
+     *
+     * @param inSpec
+     * @param columns
+     * @param logger
      * @return
      */
-    static DataTableSpec createResSpec(final NodeLogger logger, final DataTableSpec inSpec) {
+    static DataTableSpec createResSpec(final DataTableSpec inSpec, final SettingsModelFilterString columns,
+                                       final NodeLogger logger) {
         int numCol = inSpec.getNumColumns();
 
         ArrayList<String> names = new ArrayList<String>();
         ArrayList<DataType> types = new ArrayList<DataType>();
 
-        for (int i = 0; i < numCol; i++) {
+        for (Integer i : getSelectedAndValidIdx(inSpec, columns, logger)) {
             DataColumnSpec colSpec = inSpec.getColumnSpec(i);
-
             DataType colType = colSpec.getType();
-            if (!colType.isCompatible(ImgPlusValue.class) && !colType.isCompatible(LabelingValue.class)) {
-                logger.warn("Waning: Column " + colSpec.getName()
-                        + " will be ignored! Only ImgPlusValue and LabelingValue are used!");
-            } else {
-                names.add(colSpec.getName());
-                types.add(colType);
-            }
+            names.add(colSpec.getName());
+            types.add(colType);
         }
 
         return new DataTableSpec(names.toArray(new String[names.size()]), types.toArray(new DataType[types.size()]));
     }
 
+
     /**
      *
      * @param inSpec
+     * @param columns
+     * @param logger
      * @return
      */
-    static Integer[] getValidIdx(final DataTableSpec inSpec) {
+    static Integer[] getSelectedAndValidIdx(final DataTableSpec inSpec, final SettingsModelFilterString columns,
+                                            final NodeLogger logger) {
+        ArrayList<Integer> selectedIdx = new ArrayList<Integer>();
 
-        ArrayList<Integer> validIdx = new ArrayList<Integer>();
-
-        int numCol = inSpec.getNumColumns();
-        for (int i = 0; i < numCol; i++) {
-            DataColumnSpec colSpec = inSpec.getColumnSpec(i);
-            DataType colType = colSpec.getType();
-            if (colType.isCompatible(ImgPlusValue.class) || colType.isCompatible(LabelingValue.class)) {
-                validIdx.add(i);
+        if (columns != null) {
+            for (String col : columns.getIncludeList()) {
+                final int colIdx = inSpec.findColumnIndex(col);
+                DataColumnSpec colSpec = inSpec.getColumnSpec(colIdx);
+                DataType colType = colSpec.getType();
+                if (colType.isCompatible(ImgPlusValue.class) || colType.isCompatible(LabelingValue.class)) {
+                    selectedIdx.add(colIdx);
+                } else {
+                    logger.warn("Waning: Column " + colSpec.getName()
+                            + " will be ignored! Only ImgPlusValue and LabelingValue are used!");
+                }
+            }
+        }
+        else {
+            int numCol = inSpec.getNumColumns();
+            for (int i = 0; i < numCol; i++) {
+                DataColumnSpec colSpec = inSpec.getColumnSpec(i);
+                DataType colType = colSpec.getType();
+                if (colType.isCompatible(ImgPlusValue.class) || colType.isCompatible(LabelingValue.class)) {
+                    selectedIdx.add(i);
+                }
+                else {
+                    logger.warn("Waning: Column " + colSpec.getName()
+                            + " will be ignored! Only ImgPlusValue and LabelingValue are used!");
+                }
             }
         }
 
-        return validIdx.toArray(new Integer[validIdx.size()]);
+        return selectedIdx.toArray(new Integer[selectedIdx.size()]);
     }
 
 }

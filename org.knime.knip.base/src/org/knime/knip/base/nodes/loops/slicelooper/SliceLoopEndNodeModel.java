@@ -131,7 +131,7 @@ public class SliceLoopEndNodeModel<T extends RealType<T> & NativeType<T>, L exte
     @Override
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
         //reset();
-        return new DataTableSpec[]{SliceLooperUtils.createResSpec(LOGGER, inSpecs[0])};
+        return new DataTableSpec[]{SliceLooperUtils.createResSpec(inSpecs[0],null,LOGGER)};
     }
 
     /**
@@ -152,7 +152,7 @@ public class SliceLoopEndNodeModel<T extends RealType<T> & NativeType<T>, L exte
 
         // check input spec
         final DataTableSpec inSpec = inData[0].getSpec();
-        final DataTableSpec outSpec = SliceLooperUtils.createResSpec(LOGGER, inSpec);
+        final DataTableSpec outSpec = SliceLooperUtils.createResSpec(inSpec,null,LOGGER);
 
         final BufferedDataTable inTable = inData[0];
         // prepare container for output
@@ -173,7 +173,6 @@ public class SliceLoopEndNodeModel<T extends RealType<T> & NativeType<T>, L exte
 
         }
 
-        // hier nur durch valide spalten gehen. und auch nur, wenn eine row terminated wurde
 
         if (m_cells == null) {
             m_cells = new HashMap<Integer, ArrayList<DataValue>>();
@@ -181,7 +180,8 @@ public class SliceLoopEndNodeModel<T extends RealType<T> & NativeType<T>, L exte
 
         while (m_iterator.hasNext()) {
             m_currentRow = m_iterator.next();
-            for (final int j : SliceLooperUtils.getValidIdx(inSpec)) {
+            // only run over selected and valid columns
+            for (final int j : SliceLooperUtils.getSelectedAndValidIdx(inSpec, null, LOGGER)) {
 
                 ArrayList<DataValue> list = m_cells.get(j);
                 if (list == null) {
@@ -197,7 +197,7 @@ public class SliceLoopEndNodeModel<T extends RealType<T> & NativeType<T>, L exte
 
             final DataCell[] outCells = new DataCell[outSpec.getNumColumns()];
 
-            for (final int j : SliceLooperUtils.getValidIdx(inSpec)) {
+            for (final int j : SliceLooperUtils.getSelectedAndValidIdx(inSpec, null, LOGGER)) {
 
                 final DataValue firstValue = m_cells.get(j).get(0);
 

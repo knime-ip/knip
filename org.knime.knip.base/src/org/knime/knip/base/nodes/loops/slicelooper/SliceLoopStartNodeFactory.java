@@ -53,6 +53,7 @@ import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
+import org.knime.core.node.defaultnodesettings.DialogComponentColumnFilter;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 
@@ -75,6 +76,7 @@ public class SliceLoopStartNodeFactory extends NodeFactory<SliceLoopStartNodeMod
                 addDialogComponent(new DialogComponentDimSelection(SliceLoopStartNodeModel.createDimSelection(),
                         "Dim Selection"));
 
+                addDialogComponent(new DialogComponentColumnFilter(SliceLoopStartNodeModel.createColumnSelectionModel(), 0, true));
             }
         };
     }
