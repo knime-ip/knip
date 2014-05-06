@@ -56,7 +56,8 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 /**
  *
- * @author dietyc
+ * @author Andreas Graumann, University of Konstanz
+ * @author Christian Dietz, University of Konstanz
  */
 public class SliceLoopEndNodeFactory extends
 		NodeFactory<SliceLoopEndNodeModel> {
@@ -81,17 +82,29 @@ public class SliceLoopEndNodeFactory extends
 		return new SliceLoopEndNodeModel(1,1);
 	}
 
+	/**
+	 *
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected int getNrNodeViews() {
 		return 0;
 	}
 
-	@Override
+	/**
+	 *
+	 * {@inheritDoc}
+	 */
+    @Override
 	public NodeView<SliceLoopEndNodeModel> createNodeView(
 			final int viewIndex, final SliceLoopEndNodeModel nodeModel) {
 		return null;
 	}
 
+    /**
+     *
+     * {@inheritDoc}
+     */
 	@Override
 	protected boolean hasDialog() {
 		return true;

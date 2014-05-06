@@ -111,35 +111,79 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
         super(nrInDataPorts, nrOutDataPorts);
     }
 
+    /**
+     * Dimension selction
+     */
     private SettingsModelDimSelection m_dimSelection = createDimSelection();
 
+    /**
+     * How many slices to process in one iteration
+     */
     private SettingsModelInteger m_chunkSize = createChunkSizeModel();
 
+    /**
+     * Selected columns using column selection option
+     */
     private final SettingsModelFilterString m_columns = createColumnSelectionModel();
 
+    /**
+     * the current index
+     */
     private int m_currIdx = 0;
 
+    /**
+     * table iterator
+     */
     private CloseableRowIterator m_iterator;
 
+    /**
+     * Current intervals
+     */
     private Interval[] m_intervals;
 
+    /**
+     * is one row terminated
+     */
     private boolean isRowTerminated;
 
+    /**
+     * are all rows terminated
+     */
     private boolean areAllRowsTerminated;
 
+    /**
+     * factory to create ImgPlusCells
+     */
     private ImgPlusCellFactory m_imgPlusCellFactory;
 
+    /**
+     * factory to create LabelingCells
+     */
     private LabelingCellFactory m_labelingCellFactory;
 
+    /**
+     * the current row of the iterator
+     */
     private DataRow m_currentRow;
 
+    /**
+     * all column indices
+     */
     private ArrayList<Integer> m_colIndices;
 
+    /**
+     * reference interval for slice loop end node
+     */
     private Interval m_refValue;
 
+    /**
+     * reference calibrated space for slice loop end node
+     */
     private CalibratedSpace<CalibratedAxis> m_refSpace;
 
-
+    /**
+     * Node logger
+     */
     static NodeLogger LOGGER = NodeLogger.getLogger(SliceLoopStartNodeModel.class);
 
     /**
@@ -180,13 +224,20 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
 
         // check input spec
         final DataTableSpec inSpec = inData[0].getSpec();
+
+        // create output spec
         final DataTableSpec outSpec = SliceLooperUtils.createResSpec(inSpec,m_columns,LOGGER);
+
+        // we just start, row is not terminated yet
         isRowTerminated = false;
 
         // no iterator, yet!
         if (m_iterator == null) {
+            // get input table
             final BufferedDataTable inTable = inData[0];
+            // get iterator
             m_iterator = inTable.iterator();
+            // get the first row of the iterator
             if (m_iterator.hasNext()) {
                 m_currentRow = m_iterator.next();
             }
@@ -194,9 +245,14 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
 
         // loop over all columns, init intervals and check compatibility
         if (m_currIdx == 0) {
+
+            // store all column indices
             m_colIndices = new ArrayList<Integer>();
+
+            // we do not have a reference value yet
             m_refValue = null;
 
+            // loop over all selected and valied cloumns
             for (int j : SliceLooperUtils.getSelectedAndValidIdx(inSpec, m_columns, LOGGER)) {
                 final DataColumnSpec colSpec = inSpec.getColumnSpec(j);
                 final DataType colType = colSpec.getType();
@@ -204,6 +260,7 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
                 Interval value = null;
                 CalibratedSpace<CalibratedAxis> axes = null;
 
+                // This column contains images
                 if (colType.isCompatible(ImgPlusValue.class)) {
 
                     @SuppressWarnings("unchecked")
@@ -213,8 +270,9 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
                     if (m_imgPlusCellFactory == null) {
                         m_imgPlusCellFactory = new ImgPlusCellFactory(exec);
                     }
-
-                } else if (colType.isCompatible(LabelingValue.class)) {
+                }
+                // this column contains labelings
+                else if (colType.isCompatible(LabelingValue.class)) {
                     @SuppressWarnings("unchecked")
                     final LabelingValue<T> labelingValue = ((LabelingValue<T>)m_currentRow.getCell(j));
                     value = labelingValue.getLabeling();
@@ -222,9 +280,11 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
                     if (m_labelingCellFactory == null) {
                         m_labelingCellFactory = new LabelingCellFactory(exec);
                     }
+                    // negativ index mark column has labeling
                     j *= -1;
                 }
 
+                // first column, store value and axes as reference for slice node end
                 if (value != null && m_colIndices.size() == 0) {
                     m_refValue = value;
                     m_refSpace = axes;
@@ -244,6 +304,7 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
             }
         }
 
+        // create outpur container
         final BufferedDataContainer container = exec.createDataContainer(outSpec);
 
         // create view with slices, depending on chunk size
@@ -333,18 +394,30 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
         m_refValue = null;
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     */
     @Override
     protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec) throws IOException,
             CanceledExecutionException {
         // Nothing to do here
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     */
     @Override
     protected void saveInternals(final File nodeInternDir, final ExecutionMonitor exec) throws IOException,
             CanceledExecutionException {
         // Nothing to do here
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     */
     @Override
     protected void saveSettingsTo(final NodeSettingsWO settings) {
         m_dimSelection.saveSettingsTo(settings);
@@ -352,6 +425,10 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
         m_columns.saveSettingsTo(settings);
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     */
     @Override
     protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
         m_dimSelection.validateSettings(settings);
@@ -359,6 +436,10 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
         m_columns.validateSettings(settings);
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     */
     @Override
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
         m_dimSelection.loadSettingsFrom(settings);
@@ -366,12 +447,16 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
         m_columns.loadSettingsFrom(settings);
     }
 
+    /**
+     *
+     * @return reference interval
+     */
     public Interval[] getRefIntervals() {
         return m_intervals;
     }
 
     /**
-     * @return the...
+     * @return dimension of the result image in slice loop end node
      */
     long[] getResDimensions(final Interval resInterval) {
         long[] dims = new long[m_refValue.numDimensions()];
@@ -387,18 +472,24 @@ public class SliceLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L ex
         return dims;
     }
 
-
+    /**
+     *
+     * @return reference calibrated space
+     */
     CalibratedSpace<CalibratedAxis> getRefSpace() {
         return m_refSpace;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean terminateLoop() {
         return areAllRowsTerminated;
     }
 
     /**
-     * @return
+     * @return is the current row terminated
      */
     public boolean isRowTerminated() {
         return isRowTerminated;

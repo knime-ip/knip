@@ -93,27 +93,53 @@ import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.data.img.LabelingMetadata;
 
 /**
- * @author dietzc, University of Konstanz
+ *
+ * @autoh Andreas Graumann, University of Konstanz
+ * @author Christian Dietz, University of Konstanz
  * @param <T>
  * @param <L>
  */
 public class SliceLoopEndNodeModel<T extends RealType<T> & NativeType<T>, L extends Comparable<L>> extends NodeModel
         implements LoopEndNode {
 
+    /**
+     * List to store all incoming cells
+     */
     private HashMap<Integer, ArrayList<DataValue>> m_cells = null;
 
+    /**
+     * current iterator
+     */
     private CloseableRowIterator m_iterator = null;
 
+    /**
+     * actual row of iterator
+     */
     private DataRow m_currentRow = null;
 
+    /**
+     * Container for results
+     */
     private BufferedDataContainer m_resultContainer = null;
 
+    /**
+     * Factory for ImgPlusCells
+     */
     private ImgPlusCellFactory m_imgPlusCellFactory = null;
 
+    /**
+     * Factory for LabelingCells
+     */
     private LabelingCellFactory m_labelingCellFactory = null;
 
+    /**
+     * counting number of output rows
+     */
     private int m_count = -1;
 
+    /**
+     * Node Logger
+     */
     private static NodeLogger LOGGER = NodeLogger.getLogger(SliceLoopEndNodeModel.class);
 
     /**
@@ -122,7 +148,6 @@ public class SliceLoopEndNodeModel<T extends RealType<T> & NativeType<T>, L exte
      */
     protected SliceLoopEndNodeModel(final int nrInDataPorts, final int nrOutDataPorts) {
         super(nrInDataPorts, nrOutDataPorts);
-
     }
 
     /**
@@ -142,78 +167,91 @@ public class SliceLoopEndNodeModel<T extends RealType<T> & NativeType<T>, L exte
     protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
             throws Exception {
 
+        // do we have a valid start node?
         if (!(getLoopStartNode() instanceof SliceLoopStartNodeModel)) {
-            //TODO more meaningful message
-            throw new IllegalStateException("End node without correct start node!");
+            throw new IllegalStateException("End node without correct start slice loop node!");
         }
 
+        // get loop start node
         @SuppressWarnings("unchecked")
         final SliceLoopStartNodeModel<T, L> loopStartNode = (SliceLoopStartNodeModel<T, L>)getLoopStartNode();
 
         // check input spec
         final DataTableSpec inSpec = inData[0].getSpec();
+        // create output spec
         final DataTableSpec outSpec = SliceLooperUtils.createResSpec(inSpec,null,LOGGER);
 
+        // input table
         final BufferedDataTable inTable = inData[0];
-        // prepare container for output
-        //final BufferedDataContainer container = exec.createDataContainer(outSpec);
 
+        // create output container if it does not exist
         if (m_resultContainer == null) {
             m_resultContainer = exec.createDataContainer(outSpec);
         }
 
+        // get the iterator and create factories
         if (m_iterator == null) {
             m_iterator = inTable.iterator();
-            if (m_iterator.hasNext()) {
-                //m_currentRow = m_iterator.next();
-            }
 
             m_imgPlusCellFactory = new ImgPlusCellFactory(exec);
             m_labelingCellFactory = new LabelingCellFactory(exec);
-
         }
 
-
+        // create hashmap to store incoming cells
         if (m_cells == null) {
             m_cells = new HashMap<Integer, ArrayList<DataValue>>();
         }
 
+        // loop over iterator
         while (m_iterator.hasNext()) {
+            // get next row
             m_currentRow = m_iterator.next();
             // only run over selected and valid columns
             for (final int j : SliceLooperUtils.getSelectedAndValidIdx(inSpec, null, LOGGER)) {
-
+                // get right list from cell hashmap
                 ArrayList<DataValue> list = m_cells.get(j);
+                // create list if not already done
                 if (list == null) {
                     m_cells.put(j, list = new ArrayList<DataValue>());
                 }
+                // add current cell
                 list.add(m_currentRow.getCell(j));
             }
         }
+        // all images of this iteration are stored
+        // need for the next table
         m_iterator = null;
 
         // save all slices of an image,
         if (loopStartNode.isRowTerminated()) {
 
+            // store all cells of this row
             final DataCell[] outCells = new DataCell[outSpec.getNumColumns()];
 
+            // get all valid columns
             for (final int j : SliceLooperUtils.getSelectedAndValidIdx(inSpec, null, LOGGER)) {
 
+                // get value of current column
                 final DataValue firstValue = m_cells.get(j).get(0);
 
+                // get the reference interval for image merging
                 final Interval[] refIntervals = loopStartNode.getRefIntervals();
 
+                // we have an image
                 if (firstValue instanceof ImgPlusValue) {
-                    // it is an img
 
+                    // get the image value
                     final ImgPlusValue<T> firstImgValue = (ImgPlusValue<T>)firstValue;
 
+                    // get the image factory
                     final ImgFactory<T> fac = firstImgValue.getImgPlus().factory();
 
+                    // create new output image
                     final Img<T> res =
                             fac.create(loopStartNode.getResDimensions(firstImgValue.getImgPlus()), firstImgValue
                                     .getImgPlus().firstElement().createVariable());
 
+                    // copy all image slices in new created output image
                     int i = 0;
                     for (final DataValue value : m_cells.get(j)) {
                         final Img<T> outSlice = SliceLooperUtils.getImgPlusAsView(res, refIntervals[i++], fac);
@@ -221,24 +259,35 @@ public class SliceLoopEndNodeModel<T extends RealType<T> & NativeType<T>, L exte
                         SliceLooperUtils.copy(imgPlus, outSlice);
                     }
 
+                    // create new Metadata with right dimensions
                     final ImgPlusMetadata outMetadata =
                             MetadataUtil.copyImgPlusMetadata(firstImgValue.getMetadata(),
                                                              new DefaultImgMetadata(res.numDimensions()));
 
+                    // copy meta source
                     MetadataUtil.copySource(firstImgValue.getMetadata(), outMetadata);
+
+                    // copy calibrated space
                     CalibratedSpace<CalibratedAxis> space = loopStartNode.getRefSpace();
                     MetadataUtil.copyTypedSpace(space, outMetadata);
 
+                    // store created cell
                     outCells[j] = m_imgPlusCellFactory.createCell(res, outMetadata);
 
                 } else {
                     // it must be a labeling
+
+                    // get the labeling value
                     final LabelingValue<L> firstLabelingValue = (LabelingValue<L>)firstValue;
+
+                    // get the labeling factory
                     final LabelingFactory<L> fac = firstLabelingValue.getLabeling().factory();
 
+                    // create new labeling
                     final Labeling<L> res =
                             fac.create(loopStartNode.getResDimensions(firstLabelingValue.getLabeling()));
 
+                    // copy all labeling slices in new created labeling
                     int i = 0;
                     for (final DataValue value : m_cells.get(j)) {
                         final Labeling<L> outSlice = SliceLooperUtils.getLabelingAsView(res, refIntervals[i++], fac);
@@ -246,6 +295,7 @@ public class SliceLoopEndNodeModel<T extends RealType<T> & NativeType<T>, L exte
                         SliceLooperUtils.copy(labeling, outSlice);
                     }
 
+                    // copy meta data with right dimensions
                     final LabelingMetadata outMetadata =
                             new DefaultLabelingMetadata(res.numDimensions(), firstLabelingValue.getLabelingMetadata()
                                     .getLabelingColorTable());
@@ -256,10 +306,12 @@ public class SliceLoopEndNodeModel<T extends RealType<T> & NativeType<T>, L exte
                     CalibratedSpace<CalibratedAxis> space = loopStartNode.getRefSpace();
                     MetadataUtil.copyTypedSpace(space, outMetadata);
 
+                    // store created cell
                     outCells[j] = m_labelingCellFactory.createCell(res, outMetadata);
                 }
             }
 
+            // clear all cells
             m_cells.clear();
             m_cells = null;
 
@@ -269,18 +321,15 @@ public class SliceLoopEndNodeModel<T extends RealType<T> & NativeType<T>, L exte
 
         }
 
+        // finished
         if (loopStartNode.terminateLoop()) {
-            //
-            //            return alle zusammengesammelten Bildchen
             m_resultContainer.close();
             return new BufferedDataTable[]{m_resultContainer.getTable()};
         } else {
+            // next iteration
             super.continueLoop();
             return new BufferedDataTable[1];
         }
-        //
-
-        //  return null;
     }
 
     /**
@@ -289,38 +338,50 @@ public class SliceLoopEndNodeModel<T extends RealType<T> & NativeType<T>, L exte
     @Override
     protected void reset() {
         m_cells = null;
-
         m_iterator = null;
         m_resultContainer = null;
-
         m_currentRow = null;
-
         m_imgPlusCellFactory = null;
         m_labelingCellFactory = null;
         m_count = -1;
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     */
     @Override
     protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec) throws IOException,
             CanceledExecutionException {
         // Nothing to do here
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     */
     @Override
     protected void saveInternals(final File nodeInternDir, final ExecutionMonitor exec) throws IOException,
             CanceledExecutionException {
         // Nothing to do here
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     */
     @Override
     protected void saveSettingsTo(final NodeSettingsWO settings) {
+     // Nothing to do here
     }
 
     @Override
     protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
+     // Nothing to do here
     }
 
     @Override
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
+     // Nothing to do here
     }
 }

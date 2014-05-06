@@ -59,6 +59,9 @@ import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 
 /**
  *
+ *
+ * @author Andreas Graumann, University of Konstanz
+ * @author Christian Dietz, University of Konstanz
  */
 public class SliceLoopStartNodeFactory extends NodeFactory<SliceLoopStartNodeModel> {
 
@@ -70,13 +73,14 @@ public class SliceLoopStartNodeFactory extends NodeFactory<SliceLoopStartNodeMod
 
         return new DefaultNodeSettingsPane() {
             {
-
-                addDialogComponent(new DialogComponentNumber(SliceLoopStartNodeModel.createChunkSizeModel(), "Chunk size", 1));
+                addDialogComponent(new DialogComponentNumber(SliceLoopStartNodeModel.createChunkSizeModel(),
+                        "Chunk size", 1));
 
                 addDialogComponent(new DialogComponentDimSelection(SliceLoopStartNodeModel.createDimSelection(),
                         "Dim Selection"));
 
-                addDialogComponent(new DialogComponentColumnFilter(SliceLoopStartNodeModel.createColumnSelectionModel(), 0, true));
+                addDialogComponent(new DialogComponentColumnFilter(
+                        SliceLoopStartNodeModel.createColumnSelectionModel(), 0, true));
             }
         };
     }
@@ -89,17 +93,29 @@ public class SliceLoopStartNodeFactory extends NodeFactory<SliceLoopStartNodeMod
         return new SliceLoopStartNodeModel(1, 1);
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     */
     @Override
     protected int getNrNodeViews() {
         return 0;
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     */
     @Override
     public NodeView<SliceLoopStartNodeModel>
             createNodeView(final int viewIndex, final SliceLoopStartNodeModel nodeModel) {
         return null;
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     */
     @Override
     protected boolean hasDialog() {
         return true;

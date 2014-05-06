@@ -15,7 +15,7 @@
         </option>
        <option name="Dim Selection">Selection of fixed dimensions.
         </option>
-       ption name="Column Selection">Selection of columns to take into account.
+       <option name="Column Selection">Selection of columns to take into account.
         </option>
 	</fullDescription>
 

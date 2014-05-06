@@ -75,12 +75,19 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
 
 /**
+ * Utils for slice loop node
  *
- *
- * @author andreasgraumann
+ * @author Andreas Graumann, University of Konstanz
+ * @author Christian Dietz, Univesity of Konstanz
  */
 public class SliceLooperUtils {
 
+    /**
+     * Copies a RandomAccessibleInterval in another one
+     *
+     * @param input
+     * @param output
+     */
     static <T extends Type<T>> void copy(final RandomAccessibleInterval<T> input,
                                          final RandomAccessibleInterval<T> output) {
 
@@ -94,11 +101,25 @@ public class SliceLooperUtils {
         }
     }
 
+    /**
+     *
+     * @param in
+     * @param i
+     * @param fac
+     * @return
+     */
     static <T extends RealType<T> & NativeType<T>> Img<T> getImgPlusAsView(final Img<T> in, final Interval i,
                                                                            final ImgFactory<T> fac) {
         return new ImgView<T>(SubsetOperations.subsetview(in, i), fac);
     }
 
+    /**
+     *
+     * @param in
+     * @param i
+     * @param fac
+     * @return
+     */
     static <L extends Comparable<L>> Labeling<L> getLabelingAsView(final Labeling<L> in, final Interval i,
                                                                    final LabelingFactory<L> fac) {
         return new LabelingView<L>(SubsetOperations.subsetview(in, i), fac);
@@ -109,15 +130,16 @@ public class SliceLooperUtils {
      * @param inSpec
      * @param columns
      * @param logger
-     * @return
+     * @return DataTableSpec
      */
     static DataTableSpec createResSpec(final DataTableSpec inSpec, final SettingsModelFilterString columns,
                                        final NodeLogger logger) {
-        int numCol = inSpec.getNumColumns();
 
+        // store names and types of all valid columns
         ArrayList<String> names = new ArrayList<String>();
         ArrayList<DataType> types = new ArrayList<DataType>();
 
+        // loop over all selected and valid columns
         for (Integer i : getSelectedAndValidIdx(inSpec, columns, logger)) {
             DataColumnSpec colSpec = inSpec.getColumnSpec(i);
             DataType colType = colSpec.getType();
@@ -138,13 +160,17 @@ public class SliceLooperUtils {
      */
     static Integer[] getSelectedAndValidIdx(final DataTableSpec inSpec, final SettingsModelFilterString columns,
                                             final NodeLogger logger) {
+        // Store all indexes of selected and valid columsn
         ArrayList<Integer> selectedIdx = new ArrayList<Integer>();
 
+        // We have a column selection
         if (columns != null) {
             for (String col : columns.getIncludeList()) {
                 final int colIdx = inSpec.findColumnIndex(col);
                 DataColumnSpec colSpec = inSpec.getColumnSpec(colIdx);
                 DataType colType = colSpec.getType();
+
+                // only ImgPlus and Lablings are allowed
                 if (colType.isCompatible(ImgPlusValue.class) || colType.isCompatible(LabelingValue.class)) {
                     selectedIdx.add(colIdx);
                 } else {
@@ -153,6 +179,7 @@ public class SliceLooperUtils {
                 }
             }
         }
+        // the end node don't have a column selection, just look for valid columns
         else {
             int numCol = inSpec.getNumColumns();
             for (int i = 0; i < numCol; i++) {
