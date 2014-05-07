@@ -229,12 +229,12 @@
            point="org.knime.workbench.repository.nodes">
         <node
               expert-flag="false"
-              factory-class="org.knime.knip.base.nodes.loops.slicelooper.SliceLoopStartNodeFactory"
+              factory-class="org.knime.knip.base.nodes.loops.slicelooper.SliceIteratorNodeFactory"
               id="SliceLoopStart">
         </node>
         <node
               expert-flag="false"
-              factory-class="org.knime.knip.base.nodes.loops.slicelooper.SliceLoopEndNodeFactory"
+              factory-class="org.knime.knip.base.nodes.loops.slicelooper.CollectSlicesNodeFactory"
               id="SliceLoopEnde">
         </node>
      </extension>
