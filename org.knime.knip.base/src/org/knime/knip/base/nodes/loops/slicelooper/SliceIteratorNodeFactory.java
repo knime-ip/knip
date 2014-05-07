@@ -54,6 +54,8 @@ import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnFilter;
+import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 
 /**
@@ -75,8 +77,8 @@ public class SliceIteratorNodeFactory extends NodeFactory<SliceIteratorNodeModel
                 addDialogComponent(new DialogComponentDimSelection(SliceIteratorNodeModel.createDimSelection(),
                         "Dim Selection"));
 
-                addDialogComponent(new DialogComponentColumnFilter(
-                        SliceIteratorNodeModel.createColumnSelectionModel(), 0, true));
+
+                addDialogComponent(new DialogComponentColumnFilter(SliceIteratorNodeModel.createColumnSelectionModel(), 0,true, ImgPlusValue.class, LabelingValue.class));
             }
         };
     }
