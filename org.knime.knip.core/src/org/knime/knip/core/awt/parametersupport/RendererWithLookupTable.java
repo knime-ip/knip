@@ -51,8 +51,8 @@ package org.knime.knip.core.awt.parametersupport;
 import org.knime.knip.core.awt.lookup.LookupTable;
 
 /**
- * Renderer of this instance use a LookupTable for Renderering.<br>
- * 
+ * Renderer of this instance use a LookupTable for Rendering.<br>
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -62,7 +62,7 @@ public interface RendererWithLookupTable<T, U> {
 
     /**
      * Set a new lookup table for the next rendering pass.<br>
-     * 
+     *
      * @param table the table to use
      */
     public void setLookupTable(final LookupTable<T, U> table);
