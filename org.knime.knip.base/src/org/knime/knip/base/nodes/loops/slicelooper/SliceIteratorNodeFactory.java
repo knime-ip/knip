@@ -77,7 +77,6 @@ public class SliceIteratorNodeFactory extends NodeFactory<SliceIteratorNodeModel
                 addDialogComponent(new DialogComponentDimSelection(SliceIteratorNodeModel.createDimSelection(),
                         "Dim Selection"));
 
-
                 addDialogComponent(new DialogComponentColumnFilter(SliceIteratorNodeModel.createColumnSelectionModel(), 0,true, ImgPlusValue.class, LabelingValue.class));
             }
         };
@@ -118,5 +117,6 @@ public class SliceIteratorNodeFactory extends NodeFactory<SliceIteratorNodeModel
     protected boolean hasDialog() {
         return true;
     }
+
 
 }
