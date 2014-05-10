@@ -45,5 +45,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/mvn/turbojpeg-5.0.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/xercesImpl-2.6.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/native-lib-loader-2.0-20131121.170307-1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/native-lib-loader-2.0-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
