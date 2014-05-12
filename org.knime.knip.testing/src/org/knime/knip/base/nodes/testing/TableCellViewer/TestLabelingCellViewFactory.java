@@ -72,7 +72,8 @@ import org.knime.knip.core.ui.imgviewer.events.ResetCacheEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 
 /**
- * This Class is an implementation of the {@link TableCellViewFactory} interface providing additional Methods for testing labelings.
+ * This Class is an implementation of the {@link TableCellViewFactory} interface providing additional Methods for
+ * testing labelings.
  *
  * @author Andreas Burger, University of Konstanz
  */
@@ -139,12 +140,11 @@ public class TestLabelingCellViewFactory<L extends Comparable<L>, II extends Int
 
             /**
              * This method handles the actual testing.
+             *
              * @param labelingValue The labeling to be displayed, used in tests.
              */
             private void testComponent(final LabelingValue<L> labelingValue) {
                 EventService service = m_view.getEventService();
-
-//              Coloring
 
                 // Coloring
 
@@ -162,16 +162,17 @@ public class TestLabelingCellViewFactory<L extends Comparable<L>, II extends Int
                 service.publish(new TestCompleteEvent());
                   */
 
-//              Renderer
+                // Renderer
 
-                ImageRenderer<LabelingType<L>>[] tmp = RendererFactory.createSuitableRenderer(labelingValue.getLabeling());
+                ImageRenderer<LabelingType<L>>[] tmp =
+                        RendererFactory.createSuitableRenderer(labelingValue.getLabeling());
                 for (ImageRenderer<LabelingType<L>> ir : tmp) {
                     service.publish(new RendererSelectionChgEvent(ir));
                     service.publish(new ImgRedrawEvent());
                     service.publish(new TestCompleteEvent());
                 }
 
-//              Rendering with Numbers
+                // Rendering with Numbers
                 service.publish(new LabelOptionsChangeEvent(true));
                 service.publish(new ImgRedrawEvent());
                 service.publish(new TestCompleteEvent());

@@ -152,12 +152,12 @@ public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> imple
             private void testComponent(final ImgPlusValue<T> imgPlusValue) {
                 EventService service = m_view.getEventService();
 
-                //              Calibration
+                // Calibration
 
                 service.publish(new ImgWithMetadataChgEvent(imgPlusValue.getImgPlus(), imgPlusValue.getMetadata()));
                 service.publish(new TestCompleteEvent());
 
-                //              Normalization
+                // Normalization
 
                 service.publish(new NormalizationParametersChgEvent(0, false));
                 service.publish(new TestCompleteEvent());
@@ -168,7 +168,7 @@ public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> imple
                 service.publish(new NormalizationParametersChgEvent(50, true));
                 service.publish(new TestCompleteEvent());
 
-                //                Minimap
+                //  Minimap
 
                 service.publish(new ViewZoomfactorChgEvent(MinimapPanel.ZOOM_MIN / 100d));
                 service.publish(new ImgRedrawEvent());
@@ -182,7 +182,7 @@ public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> imple
                 service.publish(new ImgRedrawEvent());
                 service.publish(new TestCompleteEvent());
 
-                //                PlaneSelection
+                // PlaneSelection
 
                 if (imgPlusValue.getMetadata().numDimensions() > 1) {
 
@@ -197,7 +197,7 @@ public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> imple
                     }
                 }
 
-                //              RendererSelection
+                // RendererSelection
 
                 ImageRenderer<T>[] tmp = RendererFactory.createSuitableRenderer(imgPlusValue.getImgPlus());
 
