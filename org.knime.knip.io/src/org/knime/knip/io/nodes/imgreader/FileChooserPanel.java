@@ -87,6 +87,8 @@ import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.ListModel;
+import javax.swing.LookAndFeel;
+import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -404,7 +406,9 @@ public class FileChooserPanel extends JPanel {
         m_defDir = new File(prefDir);
         // System.out.println(defDir.toString());
         // create instances
-        m_fileChooser = new MacHackedFileChooserPanel();
+        
+        // mac hack to get the file name text field in the jfilechooser dialog.
+        m_fileChooser = getFileChooserWithLookAndFeel();
 
         m_addButton =
                 new JButton("Add Selected", new ImageIcon(getClass()
@@ -899,4 +903,29 @@ public class FileChooserPanel extends JPanel {
         }
     }
 
+	/**
+	 * On Mac OS X there is no text field for regexes with the default look and
+	 * feel {@link JFileChooser}. Therefore on Mac OS X the
+	 * {@link MacHackedFileChooserPanel} gets the
+	 * UIManager.getCrossPlatformLookAndFeelClassName()
+	 * 
+	 * @return
+	 */
+	private MacHackedFileChooserPanel getFileChooserWithLookAndFeel() {
+		MacHackedFileChooserPanel fileChooser = null;
+		if (System.getProperty("os.name").equals("Mac OS X")) {
+			LookAndFeel lookAndFeel = UIManager.getLookAndFeel();
+			try {
+				UIManager.setLookAndFeel(UIManager
+						.getCrossPlatformLookAndFeelClassName());
+				fileChooser = new MacHackedFileChooserPanel();
+				UIManager.setLookAndFeel(lookAndFeel);
+			} catch (Exception e) {
+				// mac hack
+			}
+		}
+
+		return (fileChooser != null) ? fileChooser
+				: new MacHackedFileChooserPanel();
+	}
 }

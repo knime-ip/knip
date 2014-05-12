@@ -428,7 +428,7 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
                         buf.deleteCharAt(buf.length() - 1);
                     } else {
                         NodeLogger.getLogger(IntervalFeatureSetNodeModel.class)
-                                .warn("No label dependencies found for feature node for label: " + label.toString());
+                                .warn("No overlapping segment found for segment with label: " + label.toString());
                     }
 
                     cells.add(new StringCell(buf.toString()));

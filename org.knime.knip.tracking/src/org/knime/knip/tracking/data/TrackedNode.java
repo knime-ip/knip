@@ -34,13 +34,14 @@ public class TrackedNode<L extends Comparable<L>> extends
 
 	private static double[] position(final double[] centroid, final int timeIdx) {
 
-		double[] positionWithoutTime = new double[centroid.length];
+		final double[] positionWithoutTime = new double[centroid.length - 1];
 
 		int offset = 0;
 		for (int i = 0; i < centroid.length; i++) {
-			if (timeIdx == i)
+			if (timeIdx == i) {
 				offset = 1;
-
+				continue;
+			}
 			positionWithoutTime[i - offset] = centroid[i];
 		}
 
@@ -48,13 +49,13 @@ public class TrackedNode<L extends Comparable<L>> extends
 	}
 
 	@Override
-	public int compareTo(TrackedNode<L> o) {
+	public int compareTo(final TrackedNode<L> o) {
 		return m_label.compareTo(o.m_label);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (obj instanceof TrackedNode) {
 			return m_label.equals(((TrackedNode<L>) obj).m_label);
 		}
@@ -80,7 +81,7 @@ public class TrackedNode<L extends Comparable<L>> extends
 		return m_label;
 	}
 
-	public long offset(int d) {
+	public long offset(final int d) {
 		return m_offset[d];
 	}
 
@@ -96,12 +97,12 @@ public class TrackedNode<L extends Comparable<L>> extends
 	}
 
 	@Override
-	public void setName(String name) {
+	public void setName(final String name) {
 		throw new UnsupportedOperationException("can't set name");
 	}
 
 	@Override
-	public Double getFeature(String feature) {
+	public Double getFeature(final String feature) {
 		return m_features.get(feature);
 	}
 
@@ -111,7 +112,7 @@ public class TrackedNode<L extends Comparable<L>> extends
 	}
 
 	@Override
-	public void putFeature(String feature, Double value) {
+	public void putFeature(final String feature, final Double value) {
 		m_features.put(feature, value);
 	}
 
@@ -122,7 +123,7 @@ public class TrackedNode<L extends Comparable<L>> extends
 	}
 
 	@Override
-	public void setFrame(int frame) {
+	public void setFrame(final int frame) {
 		this.m_frame = frame;
 	}
 
@@ -132,7 +133,7 @@ public class TrackedNode<L extends Comparable<L>> extends
 	}
 
 	@Override
-	public void setVisible(boolean isVisible) {
+	public void setVisible(final boolean isVisible) {
 		this.m_isVisible = isVisible;
 	}
 }

@@ -56,10 +56,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
@@ -74,6 +75,7 @@ import org.knime.core.node.NodeView;
 import org.knime.core.node.tableview.TableContentModel;
 import org.knime.core.node.tableview.TableContentView;
 import org.knime.core.node.tableview.TableView;
+import org.knime.knip.core.util.waitingindicator.WaitingIndicatorUtils;
 import org.knime.node2012.ViewDocument.View;
 import org.knime.node2012.ViewsDocument.Views;
 
@@ -213,7 +215,6 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     public TableCellViewNodeView(final T nodeModel) {
         this(nodeModel, 0);
-
     }
 
     /**
@@ -279,7 +280,6 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
                 m_viewComponents.put(currentDataCellClass + ":" + v.getName(), comp);
 
             }
-
         }
 
         // add the components to the tabs
@@ -295,7 +295,12 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     }
 
+
     protected void initViewComponents() {
+
+        //temporary panel to display loading indicator.
+        final JPanel loadpanel = new JPanel();
+        loadpanel.setPreferredSize(new Dimension(600, 400));
 
         m_sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
@@ -310,21 +315,20 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
                     return;
                 }
                 cellSelectionChanged();
-
             }
         };
+
         m_tableContentView.getSelectionModel().addListSelectionListener(m_listSelectionListenerA);
         m_listSelectionListenerB = new ListSelectionListener() {
-
             @Override
             public void valueChanged(final ListSelectionEvent e) {
                 if (e.getValueIsAdjusting()) {
                     return;
                 }
                 cellSelectionChanged();
-
             }
         };
+
         m_tableContentView.getColumnModel().getSelectionModel().addListSelectionListener(m_listSelectionListenerB);
         m_tableView = new TableView(m_tableContentView);
         m_sp.add(m_tableView);
@@ -339,7 +343,25 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         m_viewComponents = new HashMap<String, Component>();
 
         m_cellViewTabs = new JTabbedPane();
-        m_tableContentView.setModel(m_tableModel);
+
+        // Show waiting indicator and work in background.
+        WaitingIndicatorUtils.setWaiting(loadpanel, true);
+        SwingWorker<T, Integer> worker = new SwingWorker<T, Integer>() {
+
+            @Override
+            protected T doInBackground() throws Exception {
+                m_tableContentView.setModel(m_tableModel);
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                WaitingIndicatorUtils.setWaiting(loadpanel, false);
+                setComponent(m_sp);
+            }
+        };
+
+        worker.execute();
 
         m_changeListener = new ChangeListener() {
             @Override
@@ -349,24 +371,19 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         };
 
         m_cellViewTabs.addChangeListener(m_changeListener);
-        m_sp.setDividerLocation(300);
+        m_sp.setDividerLocation(250);
         m_sp.add(m_cellViewTabs);
 
-        setComponent(m_sp);
-
+//        Temporarily add loadpanel as component, so that the ui stays responsive.
+        setComponent(loadpanel);
     }
 
+
     protected void loadPortContent() {
-        // UPDATE_EXECUTOR.execute(new Runnable() {
-        // @Override
-        // public void run() {
         m_tableModel = new TableContentModel();
         m_tableModel.setDataTable(getNodeModel().getInternalTables()[m_portIdx]);
 
         initViewComponents();
-
-        // }
-        // });
     }
 
     /**
@@ -447,19 +464,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         m_cellViews.get(m_currentCell.getClass().getCanonicalName()).get(m_cellViewTabs.getSelectedIndex())
                 .updateComponent(m_currentCell);
 
-        // This fixes the bug on windows in the 3D Viewer where no
-        // repainting
-        // occurs if we just switch tabs without switching the image to
-        // be
-        // painted
-        if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    m_cellViewTabs.repaint();
-                }
-            });
-        }
     }
-
 }
+
+//}

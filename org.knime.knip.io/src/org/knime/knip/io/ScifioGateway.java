@@ -105,7 +105,8 @@ public class ScifioGateway {
     /**
      * @deprecated
      */
-    private void addIFormatReaders() {
+    @Deprecated
+	private void addIFormatReaders() {
         // add readers from the IFormatReader extension point as default reader
         // classes
         // adding them to the BioFormatsFormat would also be possible but not
@@ -113,9 +114,9 @@ public class ScifioGateway {
         // m_scifio.format().getFormatFromClass(BioFormatsFormat.class)..addReader(rClass);
 
         // remove all that have been already added (add them at the end)
-        Class<? extends IFormatReader>[] oldClasses =
+        final Class<? extends IFormatReader>[] oldClasses =
                 ImageReader.getDefaultReaderClasses().getClasses();
-        for (Class<? extends IFormatReader> clazz : oldClasses) {
+        for (final Class<? extends IFormatReader> clazz : oldClasses) {
             ImageReader.getDefaultReaderClasses().removeClass(clazz);
         }
 
@@ -124,13 +125,14 @@ public class ScifioGateway {
                 IFormatReaderExtPointManager.getIFormatReaders();
         Collections.reverse(customReaders);
 
-        for (IFormatReader r : customReaders) {
+        for (final IFormatReader r : customReaders) {
             @SuppressWarnings("unchecked")
+			final
             Class<IFormatReader> rClass = (Class<IFormatReader>)r.getClass();
             ImageReader.getDefaultReaderClasses().addClass(rClass);
         }
 
-        for (Class<? extends IFormatReader> or : oldClasses) {
+        for (final Class<? extends IFormatReader> or : oldClasses) {
             ImageReader.getDefaultReaderClasses().addClass(or);
         }
     }

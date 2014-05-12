@@ -343,6 +343,7 @@ public class DialogComponentSubsetSelection extends DialogComponent implements I
     }
 
     private int[] parseTextinputToArray(final String s, final int comp) throws InvalidSettingsException {
+
         String sub = "";
         String from = "";
         String func = "";
@@ -650,7 +651,8 @@ public class DialogComponentSubsetSelection extends DialogComponent implements I
     @Override
     protected final void validateSettingsBeforeSave() throws InvalidSettingsException {
         for (int i = 0; i < m_selections.length; i++) {
-            if ((m_selections[i].getSelectedIndices().length == 0) && !m_allChkBoxes[i].isSelected()) {
+            int[] selection = parseTextinputToArray(m_textSelection[i].getText(), i);
+            if (selection.length == 0 && !m_allChkBoxes[i].isSelected()) {
                 m_selections[i].setBackground(Color.RED);
                 throw new InvalidSettingsException("Zero selection not allowed");
             }

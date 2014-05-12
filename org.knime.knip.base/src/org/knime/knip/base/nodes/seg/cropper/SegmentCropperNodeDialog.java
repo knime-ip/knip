@@ -115,29 +115,32 @@ public class SegmentCropperNodeDialog<L extends Comparable<L>> extends DefaultNo
 
         closeCurrentGroup();
 
-        createNewTab("Label Filter");
+        createNewTab("Segment Label Filter");
 
-        createNewGroup("ROI Filter");
-        addDialogComponent(new DialogComponentFilterSelection<L>(SegmentCropperNodeModel.<L> createROIFilterModel()));
+        createNewGroup("Filter on segment labels");
+        addDialogComponent(new DialogComponentFilterSelection<L>(SegmentCropperNodeModel.<L> createLabelFilterModel()));
         closeCurrentGroup();
 
-        createNewGroup("Non-ROI Filter");
+        createNewGroup("Overlapping segment labels");
+        final SettingsModelBoolean addDependencies = SegmentCropperNodeModel.createAddOverlappingLabels();
         final SettingsModelFilterSelection<L> nonRoiFilterModel =
-                SegmentCropperNodeModel.<L> createNONRoiFilterModel(false);
-        final SettingsModelBoolean addDependencies = SegmentCropperNodeModel.createAddNonRoiLabels();
+                SegmentCropperNodeModel.<L> createOverlappingLabelFilterModel(false);
+        final SettingsModelBoolean noCompleteOverlap =
+                SegmentCropperNodeModel.createNotEnforceCompleteOverlapModel(false);
 
         addDependencies.addChangeListener(new ChangeListener() {
 
             @Override
             public void stateChanged(final ChangeEvent e) {
                 nonRoiFilterModel.setEnabled(addDependencies.getBooleanValue());
+                noCompleteOverlap.setEnabled(addDependencies.getBooleanValue());
             }
         });
 
-        addDialogComponent(new DialogComponentBoolean(addDependencies, "Add non ROI Labels?"));
-
+        addDialogComponent(new DialogComponentBoolean(addDependencies, "Append labels of overlapping segments"));
+        addDialogComponent(new DialogComponentBoolean(noCompleteOverlap,
+                "Overlapping segments do NOT need to completely overlap"));
         addDialogComponent(new DialogComponentFilterSelection<L>(nonRoiFilterModel));
-
         closeCurrentGroup();
 
     }

@@ -5,6 +5,15 @@ The KNIME Image Processing Extension adds new nodes to KNIME (www.knime.org) to 
 
 The KNIME Image Processing Extension currently provides about 90 nodes for (pre)-processing, filtering, segmentation, feature extraction, various views, ....
 
+For more information how to install/use KNIME Image Processing see:
+http://tech.knime.org/community/image-processing
+
+Example Workflows can be found at:
+http://tech.knime.org/community/image-processing#exampleworkflows
+
+KNIME Image Processing Webinar on YouTube (03/25/2014):
+http://www.youtube.com/watch?v=MqSIyqmm3EU&feature=youtu.be&a 
+
 Package Organization
 ====
 
