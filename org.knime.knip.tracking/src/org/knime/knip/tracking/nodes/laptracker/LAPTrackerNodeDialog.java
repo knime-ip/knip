@@ -147,7 +147,7 @@ public class LAPTrackerNodeDialog extends DefaultNodeSettingsPane {
 
 		this.addDialogComponent(new DialogComponentBoolean(
 				m_attachSourceLabelings,
-				"Attach Segment ID labelings"));
+				"Attach original Labelings as Segment ID labelings"));
 
 	}
 

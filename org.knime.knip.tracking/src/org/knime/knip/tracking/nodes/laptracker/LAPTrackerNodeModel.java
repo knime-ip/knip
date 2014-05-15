@@ -314,19 +314,17 @@ public class LAPTrackerNodeModel extends NodeModel implements
 
 					// labeling.add(node.label());
 					labeling.add("Track: " + trackCtr);
+
 					// add original labeling if selected by the user
 					if (m_attachSourceLabelings.getBooleanValue()) {
 						srcAccess.setPosition(resAccess);
 						List<?> localLabelings = ((LabelingType<?>) srcAccess
 								.get()).getLabeling();
 						for (Object o : localLabelings) {
-							// labeling.add("Track: " + trackCtr + " Node: "
-							// + o.toString());
 							labeling.add("Segment: " + o.toString());
 						}
 					}
 					resAccess.get().setLabeling(labeling);
-
 				}
 			}
 			trackCtr++;

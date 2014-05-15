@@ -57,7 +57,7 @@ final class LAPTrackerSettingsModels {
 	}
 
 	/**
-	 * @return settings model to store the labeling arrachement Selection 
+	 * @return settings model to store the labeling attachment selection
 	 */
 	public static SettingsModelBoolean createAttachSourceLabelings() {
 		return new SettingsModelBoolean("attach_original_labeling", false);
