@@ -56,6 +56,13 @@ final class LAPTrackerSettingsModels {
 		return new SettingsModelFilterString("column_selection");
 	}
 
+	/**
+	 * @return settings model to store the labeling arrachement Selection 
+	 */
+	public static SettingsModelBoolean createAttachSourceLabelings() {
+		return new SettingsModelBoolean("attach_original_labeling", false);
+	}
+	
 	/* TRACKMATE SETTING MODELS */
 
 	/**
@@ -146,5 +153,4 @@ final class LAPTrackerSettingsModels {
 		return new SettingsModelDouble("gap_closing_max_distance",
 				TrackerKeys.DEFAULT_GAP_CLOSING_MAX_DISTANCE);
 	}
-
 }

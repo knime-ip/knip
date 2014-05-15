@@ -106,6 +106,9 @@ public class LAPTrackerNodeModel extends NodeModel implements
 	private final SettingsModelString m_labelColumnModel = LAPTrackerSettingsModels
 			.createLabelModel();
 
+	private final SettingsModelBoolean m_attachSourceLabelings = LAPTrackerSettingsModels
+			.createAttachSourceLabelings();
+
 	/*
 	 * TRACKMATE SETTINGS
 	 */
@@ -290,6 +293,8 @@ public class LAPTrackerNodeModel extends NodeModel implements
 		Labeling<String> res = sourceLabeling.<String> factory().create(
 				sourceLabeling);
 		RandomAccess<LabelingType<String>> resAccess = res.randomAccess();
+		RandomAccess<?> srcAccess = sourceLabeling.randomAccess(); 
+		
 		final int numDims = resAccess.numDimensions();
 		for (SortedSet<TrackedNode<String>> track : trackSegments) {
 			for (TrackedNode<String> node : track) {
@@ -309,6 +314,17 @@ public class LAPTrackerNodeModel extends NodeModel implements
 
 					// labeling.add(node.label());
 					labeling.add("Track: " + trackCtr);
+					// add original labeling if selected by the user
+					if (m_attachSourceLabelings.getBooleanValue()) {
+						srcAccess.setPosition(resAccess);
+						List<?> localLabelings = ((LabelingType<?>) srcAccess
+								.get()).getLabeling();
+						for (Object o : localLabelings) {
+							// labeling.add("Track: " + trackCtr + " Node: "
+							// + o.toString());
+							labeling.add("Segment: " + o.toString());
+						}
+					}
 					resAccess.get().setLabeling(labeling);
 
 				}
@@ -389,6 +405,7 @@ public class LAPTrackerNodeModel extends NodeModel implements
 		m_allowSplittingModel.saveSettingsTo(settings);
 		m_gapClosingMaxDistanceModel.saveSettingsTo(settings);
 		m_sourceLabelingColumn.saveSettingsTo(settings);
+		m_attachSourceLabelings.saveSettingsTo(settings);
 	}
 
 	@Override
@@ -410,6 +427,7 @@ public class LAPTrackerNodeModel extends NodeModel implements
 		m_allowSplittingModel.validateSettings(settings);
 		m_gapClosingMaxDistanceModel.validateSettings(settings);
 		m_sourceLabelingColumn.validateSettings(settings);
+		m_attachSourceLabelings.validateSettings(settings);
 	}
 
 	@Override
@@ -431,6 +449,7 @@ public class LAPTrackerNodeModel extends NodeModel implements
 		m_allowSplittingModel.loadSettingsFrom(settings);
 		m_gapClosingMaxDistanceModel.loadSettingsFrom(settings);
 		m_sourceLabelingColumn.loadSettingsFrom(settings);
+		m_attachSourceLabelings.loadSettingsFrom(settings);
 	}
 
 	@Override
