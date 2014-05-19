@@ -312,7 +312,6 @@ public class LAPTrackerNodeModel extends NodeModel implements
 					List<String> labeling = new ArrayList<String>(resAccess
 							.get().getLabeling());
 
-					// labeling.add(node.label());
 					labeling.add("Track: " + trackCtr);
 
 					// add original labeling if selected by the user
@@ -321,7 +320,7 @@ public class LAPTrackerNodeModel extends NodeModel implements
 						List<?> localLabelings = ((LabelingType<?>) srcAccess
 								.get()).getLabeling();
 						for (Object o : localLabelings) {
-							labeling.add("Segment: " + o.toString());
+							labeling.add(o.toString());
 						}
 					}
 					resAccess.get().setLabeling(labeling);
