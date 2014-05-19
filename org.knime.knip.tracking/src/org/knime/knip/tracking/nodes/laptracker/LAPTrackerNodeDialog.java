@@ -78,6 +78,9 @@ public class LAPTrackerNodeDialog extends DefaultNodeSettingsPane {
 	private final SettingsModelString m_labelColumnModel = LAPTrackerSettingsModels
 			.createLabelModel();
 
+	private final SettingsModelBoolean m_attachSourceLabelings = LAPTrackerSettingsModels
+			.createAttachSourceLabelings();
+
 	public LAPTrackerNodeDialog() {
 
 		this.createNewGroup("Basic");
@@ -141,6 +144,11 @@ public class LAPTrackerNodeDialog extends DefaultNodeSettingsPane {
 
 		this.addDialogComponent(new DialogComponentNumber(
 				m_cutoffPercentileModel, "Cutoff Percentile", 0.05));
+
+		this.addDialogComponent(new DialogComponentBoolean(
+				m_attachSourceLabelings,
+				"Attach original Labelings as Segment ID labelings"));
+
 	}
 
 	private void addBasicOptions() {
