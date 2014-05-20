@@ -63,7 +63,8 @@ Bundle-ClassPath: knip-io.jar,
  lib/mvn/testng-6.8.jar,
  lib/mvn/turbojpeg-5.0.0.jar,
  lib/mvn/xercesImpl-2.6.2.jar,
- lib/mvn/native-lib-loader-2.0-20131121.170307-1.jar
+ lib/mvn/native-lib-loader-2.0-20131121.170307-1.jar,
+ lib/mvn/native-lib-loader-2.0-SNAPSHOT.jar
 Export-Package: loci.common,
  loci.common.enumeration,
  loci.common.services,
