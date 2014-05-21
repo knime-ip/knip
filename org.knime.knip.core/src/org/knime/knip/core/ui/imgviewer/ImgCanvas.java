@@ -409,7 +409,7 @@ public class ImgCanvas<T extends Type<T>, I extends IterableInterval<T> & Random
 
         if (m_oldFactors[0] != m_factors[0] || m_oldFactors[1] != m_factors[1] || m_init) {
             // TODO: Workaround
-            m_init=false;
+            m_init = false;
 
             // get old center of the image
             final Rectangle rect = m_imageCanvas.getVisibleRect();
@@ -423,12 +423,16 @@ public class ImgCanvas<T extends Type<T>, I extends IterableInterval<T> & Random
             m_imageCanvas.setSize(d);
             m_imageCanvas.setPreferredSize(d);
 
-            final double xCorrect = getVisibleImageRect().width / 2.0;
-            final double yCorrect = getVisibleImageRect().height / 2.0;
+            Rectangle visibleImgRect = getVisibleImageRect();
+
+            final double xCorrect = visibleImgRect.width / 2.0;
+            final double yCorrect = visibleImgRect.height / 2.0;
 
             // apply old center
-            m_imageScrollPane.getViewport().setViewPosition(new Point((int)(((imgCenterX - xCorrect) * m_factors[0])),
-                                                                    (int)((imgCenterY - yCorrect) * m_factors[1])));
+            int xDiff = (int)(imgCenterX - xCorrect);
+            int yDiff = (int)(imgCenterY - yCorrect);
+            Point newCenter = new Point((int)(xDiff * m_factors[0]), (int)(yDiff * m_factors[1]));
+            m_imageScrollPane.getViewport().setViewPosition(newCenter);
 
             m_oldFactors = m_factors.clone();
 
