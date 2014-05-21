@@ -74,9 +74,9 @@ import org.knime.knip.core.data.img.DefaultImgMetadata;
 
 /**
  * Aggregation operator which merges images.
- * 
+ *
  * @author Martin Horn, University of Konstanz
- * 
+ *
  */
 public class ImgMergeOperator<T extends RealType<T> & NativeType<T>, A, ADA extends ArrayDataAccess<ADA>> extends
         ImgAggregrationOperation {
@@ -597,16 +597,6 @@ public class ImgMergeOperator<T extends RealType<T> & NativeType<T>, A, ADA exte
         }
 
         return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void configure(final DataTableSpec spec) throws InvalidSettingsException {
-        if ((m_smAxisLabel.getStringValue().length() > 1) && (spec.findColumnIndex(m_smAxisLabel.getStringValue()) < 0)) {
-            throw new InvalidSettingsException("Cannot find interval column.");
-        }
     }
 
     private void createDCs() {
