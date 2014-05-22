@@ -50,20 +50,34 @@ package org.knime.knip.base.nodes.testing.TableCellViewer;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingWorker;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import org.knime.core.data.DataValue;
 import org.knime.core.node.BufferedDataTableHolder;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeModel;
+import org.knime.core.node.tableview.TableContentView;
+import org.knime.core.node.tableview.TableView;
 import org.knime.knip.base.nodes.view.TableCellView;
 import org.knime.knip.base.nodes.view.TableCellViewNodeView;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
+import org.knime.knip.core.util.waitingindicator.WaitingIndicatorUtils;
 import org.knime.node2012.ViewDocument.View;
 import org.knime.node2012.ViewsDocument.Views;
 
@@ -259,8 +273,7 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
                 // cache the view component
                 final Component comp = v.getViewComponent();
 
-                if(isLogging)
-                {
+                if (isLogging) {
                     // add the image-logger to every component before storing it.
                     ImgViewer viewer = (ImgViewer)comp;
                     HiddenImageLogger logger = new HiddenImageLogger();
@@ -291,10 +304,100 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
 
     /**
      * Returns all loggers associated with views in this View.
+     *
      * @return A list of loggers if there exist any, an empty list otherwise
      */
     protected List<HiddenImageLogger> getImageLogger() {
         return m_logger;
+    }
+
+    @Override
+    protected void initViewComponents() {
+
+        //temporary panel to display loading indicator.
+        final JPanel loadpanel = new JPanel();
+        loadpanel.setPreferredSize(new Dimension(600, 400));
+
+        m_sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+
+        m_tableContentView = new TableContentView();
+
+        m_tableContentView.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        m_listSelectionListenerA = new ListSelectionListener() {
+            @Override
+            public void valueChanged(final ListSelectionEvent e) {
+                if (e.getValueIsAdjusting()) {
+                    return;
+                }
+                cellSelectionChanged();
+            }
+        };
+
+        m_tableContentView.getSelectionModel().addListSelectionListener(m_listSelectionListenerA);
+        m_listSelectionListenerB = new ListSelectionListener() {
+            @Override
+            public void valueChanged(final ListSelectionEvent e) {
+                if (e.getValueIsAdjusting()) {
+                    return;
+                }
+                cellSelectionChanged();
+            }
+        };
+
+        m_tableContentView.getColumnModel().getSelectionModel().addListSelectionListener(m_listSelectionListenerB);
+        m_tableView = new TableView(m_tableContentView);
+        m_sp.add(m_tableView);
+        m_tableView.setHiLiteHandler(getNodeModel().getInHiLiteHandler(0));
+
+        if (!m_hiliteAdded) {
+            getJMenuBar().add(m_tableView.createHiLiteMenu());
+            m_hiliteAdded = true;
+        }
+
+        m_cellViews = new HashMap<String, List<TableCellView>>();
+        m_viewComponents = new HashMap<String, Component>();
+        m_cellViewTabs = new JTabbedPane();
+
+        // Show waiting indicator and work in background.
+        WaitingIndicatorUtils.setWaiting(loadpanel, true);
+        SwingWorker<T, Integer> worker = new SwingWorker<T, Integer>() {
+
+            @Override
+            protected T doInBackground() throws Exception {
+                m_tableContentView.setModel(m_tableModel);
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                WaitingIndicatorUtils.setWaiting(loadpanel, false);
+                setComponent(m_sp);
+            }
+        };
+
+        worker.execute();
+        try {
+            worker.get();
+        } catch (InterruptedException e1) {
+            //
+        } catch (ExecutionException e1) {
+            //
+        }
+
+        m_changeListener = new ChangeListener() {
+            @Override
+            public void stateChanged(final ChangeEvent e) {
+                tabSelectionChanged();
+            }
+        };
+
+        m_cellViewTabs.addChangeListener(m_changeListener);
+        m_sp.setDividerLocation(250);
+        m_sp.add(m_cellViewTabs);
+
+        //        Temporarily add loadpanel as component, so that the ui stays responsive.
+        setComponent(loadpanel);
     }
 
     /**
@@ -329,7 +432,6 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
         m_logger.clear();
     }
 
-
     /**
      * <b>Selects all rows and columns once.</b><br>
      * {@inheritDoc}
@@ -343,8 +445,6 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
 
             for (int j = 1; j < m_cellViewTabs.getTabCount(); ++j) {
                 m_cellViewTabs.setSelectedIndex(j);
-
-
             }
         }
 
