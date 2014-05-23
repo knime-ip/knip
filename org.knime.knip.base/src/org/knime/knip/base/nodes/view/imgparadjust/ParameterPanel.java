@@ -51,21 +51,26 @@ package org.knime.knip.base.nodes.view.imgparadjust;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+import org.knime.knip.base.KNIMEKNIPPlugin;
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.ViewerComponent;
 import org.knime.knip.core.ui.imgviewer.events.ImgViewerMousePressedEvent;
 import org.knime.knip.core.ui.imgviewer.events.NormalizationParametersChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
 import org.knime.knip.core.ui.imgviewer.events.ThresholdValChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewZoomfactorChgEvent;
 import org.knime.knip.core.ui.imgviewer.panels.ImgNormalizationPanel;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -91,10 +96,14 @@ public class ParameterPanel extends ViewerComponent {
 
     private double m_zoomFact;
 
+    private final String[] DIM_LABELS = KNIMEKNIPPlugin.parseDimensionLabels();
+
+    private final Map<String, Long> m_planeSelection = new HashMap<String, Long>();
+
     public ParameterPanel() {
         super("Parameters", false);
 
-        m_parameterList = new JTextArea(5, 10);
+        m_parameterList = new JTextArea();
         m_parameterList.setEditable(false);
         add(new JScrollPane(m_parameterList));
         updatedParameterList();
@@ -144,6 +153,10 @@ public class ParameterPanel extends ViewerComponent {
         return m_zoomFact;
     }
 
+    public Map<String, Long> getPlaneSelection() {
+        return m_planeSelection;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -162,7 +175,7 @@ public class ParameterPanel extends ViewerComponent {
 
     /**
      * Listens to changes in the {@link ImgNormalizationPanel} of the viewer.
-     * 
+     *
      * @param np
      */
     @EventListener
@@ -183,6 +196,18 @@ public class ParameterPanel extends ViewerComponent {
     @EventListener
     public void onZoomFactorChanged(final ViewZoomfactorChgEvent e) {
         m_zoomFact = e.getZoomFactor();
+        updatedParameterList();
+    }
+
+    @EventListener
+    public void onPlaneSelectionChanged(final PlaneSelectionEvent e) {
+        long[] pos = e.getPlanePos(-1, -1);
+        m_planeSelection.clear();
+        for (int i = 0; i < pos.length; i++) {
+            if (pos[i] > -1) {
+                m_planeSelection.put(DIM_LABELS[i], pos[i]);
+            }
+        }
         updatedParameterList();
     }
 
@@ -216,6 +241,13 @@ public class ParameterPanel extends ViewerComponent {
         sb.append("posY=");
         sb.append(m_mouseCoordY);
         sb.append("\n");
+        for (Entry<String, Long> e : m_planeSelection.entrySet()) {
+            sb.append("pos");
+            sb.append(e.getKey());
+            sb.append("=");
+            sb.append(e.getValue());
+            sb.append("\n");
+        }
         sb.append("zoomFactor=");
         sb.append(m_zoomFact);
         sb.append("\n");
@@ -224,5 +256,4 @@ public class ParameterPanel extends ViewerComponent {
         sb.append("\n");
         m_parameterList.setText(sb.toString());
     }
-
 }
