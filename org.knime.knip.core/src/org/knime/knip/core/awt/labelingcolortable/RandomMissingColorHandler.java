@@ -54,7 +54,7 @@ import org.apache.mahout.math.map.OpenIntIntHashMap;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -66,8 +66,13 @@ public class RandomMissingColorHandler implements MissingColorHandler {
 
     private static int m_generation;
 
+    private static long m_seed;
+
     private static int randomColor() {
         final Random rand = new Random();
+        if(m_seed != -1) {
+            rand.setSeed(m_seed++);
+        }
         int col = rand.nextInt(255);
         col = col << 8;
         col |= rand.nextInt(255);
@@ -105,6 +110,10 @@ public class RandomMissingColorHandler implements MissingColorHandler {
      */
     public static int getGeneration() {
         return m_generation;
+    }
+
+    public static void setSeed(final long s) {
+        m_seed = s;
     }
 
     public static <L extends Comparable<L>> int getLabelColor(final L label) {
