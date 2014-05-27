@@ -455,7 +455,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
     /*
      * called if the selected tab changes
      */
-    private void tabSelectionChanged() {
+    protected void tabSelectionChanged() {
 
         if ((m_cellViewTabs.getSelectedIndex() == -1) || (m_currentCell == null)) {
             return;
