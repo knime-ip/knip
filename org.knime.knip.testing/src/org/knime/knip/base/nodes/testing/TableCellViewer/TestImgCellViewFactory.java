@@ -67,6 +67,7 @@ import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.MinimapOffsetChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.NormalizationParametersChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
 import org.knime.knip.core.ui.imgviewer.events.RendererSelectionChgEvent;
@@ -160,13 +161,22 @@ public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> imple
                 // Normalization
 
                 service.publish(new NormalizationParametersChgEvent(0, false));
+                service.publish(new ImgRedrawEvent());
+                service.publish(new TestCompleteEvent());
+
+                service.publish(new NormalizationParametersChgEvent(0, true));
+                service.publish(new ImgRedrawEvent());
                 service.publish(new TestCompleteEvent());
 
                 service.publish(new NormalizationParametersChgEvent(25, true));
+                service.publish(new ImgRedrawEvent());
                 service.publish(new TestCompleteEvent());
 
                 service.publish(new NormalizationParametersChgEvent(50, true));
+                service.publish(new ImgRedrawEvent());
                 service.publish(new TestCompleteEvent());
+
+                service.publish(new NormalizationParametersChgEvent(0, false));
 
                 //  Minimap
 
@@ -182,11 +192,16 @@ public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> imple
                 service.publish(new ImgRedrawEvent());
                 service.publish(new TestCompleteEvent());
 
+                service.publish(new MinimapOffsetChgEvent(new int[]{0,10}));
+                service.publish(new ImgRedrawEvent());
+                service.publish(new TestCompleteEvent());
+                service.publish(new MinimapOffsetChgEvent(new int[]{0,0}));
+
                 // PlaneSelection
 
                 if (imgPlusValue.getMetadata().numDimensions() > 1) {
 
-                    for (int i = 2; i < imgPlusValue.getMetadata().numDimensions(); ++i) {
+                    for (int i = 1; i < imgPlusValue.getMetadata().numDimensions(); ++i) {
                         if (imgPlusValue.getDimensions()[i] > 1) {
                             long[] tempcords = new long[imgPlusValue.getMetadata().numDimensions()];
                             tempcords[i] = 1;
@@ -274,7 +289,7 @@ public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> imple
               if (imgPlusValue.getMetadata().numDimensions() > 1) {
 
 
-                  for (int i = 2; i < imgPlusValue.getMetadata().numDimensions(); ++i) {
+                  for (int i = 1; i < imgPlusValue.getMetadata().numDimensions(); ++i) {
                       if (imgPlusValue.getDimensions()[i] > 1) {
                           long[] tempcords = new long[imgPlusValue.getMetadata().numDimensions()];
                           tempcords[i] = 1;
