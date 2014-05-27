@@ -57,6 +57,7 @@ import net.imglib2.type.Type;
 
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.imgviewer.ImgCanvas;
+import org.knime.knip.core.ui.imgviewer.events.MinimapOffsetChgEvent;
 
 /**
  * This class is a small extension of the {@link ImgCanvas} class, listening to an additional event-type.
@@ -67,10 +68,31 @@ import org.knime.knip.core.ui.imgviewer.ImgCanvas;
 public class TestImgCanvas<T extends Type<T>, I extends IterableInterval<T> & RandomAccessible<T>> extends
         ImgCanvas<T, I> {
 
+    int m_xOffset = 0;
+    int m_yOffset = 0;
+
     /**
      *
      */
     private static final long serialVersionUID = -3376351028351404404L;
+
+    /**
+     * Scrolls the image so the rectangle gets visible.
+     *
+     * @param rect
+     */
+    @Override
+    @EventListener
+    public void onMinimapOffsetChanged(final MinimapOffsetChgEvent e) {
+        m_currentRectangle = m_imageCanvas.getVisibleRect();
+        int xOffset = (int)(e.getOffest()[0] * m_factors[0]);
+        int yOffset = (int)(e.getOffest()[1] * m_factors[1]);
+        m_xOffset = xOffset;
+        m_yOffset = yOffset;
+        m_currentRectangle.x = xOffset;
+        m_currentRectangle.y = yOffset;
+        updateImageCanvas();
+    }
 
     /**
      * Called whenever a TestCompleteEvent arrives. This method causes the TestImgCanvas to emit a
@@ -86,10 +108,18 @@ public class TestImgCanvas<T extends Type<T>, I extends IterableInterval<T> & Ra
         if (width == 0) {
             width = 1;
         }
+        if(width > 200) {
+            width = 200;
+        }
+
         if (height == 0) {
             height = 1;
         }
+        if(height > 200) {
+            height = 200;
+        }
         final BufferedImage currImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        currImage.getGraphics().translate(m_xOffset, m_yOffset);
         m_imageCanvas.paint(currImage.getGraphics());
 
         m_eventService.publish(new TestImageEvent(currImage));
