@@ -148,10 +148,13 @@ public class TestLabelingCellViewFactory<L extends Comparable<L>, II extends Int
 
                 // Coloring
 
+                RandomMissingColorHandler.resetColorMap();
+                RandomMissingColorHandler.setSeed(12345l);
                 service.publish(new LabelColoringChangeEvent(LabelingColorTableUtils.getBoundingBoxColor(),
                         RandomMissingColorHandler.getGeneration()));
                 service.publish(new ImgRedrawEvent());
                 service.publish(new TestCompleteEvent());
+                RandomMissingColorHandler.setSeed(-1l);
 
                 /* Disabled for the time being due to inability to hold on to seed.
 
