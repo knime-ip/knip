@@ -69,7 +69,9 @@ import io.scif.refs.RefManagerService;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.imglib2.Cursor;
 import net.imglib2.Pair;
@@ -78,6 +80,7 @@ import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.img.cell.CellImgFactory;
+import net.imglib2.meta.Axes;
 import net.imglib2.meta.AxisType;
 import net.imglib2.meta.CalibratedAxis;
 import net.imglib2.meta.ImgPlus;
@@ -192,7 +195,7 @@ public class ScifioImgSource implements ImgSource {
 		return getImg(imgRef, currentSeries, null);
 	}
 
-	//TODO: Use new SCIFIO API
+	// TODO: Use new SCIFIO API
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public ImgPlus<RealType> getImg(final String imgRef,
@@ -207,7 +210,7 @@ public class ScifioImgSource implements ImgSource {
 			LOGGER.warn("Cell images are not fully supported, yet. Images are read but potential subset selection is ignored.");
 
 			// copy scifio img plus to an ordinary cell img
-		
+
 			final SCIFIOImgPlus<RealType> scifio = (SCIFIOImgPlus<RealType>) IO
 					.open(imgRef);
 			final Img<RealType> tmp = new CellImgFactory().create(scifio,
@@ -347,7 +350,10 @@ public class ScifioImgSource implements ImgSource {
 			r.setMetadata(p.parse(imgRef,
 					new SCIFIOConfig().groupableSetGroupFiles(m_isGroupFiles)));
 
-			r.enable(PlaneSeparator.class);
+			// without the "separate"-stuff the images will not be split
+			// correctly for some types. This fixes the bug if, for instance,
+			// only Channel 1 is desired and Channel 0 was returned every time.
+			r.enable(PlaneSeparator.class).separate(axesToSplit(r));
 
 			if (m_reader != null
 					&& !(m_reader.getFormat().getClass().equals(r.getFormat()
@@ -379,6 +385,27 @@ public class ScifioImgSource implements ImgSource {
 		// sets the file the reader currently points to
 		m_currentFile = imgRef;
 		return m_reader;
+	}
+
+	/*
+	 * Returns a list of all AxisTypes that should be split out. This is a list
+	 * of all non-X,Y planar axes. Always tries to split {@link Axes#CHANNEL}.
+	 * 
+	 * Code taken from ImgOpener!
+	 */
+	private AxisType[] axesToSplit(final ReaderFilter r) {
+		final Set<AxisType> axes = new HashSet<AxisType>();
+		final Metadata meta = r.getTail().getMetadata();
+		// Split any non-X,Y axis
+		for (final CalibratedAxis t : meta.get(0).getAxesPlanar()) {
+			final AxisType type = t.type();
+			if (!(type == Axes.X || type == Axes.Y)) {
+				axes.add(type);
+			}
+		}
+		// Ensure channel is attempted to be split
+		axes.add(Axes.CHANNEL);
+		return axes.toArray(new AxisType[axes.size()]);
 	}
 
 }

@@ -52,6 +52,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -86,7 +87,7 @@ import org.knime.knip.core.ui.imgviewer.panels.providers.AWTImageProvider;
 import org.knime.knip.core.ui.imgviewer.panels.providers.ThresholdRU;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -252,7 +253,10 @@ public class ImgParAdjustNodeView<T extends RealType<T>> extends NodeView<ImgPar
         getNodeModel().pushFlowVariable("posY", m_parameterPanel.getMouseCoordY());
         getNodeModel().pushFlowVariable("zoomFactor", m_parameterPanel.getZoomFact());
         getNodeModel().pushFlowVariable("thresholdValue", m_parameterPanel.getThresholdVal());
-
+        Map<String, Long> planeSel = m_parameterPanel.getPlaneSelection();
+        for (Entry<String, Long> e : planeSel.entrySet()) {
+            getNodeModel().pushFlowVariable("pos" + e.getKey(), e.getValue().intValue());
+        }
         setNonExecutingView();
         m_imgViewer = null;
     }

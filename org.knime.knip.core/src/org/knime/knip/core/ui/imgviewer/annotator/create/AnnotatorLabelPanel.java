@@ -58,6 +58,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.AbstractButton;
@@ -84,7 +85,7 @@ import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorLabelsSetEvent
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -341,12 +342,42 @@ public class AnnotatorLabelPanel extends ViewerComponent {
         for (int i = 0; i < num; i++) {
             selected[i] = in.readInt();
         }
-
+        // deprecated
         m_isAdjusting = true;
         m_jLabelList.setListData(m_labels);
         m_jLabelList.setSelectedIndices(selected);
         m_jLabelList.updateUI();
         m_isAdjusting = false;
     }
+
+    /**
+     * @param list
+     */
+    public void addLabels(final List<String> list) {
+
+        for (String label : list) {
+            if (!m_labels.contains(label)) {
+                m_labels.add(label);
+            }
+        }
+
+        updateLocalUI();
+    }
+
+    /**
+     * Removes all labels
+     */
+    public void clearLabels() {
+        m_labels.clear();
+        updateLocalUI();
+    }
+
+
+   private void updateLocalUI() {
+       m_isAdjusting = true;
+       m_jLabelList.setListData(m_labels);
+       m_jLabelList.updateUI();
+       m_isAdjusting = false;
+   }
 
 }

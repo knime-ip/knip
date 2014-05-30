@@ -48,9 +48,11 @@
  */
 package org.knime.knip.io.nodes.annotation.create;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JComponent;
 
@@ -73,6 +75,7 @@ import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorRowColKeyChgEv
 import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
+import org.knime.knip.core.ui.imgviewer.overlay.OverlayElement2D;
 import org.knime.knip.core.ui.imgviewer.panels.ImgNormalizationPanel;
 import org.knime.knip.core.ui.imgviewer.panels.PlaneSelectionPanel;
 import org.knime.knip.core.ui.imgviewer.panels.RendererSelectionPanel;
@@ -98,17 +101,18 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
 		AnnotatorView<Overlay> {
 
 	private OverlayAnnotatorManager<T> m_manager;
-	
+
 	private EventService m_eventService;
 
+	private AnnotatorLabelPanel m_annotatorLabelPanel;
 
 	public OverlayAnnotatorView() {
 		m_manager = new OverlayAnnotatorManager<T>();
 		createAnnotator();
 	}
-	
-	//AnnotatorView
-	
+
+	// AnnotatorView
+
 	@Override
 	public Overlay getAnnotation(RowColKey key) {
 		return m_manager.getOverlay(key);
@@ -116,11 +120,21 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
 
 	@Override
 	public void setAnnotation(RowColKey key, Overlay overlay) {
+
+		if (m_manager.getOverlayMap().size() == 0) {
+			m_annotatorLabelPanel.clearLabels();
+		}
+
 		// assumption overlays that should be added like this come from
 		// serialization => they belong to the input table and they need a
 		// reference to the event service
 		overlay.setEventService(m_eventService);
 		m_manager.addOverlay(key, overlay);
+
+		for (OverlayElement2D o : overlay.getElements()) {
+			m_annotatorLabelPanel.addLabels(o.getLabels());
+		}
+
 	}
 
 	@Override
@@ -141,16 +155,17 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
 	public void reset() {
 		m_eventService.publish(new AnnotatorResetEvent());
 	}
-	
-	//AbstractDefaultAnnotator
+
+	// AbstractDefaultAnnotator
 
 	@Override
 	protected JComponent createAnnotatorComponent() {
 		ImgViewer annotator = new ImgViewer();
-		annotator
-				.addViewerComponent(new AWTImageProvider(0, new OverlayRU<String>(new ImageRU<T>())));
+		annotator.addViewerComponent(new AWTImageProvider(0,
+				new OverlayRU<String>(new ImageRU<T>())));
 		annotator.addViewerComponent(m_manager);
-		annotator.addViewerComponent(new AnnotatorLabelPanel());
+		annotator
+				.addViewerComponent(m_annotatorLabelPanel = new AnnotatorLabelPanel());
 		annotator.addViewerComponent(AnnotatorToolbar.createStandardToolbar());
 		annotator.addViewerComponent(new AnnotatorMinimapPanel());
 		annotator.addViewerComponent(new ImgNormalizationPanel<T, Img<T>>());
@@ -166,7 +181,8 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
 	}
 
 	@Override
-	protected void currentSelectionChanged(DataCell[] currentRow, int currentColNr, RowColKey key) {
+	protected void currentSelectionChanged(DataCell[] currentRow,
+			int currentColNr, RowColKey key) {
 		ImgPlus<T> imgPlus = ((ImgPlusValue<T>) currentRow[currentColNr])
 				.getImgPlus();
 
@@ -180,5 +196,4 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
 	protected EventService getEventService() {
 		return m_eventService;
 	}
-
 }
