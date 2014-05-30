@@ -140,7 +140,12 @@ public class BoundingBoxLabelRenderer<L extends Comparable<L> & Type<L>> impleme
         final long[] dims = new long[subLab.numDimensions()];
         subLab.dimensions(dims);
         final int width = (int)(dims[dimX] * scale);
-        final int height = (int)(dims[dimY] * scale);
+        final int height;
+        if(subLab.numDimensions() < 2 ){
+            height = (int)scale;
+        } else {
+            height = (int)(dims[dimY] * scale);
+        }
 
         final AWTScreenImage res = createCanvas(width, height);
         final Graphics g = res.image().getGraphics();
@@ -167,6 +172,7 @@ public class BoundingBoxLabelRenderer<L extends Comparable<L> & Type<L>> impleme
 
                 final IterableRegionOfInterest roi = subLab.getIterableRegionOfInterest(label);
                 final Interval ii = roi.getIterableIntervalOverROI(subLab);
+                if(roi.numDimensions() > 1) {
                 g.drawRect((int)(ii.min(X) * scale) - 1, (int)(ii.min(Y) * scale) - 1,
                            (int)((ii.dimension(X)) * scale) + 1, (int)((ii.dimension(Y)) * scale) + 1);
 
@@ -174,6 +180,18 @@ public class BoundingBoxLabelRenderer<L extends Comparable<L> & Type<L>> impleme
                     if (scale > .6) {
 
                         g.drawString(label.toString(), (int)((ii.min(X) + 1) * scale), (int)((ii.min(Y) + 10) * scale));
+                    }
+                }
+                }
+                else {
+                    g.drawRect((int)(ii.min(X) * scale) - 1, (int) scale - 1,
+                               (int)((ii.dimension(X)) * scale) + 1, (int)scale + 1);
+
+                    if (withLabelString) {
+                        if (scale > .6) {
+
+                            g.drawString(label.toString(), (int)((ii.min(X) + 1) * scale), (int)scale);
+                        }
                     }
                 }
             }
