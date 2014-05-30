@@ -49,6 +49,7 @@
  */
 package org.knime.knip.base.nodes.testing.TableCellViewer;
 
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 import net.imglib2.IterableInterval;
@@ -85,12 +86,10 @@ public class TestImgCanvas<T extends Type<T>, I extends IterableInterval<T> & Ra
     @EventListener
     public void onMinimapOffsetChanged(final MinimapOffsetChgEvent e) {
         m_currentRectangle = m_imageCanvas.getVisibleRect();
-        int xOffset = (int)(e.getOffest()[0] * m_factors[0]);
-        int yOffset = (int)(e.getOffest()[1] * m_factors[1]);
-        m_xOffset = xOffset;
-        m_yOffset = yOffset;
-        m_currentRectangle.x = xOffset;
-        m_currentRectangle.y = yOffset;
+        m_xOffset = (int)(e.getOffest()[0] * m_factors[0]);
+        m_yOffset = (int)(e.getOffest()[1] * m_factors[1]);
+        m_currentRectangle.x = m_xOffset;
+        m_currentRectangle.y = m_yOffset;
         updateImageCanvas();
     }
 
@@ -105,6 +104,7 @@ public class TestImgCanvas<T extends Type<T>, I extends IterableInterval<T> & Ra
 
         int width = m_imageCanvas.getWidth();
         int height = m_imageCanvas.getHeight();
+        // Image size needs to be checked/limited.
         if (width == 0) {
             width = 1;
         }
@@ -119,8 +119,11 @@ public class TestImgCanvas<T extends Type<T>, I extends IterableInterval<T> & Ra
             height = 200;
         }
         final BufferedImage currImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        currImage.getGraphics().translate(m_xOffset, m_yOffset);
-        m_imageCanvas.paint(currImage.getGraphics());
+        //Note: Workaround, does not seem to work with currImage.getGraphics();
+        Graphics2D g = currImage.createGraphics();
+        // Actual calculation not viable due to SWT
+        g.translate(-m_xOffset, -m_yOffset);
+        m_imageCanvas.paint(g);
 
         m_eventService.publish(new TestImageEvent(currImage));
     }
