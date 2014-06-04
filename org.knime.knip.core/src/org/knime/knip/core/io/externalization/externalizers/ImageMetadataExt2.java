@@ -147,11 +147,13 @@ public class ImageMetadataExt2 implements Externalizer<ImageMetadata> {
         }
 
         int numObjects = in.readInt();
-        final ObjectInputStream ois = new ObjectInputStream(in);
 
+        final ObjectInputStream ois = new ObjectInputStream(in);
         for (int n = 0; n < numObjects; n++) {
             obj.getProperties().put(ois.readUTF(), ois.readObject());
         }
+
+        ois.close();
 
         return obj;
     }
@@ -203,12 +205,13 @@ public class ImageMetadataExt2 implements Externalizer<ImageMetadata> {
         }
 
         out.write(obj.getProperties().size());
+
         final ObjectOutputStream oos = new ObjectOutputStream(out);
         for (Entry<String, Object> entry : obj.getProperties().entrySet()) {
             oos.writeChars(entry.getKey());
             oos.writeObject(entry.getValue());
         }
 
-        oos.flush();
+        oos.close();
     }
 }
