@@ -46,14 +46,16 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.base.nodes.view;
+package org.knime.knip.base.nodes.testing.TableCellViewer;
 
 import java.awt.Component;
 import java.awt.Dimension;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -66,15 +68,15 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.knime.core.data.DataCell;
 import org.knime.core.data.DataValue;
 import org.knime.core.node.BufferedDataTableHolder;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeModel;
-import org.knime.core.node.NodeView;
-import org.knime.core.node.tableview.TableContentModel;
 import org.knime.core.node.tableview.TableContentView;
 import org.knime.core.node.tableview.TableView;
+import org.knime.knip.base.nodes.view.TableCellView;
+import org.knime.knip.base.nodes.view.TableCellViewNodeView;
+import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.util.waitingindicator.WaitingIndicatorUtils;
 import org.knime.node2012.ViewDocument.View;
 import org.knime.node2012.ViewsDocument.Views;
@@ -135,10 +137,11 @@ import org.knime.node2012.ViewsDocument.Views;
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author Andreas Burger, University of Konstanz
  */
-public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder> extends NodeView<T> {
+public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder> extends TableCellViewNodeView<T> {
 
-    private static final NodeLogger LOGGER = NodeLogger.getLogger(TableCellViewNodeView.class);
+    private static final NodeLogger LOGGER = NodeLogger.getLogger(TestTableCellViewNodeView.class);
 
     /**
      * Add the description of the view.
@@ -148,12 +151,12 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
     public static void addViewDescriptionTo(final Views views) {
         final View view = views.addNewView();
         view.setIndex(0);
-        view.setName("Table Cell View");
+        view.setName("Test Table Cell View");
 
         final Map<Class<? extends DataValue>, List<String>> descs =
-                TableCellViewsManager.getInstance().getTableCellViewDescriptions();
+                TestTableCellViewsManager.getInstance().getTableCellViewDescriptions();
         view.newCursor()
-                .setTextValue("Another, possibly interactive, view on table cells. Displays the selected cells with their associated viewer if it exists. Available views are:");
+                .setTextValue("This views purpose is to enable testing of the underlying classes. In order to achieve this goal, the following test-views are used: ");
         view.addNewBr();
         for (final Entry<Class<? extends DataValue>, List<String>> entry : descs.entrySet()) {
 
@@ -168,74 +171,65 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     }
 
-    protected Map<String, List<TableCellView>> m_cellViews;
+    private List<HiddenImageLogger> m_logger = new LinkedList<HiddenImageLogger>();
 
-    protected JTabbedPane m_cellViewTabs;
+    private boolean isLogging = false;
 
-    protected ChangeListener m_changeListener;
-
-    protected int m_col = -1;
-
-    protected DataCell m_currentCell;
-
-    protected ListSelectionListener m_listSelectionListenerA;
-
-    protected ListSelectionListener m_listSelectionListenerB;
-
-    protected final int m_portIdx;
-
-    // private static final ExecutorService UPDATE_EXECUTOR = Executors
-    // .newCachedThreadPool(new ThreadFactory() {
-    // private final AtomicInteger m_counter = new AtomicInteger();
-    //
-    // @Override
-    // public Thread newThread(final Runnable r) {
-    // Thread t = new Thread(
-    // r,
-    // "TableCellViewer-Updater-"
-    // + m_counter.incrementAndGet());
-    // t.setDaemon(true);
-    // return t;
-    // }
-    // });
-
-    protected int m_row = -1;
-
-    protected JSplitPane m_sp;
-
-    protected TableContentView m_tableContentView;
-
-    protected TableContentModel m_tableModel;
-
-    protected TableView m_tableView;
-
-    protected Map<String, Component> m_viewComponents;
-
-    protected boolean m_hiliteAdded = false;
-
-    public TableCellViewNodeView(final T nodeModel) {
+    /**
+     * @param nodeModel
+     */
+    public TestTableCellViewNodeView(final T nodeModel) {
         this(nodeModel, 0);
     }
 
     /**
      * @param nodeModel
+     * @param portIdx
      */
-    public TableCellViewNodeView(final T nodeModel, final int portIdx) {
-        super(nodeModel);
-        m_portIdx = portIdx;
+    public TestTableCellViewNodeView(final T nodeModel, final int portIdx) {
+        super(nodeModel, portIdx);
         final JLabel load = new JLabel("Loading port content ...");
         load.setPreferredSize(new Dimension(500, 500));
         setComponent(load);
 
     }
 
-    /*
-     * called if the selected cell changes
+    /**
+     * Same as {@link TestTableCellViewNodeView#TestTableCellViewNodeView(NodeModel, int)}, but allows enabling of image
+     * logging
+     *
+     * @param nodeModel
+     * @param portIdx
+     * @param loggingEnabled
+     */
+    public TestTableCellViewNodeView(final T nodeModel, final int portIdx, final boolean loggingEnabled) {
+        this(nodeModel, portIdx);
+        isLogging = loggingEnabled;
+    }
+
+    /**
+     * Replaces the old CellSelectionChanged method and forwards the appropriate call to the new one.
      */
     private void cellSelectionChanged() {
+        cellSelectionChanged(-1, -1);
+    }
 
-        final int row = m_tableContentView.getSelectionModel().getLeadSelectionIndex();
-        final int col = m_tableContentView.getColumnModel().getSelectionModel().getLeadSelectionIndex();
+    /**
+     * Called if the selected cell changes or should change. If any of the passed values is -1, the current selection of
+     * the content view will be used, otherwise the passed index is selected.
+     *
+     * @param setCol Column to select
+     * @param setRow Row to select
+     */
+    private void cellSelectionChanged(final int setCol, final int setRow) {
+        final int row, col;
+        if (setCol == -1 || setRow == -1) {
+            row = m_tableContentView.getSelectionModel().getLeadSelectionIndex();
+            col = m_tableContentView.getColumnModel().getSelectionModel().getLeadSelectionIndex();
+        } else {
+            row = setRow;
+            col = setCol;
+        }
 
         // if neither the row nor the column changed, do nothing
         if ((row == m_row) && (col == m_col)) {
@@ -264,7 +258,8 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
             // configuration and put
             // it to the cache
             cellView =
-                    TableCellViewsManager.getInstance().createTableCellViews(m_currentCell.getType().getValueClasses());
+                    TestTableCellViewsManager.getInstance().createTableCellViews(m_currentCell.getType()
+                                                                                         .getValueClasses());
 
             // if no cell view exists for the selected cell
             if (cellView.size() == 0) {
@@ -277,13 +272,25 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
                 // cache the view component
                 final Component comp = v.getViewComponent();
+
+                if (isLogging) {
+                    // add the image-logger to every component before storing it.
+                    ImgViewer viewer = (ImgViewer)comp;
+                    HiddenImageLogger logger = new HiddenImageLogger();
+
+                    viewer.addViewerComponent(logger);
+                    m_logger.add(logger);
+                }
+
                 m_viewComponents.put(currentDataCellClass + ":" + v.getName(), comp);
 
             }
+
         }
 
         // add the components to the tabs
         for (final TableCellView v : cellView) {
+
             try {
                 m_cellViewTabs.addTab(v.getName(), m_viewComponents.get(currentDataCellClass + ":" + v.getName()));
             } catch (final Exception ex) {
@@ -295,7 +302,16 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     }
 
+    /**
+     * Returns all loggers associated with views in this View.
+     *
+     * @return A list of loggers if there exist any, an empty list otherwise
+     */
+    protected List<HiddenImageLogger> getImageLogger() {
+        return m_logger;
+    }
 
+    @Override
     protected void initViewComponents() {
 
         //temporary panel to display loading indicator.
@@ -341,7 +357,6 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
         m_cellViews = new HashMap<String, List<TableCellView>>();
         m_viewComponents = new HashMap<String, Component>();
-
         m_cellViewTabs = new JTabbedPane();
 
         // Show waiting indicator and work in background.
@@ -362,6 +377,13 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         };
 
         worker.execute();
+        try {
+            worker.get();
+        } catch (InterruptedException e1) {
+            //
+        } catch (ExecutionException e1) {
+            //
+        }
 
         m_changeListener = new ChangeListener() {
             @Override
@@ -374,40 +396,8 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         m_sp.setDividerLocation(250);
         m_sp.add(m_cellViewTabs);
 
-//        Temporarily add loadpanel as component, so that the ui stays responsive.
+        //        Temporarily add loadpanel as component, so that the ui stays responsive.
         setComponent(loadpanel);
-    }
-
-
-    protected void loadPortContent() {
-        m_tableModel = new TableContentModel();
-        m_tableModel.setDataTable(getNodeModel().getInternalTables()[m_portIdx]);
-
-        initViewComponents();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void modelChanged() {
-        if ((getNodeModel().getInternalTables() == null) || (getNodeModel().getInternalTables().length == 0)
-                || (getNodeModel().getInternalTables()[m_portIdx] == null)) {
-            if (m_cellViews != null) {
-                for (final String key : m_cellViews.keySet()) {
-                    for (final TableCellView v : m_cellViews.get(key)) {
-                        v.onReset();
-                    }
-                }
-            }
-            m_row = -1;
-            m_col = -1;
-            final JLabel nodata = new JLabel("No data table available!");
-            nodata.setPreferredSize(new Dimension(500, 500));
-            setComponent(nodata);
-        } else {
-            loadPortContent();
-        }
     }
 
     /**
@@ -437,34 +427,27 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         m_cellViews = null;
         m_viewComponents = null;
         m_cellViewTabs = null;
-        m_sp = null;
         m_tableContentView = null;
-        m_tableModel = null;
         m_currentCell = null;
-        m_tableView = null;
+        m_logger.clear();
     }
 
     /**
+     * <b>Selects all rows and columns once.</b><br>
      * {@inheritDoc}
      */
     @Override
     protected void onOpen() {
-        // NB
-    }
+        loadPortContent();
 
-    /*
-     * called if the selected tab changes
-     */
-    protected void tabSelectionChanged() {
+        for (int i = 0; i < m_tableContentView.getRowCount(); ++i) {
+            cellSelectionChanged(0, i);
 
-        if ((m_cellViewTabs.getSelectedIndex() == -1) || (m_currentCell == null)) {
-            return;
+            for (int j = 1; j < m_cellViewTabs.getTabCount(); ++j) {
+                m_cellViewTabs.setSelectedIndex(j);
+            }
         }
 
-        m_cellViews.get(m_currentCell.getClass().getCanonicalName()).get(m_cellViewTabs.getSelectedIndex())
-                .updateComponent(m_currentCell);
-
     }
-}
 
-//}
+}

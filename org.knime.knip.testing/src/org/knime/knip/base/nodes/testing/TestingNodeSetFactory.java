@@ -74,6 +74,7 @@ public class TestingNodeSetFactory implements NodeSetFactory {
     public Collection<String> getNodeFactoryIds() {
         m_nodeFactories.put(ImgComparatorNodeFactory.class.getCanonicalName(), "/community/knip/kniptesting");
         m_nodeFactories.put(LabelingComparatorNodeFactory.class.getCanonicalName(), "/community/knip/kniptesting");
+//        m_nodeFactories.put(TestTableCellViewNodeFactory.class.getCanonicalName(), "/community/knip/kniptesting");
         return m_nodeFactories.keySet();
     }
 

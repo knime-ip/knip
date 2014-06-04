@@ -112,7 +112,7 @@ public class ImgCanvas<T extends Type<T>, I extends IterableInterval<T> & Random
 
     private static final long serialVersionUID = 1L;
 
-    private final JPanel m_imageCanvas;
+    protected final JPanel m_imageCanvas;
 
     private final JScrollPane m_imageScrollPane;
 
@@ -129,7 +129,7 @@ public class ImgCanvas<T extends Type<T>, I extends IterableInterval<T> & Random
     /**
      * current combined factor for x and y dimension (in the displayed image)
      */
-    private double[] m_factors;
+    protected double[] m_factors;
 
     /** old combined factor for x and y dimension (in the displayed image) */
     private double[] m_oldFactors;

@@ -21,4 +21,12 @@
               id="org.knime.knip.base.nodes.testing.TestingNodeSetFactory">
         </nodeset>
      </extension>
+     <extension
+           point="org.knime.workbench.repository.nodesets">
+        <nodeset
+              expert-flag="false"
+              factory-class="org.knime.knip.base.nodes.testing.TableCellViewer.TestViewsNodeSetFactory"
+              id="org.knime.knip.testing.nodeset1">
+        </nodeset>
+     </extension>
 </plugin>

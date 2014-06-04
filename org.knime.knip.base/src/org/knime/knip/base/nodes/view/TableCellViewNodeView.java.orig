@@ -295,12 +295,15 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     }
 
-
+<<<<<<< HEAD
     protected void initViewComponents() {
+=======
+    private synchronized void initViewComponents() {
 
         //temporary panel to display loading indicator.
         final JPanel loadpanel = new JPanel();
         loadpanel.setPreferredSize(new Dimension(600, 400));
+>>>>>>> master
 
         m_sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
@@ -378,8 +381,14 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         setComponent(loadpanel);
     }
 
-
+<<<<<<< HEAD
     protected void loadPortContent() {
+        // UPDATE_EXECUTOR.execute(new Runnable() {
+        // @Override
+        // public void run() {
+=======
+    private void loadPortContent() {
+>>>>>>> master
         m_tableModel = new TableContentModel();
         m_tableModel.setDataTable(getNodeModel().getInternalTables()[m_portIdx]);
 
@@ -455,7 +464,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
     /*
      * called if the selected tab changes
      */
-    protected void tabSelectionChanged() {
+    private void tabSelectionChanged() {
 
         if ((m_cellViewTabs.getSelectedIndex() == -1) || (m_currentCell == null)) {
             return;

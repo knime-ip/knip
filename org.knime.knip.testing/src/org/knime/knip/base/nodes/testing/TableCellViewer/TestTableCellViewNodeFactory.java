@@ -43,97 +43,78 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * ---------------------------------------------------------------------
+ * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.core.awt.labelingcolortable;
+package org.knime.knip.base.nodes.testing.TableCellViewer;
 
-import java.util.Random;
-
-import org.apache.mahout.math.map.OpenIntIntHashMap;
+import org.knime.core.node.DynamicNodeFactory;
+import org.knime.core.node.NodeDialogPane;
+import org.knime.core.node.NodeView;
+import org.knime.knip.base.node.XMLNodeUtils;
+import org.knime.node2012.KnimeNodeDocument;
 
 /**
- * TODO Auto-generated
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author Andreas Burger, University of Konstanz
  */
-public class RandomMissingColorHandler implements MissingColorHandler {
+public class TestTableCellViewNodeFactory extends DynamicNodeFactory<TestTableCellViewNodeModel> {
 
-    // Fast HashMap implementation
-    private static OpenIntIntHashMap m_colorTable = new OpenIntIntHashMap();
-
-    private static int m_generation;
-
-    private static long m_seed;
-
-    private static int randomColor() {
-        final Random rand = new Random();
-        if(m_seed != -1) {
-            rand.setSeed(m_seed++);
-        }
-        int col = rand.nextInt(255);
-        col = col << 8;
-        col |= rand.nextInt(255);
-        col = col << 8;
-        col |= rand.nextInt(255);
-
-        if (col == 0) {
-            col = randomColor();
-        }
-
-        return col;
-    }
-
-    public static <L extends Comparable<L>> void setColor(final L o, final int color) {
-        m_colorTable.put(o.hashCode(), color);
-        m_generation++;
-    }
-
-    public static <L extends Comparable<L>> void resetColor(final L o) {
-        m_colorTable.put(o.hashCode(), randomColor());
-        m_generation++;
+    /**
+     * {@inheritDoc}
+     * @deprecated
+     */
+    @Deprecated
+    @Override
+    protected void addNodeDescription(final KnimeNodeDocument doc) {
+        XMLNodeUtils.addXMLNodeDescriptionTo(doc, this.getClass());
+        TestTableCellViewNodeView.addViewDescriptionTo(doc.getKnimeNode().addNewViews());
     }
 
     /**
-     * resets the color table such that the label colors can be assigned again. Increases the ColorMapNr to indicate the
-     * change.
+     * {@inheritDoc}
      */
-    public static void resetColorMap() {
-        m_colorTable.clear();
-        m_generation++;
-    }
 
-    /**
-     * @return current generation (e.g. needed for caching)
-     */
-    public static int getGeneration() {
-        return m_generation;
-    }
-
-    public static void setSeed(final long s) {
-        m_seed = s;
-    }
-
-    public static <L extends Comparable<L>> int getLabelColor(final L label) {
-
-        final int hashCode = label.hashCode();
-        int res = m_colorTable.get(hashCode);
-        if (res == 0) {
-            res = LabelingColorTableUtils.getTransparentRGBA(randomColor(), 255);
-            m_colorTable.put(hashCode, res);
-        }
-
-        return res;
+    @Override
+    protected NodeDialogPane createNodeDialogPane() {
+        return null;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public final <L extends Comparable<L>> int getColor(final L label) {
-        return RandomMissingColorHandler.getLabelColor(label);
+    public TestTableCellViewNodeModel createNodeModel() {
+        return new TestTableCellViewNodeModel();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public NodeView<TestTableCellViewNodeModel> createNodeView(final int viewIndex, final TestTableCellViewNodeModel nodeModel) {
+        return new TestTableCellViewNodeView(nodeModel);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected int getNrNodeViews() {
+        return 1;
+    }
+
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean hasDialog() {
+        return false;
     }
 
 }

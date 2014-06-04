@@ -43,97 +43,74 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * ---------------------------------------------------------------------
+ * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.core.awt.labelingcolortable;
+package org.knime.knip.base.nodes.testing.TableCellViewer;
 
-import java.util.Random;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.apache.mahout.math.map.OpenIntIntHashMap;
+import org.knime.core.node.NodeFactory;
+import org.knime.core.node.NodeModel;
+import org.knime.core.node.NodeSetFactory;
+import org.knime.core.node.config.ConfigRO;
 
 /**
- * TODO Auto-generated
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author Andreas Burger, University of Konstanz
  */
-public class RandomMissingColorHandler implements MissingColorHandler {
+public class TestViewsNodeSetFactory implements NodeSetFactory {
 
-    // Fast HashMap implementation
-    private static OpenIntIntHashMap m_colorTable = new OpenIntIntHashMap();
-
-    private static int m_generation;
-
-    private static long m_seed;
-
-    private static int randomColor() {
-        final Random rand = new Random();
-        if(m_seed != -1) {
-            rand.setSeed(m_seed++);
-        }
-        int col = rand.nextInt(255);
-        col = col << 8;
-        col |= rand.nextInt(255);
-        col = col << 8;
-        col |= rand.nextInt(255);
-
-        if (col == 0) {
-            col = randomColor();
-        }
-
-        return col;
-    }
-
-    public static <L extends Comparable<L>> void setColor(final L o, final int color) {
-        m_colorTable.put(o.hashCode(), color);
-        m_generation++;
-    }
-
-    public static <L extends Comparable<L>> void resetColor(final L o) {
-        m_colorTable.put(o.hashCode(), randomColor());
-        m_generation++;
-    }
+    private final Map<String, String> m_nodeFactories = new HashMap<String, String>();
 
     /**
-     * resets the color table such that the label colors can be assigned again. Increases the ColorMapNr to indicate the
-     * change.
+     * {@inheritDoc}
      */
-    public static void resetColorMap() {
-        m_colorTable.clear();
-        m_generation++;
-    }
-
-    /**
-     * @return current generation (e.g. needed for caching)
-     */
-    public static int getGeneration() {
-        return m_generation;
-    }
-
-    public static void setSeed(final long s) {
-        m_seed = s;
-    }
-
-    public static <L extends Comparable<L>> int getLabelColor(final L label) {
-
-        final int hashCode = label.hashCode();
-        int res = m_colorTable.get(hashCode);
-        if (res == 0) {
-            res = LabelingColorTableUtils.getTransparentRGBA(randomColor(), 255);
-            m_colorTable.put(hashCode, res);
-        }
-
-        return res;
+    @Override
+    public ConfigRO getAdditionalSettings(final String id) {
+        return null;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public final <L extends Comparable<L>> int getColor(final L label) {
-        return RandomMissingColorHandler.getLabelColor(label);
+    public String getAfterID(final String id) {
+        return "";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getCategoryPath(final String id) {
+        return m_nodeFactories.get(id);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Class<? extends NodeFactory<? extends NodeModel>> getNodeFactory(final String id) {
+        try {
+            return (Class<? extends NodeFactory<? extends NodeModel>>)Class.forName(id);
+        } catch (final ClassNotFoundException e) {
+        }
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Collection<String> getNodeFactoryIds() {
+        m_nodeFactories.put(TestTableCellViewNodeFactory.class.getCanonicalName(), "/community/knip/kniptesting");
+        return m_nodeFactories.keySet();
     }
 
 }
