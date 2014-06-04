@@ -60,6 +60,7 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.algorithm.region.localneighborhood.Neighborhood;
 import net.imglib2.algorithm.region.localneighborhood.RectangleShape;
 import net.imglib2.algorithm.region.localneighborhood.RectangleShape.NeighborhoodsAccessible;
+import net.imglib2.algorithm.region.localneighborhood.RectangleShape.NeighborhoodsIterableInterval;
 import net.imglib2.algorithm.stats.ComputeMinMax;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgFactory;
@@ -87,7 +88,9 @@ public class MaximumFinderOp<T extends RealType<T>> implements
 
     private final boolean m_maxAreas;
 
-    private NeighborhoodsAccessible<T> m_neighborhoods;
+    private NeighborhoodsAccessible<T> m_neighborhoodsAccessible;
+
+    private NeighborhoodsIterableInterval<T> m_neighborhoodsIterable;
 
     /**
      * @param tolerance
@@ -135,9 +138,10 @@ public class MaximumFinderOp<T extends RealType<T>> implements
 
         RectangleShape shape = new RectangleShape(1, true); //"true" skips middle point
 
-        m_neighborhoods = shape.neighborhoods(extInput);
+        m_neighborhoodsAccessible = shape.neighborhoodsRandomAccessible(extInput);
+        m_neighborhoodsIterable = shape.neighborhoods(extInput);
 
-        Cursor<Neighborhood<T>> cursor = m_neighborhoods.cursor();
+        Cursor<Neighborhood<T>> cursor = m_neighborhoodsIterable.cursor();
         Cursor<T> inputCursor = extInput.cursor();
 
         while (cursor.hasNext() && inputCursor.hasNext()) {
@@ -212,7 +216,7 @@ public class MaximumFinderOp<T extends RealType<T>> implements
 
         OutOfBounds<IntType> raMeta = Views.extendValue(metaImg, new IntType(IS_PROCESSED | IS_LISTED)).randomAccess();
 
-        RandomAccess<Neighborhood<T>> raNeigh = m_neighborhoods.randomAccess();
+        RandomAccess<Neighborhood<T>> raNeigh = m_neighborhoodsAccessible.randomAccess();
         for (AnalyticPoint<T> maxPoint : maxPoints) {
             /*
              * The actual candidate was reached by previous steps.

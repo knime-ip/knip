@@ -263,7 +263,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
             boolean found = false;
 
             NeighborhoodsAccessible<LabelingType<String>> raNeighWatershed =
-                    RECTANGLE_SHAPE.neighborhoods(Views.interval(Views.extendValue(watershedResult,
+                    RECTANGLE_SHAPE.neighborhoodsRandomAccessibleSafe(Views.interval(Views.extendValue(watershedResult,
                                                                                    new LabelingType<String>()),
                                                                  watershedResult));
 
