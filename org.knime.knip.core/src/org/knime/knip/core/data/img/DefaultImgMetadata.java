@@ -48,6 +48,8 @@
  */
 package org.knime.knip.core.data.img;
 
+import java.util.Map;
+
 import net.imglib2.display.ColorTable;
 import net.imglib2.meta.CalibratedAxis;
 import net.imglib2.meta.CalibratedSpace;
@@ -57,7 +59,7 @@ import net.imglib2.meta.Named;
 import net.imglib2.meta.Sourced;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -156,5 +158,13 @@ public final class DefaultImgMetadata extends AbstractGeneralMetadata implements
     @Override
     public void setColorTable(final ColorTable colorTable, final int no) {
         m_imageMetadata.setColorTable(colorTable, no);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<String, Object> getProperties() {
+        return m_imageMetadata.getProperties();
     }
 }

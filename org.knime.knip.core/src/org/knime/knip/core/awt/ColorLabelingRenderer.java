@@ -54,7 +54,7 @@ import java.util.List;
 import java.util.Set;
 
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.display.projector.Projector2D;
+import net.imglib2.display.projector.IterableIntervalProjector2D;
 import net.imglib2.display.screenimage.awt.ARGBScreenImage;
 import net.imglib2.labeling.LabelingMapping;
 import net.imglib2.labeling.LabelingType;
@@ -145,7 +145,7 @@ public class ColorLabelingRenderer<L extends Comparable<L>> extends ProjectingRe
     }
 
     @Override
-    protected Projector2D<LabelingType<L>, ARGBType>
+    protected IterableIntervalProjector2D<LabelingType<L>, ARGBType>
             getProjector(final int dimX, final int dimY, final RandomAccessibleInterval<LabelingType<L>> source,
                          final ARGBScreenImage target) {
 
@@ -162,7 +162,7 @@ public class ColorLabelingRenderer<L extends Comparable<L>> extends ProjectingRe
             rebuildLabelConverter();
         }
 
-        return new Projector2D<LabelingType<L>, ARGBType>(dimX, dimY, source, target, m_converter);
+        return new IterableIntervalProjector2D<LabelingType<L>, ARGBType>(dimX, dimY, source, target, m_converter);
     }
 
     // create the converter

@@ -56,6 +56,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 
@@ -379,7 +380,7 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
 
 			@Override
 			public CalibratedAxis axis(final int d) {
-				return (CalibratedAxis) axes.get(d).copy();
+				return axes.get(d).copy();
 			}
 
 			@Override
@@ -487,8 +488,14 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
 			}
 
 			@Override
-			public double averageScale(int d) {
+			public double averageScale(final int d) {
 				return axis(d).averageScale(0, 1);
+			}
+
+			@Override
+			public Map<String, Object> getProperties() {
+				// TODO Auto-generated method stub
+				return null;
 			}
 		};
 

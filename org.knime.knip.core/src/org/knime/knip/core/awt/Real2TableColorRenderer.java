@@ -53,7 +53,7 @@ import net.imglib2.display.ColorTable;
 import net.imglib2.display.ColorTable16;
 import net.imglib2.display.ColorTable8;
 import net.imglib2.display.projector.AbstractProjector2D;
-import net.imglib2.display.projector.Projector2D;
+import net.imglib2.display.projector.IterableIntervalProjector2D;
 import net.imglib2.display.screenimage.awt.ARGBScreenImage;
 import net.imglib2.display.screenimage.awt.AWTScreenImage;
 import net.imglib2.type.numeric.ARGBType;
@@ -127,7 +127,7 @@ public class Real2TableColorRenderer<R extends RealType<R>> extends ProjectingRe
                                                             final RandomAccessibleInterval<R> source,
                                                             final ARGBScreenImage target) {
 
-        return new Projector2D<R, ARGBType>(dimX, dimY, source, target, m_converter);
+        return new IterableIntervalProjector2D<R, ARGBType>(dimX, dimY, source, target, m_converter);
     }
 
     @Override

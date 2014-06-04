@@ -49,7 +49,7 @@
 package org.knime.knip.core.awt;
 
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.display.projector.Projector2D;
+import net.imglib2.display.projector.IterableIntervalProjector2D;
 import net.imglib2.display.screenimage.awt.ARGBScreenImage;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.RealType;
@@ -60,7 +60,7 @@ import org.knime.knip.core.awt.specializedrendering.RealGreyARGBByLookupTableCon
 
 /**
  * Renders an image by using a lookup table.<br>
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -84,9 +84,9 @@ public class Real2ColorByLookupTableRenderer<T extends RealType<T>> extends Proj
 
     /**
      * Set up a new instance.<br>
-     * 
+     *
      * By default this instance uses a simple lookup table that will always return 1 for all values.
-     * 
+     *
      * @param service the EventService that should be used
      */
     public Real2ColorByLookupTableRenderer() {
@@ -110,9 +110,9 @@ public class Real2ColorByLookupTableRenderer<T extends RealType<T>> extends Proj
     }
 
     @Override
-    protected Projector2D<T, ARGBType> getProjector(final int dimX, final int dimY,
+    protected IterableIntervalProjector2D<T, ARGBType> getProjector(final int dimX, final int dimY,
                                                     final RandomAccessibleInterval<T> source,
                                                     final ARGBScreenImage target) {
-        return new Projector2D<T, ARGBType>(dimX, dimY, source, target, m_converter);
+        return new IterableIntervalProjector2D<T, ARGBType>(dimX, dimY, source, target, m_converter);
     }
 }

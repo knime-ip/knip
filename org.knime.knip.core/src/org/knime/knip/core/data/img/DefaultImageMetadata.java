@@ -49,13 +49,15 @@
 package org.knime.knip.core.data.img;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import net.imglib2.display.ColorTable;
 import net.imglib2.meta.ImageMetadata;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -72,10 +74,12 @@ public class DefaultImageMetadata implements ImageMetadata {
 
     private final ArrayList<ColorTable> m_lut;
 
+    private final HashMap<String, Object> m_properties;
+
     public DefaultImageMetadata() {
         this.m_channelMin = new ArrayList<Double>();
         this.m_channelMax = new ArrayList<Double>();
-
+        this.m_properties = new HashMap<String, Object>();
         this.m_lut = new ArrayList<ColorTable>();
     }
 
@@ -167,6 +171,14 @@ public class DefaultImageMetadata implements ImageMetadata {
     @Override
     public void setColorTable(final ColorTable colorTable, final int no) {
         m_lut.set(no, colorTable);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<String, Object> getProperties() {
+        return m_properties;
     }
 
 }
