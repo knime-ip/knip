@@ -80,5 +80,6 @@ Export-Package: io.scif,
  io.scif.refs,
  io.scif.services,
  io.scif.util,
- io.scif.xml
+ io.scif.xml,
+ org.mapdb
 
