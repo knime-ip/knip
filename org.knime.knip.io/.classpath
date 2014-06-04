@@ -4,47 +4,29 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/args4j-2.0.25.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/bsh-2.0b4.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/c3p0-0.9.1.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/commons-codec-1.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/commons-httpclient-3.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/ehcache-core-2.6.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/formats-api-5.0.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/formats-bsd-5.0.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/formats-common-5.0.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/formats-gpl-5.0.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/forms-1.2.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/jai_imageio-5.0.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/jcip-annotations-1.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/jcl-over-slf4j-1.7.5.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/jcommander-1.27.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/jdom2-2.0.4.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/je-4.0.92.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/jna-3.0.9.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/formats-api-5.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/formats-bsd-5.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/formats-common-5.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/formats-gpl-5.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/jai_imageio-5.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/jgoodies-common-1.7.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/jgoodies-forms-1.7.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/joda-time-2.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/junit-4.8.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/JWlz-1.4.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/kryo-2.21-shaded.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/logback-classic-1.0.9.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/logback-core-1.0.9.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/lwf-stubs-5.0.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/mdbtools-java-5.0.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/metakit-5.0.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/logback-classic-1.1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/logback-core-1.1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/mdbtools-java-5.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/metakit-5.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/native-lib-loader-2.0.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/netcdf-4.3.19.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/ome-poi-5.0.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/ome-xml-5.0.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/ome-poi-5.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/ome-xml-5.0.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/perf4j-0.9.13.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/protobuf-java-2.5.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/quartz-2.1.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/scifio-bf-compat-1.6.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/scifio-ome-xml-0.7.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/scifio-tools-0.10.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/snakeyaml-1.6.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/specification-5.0.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/testng-6.8.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/turbojpeg-5.0.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/xercesImpl-2.6.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/native-lib-loader-2.0-20131121.170307-1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/native-lib-loader-2.0-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/scifio-bf-compat-1.7.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/scifio-ome-xml-0.8.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/scifio-tools-0.13.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/specification-5.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/turbojpeg-5.0.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

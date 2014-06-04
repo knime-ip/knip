@@ -3,7 +3,7 @@ Bundle-Name: SCIFIO Wrapper for KNIP
 Bundle-SymbolicName: org.knime.knip.scifio;singleton:=true
 Bundle-ManifestVersion: 2
 Eclipse-RegisterBuddy: org.knime.knip.scijava
-Bundle-Version: 0.11.0.qualifier
+Bundle-Version: 0.14.1.qualifier
 Bundle-Vendor: University of Konstanz
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.6.0",
  org.knime.knip.core;bundle-version="1.1.0",
@@ -11,9 +11,9 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.6.0",
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: scifio.jar,
- lib/mvn/jai_imageio-1.0.1.jar,
  lib/mvn/mapdb-0.9.7.jar,
- lib/mvn/scifio-0.11.0.jar
+ lib/mvn/scifio-0.14.1.jar,
+ lib/mvn/scifio-jai-imageio-1.1.0.jar
 Export-Package: io.scif,
  io.scif.app,
  io.scif.codec,
