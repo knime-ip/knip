@@ -1,4 +1,5 @@
 package org.knime.knip.base.activators;
+
 /**
  * A configuration to be loaded by the activator.
  *
@@ -16,4 +17,9 @@ public interface SystemLibraryConfig {
      * @return names of libraries to be loaded without suffix!
      */
     String[] libs();
+
+    /**
+     * @return the short name of the os
+     */
+    String shortOSName();
 }

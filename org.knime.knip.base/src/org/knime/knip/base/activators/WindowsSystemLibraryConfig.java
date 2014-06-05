@@ -74,4 +74,12 @@ public class WindowsSystemLibraryConfig implements SystemLibraryConfig {
     public boolean matchesOSName(final String osName) {
         return osName.toLowerCase().contains("win");
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String shortOSName() {
+        return "windows";
+    }
 }

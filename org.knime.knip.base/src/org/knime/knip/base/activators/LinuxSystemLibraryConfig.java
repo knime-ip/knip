@@ -74,4 +74,12 @@ public class LinuxSystemLibraryConfig implements SystemLibraryConfig {
     public boolean matchesOSName(final String osName) {
         return osName.toLowerCase().contains("linux");
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String shortOSName() {
+        return "linux";
+    }
 }

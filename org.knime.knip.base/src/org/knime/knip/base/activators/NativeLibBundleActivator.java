@@ -49,8 +49,12 @@
  */
 package org.knime.knip.base.activators;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 
+import org.eclipse.core.runtime.FileLocator;
 import org.knime.core.node.NodeLogger;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -68,15 +72,20 @@ public abstract class NativeLibBundleActivator implements BundleActivator {
 
     private boolean isLoaded = false;
 
-    private String projectName;
+    private final String projectName;
 
     private final ArrayList<SystemLibraryConfig> configs;
 
+    private final boolean addToLibraryPath;
+
     /**
      * @param _projectName name of the project
+     * @param _addToLibraryPath if true, the path of the project will be discovered and added to java.library.path and
+     *            jna.library.path
      */
-    public NativeLibBundleActivator(final String _projectName) {
+    public NativeLibBundleActivator(final String _projectName, final boolean _addToLibraryPath) {
         this.projectName = _projectName;
+        this.addToLibraryPath = _addToLibraryPath;
         this.configs = new ArrayList<SystemLibraryConfig>();
     }
 
@@ -90,6 +99,24 @@ public abstract class NativeLibBundleActivator implements BundleActivator {
 
         for (final SystemLibraryConfig config : configs) {
             if (config.matchesOSName(System.getProperty("os.name"))) {
+
+                if (addToLibraryPath) {
+                    final String arch = mapArch(System.getProperty("os.arch"));
+                    final String simpleOS = config.shortOSName();
+
+                    LOGGER.debug("OS: " + simpleOS + ", ARCH: " + arch);
+
+                    final String additionalPath =
+                            getEclipsePath("platform:/fragment/" + projectName + ".bin." + simpleOS + "." + arch
+                                    + "/lib/" + simpleOS + "/" + arch);
+
+                    final String path = additionalPath + File.pathSeparator + System.getProperty("java.library.path");
+
+                    System.setProperty("java.library.path", path);
+                    System.setProperty("jna.library.path", path);
+
+                }
+
                 LOGGER.debug("System Path: " + System.getProperty("java.library.path"));
                 try {
                     loadLibs(config);
@@ -158,4 +185,34 @@ public abstract class NativeLibBundleActivator implements BundleActivator {
         configs.add(_config);
     }
 
+    /**
+     * Eclipse can't handle "_" in project names when resolving platformURLs. That's why we need to transform "x86_64"
+     * to "amd64".
+     *
+     * @param _arch to be mapped
+     * @return mapped arch
+     */
+    private String mapArch(final String _arch) {
+        if (_arch.equalsIgnoreCase("x86_64")) {
+            return "amd64";
+        } else {
+            return _arch;
+        }
+    }
+
+    /**
+     * Helper Function to resolve platform urls
+     *
+     * @param _platformurl
+     * @return the eclipse path
+     */
+    protected String getEclipsePath(final String _platformurl) {
+        try {
+            final URL url = new URL(_platformurl);
+            final File dir = new File(FileLocator.resolve(url).getFile());
+            return dir.getAbsolutePath();
+        } catch (final IOException e) {
+            return null;
+        }
+    }
 }
