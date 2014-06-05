@@ -49,12 +49,8 @@
  */
 package org.knime.knip.base.activators;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 
-import org.eclipse.core.runtime.FileLocator;
 import org.knime.core.node.NodeLogger;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -89,26 +85,11 @@ public abstract class NativeLibBundleActivator implements BundleActivator {
      */
     @Override
     public void start(final BundleContext context) throws Exception {
-
+        init();
         LOGGER.debug("Trying to load native libraries for " + projectName);
 
         for (final SystemLibraryConfig config : configs) {
-            if (config.isOs(System.getProperty("os.name"))) {
-
-                final String arch = mapArch(System.getProperty("os.arch"));
-                final String simpleOS = config.shortOSName();
-
-                LOGGER.debug("OS: " + simpleOS + ", ARCH: " + arch);
-
-                final String additionalPath =
-                        getEclipsePath("platform:/fragment/" + projectName + ".bin." + simpleOS + "." + arch + "/lib/"
-                                + simpleOS + "/" + arch);
-
-                final String path = additionalPath + File.pathSeparator + System.getProperty("java.library.path");
-
-                System.setProperty("java.library.path", path);
-                System.setProperty("jna.library.path", path);
-
+            if (config.matchesOSName(System.getProperty("os.name"))) {
                 LOGGER.debug("System Path: " + System.getProperty("java.library.path"));
                 try {
                     loadLibs(config);
@@ -121,6 +102,13 @@ public abstract class NativeLibBundleActivator implements BundleActivator {
                 break;
             }
         }
+    }
+
+    /**
+     * Can be overriden. Will be called before anything is called in startup().
+     */
+    protected void init() {
+        // override
     }
 
     /**
@@ -160,37 +148,6 @@ public abstract class NativeLibBundleActivator implements BundleActivator {
      * @param lib to be loaded.
      */
     protected abstract void load(String lib);
-
-    /**
-     * Eclipse can't handle "_" in project names when resolving platformURLs. That's why we need to transform "x86_64"
-     * to "amd64".
-     *
-     * @param _arch to be mapped
-     * @return mapped arch
-     */
-    private String mapArch(final String _arch) {
-        if (_arch.equalsIgnoreCase("x86_64")) {
-            return "amd64";
-        } else {
-            return _arch;
-        }
-    }
-
-    /**
-     * Helper Function to resolve platform urls
-     *
-     * @param _platformurl
-     * @return the eclipse path
-     */
-    protected String getEclipsePath(final String _platformurl) {
-        try {
-            final URL url = new URL(_platformurl);
-            final File dir = new File(FileLocator.resolve(url).getFile());
-            return dir.getAbsolutePath();
-        } catch (final IOException e) {
-            return null;
-        }
-    }
 
     /**
      * Adds a new configuration

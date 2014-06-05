@@ -66,17 +66,12 @@ public class WindowsSystemLibraryConfig implements SystemLibraryConfig {
     }
 
     @Override
-    public String shortOSName() {
-        return "windows";
-    }
-
-    @Override
     public String[] libs() {
         return libs;
     }
 
     @Override
-    public boolean isOs(final String osName) {
+    public boolean matchesOSName(final String osName) {
         return osName.toLowerCase().contains("win");
     }
 }

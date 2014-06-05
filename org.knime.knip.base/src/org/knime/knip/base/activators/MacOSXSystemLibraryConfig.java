@@ -66,17 +66,12 @@ public class MacOSXSystemLibraryConfig implements SystemLibraryConfig {
     }
 
     @Override
-    public String shortOSName() {
-        return "macosx";
-    }
-
-    @Override
     public String[] libs() {
         return libs;
     }
 
     @Override
-    public boolean isOs(final String osName) {
+    public boolean matchesOSName(final String osName) {
         return osName.toLowerCase().contains("mac");
     }
 }
