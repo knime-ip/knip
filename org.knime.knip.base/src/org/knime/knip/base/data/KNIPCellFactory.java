@@ -60,12 +60,12 @@ import org.knime.knip.base.KNIPConstants;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 
 /**
- * 
- * 
+ *
+ *
  * TODO: I needed to remove the ability to write all cells into one file! Reasons: KNIME can't handle this! Sorting
  * won't work for 2.8 release as well as writing to tables would produces gigantic large files in the worst case. We
  * need to review this for 1.1 (dietzc)
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -97,14 +97,13 @@ public abstract class KNIPCellFactory {
     /**
      * Helper to create the file store. Whether a new file store is created (i.e. a new file) depends on the size of the
      * images already written into the last file.
-     * 
+     *
      * @param objSize the approx. number of bytes of the next cell to be written to the file
      */
-    protected FileStore getFileStore(final long objSize) throws IOException {
+    protected FileStore getFileStore(final double objSize) throws IOException {
 
         // Each cell needs to be associated with  one filestore as KNIME can't handle n cells to one filestore since now. Needs to be discussed for 1.1.0 (dietzc)
-
-        if ((m_currentFileStore == null) || ((m_currentFileSize + objSize) > KNIMEKNIPPlugin.getMaxFileSizeInByte())) {
+        if ((m_currentFileStore == null) || ((m_currentFileSize + objSize) >= KNIMEKNIPPlugin.getMaxFileSizeInByte())) {
 
             LOGGER.debug("New file created. Last file has approx. " + (m_currentFileSize / (1024.0 * 1024.0)) + "MB.");
 

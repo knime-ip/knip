@@ -60,9 +60,9 @@ import org.knime.core.node.ExecutionContext;
 import org.knime.knip.base.data.KNIPCellFactory;
 
 /**
- * 
+ *
  * Factory to create ImgPlus cells.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -105,7 +105,7 @@ public final class ImgPlusCellFactory extends KNIPCellFactory {
     /**
      * @param <T>
      * @param imgPlus
-     * 
+     *
      * @return
      * @throws IOException
      */
@@ -125,7 +125,7 @@ public final class ImgPlusCellFactory extends KNIPCellFactory {
         return new ImgPlusCell<T>(imgPlus, imgPlus, min.clone(), getFileStore(getImgSize(imgPlus)));
     }
 
-    private final <T extends RealType<T>> long getImgSize(final Img<T> img) {
+    private final <T extends RealType<T>> double getImgSize(final Img<T> img) {
         // calculate the approx. size of the current image
         return (img.firstElement().getBitsPerPixel() / 8) * img.size();
     }

@@ -61,7 +61,7 @@ import org.knime.knip.base.data.KNIPCellFactory;
 import org.knime.knip.core.data.img.LabelingMetadata;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -87,7 +87,7 @@ public class LabelingCellFactory extends KNIPCellFactory {
     }
 
     @SuppressWarnings("rawtypes")
-    private final <L extends Comparable<L>> long getLabelingSize(final Labeling<L> lab) {
+    private final <L extends Comparable<L>> double getLabelingSize(final Labeling<L> lab) {
         long bitsPerPixel = 8;
         if (lab instanceof NativeImgLabeling) {
             final Type t = (Type)((NativeImgLabeling)lab).getStorageImg().firstElement();
