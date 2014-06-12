@@ -48,7 +48,12 @@
  */
 package org.knime.knip.core.data.img;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.imglib2.meta.AbstractCalibratedSpace;
+import net.imglib2.meta.Axes;
+import net.imglib2.meta.AxisType;
 import net.imglib2.meta.CalibratedAxis;
 import net.imglib2.meta.CalibratedSpace;
 import net.imglib2.meta.DefaultNamed;
@@ -56,24 +61,46 @@ import net.imglib2.meta.DefaultSourced;
 import net.imglib2.meta.MetadataUtil;
 import net.imglib2.meta.Named;
 import net.imglib2.meta.Sourced;
+import net.imglib2.meta.axis.DefaultLinearAxis;
 
 /**
  * Shared Metadata of Labeling and Img
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 abstract class AbstractGeneralMetadata extends AbstractCalibratedSpace<CalibratedAxis> implements Sourced, Named {
 
+    private static final AxisType[] DEFAULT_AXES = {Axes.X, Axes.Y, Axes.Z, Axes.CHANNEL, Axes.TIME};
+
     private final Named m_named;
 
     private final Sourced m_sourced;
 
     public AbstractGeneralMetadata(final int numDimensions) {
-        super(numDimensions);
+        super(defaultAxes(numDimensions));
         this.m_named = new DefaultNamed();
         this.m_sourced = new DefaultSourced();
+    }
+
+    /**
+     * @param numDimensions
+     * @return
+     */
+    private static List<CalibratedAxis> defaultAxes(final int numDimensions) {
+        final List<CalibratedAxis> axes = new ArrayList<CalibratedAxis>();
+
+        for (int d = 0; d < numDimensions; d++) {
+
+            if (numDimensions < DEFAULT_AXES.length) {
+                axes.add(new DefaultLinearAxis(DEFAULT_AXES[d]));
+            } else {
+                axes.add(null);
+            }
+        }
+
+        return axes;
     }
 
     public AbstractGeneralMetadata(final CalibratedSpace<CalibratedAxis> space, final Named named, final Sourced sourced) {
