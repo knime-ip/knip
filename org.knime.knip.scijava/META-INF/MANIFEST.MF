@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
-Bundle-Name: Scijava Wrapper for KNIP
+Bundle-Name: SciJava Wrapper for KNIP
 Bundle-SymbolicName: org.knime.knip.scijava;singleton:=true
 Bundle-ManifestVersion: 2
 Eclipse-BuddyPolicy: registered
-Bundle-Version: 2.19.1.qualifier
+Bundle-Version: 2.23.0.qualifier
 Bundle-Vendor: University of Konstanz
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.6.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
@@ -11,7 +11,7 @@ Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: scijava.jar,
  lib/mvn/eventbus-1.4.jar,
  lib/mvn/gentyref-1.1.0.jar,
- lib/mvn/scijava-common-2.19.1.jar
+ lib/mvn/scijava-common-2.23.0.jar
 Export-Package: com.googlecode.gentyref,
  org.bushe.swing.event,
  org.bushe.swing.event.annotation,
@@ -52,6 +52,7 @@ Export-Package: com.googlecode.gentyref,
  org.scijava.script.io,
  org.scijava.service,
  org.scijava.service.event,
+ org.scijava.test,
  org.scijava.text,
  org.scijava.text.io,
  org.scijava.thread,
@@ -65,5 +66,7 @@ Export-Package: com.googlecode.gentyref,
  org.scijava.ui.viewer,
  org.scijava.ui.viewer.text,
  org.scijava.util,
+ org.scijava.welcome,
+ org.scijava.welcome.event,
  org.scijava.widget
 
