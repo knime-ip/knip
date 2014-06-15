@@ -2,19 +2,19 @@ Manifest-Version: 1.0
 Bundle-Name: KNIME Image IO
 Bundle-SymbolicName: org.knime.knip.io;singleton:=true
 Bundle-ManifestVersion: 2
-Bundle-Version: 1.1.2.qualifier
+Bundle-Version: 1.2.0.qualifier
 Eclipse-RegisterBuddy: org.knime.knip.scijava
 Bundle-Vendor: University of Konstanz
-Require-Bundle: org.knime.base;bundle-version="[2.8.0,3.0.0)",
- org.knime.workbench.repository;bundle-version="[2.8.0,3.0.0)",
+Require-Bundle: org.knime.base;bundle-version="[2.10.0,3.0.0)",
+ org.knime.workbench.repository;bundle-version="[2.10.0,3.0.0)",
  org.eclipse.core.runtime;bundle-version="3.6.0",
  org.eclipse.ui;bundle-version="3.6.0",
- org.knime.knip.core;bundle-version="[1.1.0,2.0.0)",
- org.knime.knip.base;bundle-version="[1.1.0,2.0.0)",
+ org.knime.knip.core;bundle-version="[1.2.0,2.0.0)",
+ org.knime.knip.base;bundle-version="[1.2.0,2.0.0)",
  org.apache.log4j;bundle-version="1.2.15",
- org.knime.knip.scijava;bundle-version="[2.0.0,3.0.0)",
- org.knime.knip.scifio;bundle-version="[0.6.0,1.0.0)"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+ org.knime.knip.scijava;bundle-version="[2.23.0,3.0.0)",
+ org.knime.knip.scifio;bundle-version="[0.15.1,1.0.0)"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: knip-io.jar,
  lib/mvn/args4j-2.0.25.jar,

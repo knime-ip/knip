@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-Name: KNIP - KNIME Image Processing
 Bundle-SymbolicName: org.knime.knip.core;singleton:=true
 Bundle-ManifestVersion: 2
-Bundle-Version: 1.1.2.qualifier
+Bundle-Version: 1.2.0.qualifier
 Bundle-Vendor: University of Konstanz
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Eclipse-RegisterBuddy: org.knime.knip.scijava
 Bundle-ClassPath: knip-core.jar,
  lib/mvn/log4j-1.2.16.jar,
@@ -25,7 +25,7 @@ Bundle-ClassPath: knip-core.jar,
  lib/mvn/imglib2-realtransform-2.0.0-knip-SNAPSHOT.jar
 Require-Bundle: org.apache.log4j;bundle-version="1.2.15",
  org.eclipse.core.runtime;bundle-version="3.6.0",
- org.knime.knip.scijava;bundle-version="2.2.0"
+ org.knime.knip.scijava;bundle-version="2.23.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: net.imglib2,
  net.imglib2.algorithm,
