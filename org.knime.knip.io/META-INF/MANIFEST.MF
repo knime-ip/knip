@@ -41,7 +41,7 @@ Bundle-ClassPath: knip-io.jar,
  lib/mvn/scifio-tools-0.13.3.jar,
  lib/mvn/specification-5.0.2.jar,
  lib/mvn/turbojpeg-5.0.2.jar,
- lib/mvn/native-lib-loader-2.0.2.jar
+ lib/mvn/native-lib-loader-2.0.1.jar
 Export-Package: loci.common,
  loci.common.enumeration,
  loci.common.services,
