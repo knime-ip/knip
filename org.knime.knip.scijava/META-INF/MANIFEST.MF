@@ -5,7 +5,8 @@ Bundle-ManifestVersion: 2
 Eclipse-BuddyPolicy: registered
 Bundle-Version: 2.23.0.qualifier
 Bundle-Vendor: University of Konstanz
-Require-Bundle: org.eclipse.core.runtime;bundle-version="3.6.0"
+Require-Bundle: org.eclipse.core.runtime;bundle-version="3.6.0",
+ org.knime.base;bundle-version="2.10.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: scijava.jar,
@@ -52,6 +53,11 @@ Export-Package: com.github.sbridges.objectinspector,
  org.bushe.swing.event.annotation,
  org.bushe.swing.event.generics,
  org.bushe.swing.exception,
+ org.knime.knip.scijava,
+ org.knime.knip.scijava.adapters,
+ org.knime.knip.scijava.dialog,
+ org.knime.knip.scijava.nodes,
+ org.knime.knip.scijava.services,
  org.scijava,
  org.scijava.annotations,
  org.scijava.annotations.legacy,
