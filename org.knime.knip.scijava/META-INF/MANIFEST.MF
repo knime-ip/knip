@@ -6,7 +6,9 @@ Eclipse-BuddyPolicy: registered
 Bundle-Version: 2.23.0.qualifier
 Bundle-Vendor: University of Konstanz
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.6.0",
- org.knime.base;bundle-version="2.10.0"
+ org.knime.core;bundle-version="2.10.0",
+ org.knime.base;bundle-version="2.10.0",
+ org.knime.workbench.repository
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: scijava.jar,
