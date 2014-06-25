@@ -28,7 +28,7 @@ public interface ModuleAdapter {
 	void configureModule(DataTableSpec spec, DataRow row,
 			Map<ModuleItem<?>, SettingsModel> modelMap);
 
-	List<DataCell[]> execute(ExecutionContext context);
+	List<DataCell[]> getModuleOutput(ExecutionContext context);
 
 	Module getModule();
 }

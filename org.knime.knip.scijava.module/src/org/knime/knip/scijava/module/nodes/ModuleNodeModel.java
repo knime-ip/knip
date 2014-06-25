@@ -129,7 +129,7 @@ public class ModuleNodeModel extends NodeModel {
 					null);
 
 			runner.run();
-			final Iterator<DataCell[]> resIt = adapter.execute(exec)
+			final Iterator<DataCell[]> resIt = adapter.getModuleOutput(exec)
 					.iterator();
 			while (resIt.hasNext()) {
 				final DataCell[] resRow = resIt.next();
