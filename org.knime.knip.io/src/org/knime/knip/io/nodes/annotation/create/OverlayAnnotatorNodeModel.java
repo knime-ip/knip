@@ -149,7 +149,8 @@ public class OverlayAnnotatorNodeModel<T extends RealType<T> & NativeType<T>>
         m_labelingCellFactory = new LabelingCellFactory(exec);
     }
 
-    protected void computeDataRow(final DataRow row) {
+    @Override
+	protected void computeDataRow(final DataRow row) {
         m_currentRow = row;
     }
 
