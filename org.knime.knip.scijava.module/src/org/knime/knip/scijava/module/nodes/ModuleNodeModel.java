@@ -129,12 +129,12 @@ public class ModuleNodeModel extends NodeModel {
 					null);
 
 			runner.run();
-			final Iterator<DataCell[]> resIterator = adapter.resultRows()
+			final Iterator<DataCell[]> resIt = adapter.execute(exec)
 					.iterator();
-			while (resIterator.hasNext()) {
-				final DataCell[] resRow = resIterator.next();
+			while (resIt.hasNext()) {
+				final DataCell[] resRow = resIt.next();
 
-				// Todo better row key?
+				// TODO: better row key?
 				container.addRowToTable(new DefaultRow("Row" + i++, resRow));
 			}
 		}

@@ -47,7 +47,7 @@ public class ModuleNodeDialog extends AbstractModuleNodeDialog {
 		final Map<ModuleItem<?>, ModuleItemAdapter<?>> itemAdapters = adapter
 				.getInputAdapters();
 
-		for (final ModuleItem<?> item : adapter.getModule().getInfo().inputs()) {
+		for (final ModuleItem<?> item : info.inputs()) {
 
 			final ModuleItemAdapter<?> itemAdapter = itemAdapters.get(item);
 			if (itemAdapter != null) {

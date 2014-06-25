@@ -12,7 +12,7 @@ public interface ModuleItemAdapter<D extends DataValue> {
 
 	Class<D> getDataValueType();
 
-	void configureModule(final ModuleItem<?> item, final DataTableSpec spec,
+	void configureItem(final ModuleItem<?> item, final DataTableSpec spec,
 			final DataRow row, Module module, final SettingsModel model);
 
 	DialogComponentGroup getDialogComponentGroup(ModuleItem<?> item);
