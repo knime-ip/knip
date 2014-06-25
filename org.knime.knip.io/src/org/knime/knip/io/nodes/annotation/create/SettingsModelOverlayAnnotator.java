@@ -109,6 +109,7 @@ public class SettingsModelOverlayAnnotator extends SettingsModelAnnotatorView<Ov
 	// helpers
 	//
 
+	@Override
 	protected void saveSettings(NodeSettingsWO settings) {
 		// save the labeling hashmap
 		try {
@@ -136,6 +137,7 @@ public class SettingsModelOverlayAnnotator extends SettingsModelAnnotatorView<Ov
 		}
 	}
 
+	@Override
 	protected void loadSettings(NodeSettingsRO settings) {
 		// load the labeling hashmap
 		try {
