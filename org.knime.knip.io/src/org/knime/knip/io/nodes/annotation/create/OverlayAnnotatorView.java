@@ -152,6 +152,7 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
 		return ret;
 	}
 
+	@Override
 	public void reset() {
 		m_eventService.publish(new AnnotatorResetEvent());
 	}
