@@ -5,12 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-<<<<<<< HEAD:org.knime.knip.scijava.module/src/org/knime/knip/scijava/module/SciJavaModuleGateway.java
-import org.knime.knip.scijava.module.services.AdapterService;
-=======
 import org.eclipse.core.runtime.internal.adaptor.ContextFinder;
-import org.knime.knip.scijava.services.AdapterService;
->>>>>>> e9bf1d6a3639bb500217314c1c51b6e65f849afd:org.knime.knip.scijava/src/org/knime/knip/scijava/SciJavaGateway.java
+import org.knime.knip.scijava.module.services.AdapterService;
 import org.scijava.Context;
 import org.scijava.module.ModuleInfo;
 import org.scijava.module.ModuleService;
@@ -44,7 +40,8 @@ public class SciJavaModuleGateway {
 
 	private SciJavaModuleGateway() {
 
-		context = new Context(new PluginIndex(new DefaultPluginFinder(new ContextFinder(getClass().getClassLoader()))));
+		context = new Context(new PluginIndex(new DefaultPluginFinder(
+				new ContextFinder(getClass().getClassLoader()))));
 		as = context.getService(AdapterService.class);
 		ms = context.getService(ModuleService.class);
 
@@ -63,7 +60,7 @@ public class SciJavaModuleGateway {
 
 	private List<ModuleInfo> findSupportedModules(
 			final List<ModuleInfo> moduleInfos) {
-		
+
 		final List<ModuleInfo> supportedModules = new ArrayList<ModuleInfo>();
 
 		for (final ModuleInfo info : moduleInfos) {
