@@ -62,12 +62,10 @@ public class SciJavaModuleGateway {
 			final List<ModuleInfo> moduleInfos) {
 
 		final List<ModuleInfo> supportedModules = new ArrayList<ModuleInfo>();
-
 		for (final ModuleInfo info : moduleInfos) {
 			if (as.getAdapter(info) != null) {
 				supportedModules.add(info);
 			}
-
 		}
 
 		return supportedModules;
