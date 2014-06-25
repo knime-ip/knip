@@ -5,10 +5,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.eclipse.core.runtime.internal.adaptor.ContextFinder;
 import org.knime.knip.scijava.services.AdapterService;
 import org.scijava.Context;
 import org.scijava.module.ModuleInfo;
 import org.scijava.module.ModuleService;
+import org.scijava.plugin.DefaultPluginFinder;
+import org.scijava.plugin.PluginIndex;
 import org.scijava.util.ColorRGB;
 
 public class SciJavaGateway {
@@ -37,7 +40,7 @@ public class SciJavaGateway {
 
 	private SciJavaGateway() {
 
-		context = new Context();
+		context = new Context(new PluginIndex(new DefaultPluginFinder(new ContextFinder(getClass().getClassLoader()))));
 		as = context.getService(AdapterService.class);
 		ms = context.getService(ModuleService.class);
 
