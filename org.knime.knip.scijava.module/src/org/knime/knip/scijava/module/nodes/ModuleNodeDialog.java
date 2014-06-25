@@ -1,15 +1,15 @@
-package org.knime.knip.scijava.nodes;
+package org.knime.knip.scijava.module.nodes;
 
 import java.util.LinkedList;
 import java.util.Map;
 
 import org.knime.core.node.NodeLogger;
-import org.knime.knip.scijava.SciJavaGateway;
-import org.knime.knip.scijava.adapters.ModuleAdapter;
-import org.knime.knip.scijava.adapters.ModuleAdapterFactory;
-import org.knime.knip.scijava.adapters.ModuleItemAdapter;
-import org.knime.knip.scijava.dialog.AbstractModuleNodeDialog;
-import org.knime.knip.scijava.dialog.DialogComponentGroup;
+import org.knime.knip.scijava.module.SciJavaModuleGateway;
+import org.knime.knip.scijava.module.adapters.ModuleAdapter;
+import org.knime.knip.scijava.module.adapters.ModuleAdapterFactory;
+import org.knime.knip.scijava.module.adapters.ModuleItemAdapter;
+import org.knime.knip.scijava.module.dialog.AbstractModuleNodeDialog;
+import org.knime.knip.scijava.module.dialog.DialogComponentGroup;
 import org.scijava.module.ModuleException;
 import org.scijava.module.ModuleInfo;
 import org.scijava.module.ModuleItem;
@@ -53,7 +53,7 @@ public class ModuleNodeDialog extends AbstractModuleNodeDialog {
 			if (itemAdapter != null) {
 				additionalInputDialogGroups.add(itemAdapter
 						.getDialogComponentGroup(item));
-			} else if (!SciJavaGateway.isSciJavaDialogInputType(item.getType())) {
+			} else if (!SciJavaModuleGateway.isSciJavaDialogInputType(item.getType())) {
 				LOGGER.error("GenericModuleNodeDialog: can not create dialog components for an adapter.");
 			}
 		}

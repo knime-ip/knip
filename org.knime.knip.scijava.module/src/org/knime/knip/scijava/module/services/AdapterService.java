@@ -1,6 +1,6 @@
-package org.knime.knip.scijava.services;
+package org.knime.knip.scijava.module.services;
 
-import org.knime.knip.scijava.adapters.ModuleAdapterFactory;
+import org.knime.knip.scijava.module.adapters.ModuleAdapterFactory;
 import org.scijava.module.ModuleInfo;
 import org.scijava.service.Service;
 

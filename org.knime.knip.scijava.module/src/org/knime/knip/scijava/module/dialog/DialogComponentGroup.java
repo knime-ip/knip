@@ -46,7 +46,7 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.scijava.dialog;
+package org.knime.knip.scijava.module.dialog;
 
 import org.knime.core.node.defaultnodesettings.DialogComponent;
 

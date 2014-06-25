@@ -46,7 +46,7 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.scijava.dialog;
+package org.knime.knip.scijava.module.dialog;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.InvalidSettingsException;
@@ -55,10 +55,10 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponent;
-import org.knime.knip.scijava.SciJavaGateway;
-import org.knime.knip.scijava.adapters.ModuleAdapterFactory;
-import org.knime.knip.scijava.dialog.DialogComponentGroup.PLACEMENT_HINT;
-import org.knime.knip.scijava.nodes.ModuleNodeModel;
+import org.knime.knip.scijava.module.SciJavaModuleGateway;
+import org.knime.knip.scijava.module.adapters.ModuleAdapterFactory;
+import org.knime.knip.scijava.module.dialog.DialogComponentGroup.PLACEMENT_HINT;
+import org.knime.knip.scijava.module.nodes.ModuleNodeModel;
 import org.scijava.module.ModuleException;
 import org.scijava.module.ModuleInfo;
 
@@ -106,7 +106,7 @@ public abstract class AbstractModuleNodeDialog extends
 		m_dummyModel.setEnabled(false);
 
 		final HarvesterModuleWrapper harvesterModule = new HarvesterModuleWrapper(
-				SciJavaGateway.getInstance().getModuleService()
+				SciJavaModuleGateway.getInstance().getModuleService()
 						.createModule(info), adapter.createAdapter(info
 						.createModule()));
 

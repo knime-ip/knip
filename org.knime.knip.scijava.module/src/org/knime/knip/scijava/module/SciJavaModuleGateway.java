@@ -1,19 +1,19 @@
-package org.knime.knip.scijava;
+package org.knime.knip.scijava.module;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.knime.knip.scijava.services.AdapterService;
+import org.knime.knip.scijava.module.services.AdapterService;
 import org.scijava.Context;
 import org.scijava.module.ModuleInfo;
 import org.scijava.module.ModuleService;
 import org.scijava.util.ColorRGB;
 
-public class SciJavaGateway {
+public class SciJavaModuleGateway {
 
-	private static SciJavaGateway instance;
+	private static SciJavaModuleGateway instance;
 
 	private AdapterService as;
 
@@ -35,7 +35,7 @@ public class SciJavaGateway {
 			long.class, short.class, String.class, Character.class, char.class,
 			Boolean.class, boolean.class, File.class, ColorRGB.class };
 
-	private SciJavaGateway() {
+	private SciJavaModuleGateway() {
 
 		context = new Context();
 		as = context.getService(AdapterService.class);
@@ -77,9 +77,9 @@ public class SciJavaGateway {
 		return as;
 	}
 
-	public static SciJavaGateway getInstance() {
+	public static SciJavaModuleGateway getInstance() {
 		if (instance == null)
-			instance = new SciJavaGateway();
+			instance = new SciJavaModuleGateway();
 		return instance;
 	}
 

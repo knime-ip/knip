@@ -46,13 +46,13 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.scijava.dialog;
+package org.knime.knip.scijava.module.dialog;
 
 import java.util.HashSet;
 import java.util.Map;
 
-import org.knime.knip.scijava.adapters.ModuleAdapter;
-import org.knime.knip.scijava.adapters.ModuleItemAdapter;
+import org.knime.knip.scijava.module.adapters.ModuleAdapter;
+import org.knime.knip.scijava.module.adapters.ModuleItemAdapter;
 import org.scijava.module.Module;
 import org.scijava.module.ModuleInfo;
 import org.scijava.module.ModuleItem;

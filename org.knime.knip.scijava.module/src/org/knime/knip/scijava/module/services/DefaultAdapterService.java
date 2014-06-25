@@ -1,8 +1,8 @@
-package org.knime.knip.scijava.services;
+package org.knime.knip.scijava.module.services;
 
 import java.util.List;
 
-import org.knime.knip.scijava.adapters.ModuleAdapterFactory;
+import org.knime.knip.scijava.module.adapters.ModuleAdapterFactory;
 import org.scijava.InstantiableException;
 import org.scijava.module.ModuleInfo;
 import org.scijava.plugin.AbstractPTService;

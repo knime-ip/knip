@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-Name: Plugin to wrap SciJava Modules as KNIME nodes
+Bundle-SymbolicName: org.knime.knip.scijava.module;singleton:=true
+Bundle-ManifestVersion: 2
+Eclipse-BuddyPolicy: registered
+Bundle-Version: 0.5.0.qualifier
+Bundle-Vendor: University of Konstanz
+Require-Bundle: org.eclipse.core.runtime;bundle-version="3.6.0",
+ org.knime.core;bundle-version="2.10.0",
+ org.knime.base;bundle-version="2.10.0",
+ org.knime.workbench.repository;bundle-version="2.10.0",
+ org.knime.knip.scijava;bundle-version="2.23.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: scijava-module.jar
+Export-Package: org.knime.knip.scijava.module,
+ org.knime.knip.scijava.module.adapters,
+ org.knime.knip.scijava.module.dialog,
+ org.knime.knip.scijava.module.nodes,
+ org.knime.knip.scijava.module.services

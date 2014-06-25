@@ -46,7 +46,7 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.scijava.dialog;
+package org.knime.knip.scijava.module.dialog;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

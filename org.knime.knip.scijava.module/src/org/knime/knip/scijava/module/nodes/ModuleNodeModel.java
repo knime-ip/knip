@@ -1,4 +1,4 @@
-package org.knime.knip.scijava.nodes;
+package org.knime.knip.scijava.module.nodes;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,11 +23,11 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
-import org.knime.knip.scijava.SciJavaGateway;
-import org.knime.knip.scijava.adapters.ModuleAdapter;
-import org.knime.knip.scijava.adapters.ModuleAdapterFactory;
-import org.knime.knip.scijava.adapters.ModuleItemAdapter;
-import org.knime.knip.scijava.dialog.SettingsModelModuleDialog;
+import org.knime.knip.scijava.module.SciJavaModuleGateway;
+import org.knime.knip.scijava.module.adapters.ModuleAdapter;
+import org.knime.knip.scijava.module.adapters.ModuleAdapterFactory;
+import org.knime.knip.scijava.module.adapters.ModuleItemAdapter;
+import org.knime.knip.scijava.module.dialog.SettingsModelModuleDialog;
 import org.scijava.Context;
 import org.scijava.module.Module;
 import org.scijava.module.ModuleException;
@@ -103,7 +103,7 @@ public class ModuleNodeModel extends NodeModel {
 				.createDataContainer(outSpec()[0]);
 		final CloseableRowIterator rowIterator = inData[0].iterator();
 
-		final Context context = SciJavaGateway.getInstance().getContext();
+		final Context context = SciJavaModuleGateway.getInstance().getContext();
 
 		int i = 0;
 		while (rowIterator.hasNext()) {

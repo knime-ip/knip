@@ -1,4 +1,4 @@
-package org.knime.knip.scijava.adapters;
+package org.knime.knip.scijava.module.adapters;
 
 import org.scijava.module.Module;
 import org.scijava.module.ModuleInfo;

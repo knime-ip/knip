@@ -1,4 +1,4 @@
-package org.knime.knip.scijava.adapters;
+package org.knime.knip.scijava.module.adapters;
 
 import java.util.List;
 import java.util.Map;

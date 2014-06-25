@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2014
+ *  Copyright (C) 2003 - 2013
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -43,62 +43,61 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * ---------------------------------------------------------------------
+ * --------------------------------------------------------------------- *
  *
- * Created on Jun 24, 2014 by dietzc
  */
-package org.knime.knip.scijava.nodes;
+package org.knime.knip.scijava.module.dialog;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.knime.core.node.NodeFactory;
-import org.knime.core.node.NodeModel;
-import org.knime.core.node.NodeSetFactory;
-import org.knime.core.node.NodeSettings;
-import org.knime.core.node.config.ConfigRO;
-import org.knime.knip.scijava.SciJavaGateway;
-import org.scijava.module.ModuleInfo;
+import javax.swing.JPanel;
+
+import org.scijava.ui.swing.widget.SwingInputPanel;
+import org.scijava.ui.swing.widget.SwingInputWidget;
+import org.scijava.widget.InputHarvester;
+import org.scijava.widget.InputWidget;
+import org.scijava.widget.WidgetModel;
 
 /**
- * 
- * @author dietzc
+ * Can be used with an ImageJ {@link InputHarvester} to create widgets for a parameter dialog. Only standard widgets
+ * like Number, TextField ... are supported, the {@link ExtendedInputPanel} addObject method is not functional, because
+ * none basic parameters are not resolved via the {@link DialogComponentModule}
+ *
+ *
+ * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
+ * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
+ * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class ModuleNodeSetFactory implements NodeSetFactory {
+public class ExtendedInputPanel extends SwingInputPanel {
 
-	@Override
-	public Collection<String> getNodeFactoryIds() {
-		final List<ModuleInfo> moduleInfos = SciJavaGateway.getInstance()
-				.getSupportedModules();
-		final List<String> moduleIds = new ArrayList<String>(moduleInfos.size());
-		for (final ModuleInfo info : moduleInfos) {
-			moduleIds.add(info.getDelegateClassName());
-		}
+    /** harvested widgets accessible by their item name. */
+    private final Map<String, WidgetModel> m_widgetModels = new HashMap<String, WidgetModel>();
 
-		return moduleIds;
-	}
+    /**
+     * @return the knime widgets available added to the panel
+     */
+    public Map<String, WidgetModel> getWidgetModels() {
+        return m_widgetModels;
+    }
 
-	@Override
-	public Class<? extends NodeFactory<? extends NodeModel>> getNodeFactory(
-			final String id) {
-		return ModuleNodeFactory.class;
-	}
+    /**
+     *
+     * @param name name of the ModuleItem that is controlled by the widget
+     * @param value the new value to which the model of the widget should be set
+     */
+    public void setWidgetModelValue(final String name, final Object value) {
+        m_widgetModels.get(name).setValue(value);
+    }
 
-	@Override
-	public String getCategoryPath(final String id) {
-		return "/opencv";
-	}
+    @Override
+    public void addWidget(final InputWidget<?, JPanel> widget) {
+        if (!(widget instanceof SwingInputWidget)) {
+            return;
+        }
 
-	@Override
-	public String getAfterID(final String id) {
-		return "";
-	}
+        m_widgetModels.put(widget.get().getItem().getName(), widget.get());
+        super.addWidget(widget);
+    }
 
-	@Override
-	public ConfigRO getAdditionalSettings(final String id) {
-		final NodeSettings settings = new NodeSettings("scijava-factory");
-		settings.addString(ModuleNodeFactory.MODULE_CLASS_KEY, id);
-		return settings;
-	}
 }
