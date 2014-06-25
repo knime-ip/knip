@@ -4,9 +4,10 @@
    <extension
          point="org.knime.workbench.repository.nodesets">
       <nodeset
+            default-category-icon="src/org/knime/knip/scijava/module/nodes/default_icon.png"
             expert-flag="false"
-            factory-class="org.knime.knip.scijava.module.ModuleNodeSetFactory"
-            id="org.knime.knip.scijava.nodes.ModuleNodeSetFactory">
+            factory-class="org.knime.knip.scijava.module.nodes.ModuleNodeSetFactory"
+            id="org.knime.knip.scijava.module.nodes.ModuleNodeSetFactory">
       </nodeset>
    </extension>
 </plugin>
