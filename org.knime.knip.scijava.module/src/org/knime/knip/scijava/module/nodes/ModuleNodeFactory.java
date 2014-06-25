@@ -54,7 +54,7 @@ import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeView;
 import org.knime.core.node.config.ConfigRO;
 import org.knime.core.node.config.ConfigWO;
-import org.knime.knip.scijava.module.SciJavaModuleGateway;
+import org.knime.knip.scijava.module.ModuleGateway;
 import org.knime.knip.scijava.module.adapters.ModuleAdapterFactory;
 import org.knime.node2012.KnimeNodeDocument;
 import org.knime.node2012.KnimeNodeDocument.KnimeNode;
@@ -140,8 +140,8 @@ public class ModuleNodeFactory extends
 			throws InvalidSettingsException {
 		final String moduleClass = config.getString(MODULE_CLASS_KEY);
 
-		m_info = SciJavaModuleGateway.getInstance().getModuleInfo(moduleClass);
-		m_adapter = SciJavaModuleGateway.getInstance().getAdapterService()
+		m_info = ModuleGateway.getInstance().getModuleInfo(moduleClass);
+		m_adapter = ModuleGateway.getInstance().getAdapterService()
 				.getAdapter(m_info);
 
 		super.loadAdditionalFactorySettings(config);

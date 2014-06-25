@@ -58,7 +58,7 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSetFactory;
 import org.knime.core.node.NodeSettings;
 import org.knime.core.node.config.ConfigRO;
-import org.knime.knip.scijava.module.SciJavaModuleGateway;
+import org.knime.knip.scijava.module.ModuleGateway;
 import org.scijava.module.ModuleInfo;
 
 /**
@@ -69,7 +69,7 @@ public class ModuleNodeSetFactory implements NodeSetFactory {
 
 	@Override
 	public Collection<String> getNodeFactoryIds() {
-		final List<ModuleInfo> moduleInfos = SciJavaModuleGateway.getInstance()
+		final List<ModuleInfo> moduleInfos = ModuleGateway.getInstance()
 				.getSupportedModules();
 		final List<String> moduleIds = new ArrayList<String>(moduleInfos.size());
 		for (final ModuleInfo info : moduleInfos) {

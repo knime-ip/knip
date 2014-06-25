@@ -23,7 +23,7 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
-import org.knime.knip.scijava.module.SciJavaModuleGateway;
+import org.knime.knip.scijava.module.ModuleGateway;
 import org.knime.knip.scijava.module.adapters.ModuleAdapter;
 import org.knime.knip.scijava.module.adapters.ModuleAdapterFactory;
 import org.knime.knip.scijava.module.adapters.ModuleItemAdapter;
@@ -103,7 +103,7 @@ public class ModuleNodeModel extends NodeModel {
 				.createDataContainer(outSpec()[0]);
 		final CloseableRowIterator rowIterator = inData[0].iterator();
 
-		final Context context = SciJavaModuleGateway.getInstance().getContext();
+		final Context context = ModuleGateway.getInstance().getContext();
 
 		int i = 0;
 		while (rowIterator.hasNext()) {

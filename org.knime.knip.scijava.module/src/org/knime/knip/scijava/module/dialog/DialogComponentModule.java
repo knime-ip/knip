@@ -55,7 +55,7 @@ import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.port.PortObjectSpec;
-import org.knime.knip.scijava.module.SciJavaModuleGateway;
+import org.knime.knip.scijava.module.ModuleGateway;
 import org.scijava.module.ModuleException;
 import org.scijava.ui.swing.widget.SwingInputHarvester;
 import org.scijava.widget.WidgetModel;
@@ -91,7 +91,7 @@ public class DialogComponentModule extends DialogComponent {
 
         m_inputPanel = new ExtendedInputPanel();
         final SwingInputHarvester harvester = new SwingInputHarvester();
-        harvester.setContext(SciJavaModuleGateway.getInstance().getContext());
+        harvester.setContext(ModuleGateway.getInstance().getContext());
 
         try {
             harvester.buildPanel(m_inputPanel, harvesterModule);

@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import org.knime.core.node.NodeLogger;
-import org.knime.knip.scijava.module.SciJavaModuleGateway;
+import org.knime.knip.scijava.module.ModuleGateway;
 import org.knime.knip.scijava.module.adapters.ModuleAdapter;
 import org.knime.knip.scijava.module.adapters.ModuleAdapterFactory;
 import org.knime.knip.scijava.module.adapters.ModuleItemAdapter;
@@ -53,7 +53,7 @@ public class ModuleNodeDialog extends AbstractModuleNodeDialog {
 			if (itemAdapter != null) {
 				additionalInputDialogGroups.add(itemAdapter
 						.getDialogComponentGroup(item));
-			} else if (!SciJavaModuleGateway.isSciJavaDialogInputType(item.getType())) {
+			} else if (!ModuleGateway.isSciJavaDialogInputType(item.getType())) {
 				LOGGER.error("GenericModuleNodeDialog: can not create dialog components for an adapter.");
 			}
 		}
