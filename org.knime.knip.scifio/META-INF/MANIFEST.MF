@@ -12,8 +12,8 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: scifio.jar,
  lib/mvn/mapdb-1.0.3.jar,
- lib/mvn/scifio-jai-imageio-1.1.0.jar,
- lib/mvn/scifio-0.15.2.jar
+ lib/mvn/scifio-0.15.4.jar,
+ lib/mvn/scifio-jai-imageio-1.1.0.jar
 Export-Package: io.scif,
  io.scif.app,
  io.scif.codec,

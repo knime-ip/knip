@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/args4j-2.0.25.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/formats-api-5.0.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/formats-bsd-5.0.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/formats-common-5.0.2.jar" sourcepath="lib/mvn-knipio-source-collection.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/formats-common-5.0.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/formats-gpl-5.0.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/jai_imageio-5.0.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/jgoodies-common-1.7.0.jar"/>
@@ -18,15 +18,15 @@
 	<classpathentry exported="true" kind="lib" path="lib/mvn/logback-core-1.1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/mdbtools-java-5.0.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/metakit-5.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/native-lib-loader-2.0.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/netcdf-4.3.19.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/ome-poi-5.0.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/ome-xml-5.0.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/perf4j-0.9.13.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/scifio-bf-compat-1.8.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/scifio-ome-xml-0.8.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/scifio-tools-0.13.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/scifio-bf-compat-1.8.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/scifio-ome-xml-0.9.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/scifio-tools-0.14.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/specification-5.0.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/turbojpeg-5.0.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/native-lib-loader-2.0.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
