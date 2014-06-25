@@ -31,6 +31,7 @@ public class DefaultAdapterService extends
 				}
 			}
 		} catch (final InstantiableException e) {
+			// TODO: use logger
 			e.printStackTrace();
 		}
 		return null;
