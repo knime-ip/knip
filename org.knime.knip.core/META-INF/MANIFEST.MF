@@ -25,7 +25,7 @@ Bundle-ClassPath: knip-core.jar,
  lib/mvn/imglib2-realtransform-2.0.0-knip-SNAPSHOT.jar
 Require-Bundle: org.apache.log4j;bundle-version="1.2.15",
  org.eclipse.core.runtime;bundle-version="3.6.0",
- org.knime.knip.scijava;bundle-version="2.23.0"
+ org.knime.knip.scijava;bundle-version="2.24.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: net.imglib2,
  net.imglib2.algorithm,

@@ -12,8 +12,8 @@ Require-Bundle: org.knime.base;bundle-version="[2.10.0,3.0.0)",
  org.knime.knip.core;bundle-version="[1.2.0,2.0.0)",
  org.knime.knip.base;bundle-version="[1.2.0,2.0.0)",
  org.apache.log4j;bundle-version="1.2.15",
- org.knime.knip.scijava;bundle-version="[2.23.0,3.0.0)",
- org.knime.knip.scifio;bundle-version="[0.15.1,1.0.0)"
+ org.knime.knip.scijava;bundle-version="2.24.0",
+ org.knime.knip.scifio;bundle-version="0.15.4"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: knip-io.jar,
