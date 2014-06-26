@@ -329,7 +329,7 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 				final Vector<DataCell> row = new Vector<DataCell>();
 
 				final DataCell[] result = new DataCell[m_omexml ? 2 : 1];
-				try {					
+				try {
 					if ((currentSeries + 1) < seriesCount
 							&& m_selectedSeries == -1) {
 						// if there still is a series left and ALL series are
@@ -441,6 +441,10 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 
 	}
 
+	/*
+	 * Determines the absolute workflow path (for workflow-relative files, i.e.
+	 * knime://...)
+	 */
 	private void initCanonicalWorkflowPath() {
 		m_workflowCanonicalPath = null;
 		try {
