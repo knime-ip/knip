@@ -16,6 +16,8 @@
 		format (ArrayImg if you want to process the whole image at once)
 		please make use of
 		the converter node.
+		
+		Image can also be downloaded and read from URLs (e.g. http://...). The URLs have to be provided via the input table (as strings). 
 	</shortDescription>
 
 	<fullDescription>
@@ -24,7 +26,9 @@
 			library and imports them to the KNIME-internal image format.
 			A list of
 			the supported formats can be found here:
-			<a href="http://loci.wisc.edu/bio-formats/formats">http://loci.wisc.edu/bio-formats/formats</a>
+			<a href="http://loci.wisc.edu/bio-formats/formats">http://loci.wisc.edu/bio-formats/formats</a>.
+			
+			Image can also be downloaded and read from URLs (e.g. http://...). The URLs have to be provided via the input table (as strings).
 		</intro>
 		<tab name="Options">
 			<option name="File browser">
@@ -59,7 +63,7 @@
 				If checked, the complete file path will be used
 				as
 				row key, else only
-				the file name.</option>
+				the file name. Has no effect, if images are read from URLs.</option>
 			<option name="Check file format for each file">Checks for each file individually the
 				file-format, if checked. Else, the file format as assumed to be the
 				same for all files and only if the reading fails, the new file
