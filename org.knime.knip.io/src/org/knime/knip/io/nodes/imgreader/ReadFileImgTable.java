@@ -50,10 +50,13 @@ package org.knime.knip.io.nodes.imgreader;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 import java.util.Vector;
 
 import loci.formats.FormatException;
@@ -65,6 +68,7 @@ import net.imglib2.meta.TypedAxis;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
+import org.apache.commons.io.FileUtils;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -79,6 +83,7 @@ import org.knime.core.data.xml.XMLCell;
 import org.knime.core.data.xml.XMLCellFactory;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.NodeLogger;
+import org.knime.core.util.FileUtil;
 import org.knime.core.util.pathresolve.ResolverUtil;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
@@ -98,22 +103,15 @@ import org.knime.knip.io.node.dialog.DialogComponentMultiFileChooser;
 public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 		DataTable {
 
-	/**
-	 * Core meta data keys.
-	 */
-	public static final String[] CORE_METADATA = new String[] { "SizeX",
-			"SizeY", "SizeZ", "SizeT", "SizeC", "IsRGB", "PixelType",
-			"LittleEndian", "DimensionsOrder", "IsInterleaved" };
-
-	/** The row header prefix that is used if nothing else is specified. */
-	public static final String STANDARD_ROW_PREFIX = "SAMPLE_";
-
-	/** Suffix of image files. */
-	public static final String SUFFIX = ".tif";
-
 	/* Standard node logger */
-	private final NodeLogger LOGGER = NodeLogger
+	private static final NodeLogger LOGGER = NodeLogger
 			.getLogger(ReadFileImgTable.class);
+
+	/* connection timeout if images are read from an url */
+	private static final int CONNECTION_TIMEOUT = 2000;
+
+	/* read timeout if images are read from an url */
+	private static final int READ_TIMEOUT = 10000;
 
 	private boolean m_completePathRowKey;
 
@@ -336,18 +334,35 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 						// selected to be read (m_selectedSeries!=-1)
 						currentSeries++;
 					} else {
+						/* prepare next file name and the according row key */
 						progressCount++;
 						currentFile = fileIterator.next().trim();
+						rowKey = currentFile;
 
 						// replace relative file pathes knime://knime.workflow
 						currentFile = DialogComponentMultiFileChooser
 								.convertToFilePath(currentFile,
 										m_workflowCanonicalPath);
 
-						// check whether file exists
-						if (!new File(currentFile).exists()) {
-							throw new KNIPException("File " + currentFile
-									+ " doesn't exist!");
+						// download file and return new file path, if
+						// 'currentFile' is an url
+						String newLoc;
+						if ((newLoc = downloadFileFromURL(currentFile)) != null) {
+							rowKey = currentFile;
+							currentFile = newLoc;
+						} else {
+							// if file wasn't downloaded from a url, re-set
+							// row-key
+							// check whether file exists
+							File f = new File(currentFile);
+							if (!f.exists()) {
+								throw new KNIPException("Image " + rowKey
+										+ " doesn't exist!");
+							}
+							if (!m_completePathRowKey) {
+								rowKey = f.getName();
+							}
+
 						}
 
 						seriesCount = m_imgSource.getSeriesCount(currentFile);
@@ -355,6 +370,10 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 								: m_selectedSeries;
 
 						idx++;
+
+						if (seriesCount > 1) {
+							rowKey += "_" + currentSeries;
+						}
 					}
 					if (currentSeries >= seriesCount) {
 						LOGGER.warn("Image file only contains " + seriesCount
@@ -390,25 +409,14 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 
 					result[0] = cellFactory.createCell(resImgPlus);
 
-					// set row key
-					if (m_completePathRowKey) {
-						rowKey = resImgPlus.getSource();
-					} else {
-						rowKey = resImgPlus.getName();
-					}
-
-					if (seriesCount > 1) {
-						rowKey += "_" + currentSeries;
-					}
-
 				} catch (final FormatException e) {
-					LOGGER.warn("Format not supported for file " + currentFile
+					LOGGER.warn("Format not supported for image " + rowKey
 							+ " (" + e.getMessage() + ")");
 					m_error = true;
 
 				} catch (final IOException e) {
-					LOGGER.error("An IO problem occured while opening the file "
-							+ currentFile + " (" + e.getMessage() + ")");
+					LOGGER.error("An IO problem occured while opening the image "
+							+ rowKey + " (" + e.getMessage() + ")");
 					m_error = true;
 				} catch (final KNIPException e) {
 					LOGGER.warn(e.getLocalizedMessage());
@@ -422,9 +430,7 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 				for (final DataCell cell : result) {
 					if (cell == null) {
 						row.add(DataType.getMissingCell());
-						rowKey = currentFile;
 					} else {
-
 						row.add(cell);
 					}
 				}
@@ -457,6 +463,38 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 			LOGGER.warn("could not resolve the workflow directory as local file");
 		} catch (IOException e) {
 			LOGGER.warn("could not resolve the workflow directory as local file");
+		}
+	}
+
+	/*
+	 * Downloads a file specified by an url and saves it to the tmp directory,
+	 * returns the respective file path, if its not an url, null will be
+	 * returned. If the given url is a 'file-url' it returns the actual absolute
+	 * path of the specified file.
+	 */
+	private String downloadFileFromURL(String s) throws KNIPException {
+		// check if the given url really is an url
+		try {
+			URL url = new URL(s);
+
+			// special handling if its a file url (just return the actual
+			// complete path
+			if (url.getProtocol().equalsIgnoreCase("file")) {
+				return FileUtil.getFileFromURL(url).getAbsolutePath();
+			}
+
+			// create tmp file and copy data from url
+			File tmpFile = FileUtil.createTempFile(
+					UUID.randomUUID().toString(), null);
+			FileUtils.copyURLToFile(url, tmpFile, CONNECTION_TIMEOUT,
+					READ_TIMEOUT);
+			return tmpFile.getAbsolutePath();
+		} catch (MalformedURLException e) {
+			return null;
+		} catch (IOException e) {
+			throw new KNIPException(
+					"Can't create temporary file to download image from URL ("
+							+ s + ").", e);
 		}
 	}
 }
