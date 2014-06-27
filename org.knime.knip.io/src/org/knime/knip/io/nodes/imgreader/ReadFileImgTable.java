@@ -292,6 +292,12 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 			/* id of the current file */
 			private String currentFile;
 
+			/*
+			 * base row key for the currently read file (possibly with the
+			 * series id appended to it later on)
+			 */
+			private String rowKey;
+
 			/* current image of the series contained in one file */
 			private int currentSeries = m_selectedSeries == -1 ? 0
 					: m_selectedSeries;
@@ -323,7 +329,6 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 			@SuppressWarnings("unchecked")
 			@Override
 			public DataRow next() {
-				String rowKey = null;
 				final Vector<DataCell> row = new Vector<DataCell>();
 
 				final DataCell[] result = new DataCell[m_omexml ? 2 : 1];
@@ -370,10 +375,6 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 								: m_selectedSeries;
 
 						idx++;
-
-						if (seriesCount > 1) {
-							rowKey += "_" + currentSeries;
-						}
 					}
 					if (currentSeries >= seriesCount) {
 						LOGGER.warn("Image file only contains " + seriesCount
@@ -439,7 +440,15 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 				rowvalues = row.toArray(rowvalues);
 				m_exec.setProgress((double) progressCount / m_numberOfFiles);
 
-				return new DefaultRow(new RowKey(rowKey), rowvalues);
+				// add series count to row key, if the current file is a series
+				// of images
+				RowKey rk;
+				if (seriesCount > 1) {
+					rk = new RowKey(rowKey + "_" + currentSeries);
+				} else {
+					rk = new RowKey(rowKey);
+				}
+				return new DefaultRow(rk, rowvalues);
 
 			}
 
