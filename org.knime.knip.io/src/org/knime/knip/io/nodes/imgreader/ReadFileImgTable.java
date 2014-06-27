@@ -56,7 +56,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
 import java.util.Vector;
 
 import loci.formats.FormatException;
@@ -492,9 +491,16 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 				return FileUtil.getFileFromURL(url).getAbsolutePath();
 			}
 
+			// try to extract the suffix from the file in the url (sometimes
+			// necessary for the scifio readers to identify the right reader)
+			String file = url.getFile();
+			int idx = file.lastIndexOf(".");
+			String suffix = file.substring(idx,
+					Math.min(idx + 4, file.length() - 1));
+
 			// create tmp file and copy data from url
 			File tmpFile = FileUtil.createTempFile(
-					UUID.randomUUID().toString(), null);
+					FileUtil.getValidFileName(url.toString(), -1), suffix);
 			FileUtils.copyURLToFile(url, tmpFile, CONNECTION_TIMEOUT,
 					READ_TIMEOUT);
 			return tmpFile.getAbsolutePath();
