@@ -66,6 +66,7 @@ import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.view.Views;
 
+import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.KNIMEConstants;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
@@ -157,6 +158,15 @@ public class SobelNodeFactory<T extends RealType<T> & NativeType<T>> extends Img
             private final SettingsModelString m_smOutOfBoundsStrategy = createOutOfBoundsModel();
 
             private final SettingsModelString m_smConvolverSelection = createConvolverSelectionModel();
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected void prepareExecute(final ExecutionContext exec) {
+                enableParallelization(false);
+                super.prepareExecute(exec);
+            }
 
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
