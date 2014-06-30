@@ -165,14 +165,6 @@ public class DoGDetectorNodeFactory<T extends RealType<T> & NativeType<T>> exten
              * {@inheritDoc}
              */
             @Override
-            protected boolean isParallelization() {
-                return false;
-            }
-
-            /**
-             * {@inheritDoc}
-             */
-            @Override
             protected void prepareExecute(final ExecutionContext exec) {
                 enableParallelization(false);
                 super.prepareExecute(exec);

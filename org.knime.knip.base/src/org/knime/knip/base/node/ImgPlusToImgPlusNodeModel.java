@@ -193,13 +193,6 @@ public abstract class ImgPlusToImgPlusNodeModel<T extends RealType<T>, V extends
     }
 
     /**
-     * @return true, if plane-wise parallelization is active
-     */
-    protected boolean isParallelization() {
-        return m_active;
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
