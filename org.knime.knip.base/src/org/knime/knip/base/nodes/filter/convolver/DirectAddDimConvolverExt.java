@@ -48,6 +48,9 @@
  */
 package org.knime.knip.base.nodes.filter.convolver;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import net.imglib2.img.Img;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.type.NativeType;
@@ -62,13 +65,15 @@ import org.knime.node2012.TabDocument.Tab;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 public class DirectAddDimConvolverExt<T extends RealType<T>, O extends RealType<O> & NativeType<O>, K extends RealType<K> & NativeType<K>>
         extends ImgPlusAddDimConvolverExt<T, K, O> {
+
+    private ExecutorService service;
 
     @Override
     public void addNodeDescription(final Tab desc) {
@@ -101,5 +106,21 @@ public class DirectAddDimConvolverExt<T extends RealType<T>, O extends RealType<
     @Override
     public void load() {
         // Nothing to do here
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setExecutorService(final ExecutorService service) {
+        this.service = service;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ExecutorService getExecutorService() {
+        return service != null ? service : Executors.newSingleThreadExecutor();
     }
 }

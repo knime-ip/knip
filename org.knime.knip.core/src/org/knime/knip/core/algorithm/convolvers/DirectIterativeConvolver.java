@@ -59,7 +59,7 @@ import net.imglib2.type.numeric.RealType;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -76,12 +76,12 @@ public class DirectIterativeConvolver<T extends RealType<T>, K extends RealType<
     public DirectIterativeConvolver(final ImgFactory<O> factory,
                                     final OutOfBoundsFactory<T, RandomAccessibleInterval<T>> outOfBoundsFactoryIn,
                                     final OutOfBoundsFactory<O, RandomAccessibleInterval<O>> outOfBoundsFactoryOut) {
-        super(factory, outOfBoundsFactoryIn, outOfBoundsFactoryOut);
+        super(factory, outOfBoundsFactoryIn, outOfBoundsFactoryOut, null);
     }
 
     public DirectIterativeConvolver() {
         super(new ArrayImgFactory<O>(), new OutOfBoundsMirrorFactory<T, RandomAccessibleInterval<T>>(Boundary.SINGLE),
-                new OutOfBoundsMirrorFactory<O, RandomAccessibleInterval<O>>(Boundary.SINGLE));
+                new OutOfBoundsMirrorFactory<O, RandomAccessibleInterval<O>>(Boundary.SINGLE), null);
     }
 
     @Override

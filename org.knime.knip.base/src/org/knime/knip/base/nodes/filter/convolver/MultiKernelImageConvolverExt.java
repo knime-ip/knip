@@ -49,6 +49,7 @@
 package org.knime.knip.base.nodes.filter.convolver;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 import net.imglib2.img.Img;
 import net.imglib2.meta.ImgPlus;
@@ -94,4 +95,7 @@ public interface MultiKernelImageConvolverExt<T extends RealType<T>, K extends R
     // Get Res type
     void setResultType(O resType);
 
+    void setExecutorService(final ExecutorService service);
+
+    ExecutorService getExecutorService();
 }

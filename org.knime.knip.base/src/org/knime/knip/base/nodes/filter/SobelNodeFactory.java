@@ -65,9 +65,11 @@ import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.view.Views;
 
+import org.knime.core.node.KNIMEConstants;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.knip.base.ThreadPoolExecutorService;
 import org.knime.knip.base.exceptions.KNIPRuntimeException;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
@@ -214,7 +216,8 @@ class SobelOp<T extends RealType<T> & NativeType<T>> implements UnaryOutputOpera
         }
 
         if (name.equals("ImgLib2 Fourier")) {
-            return new ImgLib2FourierConvolver<T, DoubleType, T>();
+            return new ImgLib2FourierConvolver<T, DoubleType, T>(new ThreadPoolExecutorService(
+                    KNIMEConstants.GLOBAL_THREAD_POOL.createSubPool(1)));
         }
 
         return null;

@@ -48,6 +48,8 @@
  */
 package org.knime.knip.core.algorithm.convolvers;
 
+import java.util.concurrent.ExecutorService;
+
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
@@ -60,7 +62,7 @@ import net.imglib2.view.Views;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -78,14 +80,19 @@ public abstract class IterativeConvolver<T extends RealType<T>, K extends RealTy
 
     private Convolver<O, K, O> m_followerConvolver;
 
+    private ExecutorService m_service;
+
     public IterativeConvolver(final ImgFactory<O> factory,
                               final OutOfBoundsFactory<T, RandomAccessibleInterval<T>> outOfBoundsFactoryIn,
-                              final OutOfBoundsFactory<O, RandomAccessibleInterval<O>> outOfBoundsFactoryOut) {
-        m_baseConvolver = createBaseConvolver();
-        m_followerConvolver = createFollowerConvolver();
+                              final OutOfBoundsFactory<O, RandomAccessibleInterval<O>> outOfBoundsFactoryOut,
+                              final ExecutorService service) {
+        m_service = service;
         m_factory = factory;
         m_outOfBoundsFactoryIn = outOfBoundsFactoryIn;
         m_outOfBoundsFactoryOut = outOfBoundsFactoryOut;
+        m_baseConvolver = createBaseConvolver();
+        m_followerConvolver = createFollowerConvolver();
+
     }
 
     public RandomAccessibleInterval<O> compute(final RandomAccessible<T> input,
@@ -160,6 +167,10 @@ public abstract class IterativeConvolver<T extends RealType<T>, K extends RealTy
                 return Views.interval(Views.extend(buffer, m_outOfBoundsFactoryOut), buffer);
             }
         };
+    }
+
+    public ExecutorService getExecutorService() {
+        return m_service;
     }
 
     protected abstract Convolver<T, K, O> createBaseConvolver();

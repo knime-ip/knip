@@ -50,6 +50,8 @@ package org.knime.knip.base.nodes.filter.convolver;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
@@ -82,6 +84,8 @@ public class ImgLib2IterativeConvolverExt<T extends RealType<T>, K extends RealT
     private OutOfBoundsStrategyEnum m_outOfBounds;
 
     private O m_resType;
+
+    private ExecutorService service;
 
     public ImgLib2IterativeConvolverExt() {
         // Empty constructor must be available
@@ -121,7 +125,7 @@ public class ImgLib2IterativeConvolverExt<T extends RealType<T>, K extends RealT
         final OutOfBoundsFactory<O, RandomAccessibleInterval<O>> b =
                 OutOfBoundsStrategyFactory.getStrategy(m_outOfBounds, output.firstElement(), input.firstElement());
 
-        new ImgLib2IterativeConvolver<T, K, O>(output.factory(), a, b).compute(input, kernels, output);
+        new ImgLib2IterativeConvolver<T, K, O>(output.factory(), a, b, getExecutorService()).compute(input, kernels, output);
 
         return output;
     }
@@ -159,5 +163,21 @@ public class ImgLib2IterativeConvolverExt<T extends RealType<T>, K extends RealT
     @Override
     public void setResultType(final O resType) {
         m_resType = resType;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setExecutorService(final ExecutorService service) {
+        this.service = service;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ExecutorService getExecutorService() {
+        return service != null ? service : Executors.newSingleThreadExecutor();
     }
 }

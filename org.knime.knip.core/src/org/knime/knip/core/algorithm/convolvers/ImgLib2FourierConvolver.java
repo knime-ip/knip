@@ -48,8 +48,11 @@
  */
 package org.knime.knip.core.algorithm.convolvers;
 
+import java.util.concurrent.ExecutorService;
+
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.algorithm.fft2.FFTConvolution;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.complex.ComplexFloatType;
@@ -70,18 +73,20 @@ public class ImgLib2FourierConvolver<T extends RealType<T>, K extends RealType<K
 
     private RandomAccessible<T> m_last = null;
 
-    private FFTConvolution<T, K, O> m_fc = null;
+    private FFTConvolution m_fc = null;
+
+    private ExecutorService service;
 
     /**
     *
     */
-    public ImgLib2FourierConvolver() {
-        //NB: Externalization
+    public ImgLib2FourierConvolver(final ExecutorService service) {
+        this.service = service;
     }
 
     @Override
     public ImgLib2FourierConvolver<T, K, O> copy() {
-        return new ImgLib2FourierConvolver<T, K, O>();
+        return new ImgLib2FourierConvolver<T, K, O>(service);
     }
 
     @Override
@@ -94,7 +99,9 @@ public class ImgLib2FourierConvolver<T extends RealType<T>, K extends RealType<K
 
         if (m_last != in) {
             m_last = in;
-            m_fc = FFTConvolution.create(m_last, out, kernel, kernel, out, new ArrayImgFactory<ComplexFloatType>());
+            m_fc =
+                    new FFTConvolution(m_last, out, kernel, kernel, out, new ArrayImgFactory<ComplexFloatType>(),
+                            service);
             m_fc.setKernel(kernel);
             m_fc.setKeepImgFFT(true);
         } else {
@@ -102,7 +109,7 @@ public class ImgLib2FourierConvolver<T extends RealType<T>, K extends RealType<K
             m_fc.setOutput(out);
         }
 
-        m_fc.run();
+        m_fc.convolve();
 
         return out;
     }

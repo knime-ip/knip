@@ -50,6 +50,8 @@ package org.knime.knip.base.nodes.filter.convolver;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
@@ -71,7 +73,7 @@ import org.knime.node2012.TabDocument.Tab;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -82,6 +84,8 @@ public class DirectIterativeConvolverExt<T extends RealType<T>, O extends RealTy
     private OutOfBoundsStrategyEnum m_outOfBounds;
 
     private O m_resType;
+
+    private ExecutorService service;
 
     public DirectIterativeConvolverExt() {
         // Empty constructor must be available
@@ -157,5 +161,21 @@ public class DirectIterativeConvolverExt<T extends RealType<T>, O extends RealTy
     @Override
     public void setResultType(final O resType) {
         m_resType = resType;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setExecutorService(final ExecutorService service) {
+        this.service = service;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ExecutorService getExecutorService() {
+        return service != null ? service : Executors.newSingleThreadExecutor();
     }
 }

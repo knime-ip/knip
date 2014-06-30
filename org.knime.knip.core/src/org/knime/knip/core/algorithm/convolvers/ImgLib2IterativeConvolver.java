@@ -48,6 +48,8 @@
  */
 package org.knime.knip.core.algorithm.convolvers;
 
+import java.util.concurrent.ExecutorService;
+
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.ImgFactory;
@@ -57,7 +59,7 @@ import net.imglib2.type.numeric.RealType;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -67,8 +69,10 @@ public class ImgLib2IterativeConvolver<T extends RealType<T>, K extends RealType
 
     public ImgLib2IterativeConvolver(final ImgFactory<O> factory,
                                      final OutOfBoundsFactory<T, RandomAccessibleInterval<T>> outOfBoundsFactoryIn,
-                                     final OutOfBoundsFactory<O, RandomAccessibleInterval<O>> outOfBoundsFactoryOut) {
-        super(factory, outOfBoundsFactoryIn, outOfBoundsFactoryOut);
+                                     final OutOfBoundsFactory<O, RandomAccessibleInterval<O>> outOfBoundsFactoryOut,
+                                     final ExecutorService service) {
+        super(factory, outOfBoundsFactoryIn, outOfBoundsFactoryOut, service);
+
     }
 
     @Override
@@ -78,12 +82,12 @@ public class ImgLib2IterativeConvolver<T extends RealType<T>, K extends RealType
 
     @Override
     protected Convolver<T, K, O> createBaseConvolver() {
-        return new ImgLib2FourierConvolver<T, K, O>();
+        return new ImgLib2FourierConvolver<T, K, O>(getExecutorService());
     }
 
     @Override
     protected Convolver<O, K, O> createFollowerConvolver() {
-        return new ImgLib2FourierConvolver<O, K, O>();
+        return new ImgLib2FourierConvolver<O, K, O>(getExecutorService());
     }
 
 }
