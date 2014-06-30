@@ -51,6 +51,7 @@ package org.knime.knip.base.nodes.filter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
@@ -69,6 +70,7 @@ import org.knime.core.node.KNIMEConstants;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.knip.base.KNIPConstants;
 import org.knime.knip.base.ThreadPoolExecutorService;
 import org.knime.knip.base.exceptions.KNIPRuntimeException;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
@@ -95,6 +97,9 @@ import org.knime.node2012.KnimeNodeDocument.KnimeNode;
  * @param <T>
  */
 public class SobelNodeFactory<T extends RealType<T> & NativeType<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
+
+    protected final ExecutorService EXECUTOR_SERVICE = new ThreadPoolExecutorService(
+            KNIMEConstants.GLOBAL_THREAD_POOL.createSubPool(KNIPConstants.THREADS_PER_NODE));
 
     /**
      * @return {@link SettingsModelString} to store {@link OutOfBoundsFactory}
@@ -169,7 +174,7 @@ public class SobelNodeFactory<T extends RealType<T> & NativeType<T>> extends Img
 
                 return new SobelOp<T>(OutOfBoundsStrategyFactory.getStrategy(m_smOutOfBoundsStrategy.getStringValue(),
                                                                              imgPlus.firstElement()),
-                        m_smConvolverSelection.getStringValue());
+                        m_smConvolverSelection.getStringValue(), EXECUTOR_SERVICE);
             }
 
             @Override
@@ -201,12 +206,15 @@ class SobelOp<T extends RealType<T> & NativeType<T>> implements UnaryOutputOpera
 
     private OutOfBoundsFactory<T, RandomAccessibleInterval<T>> m_fac;
 
-    private String m_selectedConvolver;
+    private final String m_selectedConvolver;
+
+    private final ExecutorService m_service;
 
     public SobelOp(final OutOfBoundsFactory<T, RandomAccessibleInterval<T>> outOfBoundsFactory,
-                   final String convolverName) {
+                   final String convolverName, final ExecutorService service) {
         m_fac = outOfBoundsFactory;
         m_selectedConvolver = convolverName;
+        m_service = service;
     }
 
     public Convolver<T, DoubleType, T> getConvolverByName(final String name) {
@@ -216,8 +224,7 @@ class SobelOp<T extends RealType<T> & NativeType<T>> implements UnaryOutputOpera
         }
 
         if (name.equals("ImgLib2 Fourier")) {
-            return new ImgLib2FourierConvolver<T, DoubleType, T>(new ThreadPoolExecutorService(
-                    KNIMEConstants.GLOBAL_THREAD_POOL.createSubPool(1)));
+            return new ImgLib2FourierConvolver<T, DoubleType, T>(m_service);
         }
 
         return null;
@@ -281,7 +288,7 @@ class SobelOp<T extends RealType<T> & NativeType<T>> implements UnaryOutputOpera
      */
     @Override
     public UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> copy() {
-        return new SobelOp<T>(m_fac, m_selectedConvolver);
+        return new SobelOp<T>(m_fac, m_selectedConvolver, m_service);
     }
 
 }
