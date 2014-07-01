@@ -85,7 +85,7 @@ import org.knime.knip.core.data.img.DefaultImgMetadata;
 import org.knime.node2012.KnimeNodeDocument;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -151,7 +151,7 @@ public class UCSplitterNodeFactory<T extends RealType<T>> extends
                 for (int i = 0; i < tmp.length; i++) {
 
                     // TODO Test it here
-                    final Img<T> subImg = new ImgView<T>(SubsetOperations.subsetview(img, tmp[i]), img.factory());
+                    final Img<T> subImg = new ImgView<T>(SubsetOperations.subsetview(img.getImg(), tmp[i]), img.factory());
 
                     final CalibratedSpace<CalibratedAxis> cSpace = new DefaultCalibratedSpace(subImg.numDimensions());
                     final CalibratedAxis[] axes = new CalibratedAxis[img.numDimensions()];

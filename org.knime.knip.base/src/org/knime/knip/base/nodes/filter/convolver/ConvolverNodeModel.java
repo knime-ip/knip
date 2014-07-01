@@ -172,8 +172,8 @@ public class ConvolverNodeModel<T extends RealType<T>, O extends RealType<O>, K 
     protected ImgPlusCell<O> compute(final ImgPlusValue<T> cellValue) throws Exception {
 
         final ImgPlus<T> in =
-                new ImgPlus<T>(new ImgView<T>(SubsetOperations.subsetview(cellValue.getImgPlus(),
-                                                                          cellValue.getImgPlus()), cellValue
+                new ImgPlus<T>(new ImgView<T>(SubsetOperations.subsetview(cellValue.getImgPlus().getImg(),
+                                                                          cellValue.getImgPlus().getImg()), cellValue
                         .getImgPlus().getImg().factory()), cellValue.getImgPlus());
 
         final Img<K>[] currentKernels = new Img[m_kernelList.length];
