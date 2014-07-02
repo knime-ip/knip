@@ -360,7 +360,7 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
         final ImgPlus<T> source = getImgPlus();
         final ImgPlus<T> dest = new ImgPlus<T>(source.copy());
 
-        MetadataUtil.copyImageMetadata(source, dest);
+        MetadataUtil.copyImgPlusMetadata(source, dest);
 
         return dest;
     }
