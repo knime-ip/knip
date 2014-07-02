@@ -261,26 +261,24 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
                 // create copy of Img
                 return (Img<T>)new ImgCopyOperation<T>()
                         .compute(new ImgView<T>(
-                                         Views.interval(Views.raster(RealViews.affineReal(Views.interpolate(Views.extendMirrorSingle(img),
-                                                                                                            new NLinearInterpolatorFactory<T>()),
-                                                                                          new Scale(scaleFactors))),
-                                                        resultingInterval), img.factory()),
-                                 img.factory().create(resultingInterval, img.firstElement().createVariable()));
+                                         Views.interval(Views.raster(RealViews.affineReal(Views.interpolate(Views
+                                                 .extendBorder(img), new NLinearInterpolatorFactory<T>()), new Scale(
+                                                 scaleFactors))), resultingInterval), img.factory()), img.factory()
+                                         .create(resultingInterval, img.firstElement().createVariable()));
             case NEAREST_NEIGHBOR:
                 return (Img<T>)new ImgCopyOperation<T>()
                         .compute(new ImgView<T>(Views.interval(Views.raster(RealViews.affineReal(Views
-                                         .interpolate(Views.extendMirrorSingle(img),
+                                         .interpolate(Views.extendBorder(img),
                                                       new NearestNeighborInterpolatorFactory<T>()), new Scale(
                                          scaleFactors))), resultingInterval), img.factory()),
                                  img.factory().create(resultingInterval, img.firstElement().createVariable()));
             case LANCZOS:
                 return (Img<T>)new ImgCopyOperation<T>()
                         .compute(new ImgView<T>(
-                                         Views.interval(Views.raster(RealViews.affineReal(Views.interpolate(Views.extendMirrorSingle(img),
-                                                                                                            new LanczosInterpolatorFactory<T>()),
-                                                                                          new Scale(scaleFactors))),
-                                                        resultingInterval), img.factory()),
-                                 img.factory().create(resultingInterval, img.firstElement().createVariable()));
+                                         Views.interval(Views.raster(RealViews.affineReal(Views.interpolate(Views
+                                                 .extendBorder(img), new LanczosInterpolatorFactory<T>()), new Scale(
+                                                 scaleFactors))), resultingInterval), img.factory()), img.factory()
+                                         .create(resultingInterval, img.firstElement().createVariable()));
             case PERIODICAL:
                 return new ImgView<T>(Views.interval(Views.extendPeriodic(img), resultingInterval), img.factory());
             case ZERO:
