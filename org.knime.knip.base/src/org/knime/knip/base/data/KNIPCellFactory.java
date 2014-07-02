@@ -56,15 +56,13 @@ import org.knime.core.data.filestore.FileStoreFactory;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.NodeLogger;
 import org.knime.knip.base.KNIMEKNIPPlugin;
-import org.knime.knip.base.KNIPConstants;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 
 /**
  *
- *
- * TODO: I needed to remove the ability to write all cells into one file! Reasons: KNIME can't handle this! Sorting
- * won't work for 2.8 release as well as writing to tables would produces gigantic large files in the worst case. We
- * need to review this for 1.1 (dietzc)
+ * TODO: We had to remove the ability to write all cells into one file! Reasons: KNIME can't handle this! Sorting won't
+ * work for 2.8 release as well as writing to tables would produces gigantic large files in the worst case. We need to
+ * review this for 1.1 (dietzc)
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -83,11 +81,17 @@ public abstract class KNIPCellFactory {
 
     private final FileStoreFactory m_fsFactory;
 
+    /**
+     * @param exec
+     */
     public KNIPCellFactory(final ExecutionContext exec) {
         m_exec = exec;
         m_fsFactory = null;
     }
 
+    /**
+     * @param fsFactory
+     */
     public KNIPCellFactory(final FileStoreFactory fsFactory) {
         m_fsFactory = fsFactory;
         m_exec = null;
@@ -99,6 +103,8 @@ public abstract class KNIPCellFactory {
      * images already written into the last file.
      *
      * @param objSize the approx. number of bytes of the next cell to be written to the file
+     * @return {@link FileStore}
+     * @throws IOException
      */
     protected FileStore getFileStore(final double objSize) throws IOException {
 
@@ -106,11 +112,6 @@ public abstract class KNIPCellFactory {
         if ((m_currentFileStore == null) || ((m_currentFileSize + objSize) >= KNIMEKNIPPlugin.getMaxFileSizeInByte())) {
 
             LOGGER.debug("New file created. Last file has approx. " + (m_currentFileSize / (1024.0 * 1024.0)) + "MB.");
-
-            String zipSuffix = "";
-            if (KNIMEKNIPPlugin.compressFiles()) {
-                zipSuffix = KNIPConstants.ZIP_SUFFIX;
-            }
 
             if (m_exec != null) {
                 m_currentFileStore = m_exec.createFileStore(UUID.randomUUID().toString() + "");

@@ -69,10 +69,16 @@ import org.knime.knip.base.data.KNIPCellFactory;
  */
 public final class ImgPlusCellFactory extends KNIPCellFactory {
 
+    /**
+     * @param exec
+     */
     public ImgPlusCellFactory(final ExecutionContext exec) {
         super(exec);
     }
 
+    /**
+     * @param fsFactory
+     */
     public ImgPlusCellFactory(final FileStoreFactory fsFactory) {
         super(fsFactory);
     }
@@ -81,7 +87,7 @@ public final class ImgPlusCellFactory extends KNIPCellFactory {
      * @param <T>
      * @param img
      * @param metadata
-     * @return
+     * @return {@link ImgPlusCell}
      * @throws IOException
      */
     public final <T extends RealType<T>> ImgPlusCell<T> createCell(final Img<T> img, final ImgPlusMetadata metadata)
@@ -94,7 +100,7 @@ public final class ImgPlusCellFactory extends KNIPCellFactory {
      * @param img
      * @param metadata
      * @param min
-     * @return
+     * @return cell
      * @throws IOException
      */
     public final <T extends RealType<T>> ImgPlusCell<T> createCell(final Img<T> img, final ImgPlusMetadata metadata,
@@ -106,7 +112,7 @@ public final class ImgPlusCellFactory extends KNIPCellFactory {
      * @param <T>
      * @param imgPlus
      *
-     * @return
+     * @return {@link ImgPlusCell}
      * @throws IOException
      */
     public final <T extends RealType<T>> ImgPlusCell<T> createCell(final ImgPlus<T> imgPlus) throws IOException {
@@ -115,9 +121,9 @@ public final class ImgPlusCellFactory extends KNIPCellFactory {
 
     /**
      * @param <T>
-     * @param imgplus
+     * @param imgPlus
      * @param min
-     * @return
+     * @return {@link ImgPlusCell}
      * @throws IOException
      */
     public final <T extends RealType<T>> ImgPlusCell<T> createCell(final ImgPlus<T> imgPlus, final long[] min)

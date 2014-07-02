@@ -53,6 +53,7 @@ import java.awt.RenderingHints;
 import java.io.IOException;
 
 import net.imglib2.img.Img;
+import net.imglib2.meta.CalibratedAxis;
 import net.imglib2.meta.CalibratedSpace;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.meta.ImgPlusMetadata;
@@ -77,8 +78,7 @@ import org.knime.knip.core.util.ImgUtils;
 
 /**
  * Cell containing a Polygon.
- * 
- * @param <T> image type
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -89,7 +89,6 @@ import org.knime.knip.core.util.ImgUtils;
 public class PolygonCell extends DataCell implements PolygonValue, ImgPlusValue<BitType>, IntervalValue {
 
     /** Factory for (de-)serializing a ImageRefCell. */
-    @SuppressWarnings("rawtypes")
     @Deprecated
     private static class PolygonSerializer implements DataCellSerializer<PolygonCell> {
         /**
@@ -115,7 +114,7 @@ public class PolygonCell extends DataCell implements PolygonValue, ImgPlusValue<
 
     /**
      * Convenience access member for <code>DataType.getType(StringCell.class)</code>.
-     * 
+     *
      * @see DataType#getType(Class)
      */
     public static final DataType TYPE = DataType.getType(PolygonCell.class);
@@ -123,7 +122,7 @@ public class PolygonCell extends DataCell implements PolygonValue, ImgPlusValue<
     /**
      * Returns the factory to read/write DataCells of this class from/to a DataInput/DataOutput. This method is called
      * via reflection.
-     * 
+     *
      * @return A serializer for reading/writing cells of this kind.
      * @see DataCell
      */
@@ -134,7 +133,7 @@ public class PolygonCell extends DataCell implements PolygonValue, ImgPlusValue<
     /**
      * Returns the preferred value class of this cell implementation. This method is called per reflection to determine
      * which is the preferred renderer, comparator, etc.
-     * 
+     *
      * @return ImageValue.class;
      */
     public static final Class<? extends DataValue> getPreferredValueClass() {
@@ -150,8 +149,9 @@ public class PolygonCell extends DataCell implements PolygonValue, ImgPlusValue<
 
     /**
      * Creates a new cell wrapping a polygon.
-     * 
-     * @param ref
+     *
+     * @param poly
+     *
      * @deprecated Will be removed in future releases
      */
     @Deprecated
@@ -161,8 +161,10 @@ public class PolygonCell extends DataCell implements PolygonValue, ImgPlusValue<
     }
 
     /**
+     * @param poly
+     * @param min
      * @deprecated Will be removed in future releases
-     * 
+     *
      */
     @Deprecated
     public PolygonCell(final ExtendedPolygon poly, final long[] min) {
@@ -187,7 +189,7 @@ public class PolygonCell extends DataCell implements PolygonValue, ImgPlusValue<
      * {@inheritDoc}
      */
     @Override
-    public CalibratedSpace getCalibratedSpace() {
+    public CalibratedSpace<CalibratedAxis> getCalibratedSpace() {
         return getImgPlus();
     }
 

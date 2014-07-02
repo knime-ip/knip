@@ -64,12 +64,11 @@ import org.knime.knip.base.renderer.ThumbnailRenderer;
 import org.knime.knip.core.data.img.LabelingMetadata;
 
 /**
- * TODO
- * 
- * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @param <L>
  */
 public interface LabelingValue<L extends Comparable<L>> extends DataValue {
 
@@ -114,14 +113,14 @@ public interface LabelingValue<L extends Comparable<L>> extends DataValue {
 
     /**
      * Static singleton for meta description.
-     * 
+     *
      * @see DataValue#UTILITY
      */
     public static final UtilityFactory UTILITY = new LabelingUtilityFactory();
 
     /**
      * The sizes of the image dimensions.
-     * 
+     *
      * @return the dimensions as an array
      */
     public long[] getDimensions();

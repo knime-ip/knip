@@ -62,11 +62,8 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import net.imglib2.FinalInterval;
-import net.imglib2.Interval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
-import net.imglib2.img.ImgFactory;
-import net.imglib2.img.ImgView;
 import net.imglib2.meta.CalibratedAxis;
 import net.imglib2.meta.CalibratedSpace;
 import net.imglib2.meta.ImgPlus;
@@ -133,6 +130,9 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
      */
     public static final DataType TYPE = DataType.getType(ImgPlusCell.class);
 
+    /**
+     * @return serializer
+     */
     @SuppressWarnings("rawtypes")
     public static final DataCellSerializer<ImgPlusCell> getCellSerializer() {
         return new DataCellSerializer<ImgPlusCell>() {
@@ -170,7 +170,6 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
     private ImgPlusCellMetadata m_imgMetadata;
 
     /**
-     * @param input
      * @throws IOException
      */
     protected ImgPlusCell() throws IOException {
@@ -476,11 +475,6 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
         return sb.toString();
     }
 
-    private Img<T>
-            getSubImg(final RandomAccessibleInterval<T> img, final ImgFactory<T> factory, final Interval interval) {
-        return new ImgView<T>(SubsetOperations.subsetview(img, interval), factory);
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -546,6 +540,7 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
      * @param input
      * @throws IOException
      */
+    @SuppressWarnings("javadoc")
     protected synchronized void load(final DataInput input) throws IOException {
         LOGGER.debug("Load file metadata...");
 
@@ -579,6 +574,7 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
     }
 
     /* reads the image data including metadata, dimensions, thumbnail etc. */
+    @SuppressWarnings("unchecked")
     private synchronized void readImgData(final long offset, final boolean metadataOnly) {
         // read image if not a file store img
         if ((metadataOnly && (m_imgMetadata != null)) || (!metadataOnly && (m_img != null))) {
@@ -612,7 +608,6 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
                 m_objectRepository.cacheObject(this);
 
             } else {
-                @SuppressWarnings("unchecked")
                 final ImgPlusCell<T> cell = (ImgPlusCell<T>)tmp;
                 m_imgMetadata = cell.m_imgMetadata;
                 m_img = cell.m_img;
@@ -626,6 +621,9 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
 
     /**
      * Stores the cell content. A few meta information to the data output, the heavy data to the file.
+     *
+     * @param output
+     * @throws IOException
      */
     protected synchronized void save(final DataOutput output) throws IOException {
         long offset = m_fileMetadata.getOffset();

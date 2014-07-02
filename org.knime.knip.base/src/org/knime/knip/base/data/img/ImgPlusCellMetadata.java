@@ -55,7 +55,7 @@ import net.imglib2.type.Type;
 
 /**
  * Meta data apart from the image itself which is stored by the ImgPlusCell.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -83,7 +83,6 @@ public class ImgPlusCellMetadata {
      * @param dimensions the image dimensions
      * @param size the image size, i.e. the number of pixels
      * @param pixelType the pixel type class
-     * @param imgType the image type class
      */
     @SuppressWarnings("rawtypes")
     public ImgPlusCellMetadata(final ImgPlusMetadata metadata, final long size, final long[] min,

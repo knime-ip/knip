@@ -54,7 +54,7 @@ import org.knime.knip.core.data.img.LabelingMetadata;
 
 /**
  * Meta data apart from the labeling itself which is stored by the LabelingCell.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -74,7 +74,6 @@ class LabelingCellMetadata {
      * @param thumbnail the thumbnail, can be null and will then be created on request
      * @param dimensions the image dimensions
      * @param size the image size, i.e. the number of pixels
-     * @param color mapping from label to int color value
      */
     public LabelingCellMetadata(final LabelingMetadata metadata, final long size, final long[] dimensions,
                                 final BufferedImage thumbnail) {

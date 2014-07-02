@@ -66,7 +66,7 @@ import org.knime.knip.base.renderer.ThumbnailRenderer;
 
 /**
  * DataValue for image objects.
- * 
+ *
  * @param <T> image type
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -113,14 +113,14 @@ public interface ImgPlusValue<T extends RealType<T>> extends DataValue {
 
     /**
      * Static singleton for meta description.
-     * 
+     *
      * @see DataValue#UTILITY
      */
     public static final UtilityFactory UTILITY = new ImgPlusUtilityFactory();
 
     /**
      * The sizes of the image dimensions.
-     * 
+     *
      * @return the dimensions as an array
      */
     public long[] getDimensions();
@@ -129,22 +129,21 @@ public interface ImgPlusValue<T extends RealType<T>> extends DataValue {
      * Retrieves the whole image. Its just a REFERENCE. Do NOT manipulate this image and use the
      * <code>getImageCopy()</code> method for that purpose. Also avoid calling the {@link Image}.closeAllCursors()
      * functions on the returned image!
-     * 
+     *
      * @return the image in this <code>DataCell</code>
      */
     public ImgPlus<T> getImgPlus();
 
     /**
      * Provides a copy of the image.
-     * 
+     *
      * @return the image
-     * 
+     *
      */
     public ImgPlus<T> getImgPlusCopy();
 
     /**
-     * 
-     * @return
+     * @return the {@link ImgPlusMetadata}
      */
     public ImgPlusMetadata getMetadata();
 
