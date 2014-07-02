@@ -72,7 +72,9 @@ import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
 import org.knime.knip.core.io.externalization.Externalizer;
 
 /**
- * @author Christian Dietz TODO: Only NativeImgLabelings are supported, yet.
+ * Default Externalizer for Labelings.
+ *
+ * @author Christian Dietz TODO: Deserialized labelings are always NativeImgLabelings since now.
  */
 public class LabelingExt0 implements Externalizer<Labeling> {
 
