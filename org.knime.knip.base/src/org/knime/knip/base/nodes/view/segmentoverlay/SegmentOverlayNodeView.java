@@ -70,9 +70,11 @@ import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingMapping;
 import net.imglib2.labeling.LabelingView;
 import net.imglib2.labeling.NativeImgLabeling;
+import net.imglib2.meta.ImgPlus;
 import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.ByteType;
+import net.imglib2.util.Intervals;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.node.NodeLogger;
@@ -83,6 +85,7 @@ import org.knime.core.node.tableview.TableView;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.nodes.view.segmentoverlay.SegmentOverlayNodeModel.LabelTransformVariables;
+import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.data.img.LabelingMetadata;
 import org.knime.knip.core.ui.imgviewer.ImgCanvas;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
@@ -297,66 +300,57 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
         m_row = row;
 
         try {
-            RandomAccessibleInterval<T> img;
-            LabelingMetadata metadata;
-            Labeling<L> lab;
-            DataCell currentLabelingCell;
 
-            if (m_tableContentView.getModel().getColumnCount() == 2) {
-                // Labeling and image
-                final DataCell currentImgCell =
-                        m_tableContentView.getContentModel().getValueAt(row, SegmentOverlayNodeModel.COL_IDX_IMAGE);
+            boolean labelingOnly = (m_tableContentView.getModel().getColumnCount() == 1);
 
+            RandomAccessibleInterval<T> underlyingInterval;
+            String imgName = "";
+            String imgSource = "";
+
+            LabelingValue<L> currentLabelingCell;
+
+            if (labelingOnly) {
                 currentLabelingCell =
-                        m_tableContentView.getContentModel().getValueAt(row, SegmentOverlayNodeModel.COL_IDX_LABELING);
-
-                img = ((ImgPlusValue<T>)currentImgCell).getImgPlus();
-                metadata = ((LabelingValue<L>)currentLabelingCell).getLabelingMetadata();
-
-                lab = ((LabelingValue<L>)currentLabelingCell).getLabeling();
-
-            } else {
-                // only a Labeling (creates an empty image of
-                // ByteType)
-                currentLabelingCell =
-                        m_tableContentView.getContentModel()
+                        (LabelingValue<L>)m_tableContentView.getContentModel()
                                 .getValueAt(row, SegmentOverlayNodeModel.COL_IDX_SINGLE_LABELING);
-
-                lab = ((LabelingValue<L>)currentLabelingCell).getLabeling();
-                final long[] labMin = new long[lab.numDimensions()];
-                final long[] labMax = new long[lab.numDimensions()];
-                final long[] labDims = new long[lab.numDimensions()];
-
-                lab.min(labMin);
-                lab.max(labMax);
-                lab.dimensions(labDims);
 
                 final T max = (T)new ByteType();
                 max.setReal(max.getMaxValue());
-                img = MiscViews.constant(max, new FinalInterval(labMin, labMax));
+                underlyingInterval = MiscViews.constant(max, new FinalInterval(currentLabelingCell.getLabeling()));
+            } else {
+                currentLabelingCell =
+                        (LabelingValue<L>)m_tableContentView.getContentModel()
+                                .getValueAt(row, SegmentOverlayNodeModel.COL_IDX_LABELING);
 
-                metadata = ((LabelingValue<L>)currentLabelingCell).getLabelingMetadata();
+                // Set image
+                final DataCell currentImgCell =
+                        m_tableContentView.getContentModel().getValueAt(row, SegmentOverlayNodeModel.COL_IDX_IMAGE);
+                final ImgPlus<T> imgPlus = ((ImgPlusValue<T>)currentImgCell).getImgPlus();
 
+                imgName = imgPlus.getName();
+                imgSource = imgPlus.getSource();
+                underlyingInterval = imgPlus;
             }
 
-            // Inputmap for transformation issues
+            // Update Labeling Mapping for Hiliting
+            Labeling<L> labeling = currentLabelingCell.getLabeling();
+            LabelingMetadata labelingMetadata = currentLabelingCell.getLabelingMetadata();
+
             final Map<String, Object> transformationInputMap = new HashMap<String, Object>();
-            transformationInputMap.put(LabelTransformVariables.LabelingName.toString(),
-                                       ((LabelingValue<L>)currentLabelingCell).getLabelingMetadata().getName());
-            transformationInputMap.put(LabelTransformVariables.LabelingSource.toString(),
-                                       ((LabelingValue<L>)currentLabelingCell).getLabelingMetadata().getSource());
-            transformationInputMap.put(LabelTransformVariables.ImgName.toString(), metadata.getName());
-            transformationInputMap.put(LabelTransformVariables.ImgSource.toString(), metadata.getSource());
+            transformationInputMap.put(LabelTransformVariables.LabelingName.toString(), labelingMetadata.getName());
+            transformationInputMap.put(LabelTransformVariables.LabelingSource.toString(), labelingMetadata.getSource());
+            transformationInputMap.put(LabelTransformVariables.ImgName.toString(), imgName);
+            transformationInputMap.put(LabelTransformVariables.ImgSource.toString(), imgSource);
             transformationInputMap.put(LabelTransformVariables.RowID.toString(), m_tableContentView.getContentModel()
                     .getRowKey(row));
 
-            if (lab instanceof NativeImgLabeling) {
+            if (labeling instanceof NativeImgLabeling) {
                 if (getNodeModel().isTransformationActive()) {
-                    final Img<I> nativeImgLabeling = ((NativeImgLabeling<L, I>)lab).getStorageImg();
+                    final Img<I> nativeImgLabeling = ((NativeImgLabeling<L, I>)labeling).getStorageImg();
 
                     final LabelingMapping<String> newMapping =
                             new LabelingMapping<String>(nativeImgLabeling.firstElement().createVariable());
-                    final LabelingMapping<L> oldMapping = lab.firstElement().getMapping();
+                    final LabelingMapping<L> oldMapping = labeling.firstElement().getMapping();
                     for (int i = 0; i < oldMapping.numLists(); i++) {
                         final List<String> newList = new ArrayList<String>();
                         for (final L label : oldMapping.listAtIndex(i)) {
@@ -368,25 +362,32 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
                     }
 
                     // Unsafe cast but works
-                    lab = (Labeling<L>)new ExtNativeImgLabeling<String, I>(nativeImgLabeling, newMapping);
+                    labeling = (Labeling<L>)new ExtNativeImgLabeling<String, I>(nativeImgLabeling, newMapping);
                 }
             } else {
-                LOGGER.warn("Labeling Transformer settings don't have any effect, as since now  this is only available for NativeImgLabelings.");
+                LOGGER.warn("Labeling Transformer settings don't have any effect, as onlyNativeImgLabelings are supported, yet");
             }
 
-            if (getNodeModel().virtuallyAdjustImgs()) {
-                lab =
-                        new LabelingView<L>(MiscViews.synchronizeDimensionality(lab,
-                                                                                ((LabelingValue<L>)currentLabelingCell)
-                                                                                        .getLabelingMetadata(), img,
-                                                                                metadata), lab.<L> factory());
-            }
-            m_imgView.getEventService().publish(new LabelingWithMetadataChgEvent<L>(lab,
-                                                        ((LabelingValue<L>)currentLabelingCell).getLabelingMetadata()));
+            if (!Intervals.equalDimensions(underlyingInterval, currentLabelingCell.getLabeling())) {
+                labeling =
+                        new LabelingView<>(MiscViews.synchronizeDimensionality(currentLabelingCell.getLabeling(),
+                                                                               currentLabelingCell
+                                                                                       .getLabelingMetadata(),
+                                                                               underlyingInterval,
+                                                                               (ImgPlus<T>)underlyingInterval),
+                                currentLabelingCell.getLabeling().<L> factory());
 
-            m_imgView.getEventService().publish(new ImgAndLabelingChgEvent<T, L>(img, lab,
-                                                        ((LabelingValue<L>)currentLabelingCell).getLabelingMetadata(),
-                                                        metadata, metadata));
+                labelingMetadata =
+                        new DefaultLabelingMetadata((ImgPlus<T>)underlyingInterval, labelingMetadata, labelingMetadata,
+                                labelingMetadata.getLabelingColorTable());
+
+            }
+
+            m_imgView.getEventService().publish(new LabelingWithMetadataChgEvent<L>(labeling, labelingMetadata));
+
+            m_imgView.getEventService().publish(new ImgAndLabelingChgEvent<T, L>(underlyingInterval, labeling,
+                                                        labelingMetadata, labelingMetadata, labelingMetadata));
+
             m_imgView.getEventService().publish(new ImgRedrawEvent());
         } catch (final IndexOutOfBoundsException e2) {
             return;

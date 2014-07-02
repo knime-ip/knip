@@ -237,7 +237,6 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
                 throw new InvalidSettingsException("No column selected!");
             }
         }
-        inSpecs[0].findColumnIndex(m_imgColumn.getStringValue());
 
         final ArrayList<DataColumnSpec> specs = new ArrayList<DataColumnSpec>();
         specs.add(new DataColumnSpecCreator("CroppedImg", ImgPlusCell.TYPE).createSpec());
@@ -284,6 +283,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
                 throw new InvalidSettingsException("No column selected!");
             }
         }
+
         int imgColIndex = inData[0].getDataTableSpec().findColumnIndex(m_imgColumn.getStringValue());
 
         final BufferedDataContainer con = exec.createDataContainer(m_outSpec);

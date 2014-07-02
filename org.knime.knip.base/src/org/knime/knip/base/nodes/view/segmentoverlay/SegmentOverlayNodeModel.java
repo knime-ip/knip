@@ -246,15 +246,15 @@ public class SegmentOverlayNodeModel<T extends RealType<T>, L extends Comparable
                 // process
                 if (imgColIdx != -1) {
                     // check compatibility
-                    long[] dim1 = ((LabelingValue<L>)labCell).getDimensions();
-                    long[] dim2 = ((ImgPlusValue<T>)imgCell).getDimensions();
+                    long[] labelingDims = ((LabelingValue<L>)labCell).getDimensions();
+                    long[] imageDims = ((ImgPlusValue<T>)imgCell).getDimensions();
 
-                    if (dim1.length != dim2.length) {
+                    if (labelingDims.length != imageDims.length && !m_adjustVirtually.getBooleanValue()) {
                         setWarningMessage("The number of dimensions of some labelings and images. Rows have been skipped!");
                         LOGGER.warn("The dimensions are not compatible in row " + row.getKey());
                         continue;
                     }
-                    if (!Arrays.equals(dim1, dim2) && !m_adjustVirtually.getBooleanValue()) {
+                    if (!Arrays.equals(labelingDims, imageDims) && !m_adjustVirtually.getBooleanValue()) {
                         setWarningMessage("Some labelings and images do not have compatible sizes and have been skipped! Use the 'Virtually extend'-option to overcome this problem.");
                         LOGGER.warn("The dimension sizes are not compatible in row " + row.getKey());
                         continue;
