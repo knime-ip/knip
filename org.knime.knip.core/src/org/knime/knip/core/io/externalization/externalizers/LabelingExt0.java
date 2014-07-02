@@ -107,8 +107,6 @@ public class LabelingExt0 implements Externalizer<Labeling> {
     @Override
     public Labeling read(final BufferedDataInputStream in) throws Exception {
 
-        System.out.println("Reading from labelingext");
-
         int numDims = in.readInt();
         long[] dims = new long[numDims];
 
@@ -168,8 +166,6 @@ public class LabelingExt0 implements Externalizer<Labeling> {
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public void write(final BufferedDataOutputStream out, final Labeling obj) throws Exception {
-
-        System.out.println("using labeling ext");
 
         out.writeInt(obj.numDimensions());
         for (int d = 0; d < obj.numDimensions(); d++) {
