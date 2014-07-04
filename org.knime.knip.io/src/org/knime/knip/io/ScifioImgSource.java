@@ -118,11 +118,11 @@ public class ScifioImgSource implements ImgSource {
 	@SuppressWarnings("rawtypes")
 	private final ImgFactory m_imgFactory;
 
-	private final boolean m_isGroupFiles;
-
 	private ImgUtilityService m_imgUtilsService;
 
 	private boolean m_checkFileFormat;
+
+	private SCIFIOConfig m_scifioConfig;
 
 	/*
 	 * helps do decide if the checkFileFormat option could have been set to
@@ -139,10 +139,41 @@ public class ScifioImgSource implements ImgSource {
 		this(new ArrayImgFactory(), checkFileFormat, true);
 	}
 
+	/**
+	 * Creates a new ScifioImgSource.
+	 * 
+	 * @param imgFactory
+	 *            the image factory to be used
+	 * @param checkFileFormat
+	 *            if for each new file to be read a new reader should be created
+	 *            or the old one can be re-used
+	 * @param isGroupFiles
+	 *            if a file points to a collection of files
+	 * 
+	 */
 	public ScifioImgSource(
 			@SuppressWarnings("rawtypes") final ImgFactory imgFactory,
 			final boolean checkFileFormat, final boolean isGroupFiles) {
-		m_isGroupFiles = isGroupFiles;
+		this(imgFactory, checkFileFormat, new SCIFIOConfig()
+				.groupableSetGroupFiles(isGroupFiles));
+	}
+
+	/**
+	 * Creates a new ScifioImgSource.
+	 * 
+	 * @param imgFactory
+	 *            the image factory to be used
+	 * @param checkFileFormat
+	 *            if for each new file to be read a new reader should be created
+	 *            or the old one can be re-used
+	 * @param config
+	 *            additional scifio-specific settings
+	 * 
+	 * 
+	 */
+	public ScifioImgSource(
+			@SuppressWarnings("rawtypes") final ImgFactory imgFactory,
+			final boolean checkFileFormat, SCIFIOConfig config) {
 		m_checkFileFormat = checkFileFormat;
 		m_imgOpener = new ImgOpener(ScifioGateway.getSCIFIO().getContext());
 		m_imgFactory = imgFactory;
@@ -347,8 +378,7 @@ public class ScifioImgSource implements ImgSource {
 			final ReaderFilter r = new ReaderFilter(format.createReader());
 			final Parser p = format.createParser();
 
-			r.setMetadata(p.parse(imgRef,
-					new SCIFIOConfig().groupableSetGroupFiles(m_isGroupFiles)));
+			r.setMetadata(p.parse(imgRef, m_scifioConfig));
 
 			// without the "separate"-stuff the images will not be split
 			// correctly for some types. This fixes the bug if, for instance,
@@ -379,8 +409,7 @@ public class ScifioImgSource implements ImgSource {
 			// the set group-files option -> the metadata has to be re-set, what
 			// is a bit ugly but necessary till the issue is solved
 			final Parser p = m_reader.getFormat().createParser();
-			m_reader.setMetadata(p.parse(imgRef,
-					new SCIFIOConfig().groupableSetGroupFiles(m_isGroupFiles)));
+			m_reader.setMetadata(p.parse(imgRef, m_scifioConfig));
 		}
 
 		// sets the file the reader currently points to
