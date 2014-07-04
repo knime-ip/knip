@@ -87,7 +87,6 @@ public class DontSaveStartNodeModel extends NodeModel implements LoopStartNode {
 
         final PortObjectSpec[] result = new PortObjectSpec[getNrOutPorts()];
         if (m_firstRun) {
-            //
             result[0] = inSpecs[0];
         } else {
             Arrays.fill(result, InactiveBranchPortObjectSpec.INSTANCE);
@@ -116,12 +115,6 @@ public class DontSaveStartNodeModel extends NodeModel implements LoopStartNode {
             m_firstRun = false;
             return inObjects;
         } else {
-
-            if (!(getLoopEndNode() instanceof DontSaveEndNodeModel)) {
-                throw new IllegalStateException("Don't Save Start node is not connected"
-                        + " to matching/corresponding Don't Save End node.");
-            }
-
             PortObject[] result = new PortObject[getNrOutPorts()];
             Arrays.fill(result, InactiveBranchPortObject.INSTANCE);
             return result;
