@@ -174,6 +174,7 @@ public class ScifioImgSource implements ImgSource {
 	public ScifioImgSource(
 			@SuppressWarnings("rawtypes") final ImgFactory imgFactory,
 			final boolean checkFileFormat, SCIFIOConfig config) {
+		m_scifioConfig = config;
 		m_checkFileFormat = checkFileFormat;
 		m_imgOpener = new ImgOpener(ScifioGateway.getSCIFIO().getContext());
 		m_imgFactory = imgFactory;

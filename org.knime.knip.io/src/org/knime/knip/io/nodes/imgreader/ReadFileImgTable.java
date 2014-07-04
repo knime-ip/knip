@@ -48,6 +48,8 @@
  */
 package org.knime.knip.io.nodes.imgreader;
 
+import io.scif.config.SCIFIOConfig;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -134,6 +136,9 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 	 */
 	private ScifioImgSource m_imgSource = null;
 
+	/* Object that keeps scifio-specific settings */
+	private SCIFIOConfig m_scifioConfig = null;
+
 	/*
 	 * Number of files to be read
 	 */
@@ -216,8 +221,10 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 		m_exec = exec;
 		m_omexml = omexml;
 		m_selectedSeries = selectedSeries;
+		m_scifioConfig = new SCIFIOConfig()
+				.groupableSetGroupFiles(isGroupFiles);
 		m_imgSource = new ScifioImgSource(imgFactory, checkFileFormat,
-				isGroupFiles);
+				m_scifioConfig);
 	}
 
 	/**
@@ -453,6 +460,19 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 
 		};
 
+	}
+
+	/**
+	 * Allows on to specify additional settings that can not be passed via the
+	 * constructor (e.g. scifio specific settings). They have to be passed
+	 * immediately after the instantiation of the {@link ReadFileImgTable}
+	 * -object, otherwise they might not be regarded.
+	 * 
+	 * @param key
+	 * @param value
+	 */
+	public void set(String key, Object value) {
+		m_scifioConfig.put(key, value);
 	}
 
 	/*
