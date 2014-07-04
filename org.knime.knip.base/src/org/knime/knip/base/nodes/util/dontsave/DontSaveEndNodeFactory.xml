@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<knimeNode icon="dontsaveend.png" type="ScopeEnd" xmlns="http://knime.org/node/v2.8"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://knime.org/node/v2.8 http://knime.org/node/v2.8.xsd">
+	<name>Don't Save End</name>
+	<shortDescription>
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			Indicates that from this node on, data will be saved again when
+			the workflow is saved.
+		</intro>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Input table">Input table.</inPort>
+		<outPort index="0" name="Output table">Output Table.</outPort>
+	</ports>
+</knimeNode>
