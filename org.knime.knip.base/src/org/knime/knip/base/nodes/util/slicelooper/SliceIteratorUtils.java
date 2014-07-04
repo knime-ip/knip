@@ -47,7 +47,7 @@
  *
  * Created on 29.04.2014 by Christian Dietz
  */
-package org.knime.knip.base.nodes.loops.slicelooper;
+package org.knime.knip.base.nodes.util.slicelooper;
 
 import java.util.ArrayList;
 

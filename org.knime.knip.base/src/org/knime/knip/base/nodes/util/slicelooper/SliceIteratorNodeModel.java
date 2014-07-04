@@ -46,7 +46,7 @@
  * ---------------------------------------------------------------------
  *
  */
-package org.knime.knip.base.nodes.loops.slicelooper;
+package org.knime.knip.base.nodes.util.slicelooper;
 
 import java.io.File;
 import java.io.IOException;

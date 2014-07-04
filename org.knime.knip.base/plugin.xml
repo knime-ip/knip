@@ -240,14 +240,16 @@
               id="org.knime.knip.base.nodes.util.slicelooper.CollectSlicesNodeFactory">
         </node>
         <node
+              category-path="/community/knip/image/misc"
               expert-flag="false"
-              factory-class="org.knime.knip.base.nodes.util.NoSaveStartNodeFactory"
-              id="org.knime.knip.base.nodes.util.NoSaveStartNodeFactory">
+              factory-class="org.knime.knip.base.nodes.util.dontsave.DontSaveStartNodeFactory"
+              id="org.knime.knip.base.nodes.util.dontsave.DontSaveStartNodeFactory">
         </node>
         <node
+              category-path="/community/knip/image/misc"
               expert-flag="false"
-              factory-class="org.knime.knip.base.nodes.util.NoSaveEndNodeFactory"
-              id="org.knime.knip.base.nodes.util.NoSaveEndNodeFactory">
+              factory-class="org.knime.knip.base.nodes.util.dontsave.DontSaveEndNodeFactory"
+              id="org.knime.knip.base.nodes.util.dontsave.DontSaveEndNodeFactory">
         </node>
      </extension>
 </plugin>

@@ -1,7 +1,5 @@
 /*
- * ------------------------------------------------------------------------
- *
-@   *  Copyright (C) 2003 - 2013
+ *  Copyright (C) 2003 - 2014
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -47,7 +45,7 @@
  *
  * Created on 11.03.2013 by dietyc
  */
-package org.knime.knip.base.nodes.loops.slicelooper;
+package org.knime.knip.base.nodes.util.slicelooper;
 
 import java.io.File;
 import java.io.IOException;
@@ -94,7 +92,7 @@ import org.knime.knip.core.data.img.LabelingMetadata;
 
 /**
  *
- * @autoh Andreas Graumann, University of Konstanz
+ * @author Andreas Graumann, University of Konstanz
  * @author Christian Dietz, University of Konstanz
  * @param <T>
  * @param <L>
@@ -156,7 +154,7 @@ public class CollectSlicesNodeModel<T extends RealType<T> & NativeType<T>, L ext
     @Override
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
         //reset();
-        return new DataTableSpec[]{SliceIteratorUtils.createResSpec(inSpecs[0],null,LOGGER)};
+        return new DataTableSpec[]{SliceIteratorUtils.createResSpec(inSpecs[0], null, LOGGER)};
     }
 
     /**
@@ -173,13 +171,12 @@ public class CollectSlicesNodeModel<T extends RealType<T> & NativeType<T>, L ext
         }
 
         // get loop start node
-        @SuppressWarnings("unchecked")
         final SliceIteratorNodeModel<T, L> loopStartNode = (SliceIteratorNodeModel<T, L>)getLoopStartNode();
 
         // check input spec
         final DataTableSpec inSpec = inData[0].getSpec();
         // create output spec
-        final DataTableSpec outSpec = SliceIteratorUtils.createResSpec(inSpec,null,LOGGER);
+        final DataTableSpec outSpec = SliceIteratorUtils.createResSpec(inSpec, null, LOGGER);
 
         // input table
         final BufferedDataTable inTable = inData[0];
@@ -372,16 +369,16 @@ public class CollectSlicesNodeModel<T extends RealType<T> & NativeType<T>, L ext
      */
     @Override
     protected void saveSettingsTo(final NodeSettingsWO settings) {
-     // Nothing to do here
+        // Nothing to do here
     }
 
     @Override
     protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
-     // Nothing to do here
+        // Nothing to do here
     }
 
     @Override
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
-     // Nothing to do here
+        // Nothing to do here
     }
 }
