@@ -73,6 +73,7 @@ import org.knime.core.data.container.CloseableRowIterator;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
+import org.knime.core.node.BufferedDataTableHolder;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
@@ -97,8 +98,8 @@ import org.knime.knip.core.data.img.LabelingMetadata;
  * @param <T>
  * @param <L>
  */
-public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>, L extends Comparable<L>> extends NodeModel
-        implements LoopEndNode {
+public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>, L extends Comparable<L>> extends
+        NodeModel implements LoopEndNode, BufferedDataTableHolder {
 
     /**
      * List to store all incoming cells
@@ -134,6 +135,8 @@ public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>
      * counting number of output rows
      */
     private int m_count = -1;
+
+    private BufferedDataTable m_data;
 
     /**
      * Node Logger
@@ -171,7 +174,8 @@ public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>
         }
 
         // get loop start node
-        final SliceIteratorLoopStartNodeModel<T, L> loopStartNode = (SliceIteratorLoopStartNodeModel<T, L>)getLoopStartNode();
+        final SliceIteratorLoopStartNodeModel<T, L> loopStartNode =
+                (SliceIteratorLoopStartNodeModel<T, L>)getLoopStartNode();
 
         // check input spec
         final DataTableSpec inSpec = inData[0].getSpec();
@@ -321,7 +325,8 @@ public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>
         // finished
         if (loopStartNode.terminateLoop()) {
             m_resultContainer.close();
-            return new BufferedDataTable[]{m_resultContainer.getTable()};
+            m_data = m_resultContainer.getTable();
+            return new BufferedDataTable[]{m_data};
         } else {
             // next iteration
             super.continueLoop();
@@ -380,5 +385,21 @@ public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>
     @Override
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
         // Nothing to do here
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BufferedDataTable[] getInternalTables() {
+        return new BufferedDataTable[]{m_data};
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setInternalTables(final BufferedDataTable[] tables) {
+        m_data = tables[0];
     }
 }

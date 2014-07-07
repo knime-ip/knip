@@ -99,6 +99,7 @@ import org.knime.knip.core.data.img.LabelingMetadata;
  *
  * @author Andreas Graumann, University of Konstanz
  * @author Christian Dietz, University of Konstanz
+ *
  * @param <T>
  * @param <L>
  */
