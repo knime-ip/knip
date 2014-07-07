@@ -87,6 +87,7 @@ import org.knime.knip.core.util.EnumUtils;
  * @param <L>
  */
 
+@Deprecated
 public class CellClumpedSplitterNodeFactory<T extends RealType<T>, L extends Comparable<L>> extends
         ValueToCellNodeFactory<LabelingValue<L>> {
 

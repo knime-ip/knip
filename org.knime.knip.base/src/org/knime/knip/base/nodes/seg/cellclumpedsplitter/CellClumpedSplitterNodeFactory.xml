@@ -5,7 +5,7 @@
 	IBM Corporation - initial API and implementation -->
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="../icons/cellclumpedsplitter.png" type="Manipulator">
-	<name>Cell Clump Splitter</name>
+	<name>Cell Clump Splitter (Deprecated)</name>
 	<shortDescription>Splits cell clumps</shortDescription>
 
 	<fullDescription>
