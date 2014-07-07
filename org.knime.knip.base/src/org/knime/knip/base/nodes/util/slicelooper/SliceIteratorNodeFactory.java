@@ -77,7 +77,7 @@ public class SliceIteratorNodeFactory extends NodeFactory<SliceIteratorNodeModel
         return new DefaultNodeSettingsPane() {
             {
                 addDialogComponent(new DialogComponentDimSelection(SliceIteratorNodeModel.createDimSelection(),
-                        "Dim Selection"));
+                        "Dimension Selection"));
 
                 addDialogComponent(new DialogComponentColumnFilter(SliceIteratorNodeModel.createColumnSelectionModel(), 0,true, ImgPlusValue.class, LabelingValue.class));
             }
