@@ -134,6 +134,10 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
     /** Minimal allowed object distance */
     private final int m_seedDistanceThreshold;
 
+    private final CCA<BitType> m_cca;
+
+    private WatershedWithSheds<FloatType, Integer> m_watershed;
+
     final static RectangleShape RECTANGLE_SHAPE = new RectangleShape(1, true); //"true" skips center point
 
     /**
@@ -146,9 +150,26 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
      */
     public WaehlbySplitterOp(final SEG_TYPE segType, final int seedDistanceThreshold, final int mergeSizeThreshold,
                              final int gaussSize) {
+        this(segType, seedDistanceThreshold, mergeSizeThreshold, gaussSize, new CCA<BitType>(
+                AbstractRegionGrowing.get8ConStructuringElement(2), new BitType()),
+                new WatershedWithSheds<FloatType, Integer>(AbstractRegionGrowing.get8ConStructuringElement(2)));
+    }
+
+    /**
+     * Contructor for WaehlbySplitter operation.
+     *
+     * @param segType {@link SEG_TYPE} Type of segmentation to be used.
+     * @param seedDistanceThreshold
+     * @param mergeSizeThreshold
+     * @param gaussSize
+     */
+    protected WaehlbySplitterOp(final SEG_TYPE segType, final int seedDistanceThreshold, final int mergeSizeThreshold,
+                                final int gaussSize, final CCA<BitType> cca,
+                                final WatershedWithSheds<FloatType, Integer> watershed) {
         super();
         m_segType = segType;
-
+        m_cca = cca;
+        m_watershed = watershed;
         m_seedDistanceThreshold = seedDistanceThreshold;
         m_gaussSize = gaussSize;
         m_minMergeSize = mergeSizeThreshold;
@@ -195,25 +216,19 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
                 new OutOfBoundsBorderFactory<FloatType, RandomAccessibleInterval<FloatType>>()).compute(imgAliceExt,
                                                                                                         imgBob);
 
-        // label
-        long[][] structuringElement = AbstractRegionGrowing.get8ConStructuringElement(img.numDimensions());
-
-        final CCA<BitType> cca = new CCA<BitType>(structuringElement, new BitType());
         NativeImgLabeling<Integer, ShortType> seeds =
                 new NativeImgLabeling<Integer, ShortType>(new ArrayImgFactory<ShortType>().create(img, new ShortType()));
 
         Img<BitType> imgChris = new ArrayImgFactory<BitType>().create(img, new BitType());
         new MaximumFinderOp<FloatType>(0, 0).compute(imgBob, imgChris);
 
-        cca.compute(imgChris, seeds);
+        m_cca.compute(imgChris, seeds);
 
         Labeling<String> watershedResult =
                 new NativeImgLabeling<String, ShortType>(new ArrayImgFactory<ShortType>().create(img, new ShortType()));
         /* Seeded Watershed */
-        WatershedWithSheds<FloatType, Integer> watershed =
-                new WatershedWithSheds<FloatType, Integer>(structuringElement);
 
-        watershed.compute(invertImg(imgAlice, new FloatType()), seeds, watershedResult);
+        m_watershed.compute(invertImg(imgAlice, new FloatType()), seeds, watershedResult);
 
         // use the sheds from the watershed to split the labeled objects
         split("Watershed", watershedResult, inLabMasked);
@@ -463,7 +478,8 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
      */
     @Override
     public BinaryOutputOperation<Labeling<L>, RandomAccessibleInterval<T>, Labeling<String>> copy() {
-        return new WaehlbySplitterOp<L, T>(m_segType, m_seedDistanceThreshold, m_minMergeSize, m_gaussSize);
+        return new WaehlbySplitterOp<L, T>(m_segType, m_seedDistanceThreshold, m_minMergeSize, m_gaussSize,
+                (CCA<BitType>)m_cca.copy(), (WatershedWithSheds<FloatType, Integer>)m_watershed.copy());
     }
 
     /**
