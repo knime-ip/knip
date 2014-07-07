@@ -51,6 +51,7 @@ package org.knime.knip.base.nodes.util.slicelooper;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import net.imglib2.Interval;
 import net.imglib2.img.Img;
@@ -94,7 +95,7 @@ import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.data.img.LabelingMetadata;
 
 /**
- *
+ * 
  * @author Andreas Graumann, University of Konstanz
  * @author Christian Dietz, University of Konstanz
  * @param <T>
@@ -115,7 +116,6 @@ public class SliceIteratorNodeModel<T extends RealType<T> & NativeType<T>, L ext
      * Dimension selction
      */
     private SettingsModelDimSelection m_dimSelection = createDimSelection();
-
 
     /**
      * Selected columns using column selection option
@@ -187,7 +187,8 @@ public class SliceIteratorNodeModel<T extends RealType<T> & NativeType<T>, L ext
      */
     @Override
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
-        return new DataTableSpec[]{SliceIteratorUtils.createResSpec(inSpecs[0],m_columns,LOGGER)};
+        getSelectedColumnIndices(inSpecs[0]);
+        return new DataTableSpec[]{SliceIteratorUtils.createResSpec(inSpecs[0], m_columns, LOGGER)};
     }
 
     /**
@@ -221,8 +222,11 @@ public class SliceIteratorNodeModel<T extends RealType<T> & NativeType<T>, L ext
         // check input spec
         final DataTableSpec inSpec = inData[0].getSpec();
 
+        // fill m_columns
+        getSelectedColumnIndices(inSpec);
+
         // create output spec
-        final DataTableSpec outSpec = SliceIteratorUtils.createResSpec(inSpec,m_columns,LOGGER);
+        final DataTableSpec outSpec = SliceIteratorUtils.createResSpec(inSpec, m_columns, LOGGER);
 
         // we just start, row is not terminated yet
         isRowTerminated = false;
@@ -353,6 +357,8 @@ public class SliceIteratorNodeModel<T extends RealType<T> & NativeType<T>, L ext
                 }
             }
             container.addRowToTable(new DefaultRow("Slice " + i, cells));
+
+            pushFlowVariableInt("Slice", i);
         }
 
         m_currIdx = (Math.min(m_currIdx + 1, m_intervals.length));
@@ -391,7 +397,7 @@ public class SliceIteratorNodeModel<T extends RealType<T> & NativeType<T>, L ext
     }
 
     /**
-     *
+     * 
      * {@inheritDoc}
      */
     @Override
@@ -401,7 +407,7 @@ public class SliceIteratorNodeModel<T extends RealType<T> & NativeType<T>, L ext
     }
 
     /**
-     *
+     * 
      * {@inheritDoc}
      */
     @Override
@@ -411,7 +417,7 @@ public class SliceIteratorNodeModel<T extends RealType<T> & NativeType<T>, L ext
     }
 
     /**
-     *
+     * 
      * {@inheritDoc}
      */
     @Override
@@ -421,7 +427,7 @@ public class SliceIteratorNodeModel<T extends RealType<T> & NativeType<T>, L ext
     }
 
     /**
-     *
+     * 
      * {@inheritDoc}
      */
     @Override
@@ -431,7 +437,7 @@ public class SliceIteratorNodeModel<T extends RealType<T> & NativeType<T>, L ext
     }
 
     /**
-     *
+     * 
      * {@inheritDoc}
      */
     @Override
@@ -441,7 +447,7 @@ public class SliceIteratorNodeModel<T extends RealType<T> & NativeType<T>, L ext
     }
 
     /**
-     *
+     * 
      * @return reference interval
      */
     public Interval[] getRefIntervals() {
@@ -466,7 +472,7 @@ public class SliceIteratorNodeModel<T extends RealType<T> & NativeType<T>, L ext
     }
 
     /**
-     *
+     * 
      * @return reference calibrated space
      */
     CalibratedSpace<CalibratedAxis> getRefSpace() {
@@ -486,5 +492,70 @@ public class SliceIteratorNodeModel<T extends RealType<T> & NativeType<T>, L ext
      */
     public boolean isRowTerminated() {
         return isRowTerminated;
+    }
+
+    private int[] getSelectedColumnIndices(final DataTableSpec inSpec) {
+        final List<String> colNames;
+        if ((m_columns.getIncludeList().size() == 0) || m_columns.isKeepAllSelected()) {
+            colNames = new ArrayList<String>();
+            collectAllColumns(colNames, inSpec);
+            m_columns.setIncludeList(colNames);
+
+        } else {
+            colNames = new ArrayList<String>();
+            colNames.addAll(m_columns.getIncludeList());
+            if (!validateColumnSelection(colNames, inSpec)) {
+                setWarningMessage("Invalid column selection. All columns are selected!");
+                collectAllColumns(colNames, inSpec);
+            }
+        }
+
+        // get column indices
+        final List<Integer> colIndices = new ArrayList<Integer>(colNames.size());
+        for (int i = 0; i < colNames.size(); i++) {
+            final int colIdx = inSpec.findColumnIndex(colNames.get(i));
+            if (colIdx == -1) {
+                // can not occur, actually
+                LOGGER.warn("Column " + colNames.get(i) + " doesn't exist!");
+            } else {
+                colIndices.add(colIdx);
+            }
+        }
+
+        final int[] colIdx = new int[colIndices.size()];
+        for (int i = 0; i < colIdx.length; i++) {
+            colIdx[i] = colIndices.get(i);
+        }
+
+        return colIdx;
+    }
+
+    /* Helper to collect all columns of the given type. */
+    private void collectAllColumns(final List<String> colNames, final DataTableSpec spec) {
+        colNames.clear();
+        for (final DataColumnSpec c : spec) {
+            if (c.getType().isCompatible(ImgPlusValue.class) || c.getType().isCompatible(LabelingValue.class)) {
+                colNames.add(c.getName());
+            }
+        }
+        if (colNames.size() == 0) {
+            LOGGER.warn("No columns of type " + ImgPlusValue.class.getSimpleName() + " or "
+                    + LabelingValue.class.getSimpleName() + " available!");
+            return;
+        }
+        LOGGER.info("All available columns of type " + ImgPlusValue.class.getSimpleName() + " and "
+                + LabelingValue.class.getSimpleName() + " are selected!");
+
+    }
+
+    /* Checks if a column is not present in the DataTableSpec */
+    private boolean validateColumnSelection(final List<String> colNames, final DataTableSpec spec) {
+        for (int i = 0; i < colNames.size(); i++) {
+            final int colIdx = spec.findColumnIndex(colNames.get(i));
+            if (colIdx == -1) {
+                return false;
+            }
+        }
+        return true;
     }
 }
