@@ -116,7 +116,7 @@ public class ClaheNodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNod
     @Override
     public ImgPlusToImgPlusNodeModel<T, T> createNodeModel() {
 
-        return new ImgPlusToImgPlusNodeModel<T, T>() {
+        return new ImgPlusToImgPlusNodeModel<T, T>(true, "X", "Y") {
 
             private final SettingsModelIntegerBounded m_ctxValues = createCtxDimValue();
 
