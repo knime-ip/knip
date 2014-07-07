@@ -52,6 +52,7 @@ import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
+import org.knime.knip.base.nodes.view.TableCellViewNodeView;
 
 /**
  * @author Andreas Graumann, University of Konstanz
@@ -87,7 +88,7 @@ public class SliceIteratorLoopEndNodeFactory extends
 	 */
 	@Override
 	protected int getNrNodeViews() {
-		return 0;
+		return 1;
 	}
 
 	/**
@@ -97,7 +98,7 @@ public class SliceIteratorLoopEndNodeFactory extends
     @Override
 	public NodeView<SliceIteratorLoopEndNodeModel> createNodeView(
 			final int viewIndex, final SliceIteratorLoopEndNodeModel nodeModel) {
-		return null;
+		return new TableCellViewNodeView<SliceIteratorLoopEndNodeModel>(nodeModel, 0);
 	}
 
     /**
