@@ -50,6 +50,7 @@
 package org.knime.knip.base.nodes.seg.waehlby;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import net.imglib2.Cursor;
 import net.imglib2.IterableInterval;
@@ -173,16 +174,18 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
                 Views.interval(new ConvertedRandomAccessible<LabelingType<L>, BitType>(inLab,
                         new LabelingToBitConverter<LabelingType<L>>(), new BitType()), inLab);
 
+        double[] sigmas = new double[inLab.numDimensions()];
+        Arrays.fill(sigmas, m_gaussSize);
+
         if (m_segType == SEG_TYPE.SHAPE_BASED_SEGMENTATION) {
             new DistanceMap<BitType>().compute(inLabMasked, imgBobExt);
-
             try {
-                Gauss3.gauss(m_gaussSize, imgBobExt, imgAliceExt);
+                Gauss3.gauss(sigmas, imgBobExt, imgAliceExt, 1);
             } catch (IncompatibleTypeException e) {
             }
         } else {
             try {
-                Gauss3.gauss(m_gaussSize, Views.extendBorder(img), imgAliceExt);
+                Gauss3.gauss(sigmas, Views.extendBorder(img), imgAliceExt, 1);
             } catch (IncompatibleTypeException e) {
             }
         }
@@ -263,9 +266,8 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
             boolean found = false;
 
             NeighborhoodsAccessible<LabelingType<String>> raNeighWatershed =
-                    RECTANGLE_SHAPE.neighborhoodsRandomAccessibleSafe(Views.interval(Views.extendValue(watershedResult,
-                                                                                   new LabelingType<String>()),
-                                                                 watershedResult));
+                    RECTANGLE_SHAPE.neighborhoodsRandomAccessibleSafe(Views.interval(Views
+                            .extendValue(watershedResult, new LabelingType<String>()), watershedResult));
 
             // find two objects that are closer than rSize
             for (int i = 0; i < objects.size(); ++i) {
@@ -325,7 +327,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
 
                             //fill remaining gap for both points
                             for (int[] point : points) {
-                                remainingGapFill(raNeighWatershed.randomAccess(), point, ijLabel);
+                                remainingGapFill(raNeighWatershed.randomAccess(watershedResult), point, ijLabel);
                             }
 
                             mergedList.add(new Triple<LabeledObject, LabeledObject, String>(iObj, jObj, ijLabel));
@@ -406,12 +408,11 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         ra.setPosition(point);
         final Cursor<LabelingType<String>> cNeigh = ra.get().cursor().copyCursor();
 
-        LabelingType<String> p;
         int numNonij;
         boolean leq2;
 
         while (cNeigh.hasNext()) {
-            p = cNeigh.next();
+            final LabelingType<String> p = cNeigh.next();
 
             if (!p.getLabeling().contains(label)) {
                 numNonij = 0;

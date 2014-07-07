@@ -61,14 +61,16 @@ import net.imglib2.algorithm.region.localneighborhood.Neighborhood;
 import net.imglib2.algorithm.region.localneighborhood.RectangleShape;
 import net.imglib2.algorithm.region.localneighborhood.RectangleShape.NeighborhoodsAccessible;
 import net.imglib2.algorithm.region.localneighborhood.RectangleShape.NeighborhoodsIterableInterval;
-import net.imglib2.algorithm.stats.ComputeMinMax;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgFactory;
+import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.UnaryOperation;
+import net.imglib2.ops.operation.iterableinterval.unary.MinMax;
 import net.imglib2.outofbounds.OutOfBounds;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.IntType;
+import net.imglib2.util.ValuePair;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 
@@ -126,11 +128,10 @@ public class MaximumFinderOp<T extends RealType<T>> implements
         T max = t.createVariable();
         max.setReal(t.getMaxValue());
 
-        ComputeMinMax<T> mm = new ComputeMinMax<T>(Views.iterable(input), max, min);
-        mm.process();
+        ValuePair<T, T> res = Operations.compute(new MinMax<T>(), Views.iterable(input));
 
-        T globMin = mm.getMin();
-        T globMax = mm.getMax();
+        T globMin = res.getA().copy();
+        T globMax = res.getB().copy();
 
         //IntervalView<T> extInput = Views.interval(Views.extend(input, m_outOfBounds), input);
         IntervalView<T> extInput = Views.interval(Views.extendValue(input, globMin), input);
