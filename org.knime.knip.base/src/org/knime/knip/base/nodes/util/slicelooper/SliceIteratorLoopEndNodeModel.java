@@ -97,7 +97,7 @@ import org.knime.knip.core.data.img.LabelingMetadata;
  * @param <T>
  * @param <L>
  */
-public class CollectSlicesNodeModel<T extends RealType<T> & NativeType<T>, L extends Comparable<L>> extends NodeModel
+public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>, L extends Comparable<L>> extends NodeModel
         implements LoopEndNode {
 
     /**
@@ -138,13 +138,13 @@ public class CollectSlicesNodeModel<T extends RealType<T> & NativeType<T>, L ext
     /**
      * Node Logger
      */
-    private static NodeLogger LOGGER = NodeLogger.getLogger(CollectSlicesNodeModel.class);
+    private static NodeLogger LOGGER = NodeLogger.getLogger(SliceIteratorLoopEndNodeModel.class);
 
     /**
      * @param nrInDataPorts
      * @param nrOutDataPorts
      */
-    protected CollectSlicesNodeModel(final int nrInDataPorts, final int nrOutDataPorts) {
+    protected SliceIteratorLoopEndNodeModel(final int nrInDataPorts, final int nrOutDataPorts) {
         super(nrInDataPorts, nrOutDataPorts);
     }
 
@@ -166,12 +166,12 @@ public class CollectSlicesNodeModel<T extends RealType<T> & NativeType<T>, L ext
             throws Exception {
 
         // do we have a valid start node?
-        if (!(getLoopStartNode() instanceof SliceIteratorNodeModel)) {
+        if (!(getLoopStartNode() instanceof SliceIteratorLoopStartNodeModel)) {
             throw new IllegalStateException("End node without correct start slice loop node!");
         }
 
         // get loop start node
-        final SliceIteratorNodeModel<T, L> loopStartNode = (SliceIteratorNodeModel<T, L>)getLoopStartNode();
+        final SliceIteratorLoopStartNodeModel<T, L> loopStartNode = (SliceIteratorLoopStartNodeModel<T, L>)getLoopStartNode();
 
         // check input spec
         final DataTableSpec inSpec = inData[0].getSpec();

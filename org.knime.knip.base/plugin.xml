@@ -230,13 +230,13 @@
         <node
               category-path="/community/knip/image/misc"
               expert-flag="false"
-              factory-class="org.knime.knip.base.nodes.util.slicelooper.SliceIteratorNodeFactory"
+              factory-class="org.knime.knip.base.nodes.util.slicelooper.SliceIteratorLoopStartNodeFactory"
               id="org.knime.knip.base.nodes.util.slicelooper.SliceIteratorNodeFactory">
         </node>
         <node
               category-path="/community/knip/image/misc"
               expert-flag="false"
-              factory-class="org.knime.knip.base.nodes.util.slicelooper.CollectSlicesNodeFactory"
+              factory-class="org.knime.knip.base.nodes.util.slicelooper.SliceIteratorLoopEndNodeFactory"
               id="org.knime.knip.base.nodes.util.slicelooper.CollectSlicesNodeFactory">
         </node>
         <node

@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2014
+ *  Copyright (C) 2003 - 2013
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -45,6 +45,7 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ---------------------------------------------------------------------
  *
+ * Created on 11.03.2013 by dietyc
  */
 package org.knime.knip.base.nodes.util.slicelooper;
 
@@ -52,61 +53,70 @@ import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
+import org.knime.core.node.defaultnodesettings.DialogComponentColumnFilter;
+import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.base.data.labeling.LabelingValue;
+import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 
 /**
+ *
+ *
  * @author Andreas Graumann, University of Konstanz
  * @author Christian Dietz, University of Konstanz
  */
-@SuppressWarnings("rawtypes")
-public class CollectSlicesNodeFactory extends
-		NodeFactory<CollectSlicesNodeModel> {
+@SuppressWarnings({"unchecked","rawtypes"})
+public class SliceIteratorLoopStartNodeFactory extends NodeFactory<SliceIteratorLoopStartNodeModel> {
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected NodeDialogPane createNodeDialogPane() {
+    /**
+     * {@inheritDoc}
+     */
 
-		return new DefaultNodeSettingsPane() {
-			{
-			}
-		};
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public CollectSlicesNodeModel createNodeModel() {
-		return new CollectSlicesNodeModel(1,1);
-	}
-
-	/**
-	 *
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected int getNrNodeViews() {
-		return 0;
-	}
-
-	/**
-	 *
-	 * {@inheritDoc}
-	 */
     @Override
-	public NodeView<CollectSlicesNodeModel> createNodeView(
-			final int viewIndex, final CollectSlicesNodeModel nodeModel) {
-		return null;
-	}
+    protected NodeDialogPane createNodeDialogPane() {
+
+        return new DefaultNodeSettingsPane() {
+            {
+                addDialogComponent(new DialogComponentDimSelection(SliceIteratorLoopStartNodeModel.createDimSelection(),
+                        "Dimension Selection"));
+
+                addDialogComponent(new DialogComponentColumnFilter(SliceIteratorLoopStartNodeModel.createColumnSelectionModel(), 0,true, ImgPlusValue.class, LabelingValue.class));
+            }
+        };
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SliceIteratorLoopStartNodeModel createNodeModel() {
+        return new SliceIteratorLoopStartNodeModel(1, 1);
+    }
 
     /**
      *
      * {@inheritDoc}
      */
-	@Override
-	protected boolean hasDialog() {
-		return true;
-	}
+    @Override
+    protected int getNrNodeViews() {
+        return 0;
+    }
 
+    /**
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    public NodeView<SliceIteratorLoopStartNodeModel>
+            createNodeView(final int viewIndex, final SliceIteratorLoopStartNodeModel nodeModel) {
+        return null;
+    }
+
+    /**
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean hasDialog() {
+        return true;
+    }
 }

@@ -101,14 +101,14 @@ import org.knime.knip.core.data.img.LabelingMetadata;
  * @param <T>
  * @param <L>
  */
-public class SliceIteratorNodeModel<T extends RealType<T> & NativeType<T>, L extends Comparable<L>> extends NodeModel
+public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L extends Comparable<L>> extends NodeModel
         implements LoopStartNodeTerminator {
 
     /**
      * @param nrInDataPorts
      * @param nrOutDataPorts
      */
-    protected SliceIteratorNodeModel(final int nrInDataPorts, final int nrOutDataPorts) {
+    protected SliceIteratorLoopStartNodeModel(final int nrInDataPorts, final int nrOutDataPorts) {
         super(nrInDataPorts, nrOutDataPorts);
     }
 
@@ -180,7 +180,7 @@ public class SliceIteratorNodeModel<T extends RealType<T> & NativeType<T>, L ext
     /**
      * Node logger
      */
-    static NodeLogger LOGGER = NodeLogger.getLogger(SliceIteratorNodeModel.class);
+    static NodeLogger LOGGER = NodeLogger.getLogger(SliceIteratorLoopStartNodeModel.class);
 
     /**
      * {@inheritDoc}
