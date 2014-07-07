@@ -88,6 +88,7 @@ import net.imglib2.meta.TypedAxis;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.node.NodeLogger;
+import org.knime.knip.base.exceptions.KNIPRuntimeException;
 import org.knime.knip.core.types.NativeTypes;
 import org.knime.knip.core.util.MiscViews;
 import org.scijava.Context;
@@ -380,6 +381,12 @@ public class ScifioImgSource implements ImgSource {
 			final Parser p = format.createParser();
 
 			r.setMetadata(p.parse(imgRef, m_scifioConfig));
+
+			// check if the current file really contains images
+			if (r.getMetadata().getImageCount() == 0) {
+				throw new KNIPRuntimeException("No images available in file "
+						+ imgRef);
+			}
 
 			// without the "separate"-stuff the images will not be split
 			// correctly for some types. This fixes the bug if, for instance,
