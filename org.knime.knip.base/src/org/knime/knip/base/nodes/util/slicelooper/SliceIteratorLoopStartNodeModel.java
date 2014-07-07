@@ -74,6 +74,7 @@ import org.knime.core.data.container.CloseableRowIterator;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
+import org.knime.core.node.BufferedDataTableHolder;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
@@ -95,14 +96,14 @@ import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.data.img.LabelingMetadata;
 
 /**
- * 
+ *
  * @author Andreas Graumann, University of Konstanz
  * @author Christian Dietz, University of Konstanz
  * @param <T>
  * @param <L>
  */
 public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L extends Comparable<L>> extends NodeModel
-        implements LoopStartNodeTerminator {
+        implements LoopStartNodeTerminator, BufferedDataTableHolder {
 
     /**
      * @param nrInDataPorts
@@ -176,6 +177,8 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
      * reference calibrated space for slice loop end node
      */
     private CalibratedSpace<CalibratedAxis> m_refSpace;
+
+    private BufferedDataTable m_data;
 
     /**
      * Node logger
@@ -375,8 +378,8 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
         }
 
         container.close();
-
-        return new BufferedDataTable[]{container.getTable()};
+        m_data = container.getTable();
+        return new BufferedDataTable[]{m_data};
     }
 
     /**
@@ -397,7 +400,7 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     @Override
@@ -407,7 +410,7 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     @Override
@@ -417,7 +420,7 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     @Override
@@ -427,7 +430,7 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     @Override
@@ -437,7 +440,7 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     @Override
@@ -447,7 +450,7 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
     }
 
     /**
-     * 
+     *
      * @return reference interval
      */
     public Interval[] getRefIntervals() {
@@ -472,7 +475,7 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
     }
 
     /**
-     * 
+     *
      * @return reference calibrated space
      */
     CalibratedSpace<CalibratedAxis> getRefSpace() {
@@ -557,5 +560,21 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
             }
         }
         return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BufferedDataTable[] getInternalTables() {
+        return new BufferedDataTable[]{m_data};
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setInternalTables(final BufferedDataTable[] tables) {
+        m_data = tables[0];
     }
 }
