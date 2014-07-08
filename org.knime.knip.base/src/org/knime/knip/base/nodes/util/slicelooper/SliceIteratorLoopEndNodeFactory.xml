@@ -1,20 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="sliceiteratorloopend.png" type="LoopEnd">
-	<name>Slice Iterator Loop End</name>
-	
-    <shortDescription>Collects slices of a slice iterator</shortDescription>
+	<name>Slice Loop End</name>
 
-    <fullDescription>
-        <intro>
-            Node at the end of a slice iterator loop start. It is used to mark the end of a slice iterator loop and collects the 
-            intermediate results by row-wise collecting and merging of the incoming image slices. Only ImgPlus and Labelings are used.
-        </intro>
-    </fullDescription>
+	<shortDescription>Collects slices of Slice Loop Start and recombines
+		them to images / labelings.</shortDescription>
 
-    <ports>
-        <inPort index="0" name="Processed datatable">Processed datatable</inPort>
-        <outPort index="0" name="Merged image slices">Merged image slices</outPort>
-    </ports>
+	<fullDescription>
+		<intro>
+			Node at the end of a Slice Loop Start. It is used to
+			mark the
+			end of a slice iterator loop and collects the
+			intermediate
+			results by row-wise collecting and merging of the incoming image
+			slices. Only images and labelings are supported.
+		</intro>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Processed datatable">Processed datatable</inPort>
+		<outPort index="0" name="Merged image slices">Merged image slices</outPort>
+	</ports>
+
+	<views>
+		<view name="TableCellView" index="0"> View selected Images /
+			Labelings.
+		</view>
+	</views>
 
 </knimeNode>

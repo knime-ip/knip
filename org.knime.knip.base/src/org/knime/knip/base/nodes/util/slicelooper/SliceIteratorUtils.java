@@ -167,6 +167,9 @@ public class SliceIteratorUtils {
         if (columns != null) {
             for (String col : columns.getIncludeList()) {
                 final int colIdx = inSpec.findColumnIndex(col);
+                if(colIdx == -1) {
+                    continue;
+                }
                 DataColumnSpec colSpec = inSpec.getColumnSpec(colIdx);
                 DataType colType = colSpec.getType();
 
