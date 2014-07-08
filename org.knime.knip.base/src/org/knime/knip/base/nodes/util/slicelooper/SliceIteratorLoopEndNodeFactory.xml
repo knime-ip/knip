@@ -23,8 +23,8 @@
 	</ports>
 
 	<views>
-		<view name="TableCellView" index="0"> View selected Images /
-			Labelings.
+		<view name="TableCellView" index="0"> View selected images /
+			labelings.
 		</view>
 	</views>
 
