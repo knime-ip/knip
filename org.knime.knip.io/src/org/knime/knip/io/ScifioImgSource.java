@@ -365,7 +365,8 @@ public class ScifioImgSource implements ImgSource {
 		}
 
 		if (!m_checkFileFormat || m_reader.getMetadata() == null) {
-			m_reader.setSource(imgRef);
+			m_reader.setSource(imgRef,
+					new SCIFIOConfig().groupableSetGroupFiles(m_isGroupFiles));
 
 			// NOTE: after an image (one series) is read once, the reader is
 			// closed by the ImgOpener (also setting the metadata to null).
