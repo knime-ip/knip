@@ -78,7 +78,7 @@ public class LAPTrackerNodeModel extends NodeModel implements
 
 		private String name;
 
-		private LAPTrackerAlgorithm(String describingName) {
+		private LAPTrackerAlgorithm(final String describingName) {
 			this.name = describingName;
 		}
 
@@ -157,7 +157,7 @@ public class LAPTrackerNodeModel extends NodeModel implements
 	}
 
 	@Override
-	protected DataTableSpec[] configure(DataTableSpec[] inSpecs)
+	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
 
 		// simply to check whether the input changed
@@ -191,13 +191,13 @@ public class LAPTrackerNodeModel extends NodeModel implements
 		final int[] featureIndices = getSelectedColumnIndices(spec);
 
 		// get bitmask & time
-		int bitMaskColumnIdx = getColIndices(m_bitMaskColumnModel,
+		final int bitMaskColumnIdx = getColIndices(m_bitMaskColumnModel,
 				ImgPlusValue.class, spec);
 
-		int labelIdx = getColIndices(m_labelColumnModel, StringValue.class,
+		final int labelIdx = getColIndices(m_labelColumnModel, StringValue.class,
 				spec, bitMaskColumnIdx);
 
-		int sourceLabelingIdx = getColIndices(m_sourceLabelingColumn,
+		final int sourceLabelingIdx = getColIndices(m_sourceLabelingColumn,
 				LabelingValue.class, spec);
 
 		// time axis
@@ -208,10 +208,10 @@ public class LAPTrackerNodeModel extends NodeModel implements
 		String sourceLabelingName = "";
 		LabelingMetadata sourceLabelingMetadata = null;
 
-		TrackableObjectCollection<TrackedNode<String>> trackedNodes = new DefaultTOCollection<TrackedNode<String>>();
-		for (DataRow row : inData[0]) {
+		final TrackableObjectCollection<TrackedNode<String>> trackedNodes = new DefaultTOCollection<TrackedNode<String>>();
+		for (final DataRow row : inData[0]) {
 			exec.checkCanceled();
-			ImgPlusValue<BitType> bitMaskValue = ((ImgPlusValue<BitType>) row
+			final ImgPlusValue<BitType> bitMaskValue = ((ImgPlusValue<BitType>) row
 					.getCell(bitMaskColumnIdx));
 			final ImgPlus<BitType> bitMask = bitMaskValue.getImgPlus();
 			final String label = ((StringValue) row.getCell(labelIdx))
@@ -228,7 +228,7 @@ public class LAPTrackerNodeModel extends NodeModel implements
 			// here: if source labeling is null set it. only one source is
 			// allowed since now
 			if (sourceLabeling == null) {
-				LabelingValue<?> labValue = ((LabelingValue<?>) row
+				final LabelingValue<?> labValue = ((LabelingValue<?>) row
 						.getCell(sourceLabelingIdx));
 				sourceLabeling = labValue.getLabeling();
 				sourceLabelingName = labValue.getLabelingMetadata().getName();
@@ -242,13 +242,13 @@ public class LAPTrackerNodeModel extends NodeModel implements
 			}
 
 			final Map<String, Double> featureMap = new HashMap<String, Double>();
-			for (int idx : featureIndices) {
+			for (final int idx : featureIndices) {
 				featureMap.put(columnNames[idx],
 						((DoubleValue) row.getCell(idx)).getDoubleValue());
 			}
 
 			final Centroid centroid = new Centroid();
-			double[] pos = centroid.compute(bitMask,
+			final double[] pos = centroid.compute(bitMask,
 					new double[bitMask.numDimensions()]);
 
 			for (int d = 0; d < pos.length; d++) {
@@ -256,14 +256,14 @@ public class LAPTrackerNodeModel extends NodeModel implements
 			}
 
 			// add the node
-			TrackedNode<String> trackedNode = new TrackedNode<String>(bitMask,
+			final TrackedNode<String> trackedNode = new TrackedNode<String>(bitMask,
 					pos, bitMaskValue.getMinimum(), label, timeIdx, featureMap);
 
 			trackedNodes.add(trackedNode, trackedNode.frame());
 		}
 
 		// Set-Up the tracker
-		GenericLapTracker<String> tracker = new GenericLapTracker<String>(
+		final GenericLapTracker<String> tracker = new GenericLapTracker<String>(
 				EnumUtils.valueForName(
 						m_trackingAlgorithmModel.getStringValue(),
 						LAPTrackerAlgorithm.values()), trackedNodes,
@@ -290,16 +290,16 @@ public class LAPTrackerNodeModel extends NodeModel implements
 		}
 
 		int trackCtr = 0;
-		Labeling<String> res = sourceLabeling.<String> factory().create(
+		final Labeling<String> res = sourceLabeling.<String> factory().create(
 				sourceLabeling);
-		RandomAccess<LabelingType<String>> resAccess = res.randomAccess();
-		RandomAccess<?> srcAccess = sourceLabeling.randomAccess(); 
-		
+		final RandomAccess<LabelingType<String>> resAccess = res.randomAccess();
+		final RandomAccess<?> srcAccess = sourceLabeling.randomAccess();
+
 		final int numDims = resAccess.numDimensions();
-		for (SortedSet<TrackedNode<String>> track : trackSegments) {
-			for (TrackedNode<String> node : track) {
-				ImgPlus<BitType> bitMask = node.bitMask();
-				Cursor<BitType> bitMaskCursor = bitMask.cursor();
+		for (final SortedSet<TrackedNode<String>> track : trackSegments) {
+			for (final TrackedNode<String> node : track) {
+				final ImgPlus<BitType> bitMask = node.bitMask();
+				final Cursor<BitType> bitMaskCursor = bitMask.cursor();
 				while (bitMaskCursor.hasNext()) {
 					if (!bitMaskCursor.next().get())
 						continue;
@@ -309,7 +309,7 @@ public class LAPTrackerNodeModel extends NodeModel implements
 								+ node.offset(d), d);
 					}
 					// set all the important information
-					List<String> labeling = new ArrayList<String>(resAccess
+					final List<String> labeling = new ArrayList<String>(resAccess
 							.get().getLabeling());
 
 					labeling.add("Track: " + trackCtr);
@@ -317,9 +317,9 @@ public class LAPTrackerNodeModel extends NodeModel implements
 					// add original labeling if selected by the user
 					if (m_attachSourceLabelings.getBooleanValue()) {
 						srcAccess.setPosition(resAccess);
-						List<?> localLabelings = ((LabelingType<?>) srcAccess
+						final List<?> localLabelings = ((LabelingType<?>) srcAccess
 								.get()).getLabeling();
-						for (Object o : localLabelings) {
+						for (final Object o : localLabelings) {
 							labeling.add(o.toString());
 						}
 					}
@@ -329,8 +329,8 @@ public class LAPTrackerNodeModel extends NodeModel implements
 			trackCtr++;
 		}
 
-		LabelingCellFactory labelingCellFactory = new LabelingCellFactory(exec);
-		BufferedDataContainer container = exec
+		final LabelingCellFactory labelingCellFactory = new LabelingCellFactory(exec);
+		final BufferedDataContainer container = exec
 				.createDataContainer(createOutSpec()[0]);
 
 		container.addRowToTable(new DefaultRow(sourceLabelingName,
@@ -371,21 +371,21 @@ public class LAPTrackerNodeModel extends NodeModel implements
 	}
 
 	@Override
-	protected void loadInternals(File nodeInternDir, ExecutionMonitor exec)
+	protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec)
 			throws IOException, CanceledExecutionException {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	protected void saveInternals(File nodeInternDir, ExecutionMonitor exec)
+	protected void saveInternals(final File nodeInternDir, final ExecutionMonitor exec)
 			throws IOException, CanceledExecutionException {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	protected void saveSettingsTo(NodeSettingsWO settings) {
+	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		m_bitMaskColumnModel.saveSettingsTo(settings);
 		m_columns.saveSettingsTo(settings);
 		m_labelColumnModel.saveSettingsTo(settings);
@@ -406,7 +406,7 @@ public class LAPTrackerNodeModel extends NodeModel implements
 	}
 
 	@Override
-	protected void validateSettings(NodeSettingsRO settings)
+	protected void validateSettings(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		m_bitMaskColumnModel.validateSettings(settings);
 		m_columns.validateSettings(settings);
@@ -424,11 +424,15 @@ public class LAPTrackerNodeModel extends NodeModel implements
 		m_allowSplittingModel.validateSettings(settings);
 		m_gapClosingMaxDistanceModel.validateSettings(settings);
 		m_sourceLabelingColumn.validateSettings(settings);
-		m_attachSourceLabelings.validateSettings(settings);
+		try {
+			m_attachSourceLabelings.validateSettings(settings);
+		} catch (final Exception e) {
+			// backwards compatibility
+		}
 	}
 
 	@Override
-	protected void loadValidatedSettingsFrom(NodeSettingsRO settings)
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		m_bitMaskColumnModel.loadSettingsFrom(settings);
 		m_columns.loadSettingsFrom(settings);
@@ -446,7 +450,11 @@ public class LAPTrackerNodeModel extends NodeModel implements
 		m_allowSplittingModel.loadSettingsFrom(settings);
 		m_gapClosingMaxDistanceModel.loadSettingsFrom(settings);
 		m_sourceLabelingColumn.loadSettingsFrom(settings);
-		m_attachSourceLabelings.loadSettingsFrom(settings);
+		try {
+			m_attachSourceLabelings.loadSettingsFrom(settings);
+		} catch (final Exception e) {
+			// backwards compatibility
+		}
 	}
 
 	@Override
@@ -523,9 +531,9 @@ public class LAPTrackerNodeModel extends NodeModel implements
 		return true;
 	}
 
-	protected int getColIndices(SettingsModelString model,
-			Class<? extends DataValue> clazz, final DataTableSpec inSpec,
-			Integer... excludeCols) throws InvalidSettingsException {
+	protected int getColIndices(final SettingsModelString model,
+			final Class<? extends DataValue> clazz, final DataTableSpec inSpec,
+			final Integer... excludeCols) throws InvalidSettingsException {
 
 		int colIdx = -1;
 		if (model.getStringValue() != null) {
