@@ -53,6 +53,7 @@ import java.util.Collections;
 import java.util.List;
 
 import net.imglib2.labeling.LabelingMapping;
+import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.type.numeric.integer.IntType;
 
 import org.knime.knip.core.io.externalization.BufferedDataInputStream;
@@ -100,13 +101,7 @@ public class LabelingMappingExt0 implements Externalizer<LabelingMapping> {
 
         final int numLabelComb = in.readInt();
 
-        final LabelingMapping map = new LabelingMapping(new IntType()) {
-            {
-                //delete background from lists
-                internedLists.clear();
-                listsByIndex.clear();
-            }
-        };
+        final UnsafeLabelingMapping map = new UnsafeLabelingMapping(new IntType());
 
         for (int i = 0; i < numLabelComb; i++) {
             final int size = in.readInt();
@@ -115,9 +110,9 @@ public class LabelingMappingExt0 implements Externalizer<LabelingMapping> {
                 for (int j = 0; j < size; j++) {
                     list.add(ExternalizerManager.read(in));
                 }
-                map.intern(list);
+                map.addUnsafe(list, i);
             } else {
-                map.intern(Collections.EMPTY_LIST);
+                map.addUnsafe(Collections.EMPTY_LIST, 0);
             }
         }
 
@@ -139,7 +134,22 @@ public class LabelingMappingExt0 implements Externalizer<LabelingMapping> {
                 ExternalizerManager.write(out, type);
             }
         }
+    }
 
+    private class UnsafeLabelingMapping extends LabelingMapping {
+
+        public UnsafeLabelingMapping(final IntegerType t) {
+            super(t);
+            //delete background from lists
+            internedLists.clear();
+            listsByIndex.clear();
+        }
+
+        public void addUnsafe(final List list, final int i) {
+            InternedList interned = new InternedList(list, i, this);
+            listsByIndex.add(interned);
+            internedLists.put(list, interned);
+        }
     }
 
 }
