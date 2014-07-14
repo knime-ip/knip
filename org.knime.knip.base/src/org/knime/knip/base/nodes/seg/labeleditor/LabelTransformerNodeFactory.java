@@ -137,7 +137,7 @@ public class LabelTransformerNodeFactory<L extends Comparable<L>> extends ValueT
 
                 // The input labeling
                 final Labeling<L> labeling = cellLabelingVal.getLabeling();
-                Labeling<String> res = labeling.<String> factory().create(labeling);
+                final Labeling<String> res = labeling.<String> factory().create(labeling);
 
                 final Cursor<LabelingType<L>> inCursor = labeling.cursor();
                 final Cursor<LabelingType<String>> outCursor = res.cursor();
@@ -147,6 +147,11 @@ public class LabelTransformerNodeFactory<L extends Comparable<L>> extends ValueT
                     outCursor.fwd();
 
                     final List<L> inLabeling = inCursor.get().getLabeling();
+
+                    if (inLabeling.isEmpty()) {
+                        continue;
+                    }
+
                     final ArrayList<String> labelList = new ArrayList<String>(inLabeling.size());
 
                     for (final L label : inLabeling) {
