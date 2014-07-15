@@ -195,6 +195,7 @@ public class ObjectCalcAndCache {
             m_weightedCentroid = new double[ii.numDimensions()];
             final double[] centroid = new double[ii.numDimensions()];
 
+            final double sum = ds.getSum();
             final Cursor<T> c = ii.localizingCursor();
 
             final long[] pos = new long[c.numDimensions()];
@@ -205,7 +206,7 @@ public class ObjectCalcAndCache {
                 final double val = c.get().getRealDouble();
 
                 for (int d = 0; d < ii.numDimensions(); d++) {
-                    m_weightedCentroid[d] += pos[d] * (val / ds.getSum());
+                    m_weightedCentroid[d] += pos[d] * (val / sum);
                     centroid[d] += pos[d];
                 }
             }
