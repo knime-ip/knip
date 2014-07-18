@@ -177,7 +177,7 @@ public final class LabelingArithmeticNodeFactory<IL extends Comparable<IL>, OL e
                     if (!(lab1.firstElement().getMapping().getLabels().get(0).getClass().isAssignableFrom(lab2
                             .firstElement().getMapping().getLabels().get(0).getClass()))) {
 
-                        LOGGER.warn("Labeling types are not compatible. Using Strings for comparsion. The resulting labeling will also be String based");
+                        LOGGER.debug("Labeling types are not compatible. Using Strings for comparsion. The resulting labeling will also be String based");
                         stringBased = true;
                     }
                 }
