@@ -410,7 +410,7 @@ public class ScifioImgSource implements ImgSource {
 			// re-use the last reader, set the new image reference (i.e. id) and
 			// parse the metadata
 			m_reader.closeNow();
-			m_reader.setSource(imgRef);
+			m_reader.setSource(imgRef, m_scifioConfig);
 			final Parser p = m_reader.getFormat().createParser();
 			m_reader.setMetadata(p.parse(imgRef, m_scifioConfig));
 		}
