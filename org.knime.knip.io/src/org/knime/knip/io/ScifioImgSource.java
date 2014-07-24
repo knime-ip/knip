@@ -109,7 +109,7 @@ public class ScifioImgSource implements ImgSource {
 	/* ID of the source */
 	private static final String SOURCE_ID = "Scifio Image Source";
 
-	private Reader m_reader;
+	private UnclosableReaderFilter m_reader;
 
 	/* The currently used file by the reader */
 	private String m_currentFile;
@@ -186,7 +186,7 @@ public class ScifioImgSource implements ImgSource {
 	public void close() {
 		if (m_reader != null) {
 			try {
-				m_reader.close();
+				m_reader.closeNow();
 			} catch (final IOException e) {
 			}
 		}
@@ -370,6 +370,8 @@ public class ScifioImgSource implements ImgSource {
 		return type;
 	}
 
+	// -- private helper methods --
+
 	private Reader getReader(final String imgRef) throws FormatException,
 			IOException {
 		if (m_reader == null
@@ -377,7 +379,8 @@ public class ScifioImgSource implements ImgSource {
 
 			final Format format = ScifioGateway.getSCIFIO().format()
 					.getFormat(imgRef, new SCIFIOConfig().checkerSetOpen(true));
-			final ReaderFilter r = new ReaderFilter(format.createReader());
+			final UnclosableReaderFilter r = new UnclosableReaderFilter(
+					format.createReader());
 			final Parser p = format.createParser();
 
 			r.setMetadata(p.parse(imgRef, m_scifioConfig));
@@ -399,23 +402,15 @@ public class ScifioImgSource implements ImgSource {
 				// more than one reader (class) has been used
 				m_usedDifferentReaders = true;
 			}
+			if (m_reader != null) {
+				m_reader.closeNow();
+			}
 			m_reader = r;
-		}
-
-		if (!m_checkFileFormat || m_reader.getMetadata() == null) {
-			m_reader.setSource(imgRef,
-					new SCIFIOConfig().groupableSetGroupFiles(m_isGroupFiles));
-
-			// NOTE: after an image (one series) is read once, the reader is
-			// closed by the ImgOpener (also setting the metadata to null).
-			// Thats why the reader has to be re-initialised when its metadata
-			// is null.
-
-			// WORKAROUND!! TODO: make the workaround unnecessary
-			// according to issue https://github.com/scifio/scifio/issues/115
-			// setSource overwrites the metadata and therewith, for instance,
-			// the set group-files option -> the metadata has to be re-set, what
-			// is a bit ugly but necessary till the issue is solved
+		} else if (!m_currentFile.equals(imgRef) && !m_checkFileFormat) {
+			// re-use the last reader, set the new image reference (i.e. id) and
+			// parse the metadata
+			m_reader.closeNow();
+			m_reader.setSource(imgRef);
 			final Parser p = m_reader.getFormat().createParser();
 			m_reader.setMetadata(p.parse(imgRef, m_scifioConfig));
 		}
@@ -444,6 +439,33 @@ public class ScifioImgSource implements ImgSource {
 		// Ensure channel is attempted to be split
 		axes.add(Axes.CHANNEL);
 		return axes.toArray(new AxisType[axes.size()]);
+	}
+
+	/* Helper class to prevent a reader from being closed. */
+	private class UnclosableReaderFilter extends ReaderFilter {
+
+		public UnclosableReaderFilter(Reader r) {
+			super(r);
+		}
+
+		@Override
+		public void close() throws IOException {
+			// do nothing here to prevent the reader from being closed
+		}
+
+		@Override
+		public void close(boolean fileOnly) throws IOException {
+			// do nothing here to prevent the reader from being closed
+		}
+
+		/*
+		 * Closes the underlying reader, called by the
+		 * ScifioImgsource.close()-method.
+		 */
+		private void closeNow() throws IOException {
+			super.close();
+		}
+
 	}
 
 }

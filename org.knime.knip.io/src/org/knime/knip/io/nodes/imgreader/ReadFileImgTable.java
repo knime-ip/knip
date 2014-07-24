@@ -328,7 +328,12 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 				if (m_selectedSeries == -1 && (currentSeries + 1) < seriesCount) {
 					return true;
 				} else {
-					return fileIterator.hasNext();
+					if (fileIterator.hasNext()) {
+						return true;
+					} else {
+						m_imgSource.close();
+						return false;
+					}
 				}
 			}
 
