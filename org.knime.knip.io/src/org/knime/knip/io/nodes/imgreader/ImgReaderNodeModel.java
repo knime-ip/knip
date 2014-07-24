@@ -82,7 +82,6 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.knime.core.node.port.PortType;
 import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
-import org.knime.knip.io.formats.PdfFormat;
 
 /**
  * This Node reads images.
@@ -397,7 +396,6 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 				m_checkFileFormat.getBooleanValue(),
 				m_completePathRowKey.getBooleanValue(),
 				m_isGroupFiles.getBooleanValue(), seriesSelection, imgFac);
-		dt.set(PdfFormat.CONFIG_SCALE_KEY, 2f);
 
 		// dt.setDimLabelProperty(m_planeSelect.getDimLabelsAsString());
 		final BufferedDataTable[] out = new BufferedDataTable[] { exec
