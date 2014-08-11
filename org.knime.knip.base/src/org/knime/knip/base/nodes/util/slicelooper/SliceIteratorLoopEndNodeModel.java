@@ -95,6 +95,7 @@ import org.knime.knip.core.data.img.LabelingMetadata;
  *
  * @author Andreas Graumann, University of Konstanz
  * @author Christian Dietz, University of Konstanz
+ *
  * @param <T>
  * @param <L>
  */
@@ -144,11 +145,10 @@ public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>
     private static NodeLogger LOGGER = NodeLogger.getLogger(SliceIteratorLoopEndNodeModel.class);
 
     /**
-     * @param nrInDataPorts
-     * @param nrOutDataPorts
+     * Default Constructor
      */
-    protected SliceIteratorLoopEndNodeModel(final int nrInDataPorts, final int nrOutDataPorts) {
-        super(nrInDataPorts, nrOutDataPorts);
+    protected SliceIteratorLoopEndNodeModel() {
+        super(1, 1);
     }
 
     /**

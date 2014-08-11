@@ -65,7 +65,7 @@ import org.knime.knip.base.nodes.view.TableCellViewNodeView;
  * @author Andreas Graumann, University of Konstanz
  * @author Christian Dietz, University of Konstanz
  */
-@SuppressWarnings({"unchecked","rawtypes"})
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class SliceIteratorLoopStartNodeFactory extends NodeFactory<SliceIteratorLoopStartNodeModel> {
 
     /**
@@ -77,10 +77,12 @@ public class SliceIteratorLoopStartNodeFactory extends NodeFactory<SliceIterator
 
         return new DefaultNodeSettingsPane() {
             {
-                addDialogComponent(new DialogComponentDimSelection(SliceIteratorLoopStartNodeModel.createDimSelection(),
-                        "Dimension Selection"));
+                addDialogComponent(new DialogComponentDimSelection(
+                        SliceIteratorLoopStartNodeModel.createDimSelection(), "Dimension Selection"));
 
-                addDialogComponent(new DialogComponentColumnFilter(SliceIteratorLoopStartNodeModel.createColumnSelectionModel(), 0,true, ImgPlusValue.class, LabelingValue.class));
+                addDialogComponent(new DialogComponentColumnFilter(
+                        SliceIteratorLoopStartNodeModel.createColumnSelectionModel(), 0, true, ImgPlusValue.class,
+                        LabelingValue.class));
             }
         };
     }
@@ -107,8 +109,8 @@ public class SliceIteratorLoopStartNodeFactory extends NodeFactory<SliceIterator
      * {@inheritDoc}
      */
     @Override
-    public NodeView<SliceIteratorLoopStartNodeModel>
-            createNodeView(final int viewIndex, final SliceIteratorLoopStartNodeModel nodeModel) {
+    public NodeView<SliceIteratorLoopStartNodeModel> createNodeView(final int viewIndex,
+                                                                    final SliceIteratorLoopStartNodeModel nodeModel) {
         return new TableCellViewNodeView<SliceIteratorLoopStartNodeModel>(nodeModel, 0);
     }
 

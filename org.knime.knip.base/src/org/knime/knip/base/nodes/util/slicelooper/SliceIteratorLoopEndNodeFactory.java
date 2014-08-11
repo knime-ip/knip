@@ -51,7 +51,6 @@ package org.knime.knip.base.nodes.util.slicelooper;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
-import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.knip.base.nodes.view.TableCellViewNodeView;
 
 /**
@@ -59,55 +58,51 @@ import org.knime.knip.base.nodes.view.TableCellViewNodeView;
  * @author Christian Dietz, University of Konstanz
  */
 @SuppressWarnings("rawtypes")
-public class SliceIteratorLoopEndNodeFactory extends
-		NodeFactory<SliceIteratorLoopEndNodeModel> {
+public class SliceIteratorLoopEndNodeFactory extends NodeFactory<SliceIteratorLoopEndNodeModel> {
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected NodeDialogPane createNodeDialogPane() {
-
-		return new DefaultNodeSettingsPane() {
-			{
-			}
-		};
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public SliceIteratorLoopEndNodeModel createNodeModel() {
-		return new SliceIteratorLoopEndNodeModel(1,1);
-	}
-
-	/**
-	 *
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected int getNrNodeViews() {
-		return 1;
-	}
-
-	/**
-	 *
-	 * {@inheritDoc}
-	 */
+    /**
+     * {@inheritDoc}
+     */
     @Override
-	public NodeView<SliceIteratorLoopEndNodeModel> createNodeView(
-			final int viewIndex, final SliceIteratorLoopEndNodeModel nodeModel) {
-		return new TableCellViewNodeView<SliceIteratorLoopEndNodeModel>(nodeModel, 0);
-	}
+    protected NodeDialogPane createNodeDialogPane() {
+        // there is no dialog
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SliceIteratorLoopEndNodeModel createNodeModel() {
+        return new SliceIteratorLoopEndNodeModel();
+    }
 
     /**
      *
      * {@inheritDoc}
      */
-	@Override
-	protected boolean hasDialog() {
-		return true;
-	}
+    @Override
+    protected int getNrNodeViews() {
+        return 1;
+    }
+
+    /**
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    public NodeView<SliceIteratorLoopEndNodeModel> createNodeView(final int viewIndex,
+                                                                  final SliceIteratorLoopEndNodeModel nodeModel) {
+        return new TableCellViewNodeView<SliceIteratorLoopEndNodeModel>(nodeModel);
+    }
+
+    /**
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean hasDialog() {
+        return false;
+    }
 
 }
