@@ -23,7 +23,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/mvn/ome-poi-5.0.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/ome-xml-5.0.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/perf4j-0.9.13.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mvn/scifio-bf-compat-1.8.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mvn/scifio-bf-compat-1.8.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/scifio-ome-xml-0.9.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/scifio-tools-0.14.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mvn/specification-5.0.2.jar"/>

@@ -7,14 +7,6 @@ Bundle-Vendor: University of Konstanz
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Eclipse-RegisterBuddy: org.knime.knip.scijava
 Bundle-ClassPath: knip-core.jar,
- lib/mvn/log4j-1.2.16.jar,
- lib/mvn/mahout-collections-1.0.jar,
- lib/mvn/mines-jtk-20100113.jar,
- lib/mvn/mpicbg-20111128.jar,
- lib/mvn/slf4j-api-1.6.4.jar,
- lib/mvn/slf4j-log4j12-1.6.4.jar,
- lib/mvn/udunits-4.3.18.jar,
- lib/mvn/jama-1.0.3.jar,
  lib/mvn/commons-math3-3.2.jar,
  lib/mvn/imglib2-2.0.0-knip-SNAPSHOT.jar,
  lib/mvn/imglib2-algorithms-2.0.0-knip-SNAPSHOT.jar,
@@ -22,7 +14,15 @@ Bundle-ClassPath: knip-core.jar,
  lib/mvn/imglib2-algorithms-legacy-2.0.0-knip-SNAPSHOT.jar,
  lib/mvn/imglib2-meta-2.0.0-knip-SNAPSHOT.jar,
  lib/mvn/imglib2-ops-2.0.0-knip-SNAPSHOT.jar,
- lib/mvn/imglib2-realtransform-2.0.0-knip-SNAPSHOT.jar
+ lib/mvn/imglib2-realtransform-2.0.0-knip-SNAPSHOT.jar,
+ lib/mvn/jama-1.0.3.jar,
+ lib/mvn/log4j-1.2.16.jar,
+ lib/mvn/mahout-collections-1.0.jar,
+ lib/mvn/mines-jtk-20100113.jar,
+ lib/mvn/mpicbg-20111128.jar,
+ lib/mvn/slf4j-api-1.6.4.jar,
+ lib/mvn/slf4j-log4j12-1.6.4.jar,
+ lib/mvn/udunits-4.3.18.jar
 Require-Bundle: org.apache.log4j;bundle-version="1.2.15",
  org.eclipse.core.runtime;bundle-version="3.6.0",
  org.knime.knip.scijava;bundle-version="2.24.0"
