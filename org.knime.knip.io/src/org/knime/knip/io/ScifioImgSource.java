@@ -456,7 +456,7 @@ public class ScifioImgSource implements ImgSource {
 	/* Helper class to prevent a reader from being closed. */
 	private class UnclosableReaderFilter extends ReaderFilter {
 
-		public UnclosableReaderFilter(Reader r) {
+		public UnclosableReaderFilter(final Reader r) {
 			super(r);
 		}
 
@@ -466,7 +466,7 @@ public class ScifioImgSource implements ImgSource {
 		}
 
 		@Override
-		public void close(boolean fileOnly) throws IOException {
+		public void close(final boolean fileOnly) throws IOException {
 			// do nothing here to prevent the reader from being closed
 		}
 
