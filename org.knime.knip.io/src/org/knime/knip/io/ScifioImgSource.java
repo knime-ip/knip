@@ -73,6 +73,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import loci.formats.FormatHandler;
 import net.imglib2.Cursor;
 import net.imglib2.Pair;
 import net.imglib2.RandomAccess;
@@ -86,7 +87,10 @@ import net.imglib2.meta.CalibratedAxis;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.meta.TypedAxis;
 import net.imglib2.type.numeric.RealType;
+import ome.xml.model.OMEModelImpl;
+import ome.xml.model.enums.handlers.DetectorTypeEnumHandler;
 
+import org.apache.log4j.Level;
 import org.knime.core.node.NodeLogger;
 import org.knime.knip.base.exceptions.KNIPRuntimeException;
 import org.knime.knip.core.types.NativeTypes;
@@ -174,12 +178,20 @@ public class ScifioImgSource implements ImgSource {
 	 */
 	public ScifioImgSource(
 			@SuppressWarnings("rawtypes") final ImgFactory imgFactory,
-			final boolean checkFileFormat, SCIFIOConfig config) {
+			final boolean checkFileFormat, final SCIFIOConfig config) {
 		m_scifioConfig = config;
 		m_checkFileFormat = checkFileFormat;
 		m_imgOpener = new ImgOpener(ScifioGateway.getSCIFIO().getContext());
 		m_imgFactory = imgFactory;
 		m_usedDifferentReaders = false;
+
+		// TODO Workaround to suppress BioFormats info message flooding
+		org.apache.log4j.Logger.getLogger(OMEModelImpl.class).setLevel(
+				Level.ERROR);
+		org.apache.log4j.Logger.getLogger(FormatHandler.class).setLevel(
+				Level.ERROR);
+		org.apache.log4j.Logger.getLogger(DetectorTypeEnumHandler.class)
+				.setLevel(Level.ERROR);
 	}
 
 	@Override
