@@ -52,16 +52,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * Helper class to create String[] Lists of Labelings
+ * Helper class to create String[] Lists of Labelings.
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  *
  */
-public class EnumUtils {
+public final class EnumUtils {
+
+    // prevent instantiation
+    private EnumUtils() {
+    }
 
     /**
-     * Retrieve {@link Enum} for name
+     * Retrieve {@link Enum} for name.
      *
      * @param name
      * @param values
@@ -113,7 +117,7 @@ public class EnumUtils {
     }
 
     /**
-     * Creates a {@link String}[] using toString of the given {@link Enum}s
+     * Creates a {@link String}[] using toString of the given {@link Enum}s.
      *
      * @param enums
      *
@@ -132,7 +136,7 @@ public class EnumUtils {
     }
 
     /**
-     * Creates a {@link Collection} of {@link String}s using toString of the given {@link Enum}
+     * Creates a {@link Collection} of {@link String}s using toString of the given {@link Enum}.
      *
      * @param enums
      * @return Collection<String> of enum based on toString
