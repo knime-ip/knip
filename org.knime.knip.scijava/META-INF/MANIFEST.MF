@@ -27,7 +27,6 @@ Bundle-ClassPath: scijava.jar,
  lib/mvn/scijava-plugins-text-plain-0.1.1.jar,
  lib/mvn/scijava-ui-awt-0.1.2.jar,
  lib/mvn/scijava-ui-swing-0.3.0.jar,
- lib/mvn/scripting-java-0.2.4.jar,
  lib/mvn/swing-checkbox-tree-1.0.0.jar
 Export-Package: 
  com.github.sbridges.objectinspector,
