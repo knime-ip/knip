@@ -79,7 +79,7 @@ public class LAPTrackerNodeModel extends NodeModel implements
 		private String name;
 
 		private LAPTrackerAlgorithm(final String describingName) {
-			this.name = describingName;
+			name = describingName;
 		}
 
 		@Override
@@ -107,7 +107,13 @@ public class LAPTrackerNodeModel extends NodeModel implements
 			.createLabelModel();
 
 	private final SettingsModelBoolean m_attachSourceLabelings = LAPTrackerSettingsModels
-			.createAttachSourceLabelings();
+			.createAttachSourceLabelingsModel();
+
+	private final SettingsModelBoolean m_useCustomTrackPrefix = LAPTrackerSettingsModels
+			.createUseCustomTrackPrefixModel();
+
+	private final SettingsModelString m_customTrackPrefix = LAPTrackerSettingsModels
+			.createCustomTrackPrefixModel();
 
 	/*
 	 * TRACKMATE SETTINGS
@@ -154,6 +160,9 @@ public class LAPTrackerNodeModel extends NodeModel implements
 
 	protected LAPTrackerNodeModel() {
 		super(1, 1);
+
+		// for state consistency:
+		m_customTrackPrefix.setEnabled(false);
 	}
 
 	@Override
@@ -194,8 +203,8 @@ public class LAPTrackerNodeModel extends NodeModel implements
 		final int bitMaskColumnIdx = getColIndices(m_bitMaskColumnModel,
 				ImgPlusValue.class, spec);
 
-		final int labelIdx = getColIndices(m_labelColumnModel, StringValue.class,
-				spec, bitMaskColumnIdx);
+		final int labelIdx = getColIndices(m_labelColumnModel,
+				StringValue.class, spec, bitMaskColumnIdx);
 
 		final int sourceLabelingIdx = getColIndices(m_sourceLabelingColumn,
 				LabelingValue.class, spec);
@@ -256,8 +265,9 @@ public class LAPTrackerNodeModel extends NodeModel implements
 			}
 
 			// add the node
-			final TrackedNode<String> trackedNode = new TrackedNode<String>(bitMask,
-					pos, bitMaskValue.getMinimum(), label, timeIdx, featureMap);
+			final TrackedNode<String> trackedNode = new TrackedNode<String>(
+					bitMask, pos, bitMaskValue.getMinimum(), label, timeIdx,
+					featureMap);
 
 			trackedNodes.add(trackedNode, trackedNode.frame());
 		}
@@ -295,27 +305,38 @@ public class LAPTrackerNodeModel extends NodeModel implements
 		final RandomAccess<LabelingType<String>> resAccess = res.randomAccess();
 		final RandomAccess<?> srcAccess = sourceLabeling.randomAccess();
 
+		final boolean useCustomPrefix = m_useCustomTrackPrefix
+				.getBooleanValue();
+		final String customPrefix = m_customTrackPrefix.getStringValue();
+
+		final boolean attachSourceLabelings = m_attachSourceLabelings
+				.getBooleanValue();
 		final int numDims = resAccess.numDimensions();
 		for (final SortedSet<TrackedNode<String>> track : trackSegments) {
 			for (final TrackedNode<String> node : track) {
 				final ImgPlus<BitType> bitMask = node.bitMask();
 				final Cursor<BitType> bitMaskCursor = bitMask.cursor();
 				while (bitMaskCursor.hasNext()) {
-					if (!bitMaskCursor.next().get())
+					if (!bitMaskCursor.next().get()) {
 						continue;
+					}
 
 					for (int d = 0; d < numDims; d++) {
 						resAccess.setPosition(bitMaskCursor.getLongPosition(d)
 								+ node.offset(d), d);
 					}
 					// set all the important information
-					final List<String> labeling = new ArrayList<String>(resAccess
-							.get().getLabeling());
+					final List<String> labeling = new ArrayList<String>(
+							resAccess.get().getLabeling());
 
-					labeling.add("Track: " + trackCtr);
-
+					// add custom track prefix if selected
+					if (useCustomPrefix) {
+						labeling.add(customPrefix + trackCtr);
+					} else {
+						labeling.add("Track: " + trackCtr);
+					}
 					// add original labeling if selected by the user
-					if (m_attachSourceLabelings.getBooleanValue()) {
+					if (attachSourceLabelings) {
 						srcAccess.setPosition(resAccess);
 						final List<?> localLabelings = ((LabelingType<?>) srcAccess
 								.get()).getLabeling();
@@ -329,7 +350,8 @@ public class LAPTrackerNodeModel extends NodeModel implements
 			trackCtr++;
 		}
 
-		final LabelingCellFactory labelingCellFactory = new LabelingCellFactory(exec);
+		final LabelingCellFactory labelingCellFactory = new LabelingCellFactory(
+				exec);
 		final BufferedDataContainer container = exec
 				.createDataContainer(createOutSpec()[0]);
 
@@ -371,15 +393,17 @@ public class LAPTrackerNodeModel extends NodeModel implements
 	}
 
 	@Override
-	protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec)
-			throws IOException, CanceledExecutionException {
+	protected void loadInternals(final File nodeInternDir,
+			final ExecutionMonitor exec) throws IOException,
+			CanceledExecutionException {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	protected void saveInternals(final File nodeInternDir, final ExecutionMonitor exec)
-			throws IOException, CanceledExecutionException {
+	protected void saveInternals(final File nodeInternDir,
+			final ExecutionMonitor exec) throws IOException,
+			CanceledExecutionException {
 		// TODO Auto-generated method stub
 
 	}
@@ -403,6 +427,8 @@ public class LAPTrackerNodeModel extends NodeModel implements
 		m_gapClosingMaxDistanceModel.saveSettingsTo(settings);
 		m_sourceLabelingColumn.saveSettingsTo(settings);
 		m_attachSourceLabelings.saveSettingsTo(settings);
+		m_useCustomTrackPrefix.saveSettingsTo(settings);
+		m_customTrackPrefix.saveSettingsTo(settings);
 	}
 
 	@Override
@@ -424,6 +450,8 @@ public class LAPTrackerNodeModel extends NodeModel implements
 		m_allowSplittingModel.validateSettings(settings);
 		m_gapClosingMaxDistanceModel.validateSettings(settings);
 		m_sourceLabelingColumn.validateSettings(settings);
+		m_useCustomTrackPrefix.validateSettings(settings);
+		m_customTrackPrefix.validateSettings(settings);
 		try {
 			m_attachSourceLabelings.validateSettings(settings);
 		} catch (final Exception e) {
@@ -450,6 +478,8 @@ public class LAPTrackerNodeModel extends NodeModel implements
 		m_allowSplittingModel.loadSettingsFrom(settings);
 		m_gapClosingMaxDistanceModel.loadSettingsFrom(settings);
 		m_sourceLabelingColumn.loadSettingsFrom(settings);
+		m_useCustomTrackPrefix.loadSettingsFrom(settings);
+		m_customTrackPrefix.loadSettingsFrom(settings);
 		try {
 			m_attachSourceLabelings.loadSettingsFrom(settings);
 		} catch (final Exception e) {

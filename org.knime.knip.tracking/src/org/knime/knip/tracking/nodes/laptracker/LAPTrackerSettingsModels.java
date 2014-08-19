@@ -43,7 +43,7 @@ final class LAPTrackerSettingsModels {
 	}
 
 	/**
-	 * Model to store Label
+	 * @return settings model to store Label column
 	 */
 	public static SettingsModelString createLabelModel() {
 		return new SettingsModelString("label_column_selection", "");
@@ -59,10 +59,24 @@ final class LAPTrackerSettingsModels {
 	/**
 	 * @return settings model to store the labeling attachment selection
 	 */
-	public static SettingsModelBoolean createAttachSourceLabelings() {
+	public static SettingsModelBoolean createAttachSourceLabelingsModel() {
 		return new SettingsModelBoolean("attach_original_labeling", false);
 	}
-	
+
+	/**
+	 * @return settings model to store the custom track label selection
+	 */
+	public static SettingsModelBoolean createUseCustomTrackPrefixModel() {
+		return new SettingsModelBoolean("use_custom_track_label", false);
+	}
+
+	/**
+	 * @return settings model to store the custom label for the tracks
+	 */
+	public static SettingsModelString createCustomTrackPrefixModel() {
+		return new SettingsModelString("custom_track_label", "Track: ");
+	}
+
 	/* TRACKMATE SETTING MODELS */
 
 	/**

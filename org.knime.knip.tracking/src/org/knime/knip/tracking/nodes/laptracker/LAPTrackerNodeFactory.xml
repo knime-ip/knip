@@ -66,6 +66,16 @@
 			<option name="Cutoff Percentile">Cut-Off Percentile (see http://fiji.sc/TrackMate
 				for details).
 			</option>
+			<option name="Attach Original Labelings"> Attaches the original labelings
+				to the tracks, so that each labeled pixel keeps his original labels.
+			</option>
+			<option name="Use a Custom Track Prefix"> If a custom prefix for the tracknames is used
+				instead of the default one "Track: ".
+			</option>
+			<option name="Custom Track Prefix">The prefix for the name of the tracks. If used
+				together with <b>Attach Original Labelings</b>, make sure to enter a name
+				that is not part of the name of any labeling.
+			</option>
 		</tab>
 	</fullDescription>
 
