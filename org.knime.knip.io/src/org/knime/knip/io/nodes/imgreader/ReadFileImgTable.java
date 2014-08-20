@@ -520,12 +520,12 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 			// necessary for the scifio readers to identify the right reader)
 			String file = url.getFile();
 			int idx = file.lastIndexOf(".");
-			String suffix = file.substring(idx,
-					Math.min(idx + 4, file.length() - 1));
+			String suffix = file.substring(idx, file.length());
 
 			// create tmp file and copy data from url
 			File tmpFile = FileUtil.createTempFile(
 					FileUtil.getValidFileName(url.toString(), -1), suffix);
+
 			FileUtils.copyURLToFile(url, tmpFile, CONNECTION_TIMEOUT,
 					READ_TIMEOUT);
 			return tmpFile.getAbsolutePath();
