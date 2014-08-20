@@ -508,6 +508,8 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 	private String downloadFileFromURL(String s) throws KNIPException {
 		// check if the given url really is an url
 		try {
+
+			s = s.replaceAll(" ", "%20");
 			URL url = new URL(s);
 
 			// special handling if its a file url (just return the actual
