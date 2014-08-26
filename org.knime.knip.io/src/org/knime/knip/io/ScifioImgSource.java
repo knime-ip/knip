@@ -423,8 +423,12 @@ public class ScifioImgSource implements ImgSource {
 			// parse the metadata
 			m_reader.closeNow();
 			m_reader.setSource(imgRef, m_scifioConfig);
+
 			final Parser p = m_reader.getFormat().createParser();
+
 			m_reader.setMetadata(p.parse(imgRef, m_scifioConfig));
+			m_reader.enable(PlaneSeparator.class).separate(
+					axesToSplit(m_reader));
 		}
 
 		// sets the file the reader currently points to
