@@ -100,7 +100,7 @@ public class LabelingViewExt0 implements Externalizer<Labeling> {
      */
     @Override
     public void write(final BufferedDataOutputStream out, final Labeling obj) throws Exception {
-        ExternalizerManager.write(out, obj.copy(), Labeling.class);
+        ExternalizerManager.write(out, obj, Labeling.class);
     }
 
 }

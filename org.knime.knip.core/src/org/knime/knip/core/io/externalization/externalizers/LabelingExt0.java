@@ -131,33 +131,37 @@ public class LabelingExt0 implements Externalizer<Labeling> {
                     new NativeImgLabeling<>(new ArrayImgFactory<UnsignedIntType>().create(dims, new UnsignedIntType()));
         }
 
+
         ObjectInputStream inStream = new ObjectInputStream(in);
         Cursor<LabelingType> cursor = labeling.cursor();
         Map<Integer, Comparable[]> lists = new HashMap<>();
 
-        while (cursor.hasNext()) {
-            cursor.fwd();
+        try {
+            while (cursor.hasNext()) {
+                cursor.fwd();
 
-            if (!inStream.readBoolean()) {
-                continue;
-            }
-
-            final int idx = inStream.readInt();
-            Comparable[] array = lists.get(idx);
-            if (array == null) {
-                Object[] objs = (Object[])inStream.readObject();
-                array = new Comparable[objs.length];
-
-                for (int k = 0; k < objs.length; k++) {
-                    array[k] = (Comparable)objs[k];
+                if (!inStream.readBoolean()) {
+                    continue;
                 }
 
-                lists.put(idx, array);
+                final int idx = inStream.readInt();
+                Comparable[] array = lists.get(idx);
+                if (array == null) {
+                    Object[] objs = (Object[])inStream.readObject();
+                    array = new Comparable[objs.length];
+
+                    for (int k = 0; k < objs.length; k++) {
+                        array[k] = (Comparable)objs[k];
+                    }
+
+                    lists.put(idx, array);
+                }
+                cursor.get().setLabeling(array);
             }
-            cursor.get().setLabeling(array);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        inStream.close();
 
         return labeling;
     }
@@ -199,9 +203,6 @@ public class LabelingExt0 implements Externalizer<Labeling> {
                 }
             }
         }
-
-        oos.flush();
-        oos.close();
     }
 
 }
