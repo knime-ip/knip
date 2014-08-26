@@ -55,7 +55,7 @@ import net.imglib2.type.numeric.RealType;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -71,7 +71,9 @@ public class ImgPlusFactory<T extends RealType<T>, V extends RealType<V>> implem
 
     @Override
     public ImgPlus<V> instantiate(final ImgPlus<T> a) {
-        return new ImgPlus<V>(ImgUtils.createEmptyCopy(a, m_outType), a);
+        final ImgPlus<V> emptyCopy = new ImgPlus<V>(ImgUtils.createEmptyCopy(a, m_outType), a);
+        emptyCopy.setSource(a.getSource());
+        return emptyCopy;
     }
 
     public static <T extends RealType<T>, V extends RealType<V>> ImgPlusFactory<T, V> get(final V outType) {
