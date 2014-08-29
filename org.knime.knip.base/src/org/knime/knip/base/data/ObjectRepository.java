@@ -22,13 +22,13 @@
 
 package org.knime.knip.base.data;
 
-import java.lang.ref.WeakReference;
-import java.util.HashMap;
+import java.lang.ref.SoftReference;
 
 import org.apache.commons.io.FileUtils;
 import org.knime.core.data.util.memory.MemoryReleasable;
 import org.knime.core.data.util.memory.MemoryWarningSystem;
 import org.knime.core.node.NodeLogger;
+import org.knime.knip.core.data.LRUCache;
 
 /**
  * Repository to manage arbitrary objects to cache them
@@ -42,8 +42,8 @@ public class ObjectRepository {
      * caches objects created by the cell factory to avoid redundant
      * deserializations of similiar cells
      */
-    private static final HashMap<Integer, WeakReference<Object>> CACHED_OBJECTS =
-            new HashMap<Integer, WeakReference<Object>>();
+    private final LRUCache<Integer, SoftReference<Object>> CACHED_OBJECTS =
+            new LRUCache<Integer, SoftReference<Object>>(5000);
 
     private static final NodeLogger LOGGER = NodeLogger.getLogger(ObjectRepository.class);
 
@@ -82,9 +82,10 @@ public class ObjectRepository {
     @SuppressWarnings("javadoc")
     public final void cacheObject(final Object obj) {
         synchronized (CACHED_OBJECTS) {
-            final WeakReference<Object> ref = new WeakReference<Object>(obj);
+            final SoftReference<Object> ref = new SoftReference<Object>(obj);
             CACHED_OBJECTS.put(obj.hashCode(), ref);
-            LOGGER.debug(CACHED_OBJECTS.size() + " objects cached.");
+            ref.get();
+            LOGGER.debug("Cached another object!");
         }
 
     }
@@ -97,7 +98,7 @@ public class ObjectRepository {
      * @return the cached object
      */
     public final Object getCachedObject(final Object obj) {
-        if (CACHED_OBJECTS.get(obj) != null) {
+        if (CACHED_OBJECTS.get(obj.hashCode()) != null) {
             return CACHED_OBJECTS.get(obj.hashCode()).get();
         } else {
             return null;

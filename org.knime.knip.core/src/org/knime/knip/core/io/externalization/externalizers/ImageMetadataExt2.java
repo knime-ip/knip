@@ -120,9 +120,7 @@ public class ImageMetadataExt2 implements Externalizer<ImageMetadata> {
                         final byte[][] ct8 = new byte[componentCount][length];
 
                         for (int c = 0; c < componentCount; c++) {
-                            for (int k = 0; k < length; k++) {
-                                ct8[c][k] = in.readByte();
-                            }
+                            in.read(ct8[c]);
                         }
 
                         obj.setColorTable(new ColorTable8(ct8), t);
@@ -131,29 +129,24 @@ public class ImageMetadataExt2 implements Externalizer<ImageMetadata> {
                         final short[][] ct16 = new short[componentCount][length];
 
                         for (int c = 0; c < componentCount; c++) {
-                            for (int k = 0; k < length; k++) {
-                                ct16[c][k] = in.readShort();
-                            }
+                            in.read(ct16[c]);
                         }
 
                         obj.setColorTable(new ColorTable16(ct16), t);
                         break;
                     default:
                         throw new IllegalArgumentException(
-                                "Fatal error! Unknown ColorTable in ImageMetadataExt1.java! Please contact Administrators!");
+                                "Fatal error! Unknown ColorTable in ImageMetadataExt2.java! Please contact Administrators!");
                 }
 
             }
         }
 
         int numObjects = in.readInt();
-
         final ObjectInputStream ois = new ObjectInputStream(in);
         for (int n = 0; n < numObjects; n++) {
-            obj.getProperties().put(ois.readUTF(), ois.readObject());
+            obj.getProperties().put((String)ois.readObject(), ois.readObject());
         }
-
-        ois.close();
 
         return obj;
     }
@@ -183,35 +176,34 @@ public class ImageMetadataExt2 implements Externalizer<ImageMetadata> {
             out.writeBoolean(table != null);
 
             if (table != null) {
-
                 out.writeInt(table.getComponentCount());
                 out.writeInt(table.getLength());
                 if (table instanceof ColorTable8) {
                     out.writeInt(ColorTables.ColorTable8.ordinal());
-                    for (int c = 0; c < table.getComponentCount(); c++) {
-                        for (int k = 0; k < table.getLength(); k++) {
-                            out.writeByte(((ColorTable8)table).getNative(c, k));
-                        }
+
+                    byte[][] values = ((ColorTable8)table).getValues();
+
+                    for (int s = 0; s < values.length; s++) {
+                        out.write(values[s]);
                     }
                 } else if (table instanceof ColorTable16) {
                     out.writeInt(ColorTables.ColorTable16.ordinal());
-                    for (int c = 0; c < table.getComponentCount(); c++) {
-                        for (int k = 0; k < table.getLength(); k++) {
-                            out.writeShort(((ColorTable16)table).getNative(c, k));
-                        }
+
+                    short[][] values = ((ColorTable16)table).getValues();
+
+                    for (int s = 0; s < values.length; s++) {
+                        out.write(values[s]);
                     }
                 }
             }
         }
 
-        out.write(obj.getProperties().size());
+        out.writeInt(obj.getProperties().size());
 
         final ObjectOutputStream oos = new ObjectOutputStream(out);
         for (Entry<String, Object> entry : obj.getProperties().entrySet()) {
-            oos.writeChars(entry.getKey());
+            oos.writeObject(entry.getKey());
             oos.writeObject(entry.getValue());
         }
-
-        oos.close();
     }
 }

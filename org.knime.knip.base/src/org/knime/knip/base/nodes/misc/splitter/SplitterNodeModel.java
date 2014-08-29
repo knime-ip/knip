@@ -229,19 +229,27 @@ public class SplitterNodeModel<T extends RealType<T>> extends NodeModel implemen
                 }
 
             } else {
+
                 final TypedAxis[] tmpAxes = new TypedAxis[tmp.length];
-                for (int d = 0; d < axes.length; d++) {
-                    tmpAxes[d] = ((ImgPlusValue)row.getCell(m_colIndex)).getMetadata().axis(d);
-                }
+                ImgPlusMetadata metadata = ((ImgPlusValue)row.getCell(m_colIndex)).getMetadata();
 
                 boolean equalAxes = true;
-                if (tmpAxes.length != axes.length) {
+
+                if (axes.length != metadata.numDimensions()) {
                     equalAxes = false;
                 } else {
-                    for (int i = 0; i < tmpAxes.length; i++) {
-                        if (!tmpAxes[i].type().getLabel().equals(axes[i].type().getLabel())) {
-                            equalAxes = false;
-                            break;
+                    for (int d = 0; d < axes.length; d++) {
+                        tmpAxes[d] = metadata.axis(d);
+                    }
+
+                    if (tmpAxes.length != axes.length) {
+                        equalAxes = false;
+                    } else {
+                        for (int i = 0; i < tmpAxes.length; i++) {
+                            if (!tmpAxes[i].type().getLabel().equals(axes[i].type().getLabel())) {
+                                equalAxes = false;
+                                break;
+                            }
                         }
                     }
                 }
