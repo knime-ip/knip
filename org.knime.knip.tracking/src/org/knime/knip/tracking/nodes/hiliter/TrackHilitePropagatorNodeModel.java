@@ -46,7 +46,7 @@ import org.knime.knip.core.util.EnumUtils;
 public class TrackHilitePropagatorNodeModel extends NodeModel implements
         HiLiteListener {
 
-    private static final String SERIALISATION_KEY = "statefile";
+    private static final String SERIALISATION_KEY = "TrackHilitePropagatorState";
 
     /*
      * SETTING MODELS
@@ -160,9 +160,13 @@ public class TrackHilitePropagatorNodeModel extends NodeModel implements
                 .getLabeling();
         final LabelingMapping<?> mapping = labeling.getMapping();
 
-        final String trackPrefix = m_useCustomTrackPrefixModel
-                .getBooleanValue() ? m_customTrackPrefixModel.getStringValue()
-                : TrackHilitePropagatorSettingsModels.DEFAULT_TRACK_PREFIX;
+        final String trackPrefix;
+        if (m_useCustomTrackPrefixModel.getBooleanValue()) {
+            // ignoring leading and trailing whitespace for matching
+            trackPrefix = m_customTrackPrefixModel.getStringValue().trim();
+        } else {
+            trackPrefix = TrackHilitePropagatorSettingsModels.DEFAULT_TRACK_PREFIX;
+        }
 
         m_labelToTrack = new HashMap<String, String>();
         m_trackToLabels = new HashMap<String, List<String>>();
@@ -182,7 +186,7 @@ public class TrackHilitePropagatorNodeModel extends NodeModel implements
             String track = "";
             final ArrayList<String> otherLabels = new ArrayList<String>();
             for (final String label : localLabels) {
-                if (label.contains(trackPrefix)) {
+                if (label.startsWith(trackPrefix)) {
                     track = label;
                 } else {
                     otherLabels.add(label);
@@ -248,7 +252,6 @@ public class TrackHilitePropagatorNodeModel extends NodeModel implements
     protected void saveSettingsTo(final NodeSettingsWO settings) {
         m_trackColumnModel.saveSettingsTo(settings);
         m_customTrackPrefixModel.saveSettingsTo(settings);
-        m_useCustomTrackPrefixModel.saveSettingsTo(settings);
         m_trackHilitingModeModel.saveSettingsTo(settings);
     }
 
@@ -355,6 +358,9 @@ public class TrackHilitePropagatorNodeModel extends NodeModel implements
 
     private RowKey[] trackToPoints(final KeyEvent event) {
         final Set<String> tracksToHilite = new HashSet<String>();
+        final String trackPrefix = m_useCustomTrackPrefixModel
+                .getBooleanValue() ? m_customTrackPrefixModel.getStringValue()
+                : TrackHilitePropagatorSettingsModels.DEFAULT_TRACK_PREFIX;
 
         for (final RowKey k : event.keys()) {
 
@@ -364,7 +370,7 @@ public class TrackHilitePropagatorNodeModel extends NodeModel implements
                     .substring(rowKey.lastIndexOf('#') + 1);
 
             // only select rows that are tracks
-            if (lookUpkey.contains(m_customTrackPrefixModel.getStringValue())) {
+            if (lookUpkey.startsWith(trackPrefix)) {
                 tracksToHilite.add(lookUpkey);
             } else {
                 continue;
@@ -400,7 +406,7 @@ public class TrackHilitePropagatorNodeModel extends NodeModel implements
             final String lookUpkey = rowKey
                     .substring(rowKey.lastIndexOf('#') + 1);
 
-            if (lookUpkey.contains(trackPrefix)) {
+            if (lookUpkey.startsWith(trackPrefix)) {
                 tracksToHilite.add(lookUpkey);
             } else {
                 final String value = m_labelToTrack.get(lookUpkey);

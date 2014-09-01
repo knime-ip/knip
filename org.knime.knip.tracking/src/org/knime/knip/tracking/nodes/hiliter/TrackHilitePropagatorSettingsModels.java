@@ -14,7 +14,7 @@ import org.knime.knip.tracking.nodes.hiliter.TrackHilitePropagatorNodeModel.Trac
  *
  */
 final class TrackHilitePropagatorSettingsModels {
-    public static final String DEFAULT_TRACK_PREFIX = "Track: ";
+    public static final String DEFAULT_TRACK_PREFIX = "Track:";
 
     private TrackHilitePropagatorSettingsModels() {
         // prevent instatiation
