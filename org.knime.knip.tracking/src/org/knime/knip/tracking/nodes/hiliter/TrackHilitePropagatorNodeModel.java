@@ -116,7 +116,7 @@ public class TrackHilitePropagatorNodeModel extends NodeModel implements
      * Constructor.
      */
     protected TrackHilitePropagatorNodeModel() {
-        super(1, 0);
+        super(1, 1);
 
         // for state consistency
         m_customTrackPrefixModel.setEnabled(false);
@@ -207,8 +207,7 @@ public class TrackHilitePropagatorNodeModel extends NodeModel implements
             }
             exec.checkCanceled();
         }
-        // there is not output so this is safe.
-        return null;
+        return inData;
     }
 
     /*
