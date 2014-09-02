@@ -50,6 +50,9 @@ package org.knime.knip.base.nodes.proc;
 
 import java.util.List;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.img.unary.ImgRotate2D;
@@ -104,6 +107,14 @@ public class Rotation2DNodeFactory<T extends RealType<T>> extends ValueToCellNod
         return new SettingsModelBoolean("keep_size", true);
     }
 
+    private static SettingsModelBoolean createUseManualModel() {
+        return new SettingsModelBoolean("background_mode_model", false);
+    }
+
+    private static SettingsModelDouble createBackgroundValueModel() {
+        return new SettingsModelDouble("background_value", 0.0);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -113,6 +124,12 @@ public class Rotation2DNodeFactory<T extends RealType<T>> extends ValueToCellNod
 
             @Override
             public void addDialogComponents() {
+                final DialogComponentNumber manualNumber =
+                        new DialogComponentNumber(createBackgroundValueModel(), "Manual Value", 1);
+
+                final DialogComponentBoolean useManualValue =
+                        new DialogComponentBoolean(createUseManualModel(), "Use Manual Value?");
+
                 addDialogComponent("Options", "", new DialogComponentNumber(createAngleModel(), "Angle", .01));
                 addDialogComponent("Options", "", new DialogComponentDimSelection(createDimSelectionModel(),
                         "Rotation dimensions", 2, 2));
@@ -120,6 +137,17 @@ public class Rotation2DNodeFactory<T extends RealType<T>> extends ValueToCellNod
                 addDialogComponent("Options", "", new DialogComponentNumber(createCenterDim1Model(), "Center Dim 1", 1));
                 addDialogComponent("Options", "", new DialogComponentNumber(createCenterDim2Model(), "Center Dim 2", 1));
 
+                addDialogComponent("Options", "Background", useManualValue);
+                addDialogComponent("Options", "Background", manualNumber);
+
+                useManualValue.getModel().addChangeListener(new ChangeListener() {
+
+                    @Override
+                    public void stateChanged(final ChangeEvent arg0) {
+                        manualNumber.getModel().setEnabled(((SettingsModelBoolean)useManualValue.getModel())
+                                                                   .getBooleanValue());
+                    }
+                });
             }
 
             /**
@@ -147,9 +175,17 @@ public class Rotation2DNodeFactory<T extends RealType<T>> extends ValueToCellNod
 
             private final SettingsModelDimSelection m_dimSelection = createDimSelectionModel();
 
+            private final SettingsModelBoolean m_keepSize = createKeepSizeModel();
+
+            private final SettingsModelDouble m_backgroundValue = createBackgroundValueModel();
+
+            private final SettingsModelBoolean m_useManualValue = createUseManualModel();
+
             private ImgPlusCellFactory m_imgCellFactory;
 
-            private final SettingsModelBoolean m_keepSize = createKeepSizeModel();
+            {
+                m_backgroundValue.setEnabled(m_useManualValue.getBooleanValue());
+            }
 
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
@@ -158,6 +194,8 @@ public class Rotation2DNodeFactory<T extends RealType<T>> extends ValueToCellNod
                 settingsModels.add(m_keepSize);
                 settingsModels.add(m_centerDim1);
                 settingsModels.add(m_centerDim2);
+                settingsModels.add(m_backgroundValue);
+                settingsModels.add(m_useManualValue);
             }
 
             @Override
@@ -177,7 +215,12 @@ public class Rotation2DNodeFactory<T extends RealType<T>> extends ValueToCellNod
 
                 }
 
-                final T min = new Min<T, T>().compute(srcImg.cursor(), srcImg.firstElement().createVariable());
+                T min = srcImg.firstElement().createVariable();
+                if (!m_useManualValue.getBooleanValue()) {
+                    new Min<T, T>().compute(srcImg.cursor(), min);
+                } else {
+                    min.setReal(m_backgroundValue.getDoubleValue());
+                }
                 final ImgRotate2D<T> rot =
                         new ImgRotate2D<T>(m_angle.getDoubleValue(), dimIndices[0], dimIndices[1],
                                 m_keepSize.getBooleanValue(), min, center);
@@ -194,5 +237,4 @@ public class Rotation2DNodeFactory<T extends RealType<T>> extends ValueToCellNod
             }
         };
     }
-
 }

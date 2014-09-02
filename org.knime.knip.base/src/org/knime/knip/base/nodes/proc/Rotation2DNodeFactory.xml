@@ -17,10 +17,10 @@
 		<tab name="Options">
 			<option name="Angle">
 				The rotation angle (radian).
-		</option>
+			</option>
 			<option name="Rotations dimensions">
 				The to dimensions to be rotated.
-		</option>
+			</option>
 			<option name="Keep size">Whether the resulting image should have same size
 				as the source image (some image parts might be cut) or should be
 				resized.</option>
@@ -28,11 +28,23 @@
 				image center will be used.</option>
 			<option name="Center Dim 2">The center of the second dimension, if -1, the
 				image center will be used.</option>
-			<option name="Out of Bounds Strategy">The 'OutOfBounds Strategy' is used when 
-			an algorithm needs access to pixels which lie outside of an image 
-			(for example convolutions). The strategy determines how an image is extended, 
-			for examples see <a href='http://fiji.sc/ImgLib2_Examples#Example_5_-_Out_of_bounds'>Fiji Wiki</a></option>
-				
+			<option name="Out of Bounds Strategy">
+				The 'OutOfBounds Strategy' is used when
+				an algorithm needs access to
+				pixels which lie outside of an image
+				(for example convolutions). The
+				strategy determines how an image is
+				extended,
+				for examples see
+				<a href='http://fiji.sc/ImgLib2_Examples#Example_5_-_Out_of_bounds'>Fiji Wiki</a>
+			</option>
+
+			<option name="Use Manual Value?">If checked, the value below will be used for
+				undefined background pixels.</option>
+
+			<option name="Manual Background Value">Value which will be used as background value for
+				undefined pixels.</option>
+
 		</tab>
 
 	</fullDescription>
