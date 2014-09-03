@@ -217,7 +217,7 @@ public class MiscViews {
             }
         }
 
-        return Views.interval(res, target);
+        return Views.interval(resRndAccessible, target);
     }
 
     /**
