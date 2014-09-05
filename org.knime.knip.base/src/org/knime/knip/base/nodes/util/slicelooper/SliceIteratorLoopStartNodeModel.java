@@ -181,6 +181,8 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
 
     private BufferedDataTable m_data;
 
+    private boolean m_firstIsLabeling;
+
     /**
      * Node logger
      */
@@ -274,6 +276,9 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
                     if (m_imgPlusCellFactory == null) {
                         m_imgPlusCellFactory = new ImgPlusCellFactory(exec);
                     }
+                    if (j == 0) {
+                        m_firstIsLabeling = false;
+                    }
                 }
                 // this column contains labelings
                 else if (colType.isCompatible(LabelingValue.class)) {
@@ -286,6 +291,9 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
                     }
                     // negativ index mark column has labeling
                     j *= -1;
+                    if (j == 0) {
+                        m_firstIsLabeling = true;
+                    }
                 }
 
                 // first column, store value and axes as reference for slice node end
@@ -321,7 +329,7 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
                 int idx = m_colIndices.get(j);
 
                 // idx is negative, we have a labeling
-                if (Math.signum(idx) < 0) {
+                if (Math.signum(idx) < 0 || (idx == 0 && m_firstIsLabeling)) {
                     @SuppressWarnings("unchecked")
                     final LabelingValue<L> value = ((LabelingValue<L>)m_currentRow.getCell(idx * -1));
                     final Labeling<L> labeling = value.getLabeling();
