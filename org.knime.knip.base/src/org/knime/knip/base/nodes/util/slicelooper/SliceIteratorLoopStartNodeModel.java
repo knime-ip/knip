@@ -137,7 +137,7 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
     /**
      * Current intervals
      */
-    private Interval[] m_intervals;
+    private Interval[] m_refIntervals;
 
     /**
      * is one row terminated
@@ -241,6 +241,7 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
             final BufferedDataTable inTable = inData[0];
             // get iterator
             m_iterator = inTable.iterator();
+
             // get the first row of the iterator
             if (m_iterator.hasNext()) {
                 m_currentRow = m_iterator.next();
@@ -292,7 +293,13 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
                 if (value != null && m_colIndices.size() == 0) {
                     m_refValue = value;
                     m_refSpace = axes;
-                    m_intervals = m_dimSelection.getIntervals(axes, value);
+                    m_refIntervals = m_dimSelection.getIntervals(axes, value);
+                }
+
+                // check if iteration dimension of all columns are of same length!
+                Interval[] currIntervall = m_dimSelection.getIntervals(axes, value);
+                if (m_refIntervals.length != currIntervall.length) {
+                    throw new IllegalArgumentException("Iteration dimension must be of same length in all columns!");
                 }
 
                 // we do nothing but warn
@@ -312,12 +319,13 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
         final BufferedDataContainer container = exec.createDataContainer(outSpec);
 
         // create view with slices, depending on chunk size
-        for (int i = m_currIdx; i < (Math.min(m_currIdx + 1, m_intervals.length)); i++) {
+        for (int i = m_currIdx; i < (Math.min(m_currIdx + 1, m_refIntervals.length)); i++) {
 
             final DataCell[] cells = new DataCell[m_colIndices.size()];
 
             for (int j = 0; j < cells.length; j++) {
-                final Interval currInterval = m_intervals[i];
+
+                final Interval currInterval = m_refIntervals[i];
                 int idx = m_colIndices.get(j);
 
                 // idx is negative, we have a labeling
@@ -365,9 +373,9 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
             pushFlowVariableInt("Slice", i);
         }
 
-        m_currIdx = (Math.min(m_currIdx + 1, m_intervals.length));
+        m_currIdx = (Math.min(m_currIdx + 1, m_refIntervals.length));
         // are we finished?
-        if (m_currIdx >= m_intervals.length) {
+        if (m_currIdx >= m_refIntervals.length) {
             isRowTerminated = true;
             areAllRowsTerminated = !m_iterator.hasNext();
 
@@ -389,7 +397,7 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
     @Override
     protected void reset() {
         m_currIdx = 0;
-        m_intervals = null;
+        m_refIntervals = null;
         isRowTerminated = false;
         areAllRowsTerminated = false;
         m_iterator = null;
@@ -455,7 +463,7 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
      * @return reference interval
      */
     public Interval[] getRefIntervals() {
-        return m_intervals;
+        return m_refIntervals;
     }
 
     /**
