@@ -9,6 +9,12 @@
               factory-class="org.knime.knip.tracking.nodes.laptracker.LAPTrackerNodeFactory"
               id="org.knime.knip.ext.trackmate.nodes.tracker.LAPTrackerNodeFactory">
         </node>
+        <node
+              category-path="/community/knip/tracking"
+              expert-flag="false"
+              factory-class="org.knime.knip.tracking.nodes.hiliter.TrackHilitePropagatorNodeFactory"
+              id="org.knime.knip.ext.trackmate.nodes.tracker.TrackHilitePropagatorNodeFactory">
+        </node>
      </extension>
      <extension
            point="org.knime.workbench.repository.categories">
