@@ -182,6 +182,9 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
 
     private BufferedDataTable m_data;
 
+    /**
+     * store all intervals
+     */
     private Map<Integer,Interval[]> m_allIntervals;
 
     private Map<Integer, Interval> m_allRefValues;
@@ -235,12 +238,12 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
             m_allIntervals = new HashMap<Integer, Interval[]>();
         }
 
-        if (m_allRefSpaces == null) {
-            m_allRefSpaces = new HashMap<Integer, CalibratedSpace<CalibratedAxis>>();
-        }
-
         if (m_allRefValues == null) {
             m_allRefValues = new HashMap<Integer, Interval>();
+        }
+
+        if (m_allRefSpaces == null) {
+            m_allRefSpaces = new HashMap<Integer, CalibratedSpace<CalibratedAxis>>();
         }
 
         // check input spec
@@ -277,6 +280,7 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
             // we do not have a reference value yet
             m_refValue = null;
 
+            int count = 0;
             // loop over all selected and valied cloumns
             for (int j : SliceIteratorUtils.getSelectedAndValidIdx(inSpec, m_columns, LOGGER)) {
                 final DataColumnSpec colSpec = inSpec.getColumnSpec(j);
@@ -316,13 +320,15 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
                     m_refIntervals = m_dimSelection.getIntervals(axes, value);
                 }
 
-                // store all values, axes and interval
-                m_allIntervals.put(Math.abs(j),m_dimSelection.getIntervals(axes, value));
-                m_allRefValues.put(Math.abs(j),value);
-                m_allRefSpaces.put(Math.abs(j),axes);
-
                 // check if iteration dimension of all columns are of same length!
                 Interval[] currIntervall = m_dimSelection.getIntervals(axes, value);
+
+                // store intervals of each valid column
+                m_allIntervals.put(count, currIntervall);
+                m_allRefValues.put(count, value);
+                m_allRefSpaces.put(count, axes);
+                count++;
+
                 if (m_refIntervals.length != currIntervall.length) {
                     throw new IllegalArgumentException("Iteration dimension must be of same length in all columns!");
                 }
@@ -351,7 +357,7 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
             for (int j = 0; j < cells.length; j++) {
 
                 //final Interval currInterval = m_refIntervals[i];
-                final Interval currInterval = m_allIntervals.get(j)[i];
+                Interval currInterval = m_allIntervals.get(j)[i];//m_allIntervals.get(j)[i];
                 int idx = m_colIndices.get(j);
 
                 // idx is negative, we have a labeling
@@ -360,6 +366,7 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
                     final LabelingValue<L> value = ((LabelingValue<L>)m_currentRow.getCell(idx * -1));
                     final Labeling<L> labeling = value.getLabeling();
                     final LabelingMetadata inMetadata = value.getLabelingMetadata();
+
 
                     final Labeling<L> outLabeling =
                             SliceIteratorUtils.getLabelingAsView(labeling, currInterval, labeling.<L> factory());
@@ -432,6 +439,9 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
         m_labelingCellFactory = null;
         m_refSpace = null;
         m_refValue = null;
+        m_allIntervals = null;
+        m_allRefSpaces = null;
+        m_allRefValues = null;
     }
 
     /**
@@ -484,25 +494,20 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
         m_columns.loadSettingsFrom(settings);
     }
 
-    /**
-     *
-     * @return reference interval
-     */
-    public Interval[] getRefIntervals() {
-        return m_refIntervals;
-    }
 
     /**
-     * @return all Intervals
-     */
-    public Map<Integer, Interval[]> getAllIntervals() {
-        return m_allIntervals;
-    }
+    *
+    * @return reference interval
+    */
+   public Map<Integer, CalibratedSpace<CalibratedAxis>> getRefSpaces() {
+       return m_allRefSpaces;
+   }
 
     /**
      * @return dimension of the result image in slice loop end node
      */
     long[] getResDimensions(final Interval resInterval, final int k) {
+        //long[] dims = new long[m_refValue.numDimensions()];
         long[] dims = new long[m_allRefValues.get(k).numDimensions()];
         m_allRefValues.get(k).dimensions(dims);
 
@@ -516,13 +521,7 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
         return dims;
     }
 
-    /**
-     *
-     * @return reference calibrated space
-     */
-    CalibratedSpace<CalibratedAxis> getRefSpace() {
-        return m_refSpace;
-    }
+
 
     /**
      * {@inheritDoc}
@@ -573,6 +572,13 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
         }
 
         return colIdx;
+    }
+
+    /**
+     * @return all intervals
+     */
+    public Map<Integer, Interval[]> getAllRefIntervals() {
+        return m_allIntervals;
     }
 
     /* Helper to collect all columns of the given type. */

@@ -229,6 +229,7 @@ public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>
             // store all cells of this row
             final DataCell[] outCells = new DataCell[outSpec.getNumColumns()];
 
+            int count = 0;
             // get all valid columns
             for (final int j : SliceIteratorUtils.getSelectedAndValidIdx(inSpec, null, LOGGER)) {
 
@@ -236,7 +237,7 @@ public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>
                 final DataValue firstValue = m_cells.get(j).get(0);
 
                 // get the reference interval for image merging
-                final Interval[] refIntervals = loopStartNode.getAllIntervals().get(j);//loopStartNode.getRefIntervals();
+                final Interval[] refIntervals = loopStartNode.getAllRefIntervals().get(count);//loopStartNode.getRefIntervals();
 
                 // we have an image
                 if (firstValue instanceof ImgPlusValue) {
@@ -249,7 +250,7 @@ public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>
 
                     // create new output image
                     final Img<T> res =
-                            fac.create(loopStartNode.getResDimensions(firstImgValue.getImgPlus(),j), firstImgValue
+                            fac.create(loopStartNode.getResDimensions(firstImgValue.getImgPlus(),count), firstImgValue
                                     .getImgPlus().firstElement().createVariable());
 
                     // copy all image slices in new created output image
@@ -269,7 +270,7 @@ public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>
                     MetadataUtil.copySource(firstImgValue.getMetadata(), outMetadata);
 
                     // copy calibrated space
-                    CalibratedSpace<CalibratedAxis> space = loopStartNode.getRefSpace();
+                    CalibratedSpace<CalibratedAxis> space = loopStartNode.getRefSpaces().get(count);
                     MetadataUtil.copyTypedSpace(space, outMetadata);
 
                     // store created cell
@@ -286,7 +287,7 @@ public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>
 
                     // create new labeling
                     final Labeling<L> res =
-                            fac.create(loopStartNode.getResDimensions(firstLabelingValue.getLabeling(),j));
+                            fac.create(loopStartNode.getResDimensions(firstLabelingValue.getLabeling(),count));
 
                     // copy all labeling slices in new created labeling
                     int i = 0;
@@ -304,12 +305,13 @@ public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>
                     MetadataUtil.copyName(firstLabelingValue.getLabelingMetadata(), outMetadata);
                     MetadataUtil.copySource(firstLabelingValue.getLabelingMetadata(), outMetadata);
 
-                    CalibratedSpace<CalibratedAxis> space = loopStartNode.getRefSpace();
+                    CalibratedSpace<CalibratedAxis> space = loopStartNode.getRefSpaces().get(count);
                     MetadataUtil.copyTypedSpace(space, outMetadata);
 
                     // store created cell
                     outCells[j] = m_labelingCellFactory.createCell(res, outMetadata);
                 }
+                count++;
             }
 
             // clear all cells
