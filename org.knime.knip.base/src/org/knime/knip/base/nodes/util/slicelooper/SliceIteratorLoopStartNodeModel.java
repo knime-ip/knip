@@ -51,7 +51,9 @@ package org.knime.knip.base.nodes.util.slicelooper;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.imglib2.Interval;
 import net.imglib2.img.Img;
@@ -63,7 +65,6 @@ import net.imglib2.meta.ImgPlusMetadata;
 import net.imglib2.meta.MetadataUtil;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.util.Intervals;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
@@ -181,6 +182,13 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
 
     private BufferedDataTable m_data;
 
+    private Map<Integer,Interval[]> m_allIntervals;
+
+    private Map<Integer, Interval> m_allRefValues;
+
+    private Map<Integer, CalibratedSpace<CalibratedAxis>> m_allRefSpaces;
+
+
     /**
      * Node logger
      */
@@ -222,6 +230,18 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
     @Override
     protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
             throws Exception {
+
+        if (m_allIntervals == null) {
+            m_allIntervals = new HashMap<Integer, Interval[]>();
+        }
+
+        if (m_allRefSpaces == null) {
+            m_allRefSpaces = new HashMap<Integer, CalibratedSpace<CalibratedAxis>>();
+        }
+
+        if (m_allRefValues == null) {
+            m_allRefValues = new HashMap<Integer, Interval>();
+        }
 
         // check input spec
         final DataTableSpec inSpec = inData[0].getSpec();
@@ -296,6 +316,11 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
                     m_refIntervals = m_dimSelection.getIntervals(axes, value);
                 }
 
+                // store all values, axes and interval
+                m_allIntervals.put(Math.abs(j),m_dimSelection.getIntervals(axes, value));
+                m_allRefValues.put(Math.abs(j),value);
+                m_allRefSpaces.put(Math.abs(j),axes);
+
                 // check if iteration dimension of all columns are of same length!
                 Interval[] currIntervall = m_dimSelection.getIntervals(axes, value);
                 if (m_refIntervals.length != currIntervall.length) {
@@ -303,11 +328,11 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
                 }
 
                 // we do nothing but warn
-                if (m_refValue != null && !Intervals.equalDimensions(m_refValue, value)) {
-                    value = null;
-                    LOGGER.warn("We ignored img/labeling in column " + j
-                            + " as the dimensions are to compatible to a previously discovered img/labeling");
-                }
+//                if (m_refValue != null && !Intervals.equalDimensions(m_refValue, value)) {
+//                    value = null;
+//                    LOGGER.warn("We ignored img/labeling in column " + j
+//                            + " as the dimensions are to compatible to a previously discovered img/labeling");
+//                }
 
                 if (value != null) {
                     m_colIndices.add(j);
@@ -325,7 +350,8 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
 
             for (int j = 0; j < cells.length; j++) {
 
-                final Interval currInterval = m_refIntervals[i];
+                //final Interval currInterval = m_refIntervals[i];
+                final Interval currInterval = m_allIntervals.get(j)[i];
                 int idx = m_colIndices.get(j);
 
                 // idx is negative, we have a labeling
@@ -467,13 +493,20 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
     }
 
     /**
+     * @return all Intervals
+     */
+    public Map<Integer, Interval[]> getAllIntervals() {
+        return m_allIntervals;
+    }
+
+    /**
      * @return dimension of the result image in slice loop end node
      */
-    long[] getResDimensions(final Interval resInterval) {
-        long[] dims = new long[m_refValue.numDimensions()];
-        m_refValue.dimensions(dims);
+    long[] getResDimensions(final Interval resInterval, final int k) {
+        long[] dims = new long[m_allRefValues.get(k).numDimensions()];
+        m_allRefValues.get(k).dimensions(dims);
 
-        int[] selectedDimIndices = m_dimSelection.getSelectedDimIndices(m_refSpace);
+        int[] selectedDimIndices = m_dimSelection.getSelectedDimIndices(m_allRefSpaces.get(k));
 
         int i = 0;
         for (final int j : selectedDimIndices) {

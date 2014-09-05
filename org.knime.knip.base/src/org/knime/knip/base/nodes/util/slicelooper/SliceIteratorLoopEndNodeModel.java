@@ -236,7 +236,7 @@ public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>
                 final DataValue firstValue = m_cells.get(j).get(0);
 
                 // get the reference interval for image merging
-                final Interval[] refIntervals = loopStartNode.getRefIntervals();
+                final Interval[] refIntervals = loopStartNode.getAllIntervals().get(j);//loopStartNode.getRefIntervals();
 
                 // we have an image
                 if (firstValue instanceof ImgPlusValue) {
@@ -249,7 +249,7 @@ public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>
 
                     // create new output image
                     final Img<T> res =
-                            fac.create(loopStartNode.getResDimensions(firstImgValue.getImgPlus()), firstImgValue
+                            fac.create(loopStartNode.getResDimensions(firstImgValue.getImgPlus(),j), firstImgValue
                                     .getImgPlus().firstElement().createVariable());
 
                     // copy all image slices in new created output image
@@ -286,7 +286,7 @@ public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>
 
                     // create new labeling
                     final Labeling<L> res =
-                            fac.create(loopStartNode.getResDimensions(firstLabelingValue.getLabeling()));
+                            fac.create(loopStartNode.getResDimensions(firstLabelingValue.getLabeling(),j));
 
                     // copy all labeling slices in new created labeling
                     int i = 0;
