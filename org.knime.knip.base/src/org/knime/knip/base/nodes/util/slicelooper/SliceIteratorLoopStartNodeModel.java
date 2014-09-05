@@ -245,6 +245,12 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
             if (m_iterator.hasNext()) {
                 m_currentRow = m_iterator.next();
             }
+            // there is no input, so just return nothing.
+            else {
+                isRowTerminated = true;
+                areAllRowsTerminated = true;
+                return inData;
+            }
         }
 
         // loop over all columns, init intervals and check compatibility
@@ -256,8 +262,16 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
             // we do not have a reference value yet
             m_refValue = null;
 
+            // get all valid columns
+            Integer[] validIdx = SliceIteratorUtils.getSelectedAndValidIdx(inSpec, m_columns, LOGGER);
+
+            // there are nor valid columns, so just stop here
+            if (validIdx.length == 0) {
+                throw new IllegalArgumentException("No valid columns available! (At least one image or labeling is required)");
+            }
+
             // loop over all selected and valied cloumns
-            for (int j : SliceIteratorUtils.getSelectedAndValidIdx(inSpec, m_columns, LOGGER)) {
+            for (int j : validIdx) {
                 final DataColumnSpec colSpec = inSpec.getColumnSpec(j);
                 final DataType colType = colSpec.getType();
 
