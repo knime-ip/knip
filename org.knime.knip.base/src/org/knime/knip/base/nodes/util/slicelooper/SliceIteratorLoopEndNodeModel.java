@@ -203,6 +203,12 @@ public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>
             m_cells = new HashMap<Integer, ArrayList<DataValue>>();
         }
 
+        // check if intable is not empty,
+        // if it is empty we are finished here
+        if (!m_iterator.hasNext()) {
+            return inData;
+        }
+
         // loop over iterator
         while (m_iterator.hasNext()) {
             // get next row
