@@ -194,6 +194,7 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
     @Override
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
         getSelectedColumnIndices(inSpecs[0]);
+        pushFlowVariableInt("Slice", 0);
         return new DataTableSpec[]{SliceIteratorUtils.createResSpec(inSpecs[0], m_columns, LOGGER)};
     }
 
