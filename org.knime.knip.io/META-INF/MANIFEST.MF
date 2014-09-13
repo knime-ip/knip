@@ -95,5 +95,6 @@ Export-Package: loci.common,
  org.knime.knip.io.nodes.annotation,
  org.knime.knip.io.nodes.annotation.create,
  org.knime.knip.io.nodes.imgreader,
+ org.knime.knip.io.nodes.imgwriter,
  org.scijava.nativelib
 
