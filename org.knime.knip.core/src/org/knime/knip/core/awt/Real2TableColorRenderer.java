@@ -83,21 +83,39 @@ public class Real2TableColorRenderer<R extends RealType<R>> extends ProjectingRe
     // default
     private RealTableColorARGBConverter<R> m_converter;
 
-    private final int m_colorDim;
-
     private ColorTable[] m_colorTables;
 
-    public Real2TableColorRenderer(final int colorDim) {
-        m_colorDim = colorDim;
+    public Real2TableColorRenderer() {
         m_converter = new RealTableColorARGBConverter<R>(1.0, 0.0);
     }
 
     @Override
     public AWTScreenImage render(final RandomAccessibleInterval<R> source, final int dimX, final int dimY,
-                              final long[] planePos) {
+                                 final long[] planePos) {
 
+        long i = 0;
+        if (source.numDimensions() > 2) {
+
+            int maxDim = source.numDimensions() - 1;
+
+            for (int j = maxDim; j >=0; --j) {
+                if (j != dimX && j != dimY) {
+                    maxDim = j;
+                    break;
+                }
+            }
+            i = planePos[maxDim];
+            for (int d = maxDim - 1; d >= 0; --d) {
+                if (d == dimX || d == dimY) {
+                    continue;
+                }
+                i = i * source.dimension(d) + planePos[d];
+            }
+        } else {
+            i = 0;
+        }
         // default implementation
-        final ColorTable ct = m_colorTables[(int)planePos[m_colorDim]];
+        final ColorTable ct = m_colorTables[(int)i];
 
         if (ct instanceof ColorTable8) {
             m_converter.setColorTable((ColorTable8)ct);
@@ -119,7 +137,7 @@ public class Real2TableColorRenderer<R extends RealType<R>> extends ProjectingRe
 
     @Override
     public String toString() {
-        return "ColorTable based Image Renderer (dim:" + m_colorDim + ")";
+        return "ColorTable based Image Renderer";
     }
 
     @Override

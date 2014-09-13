@@ -51,7 +51,9 @@ package org.knime.knip.base.nodes.util.slicelooper;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.imglib2.Interval;
 import net.imglib2.img.Img;
@@ -63,7 +65,6 @@ import net.imglib2.meta.ImgPlusMetadata;
 import net.imglib2.meta.MetadataUtil;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.util.Intervals;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
@@ -103,8 +104,8 @@ import org.knime.knip.core.data.img.LabelingMetadata;
  * @param <T>
  * @param <L>
  */
-public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L extends Comparable<L>> extends NodeModel
-        implements LoopStartNodeTerminator, BufferedDataTableHolder {
+public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<T>, L extends Comparable<L>> extends
+        NodeModel implements LoopStartNodeTerminator, BufferedDataTableHolder {
 
     /**
      * @param nrInDataPorts
@@ -137,7 +138,7 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
     /**
      * Current intervals
      */
-    private Interval[] m_intervals;
+    private Interval[] m_refIntervals;
 
     /**
      * is one row terminated
@@ -169,17 +170,18 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
      */
     private ArrayList<Integer> m_colIndices;
 
-    /**
-     * reference interval for slice loop end node
-     */
-    private Interval m_refValue;
-
-    /**
-     * reference calibrated space for slice loop end node
-     */
-    private CalibratedSpace<CalibratedAxis> m_refSpace;
-
     private BufferedDataTable m_data;
+
+    private boolean m_firstIsLabeling;
+
+    /**
+     * store all intervals
+     */
+    private Map<Integer, Interval[]> m_allIntervals;
+
+    private Map<Integer, Interval> m_allRefValues;
+
+    private Map<Integer, CalibratedSpace<CalibratedAxis>> m_allRefSpaces;
 
     /**
      * Node logger
@@ -192,6 +194,7 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
     @Override
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
         getSelectedColumnIndices(inSpecs[0]);
+        pushFlowVariableInt("Slice", 0);
         return new DataTableSpec[]{SliceIteratorUtils.createResSpec(inSpecs[0], m_columns, LOGGER)};
     }
 
@@ -223,6 +226,18 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
     protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
             throws Exception {
 
+        if (m_allIntervals == null) {
+            m_allIntervals = new HashMap<Integer, Interval[]>();
+        }
+
+        if (m_allRefValues == null) {
+            m_allRefValues = new HashMap<Integer, Interval>();
+        }
+
+        if (m_allRefSpaces == null) {
+            m_allRefSpaces = new HashMap<Integer, CalibratedSpace<CalibratedAxis>>();
+        }
+
         // check input spec
         final DataTableSpec inSpec = inData[0].getSpec();
 
@@ -241,6 +256,7 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
             final BufferedDataTable inTable = inData[0];
             // get iterator
             m_iterator = inTable.iterator();
+
             // get the first row of the iterator
             if (m_iterator.hasNext()) {
                 m_currentRow = m_iterator.next();
@@ -259,15 +275,14 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
             // store all column indices
             m_colIndices = new ArrayList<Integer>();
 
-            // we do not have a reference value yet
-            m_refValue = null;
-
+            int count = 0;
             // get all valid columns
             Integer[] validIdx = SliceIteratorUtils.getSelectedAndValidIdx(inSpec, m_columns, LOGGER);
 
             // there are nor valid columns, so just stop here
             if (validIdx.length == 0) {
-                throw new IllegalArgumentException("No valid columns available! (At least one image or labeling is required)");
+                throw new IllegalArgumentException(
+                        "No valid columns available! (At least one image or labeling is required)");
             }
 
             // loop over all selected and valied cloumns
@@ -288,6 +303,9 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
                     if (m_imgPlusCellFactory == null) {
                         m_imgPlusCellFactory = new ImgPlusCellFactory(exec);
                     }
+                    if (j == 0) {
+                        m_firstIsLabeling = false;
+                    }
                 }
                 // this column contains labelings
                 else if (colType.isCompatible(LabelingValue.class)) {
@@ -300,21 +318,35 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
                     }
                     // negativ index mark column has labeling
                     j *= -1;
+                    if (j == 0) {
+                        m_firstIsLabeling = true;
+                    }
                 }
 
                 // first column, store value and axes as reference for slice node end
                 if (value != null && m_colIndices.size() == 0) {
-                    m_refValue = value;
-                    m_refSpace = axes;
-                    m_intervals = m_dimSelection.getIntervals(axes, value);
+                    m_refIntervals = m_dimSelection.getIntervals(axes, value);
+                }
+
+                // check if iteration dimension of all columns are of same length!
+                Interval[] currIntervall = m_dimSelection.getIntervals(axes, value);
+
+                // store intervals of each valid column
+                m_allIntervals.put(count, currIntervall);
+                m_allRefValues.put(count, value);
+                m_allRefSpaces.put(count, axes);
+                count++;
+
+                if (m_refIntervals.length != currIntervall.length) {
+                    throw new IllegalArgumentException("Iteration dimension must be of same length in all columns!");
                 }
 
                 // we do nothing but warn
-                if (m_refValue != null && !Intervals.equalDimensions(m_refValue, value)) {
-                    value = null;
-                    LOGGER.warn("We ignored img/labeling in column " + j
-                            + " as the dimensions are to compatible to a previously discovered img/labeling");
-                }
+                //                if (m_refValue != null && !Intervals.equalDimensions(m_refValue, value)) {
+                //                    value = null;
+                //                    LOGGER.warn("We ignored img/labeling in column " + j
+                //                            + " as the dimensions are to compatible to a previously discovered img/labeling");
+                //                }
 
                 if (value != null) {
                     m_colIndices.add(j);
@@ -326,16 +358,18 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
         final BufferedDataContainer container = exec.createDataContainer(outSpec);
 
         // create view with slices, depending on chunk size
-        for (int i = m_currIdx; i < (Math.min(m_currIdx + 1, m_intervals.length)); i++) {
+        for (int i = m_currIdx; i < (Math.min(m_currIdx + 1, m_refIntervals.length)); i++) {
 
             final DataCell[] cells = new DataCell[m_colIndices.size()];
 
             for (int j = 0; j < cells.length; j++) {
-                final Interval currInterval = m_intervals[i];
+
+                //final Interval currInterval = m_refIntervals[i];
+                Interval currInterval = m_allIntervals.get(j)[i];//m_allIntervals.get(j)[i];
                 int idx = m_colIndices.get(j);
 
                 // idx is negative, we have a labeling
-                if (Math.signum(idx) < 0) {
+                if (Math.signum(idx) < 0 || (idx == 0 && m_firstIsLabeling)) {
                     @SuppressWarnings("unchecked")
                     final LabelingValue<L> value = ((LabelingValue<L>)m_currentRow.getCell(idx * -1));
                     final Labeling<L> labeling = value.getLabeling();
@@ -379,9 +413,9 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
             pushFlowVariableInt("Slice", i);
         }
 
-        m_currIdx = (Math.min(m_currIdx + 1, m_intervals.length));
+        m_currIdx = (Math.min(m_currIdx + 1, m_refIntervals.length));
         // are we finished?
-        if (m_currIdx >= m_intervals.length) {
+        if (m_currIdx >= m_refIntervals.length) {
             isRowTerminated = true;
             areAllRowsTerminated = !m_iterator.hasNext();
 
@@ -403,15 +437,15 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
     @Override
     protected void reset() {
         m_currIdx = 0;
-        m_intervals = null;
+        m_refIntervals = null;
         isRowTerminated = false;
         areAllRowsTerminated = false;
         m_iterator = null;
-        m_refValue = null;
         m_imgPlusCellFactory = null;
         m_labelingCellFactory = null;
-        m_refSpace = null;
-        m_refValue = null;
+        m_allIntervals = null;
+        m_allRefSpaces = null;
+        m_allRefValues = null;
     }
 
     /**
@@ -468,18 +502,19 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
      *
      * @return reference interval
      */
-    public Interval[] getRefIntervals() {
-        return m_intervals;
+    public Map<Integer, CalibratedSpace<CalibratedAxis>> getRefSpaces() {
+        return m_allRefSpaces;
     }
 
     /**
      * @return dimension of the result image in slice loop end node
      */
-    long[] getResDimensions(final Interval resInterval) {
-        long[] dims = new long[m_refValue.numDimensions()];
-        m_refValue.dimensions(dims);
+    long[] getResDimensions(final Interval resInterval, final int k) {
+        //long[] dims = new long[m_refValue.numDimensions()];
+        long[] dims = new long[m_allRefValues.get(k).numDimensions()];
+        m_allRefValues.get(k).dimensions(dims);
 
-        int[] selectedDimIndices = m_dimSelection.getSelectedDimIndices(m_refSpace);
+        int[] selectedDimIndices = m_dimSelection.getSelectedDimIndices(m_allRefSpaces.get(k));
 
         int i = 0;
         for (final int j : selectedDimIndices) {
@@ -487,14 +522,6 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
         }
 
         return dims;
-    }
-
-    /**
-     *
-     * @return reference calibrated space
-     */
-    CalibratedSpace<CalibratedAxis> getRefSpace() {
-        return m_refSpace;
     }
 
     /**
@@ -546,6 +573,13 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
         }
 
         return colIdx;
+    }
+
+    /**
+     * @return all intervals
+     */
+    public Map<Integer, Interval[]> getAllRefIntervals() {
+        return m_allIntervals;
     }
 
     /* Helper to collect all columns of the given type. */
