@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-Name: KNIP Example Plugin
 Bundle-SymbolicName: org.knime.knip.example;singleton:=true
 Bundle-ManifestVersion: 2
-Bundle-Version: 0.0.1.qualifier
+Bundle-Version: 1.2.1.qualifier
 Bundle-Vendor: University of Konstanz
 Eclipse-RegisterBuddy: org.knime.core
 Require-Bundle: org.knime.base,
