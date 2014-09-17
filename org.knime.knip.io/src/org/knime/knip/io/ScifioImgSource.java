@@ -407,7 +407,6 @@ public class ScifioImgSource implements ImgSource {
 			// without the "separate"-stuff the images will not be split
 			// correctly for some types. This fixes the bug if, for instance,
 			// only Channel 1 is desired and Channel 0 was returned every time.
-			r.enable(ChannelFiller.class);
 			r.enable(PlaneSeparator.class).separate(axesToSplit(r));
 
 			if (m_reader != null
@@ -430,7 +429,6 @@ public class ScifioImgSource implements ImgSource {
 
 			m_reader.setMetadata(p.parse(imgRef, m_scifioConfig));
 			
-			m_reader.enable(ChannelFiller.class);
 			m_reader.enable(PlaneSeparator.class).separate(
 					axesToSplit(m_reader));
 		}
