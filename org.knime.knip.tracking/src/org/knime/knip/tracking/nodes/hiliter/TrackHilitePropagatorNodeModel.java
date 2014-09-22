@@ -10,14 +10,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import net.imglib2.labeling.LabelingMapping;
 import net.imglib2.labeling.NativeLabeling;
 
+import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.RowKey;
-import org.knime.core.data.container.CloseableRowIterator;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -101,12 +102,11 @@ public class TrackHilitePropagatorNodeModel extends NodeModel implements
      * MEMBER
      */
 
-    // Stores the labels for each rack.
-    private HashMap<String, List<String>> m_trackToLabels;
-    // Store track for each label.
-    private HashMap<String, String> m_labelToTrack;
     // the HiliteHandler
     private HiLiteHandler m_hiliteHandler;
+
+    // stores the trackdata for each row
+    Map<String, TrackData> m_rowIdToTrackData;
 
     /*
      * Node Begins
@@ -145,67 +145,71 @@ public class TrackHilitePropagatorNodeModel extends NodeModel implements
     protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
             final ExecutionContext exec) throws CanceledExecutionException {
         getInHiLiteHandler(0).addHiLiteListener(this);
+        m_rowIdToTrackData = new HashMap<>(inData[0].getRowCount());
 
         // Get the column from the input table.
         final int trackingColIndex = inData[0].getDataTableSpec()
                 .findColumnIndex(m_trackColumnModel.getStringValue());
 
-        // Get the cell
-        final CloseableRowIterator it = inData[0].iterator();
-        final LabelingCell<?> cell = (LabelingCell<?>) it.next().getCell(
-                trackingColIndex);
-
-        // Get the Labeling, and the Labels in it
-        final NativeLabeling<?> labeling = (NativeLabeling<?>) cell
-                .getLabeling();
-        final LabelingMapping<?> mapping = labeling.getMapping();
-
-        final String trackPrefix;
-        if (m_useCustomTrackPrefixModel.getBooleanValue()) {
-            // ignoring leading and trailing whitespace for matching
-            trackPrefix = m_customTrackPrefixModel.getStringValue().trim();
-        } else {
-            trackPrefix = TrackHilitePropagatorSettingsModels.DEFAULT_TRACK_PREFIX;
-        }
-
-        m_labelToTrack = new HashMap<String, String>();
-        m_trackToLabels = new HashMap<String, List<String>>();
-
-        // Fill the maps with the associated labelings.
-        for (int i = 0; i < mapping.numLists(); i++) {
-            @SuppressWarnings("unchecked")
-            final List<String> localLabels = (List<String>) mapping
-                    .listAtIndex(i);
-
-            // skip mappings that contain less than two labels
-            if (localLabels.size() <= 1) {
-                continue;
-            }
-
-            // Identify the labels and the track
-            String track = "";
-            final ArrayList<String> otherLabels = new ArrayList<String>();
-            for (final String label : localLabels) {
-                if (label.startsWith(trackPrefix)) {
-                    track = label;
-                } else {
-                    otherLabels.add(label);
-                }
-            }
-
-            // Store the identified labels in the maps
-            final List<String> labelsInTrack = m_trackToLabels.get(track);
-            if (labelsInTrack == null) {
-                m_trackToLabels.put(track, otherLabels);
-            } else {
-                labelsInTrack.addAll(otherLabels);
-                m_trackToLabels.put(track, labelsInTrack);
-            }
-
-            for (final String label : otherLabels) {
-                m_labelToTrack.put(label, track);
-            }
+        for (final DataRow row : inData[0]) {
             exec.checkCanceled();
+            final LabelingCell<?> labelingCell = (LabelingCell<?>) row
+                    .getCell(trackingColIndex);
+
+            // Get the Labeling, and the Labels in it
+            final NativeLabeling<?> labeling = (NativeLabeling<?>) labelingCell
+                    .getLabeling();
+            final LabelingMapping<?> mapping = labeling.getMapping();
+
+            final String trackPrefix;
+            if (m_useCustomTrackPrefixModel.getBooleanValue()) {
+                // ignoring leading and trailing whitespace for matching
+                trackPrefix = m_customTrackPrefixModel.getStringValue().trim();
+            } else {
+                trackPrefix = TrackHilitePropagatorSettingsModels.DEFAULT_TRACK_PREFIX;
+            }
+
+            final HashMap<String, String> labelToTrack = new HashMap<String, String>();
+            final HashMap<String, List<String>> trackToLabels = new HashMap<String, List<String>>();
+
+            // Fill the maps with the associated labelings.
+            for (int i = 0; i < mapping.numLists(); i++) {
+                @SuppressWarnings("unchecked")
+                final List<String> localLabels = (List<String>) mapping
+                        .listAtIndex(i);
+
+                // skip mappings that contain less than two labels
+                if (localLabels.size() <= 1) {
+                    continue;
+                }
+
+                // Identify the labels and the track
+                String track = "";
+                final ArrayList<String> otherLabels = new ArrayList<String>();
+                for (final String label : localLabels) {
+                    if (label.startsWith(trackPrefix)) {
+                        track = label;
+                    } else {
+                        otherLabels.add(label);
+                    }
+                }
+
+                // Store the identified labels in the maps
+                final List<String> labelsInTrack = trackToLabels.get(track);
+                if (labelsInTrack == null) {
+                    trackToLabels.put(track, otherLabels);
+                } else {
+                    labelsInTrack.addAll(otherLabels);
+                    trackToLabels.put(track, labelsInTrack);
+                }
+
+                for (final String label : otherLabels) {
+                    labelToTrack.put(label, track);
+                }
+                exec.checkCanceled();
+            }
+            m_rowIdToTrackData.put(row.getKey().getString(), new TrackData(
+                    trackToLabels, labelToTrack));
         }
         return inData;
     }
@@ -224,10 +228,7 @@ public class TrackHilitePropagatorNodeModel extends NodeModel implements
         final ObjectInputStream in = new ObjectInputStream(new FileInputStream(
                 new File(nodeInternDir, SERIALISATION_KEY)));
         try {
-            m_trackToLabels = (HashMap<String, List<String>>) in.readObject();
-            exec.checkCanceled();
-            exec.setProgress(0.5);
-            m_labelToTrack = (HashMap<String, String>) in.readObject();
+            m_rowIdToTrackData = (HashMap<String, TrackData>) in.readObject();
         } catch (final ClassNotFoundException e) {
             in.close();
             throw new IOException("Could not restore the state!", e);
@@ -242,8 +243,7 @@ public class TrackHilitePropagatorNodeModel extends NodeModel implements
 
         final ObjectOutputStream out = new ObjectOutputStream(
                 new FileOutputStream(new File(nodeInternDir, SERIALISATION_KEY)));
-        out.writeObject(m_trackToLabels);
-        out.writeObject(m_labelToTrack);
+        out.writeObject(m_rowIdToTrackData);
         out.close();
     }
 
@@ -251,6 +251,7 @@ public class TrackHilitePropagatorNodeModel extends NodeModel implements
     protected void saveSettingsTo(final NodeSettingsWO settings) {
         m_trackColumnModel.saveSettingsTo(settings);
         m_customTrackPrefixModel.saveSettingsTo(settings);
+        m_useCustomTrackPrefixModel.saveSettingsTo(settings);
         m_trackHilitingModeModel.saveSettingsTo(settings);
     }
 
@@ -274,8 +275,7 @@ public class TrackHilitePropagatorNodeModel extends NodeModel implements
 
     @Override
     protected void reset() {
-        m_labelToTrack = null;
-        m_trackToLabels = null;
+        m_rowIdToTrackData = null;
         if (m_hiliteHandler != null) {
             m_hiliteHandler.removeHiLiteListener(this);
         }
@@ -356,7 +356,7 @@ public class TrackHilitePropagatorNodeModel extends NodeModel implements
     }
 
     private RowKey[] trackToPoints(final KeyEvent event) {
-        final Set<String> tracksToHilite = new HashSet<String>();
+        final Set<RowKey> tracksToHilite = new HashSet<>();
         final String trackPrefix = m_useCustomTrackPrefixModel
                 .getBooleanValue() ? m_customTrackPrefixModel.getStringValue()
                 : TrackHilitePropagatorSettingsModels.DEFAULT_TRACK_PREFIX;
@@ -370,12 +370,12 @@ public class TrackHilitePropagatorNodeModel extends NodeModel implements
 
             // only select rows that are tracks
             if (lookUpkey.startsWith(trackPrefix)) {
-                tracksToHilite.add(lookUpkey);
+                tracksToHilite.add(k);
             } else {
                 continue;
             }
         }
-        return getRowKeysFromTracks(tracksToHilite, event);
+        return getRowKeysFromTracks(tracksToHilite);
 
     }
 
@@ -392,7 +392,7 @@ public class TrackHilitePropagatorNodeModel extends NodeModel implements
 
         // Get all the Labels that are on the same track
 
-        final Set<String> tracksToHilite = new HashSet<String>();
+        final Set<RowKey> tracksToHilite = new HashSet<>();
 
         final String trackPrefix = m_useCustomTrackPrefixModel
                 .getBooleanValue() ? m_customTrackPrefixModel.getStringValue()
@@ -401,25 +401,29 @@ public class TrackHilitePropagatorNodeModel extends NodeModel implements
         for (final RowKey k : event.keys()) {
 
             // split the row key into prefix and unique part
-            final String rowKey = k.getString();
-            final String lookUpkey = rowKey
-                    .substring(rowKey.lastIndexOf('#') + 1);
+            final String rowKeyString = k.getString();
+            final TrackData data = m_rowIdToTrackData.get(rowKeyString
+                    .substring(0, rowKeyString.lastIndexOf('#')));
 
-            if (lookUpkey.startsWith(trackPrefix)) {
-                tracksToHilite.add(lookUpkey);
+            final String lookupKey = rowKeyString.substring(rowKeyString
+                    .lastIndexOf('#') + 1);
+            if (lookupKey.startsWith(trackPrefix)) {
+                tracksToHilite.add(k);
             } else {
-                final String value = m_labelToTrack.get(lookUpkey);
-                if (value != null) {
-                    tracksToHilite.add(value);
+                final String trackName = data.m_labelToTrack.get(lookupKey);
+                if (trackName != null) {
+                    final String keyprefix = rowKeyString.substring(0,
+                            rowKeyString.lastIndexOf('#'));
+                    tracksToHilite.add(new RowKey(keyprefix + '#' + trackName));
                 }
             }
         }
-        return getRowKeysFromTracks(tracksToHilite, event);
+        return getRowKeysFromTracks(tracksToHilite);
     }
 
     /**
-     * Takes a set of tracks and returns their {@link RowKey}s and of all the
-     * items that are on these tracks.
+     * Takes a set of track {@link RowKey}s and returns their {@link RowKey}s
+     * and of all the items that are on these tracks.
      *
      * @param tracksToHilite
      *            the tracks which members
@@ -428,32 +432,33 @@ public class TrackHilitePropagatorNodeModel extends NodeModel implements
      *
      * @return The RowKeys of the tracks and the items that are on them.
      */
-    private RowKey[] getRowKeysFromTracks(final Set<String> tracksToHilite,
-            final KeyEvent event) {
+    private RowKey[] getRowKeysFromTracks(final Set<RowKey> tracksToHilite) {
 
         // early escape
         if (tracksToHilite == null || tracksToHilite.size() == 0) {
             return new RowKey[0];
         }
 
-        // get the key prefix from a random row
-        final String rowKey = event.keys().iterator().next().getString();
-        final String keyPrefix = rowKey.substring(0,
-                rowKey.lastIndexOf('#') + 1);
-
         // mark all rows on all given tracks and the tracks them self for
         // hiliting.
-        final Set<String> toHilite = new HashSet<String>(event.keys().size());
-        for (final String track : tracksToHilite) {
-            final List<String> list = m_trackToLabels.get(track);
+        final Set<RowKey> toHilite = new HashSet<>();
+        for (final RowKey trackRowKey : tracksToHilite) {
+            final String keyPrefix = trackRowKey.getString().substring(0,
+                    trackRowKey.getString().lastIndexOf('#'));
+            final String trackKey = trackRowKey.getString().substring(
+                    trackRowKey.getString().lastIndexOf('#') + 1);
+
+            final TrackData trackData = m_rowIdToTrackData.get(keyPrefix);
+            final List<String> list = trackData.m_trackToLabels.get(trackKey);
             if (list == null) {
                 continue;
             }
             for (final String label : list) {
-                toHilite.add(keyPrefix + label);
+                toHilite.add(new RowKey(keyPrefix + '#' + label));
             }
-            toHilite.add(keyPrefix + track);
+            toHilite.add(trackRowKey);
         }
-        return RowKey.toRowKeys(toHilite.toArray(new String[0]));
+
+        return toHilite.toArray(new RowKey[toHilite.size()]);
     }
 }
