@@ -63,6 +63,7 @@ import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.nodes.proc.imgjep.fun.JEPAbs;
+import org.knime.knip.base.nodes.proc.imgjep.fun.JEPAtan2;
 import org.knime.knip.base.nodes.proc.imgjep.fun.JEPAvg;
 import org.knime.knip.base.nodes.proc.imgjep.fun.JEPExp;
 import org.knime.knip.base.nodes.proc.imgjep.fun.JEPLog;
@@ -72,7 +73,7 @@ import org.knime.knip.base.nodes.proc.imgjep.fun.JEPSqrt;
 
 /**
  * Helper class that parses the expression and generates the JEP object.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -119,7 +120,7 @@ final class ImgExpressionParser {
 
     /**
      * Creates new parser instance, does the parsing.
-     * 
+     *
      * @param expression Input expression.
      * @param imgJEP the image operations
      * @param spec Respective table spec.
@@ -137,7 +138,7 @@ final class ImgExpressionParser {
 
     /**
      * Does the calculation of the constant variables and then puts it into the JEP object.
-     * 
+     *
      * @param mon for progress / cancel
      * @param bdt the input table.
      * @throws CanceledExecutionException If canceled.
@@ -158,7 +159,7 @@ final class ImgExpressionParser {
 
     /**
      * Check if we find a constant function identifier from current offset until next dollar sign.
-     * 
+     *
      * @param end Position of next dollar sign
      * @return end if no constant is found, otherwise end of the constant def.
      * @throws InvalidSettingsException If that fails.
@@ -236,7 +237,7 @@ final class ImgExpressionParser {
 
     /**
      * Getter for table spec (as passed in constructor).
-     * 
+     *
      * @return The spec.
      */
     DataTableSpec getDataTableSpec() {
@@ -307,6 +308,7 @@ final class ImgExpressionParser {
         result.addFunction(ImgJEPFunction.log.toString(), new JEPLog());
         result.addFunction(ImgJEPFunction.sqrt.toString(), new JEPSqrt());
         result.addFunction(ImgJEPFunction.abs.toString(), new JEPAbs());
+        result.addFunction(ImgJEPFunction.atan2.toString(), new JEPAtan2());
 
         // result.addFunction(ImgJEPFunction.min_in_args.toString(), new
         // Min());
