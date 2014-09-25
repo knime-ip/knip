@@ -50,7 +50,7 @@ package org.knime.knip.base.nodes.proc.imgjep;
 
 /**
  * Functions that are available in JEP, shown in the "Mathematical Function" list in the dialog.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -277,13 +277,18 @@ enum ImgJEPFunction {
     // }
     // },
     // /** Arc Tangent 2 parameters. */
-    // atan2 {
-    // /** {@inheritDoc} */
-    // @Override
-    // String getDescription() {
-    // return "Arc Tangent (with 2 parameters)";
-    // }
-    // },
+    atan2 {
+        /** {@inheritDoc} */
+        @Override
+        String getDescription() {
+            return "Arc Tangent (with 2 parameters)";
+        }
+
+        @Override
+        int getNrArgs() {
+            return 2;
+        }
+    },
     // /** Hyperbolic Sine. */
     // sinh {
     // /** {@inheritDoc} */
@@ -506,7 +511,7 @@ enum ImgJEPFunction {
 
     /**
      * Number of arguments for this function (just used in dialog).
-     * 
+     *
      * @return Number of default arguments.
      */
     int getNrArgs() {
