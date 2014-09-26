@@ -16,7 +16,8 @@ Require-Bundle: org.knime.base;bundle-version="[2.10.0,3.0.0)",
  org.knime.knip.scifio;bundle-version="0.15.4"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Bundle-ClassPath: lib/mvn/scifio-cli-0.1.0.jar,
+Bundle-ClassPath: knip-io.jar,
+ lib/mvn/scifio-cli-0.1.0.jar,
  lib/mvn/ome-poi-5.0.3.jar,
  lib/mvn/scifio-ome-xml-0.9.1.jar,
  lib/mvn/formats-bsd-5.0.3.jar,
