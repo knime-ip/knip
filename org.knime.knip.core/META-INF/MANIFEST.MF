@@ -323,4 +323,3 @@ Export-Package: net.imglib2,
  org.slf4j.helpers,
  org.slf4j.impl,
  org.slf4j.spi
-
