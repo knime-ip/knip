@@ -130,4 +130,3 @@ Export-Package:
  org.scijava.welcome,
  org.scijava.welcome.event,
  org.scijava.widget
-
