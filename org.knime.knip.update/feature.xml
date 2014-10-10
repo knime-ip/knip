@@ -2,7 +2,8 @@
 <feature
       id="org.knime.knip.update"
       label="KNIP Update Site"
-      version="1.2.2.qualifier">
+      version="1.3.0.qualifier"
+      provider-name="University of Konstanz">
 
    <includes
          id="org.knime.knip.feature"

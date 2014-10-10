@@ -485,7 +485,7 @@ public class ScifioImgSource implements ImgSource {
 		 * ScifioImgsource.close()-method.
 		 */
 		private void closeNow() throws IOException {
-			super.close();
+			super.close(false);
 		}
 
 	}

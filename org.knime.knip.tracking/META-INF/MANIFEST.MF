@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-Name: KNIME Image Processing - Tracking Framework
 Bundle-SymbolicName: org.knime.knip.tracking;singleton:=true
 Bundle-ManifestVersion: 2
-Bundle-Version: 0.8.2.qualifier
+Bundle-Version: 0.9.0.qualifier
 Bundle-Vendor: University of Konstanz
 Eclipse-RegisterBuddy: org.knime.core
 Require-Bundle: org.knime.base;bundle-version="[2.10.0,3.0.0)",

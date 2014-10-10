@@ -11,6 +11,7 @@ import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnFilter;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
+import org.knime.core.node.defaultnodesettings.DialogComponentString;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
@@ -79,40 +80,50 @@ public class LAPTrackerNodeDialog extends DefaultNodeSettingsPane {
 			.createLabelModel();
 
 	private final SettingsModelBoolean m_attachSourceLabelings = LAPTrackerSettingsModels
-			.createAttachSourceLabelings();
+			.createAttachSourceLabelingsModel();
+
+	private final SettingsModelBoolean m_useCustomTrackPrefix = LAPTrackerSettingsModels
+			.createUseCustomTrackPrefixModel();
+
+	private final SettingsModelString m_customTrackPrefix = LAPTrackerSettingsModels
+			.createCustomTrackPrefixModel();
 
 	public LAPTrackerNodeDialog() {
 
-		this.createNewGroup("Basic");
+		createNewGroup("Basic");
 		addBasicOptions();
-		this.closeCurrentGroup();
+		closeCurrentGroup();
 
-		this.createNewGroup("Splitting");
+		createNewGroup("Splitting");
 		addSplittingOptions();
-		this.closeCurrentGroup();
+		closeCurrentGroup();
 
-		this.createNewGroup("Merging");
+		createNewGroup("Merging");
 		addMergingOptions();
-		this.closeCurrentGroup();
+		closeCurrentGroup();
 
-		this.createNewGroup("Gap-Closing");
+		createNewGroup("Gap-Closing");
 		addGapClosingOptions();
-		this.closeCurrentGroup();
+		closeCurrentGroup();
 
-		this.createNewTab("Advanced");
-		this.createNewGroup("Advanced Tracking Settings");
+		createNewTab("Advanced");
+		createNewGroup("Advanced Tracking Settings");
 		addAdvancedSettings();
-		this.closeCurrentGroup();
+		closeCurrentGroup();
 
-		this.createNewTab("Column Settings");
+		createNewGroup("Labeling Settings");
+		addLabelingSettings();
+		closeCurrentGroup();
+
+		createNewTab("Column Settings");
 		addKNIMEColumnSettings();
 	}
 
 	@SuppressWarnings("unchecked")
 	private void addKNIMEColumnSettings() {
 
-		this.addDialogComponent(new DialogComponentColumnFilter(m_columns, 0,
-				true, new ColumnFilter() {
+		addDialogComponent(new DialogComponentColumnFilter(m_columns, 0, true,
+				new ColumnFilter() {
 
 					@Override
 					public boolean includeColumn(DataColumnSpec colSpec) {
@@ -126,67 +137,91 @@ public class LAPTrackerNodeDialog extends DefaultNodeSettingsPane {
 					}
 				}));
 
-		this.addDialogComponent(new DialogComponentColumnNameSelection(
+		addDialogComponent(new DialogComponentColumnNameSelection(
 				m_bitMaskColumnModel, "Bitmask Column", 0, ImgPlusValue.class));
 
-		this.addDialogComponent(new DialogComponentColumnNameSelection(
+		addDialogComponent(new DialogComponentColumnNameSelection(
 				m_labelColumnModel, "Labels", 0, StringValue.class));
 
-		this.addDialogComponent(new DialogComponentColumnNameSelection(
+		addDialogComponent(new DialogComponentColumnNameSelection(
 				m_sourceLabelingColumn, "Source Labeling", 0,
 				LabelingValue.class));
 	}
 
 	private void addAdvancedSettings() {
-		this.addDialogComponent(new DialogComponentNumber(
+		addDialogComponent(new DialogComponentNumber(
 				m_alternativeLinkingCostFactor,
 				"Alternative Linking Cost Factor", 0.05));
 
-		this.addDialogComponent(new DialogComponentNumber(
-				m_cutoffPercentileModel, "Cutoff Percentile", 0.05));
-
-		this.addDialogComponent(new DialogComponentBoolean(
-				m_attachSourceLabelings,
-				"Attach original Labelings as Segment ID labelings"));
+		addDialogComponent(new DialogComponentNumber(m_cutoffPercentileModel,
+				"Cutoff Percentile", 0.05));
 
 	}
 
 	private void addBasicOptions() {
-		this.addDialogComponent(new DialogComponentStringSelection(
+		addDialogComponent(new DialogComponentStringSelection(
 				m_trackingAlgorithmModel, "Algorithm",
 				EnumUtils.getStringListFromToString(LAPTrackerAlgorithm
 						.values())));
-		this.addDialogComponent(new DialogComponentNumber(
-				m_linkingMaxDistanceModel, "Maximum Object Distance", 2.5));
+		addDialogComponent(new DialogComponentNumber(m_linkingMaxDistanceModel,
+				"Maximum Object Distance", 2.5));
 
-		this.addDialogComponent(new DialogComponentStringSelection(
-				m_timeAxisModel, "Tracking Dimension", KNIMEKNIPPlugin
-						.parseDimensionLabels()));
+		addDialogComponent(new DialogComponentStringSelection(m_timeAxisModel,
+				"Tracking Dimension", KNIMEKNIPPlugin.parseDimensionLabels()));
 	}
 
-	private void addSplittingOptions() {
-		this.addDialogComponent(new DialogComponentBoolean(
-				m_allowSplittingModel, "Allow Splitting"));
+	private void addGapClosingOptions() {
+		addDialogComponent(new DialogComponentBoolean(m_allowGapClosingModel,
+				"Allow Gap Closing"));
 
-		this.addDialogComponent(new DialogComponentNumber(
-				m_splittingMaxDistance, "Max Distance", 0.5));
+		addDialogComponent(new DialogComponentNumber(
+				m_gapClosingMaxDistanceModel, "Max Distance", 0.5));
 
-		m_allowSplittingModel.addChangeListener(new ChangeListener() {
+		addDialogComponent(new DialogComponentNumber(m_gapClosingMaxFrameModel,
+				"Max GAP Size (Frames)", 1));
+
+		m_allowGapClosingModel.addChangeListener(new ChangeListener() {
 
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				m_splittingMaxDistance.setEnabled(m_allowSplittingModel
+				m_gapClosingMaxDistanceModel.setEnabled(m_allowGapClosingModel
+						.getBooleanValue());
+				m_gapClosingMaxFrameModel.setEnabled(m_allowGapClosingModel
 						.getBooleanValue());
 			}
 		});
 	}
 
+	private void addLabelingSettings() {
+
+		addDialogComponent(new DialogComponentBoolean(m_attachSourceLabelings,
+				"Attach Original Labelings"));
+
+		setHorizontalPlacement(true);
+
+		m_customTrackPrefix.setEnabled(false);
+		m_useCustomTrackPrefix.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				m_customTrackPrefix.setEnabled(m_useCustomTrackPrefix
+						.getBooleanValue());
+			}
+		});
+		addDialogComponent(new DialogComponentBoolean(m_useCustomTrackPrefix,
+				"Use a Custom Track Prefix"));
+
+		addDialogComponent(new DialogComponentString(m_customTrackPrefix,
+				"Custom Track Prefix:"));
+
+		setHorizontalPlacement(false);
+	}
+
 	private void addMergingOptions() {
-		this.addDialogComponent(new DialogComponentBoolean(m_allowMergingModel,
+		addDialogComponent(new DialogComponentBoolean(m_allowMergingModel,
 				"Allow Merging"));
 
-		this.addDialogComponent(new DialogComponentNumber(
-				m_mergingMaxDistanceModel, "Max Distance", 0.5));
+		addDialogComponent(new DialogComponentNumber(m_mergingMaxDistanceModel,
+				"Max Distance", 0.5));
 
 		m_allowMergingModel.addChangeListener(new ChangeListener() {
 
@@ -198,23 +233,18 @@ public class LAPTrackerNodeDialog extends DefaultNodeSettingsPane {
 		});
 	}
 
-	private void addGapClosingOptions() {
-		this.addDialogComponent(new DialogComponentBoolean(
-				m_allowGapClosingModel, "Allow Gap Closing"));
+	private void addSplittingOptions() {
+		addDialogComponent(new DialogComponentBoolean(m_allowSplittingModel,
+				"Allow Splitting"));
 
-		this.addDialogComponent(new DialogComponentNumber(
-				m_gapClosingMaxDistanceModel, "Max Distance", 0.5));
+		addDialogComponent(new DialogComponentNumber(m_splittingMaxDistance,
+				"Max Distance", 0.5));
 
-		this.addDialogComponent(new DialogComponentNumber(
-				m_gapClosingMaxFrameModel, "Max GAP Size (Frames)", 1));
-
-		m_allowGapClosingModel.addChangeListener(new ChangeListener() {
+		m_allowSplittingModel.addChangeListener(new ChangeListener() {
 
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				m_gapClosingMaxDistanceModel.setEnabled(m_allowGapClosingModel
-						.getBooleanValue());
-				m_gapClosingMaxFrameModel.setEnabled(m_allowGapClosingModel
+				m_splittingMaxDistance.setEnabled(m_allowSplittingModel
 						.getBooleanValue());
 			}
 		});
