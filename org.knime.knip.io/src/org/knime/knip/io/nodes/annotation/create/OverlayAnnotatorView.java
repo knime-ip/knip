@@ -48,11 +48,9 @@
  */
 package org.knime.knip.io.nodes.annotation.create;
 
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.JComponent;
 
