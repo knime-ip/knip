@@ -283,6 +283,17 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
      */
     protected abstract COUT compute(VIN1 cellValue1, VIN2 cellValue2) throws Exception;
 
+
+    /**
+    * Will be called if a new row is about to be processed. Can be overwritten optionally. It is called before compute();
+    *
+    * @param row
+    */
+    protected void computeDataRow(final DataRow row) {
+        //
+    }
+
+
     /**
      * {@inheritDoc}
      */
@@ -353,6 +364,7 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
         return new CellFactory() {
             @Override
             public DataCell[] getCells(final DataRow row) {
+                computeDataRow(row);
                 DataCell[] cells;
                 try {
 
