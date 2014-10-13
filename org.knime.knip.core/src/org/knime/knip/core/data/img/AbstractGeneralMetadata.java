@@ -93,7 +93,7 @@ abstract class AbstractGeneralMetadata extends AbstractCalibratedSpace<Calibrate
 
         for (int d = 0; d < numDimensions; d++) {
 
-            if (numDimensions < DEFAULT_AXES.length) {
+            if (d < DEFAULT_AXES.length) {
                 axes.add(new DefaultLinearAxis(DEFAULT_AXES[d]));
             } else {
                 axes.add(null);
