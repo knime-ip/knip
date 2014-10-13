@@ -98,15 +98,15 @@ public class AnnotatorLabelPanel extends ViewerComponent {
 
     private static final long serialVersionUID = 1L;
 
-    private Vector<String> m_labels;
+    protected Component m_parent;
 
-    private JList m_jLabelList;
+    protected EventService m_eventService;
 
-    private boolean m_isAdjusting;
+    protected Vector<String> m_labels;
 
-    private EventService m_eventService;
+    protected boolean m_isAdjusting;
 
-    private Component m_parent;
+    protected JList<String> m_jLabelList;
 
     public AnnotatorLabelPanel(final String... defaultLabels) {
         super("Labels", false);
@@ -126,7 +126,7 @@ public class AnnotatorLabelPanel extends ViewerComponent {
             }
         }
 
-        m_jLabelList = new JList(m_labels);
+        m_jLabelList = new JList<String>(m_labels);
         m_jLabelList.setSelectedIndex(0);
 
         m_jLabelList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -283,7 +283,7 @@ public class AnnotatorLabelPanel extends ViewerComponent {
 
     }
 
-    private final void setButtonIcon(final AbstractButton jb, final String path) {
+    protected final void setButtonIcon(final AbstractButton jb, final String path) {
         final URL icon =
                 getClass().getClassLoader().getResource(getClass().getPackage().getName().replace('.', '/') + "/"
                                                                 + path);
