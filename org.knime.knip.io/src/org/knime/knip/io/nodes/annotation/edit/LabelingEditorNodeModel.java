@@ -168,7 +168,9 @@ public class LabelingEditorNodeModel<L extends Comparable<L>>
 			return new UnsignedByteType();
 		if (i < Math.pow(2, 12))
 			return new Unsigned12BitType();
-		return new UnsignedShortType();
+		if (i < Math.pow(2, 16))
+			return new UnsignedShortType();
+		return new UnsignedIntType();
 	}
 
 }
