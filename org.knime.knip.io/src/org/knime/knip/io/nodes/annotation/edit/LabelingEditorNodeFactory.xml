@@ -25,9 +25,11 @@
 		<tab name="Supported Operations">
 			<option name="Create Label"> Adds another label to the labeling.
 			</option>
-			<option name="Hiliting Selected"> Toggles highlighting of the current selection.
+			<option name="Hilite Selected"> Toggles hiliting of the current selection.
 			</option>
-			<option name="Stop Hiliting"> Disables highlighting of the current selection.
+			<option name="Stop Hiliting"> Disables hiliting of the current selection.
+			</option>
+			<option name="Reset Current Image"> Discards all changes made to the currently selected image.
 			</option>
 			<option name="Reset to Input"> Discards all changes made and resets the view to
 				the input data.
