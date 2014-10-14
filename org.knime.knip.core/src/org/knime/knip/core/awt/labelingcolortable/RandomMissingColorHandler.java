@@ -62,7 +62,7 @@ import org.apache.mahout.math.map.OpenIntIntHashMap;
 public class RandomMissingColorHandler implements MissingColorHandler {
 
     // Fast HashMap implementation
-    private static OpenIntIntHashMap m_colorTable = new OpenIntIntHashMap();
+    private static OpenIntIntHashMap m_colorTable = new OpenIntIntHashMap(4096);
 
     private static int m_generation;
 
