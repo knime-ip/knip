@@ -149,7 +149,7 @@ public class LabelingEditorChangeTracker implements
 
 		final String prefix = "ANNOTATOR_TRACKER_" + index;
 
-		saveMap(settings, prefix + "_MODS_", m_changedLabels);
+		saveMap(settings, prefix + "_MODIFICATIONS_", m_changedLabels);
 
 	}
 
@@ -213,7 +213,7 @@ public class LabelingEditorChangeTracker implements
 	private void loadLabelMaps(final NodeSettingsRO settings,
 			final String prefix) throws InvalidSettingsException {
 
-		final String labelPrefix = prefix + "_MODS_";
+		final String labelPrefix = prefix + "_MODIFICATIONS_";
 
 		final Map<List<String>, List<String>> changedLabels = new HashMap<List<String>, List<String>>();
 		final Map<List<String>, List<String>> backmapping = new HashMap<List<String>, List<String>>();
