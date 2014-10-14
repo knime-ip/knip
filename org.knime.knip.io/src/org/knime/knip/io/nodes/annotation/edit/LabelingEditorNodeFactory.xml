@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (c) 2010 IBM Corporation 
+	and others. All rights reserved. This program and the accompanying materials 
+	are made available under the terms of the Eclipse Public License v1.0 which 
+	accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html 
+	Contributors: IBM Corporation - initial API and implementation -->
+
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="../icons/labeleditor.png" type="Source">
+	<name>Interactive Labeling Editor</name>
+	<shortDescription>
+		This node allows manual editing of labelings.
+	</shortDescription>
+	<fullDescription>
+		<intro>
+			This node allows the user to manually add to, remove from, and modify
+			existing labelings. In order to modify an existing label, first
+			select the label you wish to add or remove from the list of available
+			labels. Then simply click on existing labels in the image view to
+			change them. Clicking with the left mouse button adds the selected
+			label to the region whereas clicking with the right mouse button
+			removes them.
+			<br />
+			<b>Changes are only visible in the output table after execution.</b>
+		</intro>
+		<tab name="Supported Operations">
+			<option name="Create Label"> Adds another label to the labeling.
+			</option>
+			<option name="Hide Others"> Toggles highlighting of the current selection on or off.
+			</option>
+			<option name="Reset Current Image"> Discards all changes made to the currently selected image.
+			</option>
+			<option name="Reset to Input"> Discards all changes made and resets the view to
+				the input data.
+			</option>
+			<option name="Randomize Color"> Randomizes the color of the selected label.
+			</option>
+		</tab>
+
+	</fullDescription>
+	<ports>
+		<inPort name="Images and Labels" index="0">A Table containing both
+			the image (optional) and the labeling to be modified
+		</inPort>
+		<outPort name="Labels" index="0">Modified labels</outPort>
+	</ports>
+	<views>
+		<view name="TableCellView" index="0"> View the edited labeling 	</view>
+	</views>
+</knimeNode>

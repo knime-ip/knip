@@ -46,92 +46,41 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.io.nodes;
+package org.knime.knip.io.nodes.annotation.edit.tools;
 
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
-import org.knime.core.node.NodeFactory;
-import org.knime.core.node.NodeModel;
-import org.knime.core.node.NodeSetFactory;
-import org.knime.core.node.config.ConfigRO;
-import org.knime.knip.io.nodes.annotation.create.OverlayAnnotatorNodeFactory;
-import org.knime.knip.io.nodes.annotation.edit.LabelingEditorNodeFactory;
-import org.knime.knip.io.nodes.fileref.ImageFileRefNodeFactory;
-import org.knime.knip.io.nodes.imgimporter.ImgImporterNodeFactory;
-import org.knime.knip.io.nodes.imgreader.ImgReaderNodeFactory;
-import org.knime.knip.io.nodes.imgwriter.ImgWriterNodeFactory;
+import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorAddEvent;
+import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorDeleteEvent;
 
 /**
+ * Default Tool used in the InteractiveLabelingEditor. Capable of adding and
+ * removing labels to/from labelings.
  * 
- * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
- *         Zinsmaier</a>
+ * @author Andreas Burger, University of Konstanz
+ * 
  */
-public class IONodeSetFactory implements NodeSetFactory {
+public class LabelingEditorModificationTool extends AbstractLabelingEditorTool {
 
-	private final Map<String, String> m_nodeFactories = new HashMap<String, String>();
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ConfigRO getAdditionalSettings(final String id) {
-		return null;
+	public LabelingEditorModificationTool() {
+		super("Add/Remove", "tool-select.png");
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public String getAfterID(final String id) {
-		return "";
+	public void onLeftClick(Collection<String> labels, String[] selectedLabels) {
+		List<String> labelsToAdd = Arrays.asList(selectedLabels);
+		m_eventService.publish(new LabelingEditorAddEvent(labels, labelsToAdd));
+
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public String getCategoryPath(final String id) {
-		return m_nodeFactories.get(id);
-	}
+	public void onRightClick(Collection<String> labels, String[] selectedLabels) {
+		List<String> labelsToDelete = Arrays.asList(selectedLabels);
+		m_eventService.publish(new LabelingEditorDeleteEvent(labels,
+				labelsToDelete));
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public Class<? extends NodeFactory<? extends NodeModel>> getNodeFactory(
-			final String id) {
-		try {
-			return (Class<? extends NodeFactory<? extends NodeModel>>) Class
-					.forName(id);
-		} catch (final ClassNotFoundException e) {
-		}
-		return null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Collection<String> getNodeFactoryIds() {
-		m_nodeFactories.put(ImgReaderNodeFactory.class.getCanonicalName(),
-				"/community/knip/io");
-		m_nodeFactories.put(ImgWriterNodeFactory.class.getCanonicalName(),
-				"/community/knip/io");
-		m_nodeFactories.put(ImageFileRefNodeFactory.class.getCanonicalName(),
-				"/community/knip/io/other");
-		m_nodeFactories.put(ImgImporterNodeFactory.class.getCanonicalName(),
-				"/community/knip/io/other");
-		m_nodeFactories.put(
-				OverlayAnnotatorNodeFactory.class.getCanonicalName(),
-				"/community/knip/labeling");
-		m_nodeFactories.put(LabelingEditorNodeFactory.class.getCanonicalName(),
-				"/community/knip/labeling");
-		return m_nodeFactories.keySet();
 	}
 
 }

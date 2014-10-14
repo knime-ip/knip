@@ -46,92 +46,43 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.io.nodes;
+package org.knime.knip.io.nodes.annotation.edit.events;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.knime.core.node.NodeFactory;
-import org.knime.core.node.NodeModel;
-import org.knime.core.node.NodeSetFactory;
-import org.knime.core.node.config.ConfigRO;
-import org.knime.knip.io.nodes.annotation.create.OverlayAnnotatorNodeFactory;
-import org.knime.knip.io.nodes.annotation.edit.LabelingEditorNodeFactory;
-import org.knime.knip.io.nodes.fileref.ImageFileRefNodeFactory;
-import org.knime.knip.io.nodes.imgimporter.ImgImporterNodeFactory;
-import org.knime.knip.io.nodes.imgreader.ImgReaderNodeFactory;
-import org.knime.knip.io.nodes.imgwriter.ImgWriterNodeFactory;
+import org.knime.knip.core.ui.event.KNIPEvent;
+import org.knime.knip.io.nodes.annotation.edit.tools.AbstractLabelingEditorTool;
 
 /**
+ * Event used to signal the LabelingEditorManager that the selected tool has
+ * changed.
  * 
- * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
- *         Zinsmaier</a>
+ * @author Andreas Burger, University of Konstanz
+ * 
  */
-public class IONodeSetFactory implements NodeSetFactory {
+public class LabelingEditorToolChangedEvent implements KNIPEvent {
 
-	private final Map<String, String> m_nodeFactories = new HashMap<String, String>();
+	private final AbstractLabelingEditorTool m_tool;
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ConfigRO getAdditionalSettings(final String id) {
-		return null;
+	public LabelingEditorToolChangedEvent(final AbstractLabelingEditorTool tool) {
+		m_tool = tool;
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * @return The tool
 	 */
+	public AbstractLabelingEditorTool getTool() {
+		return m_tool;
+	}
+
 	@Override
-	public String getAfterID(final String id) {
-		return "";
+	public ExecutionPriority getExecutionOrder() {
+		return ExecutionPriority.NORMAL;
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * implements object equality {@inheritDoc}
 	 */
 	@Override
-	public String getCategoryPath(final String id) {
-		return m_nodeFactories.get(id);
+	public <E extends KNIPEvent> boolean isRedundant(final E thatEvent) {
+		return this.equals(thatEvent);
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public Class<? extends NodeFactory<? extends NodeModel>> getNodeFactory(
-			final String id) {
-		try {
-			return (Class<? extends NodeFactory<? extends NodeModel>>) Class
-					.forName(id);
-		} catch (final ClassNotFoundException e) {
-		}
-		return null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Collection<String> getNodeFactoryIds() {
-		m_nodeFactories.put(ImgReaderNodeFactory.class.getCanonicalName(),
-				"/community/knip/io");
-		m_nodeFactories.put(ImgWriterNodeFactory.class.getCanonicalName(),
-				"/community/knip/io");
-		m_nodeFactories.put(ImageFileRefNodeFactory.class.getCanonicalName(),
-				"/community/knip/io/other");
-		m_nodeFactories.put(ImgImporterNodeFactory.class.getCanonicalName(),
-				"/community/knip/io/other");
-		m_nodeFactories.put(
-				OverlayAnnotatorNodeFactory.class.getCanonicalName(),
-				"/community/knip/labeling");
-		m_nodeFactories.put(LabelingEditorNodeFactory.class.getCanonicalName(),
-				"/community/knip/labeling");
-		return m_nodeFactories.keySet();
-	}
-
 }

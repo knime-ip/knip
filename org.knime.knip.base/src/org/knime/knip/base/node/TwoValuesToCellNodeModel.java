@@ -122,17 +122,22 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
      */
     private static final NodeLogger LOGGER = NodeLogger.getLogger(TwoValuesToCellNodeModel.class);
 
-    static SettingsModelString createColCreationModeModel() {
+    public static SettingsModelString createColCreationModeModel() {
         return new SettingsModelString("CFG_CREATION_MODE", COL_CREATION_MODES[0]);
     }
 
-    static SettingsModelString createColSuffixModel() {
+    public static SettingsModelString createColSuffixModel() {
         return new SettingsModelString("CFG_COLUMN_SUFFIX", "");
     }
 
-    static SettingsModelString createFirstColModel() {
+    public static SettingsModelString createFirstColModel() {
         return new SettingsModelString("first_column_selection", "");
     }
+
+    public  static SettingsModelString createSecondColModel() {
+        return new SettingsModelString("CFG_SECOND_COLUMN_SELECTION", "");
+    }
+
 
     private static PortType[] createPortTypes(final PortType[] additionalPorts) {
         if( additionalPorts == null ){
@@ -144,10 +149,6 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
             inPTypes[i + 1] = additionalPorts[i];
         }
         return inPTypes;
-    }
-
-    static SettingsModelString createSecondColModel() {
-        return new SettingsModelString("CFG_SECOND_COLUMN_SELECTION", "");
     }
 
     /*
@@ -283,6 +284,17 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
      */
     protected abstract COUT compute(VIN1 cellValue1, VIN2 cellValue2) throws Exception;
 
+
+    /**
+    * Will be called if a new row is about to be processed. Can be overwritten optionally. It is called before compute();
+    *
+    * @param row
+    */
+    protected void computeDataRow(final DataRow row) {
+        //
+    }
+
+
     /**
      * {@inheritDoc}
      */
@@ -353,6 +365,7 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
         return new CellFactory() {
             @Override
             public DataCell[] getCells(final DataRow row) {
+                computeDataRow(row);
                 DataCell[] cells;
                 try {
 
