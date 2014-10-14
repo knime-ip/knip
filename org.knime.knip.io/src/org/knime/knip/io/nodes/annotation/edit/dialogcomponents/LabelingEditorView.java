@@ -235,7 +235,7 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 	public void onRowReset(final LabelingEditorResetRowEvent e) {
 		m_annotationManager.resetTrackerMap(m_currentKey);
 		m_labelPanel.clearLabels();
-		
+
 		if (m_currentLabeling != null) {
 			final List<String> labels = new LinkedList<String>(
 					m_currentLabeling.getLabels());

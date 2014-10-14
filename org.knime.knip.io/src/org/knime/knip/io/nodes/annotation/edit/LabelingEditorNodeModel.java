@@ -15,6 +15,7 @@ import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.type.numeric.integer.Unsigned12BitType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
+import net.imglib2.type.numeric.integer.UnsignedIntType;
 import net.imglib2.type.numeric.integer.UnsignedShortType;
 
 import org.knime.core.data.DataRow;
@@ -28,7 +29,6 @@ import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.node.TwoValuesToCellNodeModel;
 import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
-import org.knime.knip.core.util.ImgUtils;
 import org.knime.knip.io.nodes.annotation.edit.control.LabelingEditorChangeTracker;
 import org.knime.knip.io.nodes.annotation.edit.control.LabelingEditorRowKey;
 
@@ -78,6 +78,7 @@ public class LabelingEditorNodeModel<L extends Comparable<L>>
 		m_currentRow = row;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	protected LabelingCell<String> compute(final LabelingValue<L> cellValue1,
 			final ImgPlusValue<?> cellValue2) throws Exception {
@@ -119,9 +120,6 @@ public class LabelingEditorNodeModel<L extends Comparable<L>>
 					.<String> factory());
 		}
 
-		final Labeling<String> res = ImgUtils.createEmptyCopy(src);
-		src.firstElement().getMapping().numLists();
-
 		// Create a new labeling and copy the values of the source-labeling
 		NativeImgLabeling<L, ? extends IntegerType<?>> lab = (NativeImgLabeling<L, ? extends IntegerType<?>>) cellValue1
 				.getLabeling();
@@ -129,19 +127,19 @@ public class LabelingEditorNodeModel<L extends Comparable<L>>
 		Img<? extends IntegerType<?>> img = lab.getStorageImg();
 		Img newStorageImg = null;
 
-		int modifiedLabels = 0;
-		if (currentTrack != null)
-			modifiedLabels += currentTrack.getNumberOfModifiedLabels();
 		// We need to make sure the new labeling can store all the labels
-
-		IntegerType type = findMatchingType(lab.firstElement().getMapping()
-				.numLists()
-				+ modifiedLabels);
-
 		try {
+			int modifiedLabels = 0;
+			if (currentTrack != null)
+				modifiedLabels += currentTrack.getNumberOfModifiedLabels();
+
+			IntegerType type = findMatchingType(lab.firstElement().getMapping()
+					.numLists()
+					+ modifiedLabels);
+
 			newStorageImg = img.factory().imgFactory(type).create(img, type);
 		} catch (Exception e) {
-			throw new KNIPException("Error when creating new Labeling!");
+			throw new KNIPException("Error when creating new storage Image!");
 		}
 
 		NativeImgLabeling<String, ? extends IntegerType<?>> newLabeling = new NativeImgLabeling<>(
