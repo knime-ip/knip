@@ -53,6 +53,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Vector;
@@ -64,6 +66,7 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -186,7 +189,7 @@ public class LabelingEditorLabelPanel extends AnnotatorLabelPanel {
 		// jb.setAlignmentX(Component.CENTER_ALIGNMENT);
 		// buttonPanel.add(jb);
 
-		jb = new JButton("Create label");
+		jb = new JButton("Create Label");
 		setButtonIcon(jb, "icons/tool-class.png");
 		jb.setMinimumSize(new Dimension(140, 30));
 		jb.addActionListener(new ActionListener() {
@@ -269,48 +272,35 @@ public class LabelingEditorLabelPanel extends AnnotatorLabelPanel {
 
 		buttonPanel.add(Box.createVerticalStrut(10));
 
-		jb = new JButton("Hilite selected");
-		setButtonIcon(jb, "icons/tool-clean.png");
-		jb.setMinimumSize(new Dimension(140, 30));
-		jb.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-
-				m_eventService.publish(new LabelPanelIsHiliteModeEvent(true));
-				m_highlight = true;
-				m_eventService.publish(new HilitedLabelsChgEvent(
-						new HashSet<String>(m_jLabelList
-								.getSelectedValuesList())));
+		JToggleButton jtb = new JToggleButton("Hide Others");
+		setButtonIcon(jtb, "icons/tool-clean.png");
+		jtb.setMinimumSize(new Dimension(140, 30));
+		jtb.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent ev) {
+				if (ev.getStateChange() == ItemEvent.SELECTED) {
+					m_eventService
+							.publish(new LabelPanelIsHiliteModeEvent(true));
+					m_highlight = true;
+					m_eventService.publish(new HilitedLabelsChgEvent(
+							new HashSet<String>(m_jLabelList
+									.getSelectedValuesList())));
+				} else if (ev.getStateChange() == ItemEvent.DESELECTED) {
+					m_eventService.publish(new HilitedLabelsChgEvent(
+							new HashSet<String>()));
+					m_highlight = false;
+					m_eventService.publish(new LabelPanelIsHiliteModeEvent(
+							false));
+				}
 				m_eventService.publish(new ImgRedrawEvent());
-
 			}
 		});
-		jb.setMaximumSize(new Dimension(PANEL_WIDTH, BUTTON_HEIGHT));
-		jb.setAlignmentX(Component.CENTER_ALIGNMENT);
-		buttonPanel.add(jb);
-
-		jb = new JButton("Stop hiliting");
-		setButtonIcon(jb, "icons/tool-clean.png");
-		jb.setMinimumSize(new Dimension(140, 30));
-		jb.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-
-				m_eventService.publish(new HilitedLabelsChgEvent(
-						new HashSet<String>()));
-				m_highlight = false;
-				m_eventService.publish(new LabelPanelIsHiliteModeEvent(false));
-				m_eventService.publish(new ImgRedrawEvent());
-
-			}
-		});
-		jb.setMaximumSize(new Dimension(PANEL_WIDTH, BUTTON_HEIGHT));
-		jb.setAlignmentX(Component.CENTER_ALIGNMENT);
-		buttonPanel.add(jb);
+		jtb.setMaximumSize(new Dimension(PANEL_WIDTH, BUTTON_HEIGHT));
+		jtb.setAlignmentX(Component.CENTER_ALIGNMENT);
+		buttonPanel.add(jtb);
 
 		buttonPanel.add(Box.createVerticalStrut(10));
 
-		jb = new JButton("Reset to input");
+		jb = new JButton("Reset to Input");
 		setButtonIcon(jb, "icons/tool-setlabels.png");
 		jb.setMinimumSize(new Dimension(140, 30));
 		jb.addActionListener(new ActionListener() {
@@ -324,7 +314,7 @@ public class LabelingEditorLabelPanel extends AnnotatorLabelPanel {
 		jb.setAlignmentX(Component.CENTER_ALIGNMENT);
 		buttonPanel.add(jb);
 
-		jb = new JButton("Reset current image");
+		jb = new JButton("Reset Current Image");
 		setButtonIcon(jb, "icons/tool-setlabels.png");
 		jb.setMinimumSize(new Dimension(140, 30));
 		jb.addActionListener(new ActionListener() {
