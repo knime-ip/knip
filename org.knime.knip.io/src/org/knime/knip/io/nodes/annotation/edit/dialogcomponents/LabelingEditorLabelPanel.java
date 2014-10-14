@@ -269,7 +269,7 @@ public class LabelingEditorLabelPanel extends AnnotatorLabelPanel {
 
 		buttonPanel.add(Box.createVerticalStrut(10));
 
-		jb = new JButton("Highlight selected");
+		jb = new JButton("Hilite selected");
 		setButtonIcon(jb, "icons/tool-clean.png");
 		jb.setMinimumSize(new Dimension(140, 30));
 		jb.addActionListener(new ActionListener() {
@@ -289,7 +289,7 @@ public class LabelingEditorLabelPanel extends AnnotatorLabelPanel {
 		jb.setAlignmentX(Component.CENTER_ALIGNMENT);
 		buttonPanel.add(jb);
 
-		jb = new JButton("Stop highlighting");
+		jb = new JButton("Stop hiliting");
 		setButtonIcon(jb, "icons/tool-clean.png");
 		jb.setMinimumSize(new Dimension(140, 30));
 		jb.addActionListener(new ActionListener() {
