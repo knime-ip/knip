@@ -111,6 +111,7 @@ public class LabelingEditorNodeModel<L extends Comparable<L>>
 					cellValue1.getLabeling().<String> factory());
 
 		} else {
+			// Convert the label to string
 			src = new LabelingView<String>(Converters.convert(
 					(RandomAccessibleInterval<LabelingType<L>>) cellValue1
 							.getLabeling(), new ToStringLabelingConverter<L>(),
@@ -121,6 +122,7 @@ public class LabelingEditorNodeModel<L extends Comparable<L>>
 		final Labeling<String> res = ImgUtils.createEmptyCopy(src);
 		src.firstElement().getMapping().numLists();
 
+		// Create a new labeling and copy the values of the source-labeling
 		NativeImgLabeling<L, ? extends IntegerType<?>> lab = (NativeImgLabeling<L, ? extends IntegerType<?>>) cellValue1
 				.getLabeling();
 
@@ -130,6 +132,7 @@ public class LabelingEditorNodeModel<L extends Comparable<L>>
 		int modifiedLabels = 0;
 		if (currentTrack != null)
 			modifiedLabels += currentTrack.getNumberOfModifiedLabels();
+		// We need to make sure the new labeling can store all the labels
 
 		IntegerType type = findMatchingType(lab.firstElement().getMapping()
 				.numLists()
@@ -144,6 +147,7 @@ public class LabelingEditorNodeModel<L extends Comparable<L>>
 		NativeImgLabeling<String, ? extends IntegerType<?>> newLabeling = new NativeImgLabeling<>(
 				newStorageImg);
 
+		// Copy the labelings
 		final Cursor<LabelingType<String>> resCursor = newLabeling.cursor();
 		final Cursor<LabelingType<String>> srcCursor = src.cursor();
 
@@ -155,6 +159,10 @@ public class LabelingEditorNodeModel<L extends Comparable<L>>
 				cellValue1.getLabelingMetadata());
 	}
 
+	/**
+	 * Calculates the smallest possible Type that can hold the given number of
+	 * values per pixel.
+	 */
 	private IntegerType<?> findMatchingType(int i) {
 		if (i < 2)
 			return new BitType();

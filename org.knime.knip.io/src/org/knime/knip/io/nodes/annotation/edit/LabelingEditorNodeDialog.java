@@ -221,6 +221,9 @@ public class LabelingEditorNodeDialog<T extends RealType<T> & NativeType<T>, L e
 
 			// Fetch the necessary data for the key
 			String rowName = r.getKey().getString();
+
+			// There is always at least a labeling accessible
+			@SuppressWarnings("unchecked")
 			long[] labelingDims = ((LabelingValue<L>) r.getCell(firstLabel))
 					.getDimensions();
 
