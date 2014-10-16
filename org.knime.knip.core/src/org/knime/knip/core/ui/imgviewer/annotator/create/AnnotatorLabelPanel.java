@@ -296,6 +296,7 @@ public class AnnotatorLabelPanel extends ViewerComponent {
     @Override
     public void setEventService(final EventService eventService) {
         m_eventService = eventService;
+        m_eventService.subscribe(this);
     }
 
     @Override

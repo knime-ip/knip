@@ -72,13 +72,14 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.knime.knip.core.awt.labelingcolortable.RandomMissingColorHandler;
+import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.imgviewer.annotator.create.AnnotatorLabelPanel;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorLabelsColResetEvent;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorLabelsSelChgEvent;
+import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorResetEvent;
 import org.knime.knip.core.ui.imgviewer.events.HilitedLabelsChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelPanelIsHiliteModeEvent;
-import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorResetEvent;
 import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorResetRowEvent;
 
 /**
@@ -96,6 +97,8 @@ public class LabelingEditorLabelPanel extends AnnotatorLabelPanel {
 	private static final long serialVersionUID = 1L;
 
 	private boolean m_highlight = false;
+
+	private JToggleButton m_highlightButton;
 
 	public LabelingEditorLabelPanel(final String... defaultLabels) {
 
@@ -272,10 +275,10 @@ public class LabelingEditorLabelPanel extends AnnotatorLabelPanel {
 
 		buttonPanel.add(Box.createVerticalStrut(10));
 
-		JToggleButton jtb = new JToggleButton("Hide Others");
-		setButtonIcon(jtb, "icons/tool-clean.png");
-		jtb.setMinimumSize(new Dimension(140, 30));
-		jtb.addItemListener(new ItemListener() {
+		m_highlightButton = new JToggleButton("Hide Others");
+		setButtonIcon(m_highlightButton, "icons/tool-clean.png");
+		m_highlightButton.setMinimumSize(new Dimension(140, 30));
+		m_highlightButton.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent ev) {
 				if (ev.getStateChange() == ItemEvent.SELECTED) {
 					m_eventService
@@ -294,9 +297,10 @@ public class LabelingEditorLabelPanel extends AnnotatorLabelPanel {
 				m_eventService.publish(new ImgRedrawEvent());
 			}
 		});
-		jtb.setMaximumSize(new Dimension(PANEL_WIDTH, BUTTON_HEIGHT));
-		jtb.setAlignmentX(Component.CENTER_ALIGNMENT);
-		buttonPanel.add(jtb);
+		m_highlightButton.setMaximumSize(new Dimension(PANEL_WIDTH,
+				BUTTON_HEIGHT));
+		m_highlightButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+		buttonPanel.add(m_highlightButton);
 
 		buttonPanel.add(Box.createVerticalStrut(10));
 
@@ -353,4 +357,12 @@ public class LabelingEditorLabelPanel extends AnnotatorLabelPanel {
 
 	}
 
+	@EventListener
+	public void onAnnotatorReset(final AnnotatorResetEvent event) {
+		if (m_highlightButton != null) {
+			m_highlightButton.setSelected(false);
+			m_highlight = false;
+
+		}
+	}
 }
