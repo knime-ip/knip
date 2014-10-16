@@ -304,21 +304,21 @@ public class LabelingEditorLabelPanel extends AnnotatorLabelPanel {
 
 		buttonPanel.add(Box.createVerticalStrut(10));
 
+		// jb = new JButton("Reset to Input");
+		// setButtonIcon(jb, "icons/tool-setlabels.png");
+		// jb.setMinimumSize(new Dimension(140, 30));
+		// jb.addActionListener(new ActionListener() {
+		//
+		// @Override
+		// public void actionPerformed(final ActionEvent e) {
+		// m_eventService.publish(new LabelingEditorResetEvent());
+		// }
+		// });
+		// jb.setMaximumSize(new Dimension(PANEL_WIDTH, BUTTON_HEIGHT));
+		// jb.setAlignmentX(Component.CENTER_ALIGNMENT);
+		// buttonPanel.add(jb);
+
 		jb = new JButton("Reset to Input");
-		setButtonIcon(jb, "icons/tool-setlabels.png");
-		jb.setMinimumSize(new Dimension(140, 30));
-		jb.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				m_eventService.publish(new LabelingEditorResetEvent());
-			}
-		});
-		jb.setMaximumSize(new Dimension(PANEL_WIDTH, BUTTON_HEIGHT));
-		jb.setAlignmentX(Component.CENTER_ALIGNMENT);
-		buttonPanel.add(jb);
-
-		jb = new JButton("Reset Current Image");
 		setButtonIcon(jb, "icons/tool-setlabels.png");
 		jb.setMinimumSize(new Dimension(140, 30));
 		jb.addActionListener(new ActionListener() {
