@@ -62,6 +62,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -839,6 +840,9 @@ public class FileChooserPanel extends JPanel {
 
     private void onAddAllTopLevelFiles() {
         final File[] files = m_fileChooser.getCurrentDirectory().listFiles();
+        
+        Arrays.sort(files);
+        
         final ArrayList<File> topLevelFiles = new ArrayList<File>();
 
         // remove directories
