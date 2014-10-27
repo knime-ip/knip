@@ -64,7 +64,7 @@ import org.knime.knip.io.nodes.imgreader.ImgReaderNodeFactory;
 import org.knime.knip.io.nodes.imgwriter.ImgWriterNodeFactory;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
@@ -119,7 +119,7 @@ public class IONodeSetFactory implements NodeSetFactory {
 	@Override
 	public Collection<String> getNodeFactoryIds() {
 		m_nodeFactories.put(ImgReaderNodeFactory.class.getCanonicalName(),
-				"/community/knip/io");
+                "/community/knip/io");
 		m_nodeFactories.put(ImgWriterNodeFactory.class.getCanonicalName(),
 				"/community/knip/io");
 		m_nodeFactories.put(ImageFileRefNodeFactory.class.getCanonicalName(),
