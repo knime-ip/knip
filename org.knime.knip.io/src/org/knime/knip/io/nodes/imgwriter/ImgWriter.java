@@ -48,39 +48,47 @@
  */
 package org.knime.knip.io.nodes.imgwriter;
 
-import io.scif.Format;
-import io.scif.FormatException;
-import io.scif.SCIFIO;
-import io.scif.Writer;
-import io.scif.common.DataTools;
-import io.scif.config.SCIFIOConfig;
-import io.scif.img.ImgIOException;
-import io.scif.img.ImgSaver;
-
 import java.io.IOException;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 
-
-import net.imglib2.exception.IncompatibleTypeException;
+import loci.common.DataTools;
+import loci.common.services.DependencyException;
+import loci.common.services.ServiceException;
+import loci.common.services.ServiceFactory;
+import loci.formats.ClassList;
+import loci.formats.FormatException;
+import loci.formats.FormatTools;
+import loci.formats.IFormatWriter;
+import loci.formats.ImageWriter;
+import loci.formats.MetadataTools;
+import loci.formats.MissingLibraryException;
+import loci.formats.meta.IMetadata;
+import loci.formats.services.OMEXMLService;
 import net.imglib2.img.Img;
-import net.imglib2.meta.ImgPlus;
+import net.imglib2.iterator.IntervalIterator;
+import net.imglib2.sampler.special.OrthoSliceCursor;
+import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.type.numeric.integer.ByteType;
+import net.imglib2.type.numeric.integer.IntType;
+import net.imglib2.type.numeric.integer.ShortType;
+import net.imglib2.type.numeric.integer.UnsignedByteType;
+import net.imglib2.type.numeric.integer.UnsignedIntType;
+import net.imglib2.type.numeric.integer.UnsignedShortType;
+import net.imglib2.type.numeric.real.DoubleType;
+import net.imglib2.type.numeric.real.FloatType;
+import ome.xml.model.enums.DimensionOrder;
+import ome.xml.model.enums.PixelType;
 
-
-import org.knime.knip.io.ScifioGateway;
-import org.scijava.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Provides the functionality to write {@link Img}s using the <a href =
- * "http://loci.wisc.edu/software/scifio">scifio</a>-library.
+ * "http://loci.wisc.edu/bio-formats/">bioformats</a>-library.
  *
  *
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
+ * @author hornm, University of Konstanz
  */
 public class ImgWriter {
 
@@ -88,7 +96,6 @@ public class ImgWriter {
 			.getLogger(ImgWriter.class);
 
 
-	private static final boolean DEBUG = true; // switch for debug output
 
 	/*
 	 * List of the names of the available writers associated with specific
@@ -98,14 +105,10 @@ public class ImgWriter {
 
 	/* map from the writer names to the actual writers */
 
-	private HashMap<String, Format> m_mapFormats = null;
-
+	private HashMap<String, IFormatWriter> m_mapWriters = null;
 
 	/* Frame rate to use when writing in frames per second, if applicable. */
 	private int m_fps = 10;
-
-	/* Handles the writing on disk */
-	private ImgSaver m_saver;
 
 	/**
 	 * Creates an new writer. *
@@ -113,36 +116,24 @@ public class ImgWriter {
 	public ImgWriter() {
 	}
 
-
-	/*
-	 * Provides access to SCifio methods
-	 */
-	private final SCIFIO SCIFIO = ScifioGateway.getSCIFIO();
-
 	/* helper to get the list of the supported writers */
 	private void retrieveSupportedWriters() {
 
-		if (m_mapFormats == null) {
-			final Context con = SCIFIO.getContext();
-			m_saver = new ImgSaver(con);
+		if (m_mapWriters == null) {
+			loci.formats.ImageWriter writer;
+			final ClassList<IFormatWriter> defaultClasses = ImageWriter
+					.getDefaultWriterClasses();
+			writer = new loci.formats.ImageWriter(defaultClasses);
+			final IFormatWriter[] writers = writer.getWriters();
+			m_writers = new String[writers.length];
+			m_mapWriters = new HashMap<String, IFormatWriter>();
+			for (int i = 0; i < writers.length; i++) {
 
-			final Collection<Format> outFormats = SCIFIO.format()
-					.getOutputFormats();
+				m_writers[i] = writers[i].getFormat() + " ("
+						+ writers[i].getSuffixes()[0] + ")";
+				m_mapWriters.put(m_writers[i], writers[i]);
 
-			m_writers = new String[outFormats.size()];
-			m_mapFormats = new HashMap<String, Format>();
-
-			int i = 0;
-			final Iterator<Format> it = outFormats.iterator();
-			while (it.hasNext()) {
-				final Format f = it.next();
-				m_writers[i] = f.getClass().getSimpleName()
-						.replace("Format", "")
-						+ " (" + f.getSuffixes()[0] + ")";
-				m_mapFormats.put(m_writers[i], f);
-				i++;
 			}
-
 		}
 	}
 
@@ -150,7 +141,7 @@ public class ImgWriter {
 	 * Returns the list of the possible compression types of the specific
 	 * writer.
 	 *
-	 * @param format
+	 * @param writer
 	 *            the name of the writer
 	 * @return the list of possible compressions, <code>null</code> if there are
 	 *         no compression types
@@ -158,7 +149,6 @@ public class ImgWriter {
 	public String[] getCompressionTypes(final String writer) {
 		retrieveSupportedWriters();
 		final IFormatWriter w = m_mapWriters.get(writer);
-
 		if (w == null) {
 			return null;
 		}
@@ -177,27 +167,17 @@ public class ImgWriter {
 	 * Gets one suffix normally used to identify the format associated with the
 	 * specific writer.
 	 *
-	 * @param format
+	 * @param writer
 	 *            the writer
 	 * @return the suffix, e.g. '.tif'
-	 * @throws FormatException
 	 */
-	public String getSuffix(final String format) throws FormatException {
+	public String getSuffix(final String writer) {
 		retrieveSupportedWriters();
-		Writer w = null;
-		try {
-			w = m_mapFormats.get(format).createWriter();
-		} catch (final io.scif.FormatException e) {
-			throw new FormatException(
-					"Could not create writer for selected format " + format
-							+ "\n" + e.getMessage());
-		} catch (final NullPointerException e) {
-			throw new FormatException("No writer for selected format " + format);
-		}
+		final IFormatWriter w = m_mapWriters.get(writer);
 		if (w == null) {
 			return null;
 		}
-		return w.getFormat().getSuffixes()[0];
+		return w.getSuffixes()[0];
 	}
 
 	/**
@@ -227,12 +207,17 @@ public class ImgWriter {
 	 * @throws DependencyException
 	 */
 	public <T extends RealType<T>> void writeImage(final Img<T> img,
-			final String outfile, final String format,
+			final String outfile, final String writer,
 			final String compressionType, final int[] dimMapping)
-			throws FormatException, IOException  {
+			throws FormatException, IOException, MissingLibraryException,
+			ServiceException, DependencyException {
 		retrieveSupportedWriters();
-		writeImage(img, outfile, m_mapFormats.get(format), compressionType,
-				dimMapping);
+		IFormatWriter w = m_mapWriters.get(writer);
+		if (w == null) {
+			throw new FormatException("Missing Writer for Format: " + writer
+					+ "!");
+		}
+		writeImage(img, outfile, w, compressionType, dimMapping);
 
 	}
 
@@ -263,16 +248,56 @@ public class ImgWriter {
 	 * @throws DependencyException
 	 */
 	public <T extends RealType<T>> void writeImage(final Img<T> img,
-			final String outfile, final Format format,
+			final String outfile, final IFormatWriter writer,
 			final String compressionType, final int[] dimMapping)
-			throws FormatException, IOException  {
+			throws FormatException, IOException, MissingLibraryException,
+			ServiceException, DependencyException {
 
-		if (DEBUG) {
-			LOGGER.warn("File: " + outfile + " \n Type:"
-					+ img.firstElement().getClass().getSimpleName()
-					+ "format: " + format.getFormatName());
+		// create metadata object with minimum required metadata
+		// fields
+		final ServiceFactory factory = new ServiceFactory();
+		final OMEXMLService service = factory.getInstance(OMEXMLService.class);
+		final IMetadata store = service.createOMEXMLMetadata();
+
+		// retrieve the pixeltype
+		PixelType ptype = null;
+		int ftptype;
+		final T val = img.firstElement().createVariable();
+		if (val instanceof BitType) {
+			ptype = PixelType.INT8;
+			ftptype = FormatTools.INT8;
+		} else if (val instanceof ByteType) {
+			ptype = PixelType.INT8;
+			ftptype = FormatTools.INT8;
+		} else if (val instanceof UnsignedByteType) {
+			ptype = PixelType.UINT8;
+			ftptype = FormatTools.UINT8;
+		} else if (val instanceof ShortType) {
+			ptype = PixelType.INT16;
+			ftptype = FormatTools.INT16;
+		} else if (val instanceof UnsignedShortType) {
+			ptype = PixelType.UINT16;
+			ftptype = FormatTools.UINT16;
+		} else if (val instanceof IntType) {
+			ptype = PixelType.INT32;
+			ftptype = FormatTools.INT32;
+		} else if (val instanceof UnsignedIntType) {
+			ptype = PixelType.UINT32;
+			ftptype = FormatTools.UINT32;
+		} else if (val instanceof FloatType) {
+			ptype = PixelType.FLOAT;
+			ftptype = FormatTools.FLOAT;
+		} else if (val instanceof DoubleType) {
+			ptype = PixelType.DOUBLE;
+			ftptype = FormatTools.DOUBLE;
+		} else {
+			throw new FormatException("The given image format ("
+					+ val.getClass().getSimpleName() + ") can't be writen!");
 		}
-		final SCIFIOConfig config = new SCIFIOConfig();
+
+		if (store == null) {
+			throw new MissingLibraryException("OME-XML Java library not found.");
+		}
 
 		int[] map;
 		if ((dimMapping == null) || (dimMapping.length != 3)) {
@@ -281,74 +306,214 @@ public class ImgWriter {
 			map = dimMapping.clone();
 		}
 
+		final int numDim = img.numDimensions();
+		final int sizeX = (int) img.dimension(0);
+		final int sizeY = (int) img.dimension(1);
+		final int sizeZ = ((img.numDimensions() > map[0]) && (map[0] != -1)) ? (int) img
+				.dimension(2 + map[0]) : 1;
 		int sizeC = (img.numDimensions() > map[1]) && (map[1] != -1) ? (int) img
 				.dimension(2 + map[1]) : 1;
 		if (sizeC > 3) {
 			LOGGER.warn("Image has more than 3 channels. These channels will be ignored.");
 			sizeC = 3;
 		}
-
 		final int sizeT = (img.numDimensions() > map[2]) && (map[2] != -1) ? (int) img
 				.dimension(2 + map[2]) : 1;
 
-		final int sizeZ = ((img.numDimensions() > map[0]) && (map[0] != -1)) ? (int) img
-				.dimension(2 + map[0]) : 1;
+		MetadataTools.populateMetadata(store, 0, outfile, false, "XYZCT",
+				FormatTools.getPixelTypeString(ftptype), sizeX, sizeY, sizeZ,
+				sizeC, sizeT, sizeC);
 
 		if (img.numDimensions() > 5) {
 			LOGGER.warn("Image has more than five dimension. These dimensions will be ignored.");
 		}
-
-		config.writerSetFramesPerSecond(m_fps);
-
-		Writer tempWriter = null;
-		try {
-			tempWriter = format.createWriter();
-		} catch (final FormatException e) {
-			LOGGER.error(e.getMessage());
+		if ((sizeC > 1)
+				&& !((val instanceof ByteType) || (val instanceof UnsignedByteType))) {
+			throw new FormatException("RGB images must be of type byte!");
 		}
 
-		if ((compressionType != null)
-				&& (tempWriter.getCompressionTypes() != null)) {
-			config.writerSetCompression(compressionType);
+		// write image plane to disk
+
+		writer.setMetadataRetrieve(store);
+		writer.setFramesPerSecond(m_fps);
+		writer.setId(outfile);
+
+		if ((compressionType != null) && (writer.getCompressionTypes() != null)) {
+			writer.setCompression(compressionType);
 		}
-		final boolean doStack = tempWriter.canDoStacks();
+
+		if (!writer.isSupportedType(ftptype)) {
+			final int[] supportedPTypes = writer.getPixelTypes();
+			final StringBuffer types = new StringBuffer();
+			for (int i = 0; i < supportedPTypes.length; i++) {
+				types.append(FormatTools.getPixelTypeString(supportedPTypes[i])
+						+ " ");
+			}
+
+			throw new FormatException(
+					ptype.toString()
+							+ " not supported by the selected image format. Supported are "
+							+ types.toString() + ".");
+		}
+
+		// convert and save slices
+		final boolean doStack = writer.canDoStacks();
 
 		if (!doStack && ((sizeT > 1) || (sizeZ > 1))) {
 			throw new FormatException(
-					"Selected format  doesn't support image stacks.");
+					"Seleted format doesn't support image stacks.");
 		}
 
-		final ImgPlus<T> imp = ImgPlus.wrap(img);
+		writer.setInterleaved(false);
 
-		try {
-			tempWriter.isSupportedType(
-					SCIFIO.imgUtil().makeType(imp.firstElement()),
-					compressionType);
+		final boolean littleEndian = !writer.getMetadataRetrieve()
+				.getPixelsBinDataBigEndian(0, 0).booleanValue();
 
-			final int pixeltype = SCIFIO.imgUtil().makeType(imp.firstElement());
-			if (!DataTools.containsValue(
-					tempWriter.getPixelTypes(compressionType), pixeltype)) {
-				throw new ImgIOException(compressionType);
+		final IntervalIterator fakeCursor = new IntervalIterator(new int[] {
+				sizeZ, sizeT });
+
+		OrthoSliceCursor<T> c;
+
+		final byte[][] planes = new byte[sizeC][];
+		long[] pos;
+		final int numSteps = sizeT * sizeZ;
+		while (fakeCursor.hasNext()) {
+			fakeCursor.fwd();
+
+			// iterate through the channels
+			for (int i = 0; i < sizeC; i++) {
+
+				final long[] zctPos = new long[] {
+						fakeCursor.getLongPosition(0), i,
+						fakeCursor.getLongPosition(1) };
+
+				// map xyzct pos to img dimensions
+				switch (numDim) {
+				case 2:
+					pos = new long[] { 0, 0 };
+					break;
+				case 3:
+					pos = new long[3];
+					for (int j = 0; j < map.length; j++) {
+						if ((map[j] != -1) && (map[j] < 3)) {
+							pos[2 + map[j]] = zctPos[j];
+							break;
+						}
+					}
+					break;
+				case 4:
+					pos = new long[4];
+					pos[2] = -1;
+					for (int j = 0; j < map.length; j++) {
+						if ((map[j] != -1) && (map[j] < 4)) {
+							if (pos[2] == -1) {
+								pos[2 + map[j]] = zctPos[j];
+							} else {
+								pos[2 + map[j]] = zctPos[j];
+								break;
+							}
+						}
+					}
+					break;
+				// five or more dimensions
+				default:
+					pos = new long[numDim];
+					for (int j = 0; j < map.length; j++) {
+						if (map[j] != -1) {
+							pos[2 + map[j]] = zctPos[j];
+						}
+					}
+					break;
+
+				}
+
+				c = new OrthoSliceCursor<T>(img, 0, 1, pos);
+
+				if (val instanceof ByteType) {
+					planes[i] = new byte[(int) (img.dimension(0) * img
+							.dimension(1))];
+					while (c.hasNext()) {
+						c.fwd();
+						planes[i][c.getIntPosition(0)
+								+ ((int) img.dimension(0) * c.getIntPosition(1))] = ((ByteType) c
+								.get()).get();
+					}
+					planes[i] = DataTools.makeSigned(planes[i]);
+
+				} else if (val instanceof UnsignedByteType) {
+					planes[i] = new byte[(int) (img.dimension(0) * img
+							.dimension(1))];
+					while (c.hasNext()) {
+						c.fwd();
+						planes[i][c.getIntPosition(0)
+								+ ((int) img.dimension(0) * c.getIntPosition(1))] = (byte) (((UnsignedByteType) c
+								.get()).get() - 128);
+					}
+					planes[i] = DataTools.makeSigned(planes[i]);
+				} else if (val instanceof ShortType) {
+					final short[] tmp = new short[(int) (img.dimension(0) * img
+							.dimension(1))];
+					while (c.hasNext()) {
+						c.fwd();
+						tmp[c.getIntPosition(0)
+								+ ((int) img.dimension(0) * c.getIntPosition(1))] = ((ShortType) c
+								.get()).get();
+					}
+					planes[i] = DataTools.shortsToBytes(tmp, littleEndian);
+
+				} else if (val instanceof FloatType) {
+					final float[] tmp = new float[(int) (img.dimension(0) * img
+							.dimension(1))];
+					while (c.hasNext()) {
+						c.fwd();
+						tmp[c.getIntPosition(0)
+								+ ((int) img.dimension(0) * c.getIntPosition(1))] = ((FloatType) c
+								.get()).get();
+					}
+					planes[i] = DataTools.floatsToBytes(tmp, littleEndian);
+
+				} else {
+					throw new FormatException(
+							"Pixel type not supported by this format.");
+				}
+
+			}
+			final int index = FormatTools.getIndex(
+					DimensionOrder.XYZCT.toString(), sizeZ, 1, sizeT, numSteps,
+					fakeCursor.getIntPosition(0), 0,
+					fakeCursor.getIntPosition(1));
+
+			// merge channel planes
+			if ((sizeC > 1)
+					&& ((val instanceof ByteType) || (val instanceof UnsignedByteType))) {
+				final byte[] rgb = new byte[planes[0].length * sizeC];
+
+				for (int j = 0; j < sizeC; j++) {
+					System.arraycopy(planes[j], 0, rgb, planes[j].length * j,
+							planes[j].length);
+				}
+				writer.saveBytes(index, rgb);
+
+			} else {
+				writer.saveBytes(index, planes[0]);
 			}
 
-		} catch (final ImgIOException e1) {
-			throw new FormatException("Pixeltype "
-					+ imp.firstElement().getClass().getSimpleName()
-					+ " can't be written in the selected Format.");
 		}
 
-		try {
-			m_saver.saveImg(outfile, img, config);
-		} catch (final ImgIOException e) {
-			LOGGER.error("Skipped image: " + imp.getName() + " "
-					+ e.getMessage().replace("io.scif.FormatException:", ""));
-		} catch (final IncompatibleTypeException e) {
-			LOGGER.error(e.getMessage());
-		}
+		writer.close();
+
 	}
 
 	public void setFramesPerSecond(final int fps) {
 		m_fps = fps;
 	}
 
+	/**
+	 * All operations to be done to close the image writer.
+	 *
+	 * @throws IOException
+	 */
+	public void close() throws IOException {
+		//
+	}
 }

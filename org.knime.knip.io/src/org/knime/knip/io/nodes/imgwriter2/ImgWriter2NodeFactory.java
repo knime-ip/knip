@@ -46,39 +46,46 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.io.nodes;
+package org.knime.knip.io.nodes.imgwriter2;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
+import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
-import org.knime.core.node.NodeModel;
-import org.knime.core.node.NodeSetFactory;
-import org.knime.core.node.config.ConfigRO;
-import org.knime.knip.io.nodes.annotation.create.OverlayAnnotatorNodeFactory;
-import org.knime.knip.io.nodes.annotation.edit.LabelingEditorNodeFactory;
-import org.knime.knip.io.nodes.fileref.ImageFileRefNodeFactory;
-import org.knime.knip.io.nodes.imgimporter.ImgImporterNodeFactory;
-import org.knime.knip.io.nodes.imgreader.ImgReaderNodeFactory;
-import org.knime.knip.io.nodes.imgwriter2.ImgWriter2NodeFactory;
+import org.knime.core.node.NodeView;
 
 /**
+ * Factory class to produce image writer node.
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
+ * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
  */
-public class IONodeSetFactory implements NodeSetFactory {
-
-    private final Map<String, String> m_nodeFactories = new HashMap<String, String>();
+@SuppressWarnings("rawtypes")
+public class ImgWriter2NodeFactory extends NodeFactory<ImgWriter2NodeModel> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public ConfigRO getAdditionalSettings(final String id) {
+    protected NodeDialogPane createNodeDialogPane() {
+        return new ImgWriter2NodeDialog();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ImgWriter2NodeModel createNodeModel() {
+        return new ImgWriter2NodeModel();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public NodeView<ImgWriter2NodeModel> createNodeView(final int viewIndex,
+            final ImgWriter2NodeModel nodeModel) {
         return null;
     }
 
@@ -86,52 +93,16 @@ public class IONodeSetFactory implements NodeSetFactory {
      * {@inheritDoc}
      */
     @Override
-    public String getAfterID(final String id) {
-        return "";
+    protected int getNrNodeViews() {
+        return 0;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public String getCategoryPath(final String id) {
-        return m_nodeFactories.get(id);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @SuppressWarnings("unchecked")
-    @Override
-    public Class<? extends NodeFactory<? extends NodeModel>> getNodeFactory(
-            final String id) {
-        try {
-            return (Class<? extends NodeFactory<? extends NodeModel>>) Class
-                    .forName(id);
-        } catch (final ClassNotFoundException e) {
-        }
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Collection<String> getNodeFactoryIds() {
-        m_nodeFactories.put(ImgReaderNodeFactory.class.getCanonicalName(),
-                "/community/knip/io");
-        m_nodeFactories.put(ImgWriter2NodeFactory.class.getCanonicalName(),
-                "/community/knip/io");
-        m_nodeFactories.put(ImageFileRefNodeFactory.class.getCanonicalName(),
-                "/community/knip/io/other");
-        m_nodeFactories.put(ImgImporterNodeFactory.class.getCanonicalName(),
-                "/community/knip/io/other");
-        m_nodeFactories.put(
-                OverlayAnnotatorNodeFactory.class.getCanonicalName(),
-                "/community/knip/labeling");
-        m_nodeFactories.put(LabelingEditorNodeFactory.class.getCanonicalName(),
-                "/community/knip/labeling");
-        return m_nodeFactories.keySet();
+    protected boolean hasDialog() {
+        return true;
     }
 
 }
