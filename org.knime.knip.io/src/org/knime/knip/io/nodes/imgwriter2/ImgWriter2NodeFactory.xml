@@ -26,18 +26,18 @@
         <option name="Selected Directory">
             The directory where the images will be stored.
         </option>
-        <option name="File names">
+        <option name="Filenames">
             Select the column which provides the names for the files to save.
             Make sure, that there are no duplicated file names
-            (they will be overwritten or ignored, depending on the "Writer options").
-            If "none" is chosen, the rowID will be used as file name.
-            Note that some formats (like .jpg) don't support image stacks.
-            In this cases only the first image plane will be stored.
+            (they will be overwritten or ignored, depending on the "Writer options"). <br/>
+            Alternatively you can select <b> &lt;RowID&gt; </b> to use the Row ID as the file name.
+	</option>
+
+         <option name="Custom Filename">
+    		You can specify a custome prefix for the filenames. The filenames will follow the following schema:
+    		prefix01, prefix02 etc.
         </option>
         <option name="Format selection">To determine the format of the files. Note that some formats need specific pixel types (e.g. avi needs unsigned byte). Use the Converter-Node to provide the right type.</option>
-        <option name="Writer options">
-            Some additional options.
-        </option>
     </fullDescription>
 
 	<ports>
