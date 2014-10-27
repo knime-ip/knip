@@ -79,151 +79,149 @@ import org.knime.knip.base.data.img.ImgPlusValue;
  */
 public class ImgWriter2NodeDialog extends DefaultNodeSettingsPane {
 
-	private final DialogComponentStringSelection m_compression;
+    private final DialogComponentStringSelection m_compression;
 
-	private final DialogComponentColumnNameSelection m_filenameColumn;
+    private final DialogComponentStringSelection m_formats;
 
-	private final DialogComponentStringSelection m_formats;
+    private final ImgWriter2 m_writer;
 
-	private final ImgWriter2 m_writer;
+    /**
+     * Dialog with Column Selection.
+     *
+     */
+    @SuppressWarnings("unchecked")
+    public ImgWriter2NodeDialog() {
+        super();
 
-	/**
-	 * Dialog with Column Selection.
-	 *
-	 */
-	@SuppressWarnings("unchecked")
-	public ImgWriter2NodeDialog() {
-		super();
+        // image column selection
+        createNewGroup("Image column to save:");
+        addDialogComponent(new DialogComponentColumnNameSelection(
+                ImgWriter2SettingsModels.createImgColumnModel(), "", 0,
+                ImgPlusValue.class));
+        closeCurrentGroup();
 
-		// image column selection
-		createNewGroup("Image column to save:");
-		addDialogComponent(new DialogComponentColumnNameSelection(
-				ImgWriter2SettingsModels.createImgColumnModel(), "", 0,
-				ImgPlusValue.class));
-		closeCurrentGroup();
+        // directory selection
+        addDialogComponent(new DialogComponentFileChooser(
+                ImgWriter2SettingsModels.createDirectoryModel(),
+                ImgWriter2SettingsModels.DIRHISTORY_KEY,
+                JFileChooser.OPEN_DIALOG, true));
 
-		// directory selection
-		addDialogComponent(new DialogComponentFileChooser(
-				ImgWriter2SettingsModels.createDirectoryModel(),
-				"imagewriterdirhistory", JFileChooser.OPEN_DIALOG, true));
+        // filename column selection
+        createNewGroup("File names:");
+        final SettingsModelColumnName fcol = ImgWriter2SettingsModels
+                .createFileNameColumnModel();
+        fcol.setEnabled(false);
+        addDialogComponent(new DialogComponentColumnNameSelection(fcol,
+                "Column:", 0, false, false, StringValue.class));
 
-		// filename column selection
-		createNewGroup("File names:");
-		final SettingsModelColumnName fcol = ImgWriter2SettingsModels
-				.createFileNameColumnModel();
-		fcol.setEnabled(false);
-		m_filenameColumn = new DialogComponentColumnNameSelection(fcol,
-				"Column:", 0, false, false, StringValue.class);
-		addDialogComponent(m_filenameColumn);
+        // Custom filename selection
+        setHorizontalPlacement(true);
 
-		// Custom filename selection
-		setHorizontalPlacement(true);
+        final SettingsModelString customFileNameModel = ImgWriter2SettingsModels
+                .createCustomFileNameModel();
+        customFileNameModel.setEnabled(false);
+        final SettingsModelBoolean useCustomFileNameModel = ImgWriter2SettingsModels
+                .createUseCustomFileNameModel();
 
-		final SettingsModelString customFileNameModel = ImgWriter2SettingsModels
-				.createCustomFileNameModel();
-		customFileNameModel.setEnabled(false);
-		final SettingsModelBoolean useCustomFileNameModel = ImgWriter2SettingsModels
-				.createUseCustomFileNameModel();
+        useCustomFileNameModel.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                customFileNameModel.setEnabled(useCustomFileNameModel
+                        .getBooleanValue());
+                fcol.setEnabled(!useCustomFileNameModel.getBooleanValue());
+            }
+        });
 
-		useCustomFileNameModel.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				customFileNameModel.setEnabled(useCustomFileNameModel
-						.getBooleanValue());
-				fcol.setEnabled(!useCustomFileNameModel.getBooleanValue());
-			}
-		});
+        customFileNameModel.setEnabled(false);
+        addDialogComponent(new DialogComponentBoolean(useCustomFileNameModel,
+                "Custom filename"));
+        addDialogComponent(new DialogComponentString(customFileNameModel,
+                "Filename Prefix"));
 
-		customFileNameModel.setEnabled(false);
-		addDialogComponent(new DialogComponentBoolean(useCustomFileNameModel,
-				"Custom Filename"));
-		addDialogComponent(new DialogComponentString(customFileNameModel,
-				"Filename Prefix"));
+        setHorizontalPlacement(false);
+        closeCurrentGroup();
 
-		setHorizontalPlacement(false);
-		closeCurrentGroup();
+        // format and compression selection
+        m_writer = new ImgWriter2();
+        m_formats = new DialogComponentStringSelection(
+                ImgWriter2SettingsModels.createFormatModel(), "File format:",
+                Arrays.asList(m_writer.getWriters()));
+        m_formats.getModel().addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(final ChangeEvent e) {
+                onFormatSelectionChanged();
+            }
+        });
+        String[] compr = m_writer
+                .getCompressionTypes(((SettingsModelString) m_formats
+                        .getModel()).getStringValue());
 
-		// format and compression selection
-		m_writer = new ImgWriter2();
-		m_formats = new DialogComponentStringSelection(
-				ImgWriter2SettingsModels.createFormatModel(), "File format:",
-				Arrays.asList(m_writer.getWriters()));
-		m_formats.getModel().addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(final ChangeEvent e) {
-				onFormatSelectionChanged();
-			}
-		});
-		String[] compr = m_writer
-				.getCompressionTypes(((SettingsModelString) m_formats
-						.getModel()).getStringValue());
+        boolean hasCompression = true;
+        if (compr == null || compr.length == 0) {
+            compr = new String[] { "Uncompressed" };
+            hasCompression = false;
+        } else if (compr.length == 1
+                && compr[0].equals(new String("Uncompressed"))) {
+            hasCompression = false;
+        }
+        m_compression = new DialogComponentStringSelection(
+                ImgWriter2SettingsModels.createCompressionModel(),
+                "Compression type", Arrays.asList(compr));
+        if (hasCompression) {
+            m_compression.getModel().setEnabled(true);
+        } else {
+            m_compression.getModel().setEnabled(false);
+        }
 
-		boolean hasCompression = true;
-		if (compr == null || compr.length == 0) {
-			compr = new String[] { "Uncompressed" };
-			hasCompression = false;
-		} else if (compr.length == 1
-				&& compr[0].equals(new String("Uncompressed"))) {
-			hasCompression = false;
-		}
-		m_compression = new DialogComponentStringSelection(
-				ImgWriter2SettingsModels.createCompressionModel(),
-				"Compression type", Arrays.asList(compr));
-		if (hasCompression) {
-			m_compression.getModel().setEnabled(true);
-		} else {
-			m_compression.getModel().setEnabled(false);
-		}
+        createNewGroup("Format selection:");
+        addDialogComponent(m_formats);
+        addDialogComponent(m_compression);
+        closeCurrentGroup();
 
-		createNewGroup("Format selection:");
-		addDialogComponent(m_formats);
-		addDialogComponent(m_compression);
-		closeCurrentGroup();
+        // additional writer options
+        createNewGroup("Writer options:");
+        addDialogComponent(new DialogComponentBoolean(
+                ImgWriter2SettingsModels.createOverwriteModel(),
+                "Overwrite existing files?"));
+        addDialogComponent(new DialogComponentBoolean(
+                ImgWriter2SettingsModels.createForceDirCreationModel(),
+                "Create non-existing directories."));
+        closeCurrentGroup();
 
-		// additional writer options
-		createNewGroup("Writer options:");
-		addDialogComponent(new DialogComponentBoolean(
-				ImgWriter2SettingsModels.createOverwriteModel(),
-				"Overwrite existing files?"));
-		addDialogComponent(new DialogComponentBoolean(
-				ImgWriter2SettingsModels.createForceDirCreationModel(),
-				"Create non-existing directories."));
-		closeCurrentGroup();
+        createNewTab("Dimension Mapping");
+        final String[] labels = KNIMEKNIPPlugin.parseDimensionLabels();
+        addDialogComponent(new DialogComponentStringSelection(
+                ImgWriter2SettingsModels.createZMappingModel(), "Z label",
+                Arrays.asList(labels)));
+        addDialogComponent(new DialogComponentStringSelection(
+                ImgWriter2SettingsModels.createChannelMappingModel(),
+                "Channel label (max. 3 channels used)", Arrays.asList(labels)));
+        addDialogComponent(new DialogComponentStringSelection(
+                ImgWriter2SettingsModels.createTimeMappingModel(),
+                "Time label", Arrays.asList(labels)));
 
-		createNewTab("Dimension Mapping");
-		final String[] labels = KNIMEKNIPPlugin.parseDimensionLabels();
-		addDialogComponent(new DialogComponentStringSelection(
-				ImgWriter2SettingsModels.createZMappingModel(), "Z label",
-				Arrays.asList(labels)));
-		addDialogComponent(new DialogComponentStringSelection(
-				ImgWriter2SettingsModels.createChannelMappingModel(),
-				"Channel label (max. 3 channels used)", Arrays.asList(labels)));
-		addDialogComponent(new DialogComponentStringSelection(
-				ImgWriter2SettingsModels.createTimeMappingModel(), "Time label",
-				Arrays.asList(labels)));
+        createNewTab("More Writer Options");
+        addDialogComponent(new DialogComponentNumber(
+                ImgWriter2SettingsModels.createFrameRateModel(),
+                "Frames per second (if applicable)", 1));
 
-		createNewTab("More Writer Options");
-		addDialogComponent(new DialogComponentNumber(
-				ImgWriter2SettingsModels.createFrameRateModel(),
-				"Frames per second (if applicable)", 1));
+    }
 
-	}
+    /* called, when another format was selected */
+    private void onFormatSelectionChanged() {
+        final String[] compr = m_writer
+                .getCompressionTypes(((SettingsModelString) m_formats
+                        .getModel()).getStringValue());
 
-	/* called, when another format was selected */
-	private void onFormatSelectionChanged() {
-		final String[] compr = m_writer
-				.getCompressionTypes(((SettingsModelString) m_formats
-						.getModel()).getStringValue());
+        if (compr != null && compr.length != 0) {
+            m_compression.replaceListItems(Arrays.asList(compr), compr[0]);
+            m_compression.getModel().setEnabled(true);
+        } else {
+            m_compression.replaceListItems(
+                    Arrays.asList(new String[] { "Uncompressed" }), null);
+            m_compression.getModel().setEnabled(false);
+        }
 
-		if (compr != null && compr.length != 0) {
-			m_compression.replaceListItems(Arrays.asList(compr), compr[0]);
-			m_compression.getModel().setEnabled(true);
-		} else {
-			m_compression.replaceListItems(
-					Arrays.asList(new String[] { "Uncompressed" }), null);
-			m_compression.getModel().setEnabled(false);
-		}
-
-	}
+    }
 
 }
