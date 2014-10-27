@@ -48,17 +48,15 @@
  */
 package org.knime.knip.io.nodes.imgwriter;
 
-import io.scif.FormatException;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import loci.formats.FormatException;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.type.numeric.RealType;
 
-import org.apache.commons.io.FileUtils;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.StringValue;
@@ -74,7 +72,6 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
-import org.knime.core.node.defaultnodesettings.SettingsModelColumnName;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.data.img.ImgPlusValue;
@@ -83,332 +80,358 @@ import org.knime.knip.base.node.NodeUtils;
 /**
  *
  *
- * @param <T>
- *            image type
+ * @param <T> image type
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
- * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
- *
  */
 public class ImgWriterNodeModel<T extends RealType<T>> extends NodeModel {
 
-	private static final NodeLogger LOGGER = NodeLogger
-			.getLogger(ImgWriterNodeModel.class);
+    public static final String CFG_C_DIM_MAPPING = "c_dim_mapping";
 
-	/*
-	 * SETTING MODELS
-	 */
+    /**
+     * Key to store the compression settings.
+     */
+    public static final String CFG_COMPRESSION_KEY = "compression";
 
-	private final SettingsModelString m_imgColumn = ImgWriterSettingsModels
-			.createImgColumnModel();
+    /**
+     * Key to store the directory settings.
+     */
+    public static final String CFG_DIRECTORY_KEY = "directory";
 
-	private final SettingsModelColumnName m_filenameColumn = ImgWriterSettingsModels
-			.createFileNameColumnModel();
+    /**
+     * Key to store the column of the file names.
+     */
+    public static final String CFG_FILENAME_COLUMN_KEY = "filenamecolumn";
 
-	/*
-	 * Custom filename options.
-	 */
-	private final SettingsModelBoolean m_customNameOption = ImgWriterSettingsModels
-			.createUseCustomFileNameModel();
+    /**
+     * Key to store the format settings.
+     */
+    public static final String CFG_FORMAT_KEY = "format";
 
-	private final SettingsModelString m_customFileName = ImgWriterSettingsModels
-			.createCustomFileNameModel();
+    /**
+     * Key to store frame rate
+     */
+    public static final String CFG_FRAMERATE_KEY = "framerate";
 
-	/*
-	 * output options.
-	 */
-	private final SettingsModelBoolean m_overwrite = ImgWriterSettingsModels
-			.createOverwriteModel();
+    /**
+     * Key to store the column to work on in the settings.
+     */
+    public static final String CFG_IMG_COLUMN_KEY = "imgcolumn";
 
-	private final SettingsModelBoolean m_forceMkdir = ImgWriterSettingsModels
-			.createForceDirCreationModel();
+    /**
+     * Key to store the overwrite option.
+     */
+    public static final String CFG_OVERWRITE_KEY = "overwrite";
 
-	private final SettingsModelString m_directory = ImgWriterSettingsModels
-	.createDirectoryModel();
+    public static final String CFG_T_DIM_MAPPING = "t_dim_mapping";
 
-	private final SettingsModelString m_format = ImgWriterSettingsModels
-			.createFormatModel();
+    /**
+     * Keys to store the mappings.
+     */
+    public static final String CFG_Z_DIM_MAPPING = "z_dim_mapping";
 
-	private final SettingsModelString m_compression = ImgWriterSettingsModels
-			.createCompressionModel();
+    private static final NodeLogger LOGGER = NodeLogger
+            .getLogger(ImgWriterNodeModel.class);
 
-	private final SettingsModelInteger m_frameRate = ImgWriterSettingsModels
-			.createFrameRateModel();
+    // /**
+    // * Key to store the ome-xml column.
+    // */
+    // public static final String OME_XML_COLUMN = "omexmlcolumn";
 
-	/*
-	 * MAPPING SETTINGS MODELS.
-	 */
-	private final SettingsModelString m_tMapping = ImgWriterSettingsModels
-			.createTimeMappingModel();
+    private final SettingsModelString m_cMapping = new SettingsModelString(
+            CFG_C_DIM_MAPPING, "Channel");
 
-	private final SettingsModelString m_cMapping = ImgWriterSettingsModels
-			.createChannelMappingModel();
+    /*
+     * The selected compression.
+     */
+    private final SettingsModelString m_compression = new SettingsModelString(
+            CFG_COMPRESSION_KEY, "");
 
-	private final SettingsModelString m_zMapping = ImgWriterSettingsModels
-			.createZMappingModel();
+    // /*
+    // * The selected ome-xml column.
+    // */
+    // private SettingsModelString m_omexmlColumn = new SettingsModelString(
+    // ImageWriterNodeModel.OME_XML_COLUMN, "");
 
-	private final Collection<SettingsModel> m_settingsCollection;
+    /*
+     * The selected directory.
+     */
+    private final SettingsModelString m_directory = new SettingsModelString(
+            ImgWriterNodeModel.CFG_DIRECTORY_KEY, "");
 
-	/**
-	 * One input one output.
-	 *
-	 */
-	public ImgWriterNodeModel() {
-		super(1, 0);
-		// for state consistency:
-		m_customFileName.setEnabled(false);
+    /*
+     * The selected column holding the filenames.
+     */
+    private final SettingsModelString m_filenameColumn =
+            new SettingsModelString(ImgWriterNodeModel.CFG_FILENAME_COLUMN_KEY,
+                    "");
 
-		m_settingsCollection = new ArrayList<SettingsModel>();
-		m_settingsCollection.add(m_directory);
-		m_settingsCollection.add(m_filenameColumn);
-		m_settingsCollection.add(m_imgColumn);
-		m_settingsCollection.add(m_format);
-		m_settingsCollection.add(m_compression);
-		m_settingsCollection.add(m_overwrite);
-		m_settingsCollection.add(m_zMapping);
-		m_settingsCollection.add(m_cMapping);
-		m_settingsCollection.add(m_tMapping);
-		m_settingsCollection.add(m_frameRate);
-		m_settingsCollection.add(m_forceMkdir);
-		m_settingsCollection.add(m_customNameOption);
-		m_settingsCollection.add(m_customFileName);
-	}
+    /*
+     * The selected format.
+     */
+    private final SettingsModelString m_format = new SettingsModelString(
+            CFG_FORMAT_KEY, "");
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
-			throws InvalidSettingsException {
-		if (m_zMapping.getStringValue().equals(m_cMapping.getStringValue())
-				|| m_zMapping.getStringValue().equals(
-						m_tMapping.getStringValue())
-						|| m_cMapping.getStringValue().equals(
-								m_tMapping.getStringValue())) {
-			throw new InvalidSettingsException(
-					"Dimensions must not be mapped to the same label!");
-		}
+    /*
+     * the frame rate (frames per second)
+     */
+    private final SettingsModelInteger m_frameRate = new SettingsModelInteger(
+            CFG_FRAMERATE_KEY, 10);
 
-		final int colIndex = inSpecs[0].findColumnIndex(m_imgColumn
-				.getStringValue());
-		if (colIndex == -1) {
-			if ((NodeUtils.autoOptionalColumnSelection(inSpecs[0], m_imgColumn,
-					ImgPlusValue.class)) >= 0) {
-				setWarningMessage("Auto-configure Image Column: "
-						+ m_imgColumn.getStringValue());
-			} else {
-				throw new InvalidSettingsException("No column selected!");
-			}
-		}
+    /*
+     * The selected column holding the images.
+     */
+    private final SettingsModelString m_imgColumn = new SettingsModelString(
+            ImgWriterNodeModel.CFG_IMG_COLUMN_KEY, "");
 
-		return null;
-	}
+    /*
+     * The overwrite option.
+     */
+    private final SettingsModelBoolean m_overwrite = new SettingsModelBoolean(
+            CFG_OVERWRITE_KEY, false);
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
-			final ExecutionContext exec) throws Exception {
+    private final Collection<SettingsModel> m_settingsCollection;
 
-		if (m_directory.getStringValue().equals("")) {
-			throw new InvalidSettingsException("No output path selected");
-		}
+    private final SettingsModelString m_tMapping = new SettingsModelString(
+            CFG_T_DIM_MAPPING, "Time");
 
-		final int imgColIndex = inData[0].getDataTableSpec().findColumnIndex(
-				m_imgColumn.getStringValue());
-		final String format = m_format.getStringValue();
-		final String compression = m_compression.getStringValue();
-		String directory = m_directory.getStringValue();
-		if (!directory.endsWith("/")) {
-			directory += "/";
-		}
+    /*
+     * Settings for the mappings.
+     */
+    private final SettingsModelString m_zMapping = new SettingsModelString(
+            CFG_Z_DIM_MAPPING, "Z");
 
-		final File tempFile = new File(directory);
-		if (!tempFile.exists()) {
-			if (m_forceMkdir.getBooleanValue()) {
-				try {
-					LOGGER.warn("Creating directory: " + directory);
-					FileUtils.forceMkdir(new File(directory));
-				} catch (final IOException e1) {
-					LOGGER.error("Selected Path " + directory
-							+ " is not a directory");
-					throw new IOException(
-							"Directory unreachable or file exists with the same name");
-				}
-			} else {
-				throw new IOException(
-						"Output directory doesn't exist, you can force the creation in the node settings.");
-			}
-		}
+    /**
+     * One input one output.
+     *
+     */
+    public ImgWriterNodeModel() {
+        super(1, 0);
+        m_settingsCollection = new ArrayList<SettingsModel>();
+        m_settingsCollection.add(m_directory);
+        m_settingsCollection.add(m_filenameColumn);
+        m_settingsCollection.add(m_imgColumn);
+        m_settingsCollection.add(m_format);
+        m_settingsCollection.add(m_compression);
+        m_settingsCollection.add(m_overwrite);
+        m_settingsCollection.add(m_zMapping);
+        m_settingsCollection.add(m_cMapping);
+        m_settingsCollection.add(m_tMapping);
+        m_settingsCollection.add(m_frameRate);
+        // m_settingsCollection.add(m_omexmlColumn);
 
-		final boolean overwrite = m_overwrite.getBooleanValue();
-		final boolean useCustomName = m_customNameOption.getBooleanValue();
-		final String customName = m_customFileName.getStringValue();
+    }
 
-		/* File name number magic */
-		// get number of digits needed for padding
-		final int digits = (int) Math.log10(inData[0].getRowCount()) + 1;
-		final String stringformat = "%0" + digits + "d";
-		int imgCount = 0;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
+            throws InvalidSettingsException {
+        if (m_zMapping.getStringValue().equals(m_cMapping.getStringValue())
+                || m_zMapping.getStringValue().equals(
+                        m_tMapping.getStringValue())
+                || m_cMapping.getStringValue().equals(
+                        m_tMapping.getStringValue())) {
+            throw new InvalidSettingsException(
+                    "Dimensions must not be mapped to the same label!");
+        }
 
-		final int nameColIndex = inData[0].getDataTableSpec().findColumnIndex(
-				m_filenameColumn.getStringValue());
+        int colIndex = inSpecs[0].findColumnIndex(m_imgColumn.getStringValue());
+        if (colIndex == -1) {
+            if ((NodeUtils.autoOptionalColumnSelection(inSpecs[0], m_imgColumn,
+                    ImgPlusValue.class)) >= 0) {
+                setWarningMessage("Auto-configure Image Column: "
+                        + m_imgColumn.getStringValue());
+            } else {
+                throw new InvalidSettingsException("No column selected!");
+            }
+        }
 
-		final CloseableRowIterator it = inData[0].iterator();
+        return null;
+    }
 
-		// loop variables
-		ImgPlus<T> img;
-		DataRow row;
-		String outfile;
-		boolean error = false;
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
+            final ExecutionContext exec) throws Exception {
 
-		while (it.hasNext()) {
-			row = it.next();
-			final ImgWriter w = new ImgWriter();
-			w.setFramesPerSecond(m_frameRate.getIntValue());
+    	if(m_directory.getStringValue().equals("")){
+    		throw new InvalidSettingsException("No output path selected!");
+    	}
 
-			if (useCustomName) {
-				outfile = directory + customName
-						+ String.format(stringformat, imgCount);
-			} else if (nameColIndex == -1) {
-				outfile = directory + row.getKey().getString();
-			} else {
-				outfile = directory
-						+ ((StringValue) row.getCell(nameColIndex))
-						.getStringValue();
-			}
-			outfile += "." + w.getSuffix(format);
+        final int imgColIndex =
+                inData[0].getDataTableSpec().findColumnIndex(
+                        m_imgColumn.getStringValue());
+        final String format = m_format.getStringValue();
+        final String compression = m_compression.getStringValue();
+        String directory = m_directory.getStringValue();
+        if (!directory.endsWith("/")) {
+            directory += "/";
+        }
+        // int omexmlColIndex =
+        // inData[0].getDataTableSpec().findColumnIndex(
+        // m_omexmlColumn.getStringValue());
+        final boolean overwrite = m_overwrite.getBooleanValue();
+        // boolean mergergb = m_mergergb.getBooleanValue();
 
-			final File f = new File(outfile);
-			if (f.exists()) {
-				if (overwrite) {
-					LOGGER.warn("The file " + outfile
-							+ " already exits and will be OVERWRITTEN.");
-					f.delete();
+        final int nameColIndex =
+                inData[0].getDataTableSpec().findColumnIndex(
+                        m_filenameColumn.getStringValue());
 
-				} else {
-					LOGGER.warn("The file " + outfile
-							+ " already exits and will be SKIPPED.");
-					continue;
-				}
-			}
+        final CloseableRowIterator it = inData[0].iterator();
+        ImgPlus<T> img;
+        DataRow row;
+        String outfile;
+        int i = 0;
+        boolean error = false;
 
-			img = ((ImgPlusValue<T>) row.getCell(imgColIndex)).getImgPlus();
+        while (it.hasNext()) {
+            row = it.next();
+            final ImgWriter w = new ImgWriter();
+            w.setFramesPerSecond(m_frameRate.getIntValue());
 
-			// create dimensions mapping
-			final int[] map = new int[] { -1, -1, -1 };
-			for (int d = 2; d < img.numDimensions(); d++) {
-				if (img.axis(d).type().getLabel()
-						.equals(m_zMapping.getStringValue())) {
-					map[0] = d - 2;
-				}
-				if (img.axis(d).type().getLabel()
-						.equals(m_cMapping.getStringValue())) {
-					map[1] = d - 2;
-				}
-				if (img.axis(d).type().getLabel()
-						.equals(m_tMapping.getStringValue())) {
-					map[2] = d - 2;
-				}
-			}
+            if (nameColIndex == -1) {
+                outfile = directory + row.getKey().getString();
+            } else {
+                outfile =
+                        directory
+                                + ((StringValue)row.getCell(nameColIndex))
+                                        .getStringValue();
+            }
+            outfile += "." + w.getSuffix(format);
 
-			try {
+            final File f = new File(outfile);
+            if (f.exists()) {
+                if (overwrite) {
+                    LOGGER.warn("The file " + outfile
+                            + " already exits and will be OVERWRITTEN.");
+                    f.delete();
 
-				w.writeImage(img, outfile, format, compression, map);
+                } else {
+                    LOGGER.warn("The file " + outfile
+                            + " already exits and will be SKIPPED.");
+                    continue;
+                }
+            }
 
-			} catch (final FormatException e) {
-				LOGGER.error(
-						"Error while writing image " + outfile + " : "
-								+ e.getMessage(), e);
-				error = true;
-			} catch (final IOException e) {
-				LOGGER.error(
-						"Error while writing image " + outfile + " : "
-								+ e.getMessage(), e);
-				error = true;
-			} catch (final UnsupportedOperationException e) {
-				LOGGER.error(
-						"Error while writing image " + outfile + " : "
-								+ "Check the filename for illegal characters! "
-								+ e.getMessage(), e);
-				error = true;
-			}
+            img = ((ImgPlusValue<T>)row.getCell(imgColIndex)).getImgPlus();
 
-			exec.setProgress((double) imgCount / inData[0].getRowCount());
-			exec.checkCanceled();
-			imgCount++;
-		}
+            // String omexml = null;
+            // if (omexmlColIndex != -1) {
+            //
+            // omexml = ((StringValue) row.getCell(omexmlColIndex))
+            // .getStringValue();
+            //
+            // }
 
-		if (error) {
-			setWarningMessage("Some errors occured during the writing process!");
-		}
+            // create dimensions mapping
+            final int[] map = new int[]{-1, -1, -1};
+            for (int d = 2; d < img.numDimensions(); d++) {
+                if (img.axis(d).type().getLabel()
+                        .equals(m_zMapping.getStringValue())) {
+                    map[0] = d - 2;
+                }
+                if (img.axis(d).type().getLabel()
+                        .equals(m_cMapping.getStringValue())) {
+                    map[1] = d - 2;
+                }
+                if (img.axis(d).type().getLabel()
+                        .equals(m_tMapping.getStringValue())) {
+                    map[2] = d - 2;
+                }
+            }
 
-		return null;
+            try {
 
-	}
+                w.writeImage(img, outfile, format, compression, map);
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void loadInternals(final File nodeInternDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
-		//
-	}
+            } catch (final FormatException e) {
+                LOGGER.error("Error while writing images: " + e.getMessage(), e);
+                error = true;
+            } catch (final IOException e) {
+                LOGGER.error("Error while writing images: " + e.getMessage(), e);
+                error = true;
+            }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
-		for (final SettingsModel sm : m_settingsCollection) {
-			sm.loadSettingsFrom(settings);
-		}
-	}
+            exec.checkCanceled();
+            exec.setProgress((double)i / inData[0].getRowCount());
+            i++;
+            w.close();
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void reset() {
-		//
-	}
+        }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void saveInternals(final File nodeInternDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
-		//
-	}
+        if (error) {
+            setWarningMessage("Some errors occured during the writing process!");
+        }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		for (final SettingsModel sm : m_settingsCollection) {
-			sm.saveSettingsTo(settings);
-		}
-	}
+        return null;
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void validateSettings(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
-		for (final SettingsModel sm : m_settingsCollection) {
-			sm.validateSettings(settings);
-		}
-	}
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void loadInternals(final File nodeInternDir,
+            final ExecutionMonitor exec) throws IOException,
+            CanceledExecutionException {
+        //
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
+            throws InvalidSettingsException {
+        for (final SettingsModel sm : m_settingsCollection) {
+            sm.loadSettingsFrom(settings);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void reset() {
+        //
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void saveInternals(final File nodeInternDir,
+            final ExecutionMonitor exec) throws IOException,
+            CanceledExecutionException {
+        //
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void saveSettingsTo(final NodeSettingsWO settings) {
+        for (final SettingsModel sm : m_settingsCollection) {
+            sm.saveSettingsTo(settings);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void validateSettings(final NodeSettingsRO settings)
+            throws InvalidSettingsException {
+        for (final SettingsModel sm : m_settingsCollection) {
+            sm.validateSettings(settings);
+        }
+    }
 
 }

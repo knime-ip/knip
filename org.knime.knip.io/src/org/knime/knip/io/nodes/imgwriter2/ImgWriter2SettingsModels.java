@@ -1,11 +1,11 @@
-package org.knime.knip.io.nodes.imgwriter;
+package org.knime.knip.io.nodes.imgwriter2;
 
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelColumnName;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
-final class ImgWriterSettingsModels {
+final class ImgWriter2SettingsModels {
 
 	/**
 	 * @return Model to store the Img Column.
