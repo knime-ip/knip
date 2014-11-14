@@ -37,6 +37,7 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.core.util.EnumUtils;
+import org.knime.knip.tracking.nodes.hiliter.TrackHilitePropagatorSettingsModels.TrackHilitingMode;
 
 /**
  * Node that connects the Track resulting from the LAP Tracker with the
@@ -64,39 +65,6 @@ public class TrackHilitePropagatorNodeModel extends NodeModel implements
 
     private final SettingsModelString m_trackHilitingModeModel = TrackHilitePropagatorSettingsModels
             .createTrackHilitingModeModel();
-
-    /**
-     * Enum describing the Hiliting Modes.
-     */
-    public enum TrackHilitingMode {
-
-        /**
-         * Hiliting a track row also hilites all rows which are in that track.
-         */
-        TRACK_TO_POINTS("Track to Points"),
-
-        /**
-         * Hiliting a row also hilites all other rows that are on the same
-         * track.
-         */
-        POINTS_TO_POINTS("Points to Points"),
-
-        /**
-         * No influence on the hiliting.
-         */
-        OFF("Disabled");
-
-        private String m_name;
-
-        private TrackHilitingMode(final String describingName) {
-            m_name = describingName;
-        }
-
-        @Override
-        public String toString() {
-            return m_name;
-        }
-    }
 
     /*
      * MEMBER

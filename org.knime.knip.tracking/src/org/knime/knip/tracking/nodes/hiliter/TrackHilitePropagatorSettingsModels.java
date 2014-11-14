@@ -4,7 +4,6 @@ import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelColumnName;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.knime.knip.tracking.nodes.hiliter.TrackHilitePropagatorNodeModel.TrackHilitingMode;
 
 /**
  * Simple helper class to store {@link SettingsModel}s used within
@@ -18,6 +17,39 @@ final class TrackHilitePropagatorSettingsModels {
 
     private TrackHilitePropagatorSettingsModels() {
         // prevent instatiation
+	}
+
+	/**
+	 * Enum describing the Hiliting Modes.
+	 */
+	enum TrackHilitingMode {
+
+		/**
+		 * Hiliting a track row also hilites all rows which are in that track.
+		 */
+		TRACK_TO_POINTS("Track to Points"),
+
+		/**
+		 * Hiliting a row also hilites all other rows that are on the same
+		 * track.
+		 */
+		POINTS_TO_POINTS("Points to Points"),
+
+		/**
+		 * No influence on the hiliting.
+		 */
+		OFF("Disabled");
+
+		private String m_name;
+
+		private TrackHilitingMode(final String describingName) {
+			m_name = describingName;
+		}
+
+		@Override
+		public String toString() {
+			return m_name;
+		}
     }
 
     /**
