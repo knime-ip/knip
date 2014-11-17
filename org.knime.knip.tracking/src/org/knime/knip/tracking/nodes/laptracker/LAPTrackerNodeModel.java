@@ -2,6 +2,7 @@ package org.knime.knip.tracking.nodes.laptracker;
 
 import static fiji.plugin.trackmate.tracking.TrackerKeys.KEY_ALLOW_GAP_CLOSING;
 import static fiji.plugin.trackmate.tracking.TrackerKeys.KEY_ALLOW_TRACK_MERGING;
+import static fiji.plugin.trackmate.tracking.TrackerKeys.KEY_ALLOW_TRACK_SPLITTING;
 import static fiji.plugin.trackmate.tracking.TrackerKeys.KEY_ALTERNATIVE_LINKING_COST_FACTOR;
 import static fiji.plugin.trackmate.tracking.TrackerKeys.KEY_CUTOFF_PERCENTILE;
 import static fiji.plugin.trackmate.tracking.TrackerKeys.KEY_GAP_CLOSING_MAX_DISTANCE;
@@ -65,9 +66,9 @@ import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.tracking.data.TrackedNode;
 
 import fiji.plugin.trackmate.tracking.DefaultTOCollection;
-import fiji.plugin.trackmate.tracking.LAPUtils;
 import fiji.plugin.trackmate.tracking.TrackableObjectCollection;
-import fiji.plugin.trackmate.tracking.TrackableObjectUtils;
+import fiji.plugin.trackmate.util.LAPUtils;
+import fiji.plugin.trackmate.util.TrackableObjectUtils;
 
 public class LAPTrackerNodeModel extends NodeModel implements
         BufferedDataTableHolder {
@@ -373,8 +374,8 @@ public class LAPTrackerNodeModel extends NodeModel implements
                 m_allowGapClosingModel.getBooleanValue());
         settings.put(KEY_ALLOW_TRACK_MERGING,
                 m_allowMergingModel.getBooleanValue());
-        settings.put(KEY_ALLOW_TRACK_MERGING,
-                m_allowMergingModel.getBooleanValue());
+        settings.put(KEY_ALLOW_TRACK_SPLITTING,
+                m_allowSplittingModel.getBooleanValue());
         settings.put(KEY_ALTERNATIVE_LINKING_COST_FACTOR,
                 m_alternativeLinkingCostFactor.getDoubleValue());
         settings.put(KEY_CUTOFF_PERCENTILE,
@@ -451,9 +452,9 @@ public class LAPTrackerNodeModel extends NodeModel implements
         m_allowSplittingModel.validateSettings(settings);
         m_gapClosingMaxDistanceModel.validateSettings(settings);
         m_sourceLabelingColumn.validateSettings(settings);
-        m_useCustomTrackPrefix.validateSettings(settings);
-        m_customTrackPrefix.validateSettings(settings);
         try {
+            m_useCustomTrackPrefix.validateSettings(settings);
+            m_customTrackPrefix.validateSettings(settings);
             m_attachSourceLabelings.validateSettings(settings);
         } catch (final Exception e) {
             // backwards compatibility
@@ -479,9 +480,9 @@ public class LAPTrackerNodeModel extends NodeModel implements
         m_allowSplittingModel.loadSettingsFrom(settings);
         m_gapClosingMaxDistanceModel.loadSettingsFrom(settings);
         m_sourceLabelingColumn.loadSettingsFrom(settings);
-        m_useCustomTrackPrefix.loadSettingsFrom(settings);
-        m_customTrackPrefix.loadSettingsFrom(settings);
         try {
+            m_useCustomTrackPrefix.loadSettingsFrom(settings);
+            m_customTrackPrefix.loadSettingsFrom(settings);
             m_attachSourceLabelings.loadSettingsFrom(settings);
         } catch (final Exception e) {
             // backwards compatibility
