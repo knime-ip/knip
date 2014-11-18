@@ -6,14 +6,14 @@
         <node
               category-path="/community/knip/tracking"
               expert-flag="false"
-              factory-class="org.knime.knip.tracking.nodes.laptracker.LAPTrackerNodeFactory"
-              id="org.knime.knip.ext.trackmate.nodes.tracker.LAPTrackerNodeFactory">
+              factory-class="org.knime.knip.tracking.nodes.hiliter.TrackHilitePropagatorNodeFactory"
+              id="org.knime.knip.ext.trackmate.nodes.tracker.TrackHilitePropagatorNodeFactory">
         </node>
         <node
               category-path="/community/knip/tracking"
               expert-flag="false"
-              factory-class="org.knime.knip.tracking.nodes.hiliter.TrackHilitePropagatorNodeFactory"
-              id="org.knime.knip.ext.trackmate.nodes.tracker.TrackHilitePropagatorNodeFactory">
+              factory-class="org.knime.knip.tracking.nodes.trackmate.TrackmateTrackerNodeFactory"
+              id="org.knime.knip.tracking.nodes.trackmate.TrackmateTrackerNodeFactory">
         </node>
      </extension>
      <extension

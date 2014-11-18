@@ -8,7 +8,7 @@ import fiji.plugin.trackmate.FeatureHolder;
 import fiji.plugin.trackmate.tracking.AbstractTrackableObject;
 
 public class TrackedNode<L extends Comparable<L>> extends
-		AbstractTrackableObject implements Comparable<TrackedNode<L>>,
+		AbstractTrackableObject<TrackedNode<L>> implements Comparable<TrackedNode<L>>,
 		FeatureHolder {
 
 	private final Map<String, Double> m_features;

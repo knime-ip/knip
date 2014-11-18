@@ -123,19 +123,7 @@ public class LAPTrackerNodeDialog extends DefaultNodeSettingsPane {
 	private void addKNIMEColumnSettings() {
 
 		addDialogComponent(new DialogComponentColumnFilter(m_columns, 0, true,
-				new ColumnFilter() {
-
-					@Override
-					public boolean includeColumn(DataColumnSpec colSpec) {
-						return colSpec.getType()
-								.isCompatible(DoubleValue.class);
-					}
-
-					@Override
-					public String allFilteredMsg() {
-						return "No Double columns found! No feature added!";
-					}
-				}));
+				DoubleValue.class));
 
 		addDialogComponent(new DialogComponentColumnNameSelection(
 				m_bitMaskColumnModel, "Bitmask Column", 0, ImgPlusValue.class));
