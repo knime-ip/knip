@@ -57,7 +57,6 @@ import net.imglib2.type.numeric.RealType;
 import org.knime.knip.core.ui.imgviewer.ImgCanvas;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.ui.imgviewer.ViewerComponents;
-import org.knime.knip.core.ui.imgviewer.events.SetCachingEvent;
 import org.knime.knip.core.ui.imgviewer.panels.LabelOptionPanel;
 import org.knime.knip.core.ui.imgviewer.panels.infobars.HistogramViewInfoPanel;
 import org.knime.knip.core.ui.imgviewer.panels.infobars.ImgViewInfoPanel;
@@ -66,8 +65,6 @@ import org.knime.knip.core.ui.imgviewer.panels.providers.AWTImageProvider;
 import org.knime.knip.core.ui.imgviewer.panels.providers.HistogramRU;
 import org.knime.knip.core.ui.imgviewer.panels.providers.ImageRU;
 import org.knime.knip.core.ui.imgviewer.panels.providers.LabelingRU;
-import org.knime.knip.core.ui.imgviewer.panels.transfunc.PlaneSelectionTFCDataProvider;
-import org.knime.knip.core.ui.imgviewer.panels.transfunc.TransferFunctionControlPanel;
 
 /**
  * TODO Auto-generated
@@ -153,33 +150,6 @@ public class ViewerFactory {
         viewer.addViewerComponent(ViewerComponents.LABEL_FILTER.createInstance());
 
         return viewer;
-    }
-
-    /**
-     * Creates a ImgViewer for {@link Img}s with a Minimap, Plane Selection, and TransferFunctionPanel
-     *
-     * @param cacheSize
-     *
-     * @return {@link ImgViewer}
-     */
-    public static <T extends RealType<T> & NativeType<T>> ImgViewer createTransferFunctionViewer(final int cacheSize) {
-
-        final ImgViewer viewer = new ImgViewer();
-
-        final AWTImageProvider realProvider = new AWTImageProvider(cacheSize, new ImageRU<T>());
-        realProvider.setEventService(viewer.getEventService());
-        realProvider.onSetCachingStrategy(new SetCachingEvent(false));
-
-        viewer.addViewerComponent(new ImgViewInfoPanel<T>());
-        viewer.addViewerComponent(new ImgCanvas<T, Img<T>>());
-
-        viewer.addViewerComponent(ViewerComponents.MINIMAP.createInstance());
-        viewer.addViewerComponent(ViewerComponents.PLANE_SELECTION.createInstance());
-
-        viewer.addViewerComponent(new PlaneSelectionTFCDataProvider<T, Img<T>>(new TransferFunctionControlPanel()));
-
-        return viewer;
-
     }
 
     private ViewerFactory() {
