@@ -104,9 +104,6 @@ public class RendererFactory {
 
         if (type instanceof RealType) {
             if ((imageMetaData != null) && (imageMetaData.getColorTableCount() > 0)) {
-
-                System.out.println(imageMetaData.getColorTableCount());
-
                 res.add(new Real2TableColorRenderer());
             }
         }
