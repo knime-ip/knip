@@ -303,6 +303,8 @@ public class LabelingEditorManager extends HiddenViewerComponent {
 			ra.setPosition(sel);
 			labels = new HashSet<String>(ra.get().getLabeling());
 		}
+		if (labels.isEmpty())
+			return;
 		m_currentTool.onMousePressed(e, labels, m_selectedLabels);
 	}
 
