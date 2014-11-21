@@ -108,6 +108,11 @@ public class AnnotatorLabelPanel extends ViewerComponent {
 
     protected JList<String> m_jLabelList;
 
+    protected AnnotatorLabelPanel()
+    {
+        super("Labels", false);
+    }
+
     public AnnotatorLabelPanel(final String... defaultLabels) {
         super("Labels", false);
 
@@ -374,7 +379,7 @@ public class AnnotatorLabelPanel extends ViewerComponent {
     }
 
 
-   private void updateLocalUI() {
+   protected void updateLocalUI() {
        m_isAdjusting = true;
        m_jLabelList.setListData(m_labels);
        m_jLabelList.updateUI();
