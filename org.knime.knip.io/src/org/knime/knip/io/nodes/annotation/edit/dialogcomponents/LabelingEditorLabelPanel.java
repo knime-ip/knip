@@ -48,26 +48,30 @@
  */
 package org.knime.knip.io.nodes.annotation.edit.dialogcomponents;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -79,7 +83,9 @@ import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorLabelsSelChgEv
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorResetEvent;
 import org.knime.knip.core.ui.imgviewer.events.HilitedLabelsChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
-import org.knime.knip.core.ui.imgviewer.events.LabelPanelIsHiliteModeEvent;
+import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorDeleteAddedEvent;
+import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorHighlightEvent;
+import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorRenameAddedEvent;
 import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorResetRowEvent;
 
 /**
@@ -204,16 +210,66 @@ public class LabelingEditorLabelPanel extends AnnotatorLabelPanel {
 		jb.setAlignmentX(Component.CENTER_ALIGNMENT);
 		buttonPanel.add(jb);
 
+		jb = new JButton("Delete label");
+		setButtonIcon(jb, "icons/tool-clean.png");
+		jb.setMinimumSize(new Dimension(140, 30));
 
-		buttonPanel.add(Box.createVerticalStrut(10));
+		jb.addActionListener(new ActionListener() {
 
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (m_newLabelList.getSelectedValue() != null) {
+
+					// m_newLabelList.updateUI();
+					m_eventService.publish(new LabelingEditorDeleteAddedEvent(
+							m_newLabelList.getSelectedValuesList()));
+					m_newLabels.remove(m_newLabelList.getSelectedValue());
+					m_newLabelList.setListData(m_newLabels);
+					m_eventService.publish(new ImgRedrawEvent());
 				}
 
 			}
 		});
 
-		buttonPanel.add(Box.createVerticalStrut(10));
+		jb.setMaximumSize(new Dimension(PANEL_WIDTH, BUTTON_HEIGHT));
+		jb.setAlignmentX(Component.CENTER_ALIGNMENT);
+		buttonPanel.add(jb);
 
+		jb = new JButton("Rename label");
+		setButtonIcon(jb, "icons/tool-clean.png");
+		jb.setMinimumSize(new Dimension(140, 30));
+
+		jb.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (m_newLabelList.getSelectedValue() != null) {
+					final String oldName = m_newLabelList.getSelectedValue();
+					final String newName = JOptionPane.showInputDialog(
+							m_parent, "New class name:");
+					if ((newName != null) && (newName.length() > 0)) {
+						m_newLabels.remove(oldName);
+						m_newLabels.add(newName);
+						m_eventService
+								.publish(new LabelingEditorRenameAddedEvent(
+										oldName, newName));
+						Collections.sort(m_newLabels);
+						m_newLabelList.setListData(m_newLabels);
+						m_newLabelList.setSelectedIndex(m_newLabelList
+								.getNextMatch(newName, 0,
+										javax.swing.text.Position.Bias.Forward));
+						m_eventService.publish(new ImgRedrawEvent());
+					}
+				}
+
+			}
+		});
+
+		jb.setMaximumSize(new Dimension(PANEL_WIDTH, BUTTON_HEIGHT));
+		jb.setAlignmentX(Component.CENTER_ALIGNMENT);
+		buttonPanel.add(jb);
+
+		buttonPanel.add(Box.createVerticalStrut(10));
 
 		jb = new JButton("Reset to Input");
 		setButtonIcon(jb, "icons/tool-setlabels.png");
