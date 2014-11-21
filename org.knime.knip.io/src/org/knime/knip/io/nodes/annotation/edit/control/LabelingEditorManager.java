@@ -19,6 +19,8 @@ import net.imglib2.labeling.LabelingType;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableUtils;
+import org.knime.knip.core.awt.labelingcolortable.RandomMissingColorHandler;
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
@@ -27,11 +29,13 @@ import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorRowColKeyChgEv
 import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgViewerMousePressedEvent;
 import org.knime.knip.core.ui.imgviewer.events.IntervalWithMetadataChgEvent;
-import org.knime.knip.core.ui.imgviewer.events.LabelingWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
 import org.knime.knip.core.ui.imgviewer.panels.HiddenViewerComponent;
 import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorAddEvent;
+import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorDeleteAddedEvent;
 import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorDeleteEvent;
+import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorHighlightEvent;
+import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorRenameAddedEvent;
 import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorToolChangedEvent;
 import org.knime.knip.io.nodes.annotation.edit.tools.AbstractLabelingEditorTool;
 import org.knime.knip.io.nodes.annotation.edit.tools.LabelingEditorModificationTool;
@@ -58,6 +62,10 @@ public class LabelingEditorManager extends HiddenViewerComponent {
 	// The RowKey of the current row
 	private RowColKey m_currentRowKey;
 
+	private boolean m_filter = false;
+
+	private List<String> m_entriesToKeep;
+
 	// The mapping of RowKeys to trackers
 	private Map<RowColKey, LabelingEditorChangeTracker> m_IdTrackerMap;
 
@@ -66,6 +74,8 @@ public class LabelingEditorManager extends HiddenViewerComponent {
 		m_IdTrackerMap = new HashMap<RowColKey, LabelingEditorChangeTracker>();
 		// Only one tool for now.
 		m_currentTool = new LabelingEditorModificationTool();
+		RandomMissingColorHandler.setColor("#",
+				LabelingColorTableUtils.NOTSELECTED_RGB);
 
 	}
 
@@ -90,9 +100,8 @@ public class LabelingEditorManager extends HiddenViewerComponent {
 	public Map<RowColKey, LabelingEditorChangeTracker> getTrackerMap() {
 		return m_IdTrackerMap;
 	}
-	
-	public void resetTrackerMap(RowColKey k)
-	{
+
+	public void resetTrackerMap(RowColKey k) {
 		m_IdTrackerMap.get(k).reset();
 	}
 
@@ -173,17 +182,12 @@ public class LabelingEditorManager extends HiddenViewerComponent {
 		if (!m_IdTrackerMap.containsKey(m_currentRowKey))
 			m_IdTrackerMap.put(m_currentRowKey,
 					new LabelingEditorChangeTracker());
+
+		updateFiltering();
 	}
 
-	/**
-	 * Called, when the selected row changes. <br>
-	 * 
-	 * @param e
-	 *            The change-event
-	 */
-	@EventListener
-	public void onUpdate(final LabelingWithMetadataChgEvent<String> e) {
-		m_currentLabeling = e.getData();
+	public void setLabeling(final Labeling<String> labeling) {
+		m_currentLabeling = labeling;
 	}
 
 	/**
@@ -230,6 +234,28 @@ public class LabelingEditorManager extends HiddenViewerComponent {
 		m_IdTrackerMap.get(m_currentRowKey).insert(labels, addedLabels);
 
 		m_eventService.publish(new ImgRedrawEvent());
+	}
+
+	@EventListener
+	/**
+	 * Triggered when the user deletes a new label in the dialog.
+	 * @param e The triggering event
+	 */
+	public void onAddedLabelDelete(final LabelingEditorDeleteAddedEvent e) {
+		for (LabelingEditorChangeTracker t : m_IdTrackerMap.values()) {
+			t.delete(e.getDeletedLabels());
+		}
+	}
+
+	@EventListener
+	/**
+	 * Triggered when the user renames a new label in the dialog.
+	 * @param e The triggering event
+	 */
+	public void onAddedLabelRename(final LabelingEditorRenameAddedEvent e) {
+		for (LabelingEditorChangeTracker t : m_IdTrackerMap.values()) {
+			t.rename(e.getOldName(), e.getNewName());
+		}
 	}
 
 	@EventListener
@@ -331,6 +357,36 @@ public class LabelingEditorManager extends HiddenViewerComponent {
 					k.getLabelingDims());
 			m_IdTrackerMap.get(s).saveSettingsTo(settings, i);
 			++i;
+		}
+	}
+
+	@EventListener
+	/**
+	 * Called when the user activates filtering
+	 * @param e The triggering Event
+	 */
+	public void onFilterEnabled(final LabelingEditorHighlightEvent e) {
+		if (e.isFilterEnabled()) {
+			m_entriesToKeep = new LinkedList<>(e.getHighlightedLabels());
+			m_filter = true;
+		} else {
+			m_entriesToKeep = null;
+			m_filter = false;
+		}
+		updateFiltering();
+	}
+
+	/*
+	 * Propagates filter settings to all trackers.
+	 */
+	private void updateFiltering() {
+		LabelingEditorChangeTracker currentTracker = m_IdTrackerMap
+				.get(m_currentRowKey);
+		if (currentTracker != null) {
+			if (m_filter) {
+				currentTracker.enableFiltering(m_entriesToKeep);
+			} else
+				currentTracker.disableFiltering();
 		}
 	}
 
