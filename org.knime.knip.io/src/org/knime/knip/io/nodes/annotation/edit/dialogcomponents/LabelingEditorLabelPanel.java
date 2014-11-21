@@ -96,20 +96,53 @@ public class LabelingEditorLabelPanel extends AnnotatorLabelPanel {
 
 	private static final long serialVersionUID = 1L;
 
+	private Vector<String> m_newLabels;
+
+	private JList<String> m_newLabelList;
+
 	private boolean m_highlight = false;
 
 	private JToggleButton m_highlightButton;
 
-	public LabelingEditorLabelPanel(final String... defaultLabels) {
+	public LabelingEditorLabelPanel(final Vector<String> newLabels,
+			final String... defaultLabels) {
 
-		setTitle("Labels");
-
+		add(Box.createVerticalStrut(10));
+		m_newLabels = newLabels;
 		setPreferredSize(new Dimension(PANEL_WIDTH, 200));
 
 		final JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
-		setLayout(new BorderLayout());
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		final JCheckBox highlight = new JCheckBox("Highlight new?");
+		JPanel highlightPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		highlightPanel
+				.setMaximumSize(new Dimension(PANEL_WIDTH, BUTTON_HEIGHT));
+		highlight.setAlignmentX(Component.LEFT_ALIGNMENT);
+		highlight.setHorizontalTextPosition(SwingConstants.RIGHT);
+		highlightPanel.add(highlight);
+		add(highlightPanel);
 
+		highlight.addItemListener(new ItemListener() {
+
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == ItemEvent.SELECTED) {
+					m_highlight = true;
+
+					m_eventService.publish(new LabelingEditorHighlightEvent(
+							m_newLabels, true));
+
+				} else {
+					m_highlight = false;
+					m_eventService.publish(new LabelingEditorHighlightEvent(
+							null, false));
+				}
+				m_eventService.publish(new ImgRedrawEvent());
+			}
+		});
+
+		final JLabel newLabel = new JLabel("New Labels");
 		m_labels = new Vector<String>();
 		if (defaultLabels != null) {
 			for (final String s : defaultLabels) {
@@ -117,35 +150,36 @@ public class LabelingEditorLabelPanel extends AnnotatorLabelPanel {
 			}
 		}
 
-		m_jLabelList = new JList<String>(m_labels);
-		m_jLabelList.setSelectedIndex(0);
+		m_newLabelList = new JList<String>(m_newLabels);
+		m_newLabelList.setSelectedIndex(0);
 
-		m_jLabelList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		m_newLabelList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-		m_jLabelList.addListSelectionListener(new ListSelectionListener() {
+		m_newLabelList.addListSelectionListener(new ListSelectionListener() {
 
 			@Override
 			public void valueChanged(final ListSelectionEvent e) {
 
 				if (m_isAdjusting || e.getValueIsAdjusting()) {
+					m_jLabelList.clearSelection();
 					return;
 				}
 
 				m_eventService.publish(new AnnotatorLabelsSelChgEvent(
-						m_jLabelList.getSelectedValuesList().toArray(
+						m_newLabelList.getSelectedValuesList().toArray(
 								new String[0])));
 				if (m_highlight) {
-					m_eventService.publish(new HilitedLabelsChgEvent(
-							new HashSet<String>(m_jLabelList
-									.getSelectedValuesList())));
-					m_eventService.publish(new ImgRedrawEvent());
+					m_eventService.publish(new LabelingEditorHighlightEvent(
+							m_newLabels, true));
 				}
 			}
 		});
+		newLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+		add(newLabel);
 
-		add(new JScrollPane(m_jLabelList), BorderLayout.CENTER);
+		add(new JScrollPane(m_newLabelList));
+
 		JButton jb;
-
 
 		jb = new JButton("Create Label");
 		setButtonIcon(jb, "icons/tool-class.png");
@@ -157,11 +191,12 @@ public class LabelingEditorLabelPanel extends AnnotatorLabelPanel {
 				final String name = JOptionPane.showInputDialog(m_parent,
 						"Class name:");
 				if ((name != null) && (name.length() > 0)) {
-					m_labels.add(name);
-					Collections.sort(m_labels);
-					m_jLabelList.setListData(m_labels);
-					m_jLabelList.setSelectedIndex(m_jLabelList.getNextMatch(
-							name, 0, javax.swing.text.Position.Bias.Forward));
+					m_newLabels.add(name);
+					Collections.sort(m_newLabels);
+					m_newLabelList.setListData(m_newLabels);
+					m_newLabelList.setSelectedIndex(m_newLabelList
+							.getNextMatch(name, 0,
+									javax.swing.text.Position.Bias.Forward));
 				}
 			}
 		});
@@ -215,7 +250,40 @@ public class LabelingEditorLabelPanel extends AnnotatorLabelPanel {
 		jb.setAlignmentX(Component.CENTER_ALIGNMENT);
 		buttonPanel.add(jb);
 
-		add(buttonPanel, BorderLayout.SOUTH);
+		add(buttonPanel);
+		add(Box.createVerticalStrut(10));
+
+		final JLabel oldLabels = new JLabel("Old Labels");
+		oldLabels.setAlignmentX(Component.CENTER_ALIGNMENT);
+		add(oldLabels);
+
+		m_jLabelList = new JList<String>(m_labels);
+		m_jLabelList.setSelectedIndex(0);
+
+		m_jLabelList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+		m_jLabelList.addListSelectionListener(new ListSelectionListener() {
+
+			@Override
+			public void valueChanged(final ListSelectionEvent e) {
+
+				if (m_isAdjusting || e.getValueIsAdjusting()) {
+					m_newLabelList.clearSelection();
+					return;
+				}
+				m_eventService.publish(new AnnotatorLabelsSelChgEvent(
+						m_jLabelList.getSelectedValuesList().toArray(
+								new String[0])));
+				if (m_highlight) {
+					m_eventService.publish(new HilitedLabelsChgEvent(
+							new HashSet<String>(m_jLabelList
+									.getSelectedValuesList())));
+					m_eventService.publish(new ImgRedrawEvent());
+				}
+			}
+		});
+
+		add(new JScrollPane(m_jLabelList));
 
 	}
 
@@ -226,5 +294,24 @@ public class LabelingEditorLabelPanel extends AnnotatorLabelPanel {
 			m_highlight = false;
 
 		}
+	}
+
+	// public void addNewLabel(String label) {
+	// m_newLabels.add(label);
+	// }
+
+	@Override
+	/**
+	 * @param list
+	 */
+	public void addLabels(final List<String> list) {
+
+		for (String label : list) {
+			if (!m_labels.contains(label) && !m_newLabels.contains(label)) {
+				m_labels.add(label);
+			}
+		}
+
+		updateLocalUI();
 	}
 }
