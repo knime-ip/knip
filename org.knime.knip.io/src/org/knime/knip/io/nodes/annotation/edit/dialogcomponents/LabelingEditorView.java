@@ -214,24 +214,6 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 	}
 
 	@EventListener
-	public void onResetToInput(final LabelingEditorResetEvent e) {
-		// if (m_currentKey != null)
-		// m_annotationManager.getTracker(m_currentKey).restore();
-		m_annotationManager.reset();
-
-		m_labelPanel.clearLabels();
-		if (m_currentLabeling != null) {
-			final List<String> labels = new LinkedList<String>(
-					m_currentLabeling.getLabels());
-			Collections.sort(labels);
-			m_labelPanel.addLabels(labels);
-		}
-
-		// m_eventService.publish(new LabelingEditorLabelingModifiedEvent());
-		m_eventService.publish(new ImgRedrawEvent());
-	}
-
-	@EventListener
 	public void onRowReset(final LabelingEditorResetRowEvent e) {
 		m_annotationManager.resetTrackerMap(m_currentKey);
 		m_labelPanel.clearLabels();
