@@ -1,6 +1,8 @@
 package org.knime.knip.io.nodes.annotation.edit.control;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,23 +30,19 @@ public class LabelingEditorChangeTracker implements
 		Converter<LabelingType<String>, LabelingType<String>> {
 
 	/**
-	 * Think of the way that this class works as a relation using foreign keys.
-	 * One map contains the original list and a corresponding foreign key. The
-	 * second map then stores the actual changed list with the foreign key as
-	 * its primary. For sake of convenience and to avoid redundancy, these maps
-	 * are both <List<String>, List<String>> instead of <List<String>, Int> and
-	 * <Int, List<String>> respectively.
+	 * This class maps the original list to its current representation and
+	 * provides additional services such as renaming and filtering.
 	 */
 
 	// Maps the original labels to the current changed version. Uses Lists of
 	// Strings for easy access.
 	private Map<List<String>, List<String>> m_changedLabels = new HashMap<List<String>, List<String>>();
 
-	// Manages the changed maps. Uses Lists as keys to avoid multiple hash
-	// calculations.
-	private Map<List<String>, List<String>> m_backMapping = new HashMap<List<String>, List<String>>();
-
 	private int m_generation = 0;
+
+	private boolean m_filter = false;
+
+	private List<String> m_entriesToKeep;
 
 	private EventService m_EventService;
 
@@ -59,36 +57,19 @@ public class LabelingEditorChangeTracker implements
 	public void remove(final List<String> list,
 			final List<String> deletedEntries) {
 
-		final List<String> mapped = m_backMapping.get(list);
+		List<String> mappedEntry = m_changedLabels.get(list);
 
-		// If there is a mapping ...
-		if (mapped != null) {
-			// Remove the current mapped entry
-			m_backMapping.remove(mapped);
-
-			// Remove the labels from the mapped list
-			mapped.removeAll(deletedEntries);
-
-			// For hashing
+		if (mappedEntry != null) {
+			mappedEntry.removeAll(deletedEntries);
+			intern(mappedEntry);
+			if (m_filter)
+				checkForFiltered(mappedEntry);
 			++m_generation;
-
-			// Put the changed mapping back into the HashMap
-			m_backMapping.put(mapped, mapped);
-
-			// Notify the Labeling of the changes
-			intern(mapped);
-
-		}
-
-		else {
-			// First, create new mapping
-			final LinkedList<String> changedList = new LinkedList<>(list);
-			m_changedLabels.put(list, changedList);
-			m_backMapping.put(changedList, changedList);
-
-			// Update the created mapping
+		} else {
+			m_changedLabels.put(list, new LinkedList<String>(list));
 			remove(list, deletedEntries);
 		}
+
 	}
 
 	/**
@@ -101,43 +82,22 @@ public class LabelingEditorChangeTracker implements
 	 */
 	public void insert(final List<String> list, final List<String> addedEntries) {
 
-		final List<String> mapped = m_backMapping.get(list);
+		List<String> mappedEntry = m_changedLabels.get(list);
 
-		// If there is a mapping ...
-		if (mapped != null) {
-			// Remove the current mapped entry
-			m_backMapping.remove(mapped);
-
-			// Add the labels to the mapped list, avoid duplicates
-			final int i = mapped.size();
-
-			for (final String s : addedEntries)
-				if (!mapped.contains(s)) {
-					mapped.add(s);
-				}
-
-			// Increase hash only if actual insertion took place
-			if (mapped.size() - i > 0) {
-				++m_generation;
-				// Labelings are always sorted.
-				Collections.sort(mapped);
-
-				// Notify the LabelingType of the changes
-				intern(mapped);
-			}
-
-			m_backMapping.put(mapped, mapped);
+		if (mappedEntry != null) {
+			for (String s : addedEntries)
+				if (!mappedEntry.contains(s))
+					mappedEntry.add(s);
+			Collections.sort(mappedEntry);
+			intern(mappedEntry);
+			if (m_filter)
+				checkForFiltered(mappedEntry);
+			++m_generation;
+		} else {
+			m_changedLabels.put(list, new LinkedList<String>(list));
+			insert(list, addedEntries);
 		}
 
-		else {
-			// First, create new mapping
-			final LinkedList<String> changedList = new LinkedList<>(list);
-			m_changedLabels.put(list, changedList);
-			m_backMapping.put(changedList, changedList);
-
-			// Update the created mapping
-			insert(changedList, addedEntries);
-		}
 	}
 
 	private void intern(final List<String> listToIntern) {
@@ -216,7 +176,6 @@ public class LabelingEditorChangeTracker implements
 		final String labelPrefix = prefix + "_MODIFICATIONS_";
 
 		final Map<List<String>, List<String>> changedLabels = new HashMap<List<String>, List<String>>();
-		final Map<List<String>, List<String>> backmapping = new HashMap<List<String>, List<String>>();
 
 		final int internedLists = settings.getInt(labelPrefix
 				+ "NUMSETS_INSERT");
@@ -235,10 +194,39 @@ public class LabelingEditorChangeTracker implements
 				valSet.add(s);
 
 			changedLabels.put(keyList, valSet);
-			backmapping.put(valSet, valSet);
 		}
 		m_changedLabels = changedLabels;
-		m_backMapping = backmapping;
+	}
+
+	/**
+	 * Enables the filtering of all values except those passed.
+	 * 
+	 * @param entriesToKeep
+	 *            A List of labels to keep
+	 */
+	public void enableFiltering(List<String> entriesToKeep) {
+		m_entriesToKeep = entriesToKeep;
+		intern(new LinkedList<String>(Arrays.asList("#")));
+		for (List<String> l : m_changedLabels.values()) {
+			List<String> copy = new LinkedList<>(l);
+			copy.retainAll(entriesToKeep);
+			intern(copy);
+		}
+		++m_generation;
+
+		m_filter = true;
+	}
+
+	/**
+	 * After calling this method, the tracker will no longer filter out values
+	 * not contained in its filter list.
+	 */
+	public void disableFiltering() {
+		if (m_filter) {
+			m_filter = false;
+			m_entriesToKeep = null;
+			++m_generation;
+		}
 	}
 
 	@Override
@@ -264,9 +252,22 @@ public class LabelingEditorChangeTracker implements
 		final List<String> old = input.getLabeling();
 		List<String> modified = m_changedLabels.get(old);
 
+		boolean wasEmpty = false;
+		if (old.isEmpty())
+			wasEmpty = true;
+
 		if (modified == null) {
 			modified = new ArrayList<String>(input.getLabeling());
+
 		}
+
+		if (m_filter) {
+			modified = new ArrayList<>(modified);
+			modified.retainAll(m_entriesToKeep);
+			if (!wasEmpty && modified.isEmpty())
+				modified.add("#");
+		}
+
 		output.setLabeling(modified);
 	}
 
@@ -274,15 +275,31 @@ public class LabelingEditorChangeTracker implements
 	 * Resets the tracker to an empty state.
 	 */
 	public void reset() {
+		for (List<String> l : m_changedLabels.keySet())
+			intern(l);
+
 		m_changedLabels.clear();
-		m_backMapping.clear();
 		m_generation++;
 
 	}
-	
-	public int getNumberOfModifiedLabels()
-	{
+
+	/**
+	 * Returns the number of modifications known to this tracker.
+	 * 
+	 * @return The number of modified labelings
+	 */
+	public int getNumberOfModifiedLabels() {
 		return m_changedLabels.keySet().size();
+	}
+
+	/*
+	 * Checks the passed list for values filtered out and interns the resulting
+	 * list.
+	 */
+	private void checkForFiltered(Collection<String> list) {
+		List<String> copy = new LinkedList<>(list);
+		copy.retainAll(m_entriesToKeep);
+		intern(copy);
 	}
 
 	/**
