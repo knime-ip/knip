@@ -83,7 +83,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Handles the creation and caching of images for views. Publishes {@link AWTImageChgEvent} if the image changes.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -97,8 +97,8 @@ public class AWTImageProvider extends HiddenViewerComponent {
     /**
      * Converts DoubleType to FloatType and preserves other types. This can be used to ensure that images (after calling
      * the method) are FloatType or smaller and thus can be normalized. However type safety is broken!
-     * 
-     * 
+     *
+     *
      * @param src a RealType image
      * @return either the source image or if the source type is DoubleType a FloatType representation of the image to
      *         allow rendering.
@@ -144,7 +144,7 @@ public class AWTImageProvider extends HiddenViewerComponent {
     /**
      * Creates a new AWTImageProviders that uses different parameters from the {@link EventService} to create images
      * using its associated {@link RenderUnit}.
-     * 
+     *
      * @param ru the {@link RenderUnit} that creates the images
      * @param cacheSize The number of {@link Image}s being cached using the {@link LRUCache}. A cache size < 2
      *            indicates, that caching is inactive
@@ -193,7 +193,7 @@ public class AWTImageProvider extends HiddenViewerComponent {
      * doesn't fit the new source.<br>
      * Publishes a new {@link PlaneSelectionEvent} if numDimensions of the last {@link PlaneSelectionEvent} doesn't fit
      * with new source.
-     * 
+     *
      * @param e new selected Interval (Image, Labeling)
      */
     private void checkRendererAndPlaneSelection(final IntervalWithMetadataChgEvent<?,?> e) {
@@ -232,7 +232,7 @@ public class AWTImageProvider extends HiddenViewerComponent {
 
     /**
      * helper method that checks if a given plane position is within the ranges of the given dim array.
-     * 
+     *
      * @param planePos position to be checked
      * @param dims range that should include the position
      * @return true if planePos is inside dims
@@ -255,7 +255,7 @@ public class AWTImageProvider extends HiddenViewerComponent {
      * triggers an actual redraw of the image. If a parameter changes the providers and additional components can first
      * react to the parameter change event before the image is redrawn after the subsequent ImgRedrawEvent. Therefore
      * chained parameters and parameter changes that trigger further changes are possible.
-     * 
+     *
      * @param e marker event.
      */
     @EventListener
@@ -266,7 +266,7 @@ public class AWTImageProvider extends HiddenViewerComponent {
     /**
      * Checks if currently active {@link ImageRenderer} and {@link PlaneSelectionEvent} fit the new image.<br>
      * <br>
-     * 
+     *
      * @param e new selected Interval (Image, Labeling)
      */
     @EventListener
@@ -276,7 +276,7 @@ public class AWTImageProvider extends HiddenViewerComponent {
 
     /**
      * Resets the image cache.
-     * 
+     *
      * @param e marker event
      */
     @EventListener
@@ -290,7 +290,7 @@ public class AWTImageProvider extends HiddenViewerComponent {
     /**
      * Turns of the caching. This is e.g. useful for the {@link Real2ColorByLookupTableRenderer} (for transfer
      * functions) creates different images all the time such that caching provides no benefits.
-     * 
+     *
      * @param e activates / deactivates caching
      */
     @EventListener
@@ -301,7 +301,7 @@ public class AWTImageProvider extends HiddenViewerComponent {
     /**
      * Stores the currently active plane selection into a member. This is used for fitDimension checks if a new source
      * is selected.
-     * 
+     *
      * @param sel currently active plane
      */
     @EventListener
@@ -311,7 +311,7 @@ public class AWTImageProvider extends HiddenViewerComponent {
 
     /**
      * stores current renderer in a member to allow testing against new sources.
-     * 
+     *
      * @param e selected renderer
      */
     @EventListener

@@ -23,6 +23,7 @@ public class ToStringLabelingConverter<T extends Comparable<T>> implements
 		for (int i = 0; i < input.getLabeling().size(); ++i)
 			res.add(input.getLabeling().get(i).toString());
 
+
 		output.setLabeling(res);
 
 	}
