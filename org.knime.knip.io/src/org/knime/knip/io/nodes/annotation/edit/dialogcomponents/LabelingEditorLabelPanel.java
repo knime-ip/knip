@@ -285,7 +285,7 @@ public class LabelingEditorLabelPanel extends AnnotatorLabelPanel {
 		jb.setAlignmentX(Component.CENTER_ALIGNMENT);
 		buttonPanel.add(jb);
 
-		jb = new JButton("Randomize color");
+		jb = new JButton("Recolor Label");
 		setButtonIcon(jb, "icons/tool-colorreset.png");
 		jb.setMinimumSize(new Dimension(140, 30));
 		jb.addActionListener(new ActionListener() {
@@ -295,10 +295,14 @@ public class LabelingEditorLabelPanel extends AnnotatorLabelPanel {
 				for (final String s : m_jLabelList.getSelectedValuesList()) {
 					RandomMissingColorHandler.resetColor(s);
 				}
+				for (final String s : m_newLabelList.getSelectedValuesList()) {
+					RandomMissingColorHandler.resetColor(s);
+				}
 
 				m_eventService.publish(new AnnotatorLabelsColResetEvent(
 						m_jLabelList.getSelectedValuesList().toArray(
 								new String[0])));
+				m_eventService.publish(new ImgRedrawEvent());
 
 			}
 		});
