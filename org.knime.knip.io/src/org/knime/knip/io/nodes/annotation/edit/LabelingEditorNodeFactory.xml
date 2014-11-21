@@ -20,19 +20,28 @@
 			label to the region whereas clicking with the right mouse button
 			removes them.
 			<br />
+			The labels present in the image are organized in two lists - one for
+			 newly created labels and one for previously existing ones. New labels can
+			 be created, renamed or deleted freely, affecting all occurrences in the input.
+			 Old labels can only be added or removed manually.
+			 <br />
 			<b>Changes are only visible in the output table after execution.</b>
 		</intro>
-		<tab name="Supported Operations">
-			<option name="Create Label"> Adds another label to the labeling.
+		<tab name="Operations on New Labels">
+			<option name="Highlight New"> Highlights new labels in the image.
 			</option>
-			<option name="Hide Others"> Toggles highlighting of the current selection on or off.
+			<option name="Create Label"> Create a new label for the labeling.
 			</option>
-			<option name="Reset Current Image"> Discards all changes made to the currently selected image.
+			<option name="Delete Label"> Delete all occurrences of the selected label.
 			</option>
+			<option name="Rename Label"> Rename all occurrences of the selected label.
+			</option>
+		</tab>
+		<tab name="General Operations">
 			<option name="Reset to Input"> Discards all changes made and resets the view to
 				the input data.
 			</option>
-			<option name="Randomize Color"> Randomizes the color of the selected label.
+			<option name="Recolor Label"> Randomizes the color of the selected label.
 			</option>
 		</tab>
 
