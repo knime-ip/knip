@@ -52,7 +52,6 @@ import org.knime.knip.io.nodes.annotation.edit.control.LELabelingType;
 import org.knime.knip.io.nodes.annotation.edit.control.LabelingEditorChangeTracker;
 import org.knime.knip.io.nodes.annotation.edit.control.LabelingEditorManager;
 import org.knime.knip.io.nodes.annotation.edit.control.LabelingEditorRowKey;
-import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorResetEvent;
 import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorResetRowEvent;
 
 public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
@@ -65,11 +64,13 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 
 	private LabelingEditorLabelingRU m_renderUnit;
 
-	private LabelingEditorLabelPanel m_labelPanel = new LabelingEditorLabelPanel();
+	private LabelingEditorLabelPanel m_labelPanel;
 
 	private EventService m_eventService;
 
-	private Labeling<String> m_currentLabeling;
+	private Labeling<String> m_currentChangeLabeling;
+
+	private Labeling<String> m_currentStringLabeling;
 
 	private LabelingValue<L> m_currentCell;
 
@@ -77,6 +78,7 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 
 	public LabelingEditorView(final SettingsModelLabelEditor sm) {
 		m_annotationManager = sm.getManager();
+		m_labelPanel = new LabelingEditorLabelPanel(sm.getNewLabels());
 		createAnnotator();
 
 	}
@@ -177,7 +179,7 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 		final LabelingEditorChangeTracker currTrack = m_annotationManager
 				.getTracker(m_currentKey);
 
-		final Labeling<String> labeling = new LabelingView<String>(
+		final Labeling<String> convertedLabeling = new LabelingView<String>(
 				Converters.convert(
 						Converters
 								.convert(
@@ -187,13 +189,29 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 										new LabelingType<String>()), currTrack,
 						new LELabelingType(m_eventService)), null);
 
-		m_currentLabeling = new LabelingView<String>(labeling, null);
+		final Labeling<String> stringLabeling = new LabelingView<String>(
+				Converters.convert(
+						(RandomAccessibleInterval<LabelingType<L>>) m_currentCell
+								.getLabeling(),
+						new ToStringLabelingConverter<L>(),
+						new LabelingType<String>()), null);
+
+		m_annotationManager.setLabeling(stringLabeling);
+
+		m_currentChangeLabeling = convertedLabeling;
+
+		m_currentStringLabeling = stringLabeling;
+
+		// Required to initialize the labeling.
+		@SuppressWarnings("unused")
+		final List<String> dummy = new LinkedList<String>(
+				m_currentChangeLabeling.getLabels());
 
 		// Set labels in the LabelPanel
-
 		m_labelPanel.clearLabels();
 		final List<String> labels = new LinkedList<String>(
-				m_currentLabeling.getLabels());
+				m_currentStringLabeling.getLabels());
+
 		Collections.sort(labels);
 		m_labelPanel.addLabels(labels);
 
@@ -202,7 +220,7 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 				m_currentCell.getLabelingMetadata());
 		m_eventService.publish(new AnnotatorRowColKeyChgEvent(m_currentKey));
 		m_eventService.publish(new LabelingWithMetadataChgEvent<String>(
-				m_currentLabeling, meta));
+				m_currentChangeLabeling, meta));
 		m_eventService.publish(new ImgRedrawEvent());
 
 		m_renderUnit.setTracker(currTrack);
@@ -218,9 +236,9 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 		m_annotationManager.resetTrackerMap(m_currentKey);
 		m_labelPanel.clearLabels();
 
-		if (m_currentLabeling != null) {
+		if (m_currentStringLabeling != null) {
 			final List<String> labels = new LinkedList<String>(
-					m_currentLabeling.getLabels());
+					m_currentStringLabeling.getLabels());
 			Collections.sort(labels);
 			m_labelPanel.addLabels(labels);
 		}
@@ -228,4 +246,5 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 		// m_eventService.publish(new LabelingEditorLabelingModifiedEvent());
 		m_eventService.publish(new ImgRedrawEvent());
 	}
+
 }
