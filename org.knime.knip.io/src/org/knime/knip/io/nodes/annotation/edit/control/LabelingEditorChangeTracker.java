@@ -313,4 +313,38 @@ public class LabelingEditorChangeTracker implements
 		reset();
 	}
 
+	/**
+	 * Deletes the given Strings from all lists managed by this tracker.
+	 * 
+	 * @param deletedLabels
+	 *            A List of labels to delete
+	 */
+	public void delete(Collection<String> deletedLabels) {
+		for (List<String> l : m_changedLabels.values()) {
+			l.removeAll(deletedLabels);
+			intern(l);
+		}
+		++m_generation;
+	}
+
+	/**
+	 * Renames a label stored in this tracker.
+	 * 
+	 * @param oldName
+	 *            The old name of the label
+	 * @param newName
+	 *            The designated new name
+	 */
+	public void rename(String oldName, String newName) {
+		for (List<String> l : m_changedLabels.values()) {
+			if (l.contains(oldName)) {
+				l.remove(oldName);
+				l.add(newName);
+				checkForFiltered(l);
+				intern(l);
+			}
+		}
+		++m_generation;
+	}
+
 }
