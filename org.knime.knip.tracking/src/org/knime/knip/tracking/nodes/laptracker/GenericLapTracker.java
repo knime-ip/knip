@@ -6,18 +6,18 @@ import org.knime.knip.tracking.data.TrackedNode;
 import org.knime.knip.tracking.nodes.laptracker.LAPTrackerNodeModel.LAPTrackerAlgorithm;
 
 import fiji.plugin.trackmate.tracking.TrackableObjectCollection;
-import fiji.plugin.trackmate.tracking.hungarian.AssignmentAlgorithm;
-import fiji.plugin.trackmate.tracking.hungarian.HungarianAlgorithm;
-import fiji.plugin.trackmate.tracking.hungarian.JonkerVolgenantAlgorithm;
-import fiji.plugin.trackmate.tracking.hungarian.MunkresKuhnAlgorithm;
-import fiji.plugin.trackmate.tracking.trackers.LAPTracker;
+import fiji.plugin.trackmate.tracking.oldlap.LAPTracker;
+import fiji.plugin.trackmate.tracking.oldlap.hungarian.AssignmentAlgorithm;
+import fiji.plugin.trackmate.tracking.oldlap.hungarian.HungarianAlgorithm;
+import fiji.plugin.trackmate.tracking.oldlap.hungarian.JonkerVolgenantAlgorithm;
+import fiji.plugin.trackmate.tracking.oldlap.hungarian.MunkresKuhnAlgorithm;
 
 public class GenericLapTracker<L extends Comparable<L>> extends
 		LAPTracker<TrackedNode<L>> {
 
 	private final LAPTrackerAlgorithm algorithm;
 
-	public GenericLapTracker(LAPTrackerAlgorithm algorithm, TrackableObjectCollection<TrackedNode<L>> objects, Map<String, Object> defSettings) {
+	public GenericLapTracker(final LAPTrackerAlgorithm algorithm, final TrackableObjectCollection<TrackedNode<L>> objects, final Map<String, Object> defSettings) {
 		super(new KNIPCostCalculator<L>(), objects, defSettings );
 		this.algorithm = algorithm;
 	}
@@ -31,6 +31,7 @@ public class GenericLapTracker<L extends Comparable<L>> extends
 			return new HungarianAlgorithm();
 		case JONKERVOLGENANT:
 			return new JonkerVolgenantAlgorithm();
+			
 		default:
 			throw new IllegalArgumentException("Unknown LAPTracker");
 		}

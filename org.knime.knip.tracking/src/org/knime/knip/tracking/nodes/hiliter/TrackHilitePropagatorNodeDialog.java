@@ -13,7 +13,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelColumnName;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.core.util.EnumUtils;
-import org.knime.knip.tracking.nodes.hiliter.TrackHilitePropagatorNodeModel.TrackHilitingMode;
+import org.knime.knip.tracking.nodes.hiliter.TrackHilitePropagatorSettingsModels.TrackHilitingMode;
 
 /**
  * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>

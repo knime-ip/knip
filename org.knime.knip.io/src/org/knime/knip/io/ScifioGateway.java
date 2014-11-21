@@ -50,16 +50,24 @@ package org.knime.knip.io;
 
 import io.scif.Format;
 import io.scif.SCIFIO;
+import io.scif.SCIFIOService;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 
+import org.eclipse.core.runtime.internal.adaptor.ContextFinder;
 import org.knime.knip.io.extensionpoint.IFormatReaderExtPointManager;
 import org.knime.knip.io.extensionpoint.ScifioFormatReaderExtPointManager;
+import org.scijava.Context;
+import org.scijava.plugin.DefaultPluginFinder;
+import org.scijava.plugin.PluginIndex;
+import org.scijava.service.SciJavaService;
+import org.scijava.service.Service;
 
 /**
  * Encapsulates the scifio instance as singleton.
@@ -89,8 +97,13 @@ public class ScifioGateway {
         // add old IFormatReaders
         addIFormatReaders();
 
+        // required classes
+        HashSet<Class<? extends Service>> classes = new HashSet<>();
+        classes.add(SciJavaService.class);
+        classes.add(SCIFIOService.class);
+        
         // create a scifio context with required Scifio and Scijava Services
-        m_scifio = new SCIFIO();
+        m_scifio = new SCIFIO(new Context(classes, new PluginIndex(new DefaultPluginFinder(new ContextFinder(getClass().getClassLoader())))));
 
         // add readers from the ScifioFormat extension point as Format
         final List<Format> customFormats =
