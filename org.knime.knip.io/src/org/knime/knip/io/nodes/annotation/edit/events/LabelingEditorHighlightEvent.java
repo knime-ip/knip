@@ -48,18 +48,35 @@
  */
 package org.knime.knip.io.nodes.annotation.edit.events;
 
+import java.util.Collection;
+
 import org.knime.knip.core.ui.event.KNIPEvent;
 
 /**
- * Event used to reset the InteractiveLabelingEditor back to its input.
+ * Event used by Tools of the InteractiveLabelingEditor to notify the manager of
+ * desired additions to labels.
  * 
  * @author Andreas Burger, University of Konstanz
- * 
  */
-public class LabelingEditorResetEvent implements KNIPEvent {
+public class LabelingEditorHighlightEvent implements KNIPEvent {
 
-	public LabelingEditorResetEvent() {
+	private final Collection<String> m_labels;
+	
+	private final boolean m_enabled;
 
+
+	public LabelingEditorHighlightEvent(final Collection<String> labels, boolean enabled) {
+		m_labels = labels;
+		m_enabled = enabled;
+
+	}
+
+	public Collection<String> getHighlightedLabels() {
+		return m_labels;
+	}
+	
+	public boolean isFilterEnabled(){
+		return m_enabled;
 	}
 
 	@Override
@@ -72,6 +89,6 @@ public class LabelingEditorResetEvent implements KNIPEvent {
 	 */
 	@Override
 	public <E extends KNIPEvent> boolean isRedundant(final E thatEvent) {
-		return this.equals(thatEvent);
+		return false;
 	}
 }

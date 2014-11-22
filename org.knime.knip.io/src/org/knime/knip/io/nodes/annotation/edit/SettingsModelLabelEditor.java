@@ -1,6 +1,7 @@
 package org.knime.knip.io.nodes.annotation.edit;
 
 import java.util.Map;
+import java.util.Vector;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
@@ -25,6 +26,8 @@ public class SettingsModelLabelEditor extends SettingsModel {
 
 	private LabelingEditorManager m_manager = new LabelingEditorManager();
 
+	private Vector<String> m_newLabels = new Vector<String>();
+
 	public LabelingEditorManager getManager() {
 		return m_manager;
 	}
@@ -42,9 +45,12 @@ public class SettingsModelLabelEditor extends SettingsModel {
 		m_manager.setTrackerMap(map);
 	}
 
+	public Vector<String> getNewLabels() {
+		return m_newLabels;
+	}
+
 	@Override
 	protected <T extends SettingsModel> T createClone() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -87,12 +93,22 @@ public class SettingsModelLabelEditor extends SettingsModel {
 	protected void loadSettingsForModel(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		m_manager.loadSettingsFrom(settings);
+		int size = settings.getInt("NEWLABELS_SIZE", 0);
+		for (int i = 0; i < size; ++i) {
+			String add = settings.getString("NEWLABEL_" + i);
+			if (!m_newLabels.contains(add))
+				m_newLabels.add(add);
+		}
 
 	}
 
 	@Override
 	protected void saveSettingsForModel(final NodeSettingsWO settings) {
 		m_manager.saveSettingsTo(settings);
+		settings.addInt("NEWLABELS_SIZE", m_newLabels.size());
+		int i = 0;
+		for (String s : m_newLabels)
+			settings.addString("NEWLABEL_" + (i++), s);
 	}
 
 	@Override

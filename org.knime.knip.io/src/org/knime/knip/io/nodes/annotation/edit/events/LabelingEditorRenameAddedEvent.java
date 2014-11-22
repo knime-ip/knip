@@ -46,70 +46,44 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.core.awt;
+package org.knime.knip.io.nodes.annotation.edit.events;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.meta.ImageMetadata;
-import net.imglib2.type.Type;
-import net.imglib2.type.numeric.RealType;
+import org.knime.knip.core.ui.event.KNIPEvent;
 
 /**
- * TODO Auto-generated
- *
- * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * TBD.
+ * 
+ * @author Andreas Burger, University of Konstanz
  */
-public class RendererFactory {
+public class LabelingEditorRenameAddedEvent implements KNIPEvent {
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public static <T extends Type<T>> ImageRenderer<T>[] createSuitableRenderer(final RandomAccessibleInterval<T> img) {
+	private String m_oldName;
 
-        final List<ImageRenderer> res = new ArrayList<ImageRenderer>();
+	private String m_newName;
 
-        if (img instanceof Labeling) {
-            res.add(new ColorLabelingRenderer());
-            res.add(new BoundingBoxLabelRenderer());
-            res.add(new BoundingBoxRandomColorLabelRenderer());
-        } else {
-            final T type = img.randomAccess().get();
+	public LabelingEditorRenameAddedEvent(String oldName, String newName) {
+		m_oldName = oldName;
+		m_newName = newName;
+	}
 
-            if (type instanceof RealType) {
-                res.add(new Real2GreyRenderer());
-                for (int d = 0; d < img.numDimensions(); d++) {
-                    if ((img.dimension(d) > 1) && (img.dimension(d) < 4)) {
-                        res.add(new Real2ColorRenderer(d));
-                    }
-                }
-            }
-        }
+	public String getOldName() {
+		return m_oldName;
+	}
 
-        return res.toArray(new ImageRenderer[res.size()]);
-    }
+	public String getNewName() {
+		return m_newName;
+	}
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public static <T extends Type<T>> ImageRenderer<T>[] createSuitableRenderer(final RandomAccessibleInterval<T> img,
-                                                                                final ImageMetadata imageMetaData) {
+	@Override
+	public ExecutionPriority getExecutionOrder() {
+		// TODO Auto-generated method stub
+		return ExecutionPriority.NORMAL;
+	}
 
-        final List<ImageRenderer> res = new ArrayList<ImageRenderer>();
-        res.addAll(Arrays.asList(createSuitableRenderer(img)));
-
-        // color rendering
-        final T type = img.randomAccess().get();
-
-        if (type instanceof RealType) {
-            if ((imageMetaData != null) && (imageMetaData.getColorTableCount() > 0)) {
-
-                res.add(new Real2TableColorRenderer());
-            }
-        }
-
-        return res.toArray(new ImageRenderer[res.size()]);
-    }
+	@Override
+	public <E extends KNIPEvent> boolean isRedundant(E thatEvent) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 }
