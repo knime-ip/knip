@@ -58,20 +58,49 @@
             <option name="Alternative Linking Cost Factor"> Factor used to compute alternative linking costs
                 (see http://fiji.sc/TrackMate for details).
             </option>
-             <option name="Cutoff Percentile">Cut-Off Percentile (see http://fiji.sc/TrackMate
+            <option name="Cutoff Percentile">Cut-Off Percentile (see http://fiji.sc/TrackMate
                 for details).
             </option>
-            <option name="Calculate Trackfeatures">Calculates various features for each track and outputs them to the second output port.
-        </option>
+            <option name="Calculate Track features">
+                Calculates various features for each track and makes them avaiable
+                at the second output port.
+                <br />
+                <br />
+                Notable Features:
+                <ul>
+                    <li> The Longest Gap describes the lenght (in time units) of the
+                        longest gap int the track.</li>
+                    <li> The Complex points counted in the "Number of Complex Points"
+                        features are defined as follows.
+                        A Complex Point has several imidiate predecessors (like a merge) as
+                        well as several successors     (like a split) regarding the surrounding time slices.</li>
+                    <li> The Track Duration describes the total ammount of time the
+                        Track is visible.</li>
+                    <li> The Track Start describes the first timepoint a track appears
+                        at.</li>
+                    <li> The Track End describes the last timepoint a track appears at.</li>
+                    <li> The Track Displacement describes the total distance traveled
+                        by the tracked object.</li>
+                </ul>
+
+                Calibration of the Features: (Customizable calibration will be
+                avaiable in a future version).
+                <ul>
+                    <li>Location based features: 1 = 1 mm  </li>
+                    <li>Time based features 1 = 1 sec </li>
+                </ul>
+            </option>
             <option name="Attach Original Labelings"> Attaches the original labelings
-                to the tracks, so that each labeled pixel keeps his original labels.
+                to the tracks, so
+                that each labeled pixel keeps his original labels.
             </option>
             <option name="Use a Custom Track Prefix"> If a custom prefix for the tracknames is used
                 instead of the default one "Track: ".
             </option>
-            <option name="Custom Track Prefix">The prefix for the name of the tracks. If used
-                together with <b>Attach Original Labelings</b>, make sure to enter a name
-                that is not part of the name of any labeling.
+            <option name="Custom Track Prefix">
+                The prefix for the name of the tracks. If used
+                together with <b>Attach Original Labelings</b>,
+                make sure to enter a name that is not part of the name of any labeling.
             </option>
         </tab>
     </fullDescription>

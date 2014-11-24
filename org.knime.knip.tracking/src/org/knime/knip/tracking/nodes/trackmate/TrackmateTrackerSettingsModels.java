@@ -55,9 +55,11 @@ final class TrackmateTrackerSettingsModels {
         /**
          * Track Branching Features.
          */
-        NUMBER_SPOTS("Number of spots in track"), NUMBER_GAPS("Number of gaps"), LONGEST_GAP(
-                "Longest gap"), NUMBER_SPLITS("Number of split events"), NUMBER_MERGES(
-                "Number of merge events"), NUMBER_COMPLEX("Complex points"),
+        NUMBER_SPOTS("Number of elements in track"), NUMBER_GAPS(
+                "Number of gaps"), LONGEST_GAP("Longest gap"), NUMBER_SPLITS(
+                "Number of split events"), NUMBER_MERGES(
+                "Number of merge events"), NUMBER_COMPLEX(
+                "Number of complex points"),
 
         /**
          * Track Speed Features.
