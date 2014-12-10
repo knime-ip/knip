@@ -62,6 +62,7 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
 import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
@@ -168,6 +169,8 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
     private BufferedDataTable m_labelingTable;
 
     private BufferedDataTable m_trackFeatureTable;
+
+    private List<SettingsModel> m_settingsModels;
 
     /**********************
      * NODE SETUP METHODS *
@@ -835,6 +838,35 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
      * DEFAULT KNIME NODE METHODS *
      ******************************/
 
+    /*
+     * Helper to collect all settings models and add them to one list (if not
+     * already done)
+     */
+    private void collectSettingsModels() {
+        if (m_settingsModels == null) {
+            m_settingsModels = new ArrayList<SettingsModel>();
+
+            m_settingsModels.add(m_bitMaskColumnModel);
+            m_settingsModels.add(m_columns);
+            m_settingsModels.add(m_labelColumnModel);
+            m_settingsModels.add(m_timeAxisModel);
+            m_settingsModels.add(m_allowGapClosingModel);
+            m_settingsModels.add(m_allowMergingModel);
+            m_settingsModels.add(m_alternativeLinkingCostFactor);
+            m_settingsModels.add(m_cutoffPercentileModel);
+            m_settingsModels.add(m_linkingMaxDistanceModel);
+            m_settingsModels.add(m_gapClosingMaxFrameModel);
+            m_settingsModels.add(m_mergingMaxDistanceModel);
+            m_settingsModels.add(m_splittingMaxDistance);
+            m_settingsModels.add(m_allowSplittingModel);
+            m_settingsModels.add(m_gapClosingMaxDistanceModel);
+            m_settingsModels.add(m_sourceLabelingColumn);
+            m_settingsModels.add(m_useCustomTrackPrefix);
+            m_settingsModels.add(m_customTrackPrefix);
+            m_settingsModels.add(m_attachSourceLabelings);
+        }
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -860,24 +892,10 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
      */
     @Override
     protected void saveSettingsTo(final NodeSettingsWO settings) {
-        m_bitMaskColumnModel.saveSettingsTo(settings);
-        m_columns.saveSettingsTo(settings);
-        m_labelColumnModel.saveSettingsTo(settings);
-        m_timeAxisModel.saveSettingsTo(settings);
-        m_allowGapClosingModel.saveSettingsTo(settings);
-        m_allowMergingModel.saveSettingsTo(settings);
-        m_alternativeLinkingCostFactor.saveSettingsTo(settings);
-        m_cutoffPercentileModel.saveSettingsTo(settings);
-        m_linkingMaxDistanceModel.saveSettingsTo(settings);
-        m_gapClosingMaxFrameModel.saveSettingsTo(settings);
-        m_mergingMaxDistanceModel.saveSettingsTo(settings);
-        m_splittingMaxDistance.saveSettingsTo(settings);
-        m_allowSplittingModel.saveSettingsTo(settings);
-        m_gapClosingMaxDistanceModel.saveSettingsTo(settings);
-        m_sourceLabelingColumn.saveSettingsTo(settings);
-        m_attachSourceLabelings.saveSettingsTo(settings);
-        m_useCustomTrackPrefix.saveSettingsTo(settings);
-        m_customTrackPrefix.saveSettingsTo(settings);
+        collectSettingsModels();
+        for (final SettingsModel s : m_settingsModels) {
+            s.saveSettingsTo(settings);
+        }
     }
 
     /**
@@ -886,24 +904,10 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
     @Override
     protected void validateSettings(final NodeSettingsRO settings)
             throws InvalidSettingsException {
-        m_bitMaskColumnModel.validateSettings(settings);
-        m_columns.validateSettings(settings);
-        m_labelColumnModel.validateSettings(settings);
-        m_timeAxisModel.validateSettings(settings);
-        m_allowGapClosingModel.validateSettings(settings);
-        m_allowMergingModel.validateSettings(settings);
-        m_alternativeLinkingCostFactor.validateSettings(settings);
-        m_cutoffPercentileModel.validateSettings(settings);
-        m_linkingMaxDistanceModel.validateSettings(settings);
-        m_gapClosingMaxFrameModel.validateSettings(settings);
-        m_mergingMaxDistanceModel.validateSettings(settings);
-        m_splittingMaxDistance.validateSettings(settings);
-        m_allowSplittingModel.validateSettings(settings);
-        m_gapClosingMaxDistanceModel.validateSettings(settings);
-        m_sourceLabelingColumn.validateSettings(settings);
-        m_useCustomTrackPrefix.validateSettings(settings);
-        m_customTrackPrefix.validateSettings(settings);
-        m_attachSourceLabelings.validateSettings(settings);
+        collectSettingsModels();
+        for (final SettingsModel s : m_settingsModels) {
+            s.validateSettings(settings);
+        }
     }
 
     /**
@@ -912,24 +916,10 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
     @Override
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
             throws InvalidSettingsException {
-        m_bitMaskColumnModel.loadSettingsFrom(settings);
-        m_columns.loadSettingsFrom(settings);
-        m_labelColumnModel.loadSettingsFrom(settings);
-        m_timeAxisModel.loadSettingsFrom(settings);
-        m_allowGapClosingModel.loadSettingsFrom(settings);
-        m_allowMergingModel.loadSettingsFrom(settings);
-        m_alternativeLinkingCostFactor.loadSettingsFrom(settings);
-        m_cutoffPercentileModel.loadSettingsFrom(settings);
-        m_linkingMaxDistanceModel.loadSettingsFrom(settings);
-        m_gapClosingMaxFrameModel.loadSettingsFrom(settings);
-        m_mergingMaxDistanceModel.loadSettingsFrom(settings);
-        m_splittingMaxDistance.loadSettingsFrom(settings);
-        m_allowSplittingModel.loadSettingsFrom(settings);
-        m_gapClosingMaxDistanceModel.loadSettingsFrom(settings);
-        m_sourceLabelingColumn.loadSettingsFrom(settings);
-        m_useCustomTrackPrefix.loadSettingsFrom(settings);
-        m_customTrackPrefix.loadSettingsFrom(settings);
-        m_attachSourceLabelings.loadSettingsFrom(settings);
+        collectSettingsModels();
+        for (final SettingsModel s : m_settingsModels) {
+            s.loadSettingsFrom(settings);
+        }
     }
 
     /**
