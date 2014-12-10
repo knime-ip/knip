@@ -357,12 +357,22 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
             exec.checkCanceled();
 
             // get the spot
-            @SuppressWarnings("unchecked")
-            final ImgPlusValue<BitType> bitMaskValue =
-                    ((ImgPlusValue<BitType>) row.getCell(bitMaskColumnIdx));
-            final ImgPlus<BitType> bitMask = bitMaskValue.getImgPlus();
-            final String label =
-                    ((StringValue) row.getCell(labelIdx)).getStringValue();
+            ImgPlus<BitType> bitMask = null;
+            ImgPlusValue<BitType> bitMaskValue = null;
+            try {
+                bitMaskValue =
+                        ((ImgPlusValue<BitType>) row.getCell(bitMaskColumnIdx));
+                bitMask = bitMaskValue.getImgPlus();
+            } catch (final ClassCastException e) {
+                handleMissingValue(row.getKey(), columnNames[bitMaskColumnIdx]);
+            }
+
+            String label = null;
+            try {
+                label = ((StringValue) row.getCell(labelIdx)).getStringValue();
+            } catch (final ClassCastException e) {
+                handleMissingValue(row.getKey(), columnNames[bitMaskColumnIdx]);
+            }
 
             // get time dimension
             final int timeIdx = bitMask.dimensionIndex(timeAxis);
@@ -388,9 +398,7 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
                     featureMap.put(columnNames[idx],
                             ((DoubleValue) row.getCell(idx)).getDoubleValue());
                 } catch (final ClassCastException e) {
-                    throw new ClassCastException("Missing values in the row: '"
-                            + row.getKey() + "' in the column: '"
-                            + columnNames[idx] + "'");
+                    handleMissingValue(row.getKey(), columnNames[idx]);
                 }
             }
 
@@ -422,6 +430,17 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
             trackedNodes.add(trackedNode, trackedNode.frame());
         }
         return trackedNodes;
+    }
+
+    /**
+     * Throws the appropriate Exception for a missing value.
+     *
+     * @param rowkey
+     * @param columnName
+     */
+    private void handleMissingValue(final RowKey rowkey, final String columnName) {
+        throw new IllegalArgumentException("Missing values in the row: '"
+                + rowkey + "' in the column: '" + columnName + "'");
     }
 
     /**
