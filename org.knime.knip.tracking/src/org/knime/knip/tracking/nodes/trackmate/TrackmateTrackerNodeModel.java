@@ -384,8 +384,14 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
             final Map<String, Double> featureMap =
                     new HashMap<String, Double>();
             for (final int idx : featureIndices) {
-                featureMap.put(columnNames[idx],
-                        ((DoubleValue) row.getCell(idx)).getDoubleValue());
+                try {
+                    featureMap.put(columnNames[idx],
+                            ((DoubleValue) row.getCell(idx)).getDoubleValue());
+                } catch (final ClassCastException e) {
+                    throw new ClassCastException("Missing values in the row: '"
+                            + row.getKey() + "' in the column: '"
+                            + columnNames[idx] + "'");
+                }
             }
 
             final Centroid centroid = new Centroid();
