@@ -51,6 +51,7 @@ package org.knime.knip.base.nodes.seg.waehlby;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 
 import net.imglib2.Cursor;
 import net.imglib2.IterableInterval;
@@ -346,6 +347,17 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
                             }
 
                             mergedList.add(new Triple<LabeledObject, LabeledObject, String>(iObj, jObj, ijLabel));
+
+                            // transitive dependencies need to be resolved
+                            HashSet<Triple<LabeledObject, LabeledObject, String>> toRemove =
+                                    new HashSet<Triple<LabeledObject, LabeledObject, String>>();
+                            for (Triple<LabeledObject, LabeledObject, String> triple : mergedList) {
+                                if (triple.getThird().equals(iObj.m_label)) {
+                                    toRemove.add(triple);
+                                }
+                            }
+
+                            mergedList.removeAll(toRemove);
                             points.clear();
                         }
                     }
