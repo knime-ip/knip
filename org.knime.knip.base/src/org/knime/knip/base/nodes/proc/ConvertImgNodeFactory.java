@@ -52,12 +52,16 @@ import java.io.IOException;
 import java.util.List;
 
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.exception.IncompatibleTypeException;
+import net.imglib2.converter.read.ConvertedRandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgView;
 import net.imglib2.meta.ImgPlus;
-import net.imglib2.ops.operation.img.unary.ImgConvert;
+import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.img.unary.ImgConvert.ImgConversionTypes;
+import net.imglib2.ops.operation.iterableinterval.unary.MinMax;
+import net.imglib2.ops.operation.real.unary.Convert;
+import net.imglib2.ops.operation.real.unary.Convert.TypeConversionTypes;
+import net.imglib2.ops.operation.real.unary.Normalize;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
@@ -71,6 +75,8 @@ import net.imglib2.type.numeric.integer.UnsignedIntType;
 import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.type.numeric.real.FloatType;
+import net.imglib2.util.ValuePair;
+import net.imglib2.view.Views;
 
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
@@ -85,7 +91,6 @@ import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.types.NativeTypes;
 import org.knime.knip.core.util.EnumUtils;
-import org.knime.knip.core.util.ImgUtils;
 
 /**
  * Factory class to produce the Histogram Operations Node.
@@ -227,20 +232,9 @@ public class ConvertImgNodeFactory<T extends RealType<T> & NativeType<T>> extend
                                                                                        final ImgFactoryTypes facType,
                                                                                        final ImgConversionTypes mode) {
 
-                ImgConvert<T, O> imgConvert;
-                try {
-                    imgConvert =
-                            new ImgConvert<T, O>(img.firstElement().createVariable(), outType, mode, img.factory()
-                                    .imgFactory(outType));
-                } catch (IncompatibleTypeException e) {
-                    throw new RuntimeException(e);
-                }
-
-                @SuppressWarnings("unchecked")
-                final Img<O> res =
-                        ImgUtils.<T, O> createEmptyCopy(img, ImgFactoryTypes.<T> getImgFactory(facType, img), outType);
-                imgConvert.compute((RandomAccessibleInterval<T>)img, res);
-                return res;
+                return new ImgView<O>(new ConvertedRandomAccessibleInterval<T, O>(img, new ImgConvert<T, O>(img
+                        .firstElement().createVariable(), outType, mode).createOp(img), outType),
+                        ImgFactoryTypes.<T> getImgFactory(facType, img));
             }
 
             /**
@@ -254,4 +248,91 @@ public class ConvertImgNodeFactory<T extends RealType<T> & NativeType<T>> extend
         };
     }
 
+    /**
+     * Converts complete images from one type into another TODO: Can now convert RandomAccessibleIntervals from one type
+     * into another.
+     *
+     * @author dietzc, University of Konstanz
+     * @deprecation will be replaced with ImageJ-Ops
+     */
+    @Deprecated
+    public class ImgConvert<I extends RealType<I>, O extends RealType<O> & NativeType<O>> {
+
+        private final O m_outType;
+
+        private final I m_inType;
+
+        private final ImgConversionTypes m_conversionType;
+
+        /**
+         * For Compatability with previous API, this creates a default ImgFactory.
+         *
+         * @param inType
+         * @param outType
+         * @param type
+         * @deprecated Use the other constructor and specify a ImgFactory yourself.
+         */
+        @Deprecated
+        public ImgConvert(final I inType, final O outType, final ImgConversionTypes type) {
+            m_outType = outType;
+            m_conversionType = type;
+            m_inType = inType;
+        }
+
+        public Convert<I, O> createOp(final RandomAccessibleInterval<I> img) {
+            final Iterable<I> iterImg = Views.iterable(img);
+            double factor;
+            ValuePair<I, I> oldMinMax;
+            Convert<I, O> convertOp = null;
+
+            switch (m_conversionType) {
+                case DIRECT:
+                    convertOp = new Convert<I, O>(m_inType, m_outType, TypeConversionTypes.DIRECT);
+                    break;
+                case DIRECTCLIP:
+                    convertOp = new Convert<I, O>(m_inType, m_outType, TypeConversionTypes.DIRECTCLIP);
+                    break;
+                case NORMALIZEDIRECT:
+                    oldMinMax = Operations.compute(new MinMax<I>(), iterImg);
+                    factor =
+                            Normalize.normalizationFactor(oldMinMax.a.getRealDouble(), oldMinMax.b.getRealDouble(),
+                                                          m_inType.getMinValue(), m_inType.getMaxValue());
+
+                    convertOp = new Convert<I, O>(m_inType, m_outType, TypeConversionTypes.SCALE);
+
+                    convertOp.setFactor(convertOp.getFactor() / factor);
+                    convertOp.setInMin(0);
+                    convertOp.setOutMin(0);
+                    break;
+                case NORMALIZESCALE:
+                    oldMinMax = Operations.compute(new MinMax<I>(), iterImg);
+                    factor =
+                            Normalize.normalizationFactor(oldMinMax.a.getRealDouble(), oldMinMax.b.getRealDouble(),
+                                                          m_inType.getMinValue(), m_inType.getMaxValue());
+
+                    convertOp = new Convert<I, O>(m_inType, m_outType, TypeConversionTypes.SCALE);
+                    convertOp.setFactor(convertOp.getFactor() / factor);
+                    convertOp.setInMin(oldMinMax.a.getRealDouble());
+                    break;
+                case NORMALIZEDIRECTCLIP:
+                    oldMinMax = Operations.compute(new MinMax<I>(), iterImg);
+                    factor =
+                            Normalize.normalizationFactor(oldMinMax.a.getRealDouble(), oldMinMax.b.getRealDouble(),
+                                                          m_inType.getMinValue(), m_inType.getMaxValue());
+
+                    convertOp = new Convert<I, O>(m_inType, m_outType, TypeConversionTypes.SCALECLIP);
+                    convertOp.setFactor(convertOp.getFactor() / factor);
+                    convertOp.setInMin(oldMinMax.a.getRealDouble());
+                    break;
+                case SCALE:
+                    convertOp = new Convert<I, O>(m_inType, m_outType, TypeConversionTypes.SCALE);
+                    break;
+
+                default:
+                    throw new IllegalArgumentException("Normalization type unknown");
+            }
+
+            return convertOp;
+        }
+    }
 }
