@@ -382,8 +382,8 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
 
             final long[] offset = new long[]{-min[0], -min[1]}; //offset for moving pixel back
 
-            RandomAccess<BitType> ra = objImage.randomAccess();
-            Cursor<LabelingType<String>> curs = intervalOverSrc.cursor();
+            final RandomAccess<BitType> ra = objImage.randomAccess();
+            final Cursor<LabelingType<String>> curs = intervalOverSrc.cursor();
 
             while (curs.hasNext()) {
                 curs.fwd();
