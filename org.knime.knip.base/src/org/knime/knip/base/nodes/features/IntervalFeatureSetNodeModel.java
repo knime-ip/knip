@@ -57,10 +57,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import net.imglib2.Cursor;
 import net.imglib2.IterableInterval;
-import net.imglib2.RandomAccess;
 import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingView;
@@ -74,6 +73,7 @@ import net.imglib2.sampler.special.ConstantRandomAccessible;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.ValuePair;
+import net.imglib2.view.Views;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnProperties;
@@ -236,26 +236,6 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
         return new DataTableSpec[]{createOutSpec(inSpecs[0], labColIdx)};
     }
 
-    /*
-     * Helper to create a binary mask from a region of interest.
-     */
-    private Img<BitType> createBinaryMask(final IterableInterval<BitType> ii) {
-        final Img<BitType> mask = new ArrayImgFactory<BitType>().create(ii, new BitType());
-
-        final RandomAccess<BitType> maskRA = mask.randomAccess();
-        final Cursor<BitType> cur = ii.localizingCursor();
-        while (cur.hasNext()) {
-            cur.fwd();
-            for (int d = 0; d < cur.numDimensions(); d++) {
-                maskRA.setPosition(cur.getLongPosition(d) - ii.min(d), d);
-            }
-            maskRA.get().set(true);
-        }
-
-        return mask;
-
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
@@ -396,8 +376,9 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
                 if (m_appendSegmentInformation.getBooleanValue()) {
 
                     final Img<BitType> bitMask =
-                            createBinaryMask(labelRoi.getIterableIntervalOverROI(new ConstantRandomAccessible<BitType>(
-                                    new BitType(), labeling.numDimensions())));
+                            new ImgView<BitType>(Views.zeroMin(Views.interval(Views.raster(labelRoi), labelRoi
+                                    .getIterableIntervalOverROI(new ConstantRandomAccessible<BitType>(new BitType(),
+                                            labeling.numDimensions())))), new ArrayImgFactory<BitType>());
 
                     // min
                     final long[] min = new long[ii.numDimensions()];
@@ -502,7 +483,6 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
                 specs.add(new DataColumnSpecCreator("LabelDependencies", StringCell.TYPE).createSpec());
             }
         }
-
 
         for (final FeatureSetProvider<ValuePair<IterableInterval<T>, CalibratedSpace>> featSet : m_featSetProviders) {
             if (isFeatureSetActive(featSet.getFeatureSetId())) {
