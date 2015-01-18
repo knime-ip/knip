@@ -52,18 +52,22 @@ import net.imglib2.img.array.ArrayImg;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.img.basictypeaccess.array.ArrayDataAccess;
 import net.imglib2.type.NativeType;
+import net.imglib2.type.logic.BitType;
+import net.imglib2.type.numeric.integer.Unsigned12BitType;
 
 import org.knime.knip.core.io.externalization.BufferedDataInputStream;
 import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
 import org.knime.knip.core.io.externalization.Externalizer;
 import org.knime.knip.core.io.externalization.ExternalizerManager;
+import org.knime.knip.core.io.externalization.ImgLib2ApiBreakHelper;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
+@Deprecated
 public class ArrayImgExt0 implements Externalizer<ArrayImg> {
 
     /**
@@ -92,7 +96,7 @@ public class ArrayImgExt0 implements Externalizer<ArrayImg> {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @throws Exception
      */
     @Override
@@ -102,17 +106,23 @@ public class ArrayImgExt0 implements Externalizer<ArrayImg> {
         in.read(dims);
 
         final NativeType<?> type = (NativeType<?>)ExternalizerManager.<Class> read(in).newInstance();
-
         final ArrayImg<? extends NativeType<?>, ? extends ArrayDataAccess<?>> img =
                 new ArrayImgFactory().create(dims, type);
-        in.readLArray(((ArrayDataAccess<?>)img.update(null)).getCurrentStorageArray());
+
+        if (type instanceof BitType) {
+            ImgLib2ApiBreakHelper.bitTypeConvert((long[])img.update(null).getCurrentStorageArray(), (int)img.size(), in);
+        } else if (type instanceof Unsigned12BitType) {
+            ImgLib2ApiBreakHelper.unsigned12BitTypeConvert((long[])img.update(null).getCurrentStorageArray(), (int)img.size(), in);
+        } else {
+            in.readLArray(((ArrayDataAccess<?>)img.update(null)).getCurrentStorageArray());
+        }
 
         return img;
     }
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @throws Exception
      */
     @Override

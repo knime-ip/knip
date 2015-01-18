@@ -50,8 +50,8 @@ package org.knime.knip.base.nodes.filter;
 
 import java.util.List;
 
+import net.imagej.ImgPlus;
 import net.imglib2.algorithm.gauss3.Gauss3;
-import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.type.NativeType;

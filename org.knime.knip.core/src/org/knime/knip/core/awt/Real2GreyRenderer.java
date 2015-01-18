@@ -111,7 +111,7 @@ public class Real2GreyRenderer<R extends RealType<R>> extends ProjectingRenderer
     }
 
     @Override
-    protected AbstractProjector2D<R, ARGBType> getProjector(final int dimX, final int dimY,
+    protected AbstractProjector2D getProjector(final int dimX, final int dimY,
                                                             final RandomAccessibleInterval<R> source,
                                                             final ARGBScreenImage target) {
 

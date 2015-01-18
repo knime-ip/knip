@@ -52,12 +52,12 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import net.imagej.axis.TypedAxis;
+import net.imagej.space.TypedSpace;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccess;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingType;
-import net.imglib2.meta.TypedAxis;
-import net.imglib2.meta.TypedSpace;
 
 /**
  *

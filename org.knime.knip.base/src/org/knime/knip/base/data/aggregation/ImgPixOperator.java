@@ -24,7 +24,7 @@ package org.knime.knip.base.data.aggregation;
 
 import java.io.IOException;
 
-import net.imglib2.meta.ImgPlus;
+import net.imagej.ImgPlus;
 import net.imglib2.ops.img.UnaryOperationAssignment;
 import net.imglib2.ops.operation.real.unary.RealUnaryOperation;
 import net.imglib2.type.numeric.RealType;
@@ -38,9 +38,9 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 /**
  * Simple, so far infexible version of a pixel-wise image aggregation operator (image are required to have the same
  * iteration order, i.e. dimension etc.). TODO: make it more flexible.
- * 
+ *
  * @author Martin Horn, University of Konstanz
- * 
+ *
  */
 public abstract class ImgPixOperator<T extends RealType<T>> extends ImgAggregrationOperation {
 

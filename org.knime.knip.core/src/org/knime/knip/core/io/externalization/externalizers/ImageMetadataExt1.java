@@ -48,10 +48,10 @@
  */
 package org.knime.knip.core.io.externalization.externalizers;
 
+import net.imagej.ImageMetadata;
 import net.imglib2.display.ColorTable;
 import net.imglib2.display.ColorTable16;
 import net.imglib2.display.ColorTable8;
-import net.imglib2.meta.ImageMetadata;
 
 import org.knime.knip.core.data.img.DefaultImageMetadata;
 import org.knime.knip.core.io.externalization.BufferedDataInputStream;
@@ -60,11 +60,12 @@ import org.knime.knip.core.io.externalization.Externalizer;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
+ @Deprecated
 public class ImageMetadataExt1 implements Externalizer<ImageMetadata> {
 
     private enum ColorTables {

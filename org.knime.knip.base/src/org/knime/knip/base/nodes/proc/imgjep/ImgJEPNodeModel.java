@@ -53,6 +53,8 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.LinkedList;
 
+import net.imagej.ImgPlus;
+import net.imagej.ImgPlusMetadata;
 import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccessibleInterval;
@@ -60,8 +62,6 @@ import net.imglib2.exception.IncompatibleTypeException;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.img.ImgView;
-import net.imglib2.meta.ImgPlus;
-import net.imglib2.meta.ImgPlusMetadata;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 

@@ -52,7 +52,11 @@ import io.scif.Format;
 import io.scif.SCIFIO;
 import io.scif.SCIFIOService;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -61,6 +65,9 @@ import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 
 import org.eclipse.core.runtime.internal.adaptor.ContextFinder;
+import org.eclipse.osgi.internal.baseadaptor.DefaultClassLoader;
+import org.eclipse.osgi.internal.loader.BundleLoader;
+import org.eclipse.osgi.service.resolver.BundleSpecification;
 import org.knime.knip.io.extensionpoint.IFormatReaderExtPointManager;
 import org.knime.knip.io.extensionpoint.ScifioFormatReaderExtPointManager;
 import org.scijava.Context;
@@ -103,7 +110,9 @@ public class ScifioGateway {
         classes.add(SCIFIOService.class);
         
         // create a scifio context with required Scifio and Scijava Services
-        m_scifio = new SCIFIO(new Context(classes, new PluginIndex(new DefaultPluginFinder(new ContextFinder(getClass().getClassLoader())))));
+		m_scifio = new SCIFIO(new Context(classes, new PluginIndex(
+				new DefaultPluginFinder(new ResourceAwareClassLoader(
+						(DefaultClassLoader) getClass().getClassLoader())))));
 
         // add readers from the ScifioFormat extension point as Format
         final List<Format> customFormats =
@@ -170,4 +179,37 @@ public class ScifioGateway {
     public static Set<Format> getFORMATS() {
         return getInstance().FORMATS;
     }
+    
+
+	class ResourceAwareClassLoader extends ClassLoader {
+
+		final ArrayList<URL> urls = new ArrayList<URL>();
+
+		public ResourceAwareClassLoader(DefaultClassLoader contextClassLoader) {
+			super(contextClassLoader);
+
+			for (BundleSpecification bundle : ((BundleLoader) contextClassLoader
+					.getDelegate()).getBundle().getBundleDescription()
+					.getRequiredBundles()) {
+
+				URL resource = org.eclipse.core.runtime.Platform.getBundle(
+						bundle.getName()).getResource(
+						"META-INF/json/org.scijava.plugin.Plugin");
+
+				if (resource != null) {
+					urls.add(resource);
+					System.out.println(bundle.getName());
+				}
+			}
+		}
+
+		@Override
+		public Enumeration<URL> getResources(String name) throws IOException {
+			if (!name.startsWith("META-INF/json")) {
+				return Collections.emptyEnumeration();
+			}
+			urls.addAll(Collections.list(super.getResources(name)));
+			return Collections.enumeration(urls);
+		}
+	}
 }

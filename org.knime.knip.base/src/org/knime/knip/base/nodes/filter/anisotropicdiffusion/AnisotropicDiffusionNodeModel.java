@@ -50,11 +50,9 @@ package org.knime.knip.base.nodes.filter.anisotropicdiffusion;
 
 import java.util.List;
 
+import net.imagej.ImgPlus;
 import net.imglib2.algorithm.pde.PeronaMalikAnisotropicDiffusion;
 import net.imglib2.algorithm.pde.PeronaMalikAnisotropicDiffusion.DiffusionFunction;
-import net.imglib2.algorithm.pde.PeronaMalikAnisotropicDiffusion.StrongEdgeEnhancer;
-import net.imglib2.algorithm.pde.PeronaMalikAnisotropicDiffusion.WideRegionEnhancer;
-import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.type.NativeType;
@@ -70,10 +68,10 @@ import org.knime.knip.core.ops.filters.PeronaMalikAnisotropicDiffusionOp;
 import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
- * 
+ *
  * This implements the Perona & Malik Anisotropic Diffusion algorithm as a Node. For the actual implementation of the
  * algorithm see {@link PeronaMalikAnisotropicDiffusion}.
- * 
+ *
  * @param <T> the pixel type of the input and output image
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -147,9 +145,9 @@ public class AnisotropicDiffusionNodeModel<T extends RealType<T> & NativeType<T>
      */
     private DiffusionFunction getFun() {
         if (m_smDiffFun.getStringValue().equalsIgnoreCase("STRONG_EDGE_ENHANCER")) {
-            return new StrongEdgeEnhancer(m_smKappa.getDoubleValue());
+            return new PeronaMalikAnisotropicDiffusion.StrongEdgeEnhancer(m_smKappa.getDoubleValue());
         } else if (m_smDiffFun.getStringValue().equalsIgnoreCase("WIDE_REGION_ENHANCER")) {
-            return new WideRegionEnhancer(m_smKappa.getDoubleValue());
+            return new PeronaMalikAnisotropicDiffusion.WideRegionEnhancer(m_smKappa.getDoubleValue());
         } else {
             throw new RuntimeException("Unknown Diffusion Function");
         }

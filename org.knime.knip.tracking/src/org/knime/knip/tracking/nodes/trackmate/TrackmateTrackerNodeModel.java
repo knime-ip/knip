@@ -21,6 +21,10 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import net.imagej.ImgPlus;
+import net.imagej.ImgPlusMetadata;
+import net.imagej.axis.Axes;
+import net.imagej.axis.AxisType;
 import net.imglib2.Cursor;
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccess;
@@ -28,15 +32,11 @@ import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingType;
-import net.imglib2.meta.Axes;
-import net.imglib2.meta.AxisType;
-import net.imglib2.meta.ImgPlus;
-import net.imglib2.meta.ImgPlusMetadata;
-import net.imglib2.meta.MetadataUtil;
 import net.imglib2.ops.operation.iterableinterval.unary.Centroid;
+import net.imglib2.ops.util.MetadataUtil;
 import net.imglib2.roi.IterableRegionOfInterest;
-import net.imglib2.sampler.special.ConstantRandomAccessible;
 import net.imglib2.type.logic.BitType;
+import net.imglib2.util.ConstantUtils;
 
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.DefaultWeightedEdge;
@@ -683,8 +683,9 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
 
         final Img<BitType> bitMask =
                 createBinaryMask(
-                        labelRoi.getIterableIntervalOverROI(new ConstantRandomAccessible<BitType>(
-                                new BitType(), resultLabeling.numDimensions())),
+                        labelRoi.getIterableIntervalOverROI(ConstantUtils
+                                .constantRandomAccessible(new BitType(),
+                                        resultLabeling.numDimensions())),
                         dimensions);
         cells.add(new ImgPlusCellFactory(exec).createCell(bitMask, mdata));
 

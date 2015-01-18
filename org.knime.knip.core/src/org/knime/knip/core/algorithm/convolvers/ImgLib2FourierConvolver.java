@@ -56,6 +56,7 @@ import net.imglib2.algorithm.fft2.FFTConvolution;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.complex.ComplexFloatType;
+import net.imglib2.util.Intervals;
 
 /**
  * Convolution, using ImgLib2Fourier implementation
@@ -71,7 +72,9 @@ import net.imglib2.type.numeric.complex.ComplexFloatType;
 public class ImgLib2FourierConvolver<T extends RealType<T>, K extends RealType<K>, O extends RealType<O>> implements
         Convolver<T, K, O> {
 
-    private RandomAccessible<T> m_last = null;
+    private RandomAccessible<T> m_lastImg = null;
+
+    private RandomAccessibleInterval<K> m_lastKernel = null;
 
     private FFTConvolution m_fc = null;
 
@@ -97,10 +100,11 @@ public class ImgLib2FourierConvolver<T extends RealType<T>, K extends RealType<K
             throw new IllegalStateException("Kernel dimensions do not match to Img dimensions in ImgLibImageConvolver!");
         }
 
-        if (m_last != in) {
-            m_last = in;
+        if (m_lastImg != in || m_lastKernel == null || !Intervals.equals(kernel, m_lastKernel)) {
+            m_lastImg = in;
+            m_lastKernel = kernel;
             m_fc =
-                    new FFTConvolution(m_last, out, kernel, kernel, out, new ArrayImgFactory<ComplexFloatType>(),
+                    new FFTConvolution(m_lastImg, out, kernel, kernel, out, new ArrayImgFactory<ComplexFloatType>(),
                             service);
             m_fc.setKernel(kernel);
             m_fc.setKeepImgFFT(true);

@@ -60,10 +60,10 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import net.imagej.ImgPlus;
 import net.imglib2.Interval;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingType;
-import net.imglib2.meta.ImgPlus;
 import net.imglib2.type.Type;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.DoubleType;

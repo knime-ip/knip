@@ -52,8 +52,8 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 
+import net.imagej.space.CalibratedSpace;
 import net.imglib2.IterableInterval;
-import net.imglib2.meta.CalibratedSpace;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.ValuePair;
 
@@ -71,7 +71,7 @@ import org.knime.knip.core.features.seg.TamuraFeatureSet;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>

@@ -54,7 +54,7 @@ import java.util.BitSet;
 import java.util.Collection;
 import java.util.List;
 
-import net.imglib2.meta.TypedAxis;
+import net.imagej.axis.TypedAxis;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataType;
@@ -74,7 +74,7 @@ import org.knime.knip.base.node.ValueToCellsNodeFactory;
 import org.knime.knip.base.node.ValueToCellsNodeModel;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>

@@ -27,14 +27,11 @@
  */
 package org.knime.knip.core.algorithm.convolvers.filter.linear;
 
-import net.imglib2.Interval;
-import net.imglib2.IterableRealInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImg;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.img.basictypeaccess.DoubleAccess;
 import net.imglib2.img.basictypeaccess.array.DoubleArray;
-import net.imglib2.img.list.ListImg;
 import net.imglib2.ops.img.BinaryOperationAssignment;
 import net.imglib2.ops.img.UnaryConstantRightAssignment;
 import net.imglib2.ops.img.UnaryOperationAssignment;
@@ -47,10 +44,11 @@ import net.imglib2.ops.operation.real.binary.RealPower;
 import net.imglib2.ops.operation.real.unary.RealCopy;
 import net.imglib2.type.numeric.complex.ComplexDoubleType;
 import net.imglib2.type.numeric.real.DoubleType;
+import net.imglib2.util.Fraction;
 
 /**
  * An implementation of gabor filters.
- * 
+ *
  * @author Roy Liu, hornm
  */
 public class Gabor extends ArrayImg<ComplexDoubleType, DoubleAccess> {
@@ -59,7 +57,7 @@ public class Gabor extends ArrayImg<ComplexDoubleType, DoubleAccess> {
                  final double theta, final double scale, //
                  final double frequency, final double elongation) {
         super(new DoubleArray(ArrayImgFactory.numEntitiesRangeCheck(new long[]{supportRadius * 2 + 1,
-                supportRadius * 2 + 1}, 2)), new long[]{supportRadius * 2 + 1, supportRadius * 2 + 1}, 2);
+                supportRadius * 2 + 1}, new Fraction(2, 1))), new long[]{supportRadius * 2 + 1, supportRadius * 2 + 1}, new Fraction(2, 1));
 
         // create a Type that is linked to the container
         final ComplexDoubleType linkedType = new ComplexDoubleType(this);
@@ -113,53 +111,4 @@ public class Gabor extends ArrayImg<ComplexDoubleType, DoubleAccess> {
                 new ComplexExp<ComplexDoubleType, ComplexDoubleType>()).compute(this, this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean equalIterationOrder(final IterableRealInterval<?> f) {
-        if (f.numDimensions() != this.numDimensions()) {
-            return false;
-        }
-
-        if (ArrayImg.class.isInstance(f) || ListImg.class.isInstance(f)) {
-            final Interval a = (Interval)f;
-            for (int d = 0; d < n; ++d) {
-                if (dimension[d] != a.dimension(d)) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    // public static void main(String[] args) {
-    // Gabor g = new Gabor(30, 0, 1, 1, 1);
-    //
-    // Img<FloatType> gReal = new ImgMap<ComplexFloatType, FloatType>(
-    // new GetReal<ComplexFloatType, FloatType>(new FloatType()))
-    // .compute(g);
-    //
-    // Img<FloatType> gImg = new ImgMap<ComplexFloatType, FloatType>(
-    // new GetComplex<ComplexFloatType, FloatType>(new FloatType()))
-    // .compute(g);
-    //
-    // ImgNormalize<FloatType> n = new ImgNormalize<FloatType>(0);
-    //
-    // FilterTools.print2DMatrix(gReal);
-    //
-    // System.out.println("");
-    //
-    // FilterTools.print2DMatrix(gImg);
-    //
-    // n.manipulate(gReal);
-    // n.manipulate(gImg);
-    //
-    // AWTImageTools.showInFrame(gReal, "real", 3);
-    // AWTImageTools.showInFrame(gImg, "img", 3);
-    //
-    // }
 }

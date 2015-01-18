@@ -52,13 +52,13 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
 
+import net.imagej.ImgPlus;
+import net.imagej.axis.Axes;
+import net.imagej.axis.DefaultLinearAxis;
 import net.imglib2.RandomAccess;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.iterator.LocalizingIntervalIterator;
-import net.imglib2.meta.Axes;
-import net.imglib2.meta.ImgPlus;
-import net.imglib2.meta.axis.DefaultLinearAxis;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 
 import org.knime.core.data.image.png.PNGImageValue;

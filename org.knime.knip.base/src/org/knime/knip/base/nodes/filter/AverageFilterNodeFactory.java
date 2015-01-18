@@ -48,9 +48,9 @@
  */
 package org.knime.knip.base.nodes.filter;
 
+import net.imagej.ImgPlus;
 import net.imglib2.algorithm.region.localneighborhood.RectangleShape;
 import net.imglib2.algorithm.region.localneighborhood.Shape;
-import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.BinaryOperation;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.UnaryOutputOperation;

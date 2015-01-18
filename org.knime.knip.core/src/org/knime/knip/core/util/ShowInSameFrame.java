@@ -60,15 +60,16 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.WindowConstants;
 
+import net.imglib2.Cursor;
 import net.imglib2.img.Img;
-import net.imglib2.sampler.special.OrthoSliceCursor;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
 
 /**
- * 
+ *
  * Helper class for debugging purposes allowing to show an image in one frame. Every time the image is updated, the
  * image is rendered newly.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -81,7 +82,7 @@ public class ShowInSameFrame {
      * Shows the images (the first plane of dimensions 0 and 1) in the same frame. Only the first call of this method
      * creates a new window, subsequent calls will show the images in the created window. The first call also defines
      * the scaling factor and will be ignored in further calls.
-     * 
+     *
      * @param img
      * @param scaleFactor
      */
@@ -206,7 +207,9 @@ public class ShowInSameFrame {
 
             try {
                 // we send the first plane of the picture
-                final OrthoSliceCursor<T> c = new OrthoSliceCursor<T>(m_img, 0, 1, new long[m_img.numDimensions()]);
+                Cursor<T> c =
+                        Views.interval(m_img, new long[]{m_img.min(0), m_img.min(1)},
+                                       new long[]{m_img.max(0), m_img.max(1)}).cursor();
                 while (c.hasNext()) {
                     c.fwd();
                     m_plane[c.getIntPosition(0) + (c.getIntPosition(1) * (int)m_img.dimension(0))] =

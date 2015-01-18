@@ -2,7 +2,7 @@ package org.knime.knip.tracking.data;
 
 import java.util.Map;
 
-import net.imglib2.meta.ImgPlus;
+import net.imagej.ImgPlus;
 import net.imglib2.type.logic.BitType;
 import fiji.plugin.trackmate.FeatureHolder;
 import fiji.plugin.trackmate.tracking.AbstractTrackableObject;

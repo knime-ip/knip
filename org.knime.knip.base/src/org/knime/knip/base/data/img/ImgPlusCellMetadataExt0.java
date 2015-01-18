@@ -50,7 +50,7 @@ package org.knime.knip.base.data.img;
 
 import java.awt.image.BufferedImage;
 
-import net.imglib2.meta.ImgPlusMetadata;
+import net.imagej.ImgPlusMetadata;
 import net.imglib2.type.Type;
 
 import org.knime.core.node.NodeLogger;
@@ -61,7 +61,7 @@ import org.knime.knip.core.io.externalization.ExternalizerManager;
 
 /**
  * TODO documentation
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>

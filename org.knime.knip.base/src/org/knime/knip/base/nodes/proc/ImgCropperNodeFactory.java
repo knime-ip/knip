@@ -51,12 +51,12 @@ package org.knime.knip.base.nodes.proc;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.imagej.ImgPlus;
+import net.imagej.axis.CalibratedAxis;
+import net.imagej.space.DefaultCalibratedSpace;
 import net.imglib2.Interval;
 import net.imglib2.IterableInterval;
 import net.imglib2.img.Img;
-import net.imglib2.meta.CalibratedAxis;
-import net.imglib2.meta.DefaultCalibratedSpace;
-import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.iterableinterval.unary.MergeIterableIntervals;
 import net.imglib2.type.NativeType;

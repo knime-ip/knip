@@ -50,16 +50,14 @@ package org.knime.knip.core.ops.img.algorithms;
 
 import java.util.Arrays;
 
+import net.imagej.ImgPlus;
 import net.imglib2.Cursor;
 import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccess;
-import net.imglib2.algorithm.legacy.fft.PhaseCorrelation;
-import net.imglib2.algorithm.legacy.fft.PhaseCorrelationPeak;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.img.ImgView;
-import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.BinaryObjectFactory;
 import net.imglib2.ops.operation.BinaryOutputOperation;
 import net.imglib2.ops.operation.SubsetOperations;

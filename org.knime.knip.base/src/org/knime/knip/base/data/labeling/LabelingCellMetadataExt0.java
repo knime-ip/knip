@@ -50,11 +50,10 @@ package org.knime.knip.base.data.labeling;
 
 import java.awt.image.BufferedImage;
 
-import net.imglib2.meta.CalibratedAxis;
-import net.imglib2.meta.CalibratedSpace;
-import net.imglib2.meta.MetadataUtil;
-import net.imglib2.meta.Named;
-import net.imglib2.meta.Sourced;
+import net.imagej.Sourced;
+import net.imagej.axis.CalibratedAxis;
+import net.imagej.space.CalibratedSpace;
+import net.imglib2.ops.util.MetadataUtil;
 
 import org.knime.core.node.NodeLogger;
 import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
@@ -63,6 +62,7 @@ import org.knime.knip.core.io.externalization.BufferedDataInputStream;
 import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
 import org.knime.knip.core.io.externalization.Externalizer;
 import org.knime.knip.core.io.externalization.ExternalizerManager;
+import org.scijava.Named;
 
 /**
  *

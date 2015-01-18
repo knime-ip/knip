@@ -56,7 +56,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import net.imglib2.meta.TypedAxis;
+import net.imagej.axis.TypedAxis;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NotConfigurableException;
@@ -65,7 +65,7 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.knip.base.KNIMEKNIPPlugin;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -89,7 +89,7 @@ public class DialogComponentResizeInputValues extends DialogComponent implements
     private final JTextField[] m_scalingValues;
 
     /**
-     * 
+     *
      * @param model
      */
     public DialogComponentResizeInputValues(final SettingsModelResizeInputValues model) {

@@ -53,8 +53,8 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 
+import net.imagej.space.CalibratedSpace;
 import net.imglib2.IterableInterval;
-import net.imglib2.meta.CalibratedSpace;
 import net.imglib2.ops.data.CooccurrenceMatrix.MatrixOrientation;
 import net.imglib2.ops.operation.iterableinterval.unary.MakeCooccurrenceMatrix.HaralickFeature;
 import net.imglib2.type.numeric.RealType;

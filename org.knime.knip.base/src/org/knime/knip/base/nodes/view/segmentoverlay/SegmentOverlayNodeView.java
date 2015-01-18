@@ -63,6 +63,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import net.imagej.ImgPlus;
 import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
@@ -70,10 +71,10 @@ import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingMapping;
 import net.imglib2.labeling.LabelingView;
 import net.imglib2.labeling.NativeImgLabeling;
-import net.imglib2.meta.ImgPlus;
 import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.ByteType;
+import net.imglib2.util.ConstantUtils;
 import net.imglib2.util.Intervals;
 
 import org.knime.core.data.DataCell;
@@ -316,7 +317,11 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
 
                 final T max = (T)new ByteType();
                 max.setReal(max.getMaxValue());
-                underlyingInterval = MiscViews.constant(max, new FinalInterval(currentLabelingCell.getLabeling()));
+                underlyingInterval =
+                        ConstantUtils.constantRandomAccessibleInterval(max,
+                                                                       currentLabelingCell.getDimensions().length,
+                                                                       new FinalInterval(currentLabelingCell
+                                                                               .getLabeling()));
             } else {
                 currentLabelingCell =
                         (LabelingValue<L>)m_tableContentView.getContentModel()

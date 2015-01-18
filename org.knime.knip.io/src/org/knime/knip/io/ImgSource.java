@@ -54,12 +54,14 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
 
-import net.imglib2.Pair;
+import net.imagej.ImgPlus;
+import net.imagej.axis.CalibratedAxis;
+import net.imagej.axis.TypedAxis;
 import net.imglib2.img.Img;
-import net.imglib2.meta.CalibratedAxis;
-import net.imglib2.meta.ImgPlus;
-import net.imglib2.meta.TypedAxis;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.Pair;
+
+
 
 /**
  * Provides methods to get the actual data (image, metadata) from a specific

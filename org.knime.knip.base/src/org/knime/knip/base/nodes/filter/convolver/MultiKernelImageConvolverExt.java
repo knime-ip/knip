@@ -51,8 +51,8 @@ package org.knime.knip.base.nodes.filter.convolver;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
+import net.imagej.ImgPlus;
 import net.imglib2.img.Img;
-import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.BinaryOutputOperation;
 import net.imglib2.type.numeric.RealType;
 

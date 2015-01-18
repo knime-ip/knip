@@ -48,18 +48,18 @@
  */
 package org.knime.knip.core.ui.imgviewer.events;
 
+import net.imagej.Sourced;
+import net.imagej.axis.CalibratedAxis;
+import net.imagej.space.CalibratedSpace;
+import net.imagej.space.TypedSpace;
 import net.imglib2.Interval;
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.meta.CalibratedAxis;
-import net.imglib2.meta.CalibratedSpace;
-import net.imglib2.meta.Named;
-import net.imglib2.meta.Sourced;
-import net.imglib2.meta.TypedSpace;
 import net.imglib2.type.Type;
 import net.imglib2.view.Views;
 
 import org.knime.knip.core.ui.event.KNIPEvent;
+import org.scijava.Named;
 
 /**
  * {@link Interval} with assigned {@link Sourced}, {@link Named}, {@link TypedSpace} metadata.
@@ -122,7 +122,7 @@ public abstract class IntervalWithMetadataChgEvent<T extends Type<T>, DATA exten
     public DATA getData() {
         return m_interval;
     }
-    
+
     /**
      * @return the {@link IterableInterval} which triggered this event
      */

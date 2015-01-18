@@ -50,8 +50,8 @@ package org.knime.knip.base.nodes.metadata.transferimgmetadata;
 
 import java.util.List;
 
-import net.imglib2.meta.ImgPlus;
-import net.imglib2.meta.MetadataUtil;
+import net.imagej.ImgPlus;
+import net.imglib2.ops.util.MetadataUtil;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.node.ExecutionContext;

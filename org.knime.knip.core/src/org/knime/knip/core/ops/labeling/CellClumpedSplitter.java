@@ -61,6 +61,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.FutureTask;
 
+import net.imagej.ImgPlus;
 import net.imglib2.Cursor;
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccess;
@@ -73,7 +74,6 @@ import net.imglib2.img.sparse.NtreeImgFactory;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingType;
 import net.imglib2.labeling.NativeImgLabeling;
-import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.ops.operation.iterableinterval.unary.Centroid;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.DistanceMap;
@@ -82,10 +82,10 @@ import net.imglib2.ops.operation.randomaccessibleinterval.unary.LocalMaximaForDi
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.AbstractRegionGrowing;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.CCA;
 import net.imglib2.roi.IterableRegionOfInterest;
-import net.imglib2.sampler.special.ConstantRandomAccessible;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.integer.IntType;
 import net.imglib2.type.numeric.real.FloatType;
+import net.imglib2.util.ConstantUtils;
 
 import org.knime.knip.core.algorithm.extendedem.AttributeTmp;
 import org.knime.knip.core.algorithm.extendedem.ExtendedEM;
@@ -219,7 +219,7 @@ public class CellClumpedSplitter<L extends Comparable<L>> implements UnaryOperat
         for (final Integer i : labels) {
             final IterableInterval<BitType> ii =
                     lab.getIterableRegionOfInterest(i)
-                            .getIterableIntervalOverROI(new ConstantRandomAccessible<BitType>(new BitType(), lab
+                            .getIterableIntervalOverROI(ConstantUtils.constantRandomAccessible(new BitType(), lab
                                                                 .numDimensions()));
             final double[] centroidD = new Centroid().compute(ii, new double[ii.numDimensions()]);
 

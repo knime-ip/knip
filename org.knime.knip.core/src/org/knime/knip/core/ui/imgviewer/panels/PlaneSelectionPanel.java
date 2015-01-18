@@ -79,10 +79,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.KeyStroke;
 
+import net.imagej.axis.CalibratedAxis;
+import net.imagej.axis.TypedAxis;
+import net.imagej.space.CalibratedSpace;
 import net.imglib2.Interval;
-import net.imglib2.meta.CalibratedAxis;
-import net.imglib2.meta.CalibratedSpace;
-import net.imglib2.meta.TypedAxis;
 import net.imglib2.type.Type;
 
 import org.knime.knip.core.ui.event.EventListener;

@@ -51,11 +51,11 @@ package org.knime.knip.base.nodes.seg;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.imagej.axis.CalibratedAxis;
 import net.imglib2.Interval;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingView;
 import net.imglib2.labeling.NativeImgLabeling;
-import net.imglib2.meta.CalibratedAxis;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.labeling.unary.MergeLabelings;
 import net.imglib2.type.numeric.IntegerType;

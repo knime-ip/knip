@@ -51,8 +51,8 @@ package org.knime.knip.base.nodes.proc.resizer;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.imglib2.meta.CalibratedAxis;
-import net.imglib2.meta.CalibratedSpace;
+import net.imagej.axis.CalibratedAxis;
+import net.imagej.space.CalibratedSpace;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;

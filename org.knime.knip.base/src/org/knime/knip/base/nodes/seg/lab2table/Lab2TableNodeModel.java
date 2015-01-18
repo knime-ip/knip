@@ -54,18 +54,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import net.imagej.ImgPlusMetadata;
 import net.imglib2.Cursor;
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccess;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.labeling.Labeling;
-import net.imglib2.meta.DefaultNamed;
-import net.imglib2.meta.DefaultSourced;
-import net.imglib2.meta.ImgPlusMetadata;
-import net.imglib2.sampler.special.ConstantRandomAccessible;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.IntegerType;
+import net.imglib2.util.ConstantUtils;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnProperties;
@@ -95,6 +93,8 @@ import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.NodeUtils;
+import org.knime.knip.core.data.DefaultNamed;
+import org.knime.knip.core.data.DefaultSourced;
 import org.knime.knip.core.data.img.DefaultImageMetadata;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
 import org.knime.knip.core.data.img.LabelingMetadata;
@@ -194,7 +194,7 @@ public class Lab2TableNodeModel<L extends Comparable<L>, II extends IntegerType<
 
                 ii =
                         lab.getIterableRegionOfInterest(label)
-                                .getIterableIntervalOverROI(new ConstantRandomAccessible<BitType>(new BitType(), lab
+                                .getIterableIntervalOverROI(ConstantUtils.constantRandomAccessible(new BitType(), lab
                                                                     .numDimensions()));
 
                 final List<DataCell> cells = new ArrayList<DataCell>();

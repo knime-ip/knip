@@ -50,9 +50,9 @@ package org.knime.knip.base;
 
 import java.awt.image.BufferedImage;
 
-import net.imglib2.meta.Axes;
-import net.imglib2.meta.DefaultTypedAxis;
-import net.imglib2.meta.TypedAxis;
+import net.imagej.axis.Axes;
+import net.imagej.axis.DefaultTypedAxis;
+import net.imagej.axis.TypedAxis;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -60,7 +60,7 @@ import org.knime.knip.base.prefs.PreferenceConstants;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -90,7 +90,7 @@ public class KNIMEKNIPPlugin extends AbstractUIPlugin {
 
     /**
      * Returns the shared instance.
-     * 
+     *
      * @return Singleton instance of the Plugin
      */
     public static KNIMEKNIPPlugin getDefault() {
@@ -115,7 +115,7 @@ public class KNIMEKNIPPlugin extends AbstractUIPlugin {
      * A user-defined ratio determining when to create a thumbnail for the rendering in the KNIME image table. If ratio
      * of the number of pixels of the thumbnail to be generated to the number of pixels of the actual image object is
      * below the specified value, the thumbnail will be generated and stored with the image data.
-     * 
+     *
      * @return the ratio
      */
     public static final double getThumbnailImageRatio() {
@@ -132,7 +132,7 @@ public class KNIMEKNIPPlugin extends AbstractUIPlugin {
 
     /**
      * Parses and returns the dimension labels
-     * 
+     *
      * @return the labels as {@link CustomAxis}
      */
     public static final TypedAxis[] parseDimensionLabelsAsAxis() {

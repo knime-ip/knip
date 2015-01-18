@@ -53,11 +53,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.imagej.ImgPlus;
+import net.imagej.axis.AxisType;
+import net.imagej.axis.TypedAxis;
+import net.imagej.space.TypedSpace;
 import net.imglib2.Interval;
-import net.imglib2.meta.AxisType;
-import net.imglib2.meta.ImgPlus;
-import net.imglib2.meta.TypedAxis;
-import net.imglib2.meta.TypedSpace;
 import net.imglib2.ops.operation.interval.binary.IntervalsFromDimSelection;
 
 import org.knime.core.node.InvalidSettingsException;

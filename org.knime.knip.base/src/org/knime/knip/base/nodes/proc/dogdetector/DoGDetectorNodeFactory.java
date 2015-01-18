@@ -50,9 +50,9 @@ package org.knime.knip.base.nodes.proc.dogdetector;
 
 import java.util.List;
 
+import net.imagej.ImgPlus;
 import net.imglib2.algorithm.dog.DogDetection;
 import net.imglib2.algorithm.dog.DogDetection.ExtremaType;
-import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.logic.BitType;

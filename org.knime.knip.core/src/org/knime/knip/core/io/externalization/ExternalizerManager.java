@@ -58,8 +58,10 @@ import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.Platform;
 import org.knime.knip.core.io.externalization.externalizers.AbstractImgExt0;
 import org.knime.knip.core.io.externalization.externalizers.ArrayImgExt0;
+import org.knime.knip.core.io.externalization.externalizers.ArrayImgExt1;
 import org.knime.knip.core.io.externalization.externalizers.CalibratedSpaceExt0;
 import org.knime.knip.core.io.externalization.externalizers.CellImgExt0;
+import org.knime.knip.core.io.externalization.externalizers.CellImgExt1;
 import org.knime.knip.core.io.externalization.externalizers.ClassExt0;
 import org.knime.knip.core.io.externalization.externalizers.DefaultLabelingColorTableExt0;
 import org.knime.knip.core.io.externalization.externalizers.DefaultLinearSpaceExt0;
@@ -68,6 +70,7 @@ import org.knime.knip.core.io.externalization.externalizers.ImageMetadataExt1;
 import org.knime.knip.core.io.externalization.externalizers.ImageMetadataExt2;
 import org.knime.knip.core.io.externalization.externalizers.ImgExt0;
 import org.knime.knip.core.io.externalization.externalizers.ImgExt1;
+import org.knime.knip.core.io.externalization.externalizers.ImgExt2;
 import org.knime.knip.core.io.externalization.externalizers.ImgMetadataExt0;
 import org.knime.knip.core.io.externalization.externalizers.ImgMetadataExt1;
 import org.knime.knip.core.io.externalization.externalizers.ImgViewExt0;
@@ -80,6 +83,7 @@ import org.knime.knip.core.io.externalization.externalizers.NativeImgLabelingExt
 import org.knime.knip.core.io.externalization.externalizers.NtreeImgExt0;
 import org.knime.knip.core.io.externalization.externalizers.ObjectExt0;
 import org.knime.knip.core.io.externalization.externalizers.PlanarImgExt0;
+import org.knime.knip.core.io.externalization.externalizers.PlanarImgExt1;
 import org.knime.knip.core.io.externalization.externalizers.SourcedExt0;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,29 +120,40 @@ public final class ExternalizerManager {
     static {
         // register local externalizer
         registerExternalizer(new ImgExt0());
+        registerExternalizer(new ImgExt1());
+        registerExternalizer(new ImgExt2());
+
         registerExternalizer(new ImgViewExt0());
         registerExternalizer(new AbstractImgExt0());
+
         registerExternalizer(new ArrayImgExt0());
+        registerExternalizer(new ArrayImgExt1());
+
         registerExternalizer(new PlanarImgExt0());
+        registerExternalizer(new PlanarImgExt1());
+
         registerExternalizer(new CellImgExt0());
-        registerExternalizer(new NtreeImgExt0());
+        registerExternalizer(new CellImgExt1());
+
+        registerExternalizer(new ImgMetadataExt0());
+        registerExternalizer(new ImgMetadataExt1());
+
         registerExternalizer(new CalibratedSpaceExt0());
+
+        registerExternalizer(new NtreeImgExt0());
         registerExternalizer(new NamedExt0());
         registerExternalizer(new SourcedExt0());
-        registerExternalizer(new ImageMetadataExt0());
         registerExternalizer(new ClassExt0());
         registerExternalizer(new LabelingMappingExt0());
         registerExternalizer(new NativeImgLabelingExt0());
         registerExternalizer(new ObjectExt0());
-        registerExternalizer(new ImgMetadataExt0());
         registerExternalizer(new LabelingMetadataExt0());
         registerExternalizer(new DefaultLabelingColorTableExt0());
 
+        registerExternalizer(new ImageMetadataExt0());
         registerExternalizer(new ImageMetadataExt1());
         registerExternalizer(new ImageMetadataExt2());
 
-        registerExternalizer(new ImgMetadataExt1());
-        registerExternalizer(new ImgExt1());
 
         registerExternalizer(new DefaultLinearSpaceExt0());
 

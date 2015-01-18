@@ -61,13 +61,13 @@ import java.util.List;
 import java.util.Vector;
 
 import loci.formats.FormatException;
-import net.imglib2.Pair;
+import net.imagej.ImgPlus;
+import net.imagej.axis.CalibratedAxis;
+import net.imagej.axis.TypedAxis;
 import net.imglib2.img.ImgFactory;
-import net.imglib2.meta.CalibratedAxis;
-import net.imglib2.meta.ImgPlus;
-import net.imglib2.meta.TypedAxis;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.Pair;
 
 import org.apache.commons.io.FileUtils;
 import org.knime.core.data.DataCell;

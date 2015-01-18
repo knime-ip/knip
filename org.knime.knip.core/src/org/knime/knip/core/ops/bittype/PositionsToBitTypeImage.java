@@ -50,8 +50,8 @@ package org.knime.knip.core.ops.bittype;
 
 import java.util.Collection;
 
+import net.imagej.ImgPlus;
 import net.imglib2.RandomAccess;
-import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.type.logic.BitType;
 

@@ -29,6 +29,12 @@ import java.util.ArrayList;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
+import net.imagej.ImgPlus;
+import net.imagej.ImgPlusMetadata;
+import net.imagej.axis.Axes;
+import net.imagej.axis.CalibratedAxis;
+import net.imagej.axis.DefaultLinearAxis;
+import net.imagej.space.DefaultCalibratedSpace;
 import net.imglib2.img.array.ArrayImg;
 import net.imglib2.img.basictypeaccess.array.ArrayDataAccess;
 import net.imglib2.img.basictypeaccess.array.ByteArray;
@@ -38,12 +44,6 @@ import net.imglib2.img.basictypeaccess.array.IntArray;
 import net.imglib2.img.basictypeaccess.array.LongArray;
 import net.imglib2.img.basictypeaccess.array.ShortArray;
 import net.imglib2.img.planar.PlanarImg;
-import net.imglib2.meta.Axes;
-import net.imglib2.meta.CalibratedAxis;
-import net.imglib2.meta.DefaultCalibratedSpace;
-import net.imglib2.meta.ImgPlus;
-import net.imglib2.meta.ImgPlusMetadata;
-import net.imglib2.meta.axis.DefaultLinearAxis;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.ByteType;
@@ -54,6 +54,7 @@ import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.type.numeric.real.FloatType;
+import net.imglib2.util.Fraction;
 
 import org.knime.base.data.aggregation.AggregationOperator;
 import org.knime.base.data.aggregation.GlobalSettings;
@@ -131,7 +132,7 @@ public class ImgMergeOperator<T extends RealType<T> & NativeType<T>, A, ADA exte
          * @param dim
          * @param entitiesPerPixel
          */
-        public CustomPlanarImg(final ArrayList<ADA> mirror, final long[] dim, final int entitiesPerPixel) {
+        public CustomPlanarImg(final ArrayList<ADA> mirror, final long[] dim, final Fraction entitiesPerPixel) {
             super(dim, entitiesPerPixel);
             for (int i = 0; i < super.mirror.size(); i++) {
                 super.mirror.set(i, mirror.get(i));
@@ -639,7 +640,7 @@ public class ImgMergeOperator<T extends RealType<T> & NativeType<T>, A, ADA exte
         for (int i = 0; i < m_data.size(); i++) {
             mirror.add(m_typeHandler.wrap(m_data.get(i)));
         }
-        final CustomPlanarImg img = new CustomPlanarImg(mirror, m_dims, 1);
+        final CustomPlanarImg img = new CustomPlanarImg(mirror, m_dims, new Fraction(1,1));
         img.setLinkedType(m_typeHandler.createLinkedType(img));
         try {
             return getImgPlusCellFactory().createCell(img, m_metadata);

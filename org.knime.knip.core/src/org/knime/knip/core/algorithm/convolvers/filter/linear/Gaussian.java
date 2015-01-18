@@ -54,12 +54,13 @@ import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.img.basictypeaccess.DoubleAccess;
 import net.imglib2.img.basictypeaccess.array.DoubleArray;
 import net.imglib2.type.numeric.real.DoubleType;
+import net.imglib2.util.Fraction;
 import net.imglib2.util.Util;
 
 /**
  * Creates n-dimensional gaussian kernel.
- * 
- * 
+ *
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -69,7 +70,7 @@ public final class Gaussian extends ArrayImg<DoubleType, DoubleAccess> {
 
     /**
      * Factory method to make calculations before super() possible.
-     * 
+     *
      * @param sigma sigma parameter
      * @param nrDimensions number of dimensions
      * @return a new {@link Gaussian} with given parameters.
@@ -85,11 +86,12 @@ public final class Gaussian extends ArrayImg<DoubleType, DoubleAccess> {
 
     /**
      * Creates a gaussian kernel of given size.
-     * 
+     *
      * @param sigma sigma
      */
     private Gaussian(final double sigma, final long[] dims) {
-        super(new DoubleArray(ArrayImgFactory.numEntitiesRangeCheck(dims, 1)), dims, 1);
+        super(new DoubleArray(ArrayImgFactory.numEntitiesRangeCheck(dims, new Fraction(1, 1))), dims,
+                new Fraction(1, 1));
         int nrDimensions = dims.length;
 
         double[] kernel = Util.createGaussianKernel1DDouble(sigma, true);
