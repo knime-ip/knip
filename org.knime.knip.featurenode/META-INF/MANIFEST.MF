@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: FeatureNode-Node extension for KNIME Workbench
+Bundle-SymbolicName: org.knime.knip; singleton:=true
+Bundle-Version: 1.0.0
+Bundle-ClassPath: featurenode.jar
+Bundle-Activator: org.knime.knip.featurenode.FeatureNodeNodePlugin
+Bundle-Vendor: Daniel Seebacher
+Require-Bundle: org.eclipse.core.runtime,
+ org.knime.workbench.core,
+ org.knime.workbench.repository,
+ org.knime.base
+Bundle-ActivationPolicy: lazy
+Export-Package: org.knime.knip.featurenode
+
