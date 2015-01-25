@@ -48,35 +48,121 @@
  */
 package org.knime.knip.featurenode;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashSet;
+
+import net.imagej.ops.OpMatchingService;
+import net.imagej.ops.OpService;
 import net.imagej.ops.features.FeatureService;
 
+import org.eclipse.osgi.internal.baseadaptor.DefaultClassLoader;
+import org.eclipse.osgi.internal.loader.BundleLoader;
+import org.eclipse.osgi.service.resolver.BundleSpecification;
+import org.scijava.Context;
+import org.scijava.command.CommandService;
+import org.scijava.plugin.DefaultPluginFinder;
+import org.scijava.plugin.PluginIndex;
+import org.scijava.plugin.PluginService;
+import org.scijava.service.Service;
+import org.scijava.ui.UIService;
+import org.scijava.widget.WidgetService;
+
 /**
- * Encapsulates the scifio instance as singleton.
+ * Encapsulates the {@link OpService} instance as singleton.
  * 
- * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
- *         Zinsmaier</a>
+ * @author Daniel Seebacher, University of Konstanz.
  */
+@SuppressWarnings("restriction")
 public class OpsGateway {
 
-	private static OpsGateway m_instance;
+    private static OpsGateway m_instance;
 
+    private Context context;
+    private OpService ops;
+    private PluginService pls;
+    private CommandService cs;
 
+    /** Sets up a SciJava context with {@link OpService}. */
+    private OpsGateway() {
+        // set log level
+        System.setProperty("scijava.log.level", "error");
 
-	/**
-	 * load supported formats and create the SCIFIO instance.
-	 */
-	private OpsGateway() {
-		// set log level
-		System.setProperty("scijava.log.level", "error");
+        // required classes
+        HashSet<Class<? extends Service>> classes = new HashSet<>();
+        // classes.add(SciJavaService.class);
+        // classes.add(ImageJService.class);
+        classes.add(OpService.class);
+        classes.add(OpMatchingService.class);
+        classes.add(FeatureService.class);
+        classes.add(WidgetService.class);
+        classes.add(UIService.class);
 
-	}
+        context = new Context(classes, new PluginIndex(new DefaultPluginFinder(
+                new ResourceAwareClassLoader((DefaultClassLoader) getClass()
+                        .getClassLoader()))));
 
-	private static synchronized OpsGateway getInstance() {
-		if (m_instance == null) {
-			m_instance = new OpsGateway();
-		}
-		return m_instance;
-	}
+        ops = context.service(OpService.class);
+        pls = context.service(PluginService.class);
+        cs = context.service(CommandService.class);
+    }
+
+    private static OpsGateway getInstance() {
+        if (m_instance == null) {
+            m_instance = new OpsGateway();
+        }
+
+        return m_instance;
+    }
+
+    public static Context getContext() {
+        return getInstance().context;
+    }
+
+    public static OpService getOpService() {
+        return getInstance().ops;
+    }
+
+    public static PluginService getPluginService() {
+        return getInstance().pls;
+    }
+
+    public static CommandService getCommandService() {
+        return getInstance().cs;
+    }
+
+    class ResourceAwareClassLoader extends ClassLoader {
+
+        final ArrayList<URL> urls = new ArrayList<URL>();
+
+        public ResourceAwareClassLoader(DefaultClassLoader contextClassLoader) {
+            super(contextClassLoader);
+
+            for (BundleSpecification bundle : ((BundleLoader) contextClassLoader
+                    .getDelegate()).getBundle().getBundleDescription()
+                    .getRequiredBundles()) {
+
+                URL resource = org.eclipse.core.runtime.Platform.getBundle(
+                        bundle.getName()).getResource(
+                        "META-INF/json/org.scijava.plugin.Plugin");
+
+                if (resource != null) {
+                    urls.add(resource);
+                }
+            }
+        }
+
+        @Override
+        public Enumeration<URL> getResources(String name) throws IOException {
+            if (!name.startsWith("META-INF/json")) {
+                return Collections.emptyEnumeration();
+            }
+            // urls.addAll(Collections.list(super.getResources(name)));
+            urls.add(super.getResources(name).nextElement());
+            return Collections.enumeration(urls);
+        }
+    }
 }

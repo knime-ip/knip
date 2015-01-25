@@ -2,29 +2,46 @@ package org.knime.knip.featurenode;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import net.imagej.ops.features.FeatureResult;
+import net.imagej.ops.features.FeatureSet;
+import net.imglib2.IterableInterval;
+import net.imglib2.img.Img;
+import net.imglib2.labeling.Labeling;
+import net.imglib2.roi.IterableRegionOfInterest;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.Pair;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.RowKey;
+import org.knime.core.data.container.CloseableRowIterator;
+import org.knime.core.data.container.DataContainer;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
-import org.knime.core.data.def.IntCell;
-import org.knime.core.data.def.StringCell;
-import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
-import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
-
+import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.node.util.ColumnFilter;
+import org.knime.knip.base.data.img.ImgPlusCell;
+import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.base.data.labeling.LabelingCell;
+import org.knime.knip.base.data.labeling.LabelingValue;
+import org.scijava.module.Module;
+import org.scijava.module.ModuleException;
+import org.scijava.plugin.PluginInfo;
 
 /**
  * This is the model implementation of FeatureNode.
@@ -32,35 +49,41 @@ import org.knime.core.node.NodeSettingsWO;
  *
  * @author Daniel Seebacher
  */
-public class FeatureNodeNodeModel extends NodeModel {
-    
-    // the logger instance
-    private static final NodeLogger logger = NodeLogger
-            .getLogger(FeatureNodeNodeModel.class);
-        
-    /** the settings key which is used to retrieve and 
-        store the settings (from the dialog or from a settings file)    
-       (package visibility to be usable from the dialog). */
-	static final String CFGKEY_COUNT = "Count";
+public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
+        extends NodeModel {
 
-    /** initial default count value. */
-    static final int DEFAULT_COUNT = 100;
+    static SettingsModelString createLabelingSelectionModel() {
+        return new SettingsModelString("m_labeling", null);
+    }
 
-    // example value: the models count variable filled from the dialog 
-    // and used in the models execution method. The default components of the
-    // dialog work with "SettingsModels".
-    private final SettingsModelIntegerBounded m_count =
-        new SettingsModelIntegerBounded(FeatureNodeNodeModel.CFGKEY_COUNT,
-                    FeatureNodeNodeModel.DEFAULT_COUNT,
-                    Integer.MIN_VALUE, Integer.MAX_VALUE);
-    
+    static SettingsModelString createImgSelectionModel() {
+        return new SettingsModelString("m_img", null);
+    }
+
+    static SettingsModelFeatureSet createFeatureSetsModel() {
+        return new SettingsModelFeatureSet("m_featuresets");
+    }
+
+    private SettingsModelString IMG_SELECTION_MODEL = createImgSelectionModel();
+    private SettingsModelString LABELING_SELECTION_MODEL = createLabelingSelectionModel();
+    private SettingsModelFeatureSet FEATURE_SET_MODEL = createFeatureSetsModel();
+
+    /**
+     * The index of the image column in the {@link DataTableSpec} of the input
+     * table.
+     */
+    private int m_imgPlusCol = -1;
+
+    /**
+     * The index of the labeling column in the {@link DataTableSpec} of the
+     * input table.
+     */
+    private int m_labelingCol = -1;
 
     /**
      * Constructor for the node model.
      */
     protected FeatureNodeNodeModel() {
-    
-        // TODO one incoming port and one outgoing port is assumed
         super(1, 1);
     }
 
@@ -71,46 +94,216 @@ public class FeatureNodeNodeModel extends NodeModel {
     protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
             final ExecutionContext exec) throws Exception {
 
-        // TODO do something here
-        logger.info("Node Model Stub... this is not yet implemented !");
-
-        
-        // the data table spec of the single output table, 
-        // the table will have three columns:
-        DataColumnSpec[] allColSpecs = new DataColumnSpec[3];
-        allColSpecs[0] = 
-            new DataColumnSpecCreator("Column 0", StringCell.TYPE).createSpec();
-        allColSpecs[1] = 
-            new DataColumnSpecCreator("Column 1", DoubleCell.TYPE).createSpec();
-        allColSpecs[2] = 
-            new DataColumnSpecCreator("Column 2", IntCell.TYPE).createSpec();
-        DataTableSpec outputSpec = new DataTableSpec(allColSpecs);
-        // the execution context will provide us with storage capacity, in this
-        // case a data container to which we will add rows sequentially
-        // Note, this container can also handle arbitrary big data tables, it
-        // will buffer to disc if necessary.
-        BufferedDataContainer container = exec.createDataContainer(outputSpec);
-        // let's add m_count rows to it
-        for (int i = 0; i < m_count.getIntValue(); i++) {
-            RowKey key = new RowKey("Row " + i);
-            // the cells of the current row, the types of the cells must match
-            // the column spec (see above)
-            DataCell[] cells = new DataCell[3];
-            cells[0] = new StringCell("String_" + i); 
-            cells[1] = new DoubleCell(0.5 * i); 
-            cells[2] = new IntCell(i);
-            DataRow row = new DefaultRow(key, cells);
-            container.addRowToTable(row);
-            
-            // check if the execution monitor was canceled
-            exec.checkCanceled();
-            exec.setProgress(i / (double)m_count.getIntValue(), 
-                "Adding row " + i);
+        if (-1 == m_imgPlusCol && -1 == m_labelingCol) {
+            throw new IllegalArgumentException(
+                    "Either a Img or a Labeling Column must be selected!");
         }
-        // once we are done, we close the container and return its table
+
+        List<FeatureSet<IterableInterval<?>>> compiledFeatureSets = compileFeatureSets(
+                m_imgPlusCol, m_labelingCol, FEATURE_SET_MODEL.getFeatureSets());
+
+        DataTableSpec outSpec = null;
+        DataContainer container = null;
+
+        CloseableRowIterator iterator = inData[0].iterator();
+        while (iterator.hasNext()) {
+            DataRow row = iterator.next();
+
+            // for each input iterableinterval
+            for (IterableInterval<?> input : getIterableIntervals(row,
+                    m_imgPlusCol, m_labelingCol)) {
+
+                // results for this iterable interval
+                List<FeatureResult> results = new ArrayList<FeatureResult>();
+
+                // calcuate the features from every featureset
+                for (FeatureSet<IterableInterval<?>> featureSet : compiledFeatureSets) {
+
+                    featureSet.setInput(input);
+                    featureSet.run();
+                    List<FeatureResult> compute = featureSet.getOutput();
+
+                    results.addAll(compute);
+                }
+
+                // first row, if outspec is null create one from scratch and
+                // create container
+                if (outSpec == null) {
+                    outSpec = createOutputSpec(inData[0].getDataTableSpec(),
+                            results);
+                    container = exec.createDataContainer(outSpec);
+                }
+
+                // save results of this iterableinterval in a row
+                List<DataCell> cells = new ArrayList<DataCell>();
+
+                // store previous data
+                for (int i = 0; i < row.getNumCells(); i++) {
+                    cells.add(row.getCell(i));
+                }
+
+                // store new results
+                for (FeatureResult featureResult : results) {
+                    cells.add(new DoubleCell(featureResult.getValue()));
+                }
+
+                // add row
+                container.addRowToTable(new DefaultRow(row.getKey(), cells
+                        .toArray(new DataCell[cells.size()])));
+            }
+        }
+
         container.close();
-        BufferedDataTable out = container.getTable();
-        return new BufferedDataTable[]{out};
+        return new BufferedDataTable[] { (BufferedDataTable) container
+                .getTable() };
+    }
+
+    /**
+     * Creates a DataTableSpec from the given {@link DataTableSpec} and the a
+     * {@link List} of {@link FeatureResult}
+     * 
+     * @param inSpec
+     *            an existing {@link DataTableSpec}
+     * @param results
+     *            a list of {@link FeatureResult}, each result will result in
+     *            one extra column
+     * @return a new {@link DataTableSpec} existing of all columns from the
+     *         {@link DataTableSpec} and a column for each given
+     *         {@link FeatureResult}
+     */
+    private DataTableSpec createOutputSpec(DataTableSpec inSpec,
+            List<FeatureResult> results) {
+
+        List<DataColumnSpec> outcells = new ArrayList<DataColumnSpec>();
+
+        // add all old columns
+        for (int i = 0; i < inSpec.getNumColumns(); i++) {
+            outcells.add(inSpec.getColumnSpec(i));
+        }
+
+        // add a new column for each given feature result
+        for (int i = 0; i < results.size(); i++) {
+            outcells.add(new DataColumnSpecCreator(DataTableSpec
+                    .getUniqueColumnName(inSpec, results.get(i).getName() + "_"
+                            + i), DoubleCell.TYPE).createSpec());
+        }
+
+        return new DataTableSpec(outcells.toArray(new DataColumnSpec[outcells
+                .size()]));
+    }
+
+    /**
+     * Creates the {@link FeatureSet} which were added in the
+     * {@link FeatureNodeNodeDialog}
+     * 
+     * @param imgCol
+     *            the index of the image column
+     * @param labelingCol
+     *            the index of the labeling column
+     * @param featureSetsData
+     * @return
+     * @throws ModuleException
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private List<FeatureSet<IterableInterval<?>>> compileFeatureSets(
+            int imgCol, int labelingCol,
+            List<Pair<Class<?>, Map<String, Object>>> featureSetsData)
+            throws ModuleException {
+
+        if (-1 == imgCol && -1 == labelingCol) {
+            return new ArrayList<FeatureSet<IterableInterval<?>>>();
+        }
+
+        List<FeatureSet<IterableInterval<?>>> compiledFeatureSets = new ArrayList<FeatureSet<IterableInterval<?>>>();
+
+        // if img is set and not a labeling we can use FeatureSet<Img>
+        // otherwise FeatureSet<IterableInterval>
+        for (Pair<Class<?>, Map<String, Object>> featureSetData : featureSetsData) {
+            if (-1 != imgCol && -1 == labelingCol) {
+                FeatureSet<IterableInterval<?>> createInstance = OpsGateway
+                        .getPluginService().createInstance(
+                                new PluginInfo<FeatureSet>(
+                                        (Class<FeatureSet<Img>>) featureSetData
+                                                .getA(), FeatureSet.class));
+
+                Module module = OpsGateway.getOpService().info(createInstance)
+                        .createModule();
+                module.setInputs(featureSetData.getB());
+
+                compiledFeatureSets.add(createInstance);
+            } else {
+                FeatureSet<IterableInterval<?>> createInstance = OpsGateway
+                        .getPluginService()
+                        .createInstance(
+                                new PluginInfo<FeatureSet>(
+                                        (Class<FeatureSet<IterableInterval>>) featureSetData
+                                                .getA(), FeatureSet.class));
+
+                Module module = OpsGateway.getOpService().info(createInstance)
+                        .createModule();
+                module.setInputs(featureSetData.getB());
+
+                compiledFeatureSets.add(createInstance);
+            }
+        }
+
+        return compiledFeatureSets;
+    }
+
+    /**
+     * Extracts every {@link IterableInterval} from the given input
+     * {@link DataRow}
+     * 
+     * @param row
+     *            the input {@link DataRow}
+     * @param imgCol
+     *            the index of the image column
+     * @param labelingCol
+     *            the index of the labeling column
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    private List<IterableInterval<?>> getIterableIntervals(DataRow row,
+            int imgCol, int labelingCol) {
+
+        if (-1 == imgCol && -1 == labelingCol) {
+            return new ArrayList<IterableInterval<?>>();
+        }
+
+        List<IterableInterval<?>> inputs = new ArrayList<IterableInterval<?>>();
+
+        // both set
+        if (-1 != imgCol && -1 != labelingCol) {
+            Img<T> img = ((ImgPlusCell<T>) row.getCell(imgCol)).getImgPlus();
+            Labeling<L> labeling = ((LabelingCell<L>) row.getCell(labelingCol))
+                    .getLabeling();
+
+            for (L label : labeling.getLabels()) {
+                IterableRegionOfInterest iiROI = labeling
+                        .getIterableRegionOfInterest(label);
+
+                IterableInterval<?> ii = iiROI.getIterableIntervalOverROI(img);
+                inputs.add(ii);
+            }
+        }
+        // only labeling set
+        else if (-1 != labelingCol) {
+            Labeling<L> labeling = ((LabelingCell<L>) row.getCell(labelingCol))
+                    .getLabeling();
+
+            for (L label : labeling.getLabels()) {
+                IterableInterval<?> ii = labeling.getIterableRegionOfInterest(
+                        label).getIterableIntervalOverROI(labeling);
+                inputs.add(ii);
+            }
+        }
+        // only image set
+        else {
+            Img<T> img = ((ImgPlusCell<T>) row.getCell(imgCol)).getImgPlus();
+            inputs.add(img);
+        }
+
+        return inputs;
     }
 
     /**
@@ -118,9 +311,6 @@ public class FeatureNodeNodeModel extends NodeModel {
      */
     @Override
     protected void reset() {
-        // TODO Code executed on reset.
-        // Models build during execute are cleared here.
-        // Also data handled in load/saveInternals will be erased here.
     }
 
     /**
@@ -129,14 +319,47 @@ public class FeatureNodeNodeModel extends NodeModel {
     @Override
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
             throws InvalidSettingsException {
-        
-        // TODO: check if user settings are available, fit to the incoming
-        // table structure, and the incoming types are feasible for the node
-        // to execute. If the node can execute in its current state return
-        // the spec of its output data table(s) (if you can, otherwise an array
-        // with null elements), or throw an exception with a useful user message
 
-        return new DataTableSpec[]{null};
+        DataTableSpec spec = inSpecs[0];
+
+        if (!(spec.containsCompatibleType(ImgPlusValue.class) || spec
+                .containsCompatibleType(LabelingValue.class))) {
+            throw new InvalidSettingsException(
+                    "Invalid input spec. At least one image or labeling column must be provided.");
+        }
+
+        String selectedImgCol = IMG_SELECTION_MODEL.getStringValue();
+        String selectedLabelingCol = LABELING_SELECTION_MODEL.getStringValue();
+        if (selectedImgCol == null && selectedLabelingCol == null) {
+            // both empty == first configure
+            for (DataColumnSpec dcs : spec) {
+                if (imgPlusFilter().includeColumn(dcs)) {
+                    IMG_SELECTION_MODEL.setStringValue(dcs.getName());
+                    selectedImgCol = dcs.getName();
+                    break;
+                }
+            }
+
+            for (DataColumnSpec dcs : spec) {
+                if (labelingFilter().includeColumn(dcs)) {
+                    LABELING_SELECTION_MODEL.setStringValue(dcs.getName());
+                    selectedLabelingCol = dcs.getName();
+                    break;
+                }
+            }
+        }
+
+        m_imgPlusCol = selectedImgCol == null ? -1 : spec
+                .findColumnIndex(selectedImgCol);
+        m_labelingCol = selectedLabelingCol == null ? -1 : spec
+                .findColumnIndex(selectedLabelingCol);
+
+        if (-1 == m_imgPlusCol && -1 == m_labelingCol) {
+            throw new IllegalArgumentException(
+                    "At least one image or labeling column must be selected!");
+        }
+
+        return new DataTableSpec[] { null };
     }
 
     /**
@@ -144,11 +367,9 @@ public class FeatureNodeNodeModel extends NodeModel {
      */
     @Override
     protected void saveSettingsTo(final NodeSettingsWO settings) {
-
-        // TODO save user settings to the config object.
-        
-        m_count.saveSettingsTo(settings);
-
+        IMG_SELECTION_MODEL.saveSettingsTo(settings);
+        LABELING_SELECTION_MODEL.saveSettingsTo(settings);
+        FEATURE_SET_MODEL.saveSettingsTo(settings);
     }
 
     /**
@@ -157,13 +378,9 @@ public class FeatureNodeNodeModel extends NodeModel {
     @Override
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
             throws InvalidSettingsException {
-            
-        // TODO load (valid) settings from the config object.
-        // It can be safely assumed that the settings are valided by the 
-        // method below.
-        
-        m_count.loadSettingsFrom(settings);
-
+        IMG_SELECTION_MODEL.loadSettingsFrom(settings);
+        LABELING_SELECTION_MODEL.loadSettingsFrom(settings);
+        FEATURE_SET_MODEL.loadSettingsFrom(settings);
     }
 
     /**
@@ -172,16 +389,11 @@ public class FeatureNodeNodeModel extends NodeModel {
     @Override
     protected void validateSettings(final NodeSettingsRO settings)
             throws InvalidSettingsException {
-            
-        // TODO check if the settings could be applied to our model
-        // e.g. if the count is in a certain range (which is ensured by the
-        // SettingsModel).
-        // Do not actually set any values of any member variables.
-
-        m_count.validateSettings(settings);
-
+        IMG_SELECTION_MODEL.validateSettings(settings);
+        LABELING_SELECTION_MODEL.validateSettings(settings);
+        FEATURE_SET_MODEL.validateSettings(settings);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -189,16 +401,9 @@ public class FeatureNodeNodeModel extends NodeModel {
     protected void loadInternals(final File internDir,
             final ExecutionMonitor exec) throws IOException,
             CanceledExecutionException {
-        
-        // TODO load internal data. 
-        // Everything handed to output ports is loaded automatically (data
-        // returned by the execute method, models loaded in loadModelContent,
-        // and user settings set through loadSettingsFrom - is all taken care 
-        // of). Load here only the other internals that need to be restored
-        // (e.g. data used by the views).
 
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -206,15 +411,36 @@ public class FeatureNodeNodeModel extends NodeModel {
     protected void saveInternals(final File internDir,
             final ExecutionMonitor exec) throws IOException,
             CanceledExecutionException {
-       
-        // TODO save internal models. 
-        // Everything written to output ports is saved automatically (data
-        // returned by the execute method, models saved in the saveModelContent,
-        // and user settings saved through saveSettingsTo - is all taken care 
-        // of). Save here only the other internals that need to be preserved
-        // (e.g. data used by the views).
 
     }
 
-}
+    public static ColumnFilter imgPlusFilter() {
+        return new ColumnFilter() {
 
+            @Override
+            public boolean includeColumn(DataColumnSpec colSpec) {
+                return colSpec.getType().equals(ImgPlusCell.TYPE);
+            }
+
+            @Override
+            public String allFilteredMsg() {
+                return "No image column available.";
+            }
+        };
+    }
+
+    public static ColumnFilter labelingFilter() {
+        return new ColumnFilter() {
+
+            @Override
+            public boolean includeColumn(DataColumnSpec colSpec) {
+                return colSpec.getType().equals(LabelingCell.TYPE);
+            }
+
+            @Override
+            public String allFilteredMsg() {
+                return "No labeling column available.";
+            }
+        };
+    }
+}
