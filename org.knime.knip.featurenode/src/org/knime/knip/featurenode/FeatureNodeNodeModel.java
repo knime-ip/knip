@@ -9,10 +9,14 @@ import java.util.Map;
 import net.imagej.ops.features.FeatureResult;
 import net.imagej.ops.features.FeatureSet;
 import net.imglib2.IterableInterval;
+import net.imglib2.converter.Converter;
+import net.imglib2.converter.Converters;
 import net.imglib2.img.Img;
 import net.imglib2.labeling.Labeling;
+import net.imglib2.labeling.LabelingType;
 import net.imglib2.roi.IterableRegionOfInterest;
 import net.imglib2.type.NativeType;
+import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Pair;
 
@@ -292,8 +296,19 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
                     .getLabeling();
 
             for (L label : labeling.getLabels()) {
-                IterableInterval<?> ii = labeling.getIterableRegionOfInterest(
-                        label).getIterableIntervalOverROI(labeling);
+                IterableInterval<LabelingType<L>> ii = labeling
+                        .getIterableRegionOfInterest(label)
+                        .getIterableIntervalOverROI(labeling);
+
+                Converters.convert(ii,
+                        new Converter<LabelingType<L>, BitType>() {
+
+                            @Override
+                            public void convert(LabelingType<L> arg0,
+                                    BitType arg1) {
+                                arg1.set(!arg0.getLabeling().isEmpty());
+                            }
+                        }, new BitType());
                 inputs.add(ii);
             }
         }
