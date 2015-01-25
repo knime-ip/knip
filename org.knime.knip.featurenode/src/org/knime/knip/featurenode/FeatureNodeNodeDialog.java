@@ -12,6 +12,7 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -130,6 +131,8 @@ public class FeatureNodeNodeDialog extends NodeDialogPane {
         final JComboBox<PluginInfoComboboxItem> jComboBox = new JComboBox<PluginInfoComboboxItem>(
                 plugins);
 
+        JLabel label = new JLabel("Select feature set: ");
+        
         final JButton add = new JButton("Add");
         add.setToolTipText("Add selected feature set.");
         add.setPreferredSize(jComboBox.getPreferredSize());
@@ -167,6 +170,9 @@ public class FeatureNodeNodeDialog extends NodeDialogPane {
         c.weighty = 0;
         c.gridx = 0;
         c.gridy = 0;
+        p.add(label, c);
+        
+        c.gridx++;
         p.add(jComboBox, c);
 
         c.gridx++;
