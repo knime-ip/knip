@@ -1,37 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<knimeNode icon="./default.png" type="Manipulator" xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.10 http://knime.org/node/v2.10.xsd">
-    <name>FeatureNode</name>
+<knimeNode icon="./imglabfeature.png" type="Manipulator" xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.10 http://knime.org/node/v2.10.xsd">
+    <name>Feature Node</name>
     
     <shortDescription>
-        
+        Calculate features of an image or labeling.
     </shortDescription>
     
     <fullDescription>
-        <intro>Insert long description here...</intro>
+        <intro>Calculate features of an image, labeling or an image under consideration of a given 
+        labeling. </intro>
+        
+        <p>
+        	Add as many feature sets as you want to the selected feature set panel. Some feature sets
+        	need some input parameters set. Once you have added a feature set you can set the missing 
+        	input parameters in the feature selection panel.
+        </p>
         
         
-        <option name="short name of first option (like in the dialog)">description of first option</option>
-        <option name="short name of second option (like in the dialog)">description of second option</option>
-        <!-- possibly more options that can also be grouped by tabs -->
-        <!--
-        <tab name="Standard Options">
-            <option name="short name of first option (like in the dialog)">description of first option</option>
-            <option name="short name of second option (like in the dialog)">description of second option</option>
-        </tab>
-        <tab name="Advanced Options">
-            <option name="short name of first advanced option (like in the dialog)">description of first advanced option</option>
-        </tab>
-        -->
+        <option name="Select image column: ">Select the image column on which the features should be computed.</option>
+        <option name="Select labeling column: ">Select the image column on which the features should be computed.</option>
+        
+        <option name="Select feature set: ">Select the feature set to compute and add it with the "Add" button</option>
     </fullDescription>
     
     <ports>
-        <inPort index="0" name="In-Port name">Description of first input port...</inPort>
-        <!-- possibly more input ports here-->
-        <outPort index="0" name="Out-Port name">Description of first output port...</outPort>
-        <!-- possibly more output ports here-->
-    </ports>    
-    <views>
-        <view index="0" name="name of first view">Description of first view...</view>
-        <!--view index="1" name="name of second view">Description of second view...</view-->
-    </views>
+        <inPort index="0" name="Input data table">Input table with at least one image or one labeling column.</inPort>
+        <outPort index="0" name="Computed feature sets">Input table with computed feature sets appended.</outPort>
+    </ports>  
 </knimeNode>

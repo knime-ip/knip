@@ -29,7 +29,7 @@ public class FeatureNodeNodeFactory<T extends RealType<T> & NativeType<T>, L ext
      */
     @Override
     public int getNrNodeViews() {
-        return 1;
+        return 0;
     }
 
     /**
@@ -38,7 +38,7 @@ public class FeatureNodeNodeFactory<T extends RealType<T> & NativeType<T>, L ext
     @Override
     public NodeView<FeatureNodeNodeModel<T, L>> createNodeView(final int viewIndex,
             final FeatureNodeNodeModel<T, L> nodeModel) {
-        return new FeatureNodeNodeView<T, L>(nodeModel);
+        return null;
     }
 
     /**

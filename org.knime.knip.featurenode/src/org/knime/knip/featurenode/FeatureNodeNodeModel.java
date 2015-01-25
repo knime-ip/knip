@@ -30,6 +30,7 @@ import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
@@ -52,6 +53,11 @@ import org.scijava.plugin.PluginInfo;
  */
 public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
 		extends NodeModel {
+	/**
+	 * The logger instance.
+	 */
+	private static final NodeLogger LOGGER = NodeLogger
+			.getLogger(FeatureNodeNodeModel.class);
 
 	/**
 	 * @return Settings model for selected labeling.
@@ -78,12 +84,12 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
 	 * Image selection model.
 	 */
 	private SettingsModelString IMG_SELECTION_MODEL = createImgSelectionModel();
-	
+
 	/**
 	 * Labeling selection model.
 	 */
 	private SettingsModelString LABELING_SELECTION_MODEL = createLabelingSelectionModel();
-	
+
 	/**
 	 * Feature set model.
 	 */
@@ -114,6 +120,11 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
+		
+		if (inData[0].getRowCount() == 0) {
+			LOGGER.warn("Empty input table. No other columns created.");
+			return inData;
+		}
 
 		List<FeatureSet<IterableInterval<?>>> compiledFeatureSets = compileFeatureSets(
 				m_imgPlusCol, m_labelingCol, FEATURE_SET_MODEL.getFeatureSets());
@@ -123,8 +134,21 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
 
 		CloseableRowIterator iterator = inData[0].iterator();
 		while (iterator.hasNext()) {
+			exec.checkCanceled();
 			DataRow row = iterator.next();
 
+			boolean imgMissing = m_imgPlusCol > -1
+					&& row.getCell(m_imgPlusCol).isMissing();
+			boolean labMissing = m_labelingCol > -1
+					&& row.getCell(m_labelingCol).isMissing();
+
+			if (imgMissing || labMissing) {
+				LOGGER.warn("Missing input value in "
+						+ row.getKey().getString()
+						+ ". Skipped and deleted this row "
+						+ "from output table.");
+				continue;
+			}
 			// for each input iterableinterval
 			for (IterableInterval<?> input : getIterableIntervals(row,
 					m_imgPlusCol, m_labelingCol)) {
@@ -134,7 +158,7 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
 
 				// calcuate the features from every featureset
 				for (FeatureSet<IterableInterval<?>> featureSet : compiledFeatureSets) {
-
+					exec.checkCanceled();
 					featureSet.setInput(input);
 					featureSet.run();
 					List<FeatureResult> compute = featureSet.getOutput();
@@ -170,6 +194,7 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
 		}
 
 		container.close();
+
 		return new BufferedDataTable[] { (BufferedDataTable) container
 				.getTable() };
 	}
@@ -433,6 +458,7 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
 
 	/**
 	 * Filter which filters all image plus columns from {@link DataTableSpec}.
+	 * 
 	 * @return all image plus columns
 	 */
 	public static ColumnFilter imgPlusFilter() {
@@ -452,6 +478,7 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
 
 	/**
 	 * Filter which filters all labling columns from {@link DataTableSpec}.
+	 * 
 	 * @return all labeling columns
 	 */
 	public static ColumnFilter labelingFilter() {
