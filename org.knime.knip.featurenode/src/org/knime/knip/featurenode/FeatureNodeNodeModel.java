@@ -57,21 +57,46 @@ import org.scijava.plugin.PluginInfo;
  */
 public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
         extends NodeModel {
+    /**
+     * The logger instance.
+     */
+    private static final NodeLogger LOGGER = NodeLogger
+            .getLogger(FeatureNodeNodeModel.class);
 
+    /**
+     * @return Settings model for selected labeling.
+     */
     static SettingsModelString createLabelingSelectionModel() {
-        return new SettingsModelString("m_labeling", null);
+        return new SettingsModelString("m_labeling_settings_model", null);
     }
 
+    /**
+     * @return Settings model for selected image.
+     */
     static SettingsModelString createImgSelectionModel() {
-        return new SettingsModelString("m_img", null);
+        return new SettingsModelString("m_imgage_settings_model", null);
     }
 
+    /**
+     * @return Settings model for selected feature sets.
+     */
     static SettingsModelFeatureSet createFeatureSetsModel() {
         return new SettingsModelFeatureSet("m_featuresets");
     }
 
+    /**
+     * Image selection model.
+     */
     private SettingsModelString IMG_SELECTION_MODEL = createImgSelectionModel();
+
+    /**
+     * Labeling selection model.
+     */
     private SettingsModelString LABELING_SELECTION_MODEL = createLabelingSelectionModel();
+
+    /**
+     * Feature set model.
+     */
     private SettingsModelFeatureSet FEATURE_SET_MODEL = createFeatureSetsModel();
 
     /**
@@ -100,9 +125,9 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
     protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
             final ExecutionContext exec) throws Exception {
 
-        if (-1 == m_imgPlusCol && -1 == m_labelingCol) {
-            throw new IllegalArgumentException(
-                    "Either a Img or a Labeling Column must be selected!");
+        if (inData[0].getRowCount() == 0) {
+            LOGGER.warn("Empty input table. No other columns created.");
+            return inData;
         }
 
         List<FeatureSet<IterableInterval<?>>> compiledFeatureSets = compileFeatureSets(
@@ -113,8 +138,21 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
 
         CloseableRowIterator iterator = inData[0].iterator();
         while (iterator.hasNext()) {
+            exec.checkCanceled();
             DataRow row = iterator.next();
 
+            boolean imgMissing = m_imgPlusCol > -1
+                    && row.getCell(m_imgPlusCol).isMissing();
+            boolean labMissing = m_labelingCol > -1
+                    && row.getCell(m_labelingCol).isMissing();
+
+            if (imgMissing || labMissing) {
+                LOGGER.warn("Missing input value in "
+                        + row.getKey().getString()
+                        + ". Skipped and deleted this row "
+                        + "from output table.");
+                continue;
+            }
             // for each input iterableinterval
             for (IterableInterval<?> input : getIterableIntervals(row,
                     m_imgPlusCol, m_labelingCol)) {
@@ -124,7 +162,7 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
 
                 // calcuate the features from every featureset
                 for (FeatureSet<IterableInterval<?>> featureSet : compiledFeatureSets) {
-
+                    exec.checkCanceled();
                     featureSet.setInput(input);
                     featureSet.run();
                     List<FeatureResult> compute = featureSet.getOutput();
@@ -160,6 +198,7 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
         }
 
         container.close();
+
         return new BufferedDataTable[] { (BufferedDataTable) container
                 .getTable() };
     }
@@ -226,6 +265,7 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
         // otherwise FeatureSet<IterableInterval>
         for (Pair<Class<?>, Map<String, Object>> featureSetData : featureSetsData) {
             if (-1 != imgCol && -1 == labelingCol) {
+
                 FeatureSet<IterableInterval<?>> createInstance = OpsGateway
                         .getPluginService().createInstance(
                                 new PluginInfo<FeatureSet>(
@@ -298,11 +338,10 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
                     .getLabeling();
 
             for (L label : labeling.getLabels()) {
-                IterableInterval<LabelingType<L>> ii = labeling
-                        .getIterableRegionOfInterest(label)
-                        .getIterableIntervalOverROI(labeling);
+                IterableInterval<LabelingType<L>> ii = labeling.getIterableRegionOfInterest(
+                        label).getIterableIntervalOverROI(labeling);
 
-                Converters.convert(ii,
+                IterableInterval<BitType> convert = Converters.convert(ii,
                         new Converter<LabelingType<L>, BitType>() {
 
                             @Override
@@ -311,7 +350,8 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
                                 arg1.set(!arg0.getLabeling().isEmpty());
                             }
                         }, new BitType());
-                inputs.add(ii);
+
+                inputs.add(convert);
             }
         }
         // only image set
@@ -431,6 +471,11 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
 
     }
 
+    /**
+     * Filter which filters all image plus columns from {@link DataTableSpec}.
+     * 
+     * @return all image plus columns
+     */
     public static ColumnFilter imgPlusFilter() {
         return new ColumnFilter() {
 
@@ -446,6 +491,11 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
         };
     }
 
+    /**
+     * Filter which filters all labling columns from {@link DataTableSpec}.
+     * 
+     * @return all labeling columns
+     */
     public static ColumnFilter labelingFilter() {
         return new ColumnFilter() {
 
