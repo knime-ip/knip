@@ -1,5 +1,8 @@
 package org.knime.knip.featurenode;
 
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
+
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
@@ -10,15 +13,15 @@ import org.knime.core.node.NodeView;
  *
  * @author Daniel Seebacher
  */
-public class FeatureNodeNodeFactory 
-        extends NodeFactory<FeatureNodeNodeModel> {
+public class FeatureNodeNodeFactory<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
+        extends NodeFactory<FeatureNodeNodeModel<T, L>> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public FeatureNodeNodeModel createNodeModel() {
-        return new FeatureNodeNodeModel();
+    public FeatureNodeNodeModel<T, L> createNodeModel() {
+        return new FeatureNodeNodeModel<T, L>();
     }
 
     /**
@@ -33,9 +36,9 @@ public class FeatureNodeNodeFactory
      * {@inheritDoc}
      */
     @Override
-    public NodeView<FeatureNodeNodeModel> createNodeView(final int viewIndex,
-            final FeatureNodeNodeModel nodeModel) {
-        return new FeatureNodeNodeView(nodeModel);
+    public NodeView<FeatureNodeNodeModel<T, L>> createNodeView(final int viewIndex,
+            final FeatureNodeNodeModel<T, L> nodeModel) {
+        return new FeatureNodeNodeView<T, L>(nodeModel);
     }
 
     /**
@@ -55,4 +58,3 @@ public class FeatureNodeNodeFactory
     }
 
 }
-

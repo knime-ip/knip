@@ -117,6 +117,7 @@ public class FeatureNodeNodeDialog extends NodeDialogPane {
      * @return panel to select a feature which should be added to
      *         {@link FeatureNodeNodeDialog#m_featureSetPanel}.
      */
+    @SuppressWarnings("rawtypes")
     private JPanel createFeatureSetSelectionPanel() {
         List<PluginInfo<FeatureSet>> fs = OpsGateway.getPluginService()
                 .getPluginsOfType(FeatureSet.class);
@@ -237,6 +238,7 @@ public class FeatureNodeNodeDialog extends NodeDialogPane {
         featureSetSettings.saveSettingsForModel(settings);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void loadSettingsFrom(NodeSettingsRO settings,
             DataTableSpec[] specs) throws NotConfigurableException {
