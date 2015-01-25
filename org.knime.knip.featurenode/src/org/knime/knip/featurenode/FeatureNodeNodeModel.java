@@ -25,6 +25,7 @@ import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.RowKey;
 import org.knime.core.data.container.CloseableRowIterator;
 import org.knime.core.data.container.DataContainer;
 import org.knime.core.data.def.DefaultRow;
@@ -39,6 +40,7 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.node.streamable.DataTableRowInput;
 import org.knime.core.node.util.ColumnFilter;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusValue;
@@ -125,7 +127,8 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
     protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
             final ExecutionContext exec) throws Exception {
 
-        if (inData[0].getRowCount() == 0) {
+        int numRows = inData[0].getRowCount();
+		if (numRows == 0) {
             LOGGER.warn("Empty input table. No other columns created.");
             return inData;
         }
@@ -137,7 +140,9 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
         DataContainer container = null;
 
         CloseableRowIterator iterator = inData[0].iterator();
+        double rowCount = 0;
         while (iterator.hasNext()) {
+        	exec.setProgress(rowCount++/numRows);
             exec.checkCanceled();
             DataRow row = iterator.next();
 
@@ -154,9 +159,10 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
                 continue;
             }
             // for each input iterableinterval
-            for (IterableInterval<?> input : getIterableIntervals(row,
-                    m_imgPlusCol, m_labelingCol)) {
-
+            List<IterableInterval<?>> iterableIntervals = getIterableIntervals(row,
+                    m_imgPlusCol, m_labelingCol);
+			for (int i = 0; i < iterableIntervals.size(); i++) {
+				IterableInterval<?> input = iterableIntervals.get(i);
                 // results for this iterable interval
                 List<FeatureResult> results = new ArrayList<FeatureResult>();
 
@@ -182,8 +188,8 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
                 List<DataCell> cells = new ArrayList<DataCell>();
 
                 // store previous data
-                for (int i = 0; i < row.getNumCells(); i++) {
-                    cells.add(row.getCell(i));
+                for (int k = 0; k < row.getNumCells(); k++) {
+                    cells.add(row.getCell(k));
                 }
 
                 // store new results
@@ -192,7 +198,7 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
                 }
 
                 // add row
-                container.addRowToTable(new DefaultRow(row.getKey(), cells
+                container.addRowToTable(new DefaultRow(row.getKey() + "_" + i, cells
                         .toArray(new DataCell[cells.size()])));
             }
         }
