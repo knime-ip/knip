@@ -295,12 +295,15 @@ public class LabelingEditorManager extends HiddenViewerComponent {
 
 			sel[m_sel.getPlaneDimIndex1()] = e.getPosX();
 			sel[m_sel.getPlaneDimIndex2()] = e.getPosY();
-			final double[] seld = new double[sel.length];
+			final long[] seld = new long[sel.length];
 			for (int i = 0; i < seld.length; ++i) {
-				seld[i] = sel[i];
+				if(sel[i] <= m_currentLabeling.realMax(i))
+					seld[i] = sel[i];
+				else
+					seld[i] = (long)m_currentLabeling.realMax(i);
 			}
 
-			ra.setPosition(sel);
+			ra.setPosition(seld);
 			labels = new HashSet<String>(ra.get().getLabeling());
 		}
 		if (labels.isEmpty())
