@@ -178,6 +178,9 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 
 		final LabelingEditorChangeTracker currTrack = m_annotationManager
 				.getTracker(m_currentKey);
+		
+		// Ensure that the complete labeling is loaded
+		currTrack.disableFiltering();
 
 		final Labeling<String> convertedLabeling = new LabelingView<String>(
 				Converters.convert(
