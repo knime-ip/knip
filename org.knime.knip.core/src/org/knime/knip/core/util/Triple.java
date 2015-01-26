@@ -49,8 +49,8 @@
 package org.knime.knip.core.util;
 
 /**
- * This class is a simple pair of objects.
- * 
+ * This class is a simple triple of objects.
+ *
  * @param <T> class of the first object
  * @param <M> class of the second object
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
@@ -67,7 +67,7 @@ public final class Triple<F, S, T> {
 
     /**
      * Creates a new pair.
-     * 
+     *
      * @param first the first object
      * @param second the second object
      */
@@ -79,7 +79,7 @@ public final class Triple<F, S, T> {
 
     /**
      * Returns the first object.
-     * 
+     *
      * @return the first object
      */
     public F getFirst() {
@@ -88,7 +88,7 @@ public final class Triple<F, S, T> {
 
     /**
      * Returns the second object.
-     * 
+     *
      * @return the second object
      */
     public S getSecond() {
@@ -97,7 +97,7 @@ public final class Triple<F, S, T> {
 
     /**
      * Returns the third object.
-     * 
+     *
      * @return the third object
      */
     public T getThird() {
@@ -141,7 +141,7 @@ public final class Triple<F, S, T> {
     /**
      * Determines if both arguments are equal according to their equals method (assumed to be symmetric). This method
      * handles null arguments.
-     * 
+     *
      * @param o1 First object for comparison, may be <code>null</code>.
      * @param o2 Second object for comparison, may be <code>null</code> .
      * @return If both arguments are equal (if either one is null, so must be the other one)

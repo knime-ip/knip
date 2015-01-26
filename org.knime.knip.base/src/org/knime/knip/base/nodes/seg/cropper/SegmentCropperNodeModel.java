@@ -56,9 +56,12 @@ import java.util.Map;
 
 import net.imglib2.Cursor;
 import net.imglib2.FinalInterval;
+import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccess;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
+import net.imglib2.img.ImgView;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingView;
@@ -70,9 +73,9 @@ import net.imglib2.meta.ImgPlusMetadata;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.iterable.unary.Fill;
 import net.imglib2.roi.IterableRegionOfInterest;
-import net.imglib2.sampler.special.ConstantRandomAccessible;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnProperties;
@@ -123,10 +126,11 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
         BufferedDataTableHolder {
 
     private static enum BACKGROUND {
-        MIN, MAX, ZERO;
+        MIN, MAX, ZERO, SOURCE;
     }
 
-    static final String[] BACKGROUND_OPTIONS = new String[]{"Min Value of Result", "Max Value of Result", "Zero"};
+    static final String[] BACKGROUND_OPTIONS = new String[]{"Min Value of Result", "Max Value of Result", "Zero",
+            "Source"};
 
     /**
      * Helper
@@ -346,65 +350,54 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
                 }
 
                 final IterableRegionOfInterest roi = labeling.getIterableRegionOfInterest(l);
+
                 final long[] min = new long[roi.numDimensions()];
                 final long[] max = new long[roi.numDimensions()];
+                final long[] negativeMin = new long[roi.numDimensions()];
                 for (int k = 0; k < max.length; k++) {
                     min[k] = (long)Math.floor(roi.realMin(k));
                     max[k] = (long)Math.ceil(roi.realMax(k));
+                    negativeMin[k] = -min[k];
                 }
-                final FinalInterval interval = new FinalInterval(min, max);
 
                 Img<T> res = null;
                 if (img != null) {
                     T type = img.firstElement().createVariable();
                     T minType = type.createVariable();
                     minType.setReal(type.getMinValue());
-                    T maxType = type.createVariable();
-                    maxType.setReal(type.getMaxValue());
-
-                    res = fac.create(interval, type.createVariable());
-
-                    Cursor<T> roiCursor = roi.getIterableIntervalOverROI(img).cursor();
-                    RandomAccess<T> ra = res.randomAccess();
 
                     Fill<T> fill = new Fill<T>();
-                    if (m_backgroundSelection.getStringValue().equals(BACKGROUND_OPTIONS[BACKGROUND.MIN.ordinal()])
-                            && minType.getRealDouble() != 0) {
-                        fill.compute(minType, res.iterator());
+                    if (m_backgroundSelection.getStringValue().equals(BACKGROUND_OPTIONS[BACKGROUND.MIN.ordinal()])) {
+                        res = fac.create(new FinalInterval(min, max), type.createVariable());
+
+                        if (minType.getRealDouble() != 0) {
+                            fill.compute(minType, res.iterator());
+                        }
+                        writeInRes(res, img, roi);
                     } else if (m_backgroundSelection.getStringValue().equals(BACKGROUND_OPTIONS[BACKGROUND.MAX
                                                                                      .ordinal()])) {
+                        T maxType = type.createVariable();
+                        maxType.setReal(type.getMaxValue());
+                        res = fac.create(new FinalInterval(min, max), type.createVariable());
                         fill.compute(maxType, res.iterator());
+                        writeInRes(res, img, roi);
+                    } else if (m_backgroundSelection.getStringValue().equals(BACKGROUND_OPTIONS[BACKGROUND.ZERO
+                                                                                     .ordinal()])) {
+                        res = fac.create(new FinalInterval(min, max), type.createVariable());
+                        writeInRes(res, img, roi);
+                    } else {
+                        res = new ImgView<T>(Views.zeroMin(Views.interval(img, min, max)), fac);
                     }
 
-                    long[] pos = new long[img.numDimensions()];
-
-                    while (roiCursor.hasNext()) {
-                        roiCursor.next();
-                        for (int d = 0; d < pos.length; d++) {
-                            ra.setPosition(roiCursor.getLongPosition(d) - interval.min(d), d);
-                        }
-
-                        ra.get().setReal(roiCursor.get().getRealDouble());
-                    }
                 } else {
-                    res = fac.create(interval, (T)new BitType());
-
-                    final RandomAccess<BitType> maskRA = (RandomAccess<BitType>)res.randomAccess();
-
-                    final Cursor<BitType> cur =
-                            roi.getIterableIntervalOverROI(new ConstantRandomAccessible<BitType>(new BitType(), res
-                                                                   .numDimensions())).localizingCursor();
-
-                    while (cur.hasNext()) {
-                        cur.fwd();
-                        for (int d = 0; d < cur.numDimensions(); d++) {
-                            maskRA.setPosition(cur.getLongPosition(d) - interval.min(d), d);
-                        }
-                        maskRA.get().set(true);
-                    }
-
+                    res =
+                            new ImgView<T>(
+                                    Views.zeroMin((RandomAccessibleInterval<T>)Views.interval(Views.raster(roi),
+                                                                                              new FinalInterval(min,
+                                                                                                      max))), fac);
                 }
 
+                res.firstElement().getRealDouble();
                 final List<DataCell> cells = new ArrayList<DataCell>();
 
                 // TODO: What about color tables?
@@ -448,6 +441,25 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
         con.close();
         m_data = con.getTable();
         return new BufferedDataTable[]{m_data};
+    }
+
+    /**
+     * @param res
+     * @param img
+     * @param roi
+     */
+    private void writeInRes(final Img<T> res, final ImgPlus<T> img, final IterableRegionOfInterest roi) {
+        IterableInterval<T> interval = roi.getIterableIntervalOverROI(img);
+        Cursor<T> roiCursor = interval.cursor();
+        RandomAccess<T> ra = res.randomAccess();
+        long[] pos = new long[img.numDimensions()];
+        while (roiCursor.hasNext()) {
+            roiCursor.next();
+            for (int d = 0; d < pos.length; d++) {
+                ra.setPosition(roiCursor.getLongPosition(d) - interval.min(d), d);
+            }
+            ra.get().setReal(roiCursor.get().getRealDouble());
+        }
     }
 
     /**
