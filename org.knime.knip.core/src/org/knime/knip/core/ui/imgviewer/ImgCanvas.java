@@ -411,28 +411,12 @@ public class ImgCanvas<T extends Type<T>, I extends IterableInterval<T> & Random
             // TODO: Workaround
             m_init = false;
 
-            // get old center of the image
-            final Rectangle rect = m_imageCanvas.getVisibleRect();
-            final double imgCenterX = rect.getCenterX() / m_oldFactors[0];
-            final double imgCenterY = rect.getCenterY() / m_oldFactors[1];
-
             // enlarge canvas
             final Dimension d =
                     new Dimension((int)(m_image.getWidth(null) * m_factors[0]),
                             (int)(m_image.getHeight(null) * m_factors[1]));
             m_imageCanvas.setSize(d);
             m_imageCanvas.setPreferredSize(d);
-
-            Rectangle visibleImgRect = getVisibleImageRect();
-
-            final double xCorrect = visibleImgRect.width / 2.0;
-            final double yCorrect = visibleImgRect.height / 2.0;
-
-            // apply old center
-            int xDiff = (int)(imgCenterX - xCorrect);
-            int yDiff = (int)(imgCenterY - yCorrect);
-            Point newCenter = new Point((int)(xDiff * m_factors[0]), (int)(yDiff * m_factors[1]));
-            m_imageScrollPane.getViewport().setViewPosition(newCenter);
 
             m_oldFactors = m_factors.clone();
 
