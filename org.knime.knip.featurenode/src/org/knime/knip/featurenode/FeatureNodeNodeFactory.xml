@@ -7,15 +7,16 @@
     </shortDescription>
     
     <fullDescription>
-        <intro>Calculate features of an image, labeling or an image under consideration of a given 
-        labeling. </intro>
+        <intro>
+	        Calculate features of an image, labeling or an image under consideration of a given 
+	        labeling. 
         
-        <p>
-        	Add as many feature sets as you want to the selected feature set panel. Some feature sets
-        	need some input parameters set. Once you have added a feature set you can set the missing 
-        	input parameters in the feature selection panel.
-        </p>
-        
+	       <p>
+	        	Add as many feature sets as you want to the selected feature set panel. Some feature sets
+	        	need some input parameters set. Once you have added a feature set you can set the missing 
+	        	input parameters in the feature selection panel.
+	        </p>
+        </intro>
         
         <option name="Select image column: ">Select the image column on which the features should be computed.</option>
         <option name="Select labeling column: ">Select the image column on which the features should be computed.</option>

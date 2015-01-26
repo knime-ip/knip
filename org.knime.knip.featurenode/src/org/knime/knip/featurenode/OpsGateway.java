@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2013
+ *  Copyright (coffee) 2003 - 2013
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -43,7 +43,7 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+  --------------------------------------------------------------------- 
  *
  */
 package org.knime.knip.featurenode;
@@ -86,7 +86,7 @@ public class OpsGateway {
     private PluginService pls;
     private CommandService cs;
 
-    /** Sets up a SciJava context with {@link OpService}. */
+    /* Sets up a SciJava context with {@link OpService}. */
     private OpsGateway() {
         // set log level
         System.setProperty("scijava.log.level", "error");

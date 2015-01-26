@@ -1,6 +1,8 @@
 package org.knime.knip.featurenode;
 
+import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -65,8 +67,11 @@ public class FeatureNodeNodeDialog extends NodeDialogPane {
      */
     private FeatureSetPanel m_featureSetPanel;
 
+	private JPanel m_dialogPanel;
+
     public FeatureNodeNodeDialog() {
-        JPanel p = new JPanel(new GridBagLayout());
+    	super();
+        m_dialogPanel = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1;
@@ -76,25 +81,26 @@ public class FeatureNodeNodeDialog extends NodeDialogPane {
         c.gridx = 0;
         c.gridy = 0;
 
-        p.add(createColumnSelectionPanel(), c);
+        m_dialogPanel.add(createColumnSelectionPanel(), c);
 
         c.gridy++;
-        p.add(createFeatureSetSelectionPanel(), c);
+        m_dialogPanel.add(createFeatureSetSelectionPanel(), c);
 
         c.fill = GridBagConstraints.BOTH;
         c.anchor = GridBagConstraints.NORTH;
         c.weighty = 1;
         c.gridy++;
-        p.add(createSelectedFeaturePanel(), c);
+        m_dialogPanel.add(createSelectedFeaturePanel(), c);
 
-        addTab("Configure", p);
+        super.addTab("Configure", m_dialogPanel);
+        
     }
 
     /**
      * @return panel which holds all selected features
      */
     private JPanel createSelectedFeaturePanel() {
-        m_featureSetPanel = new FeatureSetPanel();
+        m_featureSetPanel = new FeatureSetPanel(getPanel());
         JScrollPane sp = new JScrollPane(m_featureSetPanel);
         sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
