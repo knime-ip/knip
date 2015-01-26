@@ -60,11 +60,13 @@ public class LabelingEditorChangeTracker implements
 		List<String> mappedEntry = m_changedLabels.get(list);
 
 		if (mappedEntry != null) {
-			mappedEntry.removeAll(deletedEntries);
-			intern(mappedEntry);
-			if (m_filter)
-				checkForFiltered(mappedEntry);
-			++m_generation;
+			boolean changed = mappedEntry.removeAll(deletedEntries);
+			if (changed) {
+				intern(mappedEntry);
+				if (m_filter)
+					checkForFiltered(mappedEntry);
+				++m_generation;
+			}
 		} else {
 			m_changedLabels.put(list, new LinkedList<String>(list));
 			remove(list, deletedEntries);
@@ -85,14 +87,20 @@ public class LabelingEditorChangeTracker implements
 		List<String> mappedEntry = m_changedLabels.get(list);
 
 		if (mappedEntry != null) {
+			boolean changed = false;
 			for (String s : addedEntries)
-				if (!mappedEntry.contains(s))
+				if (!mappedEntry.contains(s)) {
 					mappedEntry.add(s);
+					changed = true;
+				}
 			Collections.sort(mappedEntry);
-			intern(mappedEntry);
-			if (m_filter)
-				checkForFiltered(mappedEntry);
-			++m_generation;
+			if (changed) {
+				intern(mappedEntry);
+				if (m_filter)
+					checkForFiltered(mappedEntry);
+
+				++m_generation;
+			}
 		} else {
 			m_changedLabels.put(list, new LinkedList<String>(list));
 			insert(list, addedEntries);
