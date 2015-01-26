@@ -314,13 +314,16 @@ public class LabelingEditorManager extends HiddenViewerComponent {
 	/**
 	 * Resets this manager back to its default state.
 	 */
-	public void reset() {
+	@EventListener
+	public void reset(final AnnotatorResetEvent e) {
 		// Return to default
 		m_selectedLabels = new String[] { "Unknown" };
-		for (final LabelingEditorChangeTracker tracker : m_IdTrackerMap
-				.values()) {
-			tracker.reset();
-		}
+//		for (final LabelingEditorChangeTracker tracker : m_IdTrackerMap
+//				.values()) {
+//			tracker.reset();
+//		}
+		
+		m_IdTrackerMap.clear();
 	}
 
 	@Override
