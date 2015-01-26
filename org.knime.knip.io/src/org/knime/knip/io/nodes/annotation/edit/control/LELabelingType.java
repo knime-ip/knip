@@ -1,5 +1,7 @@
 package org.knime.knip.io.nodes.annotation.edit.control;
 
+import java.util.List;
+
 import net.imglib2.labeling.LabelingMapping;
 import net.imglib2.labeling.LabelingType;
 import net.imglib2.type.numeric.IntegerType;
@@ -26,15 +28,34 @@ public class LELabelingType extends LabelingType<String> {
 		this.service = service;
 		service.subscribe(this);
 	}
+	
+	protected LELabelingType(EventService service, IntegerType<?> type,
+			LabelingMapping<String> mapping, long[] generation) {
+		this(service, type, mapping);
+
+		this.generation[0] = generation[0];
+	}
 
 	@EventListener
 	public void onListEdited(LabelingEditorListChangedEvent e) {
 		getMapping().intern(e.getList());
+		synchronized (generation) {
+			generation[0]++;
+		}
+	}
 
+	/**
+	 * Set the labeling at the current pixel
+	 * 
+	 * @param labeling
+	 */
+	@Override
+	public void setLabeling(final List<String> labeling) {
+		this.type.setInteger(mapping.indexOf(labeling));
 	}
 
 	@Override
 	public LabelingType<String> copy() {
-		return new LELabelingType(service, type.copy(), mapping);
+		return new LELabelingType(service, type.copy(), mapping, generation);
 	}
 }
