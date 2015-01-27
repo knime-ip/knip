@@ -125,7 +125,8 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
     protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
             final ExecutionContext exec) throws Exception {
 
-        if (inData[0].getRowCount() == 0) {
+        int numRows = inData[0].getRowCount();
+		if (numRows == 0) {
             LOGGER.warn("Empty input table. No other columns created.");
             return inData;
         }
@@ -137,7 +138,9 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
         DataContainer container = null;
 
         CloseableRowIterator iterator = inData[0].iterator();
+        double rowCount = 0;
         while (iterator.hasNext()) {
+        	exec.setProgress(rowCount++/numRows);
             exec.checkCanceled();
             DataRow row = iterator.next();
 
@@ -154,9 +157,10 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
                 continue;
             }
             // for each input iterableinterval
-            for (IterableInterval<?> input : getIterableIntervals(row,
-                    m_imgPlusCol, m_labelingCol)) {
-
+            List<IterableInterval<?>> iterableIntervals = getIterableIntervals(row,
+                    m_imgPlusCol, m_labelingCol);
+			for (int i = 0; i < iterableIntervals.size(); i++) {
+				IterableInterval<?> input = iterableIntervals.get(i);
                 // results for this iterable interval
                 List<FeatureResult> results = new ArrayList<FeatureResult>();
 
@@ -182,8 +186,8 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
                 List<DataCell> cells = new ArrayList<DataCell>();
 
                 // store previous data
-                for (int i = 0; i < row.getNumCells(); i++) {
-                    cells.add(row.getCell(i));
+                for (int k = 0; k < row.getNumCells(); k++) {
+                    cells.add(row.getCell(k));
                 }
 
                 // store new results
@@ -192,7 +196,7 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
                 }
 
                 // add row
-                container.addRowToTable(new DefaultRow(row.getKey(), cells
+                container.addRowToTable(new DefaultRow(row.getKey() + "_" + i, cells
                         .toArray(new DataCell[cells.size()])));
             }
         }

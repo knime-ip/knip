@@ -3,9 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: FeatureNode-Node extension for KNIME Workbench
 Bundle-SymbolicName: org.knime.knip.featurenode;singleton:=true
 Bundle-Version: 1.0.0
-Bundle-ClassPath: featurenode.jar,
- lib/imagej-ops-0.8.1-SNAPSHOT.jar
-Bundle-Activator: org.knime.knip.featurenode.FeatureNodeNodePlugin
 Bundle-Vendor: Daniel Seebacher
 Require-Bundle: org.eclipse.core.runtime,
  org.knime.workbench.core,
@@ -29,5 +26,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.knip.core;bundle-version="1.3.0",
  org.knime.knip.io;bundle-version="1.3.0"
 Bundle-ActivationPolicy: lazy
-Export-Package: org.knime.knip.featurenode
+Bundle-ClassPath: .,
+ lib/imagej-ops-0.8.1-SNAPSHOT.jar
 
