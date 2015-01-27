@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import net.imagej.ops.features.FeatureResult;
 import net.imagej.ops.features.FeatureSet;
 import net.imglib2.IterableInterval;
 import net.imglib2.converter.Converter;
@@ -18,6 +17,7 @@ import net.imglib2.roi.IterableRegionOfInterest;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.util.Pair;
 
 import org.knime.core.data.DataCell;
@@ -126,12 +126,12 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
             final ExecutionContext exec) throws Exception {
 
         int numRows = inData[0].getRowCount();
-		if (numRows == 0) {
+        if (numRows == 0) {
             LOGGER.warn("Empty input table. No other columns created.");
             return inData;
         }
 
-        List<FeatureSet<IterableInterval<?>>> compiledFeatureSets = compileFeatureSets(
+        List<FeatureSet<IterableInterval<?>, Pair<String, DoubleType>>> compiledFeatureSets = compileFeatureSets(
                 m_imgPlusCol, m_labelingCol, FEATURE_SET_MODEL.getFeatureSets());
 
         DataTableSpec outSpec = null;
@@ -140,7 +140,7 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
         CloseableRowIterator iterator = inData[0].iterator();
         double rowCount = 0;
         while (iterator.hasNext()) {
-        	exec.setProgress(rowCount++/numRows);
+            exec.setProgress(rowCount++ / numRows);
             exec.checkCanceled();
             DataRow row = iterator.next();
 
@@ -157,19 +157,20 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
                 continue;
             }
             // for each input iterableinterval
-            List<IterableInterval<?>> iterableIntervals = getIterableIntervals(row,
-                    m_imgPlusCol, m_labelingCol);
-			for (int i = 0; i < iterableIntervals.size(); i++) {
-				IterableInterval<?> input = iterableIntervals.get(i);
+            List<IterableInterval<?>> iterableIntervals = getIterableIntervals(
+                    row, m_imgPlusCol, m_labelingCol);
+            for (int i = 0; i < iterableIntervals.size(); i++) {
+                IterableInterval<?> input = iterableIntervals.get(i);
                 // results for this iterable interval
-                List<FeatureResult> results = new ArrayList<FeatureResult>();
+                List<Pair<String, DoubleType>> results = new ArrayList<Pair<String, DoubleType>>();
 
                 // calcuate the features from every featureset
-                for (FeatureSet<IterableInterval<?>> featureSet : compiledFeatureSets) {
+                for (FeatureSet<IterableInterval<?>, Pair<String, DoubleType>> featureSet : compiledFeatureSets) {
                     exec.checkCanceled();
                     featureSet.setInput(input);
                     featureSet.run();
-                    List<FeatureResult> compute = featureSet.getOutput();
+                    List<Pair<String, DoubleType>> compute = featureSet
+                            .getOutput();
 
                     results.addAll(compute);
                 }
@@ -191,13 +192,14 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
                 }
 
                 // store new results
-                for (FeatureResult featureResult : results) {
-                    cells.add(new DoubleCell(featureResult.getValue()));
+                for (Pair<String, DoubleType> featureResult : results) {
+                    cells.add(new DoubleCell(featureResult.getB()
+                            .getRealDouble()));
                 }
 
                 // add row
-                container.addRowToTable(new DefaultRow(row.getKey() + "_" + i, cells
-                        .toArray(new DataCell[cells.size()])));
+                container.addRowToTable(new DefaultRow(row.getKey() + "_" + i,
+                        cells.toArray(new DataCell[cells.size()])));
             }
         }
 
@@ -221,7 +223,7 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
      *         {@link FeatureResult}
      */
     private DataTableSpec createOutputSpec(DataTableSpec inSpec,
-            List<FeatureResult> results) {
+            List<Pair<String, DoubleType>> results) {
 
         List<DataColumnSpec> outcells = new ArrayList<DataColumnSpec>();
 
@@ -233,7 +235,7 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
         // add a new column for each given feature result
         for (int i = 0; i < results.size(); i++) {
             outcells.add(new DataColumnSpecCreator(DataTableSpec
-                    .getUniqueColumnName(inSpec, results.get(i).getName() + "_"
+                    .getUniqueColumnName(inSpec, results.get(i).getA() + "_"
                             + i), DoubleCell.TYPE).createSpec());
         }
 
@@ -254,26 +256,27 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
      * @throws ModuleException
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private List<FeatureSet<IterableInterval<?>>> compileFeatureSets(
+    private List<FeatureSet<IterableInterval<?>, Pair<String, DoubleType>>> compileFeatureSets(
             int imgCol, int labelingCol,
             List<Pair<Class<?>, Map<String, Object>>> featureSetsData)
             throws ModuleException {
 
         if (-1 == imgCol && -1 == labelingCol) {
-            return new ArrayList<FeatureSet<IterableInterval<?>>>();
+            return new ArrayList<FeatureSet<IterableInterval<?>, Pair<String, DoubleType>>>();
         }
 
-        List<FeatureSet<IterableInterval<?>>> compiledFeatureSets = new ArrayList<FeatureSet<IterableInterval<?>>>();
+        List<FeatureSet<IterableInterval<?>, Pair<String, DoubleType>>> compiledFeatureSets = new ArrayList<FeatureSet<IterableInterval<?>, Pair<String, DoubleType>>>();
 
         // if img is set and not a labeling we can use FeatureSet<Img>
         // otherwise FeatureSet<IterableInterval>
         for (Pair<Class<?>, Map<String, Object>> featureSetData : featureSetsData) {
             if (-1 != imgCol && -1 == labelingCol) {
 
-                FeatureSet<IterableInterval<?>> createInstance = OpsGateway
-                        .getPluginService().createInstance(
+                FeatureSet<IterableInterval<?>, Pair<String, DoubleType>> createInstance = OpsGateway
+                        .getPluginService()
+                        .createInstance(
                                 new PluginInfo<FeatureSet>(
-                                        (Class<FeatureSet<Img>>) featureSetData
+                                        (Class<FeatureSet<Img, Pair<String, DoubleType>>>) featureSetData
                                                 .getA(), FeatureSet.class));
 
                 Module module = OpsGateway.getOpService().info(createInstance)
@@ -282,11 +285,11 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
 
                 compiledFeatureSets.add(createInstance);
             } else {
-                FeatureSet<IterableInterval<?>> createInstance = OpsGateway
+                FeatureSet<IterableInterval<?>, Pair<String, DoubleType>> createInstance = OpsGateway
                         .getPluginService()
                         .createInstance(
                                 new PluginInfo<FeatureSet>(
-                                        (Class<FeatureSet<IterableInterval>>) featureSetData
+                                        (Class<FeatureSet<IterableInterval<?>, Pair<String, DoubleType>>>) featureSetData
                                                 .getA(), FeatureSet.class));
 
                 Module module = OpsGateway.getOpService().info(createInstance)
@@ -342,8 +345,9 @@ public class FeatureNodeNodeModel<T extends RealType<T> & NativeType<T>, L exten
                     .getLabeling();
 
             for (L label : labeling.getLabels()) {
-                IterableInterval<LabelingType<L>> ii = labeling.getIterableRegionOfInterest(
-                        label).getIterableIntervalOverROI(labeling);
+                IterableInterval<LabelingType<L>> ii = labeling
+                        .getIterableRegionOfInterest(label)
+                        .getIterableIntervalOverROI(labeling);
 
                 IterableInterval<BitType> convert = Converters.convert(ii,
                         new Converter<LabelingType<L>, BitType>() {

@@ -1,8 +1,6 @@
 package org.knime.knip.featurenode;
 
-import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -20,6 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import net.imagej.ops.features.FeatureSet;
+import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.util.Pair;
 
 import org.knime.core.data.DataTableSpec;
@@ -149,6 +148,7 @@ public class FeatureNodeNodeDialog extends NodeDialogPane {
             public void actionPerformed(ActionEvent e) {
                 FeatureSetInputPanel f;
                 try {
+                 
                     f = new FeatureSetInputPanel(jComboBox.getItemAt(
                             jComboBox.getSelectedIndex()).getPluginInfo());
                     m_featureSetPanel.addFeature(f);
@@ -267,7 +267,7 @@ public class FeatureNodeNodeDialog extends NodeDialogPane {
         for (Pair<Class<?>, Map<String, Object>> p : features) {
             try {
                 m_featureSetPanel.addFeature(new FeatureSetInputPanel(
-                        (Class<? extends FeatureSet<?>>) p.getA(), p.getB()));
+                        (Class<? extends FeatureSet<?, Pair<String, DoubleType>>>) p.getA(), p.getB()));
             } catch (InstantiableException | ModuleException e) {
                 JOptionPane.showMessageDialog(getPanel(),
                         "Could not add feature during load.",

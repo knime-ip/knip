@@ -57,7 +57,7 @@ import java.util.HashSet;
 
 import net.imagej.ops.OpMatchingService;
 import net.imagej.ops.OpService;
-import net.imagej.ops.features.FeatureService;
+import net.imagej.ops.functionbuilder.ComputerBuilder;
 
 import org.eclipse.osgi.internal.baseadaptor.DefaultClassLoader;
 import org.eclipse.osgi.internal.loader.BundleLoader;
@@ -97,10 +97,10 @@ public class OpsGateway {
         // classes.add(ImageJService.class);
         classes.add(OpService.class);
         classes.add(OpMatchingService.class);
-        classes.add(FeatureService.class);
         classes.add(WidgetService.class);
         classes.add(UIService.class);
-
+        classes.add(ComputerBuilder.class);
+        
         context = new Context(classes, new PluginIndex(new DefaultPluginFinder(
                 new ResourceAwareClassLoader((DefaultClassLoader) getClass()
                         .getClassLoader()))));
