@@ -52,19 +52,23 @@ import net.imglib2.img.basictypeaccess.array.ArrayDataAccess;
 import net.imglib2.img.planar.PlanarImg;
 import net.imglib2.img.planar.PlanarImgFactory;
 import net.imglib2.type.NativeType;
+import net.imglib2.type.logic.BitType;
+import net.imglib2.type.numeric.integer.Unsigned12BitType;
 
 import org.knime.knip.core.io.externalization.BufferedDataInputStream;
 import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
 import org.knime.knip.core.io.externalization.Externalizer;
 import org.knime.knip.core.io.externalization.ExternalizerManager;
+import org.knime.knip.core.io.externalization.ImgLib2ApiBreakHelper;
 import org.knime.knip.core.io.externalization.PlanarImgContainerSamplerImpl;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
+@Deprecated
 public class PlanarImgExt0 implements Externalizer<PlanarImg> {
 
     /**
@@ -108,7 +112,16 @@ public class PlanarImgExt0 implements Externalizer<PlanarImg> {
 
         for (int i = 0; i < img.numSlices(); i++) {
             sampler.fwd();
-            in.readLArray(img.update(sampler).getCurrentStorageArray());
+
+            if (type instanceof BitType) {
+                ImgLib2ApiBreakHelper.bitTypeConvert((long[])img.update(sampler).getCurrentStorageArray(),
+                                                     (int)img.size() / img.numSlices(), in);
+            } else if (type instanceof Unsigned12BitType) {
+                ImgLib2ApiBreakHelper.unsigned12BitTypeConvert((long[])img.update(sampler).getCurrentStorageArray(),
+                                                               (int) img.size() / img.numSlices(), in);
+            } else {
+                in.readLArray(img.update(sampler).getCurrentStorageArray());
+            }
         }
 
         return img;

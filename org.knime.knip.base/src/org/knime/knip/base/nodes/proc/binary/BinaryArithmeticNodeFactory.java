@@ -50,10 +50,10 @@ package org.knime.knip.base.nodes.proc.binary;
 
 import java.util.List;
 
+import net.imagej.ImgPlus;
 import net.imglib2.IterableInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgView;
-import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.img.BinaryOperationAssignment;
 import net.imglib2.ops.operation.real.binary.RealAnd;
 import net.imglib2.ops.operation.real.binary.RealOr;

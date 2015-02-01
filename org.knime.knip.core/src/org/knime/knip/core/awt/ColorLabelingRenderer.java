@@ -48,6 +48,8 @@
  */
 package org.knime.knip.core.awt;
 
+import gnu.trove.map.hash.TIntIntHashMap;
+
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +62,6 @@ import net.imglib2.labeling.LabelingMapping;
 import net.imglib2.labeling.LabelingType;
 import net.imglib2.type.numeric.ARGBType;
 
-import org.apache.mahout.math.map.OpenIntIntHashMap;
 import org.knime.knip.core.awt.converter.LabelingTypeARGBConverter;
 import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
 import org.knime.knip.core.awt.labelingcolortable.ExtendedLabelingColorTable;
@@ -170,7 +171,7 @@ public class ColorLabelingRenderer<L extends Comparable<L>> extends ProjectingRe
     private void rebuildLabelConverter() {
         m_rebuildRequired = false;
         final int labelListIndexSize = m_labelMapping.numLists();
-        final OpenIntIntHashMap colorTable = new OpenIntIntHashMap();
+        final TIntIntHashMap colorTable = new TIntIntHashMap();
 
         for (int i = 0; i < labelListIndexSize; i++) {
 

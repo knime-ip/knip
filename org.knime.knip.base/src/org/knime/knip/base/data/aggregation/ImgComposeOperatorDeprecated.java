@@ -52,16 +52,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.imagej.ImgPlusMetadata;
+import net.imagej.space.DefaultCalibratedSpace;
 import net.imglib2.Cursor;
 import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccess;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.meta.DefaultCalibratedSpace;
-import net.imglib2.meta.DefaultNamed;
-import net.imglib2.meta.DefaultSourced;
-import net.imglib2.meta.ImgPlusMetadata;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.FloatType;
@@ -77,12 +75,14 @@ import org.knime.core.node.NodeLogger;
 import org.knime.knip.base.data.IntervalValue;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.core.data.DefaultNamed;
+import org.knime.knip.core.data.DefaultSourced;
 import org.knime.knip.core.data.img.DefaultImageMetadata;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
 import org.knime.knip.core.types.NativeTypes;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>

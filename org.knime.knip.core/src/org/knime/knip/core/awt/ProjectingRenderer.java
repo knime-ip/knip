@@ -53,7 +53,6 @@ import net.imglib2.display.projector.AbstractProjector2D;
 import net.imglib2.display.screenimage.awt.ARGBScreenImage;
 import net.imglib2.display.screenimage.awt.AWTScreenImage;
 import net.imglib2.type.Type;
-import net.imglib2.type.numeric.ARGBType;
 
 /**
  * TODO Auto-generated
@@ -78,7 +77,7 @@ public abstract class ProjectingRenderer<T extends Type<T>> implements ImageRend
         final int height = (int)source.dimension(dimY);
 
         final ARGBScreenImage target = new ARGBScreenImage(width, height);
-        final AbstractProjector2D<T, ARGBType> projector = getProjector(dimX, dimY, source, target);
+        final AbstractProjector2D projector = getProjector(dimX, dimY, source, target);
 
         projector.setPosition(planePos);
         projector.map();
@@ -86,7 +85,14 @@ public abstract class ProjectingRenderer<T extends Type<T>> implements ImageRend
         return target;
     }
 
-    protected abstract AbstractProjector2D<T, ARGBType> getProjector(int dimX, int dimY,
+    /**
+     * @param dimX
+     * @param dimY
+     * @param source
+     * @param target
+     * @return
+     */
+    protected abstract AbstractProjector2D getProjector(int dimX, int dimY,
                                                                      RandomAccessibleInterval<T> source,
                                                                      ARGBScreenImage target);
 }

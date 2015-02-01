@@ -50,17 +50,17 @@ package org.knime.knip.core.util;
 
 import java.awt.Polygon;
 
-import net.imglib2.ExtendedRandomAccessibleInterval;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.outofbounds.OutOfBoundsConstantValueFactory;
 import net.imglib2.type.logic.BitType;
+import net.imglib2.view.Views;
 
 import org.knime.knip.core.algorithm.BresenhamAlgorithm;
 import org.knime.knip.core.data.algebra.RealVector;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -73,7 +73,7 @@ public class PolygonTools {
 
     /**
      * Retrieves all positions of a line at the given position, specified direction and radius.
-     * 
+     *
      * @param pos the center position (2 dim!)
      * @param dir the direction (2 dim!)
      * @param radius the radius
@@ -121,14 +121,14 @@ public class PolygonTools {
     /**
      * Extracts a polygon of a 2D binary image using the Square Tracing Algorithm (be aware of its drawbacks, e.g. if
      * the pattern is 4-connected!)
-     * 
+     *
      * @param img the image, note that only the first and second dimension are taken into account
      * @param offset an offset for the points to be set in the new polygon
      * @return
      */
     public static Polygon extractPolygon(final RandomAccessibleInterval<BitType> img, final int[] offset) {
         final RandomAccess<BitType> cur =
-                new ExtendedRandomAccessibleInterval<BitType, RandomAccessibleInterval<BitType>>(img,
+               Views.extend(img,
                         new OutOfBoundsConstantValueFactory<BitType, RandomAccessibleInterval<BitType>>(new BitType(
                                 false))).randomAccess();
         boolean start = false;

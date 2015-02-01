@@ -80,6 +80,7 @@ import org.knime.knip.core.types.NativeTypes;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
+@Deprecated
 public class ImgExt1 implements Externalizer<Img> {
 
     /**
@@ -395,7 +396,7 @@ public class ImgExt1 implements Externalizer<Img> {
                 final Cursor<Unsigned12BitType> unsigned12BitTypeCursor = (Cursor<Unsigned12BitType>)cur;
                 while (cur.hasNext()) {
                     cur.fwd();
-                    out.writeShort(unsigned12BitTypeCursor.get().get());
+                    out.writeLong(unsigned12BitTypeCursor.get().get());
                 }
                 break;
             case UNSIGNEDBYTETYPE:

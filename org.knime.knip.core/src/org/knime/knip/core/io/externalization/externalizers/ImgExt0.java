@@ -389,7 +389,7 @@ public class ImgExt0 implements Externalizer<Img> {
                 final Cursor<Unsigned12BitType> unsigned12BitTypeCursor = (Cursor<Unsigned12BitType>)cur;
                 while (cur.hasNext()) {
                     cur.fwd();
-                    out.writeShort(unsigned12BitTypeCursor.get().get());
+                    out.writeLong(unsigned12BitTypeCursor.get().get());
                 }
                 break;
             case UNSIGNEDBYTETYPE:

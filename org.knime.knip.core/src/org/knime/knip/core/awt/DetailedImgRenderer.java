@@ -52,15 +52,16 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 
+import net.imagej.ImgPlusMetadata;
+import net.imagej.Sourced;
+import net.imagej.axis.TypedAxis;
+import net.imagej.space.TypedSpace;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.display.screenimage.awt.ARGBScreenImage;
 import net.imglib2.display.screenimage.awt.AWTScreenImage;
-import net.imglib2.meta.ImgPlusMetadata;
-import net.imglib2.meta.Named;
-import net.imglib2.meta.Sourced;
-import net.imglib2.meta.TypedAxis;
-import net.imglib2.meta.TypedSpace;
 import net.imglib2.type.Type;
+
+import org.scijava.Named;
 
 /**
  *

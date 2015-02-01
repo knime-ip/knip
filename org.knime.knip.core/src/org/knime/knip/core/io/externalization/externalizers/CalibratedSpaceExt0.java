@@ -48,8 +48,9 @@
  */
 package org.knime.knip.core.io.externalization.externalizers;
 
-import net.imglib2.meta.Axes;
-import net.imglib2.meta.axis.DefaultLinearAxis;
+
+import net.imagej.axis.Axes;
+import net.imagej.axis.DefaultLinearAxis;
 
 import org.knime.knip.core.data.img.CalibratedAxisSpace;
 import org.knime.knip.core.data.img.DefaultCalibratedAxisSpace;
@@ -58,15 +59,14 @@ import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
 import org.knime.knip.core.io.externalization.Externalizer;
 
 /**
- * 
+ *
  * Former serialization of CalibratedSpace. Only supporting de-serialization of DefaultLinearSpace. Use proper
  * implementations for CalibratedSpaces (see e.g. LinearSpaceExt0.java)
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-@Deprecated
 public class CalibratedSpaceExt0 implements Externalizer<CalibratedAxisSpace> {
 
     /**

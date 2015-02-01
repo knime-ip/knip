@@ -95,8 +95,6 @@ package org.knime.knip.core.ui.imgviewer;
  *  when such Node is propagated with or for interoperation with KNIME.
  * ------------------------------------------------------------------------
  *
- * History
- *   29 Jan 2010 (hornm): created
  */
 
 import java.awt.BorderLayout;
@@ -107,13 +105,13 @@ import java.util.List;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
+import net.imagej.ImgPlus;
+import net.imagej.ImgPlusMetadata;
+import net.imagej.space.DefaultCalibratedSpace;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgView;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingView;
-import net.imglib2.meta.DefaultCalibratedSpace;
-import net.imglib2.meta.ImgPlus;
-import net.imglib2.meta.ImgPlusMetadata;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 
@@ -281,8 +279,6 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
             img2d = new ImgView<T>(Views.addDimension(img, 0, 0), img.factory());
             meta = new DefaultImgMetadata(2);
         }
-
-        //TODO special case: we have an imgview with an underlying img as source which has the same dimensions
 
         m_eventService.publish(new ImgWithMetadataChgEvent<T>(img2d, meta));
         m_eventService.publish(new ImgRedrawEvent());

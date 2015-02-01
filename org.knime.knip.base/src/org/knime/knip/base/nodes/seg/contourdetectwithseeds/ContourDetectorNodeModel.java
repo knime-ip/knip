@@ -76,6 +76,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import net.imagej.ImgPlus;
 import net.imglib2.Cursor;
 import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
@@ -83,12 +84,11 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingView;
-import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.iterableinterval.unary.Centroid;
-import net.imglib2.sampler.special.ConstantRandomAccessible;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.ConstantUtils;
 import net.imglib2.view.Views;
 
 import org.knime.core.data.DataRow;
@@ -132,7 +132,7 @@ import org.knime.knip.core.ops.labeling.PartialProjectionNodeTools;
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -362,7 +362,7 @@ public class ContourDetectorNodeModel<T extends RealType<T>, L extends Comparabl
                     final double[] centroidAsDouble =
                             centroidOp
                                     .compute(subLabeling.getIterableRegionOfInterest(label)
-                                                     .getIterableIntervalOverROI(new ConstantRandomAccessible<BitType>(
+                                                     .getIterableIntervalOverROI(ConstantUtils.constantRandomAccessible(
                                                                                          new BitType(), subLabeling
                                                                                                  .numDimensions())),
                                              new double[subLabeling.numDimensions()]);

@@ -59,11 +59,11 @@ import java.util.regex.Pattern;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import net.imagej.axis.CalibratedAxis;
 import net.imglib2.IterableInterval;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingMapping;
 import net.imglib2.labeling.LabelingType;
-import net.imglib2.meta.CalibratedAxis;
 
 import org.knime.base.util.WildcardMatcher;
 import org.knime.core.data.DataCell;

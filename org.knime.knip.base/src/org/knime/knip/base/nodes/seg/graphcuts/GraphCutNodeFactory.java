@@ -53,8 +53,8 @@ import java.util.List;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import net.imagej.ImgPlus;
 import net.imglib2.img.Img;
-import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.type.logic.BitType;

@@ -51,13 +51,11 @@ package org.knime.knip.base.nodes.metadata.setimgmetadata;
 import java.io.File;
 import java.io.IOException;
 
-import net.imglib2.meta.Axes;
-import net.imglib2.meta.DefaultCalibratedSpace;
-import net.imglib2.meta.DefaultNamed;
-import net.imglib2.meta.DefaultSourced;
-import net.imglib2.meta.ImgPlus;
-import net.imglib2.meta.ImgPlusMetadata;
-import net.imglib2.meta.axis.DefaultLinearAxis;
+import net.imagej.ImgPlus;
+import net.imagej.ImgPlusMetadata;
+import net.imagej.axis.Axes;
+import net.imagej.axis.DefaultLinearAxis;
+import net.imagej.space.DefaultCalibratedSpace;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.data.DataCell;
@@ -87,10 +85,12 @@ import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.NodeUtils;
+import org.knime.knip.core.data.DefaultNamed;
+import org.knime.knip.core.data.DefaultSourced;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>

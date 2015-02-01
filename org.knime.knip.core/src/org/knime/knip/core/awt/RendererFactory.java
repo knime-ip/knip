@@ -52,9 +52,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import net.imagej.ImageMetadata;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.labeling.Labeling;
-import net.imglib2.meta.ImageMetadata;
 import net.imglib2.type.Type;
 import net.imglib2.type.numeric.RealType;
 

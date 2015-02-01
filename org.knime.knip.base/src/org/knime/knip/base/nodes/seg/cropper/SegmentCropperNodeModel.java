@@ -54,6 +54,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import net.imagej.ImgPlus;
+import net.imagej.ImgPlusMetadata;
 import net.imglib2.Cursor;
 import net.imglib2.FinalInterval;
 import net.imglib2.IterableInterval;
@@ -66,11 +68,8 @@ import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingView;
 import net.imglib2.labeling.NativeImgLabeling;
-import net.imglib2.meta.DefaultNamed;
-import net.imglib2.meta.DefaultSourced;
-import net.imglib2.meta.ImgPlus;
-import net.imglib2.meta.ImgPlusMetadata;
 import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.operation.img.unary.ImgCopyOperation;
 import net.imglib2.ops.operation.iterable.unary.Fill;
 import net.imglib2.roi.IterableRegionOfInterest;
 import net.imglib2.type.logic.BitType;
@@ -106,6 +105,8 @@ import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.node.nodesettings.SettingsModelFilterSelection;
+import org.knime.knip.core.data.DefaultNamed;
+import org.knime.knip.core.data.DefaultSourced;
 import org.knime.knip.core.data.img.DefaultImageMetadata;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
 import org.knime.knip.core.data.img.LabelingMetadata;
@@ -386,18 +387,19 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
                         res = fac.create(new FinalInterval(min, max), type.createVariable());
                         writeInRes(res, img, roi);
                     } else {
-                        res = new ImgView<T>(Views.zeroMin(Views.interval(img, min, max)), fac);
+                        res = fac.create(new FinalInterval(min, max), type.createVariable());
+                        new ImgCopyOperation()
+                                .compute(new ImgView<T>(Views.zeroMin(Views.interval(img, min, max)), fac),
+                                         Views.flatIterable(res));
                     }
 
                 } else {
-                    res =
-                            new ImgView<T>(
-                                    Views.zeroMin((RandomAccessibleInterval<T>)Views.interval(Views.raster(roi),
-                                                                                              new FinalInterval(min,
-                                                                                                      max))), fac);
+                    res = (Img<T>)fac.imgFactory(new BitType()).create(new FinalInterval(min, max), new BitType());
+                    new ImgCopyOperation().compute(new ImgView<T>(Views.zeroMin((RandomAccessibleInterval<T>)Views
+                                                           .interval(Views.raster(roi), new FinalInterval(min, max))),
+                                                           fac), Views.flatIterable(res));
                 }
 
-                res.firstElement().getRealDouble();
                 final List<DataCell> cells = new ArrayList<DataCell>();
 
                 // TODO: What about color tables?

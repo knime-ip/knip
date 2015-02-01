@@ -52,11 +52,11 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import net.imagej.axis.TypedAxis;
+import net.imagej.space.TypedSpace;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccess;
 import net.imglib2.labeling.LabelingType;
-import net.imglib2.meta.TypedAxis;
-import net.imglib2.meta.TypedSpace;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 
@@ -65,9 +65,9 @@ import org.knime.knip.core.ui.imgviewer.events.ImgAndLabelingChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 
 /**
- * 
- * 
- * 
+ *
+ *
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>

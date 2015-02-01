@@ -53,8 +53,8 @@ import java.awt.RenderingHints;
 
 import javax.swing.Icon;
 
-import net.imglib2.meta.ImgPlus;
-import net.imglib2.meta.ImgPlusMetadata;
+import net.imagej.ImgPlus;
+import net.imagej.ImgPlusMetadata;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.data.DataColumnSpec;

@@ -50,7 +50,7 @@ package org.knime.knip.base.nodes.proc;
 
 import java.util.List;
 
-import net.imglib2.meta.ImgPlus;
+import net.imagej.ImgPlus;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 

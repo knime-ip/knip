@@ -48,8 +48,8 @@
  */
 package org.knime.knip.base.nodes.features;
 
+import net.imagej.space.CalibratedSpace;
 import net.imglib2.IterableInterval;
-import net.imglib2.meta.CalibratedSpace;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.ValuePair;
 
@@ -63,8 +63,8 @@ import org.knime.knip.base.nodes.features.providers.TamuraFeatureSetProvider;
 /**
  * Node calculating features on segments and the associated image. New features can easily be added by providing a new
  * {@link FeatureSetProvider}.
- * 
- * 
+ *
+ *
  * @param <L>
  * @param <T>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>

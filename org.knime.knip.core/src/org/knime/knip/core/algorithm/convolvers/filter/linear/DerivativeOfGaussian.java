@@ -27,14 +27,11 @@
  */
 package org.knime.knip.core.algorithm.convolvers.filter.linear;
 
-import net.imglib2.Interval;
-import net.imglib2.IterableRealInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImg;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.img.basictypeaccess.DoubleAccess;
 import net.imglib2.img.basictypeaccess.array.DoubleArray;
-import net.imglib2.img.list.ListImg;
 import net.imglib2.ops.img.BinaryOperationAssignment;
 import net.imglib2.ops.img.UnaryConstantRightAssignment;
 import net.imglib2.ops.img.UnaryOperationAssignment;
@@ -45,17 +42,19 @@ import net.imglib2.ops.operation.real.binary.RealAdd;
 import net.imglib2.ops.operation.real.binary.RealMultiply;
 import net.imglib2.ops.operation.real.unary.RealExp;
 import net.imglib2.type.numeric.real.DoubleType;
+import net.imglib2.util.Fraction;
 
 /**
  * An implementation of dog filters.
- * 
+ *
  * @author Roy Liu, hornm
  */
 public class DerivativeOfGaussian extends ArrayImg<DoubleType, DoubleAccess> {
 
     public DerivativeOfGaussian(final int supportRadius, final double theta, final double scale, final int ord) {
         super(new DoubleArray(ArrayImgFactory.numEntitiesRangeCheck(new long[]{supportRadius * 2 + 1,
-                supportRadius * 2 + 1}, 1)), new long[]{supportRadius * 2 + 1, supportRadius * 2 + 1}, 1);
+                supportRadius * 2 + 1}, new Fraction(1, 1))), new long[]{supportRadius * 2 + 1, supportRadius * 2 + 1},
+                new Fraction(1, 1));
 
         // create a Type that is linked to the container
         final DoubleType linkedType = new DoubleType(this);
@@ -107,29 +106,6 @@ public class DerivativeOfGaussian extends ArrayImg<DoubleType, DoubleAccess> {
                 break;
         }
 
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean equalIterationOrder(final IterableRealInterval<?> f) {
-        if (f.numDimensions() != this.numDimensions()) {
-            return false;
-        }
-
-        if (ArrayImg.class.isInstance(f) || ListImg.class.isInstance(f)) {
-            final Interval a = (Interval)f;
-            for (int d = 0; d < n; ++d) {
-                if (dimension[d] != a.dimension(d)) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        return false;
     }
 
     /**

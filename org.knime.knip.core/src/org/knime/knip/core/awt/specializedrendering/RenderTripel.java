@@ -60,13 +60,13 @@ import net.imglib2.display.screenimage.awt.AWTScreenImage;
  */
 class RenderTripel {
 
-    private AbstractProjector2D<?, ?> m_projector;
+    private AbstractProjector2D m_projector;
 
     private AWTScreenImage m_img;
 
     private boolean m_successfull;
 
-    RenderTripel(final AbstractProjector2D<?, ?> projector, final AWTScreenImage img) {
+    RenderTripel(final AbstractProjector2D projector, final AWTScreenImage img) {
         this.m_projector = projector;
         this.m_img = img;
         this.m_successfull = true;
@@ -86,7 +86,7 @@ class RenderTripel {
     /**
      * @return the m_projector
      */
-    public AbstractProjector2D<?, ?> getProjector() {
+    public AbstractProjector2D getProjector() {
         return m_projector;
     }
 

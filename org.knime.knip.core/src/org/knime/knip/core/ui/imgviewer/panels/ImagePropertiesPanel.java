@@ -58,10 +58,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
+import net.imagej.ImgPlus;
+import net.imagej.axis.TypedAxis;
+import net.imagej.space.TypedSpace;
 import net.imglib2.IterableInterval;
-import net.imglib2.meta.ImgPlus;
-import net.imglib2.meta.TypedAxis;
-import net.imglib2.meta.TypedSpace;
 import net.imglib2.type.Type;
 
 import org.knime.knip.core.ui.event.EventListener;

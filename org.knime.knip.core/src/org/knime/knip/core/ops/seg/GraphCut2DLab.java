@@ -65,9 +65,9 @@ import net.imglib2.ops.operation.BinaryObjectFactory;
 import net.imglib2.ops.operation.BinaryOutputOperation;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.iterableinterval.unary.MakeHistogram;
-import net.imglib2.sampler.special.ConstantRandomAccessible;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.ConstantUtils;
 import net.imglib2.util.IntervalIndexer;
 
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter;
@@ -165,7 +165,7 @@ public class GraphCut2DLab<T extends RealType<T>, L extends Comparable<L>> imple
 
             final Cursor<T> roiCursor =
                     labeling.getIterableRegionOfInterest(label)
-                            .getIterableIntervalOverROI(new ConstantRandomAccessible<T>(src.firstElement(), labeling
+                            .getIterableIntervalOverROI(ConstantUtils.constantRandomAccessible(src.firstElement(), labeling
                                                                 .numDimensions())).localizingCursor();
 
             final RandomAccess<T> srcRA = src.randomAccess();

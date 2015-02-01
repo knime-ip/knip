@@ -126,7 +126,7 @@ public class FastNormalizingGreyRendering {
                           final long[] planePos, final double normalizationFactor, final double min) {
 
         if ((dimX == 0) && (dimY == 1) && (source instanceof ArrayImg)) {
-            AbstractProjector2D<?, ?> projector;
+            AbstractProjector2D projector;
             AWTScreenImage target;
             final NativeTypes type = NativeTypes.getPixelType(source.randomAccess().get());
 
@@ -165,7 +165,7 @@ public class FastNormalizingGreyRendering {
                                                                        final double min) {
 
         if ((dimX == 0) && (dimY == 1) && (source instanceof PlanarImg)) {
-            AbstractProjector2D<?, ?> projector;
+            AbstractProjector2D projector;
             AWTScreenImage target;
             final NativeTypes type = NativeTypes.getPixelType(source.randomAccess().get());
 

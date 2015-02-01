@@ -1,7 +1,7 @@
 package org.knime.knip.core.ui.imgviewer.annotator.events;
 
+import net.imagej.ImgPlusMetadata;
 import net.imglib2.img.Img;
-import net.imglib2.meta.ImgPlusMetadata;
 import net.imglib2.type.Type;
 
 import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;

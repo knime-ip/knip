@@ -51,10 +51,10 @@ package org.knime.knip.base.nodes.seg;
 import java.io.IOException;
 import java.util.List;
 
+import net.imagej.ImgPlus;
 import net.imglib2.exception.IncompatibleTypeException;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.NativeImgLabeling;
-import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.labeling.unary.LabelingToImg;
 import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.type.numeric.RealType;

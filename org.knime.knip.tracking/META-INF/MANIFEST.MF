@@ -11,10 +11,15 @@ Require-Bundle: org.knime.base;bundle-version="[2.10.0,3.0.0)",
  org.eclipse.core.runtime,
  org.eclipse.ui,
  org.knime.knip.core;bundle-version="[1.2.0,2.0.0)",
- org.knime.knip.base;bundle-version="[1.2.0,2.0.0)"
+ org.knime.knip.base;bundle-version="[1.2.0,2.0.0)",
+ imagej-common;bundle-version="0.12.0",
+ imglib2;bundle-version="2.2.0",
+ imglib2-realtransform;bundle-version="2.0.0",
+ imglib2-roi;bundle-version="0.2.1",
+ imglib2-algorithm;bundle-version="0.2.0",
+ scijava-common;bundle-version="2.36.0",
+ knip-tmp-imglib2-ops;bundle-version="0.1.4",
+ knip-trackmate-fork;bundle-version="2.7.1"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Bundle-ClassPath: kniptracking.jar,
- lib/jgrapht_0.8.3.jar,
- lib/jama-1.0.2.jar,
- lib/TrackMate-2.5.1-KNIP-SNAPSHOT.jar
+Bundle-ClassPath: kniptracking.jar
 

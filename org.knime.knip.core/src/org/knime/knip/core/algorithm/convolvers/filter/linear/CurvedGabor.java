@@ -28,14 +28,12 @@
 package org.knime.knip.core.algorithm.convolvers.filter.linear;
 
 import net.imglib2.Cursor;
-import net.imglib2.Interval;
-import net.imglib2.IterableRealInterval;
 import net.imglib2.img.array.ArrayImg;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.img.basictypeaccess.FloatAccess;
 import net.imglib2.img.basictypeaccess.array.FloatArray;
-import net.imglib2.img.list.ListImg;
 import net.imglib2.type.numeric.real.FloatType;
+import net.imglib2.util.Fraction;
 
 public class CurvedGabor extends ArrayImg<FloatType, FloatAccess> {
 
@@ -48,7 +46,8 @@ public class CurvedGabor extends ArrayImg<FloatType, FloatAccess> {
                        final double curveRadius, final double sigmaxSqrt, final double sigmaySqrt,
                        final boolean complexPart) {
         super(new FloatArray(ArrayImgFactory.numEntitiesRangeCheck(new long[]{supportRadius * 2 + 1,
-                supportRadius * 2 + 1}, 1)), new long[]{supportRadius * 2 + 1, supportRadius * 2 + 1}, 1);
+                supportRadius * 2 + 1}, new Fraction(1, 1))), new long[]{supportRadius * 2 + 1, supportRadius * 2 + 1},
+                new Fraction(1, 1));
         setLinkedType(new FloatType(this));
         final Cursor<FloatType> cur = cursor();
         while (cur.hasNext()) {
@@ -76,33 +75,4 @@ public class CurvedGabor extends ArrayImg<FloatType, FloatAccess> {
             cur.get().setReal(exp * fac);
         }
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean equalIterationOrder(final IterableRealInterval<?> f) {
-        if (f.numDimensions() != this.numDimensions()) {
-            return false;
-        }
-        if (ArrayImg.class.isInstance(f) || ListImg.class.isInstance(f)) {
-            final Interval a = (Interval)f;
-            for (int d = 0; d < n; ++d) {
-                if (dimension[d] != a.dimension(d)) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-        return false;
-    }
-
-    // public static void main(String[] args) {
-    // CurvedGabor g = new CurvedGabor(50, 0, 25, Math.PI / 2, 25, 50, 100,
-    // true);
-    // FilterTools.print2DMatrix(g);
-    // new ImgNormalize<FloatType>(g.factory()).compute(g, g);
-    // AWTImageTools.showInFrame(g, "", 10);
-    // }
 }

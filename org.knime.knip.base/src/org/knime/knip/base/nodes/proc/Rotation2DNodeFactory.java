@@ -53,7 +53,7 @@ import java.util.List;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.imglib2.meta.ImgPlus;
+import net.imagej.ImgPlus;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.img.unary.ImgRotate2D;
 import net.imglib2.ops.operation.iterable.unary.Min;

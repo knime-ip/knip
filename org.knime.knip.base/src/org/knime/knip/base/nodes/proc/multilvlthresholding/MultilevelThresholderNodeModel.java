@@ -50,7 +50,7 @@ package org.knime.knip.base.nodes.proc.multilvlthresholding;
 
 import java.util.List;
 
-import net.imglib2.meta.ImgPlus;
+import net.imagej.ImgPlus;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.ops.operation.iterableinterval.unary.multilevelthresholder.MultilevelThresholderOp;

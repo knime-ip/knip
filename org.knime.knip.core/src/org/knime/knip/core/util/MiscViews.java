@@ -51,28 +51,24 @@ package org.knime.knip.core.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.imglib2.Cursor;
+import net.imagej.ImgPlus;
+import net.imagej.axis.DefaultTypedAxis;
+import net.imagej.axis.TypedAxis;
+import net.imagej.space.DefaultTypedSpace;
+import net.imagej.space.TypedSpace;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.img.ImgView;
-import net.imglib2.img.constant.ConstantCursor;
 import net.imglib2.labeling.LabelingFactory;
 import net.imglib2.labeling.LabelingType;
 import net.imglib2.labeling.LabelingView;
-import net.imglib2.meta.DefaultTypedAxis;
-import net.imglib2.meta.DefaultTypedSpace;
-import net.imglib2.meta.ImgPlus;
-import net.imglib2.meta.MetadataUtil;
-import net.imglib2.meta.TypedAxis;
-import net.imglib2.meta.TypedSpace;
 import net.imglib2.ops.operation.SubsetOperations;
-import net.imglib2.sampler.special.ConstantRandomAccessible;
+import net.imglib2.ops.util.MetadataUtil;
 import net.imglib2.type.Type;
 import net.imglib2.util.Intervals;
 import net.imglib2.view.IntervalView;
-import net.imglib2.view.IterableRandomAccessibleInterval;
 import net.imglib2.view.Views;
 
 /**
@@ -83,28 +79,6 @@ import net.imglib2.view.Views;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 public class MiscViews {
-
-    public synchronized static <T extends Type<T>> IterableRandomAccessibleInterval<T>
-            constant(final T constant, final Interval interval) {
-
-        final long[] dimensions = new long[interval.numDimensions()];
-        interval.dimensions(dimensions);
-
-        return new IterableRandomAccessibleInterval<T>((Views.interval(new ConstantRandomAccessible<T>(constant,
-                interval.numDimensions()), interval))) {
-            @Override
-            public Cursor<T> cursor() {
-                return new ConstantCursor<T>(constant, interval.numDimensions(), dimensions,
-                        Intervals.numElements(interval));
-            }
-
-            @Override
-            public Cursor<T> localizingCursor() {
-                return cursor();
-            }
-        };
-
-    }
 
     /**
      * removes dimensions of size 1 if any.

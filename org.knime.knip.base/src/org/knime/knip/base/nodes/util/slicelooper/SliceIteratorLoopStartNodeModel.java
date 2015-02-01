@@ -55,14 +55,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.imagej.ImgPlus;
+import net.imagej.ImgPlusMetadata;
+import net.imagej.axis.CalibratedAxis;
+import net.imagej.space.CalibratedSpace;
 import net.imglib2.Interval;
 import net.imglib2.img.Img;
 import net.imglib2.labeling.Labeling;
-import net.imglib2.meta.CalibratedAxis;
-import net.imglib2.meta.CalibratedSpace;
-import net.imglib2.meta.ImgPlus;
-import net.imglib2.meta.ImgPlusMetadata;
-import net.imglib2.meta.MetadataUtil;
+import net.imglib2.ops.util.MetadataUtil;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 

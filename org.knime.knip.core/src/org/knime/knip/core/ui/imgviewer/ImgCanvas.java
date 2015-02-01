@@ -69,6 +69,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.Arrays;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -92,7 +93,6 @@ import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewZoomfactorChgEvent;
 import org.knime.knip.core.ui.imgviewer.panels.MinimapPanel;
 
-import edu.mines.jtk.util.Array;
 
 /**
  *
@@ -368,7 +368,7 @@ public class ImgCanvas<T extends Type<T>, I extends IterableInterval<T> & Random
     public void onCalibrationUpdateEvent(final CalibrationUpdateEvent e) {
         double[] newFactors =
                 new double[]{e.getScaleFactors()[e.getSelectedDims()[0]], e.getScaleFactors()[e.getSelectedDims()[1]],};
-        if (Array.equal(newFactors, m_scaleFactors)) {
+        if (Arrays.equals(newFactors, m_scaleFactors)) {
             return;
         }
         m_scaleFactors = newFactors;

@@ -98,7 +98,7 @@ public class Real2TableColorRenderer<R extends RealType<R>> extends ProjectingRe
 
             int maxDim = source.numDimensions() - 1;
 
-            for (int j = maxDim; j >=0; --j) {
+            for (int j = maxDim; j >= 0; --j) {
                 if (j != dimX && j != dimY) {
                     maxDim = j;
                     break;
@@ -141,9 +141,8 @@ public class Real2TableColorRenderer<R extends RealType<R>> extends ProjectingRe
     }
 
     @Override
-    protected AbstractProjector2D<R, ARGBType> getProjector(final int dimX, final int dimY,
-                                                            final RandomAccessibleInterval<R> source,
-                                                            final ARGBScreenImage target) {
+    protected AbstractProjector2D getProjector(final int dimX, final int dimY,
+                                               final RandomAccessibleInterval<R> source, final ARGBScreenImage target) {
 
         return new IterableIntervalProjector2D<R, ARGBType>(dimX, dimY, source, target, m_converter);
     }

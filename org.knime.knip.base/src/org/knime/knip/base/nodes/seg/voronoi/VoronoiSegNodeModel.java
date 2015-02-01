@@ -55,11 +55,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import net.imagej.ImgPlus;
 import net.imglib2.Cursor;
 import net.imglib2.img.Img;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingType;
-import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.BinaryOperation;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.VoronoiLikeRegionGrowing;

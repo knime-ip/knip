@@ -405,10 +405,10 @@ public final class AWTImageTools {
 
         return AWTImageTools
                 .makeBuffered(renderer
-                        .render(Views.interval(RealViews.constantAffine(Views.interpolate(Views.extend(img,
-                                                                                                       new OutOfBoundsBorderFactory<T, RandomAccessibleInterval<T>>()),
-                                                                                          new NearestNeighborInterpolatorFactory<T>()),
-                                                                        transform), interval), 0, 1, startPos).image());
+                        .render(Views.interval(RealViews.affine(Views.interpolate(Views.extend(img,
+                                                                                               new OutOfBoundsBorderFactory<T, RandomAccessibleInterval<T>>()),
+                                                                                  new NearestNeighborInterpolatorFactory<T>()),
+                                                                transform), interval), 0, 1, startPos).image());
 
     }
 

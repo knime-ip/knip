@@ -75,19 +75,19 @@ import java.util.List;
 import java.util.Set;
 
 import loci.formats.FormatHandler;
+import net.imagej.ImgPlus;
+import net.imagej.axis.Axes;
+import net.imagej.axis.AxisType;
+import net.imagej.axis.CalibratedAxis;
+import net.imagej.axis.TypedAxis;
 import net.imglib2.Cursor;
-import net.imglib2.Pair;
 import net.imglib2.RandomAccess;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.img.cell.CellImgFactory;
-import net.imglib2.meta.Axes;
-import net.imglib2.meta.AxisType;
-import net.imglib2.meta.CalibratedAxis;
-import net.imglib2.meta.ImgPlus;
-import net.imglib2.meta.TypedAxis;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.Pair;
 import ome.xml.model.OMEModelImpl;
 import ome.xml.model.enums.handlers.DetectorTypeEnumHandler;
 

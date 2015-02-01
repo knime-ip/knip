@@ -51,6 +51,7 @@ package org.knime.knip.base.nodes.proc.spotdetection;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import net.imagej.ImgPlus;
 import net.imglib2.Cursor;
 import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccess;
@@ -58,7 +59,6 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.exception.IncompatibleTypeException;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;

@@ -57,21 +57,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import net.imagej.ImgPlus;
+import net.imagej.ImgPlusMetadata;
+import net.imagej.space.CalibratedSpace;
 import net.imglib2.IterableInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgView;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingView;
-import net.imglib2.meta.CalibratedSpace;
-import net.imglib2.meta.ImgPlus;
-import net.imglib2.meta.ImgPlusMetadata;
-import net.imglib2.meta.MetadataUtil;
 import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.util.MetadataUtil;
 import net.imglib2.roi.IterableRegionOfInterest;
-import net.imglib2.sampler.special.ConstantRandomAccessible;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.ConstantUtils;
 import net.imglib2.util.ValuePair;
 import net.imglib2.view.Views;
 
@@ -367,8 +367,8 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
 
                 if (img == null) {
                     ii =
-                            labelRoi.getIterableIntervalOverROI(new ConstantRandomAccessible<T>((T)new BitType(),
-                                    labeling.numDimensions()));
+                            labelRoi.getIterableIntervalOverROI(ConstantUtils
+                                    .constantRandomAccessible((T)new BitType(), labeling.numDimensions()));
                 } else {
                     ii = labelRoi.getIterableIntervalOverROI(img);
                 }
@@ -377,8 +377,9 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
 
                     final Img<BitType> bitMask =
                             new ImgView<BitType>(Views.zeroMin(Views.interval(Views.raster(labelRoi), labelRoi
-                                    .getIterableIntervalOverROI(new ConstantRandomAccessible<BitType>(new BitType(),
-                                            labeling.numDimensions())))), new ArrayImgFactory<BitType>());
+                                    .getIterableIntervalOverROI(ConstantUtils
+                                            .constantRandomAccessible(new BitType(), labeling.numDimensions())))),
+                                    new ArrayImgFactory<BitType>());
 
                     // min
                     final long[] min = new long[ii.numDimensions()];

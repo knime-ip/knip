@@ -48,15 +48,15 @@
  */
 package org.knime.knip.core.io.externalization.externalizers;
 
-import net.imglib2.meta.DefaultSourced;
-import net.imglib2.meta.Sourced;
+import net.imagej.Sourced;
 
+import org.knime.knip.core.data.DefaultSourced;
 import org.knime.knip.core.io.externalization.BufferedDataInputStream;
 import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
 import org.knime.knip.core.io.externalization.Externalizer;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>

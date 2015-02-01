@@ -52,10 +52,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Map.Entry;
 
+import net.imagej.ImageMetadata;
 import net.imglib2.display.ColorTable;
 import net.imglib2.display.ColorTable16;
 import net.imglib2.display.ColorTable8;
-import net.imglib2.meta.ImageMetadata;
 
 import org.knime.knip.core.data.img.DefaultImageMetadata;
 import org.knime.knip.core.io.externalization.BufferedDataInputStream;

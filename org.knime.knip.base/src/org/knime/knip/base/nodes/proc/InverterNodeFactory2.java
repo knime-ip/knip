@@ -50,10 +50,10 @@ package org.knime.knip.base.nodes.proc;
 
 import java.util.List;
 
+import net.imagej.ImgPlus;
 import net.imglib2.IterableInterval;
 import net.imglib2.converter.read.ConvertedRandomAccessibleInterval;
 import net.imglib2.img.ImgView;
-import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.img.UnaryOperationBasedConverter;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.UnaryOperation;

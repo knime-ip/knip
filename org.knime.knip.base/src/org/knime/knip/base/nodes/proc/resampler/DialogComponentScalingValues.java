@@ -56,7 +56,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import net.imglib2.meta.TypedAxis;
+import net.imagej.axis.TypedAxis;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NotConfigurableException;

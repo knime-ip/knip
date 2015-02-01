@@ -58,6 +58,7 @@ import java.util.Map;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import net.imagej.ImgPlus;
 import net.imglib2.Cursor;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
@@ -65,7 +66,6 @@ import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingMapping;
 import net.imglib2.labeling.LabelingType;
 import net.imglib2.labeling.NativeImgLabeling;
-import net.imglib2.meta.ImgPlus;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.IntegerType;
 

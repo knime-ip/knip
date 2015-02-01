@@ -50,13 +50,13 @@ package org.knime.knip.base.nodes.proc;
 
 import java.util.List;
 
+import net.imagej.ImgPlus;
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.exception.IncompatibleTypeException;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.img.ImgView;
-import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.img.UnaryObjectFactory;
 import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.HDomeTransformation;

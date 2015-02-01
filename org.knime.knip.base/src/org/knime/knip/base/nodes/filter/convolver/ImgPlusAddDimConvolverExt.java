@@ -57,13 +57,13 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import net.imagej.ImgPlus;
+import net.imagej.axis.Axes;
+import net.imagej.axis.DefaultLinearAxis;
 import net.imglib2.exception.IncompatibleTypeException;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.meta.Axes;
-import net.imglib2.meta.ImgPlus;
-import net.imglib2.meta.axis.DefaultLinearAxis;
 import net.imglib2.ops.operation.BinaryObjectFactory;
 import net.imglib2.ops.operation.BinaryOutputOperation;
 import net.imglib2.type.NativeType;
