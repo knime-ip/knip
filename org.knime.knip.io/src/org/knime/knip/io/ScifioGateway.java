@@ -70,6 +70,7 @@ import org.eclipse.osgi.internal.loader.BundleLoader;
 import org.eclipse.osgi.service.resolver.BundleSpecification;
 import org.knime.knip.io.extensionpoint.IFormatReaderExtPointManager;
 import org.knime.knip.io.extensionpoint.ScifioFormatReaderExtPointManager;
+import org.osgi.framework.Bundle;
 import org.scijava.Context;
 import org.scijava.plugin.DefaultPluginFinder;
 import org.scijava.plugin.PluginIndex;
@@ -181,35 +182,39 @@ public class ScifioGateway {
     }
     
 
-	class ResourceAwareClassLoader extends ClassLoader {
 
-		final ArrayList<URL> urls = new ArrayList<URL>();
+    class ResourceAwareClassLoader extends ClassLoader {
 
-		public ResourceAwareClassLoader(DefaultClassLoader contextClassLoader) {
-			super(contextClassLoader);
+        final ArrayList<URL> urls = new ArrayList<URL>();
 
-			for (BundleSpecification bundle : ((BundleLoader) contextClassLoader
-					.getDelegate()).getBundle().getBundleDescription()
-					.getRequiredBundles()) {
+        public ResourceAwareClassLoader(final DefaultClassLoader contextClassLoader) {
+            super(contextClassLoader);
 
-				URL resource = org.eclipse.core.runtime.Platform.getBundle(
-						bundle.getName()).getResource(
-						"META-INF/json/org.scijava.plugin.Plugin");
+            for (BundleSpecification bundleSpec : ((BundleLoader)contextClassLoader.getDelegate()).getBundle()
+                    .getBundleDescription().getRequiredBundles()) {
 
-				if (resource != null) {
-					urls.add(resource);
-					System.out.println(bundle.getName());
-				}
-			}
-		}
+                final Bundle bundle = org.eclipse.core.runtime.Platform.getBundle(bundleSpec.getName());
+                final URL resource = bundle.getResource("META-INF/json/org.scijava.plugin.Plugin");
 
-		@Override
-		public Enumeration<URL> getResources(String name) throws IOException {
-			if (!name.startsWith("META-INF/json")) {
-				return Collections.emptyEnumeration();
-			}
-			urls.addAll(Collections.list(super.getResources(name)));
-			return Collections.enumeration(urls);
-		}
-	}
+                if (resource == null) {
+                    continue;
+                }
+
+                // we want to avoid transitive resolving of dependencies
+                final String host = resource.getHost();
+                if (bundle.getBundleId() == Long.valueOf(host.substring(0, host.indexOf(".")))) {
+                    urls.add(resource);
+                }
+            }
+        }
+
+        @Override
+        public Enumeration<URL> getResources(final String name) throws IOException {
+            if (!name.startsWith("META-INF/json")) {
+                return Collections.emptyEnumeration();
+            }
+            urls.addAll(Collections.list(super.getResources(name)));
+            return Collections.enumeration(urls);
+        }
+    }
 }
