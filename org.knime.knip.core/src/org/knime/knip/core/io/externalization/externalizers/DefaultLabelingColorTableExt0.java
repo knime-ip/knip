@@ -48,15 +48,15 @@
  */
 package org.knime.knip.core.io.externalization.externalizers;
 
-import org.apache.mahout.math.list.IntArrayList;
-import org.apache.mahout.math.map.AbstractIntIntMap;
+import gnu.trove.map.hash.TIntIntHashMap;
+
 import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
 import org.knime.knip.core.io.externalization.BufferedDataInputStream;
 import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
 import org.knime.knip.core.io.externalization.Externalizer;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -111,13 +111,13 @@ public class DefaultLabelingColorTableExt0 implements Externalizer<DefaultLabeli
     @Override
     public void write(final BufferedDataOutputStream out, final DefaultLabelingColorTable obj) throws Exception {
 
-        AbstractIntIntMap table = obj.getColorTable();
+        TIntIntHashMap table = obj.getColorTable();
         int size = 0;
         out.writeInt(size = table.size());
-        IntArrayList keys = table.keys();
+        int[] keys = table.keys();
 
         for (int i = 0; i < size; i++) {
-            int key = keys.get(i);
+            int key = keys[i];
             out.writeInt(key);
             out.writeInt(table.get(key));
         }

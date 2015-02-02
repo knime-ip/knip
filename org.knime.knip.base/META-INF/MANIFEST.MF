@@ -12,7 +12,6 @@ Require-Bundle: org.knime.base;bundle-version="[2.10.0,3.0.0)",
  org.knime.knip.core;bundle-version="[1.2.0,1.4.0)",
  imglib2;bundle-version="2.2.0",
  imglib2-roi;bundle-version="0.2.1",
- knip-imglib2-ops;bundle-version="0.1.3",
  imagej-common;bundle-version="0.12.0",
  imglib2-algorithm-gpl,
  org.apache.commons.math3;bundle-version="3.2.0",
@@ -22,7 +21,8 @@ Require-Bundle: org.knime.base;bundle-version="[2.10.0,3.0.0)",
  imglib2-algorithm-fft;bundle-version="0.1.1",
  imglib2-ij;bundle-version="2.0.0",
  imglib2-realtransform;bundle-version="2.0.0",
- jep;bundle-version="2.4.2"
+ jep;bundle-version="2.4.2",
+ knip-tmp-imglib2-ops;bundle-version="0.1.4"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: knip-base.jar
 Bundle-ActivationPolicy: lazy
