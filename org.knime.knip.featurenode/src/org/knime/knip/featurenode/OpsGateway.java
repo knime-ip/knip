@@ -43,7 +43,7 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
-  --------------------------------------------------------------------- 
+  ---------------------------------------------------------------------
  *
  */
 package org.knime.knip.featurenode;
@@ -57,7 +57,7 @@ import java.util.HashSet;
 
 import net.imagej.ops.OpMatchingService;
 import net.imagej.ops.OpService;
-import net.imagej.ops.functionbuilder.ComputerBuilder;
+import net.imagej.ops.features.OpResolverService;
 
 import org.eclipse.osgi.internal.baseadaptor.DefaultClassLoader;
 import org.eclipse.osgi.internal.loader.BundleLoader;
@@ -73,96 +73,102 @@ import org.scijava.widget.WidgetService;
 
 /**
  * Encapsulates the {@link OpService} instance as singleton.
- * 
+ *
  * @author Daniel Seebacher, University of Konstanz.
  */
 @SuppressWarnings("restriction")
-public class OpsGateway {
+public final class OpsGateway {
 
-    private static OpsGateway m_instance;
+	private static OpsGateway m_instance;
 
-    private Context context;
-    private OpService ops;
-    private PluginService pls;
-    private CommandService cs;
+	private final Context context;
+	private final OpService ops;
+	private final PluginService pls;
+	private final CommandService cs;
+	private final OpResolverService ors;
 
-    /* Sets up a SciJava context with {@link OpService}. */
-    private OpsGateway() {
-        // set log level
-        System.setProperty("scijava.log.level", "error");
+	/* Sets up a SciJava context with {@link OpService}. */
+	private OpsGateway() {
+		// set log level
+		System.setProperty("scijava.log.level", "error");
 
-        // required classes
-        HashSet<Class<? extends Service>> classes = new HashSet<>();
-        // classes.add(SciJavaService.class);
-        // classes.add(ImageJService.class);
-        classes.add(OpService.class);
-        classes.add(OpMatchingService.class);
-        classes.add(WidgetService.class);
-        classes.add(UIService.class);
-        classes.add(ComputerBuilder.class);
-        
-        context = new Context(classes, new PluginIndex(new DefaultPluginFinder(
-                new ResourceAwareClassLoader((DefaultClassLoader) getClass()
-                        .getClassLoader()))));
+		// required classes
+		final HashSet<Class<? extends Service>> classes = new HashSet<>();
+		classes.add(OpService.class);
+		classes.add(OpMatchingService.class);
+		classes.add(WidgetService.class);
+		classes.add(UIService.class);
+		classes.add(OpResolverService.class);
 
-        ops = context.service(OpService.class);
-        pls = context.service(PluginService.class);
-        cs = context.service(CommandService.class);
-    }
+		this.context = new Context(classes, new PluginIndex(
+				new DefaultPluginFinder(new ResourceAwareClassLoader(
+						(DefaultClassLoader) getClass().getClassLoader()))));
 
-    private static OpsGateway getInstance() {
-        if (m_instance == null) {
-            m_instance = new OpsGateway();
-        }
+		this.ops = this.context.service(OpService.class);
+		this.pls = this.context.service(PluginService.class);
+		this.cs = this.context.service(CommandService.class);
+		this.ors = this.context.service(OpResolverService.class);
+	}
 
-        return m_instance;
-    }
+	private static OpsGateway getInstance() {
+		if (m_instance == null) {
+			m_instance = new OpsGateway();
+		}
 
-    public static Context getContext() {
-        return getInstance().context;
-    }
+		return m_instance;
+	}
 
-    public static OpService getOpService() {
-        return getInstance().ops;
-    }
+	public static Context getContext() {
+		return getInstance().context;
+	}
 
-    public static PluginService getPluginService() {
-        return getInstance().pls;
-    }
+	public static OpService getOpService() {
+		return getInstance().ops;
+	}
 
-    public static CommandService getCommandService() {
-        return getInstance().cs;
-    }
+	public static PluginService getPluginService() {
+		return getInstance().pls;
+	}
 
-    class ResourceAwareClassLoader extends ClassLoader {
+	public static CommandService getCommandService() {
+		return getInstance().cs;
+	}
 
-        final ArrayList<URL> urls = new ArrayList<URL>();
+	public static OpResolverService getOpResolverService() {
+		return getInstance().ors;
+	}
 
-        public ResourceAwareClassLoader(DefaultClassLoader contextClassLoader) {
-            super(contextClassLoader);
+	class ResourceAwareClassLoader extends ClassLoader {
 
-            for (BundleSpecification bundle : ((BundleLoader) contextClassLoader
-                    .getDelegate()).getBundle().getBundleDescription()
-                    .getRequiredBundles()) {
+		final ArrayList<URL> urls = new ArrayList<URL>();
 
-                URL resource = org.eclipse.core.runtime.Platform.getBundle(
-                        bundle.getName()).getResource(
-                        "META-INF/json/org.scijava.plugin.Plugin");
+		public ResourceAwareClassLoader(
+				final DefaultClassLoader contextClassLoader) {
+			super(contextClassLoader);
 
-                if (resource != null) {
-                    urls.add(resource);
-                }
-            }
-        }
+			for (final BundleSpecification bundle : ((BundleLoader) contextClassLoader
+					.getDelegate()).getBundle().getBundleDescription()
+					.getRequiredBundles()) {
 
-        @Override
-        public Enumeration<URL> getResources(String name) throws IOException {
-            if (!name.startsWith("META-INF/json")) {
-                return Collections.emptyEnumeration();
-            }
-            // urls.addAll(Collections.list(super.getResources(name)));
-            urls.add(super.getResources(name).nextElement());
-            return Collections.enumeration(urls);
-        }
-    }
+				final URL resource = org.eclipse.core.runtime.Platform
+						.getBundle(bundle.getName()).getResource(
+								"META-INF/json/org.scijava.plugin.Plugin");
+
+				if (resource != null) {
+					this.urls.add(resource);
+				}
+			}
+		}
+
+		@Override
+		public Enumeration<URL> getResources(final String name)
+				throws IOException {
+			if (!name.startsWith("META-INF/json")) {
+				return Collections.emptyEnumeration();
+			}
+
+			this.urls.add(super.getResources(name).nextElement());
+			return Collections.enumeration(this.urls);
+		}
+	}
 }

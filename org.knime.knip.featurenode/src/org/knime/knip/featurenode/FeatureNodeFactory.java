@@ -13,15 +13,15 @@ import org.knime.core.node.NodeView;
  *
  * @author Daniel Seebacher
  */
-public class FeatureNodeNodeFactory<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
-        extends NodeFactory<FeatureNodeNodeModel<T, L>> {
+public class FeatureNodeFactory<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
+        extends NodeFactory<FeatureNodeModel<T, L>> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public FeatureNodeNodeModel<T, L> createNodeModel() {
-        return new FeatureNodeNodeModel<T, L>();
+    public FeatureNodeModel<T, L> createNodeModel() {
+        return new FeatureNodeModel<T, L>();
     }
 
     /**
@@ -36,8 +36,8 @@ public class FeatureNodeNodeFactory<T extends RealType<T> & NativeType<T>, L ext
      * {@inheritDoc}
      */
     @Override
-    public NodeView<FeatureNodeNodeModel<T, L>> createNodeView(final int viewIndex,
-            final FeatureNodeNodeModel<T, L> nodeModel) {
+    public NodeView<FeatureNodeModel<T, L>> createNodeView(final int viewIndex,
+            final FeatureNodeModel<T, L> nodeModel) {
         return null;
     }
 
@@ -54,7 +54,7 @@ public class FeatureNodeNodeFactory<T extends RealType<T> & NativeType<T>, L ext
      */
     @Override
     public NodeDialogPane createNodeDialogPane() {
-        return new FeatureNodeNodeDialog();
+        return new FeatureNodeDialog();
     }
 
 }

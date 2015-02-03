@@ -17,9 +17,10 @@
    <extension
          point="org.knime.workbench.repository.nodes">
       <node
-            category-path="/"
-            factory-class="org.knime.knip.featurenode.FeatureNodeNodeFactory"
-            id="org.knime.knip.FeatureNodeNodeFactory"/>
+            expert-flag="false"
+            factory-class="org.knime.knip.featurenode.FeatureNodeFactory"
+            id="org.knime.knip.featurenode.FeatureNodeFactory">
+      </node>
    </extension>
    
 </plugin>
