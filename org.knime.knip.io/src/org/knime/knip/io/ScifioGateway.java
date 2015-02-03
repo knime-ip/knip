@@ -49,10 +49,9 @@
 package org.knime.knip.io;
 
 import io.scif.Format;
-import io.scif.FormatException;
 import io.scif.SCIFIO;
 import io.scif.SCIFIOService;
-import io.scif.bf.BioFormatsFormat;
+import io.scif.ome.services.OMEXMLService;
 import io.scif.services.FormatService;
 
 import java.io.IOException;
@@ -61,17 +60,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.List;
 import java.util.TreeSet;
-
-import loci.formats.IFormatReader;
-import loci.formats.ImageReader;
 
 import org.eclipse.osgi.internal.baseadaptor.DefaultClassLoader;
 import org.eclipse.osgi.internal.loader.BundleLoader;
 import org.eclipse.osgi.service.resolver.BundleSpecification;
-import org.knime.knip.io.extensionpoint.IFormatReaderExtPointManager;
-import org.knime.knip.io.extensionpoint.ScifioFormatReaderExtPointManager;
 import org.osgi.framework.Bundle;
 import org.scijava.Context;
 import org.scijava.plugin.DefaultPluginFinder;
@@ -108,6 +101,7 @@ public class ScifioGateway {
 		HashSet<Class<? extends Service>> classes = new HashSet<>();
 		classes.add(SciJavaService.class);
 		classes.add(SCIFIOService.class);
+		classes.add(OMEXMLService.class);
 
 		// create a scifio context with required Scifio and Scijava Services
 		m_scifio = new SCIFIO(new Context(classes, new PluginIndex(
@@ -167,18 +161,26 @@ public class ScifioGateway {
 
 				final Bundle bundle = org.eclipse.core.runtime.Platform
 						.getBundle(bundleSpec.getName());
-				final URL resource = bundle
-						.getResource("META-INF/json/org.scijava.plugin.Plugin");
-
-				if (resource == null) {
+				Enumeration<URL> resources;
+				try {
+					resources = bundle
+							.getResources("META-INF/json/org.scijava.plugin.Plugin");
+				} catch (IOException e) {
 					continue;
 				}
 
-				// we want to avoid transitive resolving of dependencies
-				final String host = resource.getHost();
-				if (bundle.getBundleId() == Long.valueOf(host.substring(0,
-						host.indexOf(".")))) {
-					urls.add(resource);
+				if (resources == null) {
+					continue;
+				}
+
+				while (resources.hasMoreElements()) {
+					final URL resource = resources.nextElement();
+					// we want to avoid transitive resolving of dependencies
+					final String host = resource.getHost();
+					if (bundle.getBundleId() == Long.valueOf(host.substring(0,
+							host.indexOf(".")))) {
+						urls.add(resource);
+					}
 				}
 			}
 		}

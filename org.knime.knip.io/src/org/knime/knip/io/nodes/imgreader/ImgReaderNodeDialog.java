@@ -48,12 +48,6 @@
  */
 package org.knime.knip.io.nodes.imgreader;
 
-import io.scif.Format;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
