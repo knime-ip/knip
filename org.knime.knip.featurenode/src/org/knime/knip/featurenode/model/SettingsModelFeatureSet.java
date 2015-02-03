@@ -178,14 +178,6 @@ public class SettingsModelFeatureSet extends SettingsModel {
 
 	@Override
 	public void saveSettingsForModel(final NodeSettingsWO settings) {
-
-		for (final FeatureSetInfo featureSetItem : this.m_featureSets) {
-			System.out.println(featureSetItem.getFeatureSetClass()
-					.getSimpleName()
-					+ "\t"
-					+ featureSetItem.getSelectedFeatures());
-		}
-
 		final byte[] data = encode(this.m_featureSets);
 		settings.addByteArray("feature_sets", data);
 	}

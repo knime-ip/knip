@@ -56,7 +56,7 @@ import org.scijava.plugin.PluginInfo;
 
 /**
  * This is the model implementation of FeatureNode.
- * 
+ *
  *
  * @author Daniel Seebacher
  * @author Tim-Oliver Buchholz
@@ -93,17 +93,17 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 	/**
 	 * Image selection model.
 	 */
-	private SettingsModelString IMG_SELECTION_MODEL = createImgSelectionModel();
+	private final SettingsModelString IMG_SELECTION_MODEL = createImgSelectionModel();
 
 	/**
 	 * Labeling selection model.
 	 */
-	private SettingsModelString LABELING_SELECTION_MODEL = createLabelingSelectionModel();
+	private final SettingsModelString LABELING_SELECTION_MODEL = createLabelingSelectionModel();
 
 	/**
 	 * Feature set model.
 	 */
-	private SettingsModelFeatureSet FEATURE_SET_MODEL = createFeatureSetsModel();
+	private final SettingsModelFeatureSet FEATURE_SET_MODEL = createFeatureSetsModel();
 
 	/**
 	 * The index of the image column in the {@link DataTableSpec} of the input
@@ -131,29 +131,30 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
 
-		int numRows = inData[0].getRowCount();
+		final int numRows = inData[0].getRowCount();
 		if (numRows == 0) {
 			LOGGER.warn("Empty input table. No other columns created.");
 			return inData;
 		}
 
-		List<FeatureSet<IterableInterval<?>, DoubleType>> compiledFeatureSets = compileFeatureSets(
-				m_imgPlusCol, m_labelingCol, FEATURE_SET_MODEL.getFeatureSets());
+		final List<FeatureSet<IterableInterval<?>, DoubleType>> compiledFeatureSets = compileFeatureSets(
+				this.m_imgPlusCol, this.m_labelingCol,
+				this.FEATURE_SET_MODEL.getFeatureSets());
 
 		DataTableSpec outSpec = null;
 		DataContainer container = null;
 
-		CloseableRowIterator iterator = inData[0].iterator();
+		final CloseableRowIterator iterator = inData[0].iterator();
 		double rowCount = 0;
 		while (iterator.hasNext()) {
 			exec.setProgress(rowCount++ / numRows);
 			exec.checkCanceled();
-			DataRow row = iterator.next();
+			final DataRow row = iterator.next();
 
-			boolean imgMissing = m_imgPlusCol > -1
-					&& row.getCell(m_imgPlusCol).isMissing();
-			boolean labMissing = m_labelingCol > -1
-					&& row.getCell(m_labelingCol).isMissing();
+			final boolean imgMissing = (this.m_imgPlusCol > -1)
+					&& row.getCell(this.m_imgPlusCol).isMissing();
+			final boolean labMissing = (this.m_labelingCol > -1)
+					&& row.getCell(this.m_labelingCol).isMissing();
 
 			if (imgMissing || labMissing) {
 				LOGGER.warn("Missing input value in "
@@ -163,17 +164,17 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 				continue;
 			}
 			// for each input iterableinterval
-			List<IterableInterval<?>> iterableIntervals = getIterableIntervals(
-					row, m_imgPlusCol, m_labelingCol);
+			final List<IterableInterval<?>> iterableIntervals = getIterableIntervals(
+					row, this.m_imgPlusCol, this.m_labelingCol);
 			for (int i = 0; i < iterableIntervals.size(); i++) {
-				IterableInterval<?> input = iterableIntervals.get(i);
+				final IterableInterval<?> input = iterableIntervals.get(i);
 				// results for this iterable interval
-				List<Pair<String, DoubleType>> results = new ArrayList<Pair<String, DoubleType>>();
+				final List<Pair<String, DoubleType>> results = new ArrayList<Pair<String, DoubleType>>();
 
 				// calcuate the features from every featureset
-				for (FeatureSet<IterableInterval<?>, DoubleType> featureSet : compiledFeatureSets) {
+				for (final FeatureSet<IterableInterval<?>, DoubleType> featureSet : compiledFeatureSets) {
 					exec.checkCanceled();
-					List<Pair<String, DoubleType>> compute = featureSet
+					final List<Pair<String, DoubleType>> compute = featureSet
 							.getFeatures(input);
 					results.addAll(compute);
 				}
@@ -187,7 +188,7 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 				}
 
 				// save results of this iterableinterval in a row
-				List<DataCell> cells = new ArrayList<DataCell>();
+				final List<DataCell> cells = new ArrayList<DataCell>();
 
 				// store previous data
 				for (int k = 0; k < row.getNumCells(); k++) {
@@ -195,7 +196,7 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 				}
 
 				// store new results
-				for (Pair<String, DoubleType> featureResult : results) {
+				for (final Pair<String, DoubleType> featureResult : results) {
 					cells.add(new DoubleCell(featureResult.getB()
 							.getRealDouble()));
 				}
@@ -215,7 +216,7 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 	/**
 	 * Creates a DataTableSpec from the given {@link DataTableSpec} and the a
 	 * {@link List} of {@link FeatureResult}
-	 * 
+	 *
 	 * @param inSpec
 	 *            an existing {@link DataTableSpec}
 	 * @param results
@@ -225,10 +226,10 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 	 *         {@link DataTableSpec} and a column for each given
 	 *         {@link FeatureResult}
 	 */
-	private DataTableSpec createOutputSpec(DataTableSpec inSpec,
-			List<Pair<String, DoubleType>> results) {
+	private DataTableSpec createOutputSpec(final DataTableSpec inSpec,
+			final List<Pair<String, DoubleType>> results) {
 
-		List<DataColumnSpec> outcells = new ArrayList<DataColumnSpec>();
+		final List<DataColumnSpec> outcells = new ArrayList<DataColumnSpec>();
 
 		// add all old columns
 		for (int i = 0; i < inSpec.getNumColumns(); i++) {
@@ -249,7 +250,7 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 	/**
 	 * Creates the {@link FeatureSet} which were added in the
 	 * {@link FeatureNodeDialog}
-	 * 
+	 *
 	 * @param imgCol
 	 *            the index of the image column
 	 * @param labelingCol
@@ -260,35 +261,32 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private List<FeatureSet<IterableInterval<?>, DoubleType>> compileFeatureSets(
-			int imgCol, int labelingCol, List<FeatureSetInfo> list)
-			throws ModuleException {
+			final int imgCol, final int labelingCol,
+			final List<FeatureSetInfo> list) throws ModuleException {
 
-		if (-1 == imgCol && -1 == labelingCol) {
+		if ((-1 == imgCol) && (-1 == labelingCol)) {
 			return new ArrayList<FeatureSet<IterableInterval<?>, DoubleType>>();
 		}
 
-		List<FeatureSet<IterableInterval<?>, DoubleType>> compiledFeatureSets = new ArrayList<FeatureSet<IterableInterval<?>, DoubleType>>();
+		final List<FeatureSet<IterableInterval<?>, DoubleType>> compiledFeatureSets = new ArrayList<FeatureSet<IterableInterval<?>, DoubleType>>();
 
 		// if img is set and not a labeling we can use FeatureSet<Img>
 		// otherwise FeatureSet<IterableInterval>
-		for (FeatureSetInfo fsi : list) {
-			if (-1 != imgCol && -1 == labelingCol) {
+		for (final FeatureSetInfo fsi : list) {
+			if ((-1 != imgCol) && (-1 == labelingCol)) {
 
-				FeatureSet<IterableInterval<?>, DoubleType> createInstance = OpsGateway
+				final FeatureSet<IterableInterval<?>, DoubleType> createInstance = OpsGateway
 						.getPluginService()
 						.createInstance(
-								new PluginInfo<FeatureSet>(
-										(Class<FeatureSet<Img, DoubleType>>) fsi
-												.getFeatureSetClass(), FeatureSet.class));
+								new PluginInfo<FeatureSet>(fsi
+										.getFeatureSetClass(), FeatureSet.class));
 
-				
-				
 				if (AutoResolvingFeatureSet.class
 						.isAssignableFrom(createInstance.getClass())) {
-					AutoResolvingFeatureSet<?, ?> arfs = (AutoResolvingFeatureSet<?, ?>) createInstance;
+					final AutoResolvingFeatureSet<?, ?> arfs = (AutoResolvingFeatureSet<?, ?>) createInstance;
 
-					Set<OpRef<?>> ops = new HashSet<OpRef<?>>();
-					for (Entry<Class<?>, Boolean> entry : fsi
+					final Set<OpRef<?>> ops = new HashSet<OpRef<?>>();
+					for (final Entry<Class<?>, Boolean> entry : fsi
 							.getSelectedFeatures().entrySet()) {
 						if (!entry.getValue()) {
 							continue;
@@ -300,25 +298,33 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 					arfs.setOutputOps(ops);
 				}
 
-				Module module = OpsGateway.getOpService().info(createInstance)
-						.createModule();
-				module.setInputs(fsi.getFieldNamesAndValues());
+				final Module module = OpsGateway.getOpService()
+						.info(createInstance).createModule();
 
-				compiledFeatureSets.add(createInstance);
+				for (final Entry<String, Object> fieldNameAndValue : fsi
+						.getFieldNamesAndValues().entrySet()) {
+					module.setInput(fieldNameAndValue.getKey(),
+							fieldNameAndValue.getValue());
+				}
+
+				final FeatureSet<IterableInterval<?>, DoubleType> delegateObject = (FeatureSet<IterableInterval<?>, DoubleType>) module
+						.getDelegateObject();
+				OpsGateway.getContext().inject(delegateObject);
+
+				compiledFeatureSets.add(delegateObject);
 			} else {
-				FeatureSet<IterableInterval<?>, DoubleType> createInstance = OpsGateway
+				final FeatureSet<IterableInterval<?>, DoubleType> createInstance = OpsGateway
 						.getPluginService()
 						.createInstance(
-								new PluginInfo<FeatureSet>(
-										(Class<FeatureSet<IterableInterval<?>, DoubleType>>) fsi.getFeatureSetClass(), FeatureSet.class));
+								new PluginInfo<FeatureSet>(fsi
+										.getFeatureSetClass(), FeatureSet.class));
 
-				
 				if (AutoResolvingFeatureSet.class
 						.isAssignableFrom(createInstance.getClass())) {
-					AutoResolvingFeatureSet<?, ?> arfs = (AutoResolvingFeatureSet<?, ?>) createInstance;
+					final AutoResolvingFeatureSet<?, ?> arfs = (AutoResolvingFeatureSet<?, ?>) createInstance;
 
-					Set<OpRef<?>> ops = new HashSet<OpRef<?>>();
-					for (Entry<Class<?>, Boolean> entry : fsi
+					final Set<OpRef<?>> ops = new HashSet<OpRef<?>>();
+					for (final Entry<Class<?>, Boolean> entry : fsi
 							.getSelectedFeatures().entrySet()) {
 						if (!entry.getValue()) {
 							continue;
@@ -329,12 +335,21 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 
 					arfs.setOutputOps(ops);
 				}
-				
-				Module module = OpsGateway.getOpService().info(createInstance)
-						.createModule();
-				module.setInputs(fsi.getFieldNamesAndValues());
 
-				compiledFeatureSets.add(createInstance);
+				final Module module = OpsGateway.getOpService()
+						.info(createInstance).createModule();
+
+				for (final Entry<String, Object> fieldNameAndValue : fsi
+						.getFieldNamesAndValues().entrySet()) {
+					module.setInput(fieldNameAndValue.getKey(),
+							fieldNameAndValue.getValue());
+				}
+
+				final FeatureSet<IterableInterval<?>, DoubleType> delegateObject = (FeatureSet<IterableInterval<?>, DoubleType>) module
+						.getDelegateObject();
+				OpsGateway.getContext().inject(delegateObject);
+
+				compiledFeatureSets.add(delegateObject);
 			}
 		}
 
@@ -344,7 +359,7 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 	/**
 	 * Extracts every {@link IterableInterval} from the given input
 	 * {@link DataRow}
-	 * 
+	 *
 	 * @param row
 	 *            the input {@link DataRow}
 	 * @param imgCol
@@ -354,45 +369,47 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	private List<IterableInterval<?>> getIterableIntervals(DataRow row,
-			int imgCol, int labelingCol) {
+	private List<IterableInterval<?>> getIterableIntervals(final DataRow row,
+			final int imgCol, final int labelingCol) {
 
-		if (-1 == imgCol && -1 == labelingCol) {
+		if ((-1 == imgCol) && (-1 == labelingCol)) {
 			return new ArrayList<IterableInterval<?>>();
 		}
 
-		List<IterableInterval<?>> inputs = new ArrayList<IterableInterval<?>>();
+		final List<IterableInterval<?>> inputs = new ArrayList<IterableInterval<?>>();
 
 		// both set
-		if (-1 != imgCol && -1 != labelingCol) {
-			Img<T> img = ((ImgPlusCell<T>) row.getCell(imgCol)).getImgPlus();
-			Labeling<L> labeling = ((LabelingCell<L>) row.getCell(labelingCol))
-					.getLabeling();
+		if ((-1 != imgCol) && (-1 != labelingCol)) {
+			final Img<T> img = ((ImgPlusCell<T>) row.getCell(imgCol))
+					.getImgPlus();
+			final Labeling<L> labeling = ((LabelingCell<L>) row
+					.getCell(labelingCol)).getLabeling();
 
-			for (L label : labeling.getLabels()) {
-				IterableRegionOfInterest iiROI = labeling
+			for (final L label : labeling.getLabels()) {
+				final IterableRegionOfInterest iiROI = labeling
 						.getIterableRegionOfInterest(label);
 
-				IterableInterval<?> ii = iiROI.getIterableIntervalOverROI(img);
+				final IterableInterval<?> ii = iiROI
+						.getIterableIntervalOverROI(img);
 				inputs.add(ii);
 			}
 		}
 		// only labeling set
 		else if (-1 != labelingCol) {
-			Labeling<L> labeling = ((LabelingCell<L>) row.getCell(labelingCol))
-					.getLabeling();
+			final Labeling<L> labeling = ((LabelingCell<L>) row
+					.getCell(labelingCol)).getLabeling();
 
-			for (L label : labeling.getLabels()) {
-				IterableInterval<LabelingType<L>> ii = labeling
+			for (final L label : labeling.getLabels()) {
+				final IterableInterval<LabelingType<L>> ii = labeling
 						.getIterableRegionOfInterest(label)
 						.getIterableIntervalOverROI(labeling);
 
-				IterableInterval<BitType> convert = Converters.convert(ii,
-						new Converter<LabelingType<L>, BitType>() {
+				final IterableInterval<BitType> convert = Converters.convert(
+						ii, new Converter<LabelingType<L>, BitType>() {
 
 							@Override
-							public void convert(LabelingType<L> arg0,
-									BitType arg1) {
+							public void convert(final LabelingType<L> arg0,
+									final BitType arg1) {
 								arg1.set(!arg0.getLabeling().isEmpty());
 							}
 						}, new BitType());
@@ -402,7 +419,8 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 		}
 		// only image set
 		else {
-			Img<T> img = ((ImgPlusCell<T>) row.getCell(imgCol)).getImgPlus();
+			final Img<T> img = ((ImgPlusCell<T>) row.getCell(imgCol))
+					.getImgPlus();
 			inputs.add(img);
 		}
 
@@ -423,7 +441,7 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
 
-		DataTableSpec spec = inSpecs[0];
+		final DataTableSpec spec = inSpecs[0];
 
 		if (!(spec.containsCompatibleType(ImgPlusValue.class) || spec
 				.containsCompatibleType(LabelingValue.class))) {
@@ -431,33 +449,34 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 					"Invalid input spec. At least one image or labeling column must be provided.");
 		}
 
-		String selectedImgCol = IMG_SELECTION_MODEL.getStringValue();
-		String selectedLabelingCol = LABELING_SELECTION_MODEL.getStringValue();
-		if (selectedImgCol == null && selectedLabelingCol == null) {
+		String selectedImgCol = this.IMG_SELECTION_MODEL.getStringValue();
+		String selectedLabelingCol = this.LABELING_SELECTION_MODEL
+				.getStringValue();
+		if ((selectedImgCol == null) && (selectedLabelingCol == null)) {
 			// both empty == first configure
-			for (DataColumnSpec dcs : spec) {
+			for (final DataColumnSpec dcs : spec) {
 				if (imgPlusFilter().includeColumn(dcs)) {
-					IMG_SELECTION_MODEL.setStringValue(dcs.getName());
+					this.IMG_SELECTION_MODEL.setStringValue(dcs.getName());
 					selectedImgCol = dcs.getName();
 					break;
 				}
 			}
 
-			for (DataColumnSpec dcs : spec) {
+			for (final DataColumnSpec dcs : spec) {
 				if (labelingFilter().includeColumn(dcs)) {
-					LABELING_SELECTION_MODEL.setStringValue(dcs.getName());
+					this.LABELING_SELECTION_MODEL.setStringValue(dcs.getName());
 					selectedLabelingCol = dcs.getName();
 					break;
 				}
 			}
 		}
 
-		m_imgPlusCol = selectedImgCol == null ? -1 : spec
+		this.m_imgPlusCol = selectedImgCol == null ? -1 : spec
 				.findColumnIndex(selectedImgCol);
-		m_labelingCol = selectedLabelingCol == null ? -1 : spec
+		this.m_labelingCol = selectedLabelingCol == null ? -1 : spec
 				.findColumnIndex(selectedLabelingCol);
 
-		if (-1 == m_imgPlusCol && -1 == m_labelingCol) {
+		if ((-1 == this.m_imgPlusCol) && (-1 == this.m_labelingCol)) {
 			throw new IllegalArgumentException(
 					"At least one image or labeling column must be selected!");
 		}
@@ -470,9 +489,9 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		IMG_SELECTION_MODEL.saveSettingsTo(settings);
-		LABELING_SELECTION_MODEL.saveSettingsTo(settings);
-		FEATURE_SET_MODEL.saveSettingsTo(settings);
+		this.IMG_SELECTION_MODEL.saveSettingsTo(settings);
+		this.LABELING_SELECTION_MODEL.saveSettingsTo(settings);
+		this.FEATURE_SET_MODEL.saveSettingsTo(settings);
 	}
 
 	/**
@@ -481,9 +500,9 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		IMG_SELECTION_MODEL.loadSettingsFrom(settings);
-		LABELING_SELECTION_MODEL.loadSettingsFrom(settings);
-		FEATURE_SET_MODEL.loadSettingsFrom(settings);
+		this.IMG_SELECTION_MODEL.loadSettingsFrom(settings);
+		this.LABELING_SELECTION_MODEL.loadSettingsFrom(settings);
+		this.FEATURE_SET_MODEL.loadSettingsFrom(settings);
 	}
 
 	/**
@@ -492,9 +511,9 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		IMG_SELECTION_MODEL.validateSettings(settings);
-		LABELING_SELECTION_MODEL.validateSettings(settings);
-		FEATURE_SET_MODEL.validateSettings(settings);
+		this.IMG_SELECTION_MODEL.validateSettings(settings);
+		this.LABELING_SELECTION_MODEL.validateSettings(settings);
+		this.FEATURE_SET_MODEL.validateSettings(settings);
 	}
 
 	/**
@@ -519,14 +538,14 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 
 	/**
 	 * Filter which filters all image plus columns from {@link DataTableSpec}.
-	 * 
+	 *
 	 * @return all image plus columns
 	 */
 	public static ColumnFilter imgPlusFilter() {
 		return new ColumnFilter() {
 
 			@Override
-			public boolean includeColumn(DataColumnSpec colSpec) {
+			public boolean includeColumn(final DataColumnSpec colSpec) {
 				return colSpec.getType().equals(ImgPlusCell.TYPE);
 			}
 
@@ -539,14 +558,14 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 
 	/**
 	 * Filter which filters all labling columns from {@link DataTableSpec}.
-	 * 
+	 *
 	 * @return all labeling columns
 	 */
 	public static ColumnFilter labelingFilter() {
 		return new ColumnFilter() {
 
 			@Override
-			public boolean includeColumn(DataColumnSpec colSpec) {
+			public boolean includeColumn(final DataColumnSpec colSpec) {
 				return colSpec.getType().equals(LabelingCell.TYPE);
 			}
 
