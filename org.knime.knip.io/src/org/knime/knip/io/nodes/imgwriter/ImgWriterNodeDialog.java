@@ -70,12 +70,13 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 
 /**
  * Dialog for the Image Writer.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
  */
+@Deprecated
 public class ImgWriterNodeDialog extends DefaultNodeSettingsPane {
 
     private final DialogComponentStringSelection m_compression;
@@ -90,7 +91,7 @@ public class ImgWriterNodeDialog extends DefaultNodeSettingsPane {
 
     /**
      * Dialog with Column Selection.
-     * 
+     *
      */
     @SuppressWarnings("unchecked")
     public ImgWriterNodeDialog() {

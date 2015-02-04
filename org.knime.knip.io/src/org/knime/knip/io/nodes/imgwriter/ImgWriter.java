@@ -88,10 +88,11 @@ import org.slf4j.LoggerFactory;
 /**
  * Provides the functionality to write {@link Img}s using the <a href =
  * "http://loci.wisc.edu/bio-formats/">bioformats</a>-library.
- * 
- * 
+ *
+ *
  * @author hornm, University of Konstanz
  */
+@Deprecated
 public class ImgWriter {
 
 	private static final Logger LOGGER = LoggerFactory
@@ -139,7 +140,7 @@ public class ImgWriter {
 	/**
 	 * Returns the list of the possible compression types of the specific
 	 * writer.
-	 * 
+	 *
 	 * @param writer
 	 *            the name of the writer
 	 * @return the list of possible compressions, <code>null</code> if there are
@@ -166,7 +167,7 @@ public class ImgWriter {
 	/**
 	 * Gets one suffix normally used to identify the format associated with the
 	 * specific writer.
-	 * 
+	 *
 	 * @param writer
 	 *            the writer
 	 * @return the suffix, e.g. '.tif'
@@ -183,12 +184,12 @@ public class ImgWriter {
 	/**
 	 * Writes the image plane stack to the given file. The resulting image
 	 * format is determined by the given writer.
-	 * 
+	 *
 	 * @param img
 	 *            the image to be written
 	 * @param <T>
 	 *            the image type
-	 * 
+	 *
 	 * @param outfile
 	 *            the absolute path of the file to write in
 	 * @param writer
@@ -220,12 +221,12 @@ public class ImgWriter {
 	/**
 	 * Writes the image plane stack to the given file. The resulting image
 	 * format is determined by the given writer.
-	 * 
+	 *
 	 * @param img
 	 *            the image to be written
 	 * @param <T>
 	 *            the image type
-	 * 
+	 *
 	 * @param outfile
 	 *            the absolute path of the file to write in
 	 * @param writer
@@ -513,7 +514,7 @@ public class ImgWriter {
 
 	/**
 	 * All operations to be done to close the image writer.
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public void close() throws IOException {
