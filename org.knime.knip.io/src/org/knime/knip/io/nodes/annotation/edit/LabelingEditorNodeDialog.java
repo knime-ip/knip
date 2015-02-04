@@ -218,7 +218,8 @@ public class LabelingEditorNodeDialog<T extends RealType<T> & NativeType<T>, L e
 		RowIterator it = m_inputTable.iterator();
 		while (it.hasNext()) {
 			DataRow r = it.next();
-
+			if(r.getCell(firstLabel).isMissing())
+				continue;
 			// Fetch the necessary data for the key
 			String rowName = r.getKey().getString();
 

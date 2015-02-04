@@ -16,6 +16,8 @@ import net.imglib2.RandomAccess;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingType;
 
+import ome.xml.model.AnnotationRef;
+
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
@@ -25,6 +27,7 @@ import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorLabelsSelChgEvent;
+import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorResetEvent;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorRowColKeyChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgViewerMousePressedEvent;
@@ -295,12 +298,15 @@ public class LabelingEditorManager extends HiddenViewerComponent {
 
 			sel[m_sel.getPlaneDimIndex1()] = e.getPosX();
 			sel[m_sel.getPlaneDimIndex2()] = e.getPosY();
-			final double[] seld = new double[sel.length];
+			final long[] seld = new long[sel.length];
 			for (int i = 0; i < seld.length; ++i) {
-				seld[i] = sel[i];
+				if(sel[i] <= m_currentLabeling.realMax(i))
+					seld[i] = sel[i];
+				else
+					seld[i] = (long)m_currentLabeling.realMax(i);
 			}
 
-			ra.setPosition(sel);
+			ra.setPosition(seld);
 			labels = new HashSet<String>(ra.get().getLabeling());
 		}
 		if (labels.isEmpty())
@@ -311,13 +317,16 @@ public class LabelingEditorManager extends HiddenViewerComponent {
 	/**
 	 * Resets this manager back to its default state.
 	 */
-	public void reset() {
+	@EventListener
+	public void reset(final AnnotatorResetEvent e) {
 		// Return to default
 		m_selectedLabels = new String[] { "Unknown" };
-		for (final LabelingEditorChangeTracker tracker : m_IdTrackerMap
-				.values()) {
-			tracker.reset();
-		}
+//		for (final LabelingEditorChangeTracker tracker : m_IdTrackerMap
+//				.values()) {
+//			tracker.reset();
+//		}
+		
+		m_IdTrackerMap.clear();
 	}
 
 	@Override
