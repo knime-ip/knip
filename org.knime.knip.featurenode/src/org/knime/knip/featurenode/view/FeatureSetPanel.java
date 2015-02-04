@@ -17,6 +17,10 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.knime.knip.featurenode.model.FeatureSetInfo;
+import org.scijava.InstantiableException;
+import org.scijava.module.ModuleException;
+
 public class FeatureSetPanel extends JPanel {
 
 	/**
@@ -157,7 +161,6 @@ public class FeatureSetPanel extends JPanel {
 
 		this.m_featureList.add(feature);
 
-		this.m_panel.add(p, this.m_gbc);
 		this.m_gbc.gridy++;
 	}
 

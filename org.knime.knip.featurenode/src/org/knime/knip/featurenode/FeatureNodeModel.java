@@ -72,14 +72,14 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 	/**
 	 * @return Settings model for selected labeling.
 	 */
-	static SettingsModelString createLabelingSelectionModel() {
+	public static SettingsModelString createLabelingSelectionModel() {
 		return new SettingsModelString("m_labeling_settings_model", null);
 	}
 
 	/**
 	 * @return Settings model for selected image.
 	 */
-	static SettingsModelString createImgSelectionModel() {
+	public static SettingsModelString createImgSelectionModel() {
 		return new SettingsModelString("m_imgage_settings_model", null);
 	}
 

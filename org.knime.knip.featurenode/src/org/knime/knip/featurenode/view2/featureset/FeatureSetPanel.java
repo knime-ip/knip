@@ -1,5 +1,6 @@
-package org.knime.knip.featurenode.view;
+package org.knime.knip.featurenode.view2.featureset;
 
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,8 +10,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import net.imagej.ops.OpRef;
@@ -19,6 +24,7 @@ import net.imagej.ops.features.FeatureSet;
 
 import org.knime.knip.featurenode.OpsGateway;
 import org.knime.knip.featurenode.model.FeatureSetInfo;
+import org.knime.knip.featurenode.view.FeatureSetInfoJPanel;
 import org.scijava.InstantiableException;
 import org.scijava.command.CommandInfo;
 import org.scijava.module.Module;
@@ -30,36 +36,36 @@ import org.scijava.plugin.PluginInfo;
 import org.scijava.ui.swing.widget.SwingInputHarvester;
 import org.scijava.ui.swing.widget.SwingInputPanel;
 
-/**
- * Class used for extracting and displaying the information from a
- * {@link FeatureSet}
- *
- * @author Daniel Seebacher, University of Konstanz.
- */
 @SuppressWarnings("rawtypes")
-public class FeatureSetInfoJPanel {
+public class FeatureSetPanel extends JPanel {
 
-	private final PluginInfo<FeatureSet> pluginInfo;
+	/**
+	 * serialVersionUID.
+	 */
+	private static final long serialVersionUID = 5766985553194363328L;
+	
+	
+	private PluginInfo<FeatureSet> pluginInfo;
 	private final Module module;
 	private final SwingInputPanel inputpanel;
 	private FeatureSelectionPanel fsp;
+	private JButton infoButton;
+	private JButton removeButton;
 
 	/**
-	 * Input to create a {@link FeatureSetInfoJPanel} from the class and
-	 * the parameters of the {@link FeatureSet}
+	 * Input to create a {@link FeatureSetInfoJPanel} from the class and the
+	 * parameters of the {@link FeatureSet}
 	 *
-	 * @param clzz
-	 *            the class of the {@link FeatureSet}
-	 * @param parameterValues
-	 *            a map of the parameter names and values
+	 * @param fsi
+	 *            A {@link FeatureSetInfo}
+	 * 
 	 * @throws InstantiableException
 	 *             if the featureset can't be instantiated
 	 * @throws ModuleException
 	 *             if no inputpanel can be built from the module
 	 */
-	public FeatureSetInfoJPanel(final FeatureSetInfo fsi)
+	public FeatureSetPanel(final FeatureSetInfo fsi)
 			throws InstantiableException, ModuleException {
-
 		// create plugininfo from the class of the feature set
 		final PluginInfo<FeatureSet> plugin = OpsGateway.getPluginService()
 				.getPlugin(fsi.getFeatureSetClass(), FeatureSet.class);
@@ -96,11 +102,6 @@ public class FeatureSetInfoJPanel {
 			this.fsp = new FeatureSelectionPanel(fsi.getSelectedFeatures());
 		}
 
-		if (this.fsp != null) {
-			this.inputpanel.getComponent().add(this.fsp);
-			this.inputpanel.getComponent().add(new JLabel());
-		}
-
 		try {
 			builder.buildPanel(this.inputpanel, this.module);
 			this.inputpanel.refresh();
@@ -108,22 +109,25 @@ public class FeatureSetInfoJPanel {
 			e.printStackTrace();
 			throw new ModuleException("Couldn't create SwingInputPanel", e);
 		}
+
+		build();
 	}
 
 	/**
-	 * Input to create a {@link FeatureSetInfoJPanel} from a
-	 * {@link PluginInfo}
+	 * Input to create a {@link FeatureSetInfoJPanel} from a {@link PluginInfo}
+	 *
+	 * @param pluginInfo
+	 *            A {@link PluginInfo} of a {@link FeatureSet}
 	 *
 	 * @throws InstantiableException
 	 *             if the featureset can't be instantiated
 	 * @throws ModuleException
 	 *             if no inputpanel can be built from the module
 	 */
-	public FeatureSetInfoJPanel(final PluginInfo<FeatureSet> pluginInfo)
+	public FeatureSetPanel(final PluginInfo<FeatureSet> pluginInfo)
 			throws InstantiableException, ModuleException {
 		this.pluginInfo = pluginInfo;
 
-		
 		FeatureSet<?, ?> op;
 		try {
 			op = pluginInfo.createInstance();
@@ -158,11 +162,6 @@ public class FeatureSetInfoJPanel {
 			}
 		}
 
-		if (this.fsp != null) {
-			this.inputpanel.getComponent().add(this.fsp);
-			this.inputpanel.getComponent().add(new JLabel());
-		}
-
 		try {
 			builder.buildPanel(this.inputpanel, this.module);
 			this.inputpanel.refresh();
@@ -170,26 +169,20 @@ public class FeatureSetInfoJPanel {
 			e.printStackTrace();
 			throw new ModuleException("Couldn't create SwingInputPanel", e);
 		}
+
+		build();
 	}
 
-	/**
-	 * Validates and initializes the given module. Resolves the default input
-	 * and outputs and sets the given parameters.
-	 *
-	 * @param module
-	 *            a module
-	 * @param parameterValues
-	 *            a set of parameters which should be set
-	 */
-	private void validateAndInitialize(final Module module,
-			final Map<String, Object> parameterValues) {
+	private void validateAndInitialize(Module module,
+			Map<String, Object> fieldNamesAndValues) {
 		// resolve default input and output
 		module.setResolved("input", true);
 		module.setResolved("output", true);
 
 		// set parameters, if available
-		if (parameterValues != null) {
-			for (final Entry<String, Object> entry : parameterValues.entrySet()) {
+		if (fieldNamesAndValues != null) {
+			for (final Entry<String, Object> entry : fieldNamesAndValues
+					.entrySet()) {
 				module.setInput(entry.getKey(), entry.getValue());
 			}
 		}
@@ -207,6 +200,65 @@ public class FeatureSetInfoJPanel {
 		new InitPreprocessor().process(module);
 	}
 
+	private void build() {
+		// set jpanel settings
+		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		this.setBorder(BorderFactory.createTitledBorder(pluginInfo.getLabel()+":"));
+
+		// initialize jcomponents
+		infoButton = new JButton(new ImageIcon(getClass().getClassLoader().getResource("resources/info.png")));
+		removeButton = new JButton(new ImageIcon(getClass().getClassLoader().getResource("resources/remove_icon.png")));
+
+		// set sizes
+
+		infoButton.setMaximumSize(infoButton.getPreferredSize());
+		removeButton.setMaximumSize(removeButton.getPreferredSize());
+
+		// title box
+		Box buttonBox = Box.createHorizontalBox();
+		buttonBox.add(Box.createHorizontalGlue());
+		buttonBox.add(infoButton);
+		buttonBox.add(Box.createRigidArea(new Dimension(5, 5)));
+		buttonBox.add(removeButton);
+		buttonBox.add(Box.createRigidArea(new Dimension(10, 5)));
+
+		Box inputPanelBox = Box.createHorizontalBox();
+		inputPanelBox.add(Box.createHorizontalGlue());
+		inputPanelBox.add(inputpanel.getComponent());
+		inputPanelBox.add(Box.createHorizontalGlue());
+
+		this.add(buttonBox);
+		if(fsp != null){
+			this.add(Box.createRigidArea(new Dimension(5, 40)));
+			this.add(fsp);
+		}
+		
+		if(!getUnresolvedParameterNames().isEmpty()){
+			this.add(Box.createRigidArea(new Dimension(5, 40)));
+			this.add(inputPanelBox);
+		}
+	}
+	
+	public PluginInfo<FeatureSet> getPluginInfo() {
+		return this.pluginInfo;
+	}
+
+	public Module getModule() {
+		return this.module;
+	}
+
+	public SwingInputPanel getInputpanel() {
+		return this.inputpanel;
+	}
+	
+	public JButton getInfoButton(){
+		return infoButton;
+	}
+	
+	public JButton getRemoveButton(){
+		return removeButton;
+	}
+	
 	/**
 	 * @return The names of all unresolved parameters
 	 */
@@ -246,18 +298,6 @@ public class FeatureSetInfoJPanel {
 
 		return new FeatureSetInfo(featuresetClass, parameterValues,
 				selectedFeatures);
-	}
-
-	public PluginInfo<FeatureSet> getPluginInfo() {
-		return this.pluginInfo;
-	}
-
-	public Module getModule() {
-		return this.module;
-	}
-
-	public SwingInputPanel getInputpanel() {
-		return this.inputpanel;
 	}
 
 	/**
