@@ -38,8 +38,8 @@ public class LabelingEditorLabelingRU extends LabelingRU<String> {
 	@EventListener
 	public void onLabelsColorReset(final AnnotatorLabelsColResetEvent e) {
 		++m_colorReset;
-
 	}
+	
 
 	@Override
 	public int generateHashCode() {
