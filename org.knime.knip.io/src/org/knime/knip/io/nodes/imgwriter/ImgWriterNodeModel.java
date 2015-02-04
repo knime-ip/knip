@@ -87,6 +87,7 @@ import org.knime.knip.base.node.NodeUtils;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
  */
+@Deprecated
 public class ImgWriterNodeModel<T extends RealType<T>> extends NodeModel {
 
     public static final String CFG_C_DIM_MAPPING = "c_dim_mapping";

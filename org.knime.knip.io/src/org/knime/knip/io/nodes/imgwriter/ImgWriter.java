@@ -90,6 +90,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author hornm, University of Konstanz
  */
+@Deprecated
 public class ImgWriter {
 
 	private static final Logger LOGGER = LoggerFactory
