@@ -61,17 +61,16 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import net.imagej.ImgPlus;
+import net.imagej.ImgPlusMetadata;
+import net.imagej.Sourced;
+import net.imagej.axis.CalibratedAxis;
+import net.imagej.space.CalibratedSpace;
 import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
-import net.imglib2.meta.CalibratedAxis;
-import net.imglib2.meta.CalibratedSpace;
-import net.imglib2.meta.ImgPlus;
-import net.imglib2.meta.ImgPlusMetadata;
-import net.imglib2.meta.MetadataUtil;
-import net.imglib2.meta.Named;
-import net.imglib2.meta.Sourced;
 import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.ops.util.MetadataUtil;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 
@@ -97,6 +96,7 @@ import org.knime.knip.core.data.img.DefaultImgMetadata;
 import org.knime.knip.core.io.externalization.BufferedDataInputStream;
 import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
 import org.knime.knip.core.io.externalization.ExternalizerManager;
+import org.scijava.Named;
 
 /**
  *
@@ -614,6 +614,7 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
             }
 
         } catch (final Exception e) {
+            e.printStackTrace();
             LOGGER.error("Cannot read image.", e);
         }
 

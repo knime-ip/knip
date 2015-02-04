@@ -51,10 +51,10 @@ package org.knime.knip.base.nodes.proc;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.imagej.ImgPlus;
 import net.imglib2.RandomAccess;
 import net.imglib2.algorithm.math.PickImagePeaks;
 import net.imglib2.img.Img;
-import net.imglib2.meta.ImgPlus;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 

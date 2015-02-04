@@ -48,19 +48,19 @@
  */
 package org.knime.knip.core.ui.imgviewer.events;
 
+import net.imagej.Sourced;
+import net.imagej.space.CalibratedSpace;
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.labeling.Labeling;
-import net.imglib2.meta.CalibratedSpace;
-import net.imglib2.meta.Named;
-import net.imglib2.meta.Sourced;
 import net.imglib2.type.Type;
 import net.imglib2.view.Views;
 
 import org.knime.knip.core.ui.event.KNIPEvent;
+import org.scijava.Named;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>

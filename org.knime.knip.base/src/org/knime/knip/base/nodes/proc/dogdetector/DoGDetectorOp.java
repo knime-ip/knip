@@ -50,6 +50,7 @@ package org.knime.knip.base.nodes.proc.dogdetector;
 
 import java.util.concurrent.ExecutorService;
 
+import net.imagej.ImgPlus;
 import net.imglib2.Point;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
@@ -57,7 +58,6 @@ import net.imglib2.algorithm.dog.DogDetection;
 import net.imglib2.algorithm.dog.DogDetection.ExtremaType;
 import net.imglib2.exception.IncompatibleTypeException;
 import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.img.UnaryObjectFactory;
 import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.outofbounds.OutOfBoundsBorderFactory;

@@ -48,8 +48,8 @@
  */
 package org.knime.knip.base.nodes.features;
 
+import net.imagej.space.CalibratedSpace;
 import net.imglib2.IterableInterval;
-import net.imglib2.meta.CalibratedSpace;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.util.ValuePair;
 

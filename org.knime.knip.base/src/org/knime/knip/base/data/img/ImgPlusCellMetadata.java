@@ -50,7 +50,7 @@ package org.knime.knip.base.data.img;
 
 import java.awt.image.BufferedImage;
 
-import net.imglib2.meta.ImgPlusMetadata;
+import net.imagej.ImgPlusMetadata;
 import net.imglib2.type.Type;
 
 /**

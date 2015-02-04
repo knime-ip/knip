@@ -50,6 +50,9 @@ package org.knime.knip.base.nodes.proc.resizer;
 
 import java.util.List;
 
+import net.imagej.ImgPlus;
+import net.imagej.ImgPlusMetadata;
+import net.imagej.axis.DefaultLinearAxis;
 import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
 import net.imglib2.img.Img;
@@ -57,9 +60,6 @@ import net.imglib2.img.ImgView;
 import net.imglib2.interpolation.randomaccess.LanczosInterpolatorFactory;
 import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
 import net.imglib2.interpolation.randomaccess.NearestNeighborInterpolatorFactory;
-import net.imglib2.meta.ImgPlus;
-import net.imglib2.meta.ImgPlusMetadata;
-import net.imglib2.meta.axis.DefaultLinearAxis;
 import net.imglib2.ops.operation.img.unary.ImgCopyOperation;
 import net.imglib2.realtransform.RealViews;
 import net.imglib2.realtransform.Scale;

@@ -4,8 +4,5 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="res"/>
-	<classpathentry exported="true" kind="lib" path="lib/jgrapht_0.8.3.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jama-1.0.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/TrackMate-2.5.1-KNIP-SNAPSHOT.jar" sourcepath="lib/TrackMate-2.5.1-KNIP-SNAPSHOT-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

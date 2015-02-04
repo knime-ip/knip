@@ -59,7 +59,7 @@ import org.nfunk.jep.function.PostfixMathCommand;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -79,7 +79,7 @@ public class JEPMax extends PostfixMathCommand implements ImgOpEvalRequired {
     /**
      * Adds two numbers together. The parameters can be of type Number, Complex, or String. If a certain combination of
      * types is not supported, a ParseException is thrown.
-     * 
+     *
      * @param param1 The first parameter to be added.
      * @param param2 The second parameter to be added.
      * @return The sum of param1 and param2, or concatenation of the two if they are Strings.

@@ -51,11 +51,11 @@ package org.knime.knip.base.nodes.proc;
 import java.io.IOException;
 import java.util.List;
 
+import net.imagej.ImgPlus;
 import net.imglib2.FinalInterval;
-import net.imglib2.meta.ImgPlus;
-import net.imglib2.meta.MetadataUtil;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.img.unary.ImgProject;
+import net.imglib2.ops.util.MetadataUtil;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.node.ExecutionContext;

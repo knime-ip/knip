@@ -54,12 +54,12 @@ import java.awt.GridLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import net.imagej.axis.TypedAxis;
+import net.imagej.space.TypedSpace;
 import net.imglib2.Interval;
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.meta.TypedAxis;
-import net.imglib2.meta.TypedSpace;
 import net.imglib2.type.Type;
 import net.imglib2.view.Views;
 

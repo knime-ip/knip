@@ -50,9 +50,9 @@ package org.knime.knip.base.nodes.misc.dimswap;
 
 import java.util.List;
 
+import net.imagej.ImgPlus;
+import net.imagej.axis.TypedAxis;
 import net.imglib2.img.ImgView;
-import net.imglib2.meta.ImgPlus;
-import net.imglib2.meta.TypedAxis;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.node.ExecutionContext;

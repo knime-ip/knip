@@ -56,8 +56,8 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import net.imagej.ImgPlus;
 import net.imglib2.Interval;
-import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.interval.binary.IntervalsFromDimSelection;
 import net.imglib2.type.numeric.RealType;
 

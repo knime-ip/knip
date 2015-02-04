@@ -53,13 +53,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.imagej.axis.CalibratedAxis;
+import net.imagej.axis.TypedAxis;
+import net.imagej.space.CalibratedSpace;
 import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
-import net.imglib2.Pair;
 import net.imglib2.iterator.IntervalIterator;
-import net.imglib2.meta.CalibratedAxis;
-import net.imglib2.meta.CalibratedSpace;
-import net.imglib2.meta.TypedAxis;
+import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
 
 import org.knime.core.node.InvalidSettingsException;

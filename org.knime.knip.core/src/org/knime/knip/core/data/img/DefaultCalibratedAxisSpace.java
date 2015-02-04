@@ -1,8 +1,8 @@
 package org.knime.knip.core.data.img;
 
-import net.imglib2.meta.AbstractCalibratedSpace;
-import net.imglib2.meta.CalibratedAxis;
-import net.imglib2.meta.CalibratedSpace;
+import net.imagej.axis.CalibratedAxis;
+import net.imagej.space.AbstractCalibratedSpace;
+import net.imagej.space.CalibratedSpace;
 
 /*
  * Simple marker class
@@ -24,7 +24,7 @@ public class DefaultCalibratedAxisSpace extends AbstractCalibratedSpace<Calibrat
     public DefaultCalibratedAxisSpace(final CalibratedSpace<CalibratedAxis> obj) {
         super(obj.numDimensions());
         for (int d = 0; d < obj.numDimensions(); d++) {
-            setAxis((CalibratedAxis)obj.axis(d).copy(), d);
+            setAxis(obj.axis(d).copy(), d);
         }
     }
 }

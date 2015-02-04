@@ -153,7 +153,7 @@ public class DataAwareDefaultNodeSettingsPane extends DataAwareNodeDialogPane {
                     + ") already exists.");
         }
         createNewPanels();
-        super.addTabAt(index, tabTitle, m_compositePanel);
+        super.addTabAt(index, tabTitle, m_compositePanel,false);
     }
 
     /**

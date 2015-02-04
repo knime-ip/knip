@@ -55,18 +55,22 @@ import net.imglib2.img.cell.CellCursor;
 import net.imglib2.img.cell.CellImg;
 import net.imglib2.img.cell.CellImgFactory;
 import net.imglib2.type.NativeType;
+import net.imglib2.type.logic.BitType;
+import net.imglib2.type.numeric.integer.Unsigned12BitType;
 
 import org.knime.knip.core.io.externalization.BufferedDataInputStream;
 import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
 import org.knime.knip.core.io.externalization.Externalizer;
 import org.knime.knip.core.io.externalization.ExternalizerManager;
+import org.knime.knip.core.io.externalization.ImgLib2ApiBreakHelper;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
+@Deprecated
 public class CellImgExt0 implements Externalizer<CellImg> {
 
     /**
@@ -112,9 +116,23 @@ public class CellImgExt0 implements Externalizer<CellImg> {
 
         boolean indicateStop = cursor.isLastCell();
         while (true) {
+            AbstractCell<?> cell =
+                    ((CellContainerSampler<? extends NativeType<?>, ? extends ArrayDataAccess<?>, ? extends AbstractCell<?>>)cursor)
+                            .getCell();
+            final Object currentStorageArray =
+                    ((ArrayDataAccess<? extends ArrayDataAccess<?>>)cell.getData()).getCurrentStorageArray();
 
-            in.readLArray(((ArrayDataAccess<? extends ArrayDataAccess<?>>)((CellContainerSampler<? extends NativeType<?>, ? extends ArrayDataAccess<?>, ? extends AbstractCell<?>>)cursor)
-                    .getCell().getData()).getCurrentStorageArray());
+            if (type instanceof BitType) {
+                final long[] res = (long[])currentStorageArray;
+                ImgLib2ApiBreakHelper.bitTypeConvert(res, (int)cell.size(), in);
+            } else if (type instanceof Unsigned12BitType) {
+                final long[] res = (long[])currentStorageArray;
+                ImgLib2ApiBreakHelper.unsigned12BitTypeConvert(res, (int)cell.size(), in);
+            } else {
+                in.readLArray(((ArrayDataAccess<? extends ArrayDataAccess<?>>)((CellContainerSampler<? extends NativeType<?>, ? extends ArrayDataAccess<?>, ? extends AbstractCell<?>>)cursor)
+                        .getCell().getData()).getCurrentStorageArray());
+
+            }
 
             if (indicateStop) {
                 break;

@@ -54,17 +54,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import net.imagej.ImgPlus;
+import net.imagej.ImgPlusMetadata;
+import net.imagej.axis.CalibratedAxis;
+import net.imagej.axis.DefaultLinearAxis;
+import net.imagej.axis.TypedAxis;
+import net.imagej.space.CalibratedSpace;
+import net.imagej.space.DefaultCalibratedSpace;
 import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgView;
-import net.imglib2.meta.CalibratedAxis;
-import net.imglib2.meta.CalibratedSpace;
-import net.imglib2.meta.DefaultCalibratedSpace;
-import net.imglib2.meta.ImgPlus;
-import net.imglib2.meta.ImgPlusMetadata;
-import net.imglib2.meta.TypedAxis;
-import net.imglib2.meta.axis.DefaultLinearAxis;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.interval.binary.IntervalsFromDimSelection;
@@ -103,9 +103,9 @@ import org.knime.knip.core.data.img.DefaultImgMetadata;
 
 /**
  * Splits an image.
- * 
+ *
  * @param <T> source image type
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -160,7 +160,7 @@ public class SplitterNodeModel<T extends RealType<T>> extends NodeModel implemen
 
     /**
      * One input one output.
-     * 
+     *
      */
     public SplitterNodeModel() {
         super(1, 1);

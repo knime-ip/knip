@@ -51,18 +51,21 @@ package org.knime.knip.io;
 import io.scif.Format;
 import io.scif.SCIFIO;
 import io.scif.SCIFIOService;
+import io.scif.ome.services.OMEXMLService;
+import io.scif.services.FormatService;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.TreeSet;
 
-import loci.formats.IFormatReader;
-import loci.formats.ImageReader;
-
-import org.eclipse.core.runtime.internal.adaptor.ContextFinder;
-import org.knime.knip.io.extensionpoint.IFormatReaderExtPointManager;
-import org.knime.knip.io.extensionpoint.ScifioFormatReaderExtPointManager;
+import org.eclipse.osgi.internal.baseadaptor.DefaultClassLoader;
+import org.eclipse.osgi.internal.loader.BundleLoader;
+import org.eclipse.osgi.service.resolver.BundleSpecification;
+import org.osgi.framework.Bundle;
 import org.scijava.Context;
 import org.scijava.plugin.DefaultPluginFinder;
 import org.scijava.plugin.PluginIndex;
@@ -79,95 +82,117 @@ import org.scijava.service.Service;
  */
 public class ScifioGateway {
 
-    private static ScifioGateway m_instance;
+	private static ScifioGateway m_instance;
 
-    /** the scifio instance. */
-    private final SCIFIO m_scifio;
+	/** the scifio instance. */
+	private final SCIFIO m_scifio;
 
-    /** a set of supported formats. */
-    private final Set<Format> FORMATS;
+	/**
+	 * load supported formats and create the SCIFIO instance.
+	 */
+	private ScifioGateway() {
+		// set log level
+		System.setProperty("scijava.log.level", "error");
 
-    /**
-     * load supported formats and create the SCIFIO instance.
-     */
-    private ScifioGateway() {
-        // set log level
-        System.setProperty("scijava.log.level", "error");
+		// add old IFormatReaders
+		// addIFormatReaders();
 
-        // add old IFormatReaders
-        addIFormatReaders();
+		// required classes
+		HashSet<Class<? extends Service>> classes = new HashSet<>();
+		classes.add(SciJavaService.class);
+		classes.add(SCIFIOService.class);
+		classes.add(OMEXMLService.class);
 
-        // required classes
-        HashSet<Class<? extends Service>> classes = new HashSet<>();
-        classes.add(SciJavaService.class);
-        classes.add(SCIFIOService.class);
-        
-        // create a scifio context with required Scifio and Scijava Services
-        m_scifio = new SCIFIO(new Context(classes, new PluginIndex(new DefaultPluginFinder(new ContextFinder(getClass().getClassLoader())))));
+		// create a scifio context with required Scifio and Scijava Services
+		m_scifio = new SCIFIO(new Context(classes, new PluginIndex(
+				new DefaultPluginFinder(new ResourceAwareClassLoader(
+						(DefaultClassLoader) getClass().getClassLoader())))));
+	}
 
-        // add readers from the ScifioFormat extension point as Format
-        final List<Format> customFormats =
-                ScifioFormatReaderExtPointManager.getFormats();
-        for (final Format f : customFormats) {
-            m_scifio.format().addFormat(f);
-        }
+	private String[] getSuffixes() {
+		final TreeSet<String> ts = new TreeSet<String>();
 
-        FORMATS = m_scifio.format().getAllFormats();
-    }
+		for (final Format f : format().getAllFormats()) {
+			for (final String s : f.getSuffixes()) {
+				if (s != null && !s.isEmpty())
+					ts.add(s);
+			}
+		}
 
-    /**
-     * @deprecated
-     */
-    @Deprecated
-	private void addIFormatReaders() {
-        // add readers from the IFormatReader extension point as default reader
-        // classes
-        // adding them to the BioFormatsFormat would also be possible but not
-        // support the reordering
-        // m_scifio.format().getFormatFromClass(BioFormatsFormat.class)..addReader(rClass);
+		return ts.toArray(new String[ts.size()]);
+	}
 
-        // remove all that have been already added (add them at the end)
-        final Class<? extends IFormatReader>[] oldClasses =
-                ImageReader.getDefaultReaderClasses().getClasses();
-        for (final Class<? extends IFormatReader> clazz : oldClasses) {
-            ImageReader.getDefaultReaderClasses().removeClass(clazz);
-        }
+	private static synchronized ScifioGateway getInstance() {
+		if (m_instance == null) {
+			m_instance = new ScifioGateway();
+		}
+		return m_instance;
+	}
 
-        // add old + new such that the last added reader is first in the list
-        final List<IFormatReader> customReaders =
-                IFormatReaderExtPointManager.getIFormatReaders();
-        Collections.reverse(customReaders);
+	/**
+	 * @return the single SCIFIO instance
+	 */
+	public static SCIFIO getSCIFIO() {
+		return getInstance().m_scifio;
+	}
 
-        for (final IFormatReader r : customReaders) {
-            @SuppressWarnings("unchecked")
-			final
-            Class<IFormatReader> rClass = (Class<IFormatReader>)r.getClass();
-            ImageReader.getDefaultReaderClasses().addClass(rClass);
-        }
+	public static FormatService format() {
+		return getInstance().m_scifio.format();
+	}
 
-        for (final Class<? extends IFormatReader> or : oldClasses) {
-            ImageReader.getDefaultReaderClasses().addClass(or);
-        }
-    }
+	/**
+	 * @return a list of supported formats for image readers
+	 */
+	public static String[] getFORMATS() {
+		return getInstance().getSuffixes();
+	}
 
-    private static synchronized ScifioGateway getInstance() {
-        if (m_instance == null) {
-            m_instance = new ScifioGateway();
-        }
-        return m_instance;
-    }
+	class ResourceAwareClassLoader extends ClassLoader {
 
-    /**
-     * @return the single SCIFIO instance
-     */
-    public static SCIFIO getSCIFIO() {
-        return getInstance().m_scifio;
-    }
+		final ArrayList<URL> urls = new ArrayList<URL>();
 
-    /**
-     * @return a list of supported formats for image readers
-     */
-    public static Set<Format> getFORMATS() {
-        return getInstance().FORMATS;
-    }
+		public ResourceAwareClassLoader(
+				final DefaultClassLoader contextClassLoader) {
+			super(contextClassLoader);
+
+			for (BundleSpecification bundleSpec : ((BundleLoader) contextClassLoader
+					.getDelegate()).getBundle().getBundleDescription()
+					.getRequiredBundles()) {
+
+				final Bundle bundle = org.eclipse.core.runtime.Platform
+						.getBundle(bundleSpec.getName());
+				Enumeration<URL> resources;
+				try {
+					resources = bundle
+							.getResources("META-INF/json/org.scijava.plugin.Plugin");
+				} catch (IOException e) {
+					continue;
+				}
+
+				if (resources == null) {
+					continue;
+				}
+
+				while (resources.hasMoreElements()) {
+					final URL resource = resources.nextElement();
+					// we want to avoid transitive resolving of dependencies
+					final String host = resource.getHost();
+					if (bundle.getBundleId() == Long.valueOf(host.substring(0,
+							host.indexOf(".")))) {
+						urls.add(resource);
+					}
+				}
+			}
+		}
+
+		@Override
+		public Enumeration<URL> getResources(final String name)
+				throws IOException {
+			if (!name.startsWith("META-INF/json")) {
+				return Collections.emptyEnumeration();
+			}
+			urls.addAll(Collections.list(super.getResources(name)));
+			return Collections.enumeration(urls);
+		}
+	}
 }

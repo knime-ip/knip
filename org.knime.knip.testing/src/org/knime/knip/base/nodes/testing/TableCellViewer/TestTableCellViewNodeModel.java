@@ -103,10 +103,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import net.imagej.ImgPlus;
 import net.imglib2.RandomAccess;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.meta.ImgPlus;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 

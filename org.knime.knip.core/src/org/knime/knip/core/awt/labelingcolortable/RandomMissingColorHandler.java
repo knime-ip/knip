@@ -48,9 +48,9 @@
  */
 package org.knime.knip.core.awt.labelingcolortable;
 
-import java.util.Random;
+import gnu.trove.map.hash.TIntIntHashMap;
 
-import org.apache.mahout.math.map.OpenIntIntHashMap;
+import java.util.Random;
 
 /**
  * TODO Auto-generated
@@ -62,7 +62,7 @@ import org.apache.mahout.math.map.OpenIntIntHashMap;
 public class RandomMissingColorHandler implements MissingColorHandler {
 
     // Fast HashMap implementation
-    private static OpenIntIntHashMap m_colorTable = new OpenIntIntHashMap(4096);
+    private static TIntIntHashMap m_colorTable = new TIntIntHashMap(4096);
 
     private static int m_generation;
 

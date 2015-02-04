@@ -50,8 +50,8 @@ package org.knime.knip.base.nodes.features.providers;
 
 import java.util.List;
 
+import net.imagej.space.CalibratedSpace;
 import net.imglib2.IterableInterval;
-import net.imglib2.meta.CalibratedSpace;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.ValuePair;
 

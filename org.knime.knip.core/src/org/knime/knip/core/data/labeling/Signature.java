@@ -22,9 +22,9 @@ import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.outofbounds.OutOfBoundsConstantValueFactory;
 import net.imglib2.roi.IterableRegionOfInterest;
-import net.imglib2.sampler.special.ConstantRandomAccessible;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.ConstantUtils;
 import net.imglib2.view.Views;
 
 import org.knime.knip.core.algorithm.InplaceFFT;
@@ -34,10 +34,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Represents a signature (i.e. a line in the polar space) of a polygon in the cartesian space.
- * 
- * 
+ *
+ *
  * @author hornm
- * 
+ *
  */
 public class Signature {
 
@@ -58,7 +58,7 @@ public class Signature {
 
     /**
      * Builds a signature from an (polar) image.
-     * 
+     *
      * @param interval the source image
      * @param maxVariance the maximum the signature will vary in the x-direction (corresponds to the radius)
      */
@@ -71,9 +71,9 @@ public class Signature {
 
     /**
      * Builds a signature from an (polar) image.
-     * 
+     *
      * @param interval
-     * 
+     *
      * @param polarImage the source image
      * @param historyLength the maximal depth to be looked back for the signature retrieval
      * @param maxVariance the maximum the signature will vary in the x-direction (corresponds to the radius)
@@ -89,12 +89,12 @@ public class Signature {
     /**
      * Retrieves a signature from a bit mask. The first occurrence of the change from ON_VALUE to OFF_VALUE will used
      * for the individual signature positions.
-     * 
+     *
      * @param mask
      * @param maskPosition
      * @param signatureLength
      * @param maxVariance
-     * 
+     *
      */
 
     public Signature(final Img<BitType> mask, final long[] maskPosition, final int signatureLength) {
@@ -161,12 +161,12 @@ public class Signature {
     /**
      * Retrieves a signature from a bit mask. The first occurrence of the change from ON_VALUE to OFF_VALUE will used
      * for the individual signature positions.
-     * 
+     *
      * @param mask
      * @param maskPosition
      * @param signatureLength
      * @param maxVariance
-     * 
+     *
      */
 
     public Signature(final IterableRegionOfInterest roi, final long[] maskPosition, final int signatureLength) {
@@ -184,7 +184,7 @@ public class Signature {
         int count = 0;
 
         final IterableInterval<BitType> ii =
-                roi.getIterableIntervalOverROI(new ConstantRandomAccessible<BitType>(new BitType(), roi.numDimensions()));
+                roi.getIterableIntervalOverROI(ConstantUtils.constantRandomAccessible(new BitType(), roi.numDimensions()));
 
         final Cursor<BitType> c = ii.localizingCursor();
         while (c.hasNext()) {
@@ -233,7 +233,7 @@ public class Signature {
 
     /**
      * Creates a new signature.
-     * 
+     *
      * @param sign the 'radial' positions for each angle (polar space). A copy will be made.
      * @param width the width of the signature, just for informal use
      */
@@ -245,7 +245,7 @@ public class Signature {
 
     /**
      * The position (corresponds to the radius) of given index (corresponds to the angle).
-     * 
+     *
      * @param index
      * @return
      */
@@ -256,7 +256,7 @@ public class Signature {
 
     /**
      * The number of pixels in its length.
-     * 
+     *
      * @return
      */
 
@@ -266,7 +266,7 @@ public class Signature {
 
     /**
      * The score of this signature. The sum of the weights (from the polar image) normalized by the signature length.
-     * 
+     *
      * @return a value between 0.0 and 1.0
      */
     public double getScore() {
@@ -275,7 +275,7 @@ public class Signature {
 
     /**
      * The centre of the signature.
-     * 
+     *
      * @return the centre as a 2-dim array. No copy is made!
      */
     public long[] getCentre() {
@@ -284,7 +284,7 @@ public class Signature {
 
     /**
      * Sets a new centre for the signature. No copy is made!
-     * 
+     *
      * @param center the new centre coordinates (2d)
      */
     public void setCentre(final long[] center) {
@@ -293,7 +293,7 @@ public class Signature {
 
     /**
      * The width of the signature. It's simply the width of the polar image, where the signature stems from.
-     * 
+     *
      * @return the width
      */
     public long getWidth() {
@@ -303,7 +303,7 @@ public class Signature {
     /**
      * The area of the signature, i.e. the number of pixels on the left-hand side. Might differ a little bit from the
      * area of the contour in the Cartesian space.
-     * 
+     *
      * @return
      */
     public int getArea() {
@@ -366,7 +366,7 @@ public class Signature {
 
     /**
      * Centralizes the signature according to the center point.
-     * 
+     *
      */
     public void centralize() {
 
@@ -412,7 +412,7 @@ public class Signature {
 
     /**
      * Compares to signatures.
-     * 
+     *
      * @return true, if the two signatures are exactly the same
      */
     @Override
@@ -445,7 +445,7 @@ public class Signature {
 
     /**
      * Transforms the signature to the corresponding {@link Polygon} in the Cartesian space.
-     * 
+     *
      * @return the new contour
      */
 
@@ -468,9 +468,9 @@ public class Signature {
 
     /**
      * Transforms the signature to the corresponding {@link Polygon} in the Cartesian space.
-     * 
+     *
      * @param offset an offset for the polygon points
-     * 
+     *
      * @return the new contour
      */
 
@@ -493,7 +493,7 @@ public class Signature {
 
     /**
      * Creates an image (width x length) from the signature, where all pixels from the signature are on, the rest off.
-     * 
+     *
      * @return the image
      */
     public Img<BitType> createImage() {
@@ -525,7 +525,7 @@ public class Signature {
     /**
      * Smoothes the signature by cutting the desired frequencies. This operation requires the signature to have a length
      * of power of 2! If not, an exception will be thrown.
-     * 
+     *
      * @param cutoff the frequencies which should be kept
      */
     public void lowPassFilter(final int cutoff) {

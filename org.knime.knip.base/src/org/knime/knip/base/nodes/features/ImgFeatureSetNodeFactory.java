@@ -48,8 +48,8 @@
  */
 package org.knime.knip.base.nodes.features;
 
+import net.imagej.space.CalibratedSpace;
 import net.imglib2.IterableInterval;
-import net.imglib2.meta.CalibratedSpace;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.ValuePair;
 
@@ -61,7 +61,7 @@ import org.knime.knip.base.nodes.features.providers.TamuraFeatureSetProvider;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>

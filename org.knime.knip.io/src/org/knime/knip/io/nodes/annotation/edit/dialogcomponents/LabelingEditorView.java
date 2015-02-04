@@ -13,10 +13,10 @@ import net.imglib2.img.ImgView;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingType;
 import net.imglib2.labeling.LabelingView;
-import net.imglib2.sampler.special.ConstantRandomAccessible;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.ConstantUtils;
 import net.imglib2.view.Views;
 
 import org.knime.core.data.DataCell;
@@ -159,9 +159,9 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 					.getImgPlus().getImg(), imgPlusCell.getMetadata()));
 		} else {
 			m_currentCell = (LabelingValue<L>) currentRow[0];
-			final ConstantRandomAccessible<BitType> c = new ConstantRandomAccessible<BitType>(
-					new BitType(true), m_currentCell.getDimensions().length);
-			final Img<BitType> view = new ImgView<BitType>(Views.interval(c,
+			final Img<BitType> view = new ImgView<BitType>(Views.interval(
+					ConstantUtils.constantRandomAccessible(new BitType(true),
+							m_currentCell.getDimensions().length),
 					m_currentCell.getLabeling()), null);
 
 			m_currentKey = new LabelingEditorRowKey(key.getRowName(),
@@ -178,16 +178,23 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 
 		final LabelingEditorChangeTracker currTrack = m_annotationManager
 				.getTracker(m_currentKey);
+		
+		// Ensure that the complete labeling is loaded
+		currTrack.disableFiltering();
 
-		final Labeling<String> convertedLabeling = new LabelingView<String>(
-				Converters.convert(
+		RandomAccessibleInterval<LabelingType<String>> conv = Converters
+				.convert(
 						Converters
 								.convert(
 										(RandomAccessibleInterval<LabelingType<L>>) m_currentCell
 												.getLabeling(),
 										new ToStringLabelingConverter<L>(),
 										new LabelingType<String>()), currTrack,
-						new LELabelingType(m_eventService)), null);
+						(LabelingType<String>) new LELabelingType(
+								m_eventService));
+
+		final Labeling<String> convertedLabeling = new LabelingView<String>(
+				conv, null);
 
 		final Labeling<String> stringLabeling = new LabelingView<String>(
 				Converters.convert(

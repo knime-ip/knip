@@ -52,13 +52,12 @@ import java.awt.Image;
 import java.awt.RenderingHints;
 import java.io.IOException;
 
+import net.imagej.ImgPlus;
+import net.imagej.ImgPlusMetadata;
+import net.imagej.Sourced;
+import net.imagej.axis.CalibratedAxis;
+import net.imagej.space.CalibratedSpace;
 import net.imglib2.img.Img;
-import net.imglib2.meta.CalibratedAxis;
-import net.imglib2.meta.CalibratedSpace;
-import net.imglib2.meta.ImgPlus;
-import net.imglib2.meta.ImgPlusMetadata;
-import net.imglib2.meta.Named;
-import net.imglib2.meta.Sourced;
 import net.imglib2.ops.operation.imgplus.unary.ImgPlusCopy;
 import net.imglib2.type.logic.BitType;
 
@@ -75,6 +74,7 @@ import org.knime.knip.core.awt.Real2GreyColorRenderer;
 import org.knime.knip.core.data.algebra.ExtendedPolygon;
 import org.knime.knip.core.io.externalization.ExtendedPolygonDeSerializer;
 import org.knime.knip.core.util.ImgUtils;
+import org.scijava.Named;
 
 /**
  * Cell containing a Polygon.

@@ -50,12 +50,12 @@ package org.knime.knip.base.data;
 
 import javax.swing.Icon;
 
-import net.imglib2.meta.CalibratedAxis;
-import net.imglib2.meta.CalibratedSpace;
-import net.imglib2.meta.Named;
-import net.imglib2.meta.Sourced;
+import net.imagej.Sourced;
+import net.imagej.axis.CalibratedAxis;
+import net.imagej.space.CalibratedSpace;
 
 import org.knime.core.data.DataValue;
+import org.scijava.Named;
 
 /**
  * Value, keeping a bounding box and the dimension labels.

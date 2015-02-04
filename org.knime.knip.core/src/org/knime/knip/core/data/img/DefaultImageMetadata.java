@@ -52,8 +52,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.imagej.ImageMetadata;
 import net.imglib2.display.ColorTable;
-import net.imglib2.meta.ImageMetadata;
 
 /**
  * TODO Auto-generated

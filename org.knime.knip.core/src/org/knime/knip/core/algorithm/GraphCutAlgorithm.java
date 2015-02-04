@@ -84,7 +84,7 @@ import org.knime.knip.core.data.graphtheory.Node;
 
 /**
  * Class implementing the grach cut algorithm.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -137,7 +137,7 @@ public class GraphCutAlgorithm {
 
     /**
      * Initialises the graph cut implementation and allocates the memory needed for the given number of nodes and edges.
-     * 
+     *
      * @param numNodes The number of nodes that should be created.
      * @param numEdges The number of edges that you can add. A directed edge and its counterpart (i.e., the directed
      *            edge in the other direction) count as one edge.
@@ -170,7 +170,7 @@ public class GraphCutAlgorithm {
 
     /**
      * Set the affinity for one node to belong to the foreground (i.e., source) or background (i.e., sink).
-     * 
+     *
      * @param nodeId The number of the node.
      * @param source The affinity of this node to the foreground (i.e., source)
      * @param sink The affinity of this node to the background (i.e., sink)
@@ -194,25 +194,24 @@ public class GraphCutAlgorithm {
 
     /**
      * Set the edge weight of an undirected edge between two nodes.
-     * 
+     *
      * Please note that you cannot call any <tt>setEdgeWeight</tt> more often than the number of edges you specified at
      * the time of construction!
-     * 
+     *
      * @param nodeId1 The first node.
      * @param nodeId2 The second node.
      * @param weight The weight (i.e., the cost) of the connecting edge.
      */
     public void setEdgeWeight(final int nodeId1, final int nodeId2, final float weight) {
-
         setEdgeWeight(nodeId1, nodeId2, weight, weight);
     }
 
     /**
      * Set the edge weight of a pair of directed edges between two nodes.
-     * 
+     *
      * Please note that you cannot call any <tt>setEdgeWeight</tt> more often than the number of edges you specified at
      * the time of construction!
-     * 
+     *
      * @param nodeId1 The first node.
      * @param nodeId2 The second node.
      * @param weight1to2 The weight (i.e., the cost) of the directed edge from node1 to node2.
@@ -262,7 +261,7 @@ public class GraphCutAlgorithm {
 
     /**
      * Performs the actual max-flow/min-cut computation.
-     * 
+     *
      * @param reuseTrees reuse trees of a previos call
      * @param changedNodes list of nodes that potentially changed their segmentation compared to a previous call, can be
      *            set to <tt>null</tt>
@@ -427,7 +426,7 @@ public class GraphCutAlgorithm {
     /**
      * Get the segmentation, i.e., the terminal node that is connected to the specified node. If there are several
      * min-cut solutions, free nodes are assigned to the background.
-     * 
+     *
      * @param nodeId the node to check
      * @return Either <tt>Terminal.FOREGROUND</tt> or <tt>Terminal.BACKGROUND</tt>
      */
@@ -446,7 +445,7 @@ public class GraphCutAlgorithm {
 
     /**
      * Gets the number of nodes in this graph.
-     * 
+     *
      * @return The number of nodes
      */
     public int getNumNodes() {
@@ -455,7 +454,7 @@ public class GraphCutAlgorithm {
 
     /**
      * Gets the number of edges in this graph.
-     * 
+     *
      * @return The number of edges.
      */
     public int getNumEdges() {
@@ -464,12 +463,12 @@ public class GraphCutAlgorithm {
 
     /**
      * Mark a node as being changed.
-     * 
+     *
      * Use this method if the graph weights changed after a previous computation of the max-flow. The next computation
      * will be faster by just considering changed nodes.
-     * 
+     *
      * A node has to be considered changed if any of its adjacent edges changed its weight.
-     * 
+     *
      * @param nodeId The node that changed.
      */
     public void markNode(final int nodeId) {
@@ -591,7 +590,7 @@ public class GraphCutAlgorithm {
 
     /**
      * Initialise the algorithm.
-     * 
+     *
      * Only called if <tt>reuseTrees</tt> is false.
      */
     private void maxflowInit() {
@@ -632,7 +631,7 @@ public class GraphCutAlgorithm {
 
     /**
      * Initialise the algorithm.
-     * 
+     *
      * Only called if <tt>reuseTrees</tt> is true.
      */
     private void maxflowReuseTreesInit() {
@@ -730,7 +729,7 @@ public class GraphCutAlgorithm {
 
     /**
      * Perform the augmentation step of the graph cut algorithm.
-     * 
+     *
      * This is done whenever a path between the source and the sink was found.
      */
     private void augment(final Edge middle) {
@@ -999,11 +998,11 @@ public class GraphCutAlgorithm {
 
     /**
      * returns the Edge weight between two nodes
-     * 
+     *
      * @param nodeID1 first node
      * @param nodeID2 second node
      * @return the weight of the edge
-     * 
+     *
      */
     public float getEdgeWeight(final int nodeID1, final int nodeID2) {
         final Node n1 = m_nodes[nodeID1];

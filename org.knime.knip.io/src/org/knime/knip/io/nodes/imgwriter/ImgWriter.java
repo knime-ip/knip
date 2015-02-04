@@ -64,9 +64,10 @@ import loci.formats.MetadataTools;
 import loci.formats.MissingLibraryException;
 import loci.formats.meta.IMetadata;
 import loci.formats.services.OMEXMLService;
+import net.imglib2.Cursor;
+import net.imglib2.FinalInterval;
 import net.imglib2.img.Img;
 import net.imglib2.iterator.IntervalIterator;
-import net.imglib2.sampler.special.OrthoSliceCursor;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.ByteType;
@@ -77,6 +78,7 @@ import net.imglib2.type.numeric.integer.UnsignedIntType;
 import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.type.numeric.real.FloatType;
+import net.imglib2.view.Views;
 import ome.xml.model.enums.DimensionOrder;
 import ome.xml.model.enums.PixelType;
 
@@ -86,8 +88,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Provides the functionality to write {@link Img}s using the <a href =
  * "http://loci.wisc.edu/bio-formats/">bioformats</a>-library.
- *
- *
+ * 
+ * 
  * @author hornm, University of Konstanz
  */
 public class ImgWriter {
@@ -137,7 +139,7 @@ public class ImgWriter {
 	/**
 	 * Returns the list of the possible compression types of the specific
 	 * writer.
-	 *
+	 * 
 	 * @param writer
 	 *            the name of the writer
 	 * @return the list of possible compressions, <code>null</code> if there are
@@ -164,7 +166,7 @@ public class ImgWriter {
 	/**
 	 * Gets one suffix normally used to identify the format associated with the
 	 * specific writer.
-	 *
+	 * 
 	 * @param writer
 	 *            the writer
 	 * @return the suffix, e.g. '.tif'
@@ -181,12 +183,12 @@ public class ImgWriter {
 	/**
 	 * Writes the image plane stack to the given file. The resulting image
 	 * format is determined by the given writer.
-	 *
+	 * 
 	 * @param img
 	 *            the image to be written
 	 * @param <T>
 	 *            the image type
-	 *
+	 * 
 	 * @param outfile
 	 *            the absolute path of the file to write in
 	 * @param writer
@@ -210,24 +212,20 @@ public class ImgWriter {
 			throws FormatException, IOException, MissingLibraryException,
 			ServiceException, DependencyException {
 		retrieveSupportedWriters();
-		IFormatWriter w = m_mapWriters.get(writer);
-		if (w == null) {
-			throw new FormatException("Missing Writer for Format: " + writer
-					+ "!");
-		}
-		writeImage(img, outfile, w, compressionType, dimMapping);
+		writeImage(img, outfile, m_mapWriters.get(writer), compressionType,
+				dimMapping);
 
 	}
 
 	/**
 	 * Writes the image plane stack to the given file. The resulting image
 	 * format is determined by the given writer.
-	 *
+	 * 
 	 * @param img
 	 *            the image to be written
 	 * @param <T>
 	 *            the image type
-	 *
+	 * 
 	 * @param outfile
 	 *            the absolute path of the file to write in
 	 * @param writer
@@ -290,7 +288,7 @@ public class ImgWriter {
 			ftptype = FormatTools.DOUBLE;
 		} else {
 			throw new FormatException("The given image format ("
-					+ val.getClass().getSimpleName() + ") can't be writen!");
+					+ val.getClass().toString() + ") can't be writen!");
 		}
 
 		if (store == null) {
@@ -370,8 +368,6 @@ public class ImgWriter {
 		final IntervalIterator fakeCursor = new IntervalIterator(new int[] {
 				sizeZ, sizeT });
 
-		OrthoSliceCursor<T> c;
-
 		final byte[][] planes = new byte[sizeC][];
 		long[] pos;
 		final int numSteps = sizeT * sizeZ;
@@ -425,7 +421,16 @@ public class ImgWriter {
 
 				}
 
-				c = new OrthoSliceCursor<T>(img, 0, 1, pos);
+				long[] min = pos.clone();
+				long[] max = pos.clone();
+
+				min[0] = 0;
+				min[1] = 0;
+
+				max[0] = img.max(0);
+				max[1] = img.max(1);
+
+				Cursor<T> c = Views.interval(img, new FinalInterval(min, max)).cursor();
 
 				if (val instanceof ByteType) {
 					planes[i] = new byte[(int) (img.dimension(0) * img
@@ -508,7 +513,7 @@ public class ImgWriter {
 
 	/**
 	 * All operations to be done to close the image writer.
-	 *
+	 * 
 	 * @throws IOException
 	 */
 	public void close() throws IOException {

@@ -48,12 +48,11 @@
  */
 package org.knime.knip.core.awt.labelingcolortable;
 
-import org.apache.mahout.math.map.AbstractIntIntMap;
-import org.apache.mahout.math.map.OpenIntIntHashMap;
+import gnu.trove.map.hash.TIntIntHashMap;
 
 /**
  * TODO
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -61,26 +60,26 @@ import org.apache.mahout.math.map.OpenIntIntHashMap;
 public class DefaultLabelingColorTable implements LabelingColorTable {
 
     // Fast HashMap implementation
-    private AbstractIntIntMap m_colorTable = null;
+    private TIntIntHashMap m_colorTable = null;
 
     /**
      * Default constructor.
      */
     public DefaultLabelingColorTable() {
-        m_colorTable = new OpenIntIntHashMap();
+        m_colorTable = new TIntIntHashMap();
     }
 
     /**
      * Constructor
-     * 
+     *
      * @param colorTable
      */
-    public DefaultLabelingColorTable(final AbstractIntIntMap colorTable) {
+    public DefaultLabelingColorTable(final TIntIntHashMap colorTable) {
         m_colorTable = colorTable;
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     @Override
@@ -97,7 +96,7 @@ public class DefaultLabelingColorTable implements LabelingColorTable {
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     @Override
@@ -118,15 +117,15 @@ public class DefaultLabelingColorTable implements LabelingColorTable {
      */
     @Override
     public LabelingColorTable copy() {
-        return new DefaultLabelingColorTable(m_colorTable.copy());
+        return new DefaultLabelingColorTable(new TIntIntHashMap(m_colorTable));
     }
 
     /**
      * References is passed for serialization. No copy is made!
-     * 
-     * @return
+     *
+     * @return the color table
      */
-    public AbstractIntIntMap getColorTable() {
+    public TIntIntHashMap getColorTable() {
         return m_colorTable;
     }
 }
