@@ -1,13 +1,18 @@
 package org.knime.knip.featurenode.view2.featureset;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import net.imagej.ops.features.FeatureSet;
 
@@ -85,7 +90,6 @@ public class FeatureNodeDialogPane extends NodeDialogPane {
 									.addFeatureSetPanel(new FeatureSetPanel(
 											currentlySelectedFeatureSet));
 							getTab("Configuration").revalidate();
-							System.out.println("done");
 						} catch (InstantiableException e1) {
 							LOGGER.error("Couldn't add feature set", e1);
 						} catch (ModuleException e1) {
@@ -94,17 +98,22 @@ public class FeatureNodeDialogPane extends NodeDialogPane {
 					}
 				});
 
-		// add panels to dialog
-		JPanel northPanel = new JPanel(new GridLayout(0, 1, 0, 20));
-		northPanel.add(columnSelectionPanel);
-		northPanel.add(featureSetSelectionPanel);
+		JPanel configPanel = new JPanel(new GridBagLayout());
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.weightx = 1;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
 
-		JPanel superPanel = new JPanel();
-		superPanel.setLayout(new BorderLayout(0, 20));
-		superPanel.add(northPanel, BorderLayout.NORTH);
-		superPanel.add(featureSetCollectionPanel, BorderLayout.CENTER);
+		configPanel.add(columnSelectionPanel, gbc);
 
-		this.addTab("Configuration", superPanel);
+		gbc.gridy = 1;
+		configPanel.add(featureSetSelectionPanel, gbc);
+
+		gbc.gridy = 2;
+		gbc.weighty = 1;
+		gbc.fill = GridBagConstraints.BOTH;
+		configPanel.add(featureSetCollectionPanel, gbc);
+
+		this.addTab("Configuration", configPanel);
 	}
 
 	//

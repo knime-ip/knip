@@ -31,12 +31,10 @@ public class FeatureSetCollectionPanel extends JPanel {
 		this.removeAll();
 		this.setBorder(BorderFactory
 				.createTitledBorder("Selected Feature Sets:"));
-
-		JPanel featureSetsPanel = new JPanel();
-		featureSetsPanel.setLayout(new BoxLayout(featureSetsPanel,
-				BoxLayout.Y_AXIS));
+		
+		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		for (final FeatureSetPanel featureSetPanel : featureSets) {
-			featureSetsPanel.add(featureSetPanel);
+			this.add(featureSetPanel);
 
 			featureSetPanel.getInfoButton().addActionListener(
 					new ActionListener() {
@@ -58,16 +56,8 @@ public class FeatureSetCollectionPanel extends JPanel {
 						}
 					});
 		}
-		featureSetsPanel.add(Box.createVerticalGlue());
-		
 
-		JScrollPane pane = new JScrollPane();
-		pane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		pane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-
-		pane.setViewportView(featureSetsPanel);
-		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		this.add(pane, BorderLayout.CENTER);
+		this.add(Box.createVerticalGlue());
 	}
 
 	public void addFeatureSetPanel(FeatureSetPanel fsp) {
