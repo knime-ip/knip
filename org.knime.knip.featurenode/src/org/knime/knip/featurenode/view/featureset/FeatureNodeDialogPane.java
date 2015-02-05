@@ -1,18 +1,13 @@
-package org.knime.knip.featurenode.view2.featureset;
+package org.knime.knip.featurenode.view.featureset;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
-import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 
 import net.imagej.ops.features.FeatureSet;
 
@@ -27,11 +22,11 @@ import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelectio
 import org.knime.knip.featurenode.FeatureNodeModel;
 import org.knime.knip.featurenode.model.FeatureSetInfo;
 import org.knime.knip.featurenode.model.SettingsModelFeatureSet;
-import org.knime.knip.featurenode.view.FeatureSetInfoJPanel;
 import org.scijava.InstantiableException;
 import org.scijava.module.ModuleException;
 import org.scijava.plugin.PluginInfo;
 
+@SuppressWarnings("rawtypes")
 public class FeatureNodeDialogPane extends NodeDialogPane {
 
 	private static final String FEATURE_MODEL_SETTINGS = "feature_model_settings";

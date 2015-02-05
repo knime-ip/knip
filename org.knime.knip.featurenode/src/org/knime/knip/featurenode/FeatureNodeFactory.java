@@ -6,7 +6,7 @@ import net.imglib2.type.numeric.RealType;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
-import org.knime.knip.featurenode.view2.featureset.FeatureNodeDialogPane;
+import org.knime.knip.featurenode.view.featureset.FeatureNodeDialogPane;
 
 /**
  * <code>NodeFactory</code> for the "FeatureNode" Node.

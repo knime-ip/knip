@@ -1,7 +1,5 @@
-package org.knime.knip.featurenode.view2.featureset;
+package org.knime.knip.featurenode.view.featureset;
 
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -11,9 +9,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-
-import org.knime.knip.featurenode.view.FeatureSetInfoDialog;
 
 public class FeatureSetCollectionPanel extends JPanel {
 

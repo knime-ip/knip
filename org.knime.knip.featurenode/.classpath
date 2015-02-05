@@ -3,6 +3,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry exported="true" kind="lib" path="lib/imagej-ops-0.8.1-SNAPSHOT.jar" sourcepath="/imagej-ops"/>
+	<classpathentry exported="true" kind="lib" path="lib/imagej-ops-0.8.1-SNAPSHOT.jar" sourcepath="/home/seebacher/Documents/github-projects/imagej-ops"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

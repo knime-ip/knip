@@ -307,11 +307,7 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 							fieldNameAndValue.getValue());
 				}
 
-				final FeatureSet<IterableInterval<?>, DoubleType> delegateObject = (FeatureSet<IterableInterval<?>, DoubleType>) module
-						.getDelegateObject();
-				OpsGateway.getContext().inject(delegateObject);
-
-				compiledFeatureSets.add(delegateObject);
+				compiledFeatureSets.add(createInstance);
 			} else {
 				final FeatureSet<IterableInterval<?>, DoubleType> createInstance = OpsGateway
 						.getPluginService()
@@ -345,11 +341,7 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 							fieldNameAndValue.getValue());
 				}
 
-				final FeatureSet<IterableInterval<?>, DoubleType> delegateObject = (FeatureSet<IterableInterval<?>, DoubleType>) module
-						.getDelegateObject();
-				OpsGateway.getContext().inject(delegateObject);
-
-				compiledFeatureSets.add(delegateObject);
+				compiledFeatureSets.add(createInstance);
 			}
 		}
 
