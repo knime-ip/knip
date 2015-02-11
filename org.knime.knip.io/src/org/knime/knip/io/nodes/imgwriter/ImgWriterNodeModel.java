@@ -53,9 +53,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
 import loci.formats.FormatException;
-import net.imglib2.meta.ImgPlus;
+import net.imagej.ImgPlus;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.data.DataRow;
