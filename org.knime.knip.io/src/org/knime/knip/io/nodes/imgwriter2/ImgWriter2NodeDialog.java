@@ -134,7 +134,7 @@ public class ImgWriter2NodeDialog extends DefaultNodeSettingsPane {
 
         customFileNameModel.setEnabled(false);
         addDialogComponent(new DialogComponentBoolean(useCustomFileNameModel,
-                "Custom filename"));
+                "Custom Filename"));
         addDialogComponent(new DialogComponentString(customFileNameModel,
                 "Filename Prefix"));
 
@@ -185,7 +185,7 @@ public class ImgWriter2NodeDialog extends DefaultNodeSettingsPane {
                 "Overwrite existing files?"));
         addDialogComponent(new DialogComponentBoolean(
                 ImgWriter2SettingsModels.createForceDirCreationModel(),
-                "Create non-existing directories."));
+                "Create non-existing directories"));
         closeCurrentGroup();
 
         createNewTab("Dimension Mapping");

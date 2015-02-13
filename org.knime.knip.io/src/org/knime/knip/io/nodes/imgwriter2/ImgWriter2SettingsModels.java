@@ -1,5 +1,7 @@
 package org.knime.knip.io.nodes.imgwriter2;
 
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelColumnName;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
@@ -27,7 +29,17 @@ final class ImgWriter2SettingsModels {
      * @return Model to store the directory settings.
      */
     static SettingsModelString createDirectoryModel() {
-        return new SettingsModelString("directory_key", "");
+        return new SettingsModelString("directory_key", "") {
+            @Override
+            protected void validateSettingsForModel(NodeSettingsRO settings)
+                    throws InvalidSettingsException {
+                if (settings.getString("directory_key").equals("")) {
+                    throw new InvalidSettingsException(
+                            "Output directory must not be empty!");
+                }
+                super.validateSettingsForModel(settings);
+            }
+        };
     }
 
     /**
