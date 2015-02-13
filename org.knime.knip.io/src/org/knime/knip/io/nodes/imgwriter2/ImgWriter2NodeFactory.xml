@@ -10,7 +10,7 @@
  -->
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="imgwriter2.png" type="Sink">
-	<name>Image Writer 2</name>
+	<name>Img Writer</name>
 	<shortDescription>
 		  Writes images to files.
 	</shortDescription>
