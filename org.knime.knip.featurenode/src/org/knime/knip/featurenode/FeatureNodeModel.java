@@ -72,14 +72,14 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 	/**
 	 * @return Settings model for selected labeling.
 	 */
-	static SettingsModelString createLabelingSelectionModel() {
+	public static SettingsModelString createLabelingSelectionModel() {
 		return new SettingsModelString("m_labeling_settings_model", null);
 	}
 
 	/**
 	 * @return Settings model for selected image.
 	 */
-	static SettingsModelString createImgSelectionModel() {
+	public static SettingsModelString createImgSelectionModel() {
 		return new SettingsModelString("m_imgage_settings_model", null);
 	}
 
@@ -307,11 +307,7 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 							fieldNameAndValue.getValue());
 				}
 
-				final FeatureSet<IterableInterval<?>, DoubleType> delegateObject = (FeatureSet<IterableInterval<?>, DoubleType>) module
-						.getDelegateObject();
-				OpsGateway.getContext().inject(delegateObject);
-
-				compiledFeatureSets.add(delegateObject);
+				compiledFeatureSets.add(createInstance);
 			} else {
 				final FeatureSet<IterableInterval<?>, DoubleType> createInstance = OpsGateway
 						.getPluginService()
@@ -345,11 +341,7 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 							fieldNameAndValue.getValue());
 				}
 
-				final FeatureSet<IterableInterval<?>, DoubleType> delegateObject = (FeatureSet<IterableInterval<?>, DoubleType>) module
-						.getDelegateObject();
-				OpsGateway.getContext().inject(delegateObject);
-
-				compiledFeatureSets.add(delegateObject);
+				compiledFeatureSets.add(createInstance);
 			}
 		}
 
