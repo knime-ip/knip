@@ -60,11 +60,13 @@ public class LabelingEditorChangeTracker implements
 		List<String> mappedEntry = m_changedLabels.get(list);
 
 		if (mappedEntry != null) {
-			mappedEntry.removeAll(deletedEntries);
-			intern(mappedEntry);
-			if (m_filter)
-				checkForFiltered(mappedEntry);
-			++m_generation;
+			boolean changed = mappedEntry.removeAll(deletedEntries);
+			if (changed) {
+				intern(mappedEntry);
+				if (m_filter)
+					checkForFiltered(mappedEntry);
+				++m_generation;
+			}
 		} else {
 			m_changedLabels.put(list, new LinkedList<String>(list));
 			remove(list, deletedEntries);
@@ -85,14 +87,20 @@ public class LabelingEditorChangeTracker implements
 		List<String> mappedEntry = m_changedLabels.get(list);
 
 		if (mappedEntry != null) {
+			boolean changed = false;
 			for (String s : addedEntries)
-				if (!mappedEntry.contains(s))
+				if (!mappedEntry.contains(s)) {
 					mappedEntry.add(s);
+					changed = true;
+				}
 			Collections.sort(mappedEntry);
-			intern(mappedEntry);
-			if (m_filter)
-				checkForFiltered(mappedEntry);
-			++m_generation;
+			if (changed) {
+				intern(mappedEntry);
+				if (m_filter)
+					checkForFiltered(mappedEntry);
+
+				++m_generation;
+			}
 		} else {
 			m_changedLabels.put(list, new LinkedList<String>(list));
 			insert(list, addedEntries);
@@ -222,11 +230,12 @@ public class LabelingEditorChangeTracker implements
 	 * not contained in its filter list.
 	 */
 	public void disableFiltering() {
-		if (m_filter) {
-			m_filter = false;
-			m_entriesToKeep = null;
+		// If it was previously enabled, something might have changed.
+		if (m_filter)
 			++m_generation;
-		}
+		m_filter = false;
+		m_entriesToKeep = null;
+
 	}
 
 	@Override
@@ -298,7 +307,8 @@ public class LabelingEditorChangeTracker implements
 	 */
 	private void checkForFiltered(Collection<String> list) {
 		List<String> copy = new LinkedList<>(list);
-		copy.retainAll(m_entriesToKeep);
+		if (m_entriesToKeep != null)
+			copy.retainAll(m_entriesToKeep);
 		intern(copy);
 	}
 
