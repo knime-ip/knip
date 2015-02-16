@@ -60,7 +60,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.TreeSet;
+import java.util.Set;
 
 import org.eclipse.osgi.internal.baseadaptor.DefaultClassLoader;
 import org.eclipse.osgi.internal.loader.BundleLoader;
@@ -109,19 +109,6 @@ public class ScifioGateway {
 						(DefaultClassLoader) getClass().getClassLoader())))));
 	}
 
-	private String[] getSuffixes() {
-		final TreeSet<String> ts = new TreeSet<String>();
-
-		for (final Format f : format().getAllFormats()) {
-			for (final String s : f.getSuffixes()) {
-				if (s != null && !s.isEmpty())
-					ts.add(s);
-			}
-		}
-
-		return ts.toArray(new String[ts.size()]);
-	}
-
 	private static synchronized ScifioGateway getInstance() {
 		if (m_instance == null) {
 			m_instance = new ScifioGateway();
@@ -136,15 +123,23 @@ public class ScifioGateway {
 		return getInstance().m_scifio;
 	}
 
-	public static FormatService format() {
-		return getInstance().m_scifio.format();
+	//TODO: This should be handled on SCIFIO side
+	public static String[] getAllSuffixes() {
+		final String[] allFormats = format().getSuffixes();
+
+		// avoid incompatible suffixes
+		Set<String> validSuffixes = new HashSet<>();
+		for (final String format : allFormats) {
+			if (format != null && format.length() > 0) {
+				validSuffixes.add(format);
+			}
+		}
+
+		return validSuffixes.toArray(new String[validSuffixes.size()]);
 	}
 
-	/**
-	 * @return a list of supported formats for image readers
-	 */
-	public static String[] getFORMATS() {
-		return getInstance().getSuffixes();
+	public static FormatService format() {
+		return getInstance().m_scifio.format();
 	}
 
 	class ResourceAwareClassLoader extends ClassLoader {

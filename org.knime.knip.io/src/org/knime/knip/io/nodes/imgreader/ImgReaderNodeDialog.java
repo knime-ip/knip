@@ -88,7 +88,7 @@ public class ImgReaderNodeDialog extends DefaultNodeSettingsPane {
 
 	static {
 		FILEFILTER = new FileNameExtensionFilter("BioFormats files",
-				ScifioGateway.getFORMATS());
+				ScifioGateway.getAllSuffixes());
 	}
 
 	private final DialogComponentMultiFileChooser m_filechooser;
