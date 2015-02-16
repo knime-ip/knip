@@ -46,7 +46,7 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.io.nodes.imgwriter;
+package org.knime.knip.io.nodes.imgwriter2;
 
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
@@ -59,33 +59,33 @@ import org.knime.core.node.NodeView;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
+ * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
  */
 @SuppressWarnings("rawtypes")
-@Deprecated
-public class ImgWriterNodeFactory extends NodeFactory<ImgWriterNodeModel> {
+public class ImgWriter2NodeFactory extends NodeFactory<ImgWriter2NodeModel> {
 
     /**
      * {@inheritDoc}
      */
     @Override
     protected NodeDialogPane createNodeDialogPane() {
-        return new ImgWriterNodeDialog();
+        return new ImgWriter2NodeDialog();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public ImgWriterNodeModel createNodeModel() {
-        return new ImgWriterNodeModel();
+    public ImgWriter2NodeModel createNodeModel() {
+        return new ImgWriter2NodeModel();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public NodeView<ImgWriterNodeModel> createNodeView(final int viewIndex,
-            final ImgWriterNodeModel nodeModel) {
+    public NodeView<ImgWriter2NodeModel> createNodeView(final int viewIndex,
+            final ImgWriter2NodeModel nodeModel) {
         return null;
     }
 
