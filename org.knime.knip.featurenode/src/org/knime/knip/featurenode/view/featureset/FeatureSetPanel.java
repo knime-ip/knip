@@ -4,11 +4,13 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -19,7 +21,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import net.imagej.ops.OpRef;
-import net.imagej.ops.features.AutoResolvingFeatureSet;
+import net.imagej.ops.features.AbstractAutoResolvingFeatureSet;
 import net.imagej.ops.features.FeatureSet;
 
 import org.knime.knip.featurenode.OpsGateway;
@@ -42,8 +44,7 @@ public class FeatureSetPanel extends JPanel {
 	 * serialVersionUID.
 	 */
 	private static final long serialVersionUID = 5766985553194363328L;
-	
-	
+
 	private PluginInfo<FeatureSet> pluginInfo;
 	private final Module module;
 	private final SwingInputPanel inputpanel;
@@ -57,7 +58,7 @@ public class FeatureSetPanel extends JPanel {
 	 *
 	 * @param fsi
 	 *            A {@link FeatureSetInfo}
-	 * 
+	 *
 	 * @throws InstantiableException
 	 *             if the featureset can't be instantiated
 	 * @throws ModuleException
@@ -97,7 +98,8 @@ public class FeatureSetPanel extends JPanel {
 
 		// if this feature set consists of a set of features
 		this.fsp = null;
-		if (AutoResolvingFeatureSet.class.isAssignableFrom(op.getClass())) {
+		if (AbstractAutoResolvingFeatureSet.class.isAssignableFrom(op
+				.getClass())) {
 			this.fsp = new FeatureSelectionPanel(fsi.getSelectedFeatures());
 		}
 
@@ -152,8 +154,9 @@ public class FeatureSetPanel extends JPanel {
 
 		// if this feature set consists of a set of features
 		this.fsp = null;
-		if (AutoResolvingFeatureSet.class.isAssignableFrom(op.getClass())) {
-			final AutoResolvingFeatureSet<?, ?> autoOp = (AutoResolvingFeatureSet<?, ?>) op;
+		if (AbstractAutoResolvingFeatureSet.class.isAssignableFrom(op
+				.getClass())) {
+			final AbstractAutoResolvingFeatureSet<?, ?> autoOp = (AbstractAutoResolvingFeatureSet<?, ?>) op;
 
 			final Set<OpRef<?>> outputOps = autoOp.getOutputOps();
 			if ((outputOps != null) && !outputOps.isEmpty()) {
@@ -172,8 +175,8 @@ public class FeatureSetPanel extends JPanel {
 		build();
 	}
 
-	private void validateAndInitialize(Module module,
-			Map<String, Object> fieldNamesAndValues) {
+	private void validateAndInitialize(final Module module,
+			final Map<String, Object> fieldNamesAndValues) {
 		// resolve default input and output
 		module.setResolved("input", true);
 		module.setResolved("output", true);
@@ -202,42 +205,45 @@ public class FeatureSetPanel extends JPanel {
 	private void build() {
 		// set jpanel settings
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		this.setBorder(BorderFactory.createTitledBorder(pluginInfo.getLabel()+":"));
+		this.setBorder(BorderFactory.createTitledBorder(this.pluginInfo
+				.getLabel() + ":"));
 
 		// initialize jcomponents
-		infoButton = new JButton(new ImageIcon(getClass().getClassLoader().getResource("resources/info.png")));
-		removeButton = new JButton(new ImageIcon(getClass().getClassLoader().getResource("resources/remove_icon.png")));
+		this.infoButton = new JButton(new ImageIcon(getClass().getClassLoader()
+				.getResource("resources/info.png")));
+		this.removeButton = new JButton(new ImageIcon(getClass()
+				.getClassLoader().getResource("resources/remove_icon.png")));
 
 		// set sizes
 
-		infoButton.setMaximumSize(infoButton.getPreferredSize());
-		removeButton.setMaximumSize(removeButton.getPreferredSize());
+		this.infoButton.setMaximumSize(this.infoButton.getPreferredSize());
+		this.removeButton.setMaximumSize(this.removeButton.getPreferredSize());
 
 		// title box
-		Box buttonBox = Box.createHorizontalBox();
+		final Box buttonBox = Box.createHorizontalBox();
 		buttonBox.add(Box.createHorizontalGlue());
-		buttonBox.add(infoButton);
+		buttonBox.add(this.infoButton);
 		buttonBox.add(Box.createRigidArea(new Dimension(5, 5)));
-		buttonBox.add(removeButton);
+		buttonBox.add(this.removeButton);
 		buttonBox.add(Box.createRigidArea(new Dimension(10, 5)));
 
-		Box inputPanelBox = Box.createHorizontalBox();
+		final Box inputPanelBox = Box.createHorizontalBox();
 		inputPanelBox.add(Box.createHorizontalGlue());
-		inputPanelBox.add(inputpanel.getComponent());
+		inputPanelBox.add(this.inputpanel.getComponent());
 		inputPanelBox.add(Box.createHorizontalGlue());
 
 		this.add(buttonBox);
-		if(fsp != null){
+		if (this.fsp != null) {
 			this.add(Box.createRigidArea(new Dimension(5, 40)));
-			this.add(fsp);
+			this.add(this.fsp);
 		}
-		
-		if(!getUnresolvedParameterNames().isEmpty()){
+
+		if (!getUnresolvedParameterNames().isEmpty()) {
 			this.add(Box.createRigidArea(new Dimension(5, 40)));
 			this.add(inputPanelBox);
 		}
 	}
-	
+
 	public PluginInfo<FeatureSet> getPluginInfo() {
 		return this.pluginInfo;
 	}
@@ -249,15 +255,15 @@ public class FeatureSetPanel extends JPanel {
 	public SwingInputPanel getInputpanel() {
 		return this.inputpanel;
 	}
-	
-	public JButton getInfoButton(){
-		return infoButton;
+
+	public JButton getInfoButton() {
+		return this.infoButton;
 	}
-	
-	public JButton getRemoveButton(){
-		return removeButton;
+
+	public JButton getRemoveButton() {
+		return this.removeButton;
 	}
-	
+
 	/**
 	 * @return The names of all unresolved parameters
 	 */
@@ -341,19 +347,30 @@ public class FeatureSetPanel extends JPanel {
 
 			this.setLayout(new GridLayout(0, 3));
 
-			for (final Entry<Class<?>, Boolean> opRef : input.entrySet()) {
-				this.selectedOps.put(opRef.getKey(), opRef.getValue());
+			final TreeSet<Class<?>> opSet = new TreeSet<Class<?>>(
+					new Comparator<Class<?>>() {
+						@Override
+						public int compare(final Class<?> o1, final Class<?> o2) {
+							return o1.getCanonicalName().compareTo(
+									o2.getCanonicalName());
+						}
+					});
 
-				final JCheckBox checkBox = new JCheckBox(opRef.getKey()
-						.getSimpleName());
-				checkBox.setSelected(opRef.getValue());
+			opSet.addAll(input.keySet());
+
+			for (final Class<?> op : opSet) {
+				final boolean isSelected = input.get(op);
+				this.selectedOps.put(op, isSelected);
+
+				final JCheckBox checkBox = new JCheckBox(op.getSimpleName());
+				checkBox.setSelected(isSelected);
 				checkBox.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(final ActionEvent e) {
-						FeatureSelectionPanel.this.selectedOps.put(opRef
-								.getKey(),
-								!FeatureSelectionPanel.this.selectedOps
-										.get(opRef.getKey()));
+						FeatureSelectionPanel.this.selectedOps
+								.put(op,
+										!FeatureSelectionPanel.this.selectedOps
+												.get(op));
 					}
 				});
 

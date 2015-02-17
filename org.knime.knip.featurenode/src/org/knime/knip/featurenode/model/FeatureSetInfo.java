@@ -37,6 +37,7 @@ public class FeatureSetInfo implements Serializable {
 	public FeatureSetInfo(final Class<? extends FeatureSet> featureSet,
 			final Map<String, Object> fieldNamesAndValues,
 			final Map<Class<?>, Boolean> selectedFeatures) {
+
 		this.featureSet = featureSet;
 		this.fieldNamesAndValues = (fieldNamesAndValues != null) ? fieldNamesAndValues
 				: new HashMap<String, Object>();
@@ -56,6 +57,11 @@ public class FeatureSetInfo implements Serializable {
 		return this.selectedFeatures;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see java.lang.Object#hashCode()
+	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -68,9 +74,19 @@ public class FeatureSetInfo implements Serializable {
 		result = (prime * result)
 				+ ((this.selectedFeatures == null) ? 0 : this.selectedFeatures
 						.hashCode());
+
+		System.out.println(this.featureSet.hashCode());
+		System.out.println(this.fieldNamesAndValues.hashCode());
+		System.out.println(this.selectedFeatures.hashCode());
+
 		return result;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(final Object obj) {
 		if (this == obj) {
@@ -79,7 +95,7 @@ public class FeatureSetInfo implements Serializable {
 		if (obj == null) {
 			return false;
 		}
-		if (getClass() != obj.getClass()) {
+		if (!(obj instanceof FeatureSetInfo)) {
 			return false;
 		}
 		final FeatureSetInfo other = (FeatureSetInfo) obj;
@@ -87,7 +103,7 @@ public class FeatureSetInfo implements Serializable {
 			if (other.featureSet != null) {
 				return false;
 			}
-		} else if (!this.featureSet.equals(other.featureSet)) {
+		} else if (this.featureSet != other.featureSet) {
 			return false;
 		}
 		if (this.fieldNamesAndValues == null) {

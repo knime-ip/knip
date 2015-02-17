@@ -5,11 +5,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import net.imagej.ops.Op;
 import net.imagej.ops.OpRef;
-import net.imagej.ops.features.AutoResolvingFeatureSet;
+import net.imagej.ops.features.AbstractAutoResolvingFeatureSet;
 import net.imagej.ops.features.FeatureSet;
 import net.imglib2.IterableInterval;
 import net.imglib2.converter.Converter;
@@ -23,6 +25,7 @@ import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.util.Pair;
+import net.imglib2.util.ValuePair;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
@@ -50,9 +53,9 @@ import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.featurenode.model.FeatureSetInfo;
 import org.knime.knip.featurenode.model.SettingsModelFeatureSet;
+import org.scijava.command.CommandInfo;
 import org.scijava.module.Module;
 import org.scijava.module.ModuleException;
-import org.scijava.plugin.PluginInfo;
 
 /**
  * This is the model implementation of FeatureNode.
@@ -174,9 +177,13 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 				// calcuate the features from every featureset
 				for (final FeatureSet<IterableInterval<?>, DoubleType> featureSet : compiledFeatureSets) {
 					exec.checkCanceled();
-					final List<Pair<String, DoubleType>> compute = featureSet
-							.getFeatures(input);
-					results.addAll(compute);
+					final Map<OpRef<? extends Op>, DoubleType> compute = featureSet
+							.getFeaturesByRef(input);
+					for (final Entry<OpRef<? extends Op>, DoubleType> entry : compute
+							.entrySet()) {
+						results.add(new ValuePair<String, DoubleType>(entry
+								.getKey().getLabel(), entry.getValue()));
+					}
 				}
 
 				// first row, if outspec is null create one from scratch and
@@ -258,11 +265,17 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 	 * @param list
 	 * @return
 	 * @throws ModuleException
+	 * @throws SecurityException
+	 * @throws NoSuchFieldException
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private List<FeatureSet<IterableInterval<?>, DoubleType>> compileFeatureSets(
 			final int imgCol, final int labelingCol,
-			final List<FeatureSetInfo> list) throws ModuleException {
+			final List<FeatureSetInfo> list) throws ModuleException,
+			NoSuchFieldException, SecurityException, IllegalArgumentException,
+			IllegalAccessException {
 
 		if ((-1 == imgCol) && (-1 == labelingCol)) {
 			return new ArrayList<FeatureSet<IterableInterval<?>, DoubleType>>();
@@ -270,79 +283,49 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 
 		final List<FeatureSet<IterableInterval<?>, DoubleType>> compiledFeatureSets = new ArrayList<FeatureSet<IterableInterval<?>, DoubleType>>();
 
-		// if img is set and not a labeling we can use FeatureSet<Img>
-		// otherwise FeatureSet<IterableInterval>
 		for (final FeatureSetInfo fsi : list) {
-			if ((-1 != imgCol) && (-1 == labelingCol)) {
 
-				final FeatureSet<IterableInterval<?>, DoubleType> createInstance = OpsGateway
-						.getPluginService()
-						.createInstance(
-								new PluginInfo<FeatureSet>(fsi
-										.getFeatureSetClass(), FeatureSet.class));
+			// immer input: IterableInterval
+			final Module module = OpsGateway.getCommandService()
+					.getModuleService()
+					.createModule(new CommandInfo(fsi.getFeatureSetClass()));
 
-				if (AutoResolvingFeatureSet.class
-						.isAssignableFrom(createInstance.getClass())) {
-					final AutoResolvingFeatureSet<?, ?> arfs = (AutoResolvingFeatureSet<?, ?>) createInstance;
+			module.setInputs(fsi.getFieldNamesAndValues());
 
-					final Set<OpRef<?>> ops = new HashSet<OpRef<?>>();
-					for (final Entry<Class<?>, Boolean> entry : fsi
-							.getSelectedFeatures().entrySet()) {
-						if (!entry.getValue()) {
-							continue;
-						}
+			FeatureSet<IterableInterval<?>, DoubleType> fs = (FeatureSet<IterableInterval<?>, DoubleType>) module
+					.getDelegateObject();
 
-						ops.add(new OpRef(entry.getKey()));
+			if (AbstractAutoResolvingFeatureSet.class.isAssignableFrom(fs
+					.getClass())) {
+				final AbstractAutoResolvingFeatureSet<IterableInterval<?>, DoubleType> arfs = (AbstractAutoResolvingFeatureSet<IterableInterval<?>, DoubleType>) fs;
+				final Set<OpRef<?>> ops = new HashSet<OpRef<?>>();
+				for (final Entry<Class<?>, Boolean> entry : fsi
+						.getSelectedFeatures().entrySet()) {
+					if (!entry.getValue()) {
+						continue;
 					}
 
-					arfs.setOutputOps(ops);
+					ops.add(new OpRef(entry.getKey()));
 				}
 
-				final Module module = OpsGateway.getOpService()
-						.info(createInstance).createModule();
+				fs = new AbstractAutoResolvingFeatureSet<IterableInterval<?>, DoubleType>() {
 
-				for (final Entry<String, Object> fieldNameAndValue : fsi
-						.getFieldNamesAndValues().entrySet()) {
-					module.setInput(fieldNameAndValue.getKey(),
-							fieldNameAndValue.getValue());
-				}
-
-				compiledFeatureSets.add(createInstance);
-			} else {
-				final FeatureSet<IterableInterval<?>, DoubleType> createInstance = OpsGateway
-						.getPluginService()
-						.createInstance(
-								new PluginInfo<FeatureSet>(fsi
-										.getFeatureSetClass(), FeatureSet.class));
-
-				if (AutoResolvingFeatureSet.class
-						.isAssignableFrom(createInstance.getClass())) {
-					final AutoResolvingFeatureSet<?, ?> arfs = (AutoResolvingFeatureSet<?, ?>) createInstance;
-
-					final Set<OpRef<?>> ops = new HashSet<OpRef<?>>();
-					for (final Entry<Class<?>, Boolean> entry : fsi
-							.getSelectedFeatures().entrySet()) {
-						if (!entry.getValue()) {
-							continue;
-						}
-
-						ops.add(new OpRef(entry.getKey()));
+					@Override
+					public Set<OpRef<?>> getOutputOps() {
+						return ops;
 					}
 
-					arfs.setOutputOps(ops);
-				}
+					@Override
+					public Set<OpRef<?>> getHiddenOps() {
+						return arfs.getHiddenOps();
+					}
 
-				final Module module = OpsGateway.getOpService()
-						.info(createInstance).createModule();
-
-				for (final Entry<String, Object> fieldNameAndValue : fsi
-						.getFieldNamesAndValues().entrySet()) {
-					module.setInput(fieldNameAndValue.getKey(),
-							fieldNameAndValue.getValue());
-				}
-
-				compiledFeatureSets.add(createInstance);
+				};
 			}
+
+			OpsGateway.getContext().inject(fs);
+
+			compiledFeatureSets.add(fs);
 		}
 
 		return compiledFeatureSets;

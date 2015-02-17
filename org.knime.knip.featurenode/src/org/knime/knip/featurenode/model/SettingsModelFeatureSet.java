@@ -180,6 +180,7 @@ public class SettingsModelFeatureSet extends SettingsModel {
 	public void saveSettingsForModel(final NodeSettingsWO settings) {
 		final byte[] data = encode(this.m_featureSets);
 		settings.addByteArray("feature_sets", data);
+
 	}
 
 	@Override
