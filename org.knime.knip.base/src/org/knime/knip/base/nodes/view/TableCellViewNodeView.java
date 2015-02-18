@@ -57,7 +57,6 @@ import java.util.Map.Entry;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
@@ -332,7 +331,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
         m_tableContentView.getColumnModel().getSelectionModel().addListSelectionListener(m_listSelectionListenerB);
         m_tableView = new TableView(m_tableContentView);
-        m_sp.add(new JScrollPane(m_tableView));
+        m_sp.add(m_tableView);
         m_tableView.setHiLiteHandler(getNodeModel().getInHiLiteHandler(0));
 
         if (!m_hiliteAdded) {
