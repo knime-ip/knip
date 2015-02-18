@@ -58,7 +58,6 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -77,7 +76,6 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
-import javax.swing.KeyStroke;
 
 import net.imagej.axis.CalibratedAxis;
 import net.imagej.axis.TypedAxis;
@@ -505,11 +503,10 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
             final InputMap inMap = getInputMap(condition);
             final ActionMap actMap = getActionMap();
 
-            inMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, 0), "FORWARD");
-            inMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, 0), "BACKWARD");
+            inMap.put(javax.swing.KeyStroke.getKeyStroke('+'), "FORWARD");
+            inMap.put(javax.swing.KeyStroke.getKeyStroke('-'), "BACKWARD");
             actMap.put("FORWARD", new ForwardBackwardAction("FORWARD", m_totalSlider, 1));
             actMap.put("BACKWARD", new ForwardBackwardAction("BACKWARD", m_totalSlider, 1));
-
             final JPanel dimPanel = new JPanel();
             dimPanel.setLayout(new BoxLayout(dimPanel, BoxLayout.Y_AXIS));
             add(dimPanel);
