@@ -197,6 +197,9 @@ public class SettingsModelFeatureSet extends SettingsModel {
 			out.writeObject(featureSets);
 			data = bos.toByteArray();
 		} catch (final IOException e) {
+
+			e.printStackTrace();
+
 			throw new IllegalArgumentException(
 					"Couldn't convert input object to byte array.");
 		}

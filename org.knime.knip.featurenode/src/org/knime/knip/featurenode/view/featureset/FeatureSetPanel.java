@@ -4,13 +4,15 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeSet;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -89,7 +91,7 @@ public class FeatureSetPanel extends JPanel {
 						new CommandInfo(op.getClass(), op.getClass()
 								.getAnnotation(Plugin.class)));
 
-		validateAndInitialize(this.module, fsi.getFieldNamesAndValues());
+		validateAndInitialize(this.module, fsi.getFieldNameAndValues());
 
 		// inject harvester and get input panel
 		final SwingInputHarvester builder = new SwingInputHarvester();
@@ -320,10 +322,18 @@ public class FeatureSetPanel extends JPanel {
 
 		public FeatureSelectionPanel(final Set<OpRef<?>> ops) {
 			this.selectedOps = new HashMap<Class<?>, Boolean>();
-
 			this.setLayout(new GridLayout(0, 3));
 
-			for (final OpRef<?> opRef : ops) {
+			final List<OpRef<?>> sortedOps = new ArrayList<OpRef<?>>(ops);
+			Collections.sort(sortedOps, new Comparator<OpRef<?>>() {
+				@Override
+				public int compare(final OpRef<?> o1, final OpRef<?> o2) {
+					return o1.getType().getSimpleName()
+							.compareTo(o2.getType().getSimpleName());
+				}
+			});
+
+			for (final OpRef<?> opRef : sortedOps) {
 				this.selectedOps.put(opRef.getType(), true);
 
 				final JCheckBox checkBox = new JCheckBox(opRef.getType()
@@ -344,21 +354,18 @@ public class FeatureSetPanel extends JPanel {
 
 		public FeatureSelectionPanel(final Map<Class<?>, Boolean> input) {
 			this.selectedOps = new HashMap<Class<?>, Boolean>();
-
 			this.setLayout(new GridLayout(0, 3));
 
-			final TreeSet<Class<?>> opSet = new TreeSet<Class<?>>(
-					new Comparator<Class<?>>() {
-						@Override
-						public int compare(final Class<?> o1, final Class<?> o2) {
-							return o1.getCanonicalName().compareTo(
-									o2.getCanonicalName());
-						}
-					});
+			final List<Class<?>> sortedOps = new ArrayList<Class<?>>(
+					input.keySet());
+			Collections.sort(sortedOps, new Comparator<Class<?>>() {
+				@Override
+				public int compare(final Class<?> o1, final Class<?> o2) {
+					return o1.getSimpleName().compareTo(o2.getSimpleName());
+				}
+			});
 
-			opSet.addAll(input.keySet());
-
-			for (final Class<?> op : opSet) {
+			for (final Class<?> op : sortedOps) {
 				final boolean isSelected = input.get(op);
 				this.selectedOps.put(op, isSelected);
 
