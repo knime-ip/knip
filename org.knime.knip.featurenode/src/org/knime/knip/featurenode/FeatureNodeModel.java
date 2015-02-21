@@ -8,9 +8,18 @@ import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Executors;
 
+import net.imagej.ImgPlus;
+import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
+import net.imglib2.img.array.ArrayImgFactory;
+import net.imglib2.labeling.Labeling;
+import net.imglib2.roi.IterableRegionOfInterest;
 import net.imglib2.type.NativeType;
+import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.ConstantUtils;
 import net.imglib2.util.Pair;
+import net.imglib2.view.Views;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
@@ -22,6 +31,7 @@ import org.knime.core.data.container.CloseableRowIterator;
 import org.knime.core.data.container.DataContainer;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
+import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -32,13 +42,14 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.knime.core.node.util.ColumnFilter;
 import org.knime.knip.base.KNIPConstants;
 import org.knime.knip.base.data.img.ImgPlusCell;
+import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
-import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingValue;
+import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.featurenode.model.FeatureComputationTask;
+import org.knime.knip.featurenode.model.FeatureSetInfo;
 import org.knime.knip.featurenode.model.FeatureTaskInput;
 import org.knime.knip.featurenode.model.FeatureTaskOutput;
 import org.knime.knip.featurenode.model.SettingsModelFeatureSet;
@@ -50,10 +61,9 @@ import org.knime.knip.featurenode.model.SettingsModelFeatureSet;
  * @author Daniel Seebacher
  * @author Tim-Oliver Buchholz
  */
+@SuppressWarnings("deprecation")
 public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
 		extends NodeModel {
-
-	// FIXME: automatic selection of img and labeling columns
 
 	private final CompletionService<List<FeatureTaskOutput<T, L>>> m_completionService = new ExecutorCompletionService<List<FeatureTaskOutput<T, L>>>(
 			Executors.newFixedThreadPool(KNIPConstants.THREADS_PER_NODE));
@@ -66,52 +76,43 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 			.getLogger(FeatureNodeModel.class);
 
 	/**
-	 * @return Settings model for selected labeling.
-	 */
-	public static SettingsModelString createLabelingSelectionModel() {
-		return new SettingsModelString("m_labeling_settings_model", null);
-	}
-
-	/**
-	 * @return Settings model for selected image.
-	 */
-	public static SettingsModelString createImgSelectionModel() {
-		return new SettingsModelString("m_imgage_settings_model", null);
-	}
-
-	/**
 	 * @return Settings model for selected feature sets.
 	 */
-	static SettingsModelFeatureSet createFeatureSetsModel() {
+	public static SettingsModelFeatureSet createFeatureSetsModel() {
 		return new SettingsModelFeatureSet("m_featuresets");
 	}
 
-	/**
-	 * Image selection model.
-	 */
-	private final SettingsModelString IMG_SELECTION_MODEL = createImgSelectionModel();
+	public static SettingsModelString createImgColumnModel() {
+		return new SettingsModelString("img_column_selection", "");
+	}
+
+	public static SettingsModelString createLabelingColumnModel() {
+		return new SettingsModelString("labeling_column_selection", "");
+	}
+
+	public static SettingsModelString createColumnCreationModeModel() {
+		return new SettingsModelString("column_creation_mode", "");
+	}
 
 	/**
-	 * Labeling selection model.
+	 * Image Column Selection Model.
 	 */
-	private final SettingsModelString LABELING_SELECTION_MODEL = createLabelingSelectionModel();
+	private final SettingsModelString m_imgColumn = createImgColumnModel();
+
+	/**
+	 * Labeling Column Selection Model.
+	 */
+	private final SettingsModelString m_labelingColumn = createLabelingColumnModel();
+
+	/**
+	 * Column Creation model.
+	 */
+	private final SettingsModelString m_columnCreationModeModel = createColumnCreationModeModel();
 
 	/**
 	 * Feature set model.
 	 */
-	private final SettingsModelFeatureSet FEATURE_SET_MODEL = createFeatureSetsModel();
-
-	/**
-	 * The index of the image column in the {@link DataTableSpec} of the input
-	 * table.
-	 */
-	private int m_imgPlusCol = -1;
-
-	/**
-	 * The index of the labeling column in the {@link DataTableSpec} of the
-	 * input table.
-	 */
-	private int m_labelingCol = -1;
+	private final SettingsModelFeatureSet m_featureSets = createFeatureSetsModel();
 
 	/**
 	 * Constructor for the node model.
@@ -123,23 +124,26 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 	/**
 	 * {@inheritDoc}
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
-
-		// check that at least one image or labeling column is selected
-		final int imgColumnIndex = m_imgPlusCol;
-		final int labelingColumnIndex = m_labelingCol;
-		if (-1 == imgColumnIndex && -1 == labelingColumnIndex) {
-			throw new IllegalArgumentException(
-					"At least one image or labeling column must be selected!");
-		}
 
 		// check for empty table
 		if (0 == inData[0].getRowCount()) {
 			LOGGER.warn("Empty input table. No other columns created.");
 			return inData;
 		}
+
+		// get data from models
+		final List<FeatureSetInfo> inputFeatureSets = m_featureSets
+				.getFeatureSets();
+		final int imgColumnIndex = getImgColIdx(inData[0].getDataTableSpec());
+		final int labelingColumnIndex = getLabelingColIdx(inData[0]
+				.getDataTableSpec());
+
+		// create cellfactories
+		ImgPlusCellFactory imgCellFactory = new ImgPlusCellFactory(exec);
 
 		final CloseableRowIterator iterator = inData[0].iterator();
 		double rowCount = 0;
@@ -152,7 +156,7 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 			FeatureTaskInput<T, L> featureTaskInput = new FeatureTaskInput<T, L>(
 					imgColumnIndex, labelingColumnIndex, row);
 			m_completionService.submit(new FeatureComputationTask<T, L>(
-					this.FEATURE_SET_MODEL.getFeatureSets(), featureTaskInput));
+					inputFeatureSets, featureTaskInput));
 			numTasks++;
 
 			exec.checkCanceled();
@@ -182,6 +186,41 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 
 				// save results of this iterableinterval in a row
 				final List<DataCell> cells = new ArrayList<DataCell>();
+
+				if ("Append".equalsIgnoreCase(m_columnCreationModeModel
+						.getStringValue())) {
+
+					DataRow dataRow = featureTaskOutput.getDataRow();
+					for (int i = 0; i < dataRow.getNumCells(); i++) {
+						cells.add(dataRow.getCell(i));
+					}
+				}
+
+				L label = featureTaskOutput.getResultsWithPossibleLabel()
+						.getB();
+				if (label != null) {
+
+					Labeling<L> labeling = ((LabelingValue<L>) featureTaskOutput
+							.getDataRow().getCell(
+									featureTaskOutput.getLabelingColumnIndex()))
+							.getLabeling();
+
+					IterableRegionOfInterest labelRoi = labeling
+							.getIterableRegionOfInterest(label);
+
+					final Img<BitType> bitMask = new ImgView<BitType>(
+							Views.zeroMin(Views.interval(
+									Views.raster(labelRoi),
+									labelRoi.getIterableIntervalOverROI(ConstantUtils
+											.constantRandomAccessible(
+													new BitType(),
+													labeling.numDimensions())))),
+							new ArrayImgFactory<BitType>());
+
+					cells.add(imgCellFactory.createCell(new ImgPlus<BitType>(
+							bitMask)));
+					cells.add(new StringCell(label.toString()));
+				}
 
 				// store new results
 				Pair<List<Pair<String, T>>, L> resultsWithPossibleLabel = featureTaskOutput
@@ -229,8 +268,24 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 
 		final List<DataColumnSpec> outcells = new ArrayList<DataColumnSpec>();
 
-		// add a new column for each given feature result
+		if ("Append".equalsIgnoreCase(m_columnCreationModeModel
+				.getStringValue())) {
+			for (int i = 0; i < inSpec.getNumColumns(); i++) {
+				outcells.add(inSpec.getColumnSpec(i));
+			}
+		}
 
+		// if labelings are present a column for the bitmasks and a column
+		// for
+		// the label name must be added
+		if (-1 != featureTaskOutput.getLabelingColumnIndex()) {
+			outcells.add(new DataColumnSpecCreator("Bitmask", ImgPlusCell.TYPE)
+					.createSpec());
+			outcells.add(new DataColumnSpecCreator("Label", StringCell.TYPE)
+					.createSpec());
+		}
+
+		// add a new column for each given feature result
 		List<Pair<String, T>> featureResults = featureTaskOutput
 				.getResultsWithPossibleLabel().getA();
 
@@ -260,40 +315,10 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 
 		final DataTableSpec spec = inSpecs[0];
 
-		if (!(spec.containsCompatibleType(ImgPlusValue.class) || spec
-				.containsCompatibleType(LabelingValue.class))) {
-			throw new InvalidSettingsException(
-					"Invalid input spec. At least one image or labeling column must be provided.");
-		}
+		final int img_index = getImgColIdx(spec);
+		final int labeling_index = getLabelingColIdx(spec);
 
-		String selectedImgCol = this.IMG_SELECTION_MODEL.getStringValue();
-		String selectedLabelingCol = this.LABELING_SELECTION_MODEL
-				.getStringValue();
-		if ((selectedImgCol == null) && (selectedLabelingCol == null)) {
-			// both empty == first configure
-			for (final DataColumnSpec dcs : spec) {
-				if (imgPlusFilter().includeColumn(dcs)) {
-					this.IMG_SELECTION_MODEL.setStringValue(dcs.getName());
-					selectedImgCol = dcs.getName();
-					break;
-				}
-			}
-
-			for (final DataColumnSpec dcs : spec) {
-				if (labelingFilter().includeColumn(dcs)) {
-					this.LABELING_SELECTION_MODEL.setStringValue(dcs.getName());
-					selectedLabelingCol = dcs.getName();
-					break;
-				}
-			}
-		}
-
-		this.m_imgPlusCol = selectedImgCol == null ? -1 : spec
-				.findColumnIndex(selectedImgCol);
-		this.m_labelingCol = selectedLabelingCol == null ? -1 : spec
-				.findColumnIndex(selectedLabelingCol);
-
-		if ((-1 == this.m_imgPlusCol) && (-1 == this.m_labelingCol)) {
+		if (-1 == img_index && -1 == labeling_index) {
 			throw new IllegalArgumentException(
 					"At least one image or labeling column must be selected!");
 		}
@@ -306,9 +331,10 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		this.IMG_SELECTION_MODEL.saveSettingsTo(settings);
-		this.LABELING_SELECTION_MODEL.saveSettingsTo(settings);
-		this.FEATURE_SET_MODEL.saveSettingsTo(settings);
+		this.m_featureSets.saveSettingsTo(settings);
+		this.m_imgColumn.saveSettingsTo(settings);
+		this.m_labelingColumn.saveSettingsTo(settings);
+		this.m_columnCreationModeModel.saveSettingsTo(settings);
 	}
 
 	/**
@@ -317,9 +343,10 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		this.IMG_SELECTION_MODEL.loadSettingsFrom(settings);
-		this.LABELING_SELECTION_MODEL.loadSettingsFrom(settings);
-		this.FEATURE_SET_MODEL.loadSettingsFrom(settings);
+		this.m_featureSets.loadSettingsFrom(settings);
+		this.m_imgColumn.loadSettingsFrom(settings);
+		this.m_labelingColumn.loadSettingsFrom(settings);
+		this.m_columnCreationModeModel.loadSettingsFrom(settings);
 	}
 
 	/**
@@ -328,9 +355,10 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		this.IMG_SELECTION_MODEL.validateSettings(settings);
-		this.LABELING_SELECTION_MODEL.validateSettings(settings);
-		this.FEATURE_SET_MODEL.validateSettings(settings);
+		this.m_featureSets.validateSettings(settings);
+		this.m_imgColumn.validateSettings(settings);
+		this.m_labelingColumn.validateSettings(settings);
+		this.m_labelingColumn.loadSettingsFrom(settings);
 	}
 
 	/**
@@ -353,44 +381,43 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 
 	}
 
-	/**
-	 * Filter which filters all image plus columns from {@link DataTableSpec}.
-	 *
-	 * @return all image plus columns
-	 */
-	public static ColumnFilter imgPlusFilter() {
-		return new ColumnFilter() {
-
-			@Override
-			public boolean includeColumn(final DataColumnSpec colSpec) {
-				return colSpec.getType().equals(ImgPlusCell.TYPE);
+	private int getImgColIdx(final DataTableSpec inSpec)
+			throws InvalidSettingsException {
+		int imgColIndex = -1;
+		if (null == m_imgColumn.getStringValue()) {
+			return imgColIndex;
+		}
+		imgColIndex = inSpec.findColumnIndex(m_imgColumn.getStringValue());
+		if (-1 == imgColIndex) {
+			if ((imgColIndex = NodeUtils.autoOptionalColumnSelection(inSpec,
+					m_imgColumn, ImgPlusValue.class)) >= 0) {
+				setWarningMessage("Auto-configure Image Column: "
+						+ m_imgColumn.getStringValue());
+			} else {
+				throw new InvalidSettingsException("No column selected!");
 			}
-
-			@Override
-			public String allFilteredMsg() {
-				return "No image column available.";
-			}
-		};
+		}
+		return imgColIndex;
 	}
 
-	/**
-	 * Filter which filters all labling columns from {@link DataTableSpec}.
-	 *
-	 * @return all labeling columns
-	 */
-	public static ColumnFilter labelingFilter() {
-		return new ColumnFilter() {
-
-			@Override
-			public boolean includeColumn(final DataColumnSpec colSpec) {
-				return colSpec.getType().equals(LabelingCell.TYPE);
+	private int getLabelingColIdx(final DataTableSpec inSpec)
+			throws InvalidSettingsException {
+		int labelingColIndex = -1;
+		if (null == m_labelingColumn.getStringValue()) {
+			return labelingColIndex;
+		}
+		labelingColIndex = inSpec.findColumnIndex(m_labelingColumn
+				.getStringValue());
+		if (-1 == labelingColIndex) {
+			if ((labelingColIndex = NodeUtils.autoOptionalColumnSelection(
+					inSpec, m_labelingColumn, LabelingValue.class)) >= 0) {
+				setWarningMessage("Auto-configure Labeling Column: "
+						+ m_labelingColumn.getStringValue());
+			} else {
+				throw new InvalidSettingsException("No column selected!");
 			}
-
-			@Override
-			public String allFilteredMsg() {
-				return "No labeling column available.";
-			}
-		};
+		}
+		return labelingColIndex;
 	}
 
 }

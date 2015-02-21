@@ -1,5 +1,6 @@
 package org.knime.knip.featurenode.view.featureset;
 
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -19,6 +20,9 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
+import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
+import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.featurenode.FeatureNodeModel;
 import org.knime.knip.featurenode.model.FeatureSetInfo;
 import org.knime.knip.featurenode.model.SettingsModelFeatureSet;
@@ -53,23 +57,25 @@ public class FeatureNodeDialogPane extends NodeDialogPane {
 
 	private FeatureSetCollectionPanel featureSetCollectionPanel;
 
+	private DialogComponentStringSelection m_columnCreationModeComponent;
+
+	@SuppressWarnings("unchecked")
 	public FeatureNodeDialogPane() {
 		// first create the two column selection components
 		this.m_imgSelectionComponent = new DialogComponentColumnNameSelection(
-				FeatureNodeModel.createImgSelectionModel(), "Image Column:", 0,
-				false, true, FeatureNodeModel.imgPlusFilter());
-		this.m_imgSelectionComponent
-				.setToolTipText("Select the image column to compute the features on.");
+				FeatureNodeModel.createImgColumnModel(), "Image", 0, false,
+				true, ImgPlusValue.class);
 		this.m_labelingSelectionComponent = new DialogComponentColumnNameSelection(
-				FeatureNodeModel.createLabelingSelectionModel(),
-				"Labeling Column:", 0, false, true,
-				FeatureNodeModel.labelingFilter());
-		this.m_labelingSelectionComponent
-				.setToolTipText("Select the labeling column to compute the features on.");
+				FeatureNodeModel.createLabelingColumnModel(), "Labeling", 0,
+				false, true, LabelingValue.class);
+		this.m_columnCreationModeComponent = new DialogComponentStringSelection(
+				FeatureNodeModel.createColumnCreationModeModel(),
+				"Column Creation Mode", new String[] { "Append", "New Table" });
 
 		// create the three sup panels
 		columnSelectionPanel = new ColumnSelectionPanel(
-				m_imgSelectionComponent, m_labelingSelectionComponent);
+				m_imgSelectionComponent, m_labelingSelectionComponent,
+				m_columnCreationModeComponent);
 		featureSetSelectionPanel = new FeatureSetSelectionPanel();
 		featureSetCollectionPanel = new FeatureSetCollectionPanel();
 
@@ -108,16 +114,9 @@ public class FeatureNodeDialogPane extends NodeDialogPane {
 		gbc.fill = GridBagConstraints.BOTH;
 		configPanel.add(featureSetCollectionPanel, gbc);
 
+		configPanel.setPreferredSize(new Dimension(792, 500));
 		this.addTab("Configuration", configPanel);
 	}
-
-	//
-	// @Override
-	// protected void saveSettingsTo(NodeSettingsWO settings)
-	// throws InvalidSettingsException {
-	// // TODO Auto-generated method stub
-	//
-	// }
 
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings)
@@ -130,7 +129,8 @@ public class FeatureNodeDialogPane extends NodeDialogPane {
 
 		this.m_imgSelectionComponent.saveSettingsTo(settings);
 		this.m_labelingSelectionComponent.saveSettingsTo(settings);
-
+		this.m_columnCreationModeComponent.saveSettingsTo(settings);
+		
 		final SettingsModelFeatureSet featureSetSettings = new SettingsModelFeatureSet(
 				FEATURE_MODEL_SETTINGS);
 
@@ -148,7 +148,8 @@ public class FeatureNodeDialogPane extends NodeDialogPane {
 			final DataTableSpec[] specs) throws NotConfigurableException {
 		this.m_imgSelectionComponent.loadSettingsFrom(settings, specs);
 		this.m_labelingSelectionComponent.loadSettingsFrom(settings, specs);
-
+		this.m_columnCreationModeComponent.loadSettingsFrom(settings, specs);
+		
 		final SettingsModelFeatureSet s = new SettingsModelFeatureSet(
 				FEATURE_MODEL_SETTINGS);
 

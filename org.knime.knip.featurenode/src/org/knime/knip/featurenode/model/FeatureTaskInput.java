@@ -109,6 +109,11 @@ public class FeatureTaskInput<T extends RealType<T> & NativeType<T>, L extends C
 		}
 		// if only the labeling is present
 		else if (imgValue == null) {
+
+			Labeling<L> next = labelingValue.getLabeling(); // .getLabels().iterator().next();
+			long[] dimensions = new long[next.numDimensions()];
+			next.dimensions(dimensions);
+			
 			for (final L label : labelingValue.getLabeling().getLabels()) {
 				final IterableInterval<LabelingType<L>> ii = labelingValue
 						.getLabeling()
