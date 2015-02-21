@@ -24,7 +24,7 @@ public class FeatureSetInfo implements Serializable {
 	 */
 	private static final long serialVersionUID = 5538059260299069153L;
 
-	private final Class<?> featureSetClass;
+	private final Class<? extends FeatureSet> featureSetClass;
 	private final String[] parameterNames;
 	private final Object[] parameterValues;
 	private final List<Class<?>> featureClasses;
@@ -86,9 +86,8 @@ public class FeatureSetInfo implements Serializable {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public Class<? extends FeatureSet> getFeatureSetClass() {
-		return (Class<? extends FeatureSet>) this.featureSetClass;
+		return this.featureSetClass;
 	}
 
 	public Map<String, Object> getFieldNameAndValues() {

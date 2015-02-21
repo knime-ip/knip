@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.Executors;
 
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
@@ -15,6 +17,7 @@ import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.RowKey;
 import org.knime.core.data.container.CloseableRowIterator;
 import org.knime.core.data.container.DataContainer;
 import org.knime.core.data.def.DefaultRow;
@@ -24,7 +27,6 @@ import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.KNIMEConstants;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
@@ -32,14 +34,13 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.util.ColumnFilter;
 import org.knime.knip.base.KNIPConstants;
-import org.knime.knip.base.ThreadPoolExecutorService;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingValue;
-import org.knime.knip.featurenode.model.FeatureRowInput;
-import org.knime.knip.featurenode.model.FeatureRowResult;
-import org.knime.knip.featurenode.model.FeatureTask;
+import org.knime.knip.featurenode.model.FeatureComputationTask;
+import org.knime.knip.featurenode.model.FeatureTaskInput;
+import org.knime.knip.featurenode.model.FeatureTaskOutput;
 import org.knime.knip.featurenode.model.SettingsModelFeatureSet;
 
 /**
@@ -52,9 +53,10 @@ import org.knime.knip.featurenode.model.SettingsModelFeatureSet;
 public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
 		extends NodeModel {
 
-	private final ThreadPoolExecutorService m_executor = new ThreadPoolExecutorService(
-			KNIMEConstants.GLOBAL_THREAD_POOL
-					.createSubPool(KNIPConstants.THREADS_PER_NODE));
+	// FIXME: automatic selection of img and labeling columns
+
+	private final CompletionService<List<FeatureTaskOutput<T, L>>> m_completionService = new ExecutorCompletionService<List<FeatureTaskOutput<T, L>>>(
+			Executors.newFixedThreadPool(KNIPConstants.THREADS_PER_NODE));
 
 	/**
 	 *
@@ -121,55 +123,60 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 	/**
 	 * {@inheritDoc}
 	 */
-	@SuppressWarnings({ "unchecked" })
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
 
+		// check that at least one image or labeling column is selected
+		final int imgColumnIndex = m_imgPlusCol;
+		final int labelingColumnIndex = m_labelingCol;
+		if (-1 == imgColumnIndex && -1 == labelingColumnIndex) {
+			throw new IllegalArgumentException(
+					"At least one image or labeling column must be selected!");
+		}
+
 		// check for empty table
-		final int numRows = inData[0].getRowCount();
-		if (numRows == 0) {
+		if (0 == inData[0].getRowCount()) {
 			LOGGER.warn("Empty input table. No other columns created.");
 			return inData;
 		}
 
-		DataTableSpec outSpec = null;
-		DataContainer container = null;
-
 		final CloseableRowIterator iterator = inData[0].iterator();
 		double rowCount = 0;
-		final List<Future<List<FeatureRowResult<T, L>>>> futureTasks = new ArrayList<Future<List<FeatureRowResult<T, L>>>>();
-
+		int numTasks = 0;
 		while (iterator.hasNext()) {
 			final DataRow row = iterator.next();
 
-			final ImgPlusValue<T> inputImgValue = (this.m_imgPlusCol != -1) ? ((ImgPlusValue<T>) row
-					.getCell(this.m_imgPlusCol)) : null;
-			final LabelingValue<L> inputLabelingValue = (this.m_labelingCol != -1) ? ((LabelingValue<L>) row
-					.getCell(this.m_labelingCol)) : null;
-
-			final FeatureRowInput<T, L> fri = new FeatureRowInput<T, L>(
-					inputImgValue, inputLabelingValue);
-
-			final FeatureTask<T, L> featureTask = new FeatureTask<T, L>(
-					this.FEATURE_SET_MODEL.getFeatureSets(), fri);
-			futureTasks.add(this.m_executor.submit(featureTask));
+			// create FeatureTaskInput, submit the FeatureTask and increment the
+			// number of submitted tasks
+			FeatureTaskInput<T, L> featureTaskInput = new FeatureTaskInput<T, L>(
+					imgColumnIndex, labelingColumnIndex, row);
+			m_completionService.submit(new FeatureComputationTask<T, L>(
+					this.FEATURE_SET_MODEL.getFeatureSets(), featureTaskInput));
+			numTasks++;
 
 			exec.checkCanceled();
 			exec.setProgress((++rowCount / inData[0].getRowCount()) / 2);
 		}
 
-		double futureTasksCount = 0;
-		for (int i = 0; i < futureTasks.size(); i++) {
-			final List<FeatureRowResult<T, L>> result = futureTasks.get(i)
-					.get();
+		DataTableSpec outSpec = null;
+		DataContainer container = null;
 
-			for (final FeatureRowResult<T, L> featureRowResult : result) {
+		for (int currentTask = 0; currentTask < numTasks; currentTask++) {
+
+			List<FeatureTaskOutput<T, L>> taskResults = m_completionService
+					.take().get();
+
+			for (int currentResult = 0; currentResult < taskResults.size(); currentResult++) {
+
+				FeatureTaskOutput<T, L> featureTaskOutput = taskResults
+						.get(currentResult);
+
 				// first row, if outspec is null create one from scratch and
 				// create container
 				if (outSpec == null) {
 					outSpec = createOutputSpec(inData[0].getDataTableSpec(),
-							featureRowResult);
+							featureTaskOutput);
 					container = exec.createDataContainer(outSpec);
 				}
 
@@ -177,21 +184,25 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 				final List<DataCell> cells = new ArrayList<DataCell>();
 
 				// store new results
-				for (final Pair<String, T> featureResult : featureRowResult
-						.getResults()) {
-					cells.add(new DoubleCell(featureResult.getB()
-							.getRealDouble()));
-
+				Pair<List<Pair<String, T>>, L> resultsWithPossibleLabel = featureTaskOutput
+						.getResultsWithPossibleLabel();
+				for (final Pair<String, T> results : resultsWithPossibleLabel
+						.getA()) {
+					cells.add(new DoubleCell(results.getB().getRealDouble()));
 				}
 
+				RowKey newRowKey = (currentResult == 0) ? featureTaskOutput
+						.getDataRow().getKey() : new RowKey(featureTaskOutput
+						.getDataRow().getKey().getString()
+						+ "_#" + currentResult);
+
 				// add row
-				container.addRowToTable(new DefaultRow("Row_" + i, cells
+				container.addRowToTable(new DefaultRow(newRowKey, cells
 						.toArray(new DataCell[cells.size()])));
 			}
 
 			exec.checkCanceled();
-			exec.setProgress(0.5 + ((++futureTasksCount / inData[0]
-					.getRowCount()) / 2));
+			exec.setProgress(0.5 + ((currentTask / (double) numTasks) / 2d));
 		}
 
 		// close container and get output table
@@ -214,15 +225,18 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 	 *         {@link FeatureResult}
 	 */
 	private DataTableSpec createOutputSpec(final DataTableSpec inSpec,
-			final FeatureRowResult<T, L> featureRowResult) {
+			final FeatureTaskOutput<T, L> featureTaskOutput) {
 
 		final List<DataColumnSpec> outcells = new ArrayList<DataColumnSpec>();
 
 		// add a new column for each given feature result
-		for (int i = 0; i < featureRowResult.getResults().size(); i++) {
+
+		List<Pair<String, T>> featureResults = featureTaskOutput
+				.getResultsWithPossibleLabel().getA();
+
+		for (int i = 0; i < featureResults.size(); i++) {
 			outcells.add(new DataColumnSpecCreator(DataTableSpec
-					.getUniqueColumnName(inSpec, featureRowResult.getResults()
-							.get(i).getA()
+					.getUniqueColumnName(inSpec, featureResults.get(i).getA()
 							+ "_" + i), DoubleCell.TYPE).createSpec());
 		}
 
