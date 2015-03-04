@@ -37,31 +37,32 @@ public class FeatureSetSelectionPanel extends JPanel {
 		}
 
 		// create combobox and add button
-		featureSetComboxBox = new JComboBox<PluginInfoComboboxItem>(
+		this.featureSetComboxBox = new JComboBox<PluginInfoComboboxItem>(
 				featureSetComboBoxItems);
-		addButton = new JButton("Add");
+		this.addButton = new JButton("Add");
 
 		// set sizes
-		featureSetComboxBox.setMaximumSize(featureSetComboxBox.getPreferredSize());
-		addButton.setMaximumSize(addButton.getPreferredSize());
+		this.featureSetComboxBox.setMaximumSize(this.featureSetComboxBox
+				.getPreferredSize());
+		this.addButton.setMaximumSize(this.addButton.getPreferredSize());
 
 		// add everything to this jpanel
 		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		this.setBorder(BorderFactory.createTitledBorder("Select Feature Set:"));
 		this.add(Box.createHorizontalGlue());
-		this.add(featureSetComboxBox);
+		this.add(this.featureSetComboxBox);
 		this.add(Box.createRigidArea(new Dimension(30, 5)));
-		this.add(addButton);
+		this.add(this.addButton);
 		this.add(Box.createHorizontalGlue());
 	}
 
 	public JButton getAddButton() {
-		return addButton;
+		return this.addButton;
 	}
 
 	public PluginInfo<FeatureSet> getCurrentlySelectedFeatureSet() {
-		return featureSetComboxBox.getItemAt(
-				featureSetComboxBox.getSelectedIndex()).getPluginInfo();
+		return this.featureSetComboxBox.getItemAt(
+				this.featureSetComboxBox.getSelectedIndex()).getPluginInfo();
 	}
 
 	/**

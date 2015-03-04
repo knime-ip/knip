@@ -3,10 +3,8 @@ package org.knime.knip.featurenode.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import net.imagej.ops.features.FeatureSet;
@@ -27,7 +25,7 @@ public class FeatureSetInfo implements Serializable {
 	private final Class<? extends FeatureSet> featureSetClass;
 	private final String[] parameterNames;
 	private final Object[] parameterValues;
-	private final List<Class<?>> featureClasses;
+	private final Class<?>[] featureClasses;
 	private final boolean[] isFeatureSelected;
 
 	/**
@@ -66,8 +64,10 @@ public class FeatureSetInfo implements Serializable {
 
 		if ((selectedFeatures != null) && !selectedFeatures.isEmpty()) {
 			this.featureClasses = new ArrayList<Class<?>>(
-					selectedFeatures.keySet());
-			Collections.sort(this.featureClasses, new Comparator<Class<?>>() {
+					selectedFeatures.keySet())
+					.toArray(new Class<?>[selectedFeatures.keySet().size()]);
+
+			Arrays.sort(this.featureClasses, new Comparator<Class<?>>() {
 				@Override
 				public int compare(final Class<?> o1, final Class<?> o2) {
 					return o1.getCanonicalName().compareTo(
@@ -75,13 +75,13 @@ public class FeatureSetInfo implements Serializable {
 				}
 			});
 
-			this.isFeatureSelected = new boolean[this.featureClasses.size()];
-			for (int i = 0; i < this.featureClasses.size(); i++) {
+			this.isFeatureSelected = new boolean[this.featureClasses.length];
+			for (int i = 0; i < this.featureClasses.length; i++) {
 				this.isFeatureSelected[i] = selectedFeatures
-						.get(this.featureClasses.get(i));
+						.get(this.featureClasses[i]);
 			}
 		} else {
-			this.featureClasses = new ArrayList<Class<?>>();
+			this.featureClasses = new Class<?>[0];
 			this.isFeatureSelected = new boolean[0];
 		}
 	}
@@ -102,11 +102,70 @@ public class FeatureSetInfo implements Serializable {
 
 	public Map<Class<?>, Boolean> getSelectedFeatures() {
 		final Map<Class<?>, Boolean> selectedFeatures = new HashMap<Class<?>, Boolean>();
-		for (int i = 0; i < this.featureClasses.size(); i++) {
-			selectedFeatures.put(this.featureClasses.get(i),
+		for (int i = 0; i < this.featureClasses.length; i++) {
+			selectedFeatures.put(this.featureClasses[i],
 					this.isFeatureSelected[i]);
 		}
 
 		return selectedFeatures;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = (prime * result) + Arrays.hashCode(this.featureClasses);
+		result = (prime * result)
+				+ ((this.featureSetClass == null) ? 0 : this.featureSetClass
+						.hashCode());
+		result = (prime * result) + Arrays.hashCode(this.isFeatureSelected);
+		result = (prime * result) + Arrays.hashCode(this.parameterNames);
+		result = (prime * result) + Arrays.hashCode(this.parameterValues);
+		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof FeatureSetInfo)) {
+			return false;
+		}
+		final FeatureSetInfo other = (FeatureSetInfo) obj;
+		if (!Arrays.equals(this.featureClasses, other.featureClasses)) {
+			return false;
+		}
+		if (this.featureSetClass == null) {
+			if (other.featureSetClass != null) {
+				return false;
+			}
+		} else if (!this.featureSetClass.equals(other.featureSetClass)) {
+			return false;
+		}
+		if (!Arrays.equals(this.isFeatureSelected, other.isFeatureSelected)) {
+			return false;
+		}
+		if (!Arrays.equals(this.parameterNames, other.parameterNames)) {
+			return false;
+		}
+		if (!Arrays.equals(this.parameterValues, other.parameterValues)) {
+			return false;
+		}
+		return true;
+	}
+
 }

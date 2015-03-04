@@ -5,7 +5,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
 
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -30,10 +29,7 @@ import org.scijava.InstantiableException;
 import org.scijava.module.ModuleException;
 import org.scijava.plugin.PluginInfo;
 
-@SuppressWarnings("rawtypes")
 public class FeatureNodeDialogPane extends NodeDialogPane {
-
-	private static final String FEATURE_MODEL_SETTINGS = "feature_model_settings";
 
 	/**
 	 * The logger instance.
@@ -51,17 +47,23 @@ public class FeatureNodeDialogPane extends NodeDialogPane {
 	 */
 	private DialogComponentColumnNameSelection m_labelingSelectionComponent;
 
-	private ColumnSelectionPanel columnSelectionPanel;
-
-	private FeatureSetSelectionPanel featureSetSelectionPanel;
-
-	private FeatureSetCollectionPanel featureSetCollectionPanel;
-
+	/**
+	 * Dialog component to select the column creation mode;
+	 */
 	private DialogComponentStringSelection m_columnCreationModeComponent;
 
-	@SuppressWarnings("unchecked")
+	/**
+	 * Feature Set GUI Elements
+	 */
+	private ColumnSelectionPanel columnSelectionPanel;
+	private FeatureSetSelectionPanel featureSetSelectionPanel;
+	private FeatureSetCollectionPanel featureSetCollectionPanel;
+	private final SettingsModelFeatureSet smfs;
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public FeatureNodeDialogPane() {
-		// first create the two column selection components
+
+		// first create the column selection components
 		this.m_imgSelectionComponent = new DialogComponentColumnNameSelection(
 				FeatureNodeModel.createImgColumnModel(), "Image", 0, false,
 				true, ImgPlusValue.class);
@@ -71,48 +73,51 @@ public class FeatureNodeDialogPane extends NodeDialogPane {
 		this.m_columnCreationModeComponent = new DialogComponentStringSelection(
 				FeatureNodeModel.createColumnCreationModeModel(),
 				"Column Creation Mode", new String[] { "Append", "New Table" });
+		this.smfs = new SettingsModelFeatureSet(
+				FeatureNodeModel.CFG_KEY_FEATURE_SETS);
 
 		// create the three sup panels
-		columnSelectionPanel = new ColumnSelectionPanel(
-				m_imgSelectionComponent, m_labelingSelectionComponent,
-				m_columnCreationModeComponent);
-		featureSetSelectionPanel = new FeatureSetSelectionPanel();
-		featureSetCollectionPanel = new FeatureSetCollectionPanel();
+		this.columnSelectionPanel = new ColumnSelectionPanel(
+				this.m_imgSelectionComponent,
+				this.m_labelingSelectionComponent,
+				this.m_columnCreationModeComponent);
+		this.featureSetSelectionPanel = new FeatureSetSelectionPanel();
+		this.featureSetCollectionPanel = new FeatureSetCollectionPanel();
 
 		// add action listeners
-		featureSetSelectionPanel.getAddButton().addActionListener(
+		this.featureSetSelectionPanel.getAddButton().addActionListener(
 				new ActionListener() {
 					@Override
-					public void actionPerformed(ActionEvent e) {
-						PluginInfo<FeatureSet> currentlySelectedFeatureSet = featureSetSelectionPanel
+					public void actionPerformed(final ActionEvent e) {
+						final PluginInfo<FeatureSet> currentlySelectedFeatureSet = FeatureNodeDialogPane.this.featureSetSelectionPanel
 								.getCurrentlySelectedFeatureSet();
 						try {
-							featureSetCollectionPanel
+							FeatureNodeDialogPane.this.featureSetCollectionPanel
 									.addFeatureSetPanel(new FeatureSetPanel(
 											currentlySelectedFeatureSet));
 							getTab("Configuration").revalidate();
-						} catch (InstantiableException e1) {
+						} catch (final InstantiableException e1) {
 							LOGGER.error("Couldn't add feature set", e1);
-						} catch (ModuleException e1) {
+						} catch (final ModuleException e1) {
 							LOGGER.error("Couldn't add feature set", e1);
 						}
 					}
 				});
 
-		JPanel configPanel = new JPanel(new GridBagLayout());
-		GridBagConstraints gbc = new GridBagConstraints();
+		final JPanel configPanel = new JPanel(new GridBagLayout());
+		final GridBagConstraints gbc = new GridBagConstraints();
 		gbc.weightx = 1;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 
-		configPanel.add(columnSelectionPanel, gbc);
+		configPanel.add(this.columnSelectionPanel, gbc);
 
 		gbc.gridy = 1;
-		configPanel.add(featureSetSelectionPanel, gbc);
+		configPanel.add(this.featureSetSelectionPanel, gbc);
 
 		gbc.gridy = 2;
 		gbc.weighty = 1;
 		gbc.fill = GridBagConstraints.BOTH;
-		configPanel.add(featureSetCollectionPanel, gbc);
+		configPanel.add(this.featureSetCollectionPanel, gbc);
 
 		configPanel.setPreferredSize(new Dimension(792, 500));
 		this.addTab("Configuration", configPanel);
@@ -127,20 +132,17 @@ public class FeatureNodeDialogPane extends NodeDialogPane {
 					"Select at least one image column or one labeling column.");
 		}
 
+		this.smfs.clearFeatureSets();
+		for (final FeatureSetPanel fsp : this.featureSetCollectionPanel
+				.getSelectedFeatureSets()) {
+			final FeatureSetInfo p = fsp.getSerializableInfos();
+			this.smfs.addFeatureSet(p);
+		}
+
+		this.smfs.saveSettingsForDialog(settings);
 		this.m_imgSelectionComponent.saveSettingsTo(settings);
 		this.m_labelingSelectionComponent.saveSettingsTo(settings);
 		this.m_columnCreationModeComponent.saveSettingsTo(settings);
-		
-		final SettingsModelFeatureSet featureSetSettings = new SettingsModelFeatureSet(
-				FEATURE_MODEL_SETTINGS);
-
-		for (FeatureSetPanel fsp : this.featureSetCollectionPanel
-				.getSelectedFeatureSets()) {
-			final FeatureSetInfo p = fsp.getSerializableInfos();
-			featureSetSettings.addFeatureSet(p);
-		}
-
-		featureSetSettings.saveSettingsForModel(settings);
 	}
 
 	@Override
@@ -149,16 +151,12 @@ public class FeatureNodeDialogPane extends NodeDialogPane {
 		this.m_imgSelectionComponent.loadSettingsFrom(settings, specs);
 		this.m_labelingSelectionComponent.loadSettingsFrom(settings, specs);
 		this.m_columnCreationModeComponent.loadSettingsFrom(settings, specs);
-		
-		final SettingsModelFeatureSet s = new SettingsModelFeatureSet(
-				FEATURE_MODEL_SETTINGS);
+		this.smfs.loadSettingsForDialog(settings, specs);
 
 		// remove all content
 		this.featureSetCollectionPanel.clear();
 
-		s.loadSettingsForDialog(settings, specs);
-		final List<FeatureSetInfo> features = s.getFeatureSets();
-		for (final FeatureSetInfo p : features) {
+		for (final FeatureSetInfo p : this.smfs.getFeatureSets()) {
 			try {
 				this.featureSetCollectionPanel
 						.addFeatureSetPanel(new FeatureSetPanel(p));

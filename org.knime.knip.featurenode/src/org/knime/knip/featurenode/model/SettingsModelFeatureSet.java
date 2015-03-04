@@ -126,16 +126,15 @@ public class SettingsModelFeatureSet extends SettingsModel {
 	@Override
 	public void loadSettingsForDialog(final NodeSettingsRO settings,
 			final PortObjectSpec[] specs) throws NotConfigurableException {
-
 		try {
-			final byte[] byteArray = settings.getByteArray("feature_sets");
+			final byte[] byteArray = settings.getByteArray(this.m_configName);
 
 			if (byteArray != null) {
 				this.m_featureSets = decode(byteArray);
 			}
 
 		} catch (final InvalidSettingsException e) {
-			e.printStackTrace();
+			// ignore
 		} finally {
 			notifyChangeListeners();
 		}
@@ -150,37 +149,29 @@ public class SettingsModelFeatureSet extends SettingsModel {
 	@Override
 	public void validateSettingsForModel(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		try {
-			final byte[] byteArray = settings.getByteArray("feature_sets");
+		final byte[] byteArray = settings.getByteArray(this.m_configName);
 
-			if (byteArray != null) {
-				decode(byteArray);
-			}
-		} catch (final InvalidSettingsException e) {
-			e.printStackTrace();
+		if (byteArray != null) {
+			decode(byteArray);
 		}
+
 	}
 
 	@Override
 	public void loadSettingsForModel(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		try {
-			final byte[] byteArray = settings.getByteArray("feature_sets");
+		final byte[] byteArray = settings.getByteArray(this.m_configName);
 
-			if (byteArray != null) {
-				this.m_featureSets = decode(byteArray);
-			}
-
-		} catch (final InvalidSettingsException e) {
-			e.printStackTrace();
+		if (byteArray != null) {
+			this.m_featureSets = decode(byteArray);
 		}
+
 	}
 
 	@Override
 	public void saveSettingsForModel(final NodeSettingsWO settings) {
 		final byte[] data = encode(this.m_featureSets);
-		settings.addByteArray("feature_sets", data);
-
+		settings.addByteArray(this.m_configName, data);
 	}
 
 	@Override
@@ -229,4 +220,59 @@ public class SettingsModelFeatureSet extends SettingsModel {
 
 		return featureSets;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = (prime * result)
+				+ ((this.m_configName == null) ? 0 : this.m_configName
+						.hashCode());
+		result = (prime * result)
+				+ ((this.m_featureSets == null) ? 0 : this.m_featureSets
+						.hashCode());
+		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof SettingsModelFeatureSet)) {
+			return false;
+		}
+		final SettingsModelFeatureSet other = (SettingsModelFeatureSet) obj;
+		if (this.m_configName == null) {
+			if (other.m_configName != null) {
+				return false;
+			}
+		} else if (!this.m_configName.equals(other.m_configName)) {
+			return false;
+		}
+		if (this.m_featureSets == null) {
+			if (other.m_featureSets != null) {
+				return false;
+			}
+		} else if (!(this.m_featureSets.containsAll(other.m_featureSets) && other.m_featureSets
+				.containsAll(this.m_featureSets))) {
+			return false;
+		}
+
+		return true;
+	}
+
 }

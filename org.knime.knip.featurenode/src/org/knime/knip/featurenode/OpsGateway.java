@@ -51,9 +51,10 @@ package org.knime.knip.featurenode;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashSet;
+import java.util.List;
 
 import net.imagej.ops.OpMatchingService;
 import net.imagej.ops.OpService;
@@ -65,6 +66,7 @@ import org.eclipse.osgi.service.resolver.BundleSpecification;
 import org.scijava.Context;
 import org.scijava.command.CommandService;
 import org.scijava.plugin.DefaultPluginFinder;
+import org.scijava.plugin.Parameter;
 import org.scijava.plugin.PluginIndex;
 import org.scijava.plugin.PluginService;
 import org.scijava.service.Service;
@@ -82,10 +84,18 @@ public final class OpsGateway {
 	private static OpsGateway m_instance;
 
 	private final Context context;
-	private final OpService ops;
-	private final PluginService pls;
-	private final CommandService cs;
-	private final OpResolverService ors;
+
+	@Parameter
+	private OpService ops;
+
+	@Parameter
+	private PluginService pls;
+
+	@Parameter
+	private CommandService cs;
+
+	@Parameter
+	private OpResolverService ors;
 
 	/* Sets up a SciJava context with {@link OpService}. */
 	private OpsGateway() {
@@ -93,21 +103,15 @@ public final class OpsGateway {
 		System.setProperty("scijava.log.level", "error");
 
 		// required classes
-		final HashSet<Class<? extends Service>> classes = new HashSet<>();
-		classes.add(OpService.class);
-		classes.add(OpMatchingService.class);
-		classes.add(WidgetService.class);
-		classes.add(UIService.class);
-		classes.add(OpResolverService.class);
+		final List<Class<? extends Service>> classes = Arrays.asList(
+				OpService.class, OpMatchingService.class, WidgetService.class,
+				UIService.class, OpResolverService.class);
 
 		this.context = new Context(classes, new PluginIndex(
 				new DefaultPluginFinder(new ResourceAwareClassLoader(
 						(DefaultClassLoader) getClass().getClassLoader()))));
 
-		this.ops = this.context.service(OpService.class);
-		this.pls = this.context.service(PluginService.class);
-		this.cs = this.context.service(CommandService.class);
-		this.ors = this.context.service(OpResolverService.class);
+		this.context.inject(this);
 	}
 
 	private static OpsGateway getInstance() {
