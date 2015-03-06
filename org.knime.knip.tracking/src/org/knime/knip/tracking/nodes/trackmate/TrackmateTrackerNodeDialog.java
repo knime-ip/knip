@@ -32,64 +32,64 @@ import org.knime.knip.base.data.labeling.LabelingValue;
  */
 public class TrackmateTrackerNodeDialog extends DefaultNodeSettingsPane {
 
-    private final SettingsModelBoolean m_allowGapClosingModel =
-            TrackmateTrackerSettingsModels.createAllowGapClosingModel();
+    private final SettingsModelBoolean m_allowGapClosingModel = TrackmateTrackerSettingsModels
+            .createAllowGapClosingModel();
 
-    private final SettingsModelBoolean m_allowMergingModel =
-            TrackmateTrackerSettingsModels.createAllowMergingModel();
+    private final SettingsModelBoolean m_allowMergingModel = TrackmateTrackerSettingsModels
+            .createAllowMergingModel();
 
-    private final SettingsModelBoolean m_allowSplittingModel =
-            TrackmateTrackerSettingsModels.createAllowSplittingModel();
+    private final SettingsModelBoolean m_allowSplittingModel = TrackmateTrackerSettingsModels
+            .createAllowSplittingModel();
 
-    private final SettingsModelIntegerBounded m_gapClosingMaxFrameModel =
-            TrackmateTrackerSettingsModels.createMaxFrameGapClosingModel();
+    private final SettingsModelIntegerBounded m_gapClosingMaxFrameModel = TrackmateTrackerSettingsModels
+            .createMaxFrameGapClosingModel();
 
-    private final SettingsModelDouble m_mergingMaxDistanceModel =
-            TrackmateTrackerSettingsModels.createMergingMaxDistance();
+    private final SettingsModelDouble m_mergingMaxDistanceModel = TrackmateTrackerSettingsModels
+            .createMergingMaxDistance();
 
-    private final SettingsModelDouble m_gapClosingMaxDistanceModel =
-            TrackmateTrackerSettingsModels.createGapClosingMaxDistanceModel();
+    private final SettingsModelDouble m_gapClosingMaxDistanceModel = TrackmateTrackerSettingsModels
+            .createGapClosingMaxDistanceModel();
 
-    private final SettingsModelDouble m_splittingMaxDistance =
-            TrackmateTrackerSettingsModels.createSplittingMaxDistance();
+    private final SettingsModelDouble m_splittingMaxDistance = TrackmateTrackerSettingsModels
+            .createSplittingMaxDistance();
 
-    private final SettingsModelDouble m_alternativeLinkingCostFactor =
-            TrackmateTrackerSettingsModels.createAlternativeLinkingCostFactor();
+    private final SettingsModelDouble m_alternativeLinkingCostFactor = TrackmateTrackerSettingsModels
+            .createAlternativeLinkingCostFactor();
 
-    private final SettingsModelDouble m_cutoffPercentileModel =
-            TrackmateTrackerSettingsModels.createCutoffPercentileModel();
+    private final SettingsModelDouble m_cutoffPercentileModel = TrackmateTrackerSettingsModels
+            .createCutoffPercentileModel();
 
-    private final SettingsModelDouble m_linkingMaxDistanceModel =
-            TrackmateTrackerSettingsModels.createLinkingMaxDistanceModel();
+    private final SettingsModelDouble m_linkingMaxDistanceModel = TrackmateTrackerSettingsModels
+            .createLinkingMaxDistanceModel();
 
     // KNIME
 
-    private final SettingsModelString m_sourceLabelingColumn =
-            TrackmateTrackerSettingsModels.createSourceLabelingSettingsModel();
+    private final SettingsModelString m_sourceLabelingColumn = TrackmateTrackerSettingsModels
+            .createSourceLabelingSettingsModel();
 
-    private final SettingsModelFilterString m_columns =
-            TrackmateTrackerSettingsModels.createColumnSelectionModel();
+    private final SettingsModelFilterString m_columns = TrackmateTrackerSettingsModels
+            .createColumnSelectionModel();
 
-    private final SettingsModelString m_timeAxisModel =
-            TrackmateTrackerSettingsModels.createTimeAxisModel();
+    private final SettingsModelString m_timeAxisModel = TrackmateTrackerSettingsModels
+            .createTimeAxisModel();
 
-    private final SettingsModelString m_bitMaskColumnModel =
-            TrackmateTrackerSettingsModels.createBitMaskModel();
+    private final SettingsModelString m_bitMaskColumnModel = TrackmateTrackerSettingsModels
+            .createBitMaskModel();
 
-    private final SettingsModelString m_labelColumnModel =
-            TrackmateTrackerSettingsModels.createLabelModel();
+    private final SettingsModelString m_labelColumnModel = TrackmateTrackerSettingsModels
+            .createLabelModel();
 
-    private final SettingsModelBoolean m_attachSourceLabelings =
-            TrackmateTrackerSettingsModels.createAttachSourceLabelingsModel();
+    private final SettingsModelBoolean m_attachSourceLabelings = TrackmateTrackerSettingsModels
+            .createAttachSourceLabelingsModel();
 
-    private final SettingsModelBoolean m_useCustomTrackPrefix =
-            TrackmateTrackerSettingsModels.createUseCustomTrackPrefixModel();
+    private final SettingsModelBoolean m_useCustomTrackPrefix = TrackmateTrackerSettingsModels
+            .createUseCustomTrackPrefixModel();
 
-    private final SettingsModelString m_customTrackPrefix =
-            TrackmateTrackerSettingsModels.createCustomTrackPrefixModel();
+    private final SettingsModelString m_customTrackPrefix = TrackmateTrackerSettingsModels
+            .createCustomTrackPrefixModel();
 
-    private final SettingsModelBoolean m_calculateTrackFeatures =
-            TrackmateTrackerSettingsModels.createCalculateTrackFeaturesModel();
+    private final SettingsModelBoolean m_calculateTrackFeatures = TrackmateTrackerSettingsModels
+            .createCalculateTrackFeaturesModel();
 
     /**
      * Creates the Dialog for the Trackmate Tracker node.
