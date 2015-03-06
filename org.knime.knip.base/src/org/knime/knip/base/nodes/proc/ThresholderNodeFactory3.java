@@ -199,7 +199,8 @@ public class ThresholderNodeFactory3<T extends RealType<T>, L extends Comparable
             public UnaryOperation<IterableInterval<T>, IterableInterval<BitType>> operation() {
                 if (m_thresholder == ThresholdingType.MANUAL) {
                     final T type = m_currentElement.createVariable();
-                    type.setReal(m_manualThreshold.getDoubleValue());
+                    type.setReal(Math.max(Math.min(m_manualThreshold.getDoubleValue(), type.getMaxValue()),
+                                          type.getMinValue()));
                     return new UnaryRelationAssigment<T>(new RealGreaterThanConstant<T>(type));
                 } else {
                     return new AutoThreshold<T>(m_thresholder);
