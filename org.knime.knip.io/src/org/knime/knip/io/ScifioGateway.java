@@ -48,7 +48,6 @@
  */
 package org.knime.knip.io;
 
-import io.scif.Format;
 import io.scif.SCIFIO;
 import io.scif.SCIFIOService;
 import io.scif.ome.services.OMEXMLService;
@@ -62,10 +61,11 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.osgi.internal.baseadaptor.DefaultClassLoader;
-import org.eclipse.osgi.internal.loader.BundleLoader;
-import org.eclipse.osgi.service.resolver.BundleSpecification;
+import org.eclipse.osgi.util.ManifestElement;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
+import org.osgi.framework.FrameworkUtil;
 import org.scijava.Context;
 import org.scijava.plugin.DefaultPluginFinder;
 import org.scijava.plugin.PluginIndex;
@@ -105,8 +105,8 @@ public class ScifioGateway {
 
 		// create a scifio context with required Scifio and Scijava Services
 		m_scifio = new SCIFIO(new Context(classes, new PluginIndex(
-				new DefaultPluginFinder(new ResourceAwareClassLoader(
-						(DefaultClassLoader) getClass().getClassLoader())))));
+				new DefaultPluginFinder(new ResourceAwareClassLoader(getClass()
+						.getClassLoader())))));
 	}
 
 	private static synchronized ScifioGateway getInstance() {
@@ -123,7 +123,7 @@ public class ScifioGateway {
 		return getInstance().m_scifio;
 	}
 
-	//TODO: This should be handled on SCIFIO side
+	// TODO: This should be handled on SCIFIO side
 	public static String[] getAllSuffixes() {
 		final String[] allFormats = format().getSuffixes();
 
@@ -146,37 +146,43 @@ public class ScifioGateway {
 
 		final ArrayList<URL> urls = new ArrayList<URL>();
 
-		public ResourceAwareClassLoader(
-				final DefaultClassLoader contextClassLoader) {
-			super(contextClassLoader);
+		public ResourceAwareClassLoader(final ClassLoader cl) {
+			super(cl);
 
-			for (BundleSpecification bundleSpec : ((BundleLoader) contextClassLoader
-					.getDelegate()).getBundle().getBundleDescription()
-					.getRequiredBundles()) {
+			String requireBundle = (String) FrameworkUtil.getBundle(getClass())
+					.getHeaders().get(Constants.REQUIRE_BUNDLE);
+			try {
+				final ManifestElement[] elements = ManifestElement.parseHeader(
+						Constants.BUNDLE_CLASSPATH, requireBundle);
+				for (final ManifestElement manifestElement : elements) {
+					final Bundle bundle = org.eclipse.core.runtime.Platform
+							.getBundle(manifestElement.getValue());
 
-				final Bundle bundle = org.eclipse.core.runtime.Platform
-						.getBundle(bundleSpec.getName());
-				Enumeration<URL> resources;
-				try {
-					resources = bundle
-							.getResources("META-INF/json/org.scijava.plugin.Plugin");
-				} catch (IOException e) {
-					continue;
-				}
-
-				if (resources == null) {
-					continue;
-				}
-
-				while (resources.hasMoreElements()) {
-					final URL resource = resources.nextElement();
-					// we want to avoid transitive resolving of dependencies
-					final String host = resource.getHost();
-					if (bundle.getBundleId() == Long.valueOf(host.substring(0,
-							host.indexOf(".")))) {
-						urls.add(resource);
+					Enumeration<URL> resources;
+					try {
+						resources = bundle
+								.getResources("META-INF/json/org.scijava.plugin.Plugin");
+					} catch (IOException e) {
+						continue;
 					}
+
+					if (resources == null) {
+						continue;
+					}
+
+					while (resources.hasMoreElements()) {
+						final URL resource = resources.nextElement();
+						// we want to avoid transitive resolving of dependencies
+						final String host = resource.getHost();
+						if (bundle.getBundleId() == Long.valueOf(host
+								.substring(0, host.indexOf(".")))) {
+							urls.add(resource);
+						}
+					}
+
 				}
+			} catch (BundleException e) {
+				e.printStackTrace();
 			}
 		}
 
