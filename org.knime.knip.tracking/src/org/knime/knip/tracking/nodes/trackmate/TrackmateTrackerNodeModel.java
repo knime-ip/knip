@@ -34,7 +34,6 @@ import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingType;
 import net.imglib2.ops.operation.iterableinterval.unary.Centroid;
 import net.imglib2.ops.util.MetadataUtil;
-import net.imglib2.roi.IterableRegionOfInterest;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.util.ConstantUtils;
 
@@ -50,6 +49,7 @@ import org.knime.core.data.DataValue;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.RowKey;
 import org.knime.core.data.StringValue;
+import org.knime.core.data.container.CloseableRowIterator;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.StringCell;
@@ -104,65 +104,65 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
     /*
      * KNIME SETTINGS MODELS
      */
-    private final SettingsModelString m_sourceLabelingColumn = TrackmateTrackerSettingsModels
-            .createSourceLabelingSettingsModel();
+    private final SettingsModelString m_sourceLabelingColumn =
+            TrackmateTrackerSettingsModels.createSourceLabelingSettingsModel();
 
-    private final SettingsModelFilterString m_columns = TrackmateTrackerSettingsModels
-            .createColumnSelectionModel();
+    private final SettingsModelFilterString m_columns =
+            TrackmateTrackerSettingsModels.createColumnSelectionModel();
 
-    private final SettingsModelString m_timeAxisModel = TrackmateTrackerSettingsModels
-            .createTimeAxisModel();
+    private final SettingsModelString m_timeAxisModel =
+            TrackmateTrackerSettingsModels.createTimeAxisModel();
 
-    private final SettingsModelString m_bitMaskColumnModel = TrackmateTrackerSettingsModels
-            .createBitMaskModel();
+    private final SettingsModelString m_bitMaskColumnModel =
+            TrackmateTrackerSettingsModels.createBitMaskModel();
 
-    private final SettingsModelString m_labelColumnModel = TrackmateTrackerSettingsModels
-            .createLabelModel();
+    private final SettingsModelString m_labelColumnModel =
+            TrackmateTrackerSettingsModels.createLabelModel();
 
-    private final SettingsModelBoolean m_attachSourceLabelings = TrackmateTrackerSettingsModels
-            .createAttachSourceLabelingsModel();
+    private final SettingsModelBoolean m_attachSourceLabelings =
+            TrackmateTrackerSettingsModels.createAttachSourceLabelingsModel();
 
-    private final SettingsModelBoolean m_useCustomTrackPrefix = TrackmateTrackerSettingsModels
-            .createUseCustomTrackPrefixModel();
+    private final SettingsModelBoolean m_useCustomTrackPrefix =
+            TrackmateTrackerSettingsModels.createUseCustomTrackPrefixModel();
 
-    private final SettingsModelString m_customTrackPrefix = TrackmateTrackerSettingsModels
-            .createCustomTrackPrefixModel();
+    private final SettingsModelString m_customTrackPrefix =
+            TrackmateTrackerSettingsModels.createCustomTrackPrefixModel();
 
-    private final SettingsModelBoolean m_calculateTrackFeaturesModel = TrackmateTrackerSettingsModels
-            .createCalculateTrackFeaturesModel();
+    private final SettingsModelBoolean m_calculateTrackFeaturesModel =
+            TrackmateTrackerSettingsModels.createCalculateTrackFeaturesModel();
 
     /*
      * TRACKMATE SETTINGS MODELS
      */
-    private final SettingsModelBoolean m_allowGapClosingModel = TrackmateTrackerSettingsModels
-            .createAllowGapClosingModel();
+    private final SettingsModelBoolean m_allowGapClosingModel =
+            TrackmateTrackerSettingsModels.createAllowGapClosingModel();
 
-    private final SettingsModelBoolean m_allowMergingModel = TrackmateTrackerSettingsModels
-            .createAllowMergingModel();
+    private final SettingsModelBoolean m_allowMergingModel =
+            TrackmateTrackerSettingsModels.createAllowMergingModel();
 
-    private final SettingsModelBoolean m_allowSplittingModel = TrackmateTrackerSettingsModels
-            .createAllowSplittingModel();
+    private final SettingsModelBoolean m_allowSplittingModel =
+            TrackmateTrackerSettingsModels.createAllowSplittingModel();
 
-    private final SettingsModelInteger m_gapClosingMaxFrameModel = TrackmateTrackerSettingsModels
-            .createMaxFrameGapClosingModel();
+    private final SettingsModelInteger m_gapClosingMaxFrameModel =
+            TrackmateTrackerSettingsModels.createMaxFrameGapClosingModel();
 
-    private final SettingsModelDouble m_alternativeLinkingCostFactor = TrackmateTrackerSettingsModels
-            .createAlternativeLinkingCostFactor();
+    private final SettingsModelDouble m_alternativeLinkingCostFactor =
+            TrackmateTrackerSettingsModels.createAlternativeLinkingCostFactor();
 
-    private final SettingsModelDouble m_cutoffPercentileModel = TrackmateTrackerSettingsModels
-            .createCutoffPercentileModel();
+    private final SettingsModelDouble m_cutoffPercentileModel =
+            TrackmateTrackerSettingsModels.createCutoffPercentileModel();
 
-    private final SettingsModelDouble m_gapClosingMaxDistanceModel = TrackmateTrackerSettingsModels
-            .createGapClosingMaxDistanceModel();
+    private final SettingsModelDouble m_gapClosingMaxDistanceModel =
+            TrackmateTrackerSettingsModels.createGapClosingMaxDistanceModel();
 
-    private final SettingsModelDouble m_linkingMaxDistanceModel = TrackmateTrackerSettingsModels
-            .createLinkingMaxDistanceModel();
+    private final SettingsModelDouble m_linkingMaxDistanceModel =
+            TrackmateTrackerSettingsModels.createLinkingMaxDistanceModel();
 
-    private final SettingsModelDouble m_mergingMaxDistanceModel = TrackmateTrackerSettingsModels
-            .createMergingMaxDistance();
+    private final SettingsModelDouble m_mergingMaxDistanceModel =
+            TrackmateTrackerSettingsModels.createMergingMaxDistance();
 
-    private final SettingsModelDouble m_splittingMaxDistance = TrackmateTrackerSettingsModels
-            .createSplittingMaxDistance();
+    private final SettingsModelDouble m_splittingMaxDistance =
+            TrackmateTrackerSettingsModels.createSplittingMaxDistance();
 
     /*
      * GLOBAL MEMBERS
@@ -218,10 +218,10 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
         // Create the outspec depending on the calculate track features setting.
         if (m_calculateTrackFeaturesModel.getBooleanValue()) {
 
-            final TrackMateTrackFeature[] values = TrackMateTrackFeature
-                    .values();
-            final List<DataColumnSpec> colSpecs = new ArrayList<>(
-                    values.length + 2);
+            final TrackMateTrackFeature[] values =
+                    TrackMateTrackFeature.values();
+            final List<DataColumnSpec> colSpecs =
+                    new ArrayList<>(values.length + 2);
 
             colSpecs.add(new DataColumnSpecCreator("TrackID", StringCell.TYPE)
                     .createSpec());
@@ -232,16 +232,19 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
                 colSpecs.add(new DataColumnSpecCreator(feature.toString(),
                         DoubleCell.TYPE).createSpec());
             }
-            dataTableSpecs = new DataTableSpec[] {
-                    new DataTableSpec(new DataColumnSpecCreator("Tracking",
-                            LabelingCell.TYPE).createSpec()),
-                    new DataTableSpec(
-                            colSpecs.toArray(new DataColumnSpec[colSpecs.size()])) };
+            dataTableSpecs =
+                    new DataTableSpec[] {
+                            new DataTableSpec(new DataColumnSpecCreator(
+                                    "Tracking", LabelingCell.TYPE).createSpec()),
+                            new DataTableSpec(
+                                    colSpecs.toArray(new DataColumnSpec[colSpecs
+                                            .size()])) };
         } else {
-            dataTableSpecs = new DataTableSpec[] {
-                    new DataTableSpec(new DataColumnSpecCreator("Tracking",
-                            LabelingCell.TYPE).createSpec()),
-                    new DataTableSpec() };
+            dataTableSpecs =
+                    new DataTableSpec[] {
+                            new DataTableSpec(new DataColumnSpecCreator(
+                                    "Tracking", LabelingCell.TYPE).createSpec()),
+                            new DataTableSpec() };
         }
         return dataTableSpecs;
     }
@@ -258,25 +261,38 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
             final ExecutionContext exec) throws Exception {
 
         // Select the name prefix for the Tracks.
-        final String trackPrefix = m_useCustomTrackPrefix.getBooleanValue() ? m_customTrackPrefix
-                .getStringValue()
-                : TrackmateTrackerSettingsModels.DEFAULT_TRACK_PREFIX;
+        final String trackPrefix =
+                m_useCustomTrackPrefix.getBooleanValue() ? m_customTrackPrefix
+                        .getStringValue()
+                        : TrackmateTrackerSettingsModels.DEFAULT_TRACK_PREFIX;
 
         // set the source labeling, only one source is allowed since now
-        final int labelingIndex = getColIndices(m_sourceLabelingColumn,
-                LabelingValue.class, inData[0].getSpec());
+        final int labelingIndex =
+                getColIndices(m_sourceLabelingColumn, LabelingValue.class,
+                        inData[0].getSpec());
 
-        @SuppressWarnings("unchecked")
-        final LabelingValue<String> srcLabelingValue = (LabelingValue<String>) inData[0]
-                .iterator().next().getCell(labelingIndex);
+        if (inData[0].getRowCount() < 1) {
+            throw new Error("Input Table is empty!");
+        }
+
+        final LabelingValue<String> srcLabelingValue;
+        try {
+            srcLabelingValue =
+                    (LabelingValue<String>) inData[0].iterator().next()
+                            .getCell(labelingIndex);
+        } catch (final ClassCastException e) {
+            throw new Error("Invalid labeling type in the Labeling Column: "
+                    + e.getMessage());
+        }
 
         // create a list of all nodes
-        final TrackableObjectCollection<TrackedNode<String>> trackedNodes = createTrackedNodes(
-                inData, exec, srcLabelingValue.getLabelingMetadata().getName());
+        final TrackableObjectCollection<TrackedNode<String>> trackedNodes =
+                createTrackedNodes(inData, exec, srcLabelingValue
+                        .getLabelingMetadata().getName());
 
         // Do the tracking
-        final SparseLAPTracker<TrackedNode<String>> tracker = new SparseLAPTracker<>(
-                trackedNodes, initTrackMateSettings());
+        final SparseLAPTracker<TrackedNode<String>> tracker =
+                new SparseLAPTracker<>(trackedNodes, initTrackMateSettings());
         tracker.setNumThreads(Runtime.getRuntime().availableProcessors());
         final boolean success = tracker.process();
         if (!success) {
@@ -284,23 +300,26 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
         }
 
         // get the tracks from the tracker
-        final List<SortedSet<TrackedNode<String>>> tracks = retrieveTrackSegments(tracker);
+        final List<SortedSet<TrackedNode<String>>> tracks =
+                retrieveTrackSegments(tracker);
 
         // create the result labeling
-        final Labeling<String> resultLabeling = createResultLabeling(
-                srcLabelingValue.getLabeling(), tracks, trackPrefix);
+        final Labeling<String> resultLabeling =
+                createResultLabeling(srcLabelingValue.getLabeling(), tracks,
+                        trackPrefix);
 
         // Calculate the track features (if needed)
         Map<Integer, Map<String, Double>> featureValues = null;
         if (m_calculateTrackFeaturesModel.getBooleanValue()) {
-            featureValues = calculateTrackFeatures(trackedNodes,
-                    tracker.getResult(), exec).getAllTrackFeatureValues();
+            featureValues =
+                    calculateTrackFeatures(trackedNodes, tracker.getResult(),
+                            exec).getAllTrackFeatureValues();
         }
 
         // create the output tables
-        final BufferedDataTable[] resultTables = createResultTables(exec,
-                srcLabelingValue, resultLabeling, tracks, trackPrefix,
-                featureValues);
+        final BufferedDataTable[] resultTables =
+                createResultTables(exec, srcLabelingValue, resultLabeling,
+                        tracks, trackPrefix, featureValues);
 
         m_labelingTable = resultTables[0];
         m_trackFeatureTable = resultTables[1];
@@ -328,31 +347,36 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
         final int[] featureIndices = getSelectedColumnIndices(spec);
 
         // get bitmask index
-        final int sourceLabelingIdx = getColIndices(m_sourceLabelingColumn,
-                LabelingValue.class, inData[0].getSpec());
+        final int sourceLabelingIdx =
+                getColIndices(m_sourceLabelingColumn, LabelingValue.class,
+                        inData[0].getSpec());
         // time axis
         final AxisType timeAxis = Axes.get(m_timeAxisModel.getStringValue());
 
         // get bitmask index
-        final int bitMaskColumnIdx = getColIndices(m_bitMaskColumnModel,
-                ImgPlusValue.class, spec);
+        final int bitMaskColumnIdx =
+                getColIndices(m_bitMaskColumnModel, ImgPlusValue.class, spec);
 
         // get label index
-        final int labelIdx = getColIndices(m_labelColumnModel,
-                StringValue.class, spec, bitMaskColumnIdx);
+        final int labelIdx =
+                getColIndices(m_labelColumnModel, StringValue.class, spec,
+                        bitMaskColumnIdx);
 
         // create the nodes from the input data
-        final TrackableObjectCollection<TrackedNode<String>> trackedNodes = new DefaultTOCollection<>();
+        final TrackableObjectCollection<TrackedNode<String>> trackedNodes =
+                new DefaultTOCollection<>();
 
-        for (final DataRow row : inData[0]) {
+        final CloseableRowIterator iter = inData[0].iterator();
+        while (iter.hasNext()) {
+            final DataRow row = iter.next();
             exec.checkCanceled();
 
             // get the spot
             ImgPlus<BitType> bitMask = null;
             ImgPlusValue<BitType> bitMaskValue = null;
             try {
-                bitMaskValue = ((ImgPlusValue<BitType>) row
-                        .getCell(bitMaskColumnIdx));
+                bitMaskValue =
+                        ((ImgPlusValue<BitType>) row.getCell(bitMaskColumnIdx));
                 bitMask = bitMaskValue.getImgPlus();
             } catch (final ClassCastException e) {
                 handleMissingValue(row.getKey(), columnNames[bitMaskColumnIdx]);
@@ -382,7 +406,8 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
                                 + "Use KNIME Loops!");
             }
 
-            final Map<String, Double> featureMap = new HashMap<String, Double>();
+            final Map<String, Double> featureMap =
+                    new HashMap<String, Double>();
             for (final int idx : featureIndices) {
                 try {
                     featureMap.put(columnNames[idx],
@@ -393,8 +418,9 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
             }
 
             final Centroid centroid = new Centroid();
-            double[] pos = centroid.compute(bitMask,
-                    new double[bitMask.numDimensions()]);
+            double[] pos =
+                    centroid.compute(bitMask,
+                            new double[bitMask.numDimensions()]);
 
             for (int d = 0; d < pos.length; d++) {
                 pos[d] += bitMaskValue.getMinimum()[d];
@@ -411,9 +437,10 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
             featureMap.put(TrackmateConstants.POSITION_T, pos[timeIdx]);
 
             // add the node
-            final TrackedNode<String> trackedNode = new TrackedNode<String>(
-                    bitMask, pos, bitMaskValue.getMinimum(), label, timeIdx,
-                    featureMap);
+            final TrackedNode<String> trackedNode =
+                    new TrackedNode<String>(bitMask, pos,
+                            bitMaskValue.getMinimum(), label, timeIdx,
+                            featureMap);
 
             trackedNodes.add(trackedNode, trackedNode.frame());
         }
@@ -442,17 +469,20 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
     private List<SortedSet<TrackedNode<String>>> retrieveTrackSegments(
             final SparseLAPTracker<TrackedNode<String>> tracker) {
         // get the tracks from the tracker and
-        final ConnectivityInspector<TrackedNode<String>, DefaultWeightedEdge> inspector = new ConnectivityInspector<TrackedNode<String>, DefaultWeightedEdge>(
-                tracker.getResult());
-        final List<Set<TrackedNode<String>>> unsortedSegments = inspector
-                .connectedSets();
-        final List<SortedSet<TrackedNode<String>>> trackSegments = new ArrayList<SortedSet<TrackedNode<String>>>(
-                unsortedSegments.size());
+        final ConnectivityInspector<TrackedNode<String>, DefaultWeightedEdge> inspector =
+                new ConnectivityInspector<TrackedNode<String>, DefaultWeightedEdge>(
+                        tracker.getResult());
+        final List<Set<TrackedNode<String>>> unsortedSegments =
+                inspector.connectedSets();
+        final List<SortedSet<TrackedNode<String>>> trackSegments =
+                new ArrayList<SortedSet<TrackedNode<String>>>(
+                        unsortedSegments.size());
 
         // sort the track nodes by adding all segments to a sorted TreeSet
         for (final Set<TrackedNode<String>> segmentSet : unsortedSegments) {
-            final SortedSet<TrackedNode<String>> sortedSet = new TreeSet<TrackedNode<String>>(
-                    TrackableObjectUtils.frameComparator());
+            final SortedSet<TrackedNode<String>> sortedSet =
+                    new TreeSet<TrackedNode<String>>(
+                            TrackableObjectUtils.frameComparator());
             sortedSet.addAll(segmentSet);
             trackSegments.add(sortedSet);
         }
@@ -476,14 +506,14 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
             final String trackPrefix) {
 
         final RandomAccess<?> srcAccess = sourceLabeling.randomAccess();
-        final Labeling<String> resultLabeling = sourceLabeling
-                .<String> factory().create(sourceLabeling);
-        final RandomAccess<LabelingType<String>> resAccess = resultLabeling
-                .randomAccess();
+        final Labeling<String> resultLabeling =
+                sourceLabeling.<String> factory().create(sourceLabeling);
+        final RandomAccess<LabelingType<String>> resAccess =
+                resultLabeling.randomAccess();
 
         // loop invariants
-        final boolean attachSourceLabelings = m_attachSourceLabelings
-                .getBooleanValue();
+        final boolean attachSourceLabelings =
+                m_attachSourceLabelings.getBooleanValue();
         final int numDims = resAccess.numDimensions();
 
         int trackCtr = 0;
@@ -501,16 +531,17 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
                                 + node.offset(d), d);
                     }
                     // set all the important information
-                    final List<String> labeling = new ArrayList<String>(
-                            resAccess.get().getLabeling());
+                    final List<String> labeling =
+                            new ArrayList<String>(resAccess.get().getLabeling());
 
                     labeling.add(trackPrefix + trackCtr);
 
                     // add original labelings if selected by the user
                     if (attachSourceLabelings) {
                         srcAccess.setPosition(resAccess);
-                        final List<?> localLabelings = ((LabelingType<?>) srcAccess
-                                .get()).getLabeling();
+                        final List<?> localLabelings =
+                                ((LabelingType<?>) srcAccess.get())
+                                        .getLabeling();
                         for (final Object o : localLabelings) {
                             labeling.add(o.toString());
                         }
@@ -588,12 +619,12 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
         final DataTableSpec[] outSpec = createOutSpec();
 
         // create the labeling result table
-        final LabelingCellFactory labelingCellFactory = new LabelingCellFactory(
-                exec);
-        final BufferedDataContainer labelingContainer = exec
-                .createDataContainer(outSpec[0]);
-        final LabelingMetadata sourceLabelingMetadata = srcLabelingValue
-                .getLabelingMetadata();
+        final LabelingCellFactory labelingCellFactory =
+                new LabelingCellFactory(exec);
+        final BufferedDataContainer labelingContainer =
+                exec.createDataContainer(outSpec[0]);
+        final LabelingMetadata sourceLabelingMetadata =
+                srcLabelingValue.getLabelingMetadata();
         final String sourceLabelingName = sourceLabelingMetadata.getName();
         labelingContainer.addRowToTable(new DefaultRow(sourceLabelingName,
                 labelingCellFactory.createCell(resultLabeling,
@@ -601,12 +632,13 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
         labelingContainer.close();
 
         // (optionally) create the track features result table
-        final BufferedDataContainer featureContainer = exec
-                .createDataContainer(outSpec[1]);
+        final BufferedDataContainer featureContainer =
+                exec.createDataContainer(outSpec[1]);
         if (m_calculateTrackFeaturesModel.getBooleanValue()) {
             // create the metadata for the bitmasks
-            final DefaultImgMetadata mdata = new DefaultImgMetadata(
-                    srcLabelingValue.getLabeling().numDimensions());
+            final DefaultImgMetadata mdata =
+                    new DefaultImgMetadata(srcLabelingValue.getLabeling()
+                            .numDimensions());
             MetadataUtil.copyTypedSpace(sourceLabelingMetadata, mdata);
             MetadataUtil.copyName(sourceLabelingMetadata, mdata);
             MetadataUtil.copySource(srcLabelingValue.getLabelingMetadata(),
@@ -649,14 +681,15 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
             final ImgPlusMetadata mdata, final Labeling<String> resultLabeling,
             final ExecutionContext exec) throws IOException {
 
-        final List<DataCell> cells = new ArrayList<>(
-                TrackMateTrackFeature.values().length);
+        final List<DataCell> cells =
+                new ArrayList<>(TrackMateTrackFeature.values().length);
 
         // TrackID Column
         cells.add(new StringCell(trackName));
 
         // Bitmask Column
-        final Img<BitType> bitMask = createBinaryMask(resultLabeling, trackName);
+        final Img<BitType> bitMask =
+                createBinaryMask(resultLabeling, trackName);
 
         cells.add(new ImgPlusCellFactory(exec).createCell(bitMask, mdata));
 
@@ -686,17 +719,18 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
     private Img<BitType> createBinaryMask(Labeling<String> resultLabeling,
             String trackName) {
 
-        final IterableInterval<BitType> labelII = resultLabeling
-                .getIterableRegionOfInterest(trackName)
-                .getIterableIntervalOverROI(ConstantUtils
-                        .constantRandomAccessible(new BitType(),
-                                resultLabeling.numDimensions()));
+        final IterableInterval<BitType> labelII =
+                resultLabeling.getIterableRegionOfInterest(trackName)
+                        .getIterableIntervalOverROI(
+                                ConstantUtils.constantRandomAccessible(
+                                        new BitType(),
+                                        resultLabeling.numDimensions()));
 
         final long[] dimensions = new long[labelII.numDimensions()];
         labelII.dimensions(dimensions);
 
-        final Img<BitType> mask = new ArrayImgFactory<BitType>().create(
-                labelII, new BitType());
+        final Img<BitType> mask =
+                new ArrayImgFactory<BitType>().create(labelII, new BitType());
         final RandomAccess<BitType> maskRA = mask.randomAccess();
         final Cursor<BitType> cur = labelII.localizingCursor();
 
@@ -718,8 +752,8 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
      */
     private Map<String, Object> initTrackMateSettings() {
         // Set the tracking settings
-        final Map<String, Object> settings = LAPUtils
-                .getDefaultLAPSettingsMap();
+        final Map<String, Object> settings =
+                LAPUtils.getDefaultLAPSettingsMap();
         settings.put(KEY_LINKING_MAX_DISTANCE,
                 m_linkingMaxDistanceModel.getDoubleValue());
         settings.put(KEY_ALLOW_GAP_CLOSING,
@@ -778,7 +812,8 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
         }
 
         // get column indices
-        final List<Integer> colIndices = new ArrayList<Integer>(colNames.size());
+        final List<Integer> colIndices =
+                new ArrayList<Integer>(colNames.size());
         for (int i = 0; i < colNames.size(); i++) {
             final int colIdx = inSpec.findColumnIndex(colNames.get(i));
             if (colIdx == -1) {
@@ -837,8 +872,9 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
 
         int colIdx = -1;
         if (model.getStringValue() != null) {
-            colIdx = NodeUtils.autoColumnSelection(inSpec, model, clazz,
-                    this.getClass(), excludeCols);
+            colIdx =
+                    NodeUtils.autoColumnSelection(inSpec, model, clazz,
+                            this.getClass(), excludeCols);
         }
         return colIdx;
     }
