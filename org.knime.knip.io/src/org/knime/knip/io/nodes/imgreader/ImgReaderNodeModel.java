@@ -85,7 +85,7 @@ import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
 
 /**
  * This Node reads images.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
@@ -151,56 +151,6 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 		}
 	}
 
-	/**
-	 * Key to store the check file format option.
-	 */
-	public static final String CFG_CHECK_FILE_FORMAT = "check_file_format";
-
-	/**
-	 * Key to store if the complete path should be used as row key
-	 */
-	public static final String CFG_COMPLETE_PATH_ROWKEY = "complete_path_rowkey";
-
-	/**
-	 * Key to store the directory history.
-	 */
-	public static final String CFG_DIR_HISTORY = "imagereader_dirhistory";
-
-	/**
-	 * Key for the settings holding the file list.
-	 */
-	public static final String CFG_FILE_LIST = "file_list";
-
-	/**
-	 * Key to store the selected column in the optional input table
-	 */
-	public static final String CFG_FILENAME_COLUMN = "filename_column";
-
-	/**
-	 * Key for the settings holding information if group files modus is wanted
-	 */
-	public static final String CFG_GROUP_FILES = "group_files";
-
-	/**
-	 * Key to store the OME_XML-metadata column option.
-	 */
-	public static final String CFG_OME_XML_METADATA_COLUMN = "xmlcolumns";
-
-	/**
-	 * Key to store the factory used to create the images
-	 */
-	public static final String CFG_IMG_FACTORY = "img_factory";
-
-	/**
-	 * Key to store whether all series should be read
-	 */
-	public static final String CFG_READ_ALL_SERIES = "read_all_series";
-
-	/**
-	 * Key to store the selected series
-	 */
-	public static final String CFG_SERIES_SELECTION = "series_selection";
-
 	/*
 	 * Settings
 	 */
@@ -220,50 +170,43 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 	 */
 	public static final int METADATAOUTPORT = 1;
 
-	/**
-	 * The available factory types available for selection.
-	 */
-	public static final String[] IMG_FACTORIES = new String[] {
-			"Array Image Factory", "Planar Image Factory", "Cell Image Factory" };
+	private final SettingsModelBoolean m_checkFileFormat = ImgReaderSettingsModels
+			.createCheckFileFormatModel();
 
-	private final SettingsModelBoolean m_checkFileFormat = new SettingsModelBoolean(
-			CFG_CHECK_FILE_FORMAT, true);
-
-	private final SettingsModelBoolean m_completePathRowKey = new SettingsModelBoolean(
-			CFG_COMPLETE_PATH_ROWKEY, false);
+	private final SettingsModelBoolean m_completePathRowKey = ImgReaderSettingsModels
+			.createCompletePathRowKeyModel();
 
 	/* data table for the table cell viewer */
 	private BufferedDataTable m_data;
 
-	private final SettingsModelString m_filenameCol = new SettingsModelString(
-			CFG_FILENAME_COLUMN, "");
+	private final SettingsModelString m_filenameCol = ImgReaderSettingsModels
+			.createFilenameColumnModel();
 
 	/*
 	 * Collection of all settings.
 	 */
 
-	private final SettingsModelStringArray m_files = new SettingsModelStringArray(
-			CFG_FILE_LIST, new String[] {});
-
+	private final SettingsModelStringArray m_files = ImgReaderSettingsModels
+			.createFileListModel();
 	// New in 1.0.2
-	private final SettingsModelBoolean m_isGroupFiles = new SettingsModelBoolean(
-			CFG_GROUP_FILES, true);
+	private final SettingsModelBoolean m_isGroupFiles = ImgReaderSettingsModels
+			.createIsGroupFilesModel();
 
-	private final SettingsModelBoolean m_omexmlCol = new SettingsModelBoolean(
-			CFG_OME_XML_METADATA_COLUMN, false);
+	private final SettingsModelBoolean m_omexmlCol = ImgReaderSettingsModels
+			.createAppendOmexmlColModel();
 
 	private final SettingsModelSubsetSelection m_planeSelect = new SettingsModelSubsetSelection(
 			CFG_PLANE_SLECTION);
 
 	// new in 1.1
-	private final SettingsModelString m_imgFactory = new SettingsModelString(
-			CFG_IMG_FACTORY, IMG_FACTORIES[0]);
+	private final SettingsModelString m_imgFactory = ImgReaderSettingsModels
+			.createImgFactoryModel();
 
-	private SettingsModelBoolean m_readAllSeries = new SettingsModelBoolean(
-			CFG_READ_ALL_SERIES, true);
+	private SettingsModelBoolean m_readAllSeries = ImgReaderSettingsModels
+			.createReadAllSeriesModel();
 
-	private final SettingsModelIntegerBounded m_seriesSelection = new SettingsModelIntegerBounded(
-			CFG_SERIES_SELECTION, 0, 0, 1000);
+	private final SettingsModelIntegerBounded m_seriesSelection = ImgReaderSettingsModels
+			.createSeriesSelectionModel();
 
 	private final Collection<SettingsModel> m_settingsCollection;
 
@@ -373,9 +316,11 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 
 		// create ImgFactory
 		ImgFactory<T> imgFac;
-		if (m_imgFactory.getStringValue().equals(IMG_FACTORIES[1])) {
+		if (m_imgFactory.getStringValue().equals(
+				ImgReaderSettingsModels.IMG_FACTORIES[1])) {
 			imgFac = new PlanarImgFactory<T>();
-		} else if (m_imgFactory.getStringValue().equals(IMG_FACTORIES[2])) {
+		} else if (m_imgFactory.getStringValue().equals(
+				ImgReaderSettingsModels.IMG_FACTORIES[2])) {
 			// TODO: what is the appropriate cell size?
 			imgFac = new CellImgFactory<T>();
 		} else {

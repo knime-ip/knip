@@ -76,7 +76,7 @@ import org.knime.knip.io.node.dialog.DialogComponentMultiFileChooser;
 /**
  * Dialog for the ImageReader to select the files and choose some additional
  * options.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
@@ -102,47 +102,44 @@ public class ImgReaderNodeDialog extends DefaultNodeSettingsPane {
 
 		createNewGroup("");
 		m_filechooser = new DialogComponentMultiFileChooser(
-				new SettingsModelStringArray(ImgReaderNodeModel.CFG_FILE_LIST,
-						new String[] {}), FILEFILTER,
-				ImgReaderNodeModel.CFG_DIR_HISTORY);
+				ImgReaderSettingsModels.createFileListModel(), FILEFILTER,
+				ImgReaderSettingsModels.CFG_DIR_HISTORY);
 		addDialogComponent(m_filechooser);
 		closeCurrentGroup();
 
 		createNewTab("Additional Options");
 
 		createNewGroup("Output");
-		addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
-				ImgReaderNodeModel.CFG_OME_XML_METADATA_COLUMN, false),
+		addDialogComponent(new DialogComponentBoolean(
+				ImgReaderSettingsModels.createAppendOmexmlColModel(),
 				"Append additional OME-XML-metadata column"));
 		addDialogComponent(new DialogComponentStringSelection(
-				new SettingsModelString(ImgReaderNodeModel.CFG_IMG_FACTORY,
-						ImgReaderNodeModel.IMG_FACTORIES[0]), "Image factory",
-				ImgReaderNodeModel.IMG_FACTORIES));
+				ImgReaderSettingsModels.createImgFactoryModel(),
+				"Image factory", ImgReaderSettingsModels.IMG_FACTORIES));
 		closeCurrentGroup();
 
 		createNewGroup("File");
-		addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
-				ImgReaderNodeModel.CFG_COMPLETE_PATH_ROWKEY, false),
+		addDialogComponent(new DialogComponentBoolean(
+				ImgReaderSettingsModels.createCompletePathRowKeyModel(),
 				"Use complete file path as row key"));
 
-		addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
-				ImgReaderNodeModel.CFG_CHECK_FILE_FORMAT, true),
+		addDialogComponent(new DialogComponentBoolean(
+				ImgReaderSettingsModels.createCheckFileFormatModel(),
 				"Check file format for each file (may be slower)"));
 		closeCurrentGroup();
 
 		createNewGroup("Optional Inport");
-		m_fileNamesColumn = new SettingsModelString(
-				ImgReaderNodeModel.CFG_FILENAME_COLUMN, "");
+		m_fileNamesColumn = ImgReaderSettingsModels.createFilenameColumnModel();
 		addDialogComponent(new DialogComponentColumnNameSelection(
 				m_fileNamesColumn, "File name column in optional table", 0,
 				false, true, StringValue.class));
 		closeCurrentGroup();
 
 		createNewGroup("Series & Groups");
-		final SettingsModelBoolean smReadAll = new SettingsModelBoolean(
-				ImgReaderNodeModel.CFG_READ_ALL_SERIES, true);
-		final SettingsModelIntegerBounded smSeriesIdx = new SettingsModelIntegerBounded(
-				ImgReaderNodeModel.CFG_SERIES_SELECTION, 0, 0, 1000);
+		final SettingsModelBoolean smReadAll = ImgReaderSettingsModels
+				.createReadAllSeriesModel();
+		final SettingsModelIntegerBounded smSeriesIdx = ImgReaderSettingsModels
+				.createSeriesSelectionModel();
 		addDialogComponent(new DialogComponentBoolean(smReadAll,
 				"Read all series"));
 		addDialogComponent(new DialogComponentNumber(smSeriesIdx,
@@ -154,8 +151,9 @@ public class ImgReaderNodeDialog extends DefaultNodeSettingsPane {
 			}
 		});
 		smSeriesIdx.setEnabled(!smReadAll.getBooleanValue());
-		addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
-				ImgReaderNodeModel.CFG_GROUP_FILES, true), "Load group files?"));
+		addDialogComponent(new DialogComponentBoolean(
+				ImgReaderSettingsModels.createIsGroupFilesModel(),
+				"Load group files?"));
 		closeCurrentGroup();
 
 		createNewTab("Subset Selection");
