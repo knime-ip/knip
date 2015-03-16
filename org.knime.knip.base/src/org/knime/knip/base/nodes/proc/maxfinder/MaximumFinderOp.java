@@ -70,6 +70,7 @@ import net.imglib2.outofbounds.OutOfBounds;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.IntType;
+import net.imglib2.util.Intervals;
 import net.imglib2.util.ValuePair;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
@@ -217,7 +218,7 @@ public class MaximumFinderOp<T extends RealType<T>> implements
 
         OutOfBounds<IntType> raMeta = Views.extendValue(metaImg, new IntType(IS_PROCESSED | IS_LISTED)).randomAccess();
 
-        RandomAccess<Neighborhood<T>> raNeigh = m_neighborhoodsAccessible.randomAccess();
+        RandomAccess<Neighborhood<T>> raNeigh = m_neighborhoodsAccessible.randomAccess(Intervals.expand(metaImg, 2));
         for (AnalyticPoint<T> maxPoint : maxPoints) {
             /*
              * The actual candidate was reached by previous steps.

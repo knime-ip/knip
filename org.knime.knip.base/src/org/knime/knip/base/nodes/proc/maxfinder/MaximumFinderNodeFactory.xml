@@ -11,9 +11,13 @@
 	<fullDescription>
 		<intro>
 			<p>
-				MaximumFinder runs over an image, finds points which are larger than all of
-				it's neighbors and finally iterates over these points to find the real local
-				maxima.
+				Find pixels with highest value in their local surroundings, so called maxima.
+				Output of this node is a binary	image with the found pixels in white (value 1).
+				
+				When using the option "Output with Tolerance Areas", the output binary image will not
+				only contain one highest value pixel in its area, but also all other pixels which have
+				the same value (affected by "Noise Tolerance"). Otherwise these pixels positions are
+				averaged to one pixel which will be marked in white (value 1).
 			</p>
 			<p>
 				To find minima instead, you might want to invert the input.
@@ -23,18 +27,24 @@
 		<tab name="Options">
 			<option name="Noise Tolerance">
 				Sets the tolerance for comparison of two pixels. This is useful when an image
-				is affected by unwanted noise.
+				is affected noise or more extreme values between maxima and minima are desirable.
 			</option>
 			<option name="Suppression">
-				Suppression in MaximumFinder removes maxima which are closer than the suppression value.
-				This comes at the cost of a little more computation time.
+				Ensures that two maxima are never closer to each other than the suppression value given.
+				This is achieved by removing one of two found maxima which do not fulfill this criterion.
+				To reduce amount of found maxima, it may be sufficient to raise noise tolerance level instead.
+				
+				Note: Suppression comes at the cost of a little more computation time.
 			</option>	
-			<option name="Output with Tolerance Areas"> Will mark tolerance areas instead of single points only. </option>		
+			<option name="Output with Tolerance Areas">
+				If multiple pixels have the same value (respecting noise tolerance) as a maximum they form
+				a tolerance area and will be output to the resulting binary image if this option is enabled.
+			</option>		
 		</tab>
 	</fullDescription>
 
 	<ports>
-		<inPort index="0" name="Image">Image</inPort>
-		<outPort index="0" name="Maxima Image">Binary image (maxima represented as value 1).</outPort>
+		<inPort index="0" name="Image">Input Image</inPort>
+		<outPort index="0" name="Maxima Image">Binary image (containing maxima represented as value 1).</outPort>
 	</ports>
 </knimeNode>
