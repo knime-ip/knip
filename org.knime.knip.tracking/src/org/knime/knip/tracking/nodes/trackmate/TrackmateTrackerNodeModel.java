@@ -29,7 +29,7 @@ import net.imglib2.Cursor;
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccess;
 import net.imglib2.img.Img;
-import net.imglib2.img.array.ArrayImgs;
+import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingType;
 import net.imglib2.ops.operation.iterableinterval.unary.Centroid;
@@ -278,7 +278,7 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
         final SparseLAPTracker<TrackedNode<String>> tracker = new SparseLAPTracker<>(
                 trackedNodes, initTrackMateSettings());
         tracker.setNumThreads(Runtime.getRuntime().availableProcessors());
-        boolean success = tracker.process();
+        final boolean success = tracker.process();
         if (!success) {
             throw new CanceledExecutionException(tracker.getErrorMessage());
         }
@@ -613,7 +613,7 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
                     mdata);
             mdata.setSource(sourceLabelingMetadata.getName());
 
-            // create a row for each track with containing its features
+            // create a row for each track containing its features
             for (int i = 0, n = tracks.size(); i < n; i++) {
                 final String trackName = trackPrefix + i;
                 featureContainer.addRowToTable(createTrackFeatureRow(
@@ -632,14 +632,13 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
      ****************************/
 
     /**
-     * Creates the a row for a given track and its features for the
-     * trackfeatures table.
+     * Creates the a row for a given track and its features for the track
+     * features table.
      *
      * @param sourceLabelingName
+     *            the name of the source labeling.
      * @param featureMap
-     * @param dimensions
-     * @param exec
-     * @param id
+     *            the map containing the features
      * @param exec
      * @return a DataRow containing all the feature values for the specified
      *         track.
@@ -657,19 +656,11 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
         cells.add(new StringCell(trackName));
 
         // Bitmask Column
-        final IterableRegionOfInterest labelRoi = resultLabeling
-                .getIterableRegionOfInterest(trackName);
+        final Img<BitType> bitMask = createBinaryMask(resultLabeling, trackName);
 
-        final long[] dimensions = new long[resultLabeling.numDimensions()];
-        resultLabeling.dimensions(dimensions);
-
-        final Img<BitType> bitMask = createBinaryMask(
-                labelRoi.getIterableIntervalOverROI(ConstantUtils
-                        .constantRandomAccessible(new BitType(),
-                                resultLabeling.numDimensions())), dimensions);
         cells.add(new ImgPlusCellFactory(exec).createCell(bitMask, mdata));
 
-        // Feature Co
+        // Features
         for (final TrackMateTrackFeature feature : TrackMateTrackFeature
                 .values()) {
             cells.add(new DoubleCell(featureMap.get(feature.name())));
@@ -688,18 +679,31 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
      *            the region of interest.
      * @param dims
      *            the dimensions of the original labeling.
+     * @param resultLabeling
+     * @param trackName
      * @returns
      */
-    private Img<BitType> createBinaryMask(final IterableInterval<BitType> roi,
-            final long... dims) {
-        final Img<BitType> mask = ArrayImgs.bits(dims);
+    private Img<BitType> createBinaryMask(Labeling<String> resultLabeling,
+            String trackName) {
+
+        final IterableInterval<BitType> labelII = resultLabeling
+                .getIterableRegionOfInterest(trackName)
+                .getIterableIntervalOverROI(ConstantUtils
+                        .constantRandomAccessible(new BitType(),
+                                resultLabeling.numDimensions()));
+
+        final long[] dimensions = new long[labelII.numDimensions()];
+        labelII.dimensions(dimensions);
+
+        final Img<BitType> mask = new ArrayImgFactory<BitType>().create(
+                labelII, new BitType());
         final RandomAccess<BitType> maskRA = mask.randomAccess();
-        final Cursor<BitType> cur = roi.localizingCursor();
+        final Cursor<BitType> cur = labelII.localizingCursor();
 
         while (cur.hasNext()) {
             cur.fwd();
             for (int d = 0; d < cur.numDimensions(); d++) {
-                maskRA.setPosition(cur.getLongPosition(d) - roi.min(d), d);
+                maskRA.setPosition(cur.getLongPosition(d) - labelII.min(d), d);
             }
             maskRA.get().set(true);
         }
