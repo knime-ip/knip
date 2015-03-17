@@ -291,9 +291,8 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 					f.delete();
 
 				} else {
-					LOGGER.warn("The file " + outfile
-							+ " already exits and will be SKIPPED.");
-					continue;
+					throw new InvalidSettingsException("The file " + outfile
+							+ " already exits, writing abborted.");
 				}
 			}
 
