@@ -70,6 +70,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.knip.base.node.dialog.DialogComponentSubsetSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
+import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.io.ScifioGateway;
 import org.knime.knip.io.node.dialog.DialogComponentMultiFileChooser;
 
@@ -81,6 +82,7 @@ import org.knime.knip.io.node.dialog.DialogComponentMultiFileChooser;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
+ *  @author <a href="mailto:gabriel.einsdorf@uni.kn"> Gabriel Einsdorf</a>
  */
 public class ImgReaderNodeDialog extends DefaultNodeSettingsPane {
 
@@ -110,9 +112,13 @@ public class ImgReaderNodeDialog extends DefaultNodeSettingsPane {
 		createNewTab("Additional Options");
 
 		createNewGroup("Output");
-		addDialogComponent(new DialogComponentBoolean(
-				ImgReaderSettingsModels.createAppendOmexmlColModel(),
-				"Append additional OME-XML-metadata column"));
+		addDialogComponent(new DialogComponentStringSelection(
+				ImgReaderSettingsModels.createMetaDataModeModel(),
+				"OME-XML-Metadata:",
+				EnumUtils
+						.getStringCollectionFromToString(ImgReaderSettingsModels.MetadataMode
+								.values())));
+
 		addDialogComponent(new DialogComponentStringSelection(
 				ImgReaderSettingsModels.createImgFactoryModel(),
 				"Image factory", ImgReaderSettingsModels.IMG_FACTORIES));
@@ -159,8 +165,7 @@ public class ImgReaderNodeDialog extends DefaultNodeSettingsPane {
 		createNewTab("Subset Selection");
 		createNewGroup("Image Subset Selection");
 		addDialogComponent(new DialogComponentSubsetSelection(
-				new SettingsModelSubsetSelection(
-						ImgReaderNodeModel.CFG_PLANE_SLECTION), true, true,
+				ImgReaderSettingsModels.createPlaneSelectionModel(), true, true,
 				new int[] { 0, 1 }));
 		closeCurrentGroup();
 
