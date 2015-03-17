@@ -128,6 +128,7 @@ public class TrackmateTrackerNodeDialog extends DefaultNodeSettingsPane {
     @SuppressWarnings("unchecked")
     private void addKNIMEColumnSettings() {
 
+        createNewGroup("Feature Column Selection");
         addDialogComponent(new DialogComponentColumnFilter(m_columns, 0, true,
                 new ColumnFilter() {
 
@@ -142,7 +143,9 @@ public class TrackmateTrackerNodeDialog extends DefaultNodeSettingsPane {
                         return "No Double columns found! No feature added!";
                     }
                 }));
+        closeCurrentGroup();
 
+        createNewGroup("Other Column Selection");
         addDialogComponent(new DialogComponentColumnNameSelection(
                 m_bitMaskColumnModel, "Bitmask Column", 0, ImgPlusValue.class));
 

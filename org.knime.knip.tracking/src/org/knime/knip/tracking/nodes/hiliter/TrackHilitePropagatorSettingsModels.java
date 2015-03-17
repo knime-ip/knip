@@ -17,39 +17,39 @@ final class TrackHilitePropagatorSettingsModels {
 
     private TrackHilitePropagatorSettingsModels() {
         // prevent instatiation
-	}
+    }
 
-	/**
-	 * Enum describing the Hiliting Modes.
-	 */
-	enum TrackHilitingMode {
+    /**
+     * Enum describing the Hiliting Modes.
+     */
+    enum TrackHilitingMode {
 
-		/**
-		 * Hiliting a track row also hilites all rows which are in that track.
-		 */
-		TRACK_TO_POINTS("Track to Points"),
+        /**
+         * Hiliting a track row also hilites all rows which are in that track.
+         */
+        TRACK_TO_POINTS("Track to Points"),
 
-		/**
-		 * Hiliting a row also hilites all other rows that are on the same
-		 * track.
-		 */
-		POINTS_TO_POINTS("Points to Points"),
+        /**
+         * Hiliting a row also hilites all other rows that are on the same
+         * track.
+         */
+        POINTS_TO_POINTS("Points to Points"),
 
-		/**
-		 * No influence on the hiliting.
-		 */
-		OFF("Disabled");
+        /**
+         * No influence on the hiliting.
+         */
+        OFF("Disabled");
 
-		private String m_name;
+        private String m_name;
 
-		private TrackHilitingMode(final String describingName) {
-			m_name = describingName;
-		}
+        private TrackHilitingMode(final String describingName) {
+            m_name = describingName;
+        }
 
-		@Override
-		public String toString() {
-			return m_name;
-		}
+        @Override
+        public String toString() {
+            return m_name;
+        }
     }
 
     /**
