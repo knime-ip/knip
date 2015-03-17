@@ -7,8 +7,11 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JPanel;
+
+import net.miginfocom.layout.AC;
+import net.miginfocom.layout.LC;
+import net.miginfocom.swing.MigLayout;
 
 public class FeatureSetCollectionPanel extends JPanel {
 
@@ -26,10 +29,21 @@ public class FeatureSetCollectionPanel extends JPanel {
 		this.removeAll();
 		this.setBorder(BorderFactory
 				.createTitledBorder("Selected Feature Sets:"));
-		
-		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+
+		this.setLayout(new MigLayout(new LC().wrapAfter(1), new AC().grow()
+				.fill()));
+
 		for (final FeatureSetPanel featureSetPanel : featureSets) {
-			this.add(featureSetPanel);
+
+			for (ActionListener al : featureSetPanel.getInfoButton()
+					.getActionListeners()) {
+				featureSetPanel.getInfoButton().removeActionListener(al);
+			}
+
+			for (ActionListener al : featureSetPanel.getRemoveButton()
+					.getActionListeners()) {
+				featureSetPanel.getRemoveButton().removeActionListener(al);
+			}
 
 			featureSetPanel.getInfoButton().addActionListener(
 					new ActionListener() {
@@ -50,6 +64,8 @@ public class FeatureSetCollectionPanel extends JPanel {
 							update();
 						}
 					});
+
+			this.add(featureSetPanel);
 		}
 
 		this.add(Box.createVerticalGlue());

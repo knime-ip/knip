@@ -106,6 +106,7 @@ public class FeatureComputationTask<T extends RealType<T> & NativeType<T>, L ext
 			OpsGateway.getContext().inject(fs);
 			this.compiledFeatureSets.add(fs);
 		}
+
 	}
 
 	@Override

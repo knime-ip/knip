@@ -8,8 +8,12 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import net.imagej.ops.features.FeatureSet;
+import net.miginfocom.layout.AC;
+import net.miginfocom.layout.LC;
+import net.miginfocom.swing.MigLayout;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.InvalidSettingsException;
@@ -104,20 +108,16 @@ public class FeatureNodeDialogPane extends NodeDialogPane {
 					}
 				});
 
-		final JPanel configPanel = new JPanel(new GridBagLayout());
-		final GridBagConstraints gbc = new GridBagConstraints();
-		gbc.weightx = 1;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
+		final JPanel configPanel = new JPanel(new MigLayout(
+				new LC().wrapAfter(1), new AC().grow().fill()));
 
-		configPanel.add(this.columnSelectionPanel, gbc);
+		configPanel.add(this.columnSelectionPanel);
+		configPanel.add(this.featureSetSelectionPanel);
 
-		gbc.gridy = 1;
-		configPanel.add(this.featureSetSelectionPanel, gbc);
-
-		gbc.gridy = 2;
-		gbc.weighty = 1;
-		gbc.fill = GridBagConstraints.BOTH;
-		configPanel.add(this.featureSetCollectionPanel, gbc);
+		JScrollPane selectedFeatureSetsScrollPane = new JScrollPane();
+		selectedFeatureSetsScrollPane.getVerticalScrollBar().setUnitIncrement(20);
+		selectedFeatureSetsScrollPane.setViewportView(this.featureSetCollectionPanel);
+		configPanel.add(selectedFeatureSetsScrollPane);
 
 		configPanel.setPreferredSize(new Dimension(792, 500));
 		this.addTab("Configuration", configPanel);

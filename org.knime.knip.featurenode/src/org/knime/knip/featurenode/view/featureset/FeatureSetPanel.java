@@ -1,6 +1,7 @@
 package org.knime.knip.featurenode.view.featureset;
 
-import java.awt.Dimension;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -15,16 +16,16 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import net.imagej.ops.OpRef;
 import net.imagej.ops.features.AbstractAutoResolvingFeatureSet;
 import net.imagej.ops.features.FeatureSet;
+import net.miginfocom.swing.MigLayout;
 
 import org.knime.knip.featurenode.OpsGateway;
 import org.knime.knip.featurenode.model.FeatureSetInfo;
@@ -51,8 +52,11 @@ public class FeatureSetPanel extends JPanel {
 	private final Module module;
 	private final SwingInputPanel inputpanel;
 	private FeatureSelectionPanel fsp;
-	private JButton infoButton;
-	private JButton removeButton;
+
+	private final JButton btnHelp = new JButton(new ImageIcon(getClass()
+			.getClassLoader().getResource("resources/info.gif")));
+	private final JButton btnClose = new JButton(new ImageIcon(getClass()
+			.getClassLoader().getResource("resources/trash.gif")));
 
 	/**
 	 * Input to create a {@link FeatureSetInfoJPanel} from the class and the
@@ -206,43 +210,28 @@ public class FeatureSetPanel extends JPanel {
 
 	private void build() {
 		// set jpanel settings
-		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		this.setBorder(BorderFactory.createTitledBorder(this.pluginInfo
-				.getLabel() + ":"));
-
-		// initialize jcomponents
-		this.infoButton = new JButton(new ImageIcon(getClass().getClassLoader()
-				.getResource("resources/info.png")));
-		this.removeButton = new JButton(new ImageIcon(getClass()
-				.getClassLoader().getResource("resources/remove_icon.png")));
-
-		// set sizes
-
-		this.infoButton.setMaximumSize(this.infoButton.getPreferredSize());
-		this.removeButton.setMaximumSize(this.removeButton.getPreferredSize());
+		this.setLayout(new BorderLayout());
+		this.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
 		// title box
-		final Box buttonBox = Box.createHorizontalBox();
-		buttonBox.add(Box.createHorizontalGlue());
-		buttonBox.add(this.infoButton);
-		buttonBox.add(Box.createRigidArea(new Dimension(5, 5)));
-		buttonBox.add(this.removeButton);
-		buttonBox.add(Box.createRigidArea(new Dimension(10, 5)));
 
-		final Box inputPanelBox = Box.createHorizontalBox();
-		inputPanelBox.add(Box.createHorizontalGlue());
-		inputPanelBox.add(this.inputpanel.getComponent());
-		inputPanelBox.add(Box.createHorizontalGlue());
+		JPanel menuPanel = new JPanel();
+		menuPanel.setBackground(new Color(189, 189, 189));
+		menuPanel.setLayout(new MigLayout("", "[]push[][]", "[26px]"));
 
-		this.add(buttonBox);
+		JLabel lblFeatureSetName = new JLabel(this.pluginInfo.getLabel());
+		menuPanel.add(lblFeatureSetName, "cell 0 0");
+		menuPanel.add(btnHelp, "cell 1 0");
+		menuPanel.add(btnClose, "cell 2 0");
+
+		this.add(menuPanel, BorderLayout.NORTH);
+
 		if (this.fsp != null) {
-			this.add(Box.createRigidArea(new Dimension(5, 40)));
-			this.add(this.fsp);
+			this.add(this.fsp, BorderLayout.SOUTH);
 		}
 
 		if (!getUnresolvedParameterNames().isEmpty()) {
-			this.add(Box.createRigidArea(new Dimension(5, 40)));
-			this.add(inputPanelBox);
+			this.add(this.inputpanel.getComponent(), BorderLayout.CENTER);
 		}
 	}
 
@@ -259,11 +248,11 @@ public class FeatureSetPanel extends JPanel {
 	}
 
 	public JButton getInfoButton() {
-		return this.infoButton;
+		return this.btnHelp;
 	}
 
 	public JButton getRemoveButton() {
-		return this.removeButton;
+		return this.btnClose;
 	}
 
 	/**

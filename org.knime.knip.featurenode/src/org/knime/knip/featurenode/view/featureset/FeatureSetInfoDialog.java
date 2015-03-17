@@ -2,36 +2,31 @@ package org.knime.knip.featurenode.view.featureset;
 
 import java.awt.Dimension;
 import java.awt.Frame;
-import java.awt.Point;
+import java.awt.Toolkit;
 
-import javax.swing.JDialog;
 import javax.swing.JEditorPane;
+import javax.swing.JFrame;
 import javax.swing.JScrollPane;
-import javax.swing.WindowConstants;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 
 import org.knime.workbench.repository.util.NodeFactoryHTMLCreator;
 
-public class FeatureSetInfoDialog extends JDialog {
+public class FeatureSetInfoDialog extends JFrame {
 
 	/**
 	 * serialVersionUID.
 	 */
 	private static final long serialVersionUID = 6643531687004421062L;
 
-	private final Frame m_parent;
 	private final String m_title;
 	private final String m_description;
 
-	public FeatureSetInfoDialog(final Frame parent, final String title,
-			final String description) {
-		super(parent, false);
-		this.m_parent = parent;
+	public FeatureSetInfoDialog(final String title, final String description) {
 		this.m_title = title;
 		this.m_description = description;
 
-		setPreferredSize(new Dimension(350, this.m_parent.getHeight()));
+		setPreferredSize(new Dimension(350, 600));
 
 		// create a JEditorPane
 		final JEditorPane jEditorPane = new JEditorPane();
@@ -52,7 +47,7 @@ public class FeatureSetInfoDialog extends JDialog {
 		final JScrollPane scrollPane = new JScrollPane(jEditorPane);
 
 		add(scrollPane);
-		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	}
 
 	private String createHTML() {
@@ -73,8 +68,8 @@ public class FeatureSetInfoDialog extends JDialog {
 
 	public static void openUserDialog(final Frame parent, final String title,
 			final String description) {
-		final FeatureSetInfoDialog infoDialog = new FeatureSetInfoDialog(
-				parent, title, description);
+		final FeatureSetInfoDialog infoDialog = new FeatureSetInfoDialog(title,
+				description);
 		infoDialog.showDialog();
 	}
 
@@ -86,10 +81,9 @@ public class FeatureSetInfoDialog extends JDialog {
 	}
 
 	private void positionDialog() {
-		final int x = this.m_parent.getLocationOnScreen().x;
-		final int y = this.m_parent.getLocationOnScreen().y;
-		final Point loc = new Point((int) (x
-				+ this.m_parent.getSize().getWidth() + 20), (y));
-		setLocation(loc);
+		Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+		int x = (int) ((dimension.getWidth() - this.getWidth()) / 2);
+		int y = (int) ((dimension.getHeight() - this.getHeight()) / 2);
+		setLocation(x, y);
 	}
 }

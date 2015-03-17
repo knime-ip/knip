@@ -9,13 +9,16 @@ import java.util.Map;
 
 import net.imagej.ops.features.FeatureSet;
 
+import org.scijava.module.DefaultMutableModuleInfo;
+
 /**
  * Simple wrapper for a {@link FeatureSet}.
  *
  * @author Daniel Seebacher, University of Konstanz.
  */
 @SuppressWarnings("rawtypes")
-public class FeatureSetInfo implements Serializable {
+public class FeatureSetInfo extends DefaultMutableModuleInfo implements
+		Serializable {
 
 	/**
 	 *
@@ -112,7 +115,7 @@ public class FeatureSetInfo implements Serializable {
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -131,7 +134,7 @@ public class FeatureSetInfo implements Serializable {
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
