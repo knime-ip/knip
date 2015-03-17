@@ -292,7 +292,7 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 
 				} else {
 					throw new InvalidSettingsException("The file " + outfile
-							+ " already exits, writing abborted.");
+							+ " exits and must not be overwritten due to user settings.");
 				}
 			}
 
