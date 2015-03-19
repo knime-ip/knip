@@ -51,7 +51,7 @@
 				<a href="http://www.ome-xml.org/">http://www.ome-xml.org/</a>
 				).
 			</option>
-			<option name="Read unsuported metadata">
+			<option name="Read non OME-XML Metadata">
 				Read metadata that is not part of the ome-xml specification.
 				It will be appended as XML annotation to the ome-xml metadata. </option>
 			<option name="Image Factory">Defines the way how the images are created and
