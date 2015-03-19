@@ -534,6 +534,7 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 		} catch (MalformedURLException e) {
 			return null;
 		} catch (IOException e) {
+			e.printStackTrace();
 			throw new KNIPException(
 					"Can't create temporary file to download image from URL ("
 							+ s + ").", e);
