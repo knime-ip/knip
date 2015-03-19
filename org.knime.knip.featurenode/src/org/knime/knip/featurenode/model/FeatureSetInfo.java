@@ -1,6 +1,5 @@
 package org.knime.knip.featurenode.model;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -12,21 +11,13 @@ import net.imagej.ops.features.FeatureSet;
 import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
 
-import org.scijava.module.DefaultMutableModuleInfo;
-
 /**
  * Simple wrapper for a {@link FeatureSet}.
  *
  * @author Daniel Seebacher, University of Konstanz.
  */
 @SuppressWarnings("rawtypes")
-public class FeatureSetInfo extends DefaultMutableModuleInfo implements
-		Serializable {
-
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = 5538059260299069153L;
+public class FeatureSetInfo {
 
 	private final Class<? extends FeatureSet> featureSetClass;
 	private final String[] parameterNames;
