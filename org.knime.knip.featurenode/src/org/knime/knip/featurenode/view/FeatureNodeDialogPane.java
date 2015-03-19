@@ -1,8 +1,6 @@
-package org.knime.knip.featurenode.view.featureset;
+package org.knime.knip.featurenode.view;
 
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -77,8 +75,7 @@ public class FeatureNodeDialogPane extends NodeDialogPane {
 		this.m_columnCreationModeComponent = new DialogComponentStringSelection(
 				FeatureNodeModel.createColumnCreationModeModel(),
 				"Column Creation Mode", new String[] { "Append", "New Table" });
-		this.smfs = new SettingsModelFeatureSet(
-				FeatureNodeModel.CFG_KEY_FEATURE_SETS);
+		this.smfs = FeatureNodeModel.createFeatureSetsModel();
 
 		// create the three sup panels
 		this.columnSelectionPanel = new ColumnSelectionPanel(
@@ -115,8 +112,10 @@ public class FeatureNodeDialogPane extends NodeDialogPane {
 		configPanel.add(this.featureSetSelectionPanel);
 
 		JScrollPane selectedFeatureSetsScrollPane = new JScrollPane();
-		selectedFeatureSetsScrollPane.getVerticalScrollBar().setUnitIncrement(20);
-		selectedFeatureSetsScrollPane.setViewportView(this.featureSetCollectionPanel);
+		selectedFeatureSetsScrollPane.getVerticalScrollBar().setUnitIncrement(
+				20);
+		selectedFeatureSetsScrollPane
+				.setViewportView(this.featureSetCollectionPanel);
 		configPanel.add(selectedFeatureSetsScrollPane);
 
 		configPanel.setPreferredSize(new Dimension(792, 500));
@@ -132,6 +131,8 @@ public class FeatureNodeDialogPane extends NodeDialogPane {
 					"Select at least one image column or one labeling column.");
 		}
 
+		
+		
 		this.smfs.clearFeatureSets();
 		for (final FeatureSetPanel fsp : this.featureSetCollectionPanel
 				.getSelectedFeatureSets()) {
@@ -139,10 +140,10 @@ public class FeatureNodeDialogPane extends NodeDialogPane {
 			this.smfs.addFeatureSet(p);
 		}
 
-		this.smfs.saveSettingsForDialog(settings);
 		this.m_imgSelectionComponent.saveSettingsTo(settings);
 		this.m_labelingSelectionComponent.saveSettingsTo(settings);
 		this.m_columnCreationModeComponent.saveSettingsTo(settings);
+		this.smfs.saveSettingsForDialog(settings);
 	}
 
 	@Override

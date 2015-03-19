@@ -1,4 +1,4 @@
-package org.knime.knip.featurenode.view.featureset;
+package org.knime.knip.featurenode.view;
 
 import java.awt.Dimension;
 import java.util.List;

@@ -1,16 +1,13 @@
-package org.knime.knip.featurenode.view.featureset;
+package org.knime.knip.featurenode.view;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JPanel;
 
-import net.miginfocom.layout.AC;
-import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 
 public class FeatureSetCollectionPanel extends JPanel {
@@ -27,12 +24,8 @@ public class FeatureSetCollectionPanel extends JPanel {
 
 	private void update() {
 		this.removeAll();
-		this.setBorder(BorderFactory
-				.createTitledBorder("Selected Feature Sets:"));
-
-		this.setLayout(new MigLayout(new LC().wrapAfter(1), new AC().grow()
-				.fill()));
-
+		
+		this.setLayout(new MigLayout("", "[grow, fill]", ""));
 		for (final FeatureSetPanel featureSetPanel : featureSets) {
 
 			for (ActionListener al : featureSetPanel.getInfoButton()
@@ -65,7 +58,7 @@ public class FeatureSetCollectionPanel extends JPanel {
 						}
 					});
 
-			this.add(featureSetPanel);
+			this.add(featureSetPanel, "wrap 25");
 		}
 
 		this.add(Box.createVerticalGlue());

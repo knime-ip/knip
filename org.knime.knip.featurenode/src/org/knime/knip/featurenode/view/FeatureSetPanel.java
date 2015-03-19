@@ -1,4 +1,4 @@
-package org.knime.knip.featurenode.view.featureset;
+package org.knime.knip.featurenode.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;

@@ -1,4 +1,4 @@
-package org.knime.knip.featurenode.view.featureset;
+package org.knime.knip.featurenode.view;
 
 import java.awt.Dimension;
 
@@ -22,6 +22,8 @@ public class ColumnSelectionPanel extends JPanel {
 			DialogComponentColumnNameSelection labelingColumnComponent,
 			DialogComponentStringSelection m_columnCreationModeComponent) {
 
+		
+		
 		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		this.setBorder(BorderFactory.createTitledBorder("Column Selection:"));
 		this.add(Box.createHorizontalGlue());

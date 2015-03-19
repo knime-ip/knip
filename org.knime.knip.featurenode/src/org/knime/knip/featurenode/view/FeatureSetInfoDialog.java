@@ -1,8 +1,7 @@
-package org.knime.knip.featurenode.view.featureset;
+package org.knime.knip.featurenode.view;
 
 import java.awt.Dimension;
 import java.awt.Frame;
-import java.awt.Toolkit;
 
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
@@ -81,9 +80,6 @@ public class FeatureSetInfoDialog extends JFrame {
 	}
 
 	private void positionDialog() {
-		Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
-		int x = (int) ((dimension.getWidth() - this.getWidth()) / 2);
-		int y = (int) ((dimension.getHeight() - this.getHeight()) / 2);
-		setLocation(x, y);
+		setLocationRelativeTo(null);
 	}
 }

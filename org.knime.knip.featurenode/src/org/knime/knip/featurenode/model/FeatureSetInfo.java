@@ -5,9 +5,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import net.imagej.ops.features.FeatureSet;
+import net.imglib2.util.Pair;
+import net.imglib2.util.ValuePair;
 
 import org.scijava.module.DefaultMutableModuleInfo;
 
@@ -103,11 +106,33 @@ public class FeatureSetInfo extends DefaultMutableModuleInfo implements
 		return fieldNamesAndValues;
 	}
 
+	public List<Pair<String, Object>> getSortedFieldNameAndValues() {
+
+		List<Pair<String, Object>> fieldNameAndValues = new ArrayList<Pair<String, Object>>();
+		for (int i = 0; i < parameterNames.length; i++) {
+			fieldNameAndValues.add(new ValuePair<String, Object>(
+					parameterNames[i], parameterValues[i]));
+		}
+
+		return fieldNameAndValues;
+	}
+
 	public Map<Class<?>, Boolean> getSelectedFeatures() {
 		final Map<Class<?>, Boolean> selectedFeatures = new HashMap<Class<?>, Boolean>();
 		for (int i = 0; i < this.featureClasses.length; i++) {
 			selectedFeatures.put(this.featureClasses[i],
 					this.isFeatureSelected[i]);
+		}
+
+		return selectedFeatures;
+	}
+
+	public List<Pair<Class<?>, Boolean>> getSortedSelectedFeatures() {
+		final List<Pair<Class<?>, Boolean>> selectedFeatures = new ArrayList<Pair<Class<?>, Boolean>>();
+
+		for (int i = 0; i < this.featureClasses.length; i++) {
+			selectedFeatures.add(new ValuePair<Class<?>, Boolean>(
+					this.featureClasses[i], this.isFeatureSelected[i]));
 		}
 
 		return selectedFeatures;
