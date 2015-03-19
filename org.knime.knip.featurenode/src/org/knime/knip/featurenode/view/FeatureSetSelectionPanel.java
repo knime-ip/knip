@@ -1,16 +1,14 @@
 package org.knime.knip.featurenode.view;
 
-import java.awt.Dimension;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
 import net.imagej.ops.features.FeatureSet;
+import net.miginfocom.swing.MigLayout;
 
 import org.knime.knip.featurenode.OpsGateway;
 import org.scijava.plugin.PluginInfo;
@@ -47,13 +45,10 @@ public class FeatureSetSelectionPanel extends JPanel {
 		this.addButton.setMaximumSize(this.addButton.getPreferredSize());
 
 		// add everything to this jpanel
-		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		this.setBorder(BorderFactory.createTitledBorder("Select Feature Set:"));
-		this.add(Box.createHorizontalGlue());
+		this.setLayout(new MigLayout("", "push[][]push", ""));
 		this.add(this.featureSetComboxBox);
-		this.add(Box.createRigidArea(new Dimension(30, 5)));
 		this.add(this.addButton);
-		this.add(Box.createHorizontalGlue());
 	}
 
 	public JButton getAddButton() {

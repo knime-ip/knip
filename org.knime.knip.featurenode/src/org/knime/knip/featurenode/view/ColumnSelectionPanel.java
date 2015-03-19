@@ -1,11 +1,11 @@
 package org.knime.knip.featurenode.view;
 
-import java.awt.Dimension;
-
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JPanel;
+
+import net.miginfocom.layout.AC;
+import net.miginfocom.layout.LC;
+import net.miginfocom.swing.MigLayout;
 
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
@@ -22,16 +22,12 @@ public class ColumnSelectionPanel extends JPanel {
 			DialogComponentColumnNameSelection labelingColumnComponent,
 			DialogComponentStringSelection m_columnCreationModeComponent) {
 
-		
-		
-		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		this.setBorder(BorderFactory.createTitledBorder("Column Selection:"));
-		this.add(Box.createHorizontalGlue());
+		this.setLayout(new MigLayout(new LC().wrapAfter(3), new AC().fill()
+				.grow()));
+
 		this.add(imgColumnComponent.getComponentPanel());
-		this.add(Box.createRigidArea(new Dimension(75, 5)));
 		this.add(labelingColumnComponent.getComponentPanel());
-		this.add(Box.createRigidArea(new Dimension(75, 5)));
 		this.add(m_columnCreationModeComponent.getComponentPanel());
-		this.add(Box.createHorizontalGlue());
 	}
 }

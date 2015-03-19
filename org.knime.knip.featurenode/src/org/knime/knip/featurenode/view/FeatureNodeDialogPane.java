@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -116,6 +117,9 @@ public class FeatureNodeDialogPane extends NodeDialogPane {
 				20);
 		selectedFeatureSetsScrollPane
 				.setViewportView(this.featureSetCollectionPanel);
+		
+		selectedFeatureSetsScrollPane.setBorder(BorderFactory.createTitledBorder("Selected Feature Sets:"));
+		
 		configPanel.add(selectedFeatureSetsScrollPane);
 
 		configPanel.setPreferredSize(new Dimension(792, 500));

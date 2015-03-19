@@ -211,7 +211,7 @@ public class FeatureSetPanel extends JPanel {
 	private void build() {
 		// set jpanel settings
 		this.setLayout(new BorderLayout());
-		this.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		this.setBorder(BorderFactory.createLineBorder(new Color(189, 189, 189), 5));
 
 		// title box
 
