@@ -19,6 +19,10 @@ import fiji.plugin.trackmate.tracking.TrackerKeys;
  */
 final class LAPTrackerSettingsModels {
 
+    private LAPTrackerSettingsModels() {
+        // Utility class
+    }
+
     /* KNIME TABLE SETTINGS */
 
     static final String DEFAULT_TRACK_PREFIX = "Track: ";

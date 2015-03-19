@@ -1,6 +1,4 @@
-/*
- * ------------------------------------------------------------------------
- *
+/**
  *  Copyright (C) 2003 - 2013
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
@@ -82,14 +80,17 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.knime.core.node.port.PortType;
 import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
+import org.knime.knip.core.util.EnumUtils;
+import org.knime.knip.io.nodes.imgreader.ImgReaderSettingsModels.MetadataMode;
 
 /**
  * This Node reads images.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
+ * @author <a href="mailto:gabriel.einsdorf@uni.kn"> Gabriel Einsdorf</a>
  */
 public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 		NodeModel implements BufferedDataTableHolder {
@@ -151,121 +152,48 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 		}
 	}
 
-	/**
-	 * Key to store the check file format option.
-	 */
-	public static final String CFG_CHECK_FILE_FORMAT = "check_file_format";
+	private final SettingsModelBoolean m_checkFileFormat = ImgReaderSettingsModels
+			.createCheckFileFormatModel();
 
-	/**
-	 * Key to store if the complete path should be used as row key
-	 */
-	public static final String CFG_COMPLETE_PATH_ROWKEY = "complete_path_rowkey";
-
-	/**
-	 * Key to store the directory history.
-	 */
-	public static final String CFG_DIR_HISTORY = "imagereader_dirhistory";
-
-	/**
-	 * Key for the settings holding the file list.
-	 */
-	public static final String CFG_FILE_LIST = "file_list";
-
-	/**
-	 * Key to store the selected column in the optional input table
-	 */
-	public static final String CFG_FILENAME_COLUMN = "filename_column";
-
-	/**
-	 * Key for the settings holding information if group files modus is wanted
-	 */
-	public static final String CFG_GROUP_FILES = "group_files";
-
-	/**
-	 * Key to store the OME_XML-metadata column option.
-	 */
-	public static final String CFG_OME_XML_METADATA_COLUMN = "xmlcolumns";
-
-	/**
-	 * Key to store the factory used to create the images
-	 */
-	public static final String CFG_IMG_FACTORY = "img_factory";
-
-	/**
-	 * Key to store whether all series should be read
-	 */
-	public static final String CFG_READ_ALL_SERIES = "read_all_series";
-
-	/**
-	 * Key to store the selected series
-	 */
-	public static final String CFG_SERIES_SELECTION = "series_selection";
-
-	/*
-	 * Settings
-	 */
-
-	/**
-	 * Key for the settings holding selected image planes.
-	 */
-	public static final String CFG_PLANE_SLECTION = "plane_selection";
-
-	/**
-	 * The image out port of the Node.
-	 */
-	public static final int IMAGEOUTPORT = 0;
-
-	/**
-	 * The meta data out port of the Node.
-	 */
-	public static final int METADATAOUTPORT = 1;
-
-	/**
-	 * The available factory types available for selection.
-	 */
-	public static final String[] IMG_FACTORIES = new String[] {
-			"Array Image Factory", "Planar Image Factory", "Cell Image Factory" };
-
-	private final SettingsModelBoolean m_checkFileFormat = new SettingsModelBoolean(
-			CFG_CHECK_FILE_FORMAT, true);
-
-	private final SettingsModelBoolean m_completePathRowKey = new SettingsModelBoolean(
-			CFG_COMPLETE_PATH_ROWKEY, false);
+	private final SettingsModelBoolean m_completePathRowKey = ImgReaderSettingsModels
+			.createCompletePathRowKeyModel();
 
 	/* data table for the table cell viewer */
 	private BufferedDataTable m_data;
 
-	private final SettingsModelString m_filenameCol = new SettingsModelString(
-			CFG_FILENAME_COLUMN, "");
+	private final SettingsModelString m_filenameCol = ImgReaderSettingsModels
+			.createFilenameColumnModel();
 
 	/*
 	 * Collection of all settings.
 	 */
 
-	private final SettingsModelStringArray m_files = new SettingsModelStringArray(
-			CFG_FILE_LIST, new String[] {});
-
+	private final SettingsModelStringArray m_files = ImgReaderSettingsModels
+			.createFileListModel();
 	// New in 1.0.2
-	private final SettingsModelBoolean m_isGroupFiles = new SettingsModelBoolean(
-			CFG_GROUP_FILES, true);
+	private final SettingsModelBoolean m_isGroupFiles = ImgReaderSettingsModels
+			.createIsGroupFilesModel();
 
-	private final SettingsModelBoolean m_omexmlCol = new SettingsModelBoolean(
-			CFG_OME_XML_METADATA_COLUMN, false);
-
-	private final SettingsModelSubsetSelection m_planeSelect = new SettingsModelSubsetSelection(
-			CFG_PLANE_SLECTION);
+	private final SettingsModelSubsetSelection m_planeSelect = ImgReaderSettingsModels
+			.createPlaneSelectionModel();
 
 	// new in 1.1
-	private final SettingsModelString m_imgFactory = new SettingsModelString(
-			CFG_IMG_FACTORY, IMG_FACTORIES[0]);
+	private final SettingsModelString m_imgFactory = ImgReaderSettingsModels
+			.createImgFactoryModel();
 
-	private SettingsModelBoolean m_readAllSeries = new SettingsModelBoolean(
-			CFG_READ_ALL_SERIES, true);
+	private SettingsModelBoolean m_readAllSeries = ImgReaderSettingsModels
+			.createReadAllSeriesModel();
 
-	private final SettingsModelIntegerBounded m_seriesSelection = new SettingsModelIntegerBounded(
-			CFG_SERIES_SELECTION, 0, 0, 1000);
+	private final SettingsModelIntegerBounded m_seriesSelection = ImgReaderSettingsModels
+			.createSeriesSelectionModel();
+
+	// new in 1.3
+	private final SettingsModelString m_metadataModeModel = ImgReaderSettingsModels
+			.createMetaDataModeModel();
 
 	private final Collection<SettingsModel> m_settingsCollection;
+
+	private MetadataMode m_metadataMode;
 
 	/**
 	 * Initializes the ImageReader
@@ -276,7 +204,6 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 		m_settingsCollection = new ArrayList<SettingsModel>();
 		m_settingsCollection.add(m_files);
 		m_settingsCollection.add(m_planeSelect);
-		m_settingsCollection.add(m_omexmlCol);
 		m_settingsCollection.add(m_filenameCol);
 		m_settingsCollection.add(m_completePathRowKey);
 		m_settingsCollection.add(m_checkFileFormat);
@@ -294,8 +221,9 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
 
-		final ReadFileImgTable<T> tab = new ReadFileImgTable<T>(
-				m_omexmlCol.getBooleanValue());
+		m_metadataMode = EnumUtils.valueForName(
+				m_metadataModeModel.getStringValue(), MetadataMode.values());
+		final ReadFileImgTable<T> tab = new ReadFileImgTable<T>(m_metadataMode);
 		// tab.setDimLabelProperty(m_planeSelect.getDimLabelsAsString());
 		return new DataTableSpec[] { tab.getDataTableSpec() };
 	}
@@ -309,8 +237,9 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 			final ExecutionContext exec) throws Exception {
 		final String[] fnames = m_files.getStringArrayValue();
 
-		// String[] metaDataColumns =
-		// m_metadatakeys.getStringArrayValue();
+
+		m_metadataMode = EnumUtils.valueForName(
+				m_metadataModeModel.getStringValue(), MetadataMode.values());
 
 		// table with images from the dialog
 		Iterable<String> tableImgList = null;
@@ -373,9 +302,11 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 
 		// create ImgFactory
 		ImgFactory<T> imgFac;
-		if (m_imgFactory.getStringValue().equals(IMG_FACTORIES[1])) {
+		if (m_imgFactory.getStringValue().equals(
+				ImgReaderSettingsModels.IMG_FACTORIES[1])) {
 			imgFac = new PlanarImgFactory<T>();
-		} else if (m_imgFactory.getStringValue().equals(IMG_FACTORIES[2])) {
+		} else if (m_imgFactory.getStringValue().equals(
+				ImgReaderSettingsModels.IMG_FACTORIES[2])) {
 			// TODO: what is the appropriate cell size?
 			imgFac = new CellImgFactory<T>();
 		} else {
@@ -392,7 +323,7 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 
 		// create data table
 		final ReadFileImgTable<T> dt = new ReadFileImgTable<T>(exec, imgIt,
-				numImages, m_planeSelect, m_omexmlCol.getBooleanValue(),
+				numImages, m_planeSelect, m_metadataMode,
 				m_checkFileFormat.getBooleanValue(),
 				m_completePathRowKey.getBooleanValue(),
 				m_isGroupFiles.getBooleanValue(), seriesSelection, imgFac);
@@ -471,6 +402,9 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 			m_imgFactory.loadSettingsFrom(settings);
 			m_readAllSeries.loadSettingsFrom(settings);
 			m_seriesSelection.loadSettingsFrom(settings);
+
+			// new in 1.3
+			m_metadataModeModel.loadSettingsFrom(settings);
 		} catch (final Exception e) {
 			// nothing to handle
 		}
@@ -492,6 +426,8 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 		m_readAllSeries.saveSettingsTo(settings);
 		m_seriesSelection.saveSettingsTo(settings);
 
+		// new in 1.3
+		m_metadataModeModel.saveSettingsTo(settings);
 	}
 
 	/**
@@ -512,6 +448,9 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 			m_imgFactory.validateSettings(settings);
 			m_readAllSeries.validateSettings(settings);
 			m_seriesSelection.validateSettings(settings);
+
+			// new in 1.3
+			m_metadataModeModel.validateSettings(settings);
 		} catch (final Exception e) {
 			// nothing to handle
 		}

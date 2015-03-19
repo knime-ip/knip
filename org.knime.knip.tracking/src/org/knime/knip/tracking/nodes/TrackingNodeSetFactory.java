@@ -53,12 +53,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.knime.core.node.NodeFactory;
+import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSetFactory;
 import org.knime.core.node.config.ConfigRO;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
@@ -66,53 +67,56 @@ import org.knime.core.node.config.ConfigRO;
  */
 public class TrackingNodeSetFactory implements NodeSetFactory {
 
-	private final Map<String, String> m_nodeFactories = new HashMap<String, String>();
+    private static final NodeLogger LOGGER = NodeLogger
+            .getLogger(TrackingNodeSetFactory.class);
+    private final Map<String, String> m_nodeFactories = new HashMap<String, String>();
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ConfigRO getAdditionalSettings(final String id) {
-		return null;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ConfigRO getAdditionalSettings(final String id) {
+        return null;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getAfterID(final String id) {
-		return "";
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getAfterID(final String id) {
+        return "";
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getCategoryPath(final String id) {
-		return m_nodeFactories.get(id);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getCategoryPath(final String id) {
+        return m_nodeFactories.get(id);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public Class<? extends NodeFactory<? extends NodeModel>> getNodeFactory(
-			final String id) {
-		try {
-			return (Class<? extends NodeFactory<? extends NodeModel>>) Class
-					.forName(id);
-		} catch (final ClassNotFoundException e) {
-		}
-		return null;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public Class<? extends NodeFactory<? extends NodeModel>> getNodeFactory(
+            final String id) {
+        try {
+            return (Class<? extends NodeFactory<? extends NodeModel>>) Class
+                    .forName(id);
+        } catch (final ClassNotFoundException e) {
+            LOGGER.warn("Node not found: " + e.getMessage());
+        }
+        return null;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Collection<String> getNodeFactoryIds() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Collection<String> getNodeFactoryIds() {
 
-		return m_nodeFactories.keySet();
-	}
+        return m_nodeFactories.keySet();
+    }
 }
