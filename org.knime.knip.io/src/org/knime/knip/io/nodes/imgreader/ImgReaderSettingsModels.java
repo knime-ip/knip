@@ -177,4 +177,11 @@ class ImgReaderSettingsModels {
 				MetadataMode.NO_METADATA.toString());
 	}
 
+	/**
+	 * @return Model to store whether to read all meta data or not.
+	 */
+	public static SettingsModelBoolean createReadAllMetaDataModel() {
+		return new SettingsModelBoolean("read_all_metadata", false);
+	}
+
 }

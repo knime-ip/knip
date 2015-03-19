@@ -51,6 +51,9 @@
 				<a href="http://www.ome-xml.org/">http://www.ome-xml.org/</a>
 				).
 			</option>
+			<option name="Read unsuported metadata">
+				Read metadata that is not part of the ome-xml specification.
+				It will be appended as XML annotation to the ome-xml metadata. </option>
 			<option name="Image Factory">Defines the way how the images are created and
 				therewith kept in memory: Array Image Factory (stored as ONE array;
 				pros: fast pixel access; cons: limited number of pixels per image),

@@ -167,6 +167,9 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 
 	private boolean m_readImage;
 
+	// If ome-xml incompatible data should be read as xml annotations
+	private boolean m_readAllMetadata;
+
 	/**
 	 * Creates an new and empty ImageTable and is useful to get the table
 	 * specification without actually knowing the content.
@@ -223,8 +226,11 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 	 *            the number of files
 	 * @param sel
 	 *            the subset selection
-	 * @param omexml
-	 *            if true, a ome-xml column will be appended to the table
+	 * @param metadataMode
+	 *            the meta data mode seletion.
+	 * @param readAllMetaData
+	 *            if ome-xml incompatible meta data is appended as XML
+	 *            annotation.
 	 * @param checkFileFormat
 	 *            checks the file format newly for each single file (might be a
 	 *            bit slower)
@@ -246,10 +252,10 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 	public ReadFileImgTable(final ExecutionContext exec,
 			final Iterable<String> fileList, final long numberOfFiles,
 			final SettingsModelSubsetSelection sel,
-			final MetadataMode metadataMode, final boolean checkFileFormat,
-			final boolean completePathRowKey, final boolean isGroupFiles,
-			final int selectedSeries, final ImgFactory<T> imgFactory)
-			throws InvalidSettingsException {
+			final MetadataMode metadataMode, final boolean readAllMetaData,
+			final boolean checkFileFormat, final boolean completePathRowKey,
+			final boolean isGroupFiles, final int selectedSeries,
+			final ImgFactory<T> imgFactory) throws InvalidSettingsException {
 
 		initCanonicalWorkflowPath();
 		m_completePathRowKey = completePathRowKey;
@@ -258,9 +264,11 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 		m_sel = sel;
 		m_exec = exec;
 		setMetadataMode(metadataMode);
+		m_readAllMetadata = readAllMetaData;
 		m_selectedSeries = selectedSeries;
 		m_scifioConfig = new SCIFIOConfig()
-				.groupableSetGroupFiles(isGroupFiles);
+				.groupableSetGroupFiles(isGroupFiles)
+				.parserSetSaveOriginalMetadata(m_readAllMetadata);
 		m_imgSource = new ScifioImgSource(imgFactory, checkFileFormat,
 				m_scifioConfig);
 	}
