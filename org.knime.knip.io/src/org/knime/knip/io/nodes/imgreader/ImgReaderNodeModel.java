@@ -191,6 +191,9 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 	private final SettingsModelString m_metadataModeModel = ImgReaderSettingsModels
 			.createMetaDataModeModel();
 
+	private final SettingsModelBoolean m_readAllMetaDataModel = ImgReaderSettingsModels
+			.createReadAllMetaDataModel();
+
 	private final Collection<SettingsModel> m_settingsCollection;
 
 	private MetadataMode m_metadataMode;
@@ -236,7 +239,6 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
 		final String[] fnames = m_files.getStringArrayValue();
-
 
 		m_metadataMode = EnumUtils.valueForName(
 				m_metadataModeModel.getStringValue(), MetadataMode.values());
@@ -324,6 +326,7 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 		// create data table
 		final ReadFileImgTable<T> dt = new ReadFileImgTable<T>(exec, imgIt,
 				numImages, m_planeSelect, m_metadataMode,
+				m_readAllMetaDataModel.getBooleanValue(),
 				m_checkFileFormat.getBooleanValue(),
 				m_completePathRowKey.getBooleanValue(),
 				m_isGroupFiles.getBooleanValue(), seriesSelection, imgFac);
@@ -405,6 +408,7 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 
 			// new in 1.3
 			m_metadataModeModel.loadSettingsFrom(settings);
+			m_readAllMetaDataModel.loadSettingsFrom(settings);
 		} catch (final Exception e) {
 			// nothing to handle
 		}
@@ -428,6 +432,7 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 
 		// new in 1.3
 		m_metadataModeModel.saveSettingsTo(settings);
+		m_readAllMetaDataModel.saveSettingsTo(settings);
 	}
 
 	/**
@@ -451,6 +456,8 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 
 			// new in 1.3
 			m_metadataModeModel.validateSettings(settings);
+			m_readAllMetaDataModel.validateSettings(settings);
+
 		} catch (final Exception e) {
 			// nothing to handle
 		}

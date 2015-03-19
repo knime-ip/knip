@@ -82,7 +82,7 @@ import org.knime.knip.io.node.dialog.DialogComponentMultiFileChooser;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
- *  @author <a href="mailto:gabriel.einsdorf@uni.kn"> Gabriel Einsdorf</a>
+ * @author <a href="mailto:gabriel.einsdorf@uni.kn"> Gabriel Einsdorf</a>
  */
 public class ImgReaderNodeDialog extends DefaultNodeSettingsPane {
 
@@ -118,6 +118,9 @@ public class ImgReaderNodeDialog extends DefaultNodeSettingsPane {
 				EnumUtils
 						.getStringCollectionFromToString(ImgReaderSettingsModels.MetadataMode
 								.values())));
+		addDialogComponent(new DialogComponentBoolean(
+				ImgReaderSettingsModels.createReadAllMetaDataModel(),
+				"Read unsuported meta data"));
 
 		addDialogComponent(new DialogComponentStringSelection(
 				ImgReaderSettingsModels.createImgFactoryModel(),
@@ -165,8 +168,8 @@ public class ImgReaderNodeDialog extends DefaultNodeSettingsPane {
 		createNewTab("Subset Selection");
 		createNewGroup("Image Subset Selection");
 		addDialogComponent(new DialogComponentSubsetSelection(
-				ImgReaderSettingsModels.createPlaneSelectionModel(), true, true,
-				new int[] { 0, 1 }));
+				ImgReaderSettingsModels.createPlaneSelectionModel(), true,
+				true, new int[] { 0, 1 }));
 		closeCurrentGroup();
 
 	}
