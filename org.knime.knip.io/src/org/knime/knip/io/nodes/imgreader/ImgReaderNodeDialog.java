@@ -120,7 +120,7 @@ public class ImgReaderNodeDialog extends DefaultNodeSettingsPane {
 								.values())));
 		addDialogComponent(new DialogComponentBoolean(
 				ImgReaderSettingsModels.createReadAllMetaDataModel(),
-				""Read non OME-XML Metadata"));
+				"Read non OME-XML Metadata"));
 
 		addDialogComponent(new DialogComponentStringSelection(
 				ImgReaderSettingsModels.createImgFactoryModel(),
