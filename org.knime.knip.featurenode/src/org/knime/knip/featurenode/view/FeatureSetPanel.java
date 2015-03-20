@@ -54,9 +54,9 @@ public class FeatureSetPanel extends JPanel {
 	private FeatureSelectionPanel fsp;
 
 	private final JButton btnHelp = new JButton(new ImageIcon(getClass()
-			.getClassLoader().getResource("resources/info.gif")));
+			.getClassLoader().getResource("resources/info_small.gif")));
 	private final JButton btnClose = new JButton(new ImageIcon(getClass()
-			.getClassLoader().getResource("resources/trash.gif")));
+			.getClassLoader().getResource("resources/trash_small.gif")));
 
 	/**
 	 * Input to create a {@link FeatureSetInfoJPanel} from the class and the
