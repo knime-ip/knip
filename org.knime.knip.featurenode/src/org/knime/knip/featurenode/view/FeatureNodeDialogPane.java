@@ -66,7 +66,7 @@ public class FeatureNodeDialogPane extends NodeDialogPane {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public FeatureNodeDialogPane() {
 
-		// first create the column selection components
+		// first dialog components, etc
 		this.m_imgSelectionComponent = new DialogComponentColumnNameSelection(
 				FeatureNodeModel.createImgColumnModel(), "Image", 0, false,
 				true, ImgPlusValue.class);
@@ -117,9 +117,10 @@ public class FeatureNodeDialogPane extends NodeDialogPane {
 				20);
 		selectedFeatureSetsScrollPane
 				.setViewportView(this.featureSetCollectionPanel);
-		
-		selectedFeatureSetsScrollPane.setBorder(BorderFactory.createTitledBorder("Selected Feature Sets:"));
-		
+
+		selectedFeatureSetsScrollPane.setBorder(BorderFactory
+				.createTitledBorder("Selected Feature Sets:"));
+
 		configPanel.add(selectedFeatureSetsScrollPane);
 
 		configPanel.setPreferredSize(new Dimension(792, 500));
@@ -135,8 +136,6 @@ public class FeatureNodeDialogPane extends NodeDialogPane {
 					"Select at least one image column or one labeling column.");
 		}
 
-		
-		
 		this.smfs.clearFeatureSets();
 		for (final FeatureSetPanel fsp : this.featureSetCollectionPanel
 				.getSelectedFeatureSets()) {
