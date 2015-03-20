@@ -73,6 +73,7 @@ public class FeatureNodeDialogPane extends NodeDialogPane {
 		this.m_labelingSelectionComponent = new DialogComponentColumnNameSelection(
 				FeatureNodeModel.createLabelingColumnModel(), "Labeling", 0,
 				false, true, LabelingValue.class);
+
 		this.m_columnCreationModeComponent = new DialogComponentStringSelection(
 				FeatureNodeModel.createColumnCreationModeModel(),
 				"Column Creation Mode", new String[] { "Append", "New Table" });
@@ -146,7 +147,7 @@ public class FeatureNodeDialogPane extends NodeDialogPane {
 		this.m_imgSelectionComponent.saveSettingsTo(settings);
 		this.m_labelingSelectionComponent.saveSettingsTo(settings);
 		this.m_columnCreationModeComponent.saveSettingsTo(settings);
-		this.smfs.saveSettingsForDialog(settings);
+		this.smfs.saveSettingsTo(settings);
 	}
 
 	@Override
@@ -155,7 +156,12 @@ public class FeatureNodeDialogPane extends NodeDialogPane {
 		this.m_imgSelectionComponent.loadSettingsFrom(settings, specs);
 		this.m_labelingSelectionComponent.loadSettingsFrom(settings, specs);
 		this.m_columnCreationModeComponent.loadSettingsFrom(settings, specs);
-		this.smfs.loadSettingsForDialog(settings, specs);
+
+		try {
+			this.smfs.loadSettingsFrom(settings);
+		} catch (InvalidSettingsException e1) {
+			throw new NotConfigurableException("Couldn't load settings", e1);
+		}
 
 		// remove all content
 		this.featureSetCollectionPanel.clear();

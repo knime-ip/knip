@@ -275,7 +275,6 @@ public class SettingsModelFeatureSet extends SettingsModel {
 		settings.addInt(NUM_FEATURE_SETS, numFeatureSets);
 
 		// save each feature set
-
 		int i = 0;
 		Iterator<FeatureSetInfo> iterator = m_featureSets.iterator();
 		while (iterator.hasNext()) {
