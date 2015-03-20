@@ -5,7 +5,10 @@ import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -211,7 +214,8 @@ public class FeatureSetPanel extends JPanel {
 	private void build() {
 		// set jpanel settings
 		this.setLayout(new BorderLayout());
-		this.setBorder(BorderFactory.createLineBorder(new Color(189, 189, 189), 5));
+		this.setBorder(BorderFactory.createLineBorder(new Color(189, 189, 189),
+				5));
 
 		// title box
 
@@ -325,8 +329,8 @@ public class FeatureSetPanel extends JPanel {
 			for (final OpRef<?> opRef : sortedOps) {
 				this.selectedOps.put(opRef.getType(), true);
 
-				final JCheckBox checkBox = new JCheckBox(opRef.getType()
-						.getSimpleName());
+				final JCheckBox checkBox = new JCheckBox(
+						getFeatureLabel(opRef.getType()));
 				checkBox.setSelected(true);
 				checkBox.addActionListener(new ActionListener() {
 					@Override
@@ -358,7 +362,7 @@ public class FeatureSetPanel extends JPanel {
 				final boolean isSelected = input.get(op);
 				this.selectedOps.put(op, isSelected);
 
-				final JCheckBox checkBox = new JCheckBox(op.getSimpleName());
+				final JCheckBox checkBox = new JCheckBox(getFeatureLabel(op));
 				checkBox.setSelected(isSelected);
 				checkBox.addActionListener(new ActionListener() {
 					@Override
@@ -372,6 +376,22 @@ public class FeatureSetPanel extends JPanel {
 
 				this.add(checkBox);
 			}
+		}
+
+		private String getFeatureLabel(Class<?> feature) {
+
+			// try {
+			//
+			// Class<?> class1 = feature.getInterfaces()[1];
+			//
+			//
+			//
+			// } catch(Exception ex) {
+			// ex.printStackTrace();
+			// // ignore
+			// }
+
+			return feature.getSimpleName();
 		}
 
 		public Map<Class<?>, Boolean> getSelectedOps() {
