@@ -5,10 +5,8 @@ import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -378,18 +376,25 @@ public class FeatureSetPanel extends JPanel {
 			}
 		}
 
+		/**
+		 * Pretty dirty hack to get the LABEL name of a feature, quietly fail
+		 * and use the class name if we can't read it.
+		 * 
+		 * @param feature
+		 *            the class of a feature
+		 * @return the feature label or the simple class name if the feature has
+		 *         no label or we can't read it
+		 */
 		private String getFeatureLabel(Class<?> feature) {
 
-			// try {
-			//
-			// Class<?> class1 = feature.getInterfaces()[1];
-			//
-			//
-			//
-			// } catch(Exception ex) {
-			// ex.printStackTrace();
-			// // ignore
-			// }
+			try {
+				Class<?> class1 = feature.getInterfaces()[1];
+				Field field = class1.getDeclaredField("LABEL");
+				return (String) field.get(class1);
+
+			} catch (Exception ex) {
+				// ignore
+			}
 
 			return feature.getSimpleName();
 		}
