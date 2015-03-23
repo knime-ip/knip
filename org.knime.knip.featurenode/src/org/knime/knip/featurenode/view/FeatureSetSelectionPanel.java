@@ -1,5 +1,6 @@
 package org.knime.knip.featurenode.view;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -8,6 +9,7 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
 import net.imagej.ops.features.FeatureSet;
+import net.imagej.ops.features.sets.GeometricFeatureSet;
 import net.miginfocom.swing.MigLayout;
 
 import org.knime.knip.featurenode.OpsGateway;
@@ -28,15 +30,23 @@ public class FeatureSetSelectionPanel extends JPanel {
 		// create an array of plugininfos to put into a combobox
 		final List<PluginInfo<FeatureSet>> fs = OpsGateway.getPluginService()
 				.getPluginsOfType(FeatureSet.class);
-		final PluginInfoComboboxItem[] featureSetComboBoxItems = new PluginInfoComboboxItem[fs
-				.size()];
+
+		final List<PluginInfoComboboxItem> featureSetComboBoxItems = new ArrayList<PluginInfoComboboxItem>();
 		for (int i = 0; i < fs.size(); i++) {
-			featureSetComboBoxItems[i] = new PluginInfoComboboxItem(fs.get(i));
+			if (fs.get(i).getPluginClass() != null
+					&& fs.get(i).getPluginClass()
+							.equals(GeometricFeatureSet.class)) {
+				continue;
+			}
+
+			featureSetComboBoxItems.add(new PluginInfoComboboxItem(fs.get(i)));
 		}
 
 		// create combobox and add button
 		this.featureSetComboxBox = new JComboBox<PluginInfoComboboxItem>(
-				featureSetComboBoxItems);
+				featureSetComboBoxItems
+						.toArray(new PluginInfoComboboxItem[featureSetComboBoxItems
+								.size()]));
 		this.addButton = new JButton("Add");
 
 		// set sizes
