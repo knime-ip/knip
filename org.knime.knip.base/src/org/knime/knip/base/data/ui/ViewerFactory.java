@@ -129,7 +129,7 @@ public class ViewerFactory {
         viewer.addViewerComponent(new ControlPanel(Position.SOUTH));
 
         viewer.addViewerComponent(new ExpandingPanel("Minimap",ViewerComponents.MINIMAP.createInstance()));
-        viewer.addViewerComponent(new ExpandingPanel("Plane Selection", ViewerComponents.PLANE_SELECTION.createInstance()));
+        viewer.addViewerComponent(ViewerComponents.PLANE_SELECTION.createInstance());
         viewer.addViewerComponent(new ExpandingPanel("Image Enhancement",ViewerComponents.IMAGE_ENHANCE.createInstance()));
         viewer.addViewerComponent(new ExpandingPanel("Renderer Selection",ViewerComponents.RENDERER_SELECTION.createInstance()));
         viewer.addViewerComponent(new ExpandingPanel("Image Properties",ViewerComponents.IMAGE_PROPERTIES.createInstance()));

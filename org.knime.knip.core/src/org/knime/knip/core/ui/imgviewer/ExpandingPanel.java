@@ -8,16 +8,19 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-import javax.swing.border.BevelBorder;
+import javax.swing.plaf.basic.BasicArrowButton;
 
 import org.knime.knip.core.ui.event.EventService;
 
 public class ExpandingPanel extends ViewerComponent {
 
-	private JLabel m_header;
+	private JComponent m_header;
 
 	private ViewerComponent m_content;
 
@@ -37,47 +40,64 @@ public class ExpandingPanel extends ViewerComponent {
 		gbc.weightx = 1;
 		gbc.weighty = 0;
 
+		m_header = new JPanel();
+		final BasicArrowButton arrow = new BasicArrowButton(SwingConstants.EAST);
+		arrow.setMaximumSize(new Dimension(15,15));
+		arrow.setPreferredSize(arrow.getMaximumSize());
+		m_header.setLayout(new BoxLayout(m_header, BoxLayout.X_AXIS));
+		m_header.add(Box.createHorizontalStrut(25));
+		m_header.add(new JLabel(name, SwingConstants.CENTER));
+		m_header.add(Box.createHorizontalStrut(25));
+		m_header.add(arrow);
 
-		m_header = new JLabel(name, SwingConstants.CENTER);
-		m_header.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
-		m_header.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
-		m_header.setMinimumSize(new Dimension(150, 25));
+		//m_header.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+		m_header.setMaximumSize(new Dimension(Integer.MAX_VALUE, 15));
+		m_header.setMinimumSize(new Dimension(150, 15));
 		m_header.setPreferredSize(m_header.getMinimumSize());
 		add(m_header, gbc);
-		m_header.addMouseListener(new MouseListener() {
+		MouseListener ml = new MouseListener() {
 
-			@Override
-			public void mouseClicked(final MouseEvent e) {
-				// TODO Auto-generated method stub
+            @Override
+            public void mouseClicked(final MouseEvent e) {
+                // TODO Auto-generated method stub
 
-			}
+            }
 
-			@Override
-			public void mouseEntered(final MouseEvent e) {
-				// TODO Auto-generated method stub
+            @Override
+            public void mouseEntered(final MouseEvent e) {
+                // TODO Auto-generated method stub
 
-			}
+            }
 
-			@Override
-			public void mouseExited(final MouseEvent e) {
-				// TODO Auto-generated method stub
+            @Override
+            public void mouseExited(final MouseEvent e) {
+                // TODO Auto-generated method stub
 
-			}
+            }
 
-			@Override
-			public void mousePressed(final MouseEvent e) {
-				m_content.setVisible(!m_content.isVisible());
-				isExpanded = !isExpanded;
-				ExpandingPanel.super.repaint();
+            @Override
+            public void mousePressed(final MouseEvent e) {
+                m_content.setVisible(!m_content.isVisible());
+                isExpanded = !isExpanded;
+                if(isExpanded)
+                {
+                    arrow.setDirection(SwingConstants.SOUTH);
+                }
+                else{
+                    arrow.setDirection(SwingConstants.EAST);
+                }
+                ExpandingPanel.super.repaint();
 
-			}
+            }
 
-			@Override
-			public void mouseReleased(final MouseEvent e) {
-				// TODO Auto-generated method stub
+            @Override
+            public void mouseReleased(final MouseEvent e) {
+                // TODO Auto-generated method stub
 
-			}
-		});
+            }
+        };
+		m_header.addMouseListener(ml);
+		arrow.addMouseListener(ml);
 
 		gbc.gridy = 1;
 		gbc.fill = GridBagConstraints.BOTH;

@@ -86,8 +86,8 @@ public class ImagePropertiesPanel<T extends Type<T>, I extends IterableInterval<
     private final JTable m_propertiesTable;
 
     public ImagePropertiesPanel() {
-        super("Image Properties", false);
-
+//        super("Image Properties", false);
+        super("", true);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setPreferredSize(new Dimension(100, getPreferredSize().height));
 

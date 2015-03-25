@@ -95,15 +95,30 @@ package org.knime.knip.core.ui.imgviewer;
  *  when such Node is propagated with or for interoperation with KNIME.
  * ------------------------------------------------------------------------
  *
+ * History
+ *   29 Jan 2010 (hornm): created
  */
 
 import java.awt.BorderLayout;
-import java.awt.Container;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.ScrollPaneConstants;
+
+import org.knime.knip.core.data.img.DefaultImgMetadata;
+import org.knime.knip.core.data.img.DefaultLabelingMetadata;
+import org.knime.knip.core.data.img.LabelingMetadata;
+import org.knime.knip.core.ui.event.EventService;
+import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
+import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.LabelingWithMetadataChgEvent;
 
 import net.imagej.ImgPlus;
 import net.imagej.ImgPlusMetadata;
@@ -114,14 +129,6 @@ import net.imglib2.img.ImgView;
 import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
-
-import org.knime.knip.core.data.img.DefaultImgMetadata;
-import org.knime.knip.core.data.img.DefaultLabelingMetadata;
-import org.knime.knip.core.data.img.LabelingMetadata;
-import org.knime.knip.core.ui.event.EventService;
-import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
-import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
-import org.knime.knip.core.ui.imgviewer.events.LabelingWithMetadataChgEvent;
 
 /**
  * A TableCellViewPane providing another view on image objects. It allows to browser through the individual
@@ -138,15 +145,24 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
     private static final long serialVersionUID = 1L;
 
     /* Panels of the viewer accoding to the BorderLayout */
-    private JPanel m_southPanels;
 
-    private JPanel m_eastPanels;
+    private JSplitPane m_background;
 
-    private JPanel m_westPanels;
+    private JPanel m_centerPanel;
 
-    private Container m_northPanels;
+    private JPanel m_bottomControl;
 
-    private JPanel m_centerPanels;
+    private JPanel m_leftControl;
+
+    private JPanel m_rightControl;
+
+    private JPanel m_topControl;
+
+    private JPanel m_controlPanel;
+
+    private JPanel m_rightPanel;
+
+    private ViewerComponent[] m_controls = new ViewerComponent[4];
 
     /** keep the option panel-references to load and save configurations */
     protected List<ViewerComponent> m_viewerComponents;
@@ -166,28 +182,118 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
         m_eventService = eventService;
         m_viewerComponents = new ArrayList<ViewerComponent>();
-        // content pane
+
+        m_background = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         setLayout(new BorderLayout());
+        JPanel leftPanel = new JPanel();
+        // Left side
 
-        m_centerPanels = new JPanel();
-        m_centerPanels.setLayout(new BoxLayout(m_centerPanels, BoxLayout.Y_AXIS));
-        add(m_centerPanels, BorderLayout.CENTER);
+        GridBagConstraints gbc = new GridBagConstraints();
+        GridBagLayout gbl = new GridBagLayout();
+        leftPanel.setLayout(gbl);
 
-        m_southPanels = new JPanel();
-        m_southPanels.setLayout(new BoxLayout(m_southPanels, BoxLayout.X_AXIS));
-        add(m_southPanels, BorderLayout.SOUTH);
+        gbc.gridx = 1;
+        gbc.gridy = 1;
 
-        m_eastPanels = new JPanel();
-        m_eastPanels.setLayout(new BoxLayout(m_eastPanels, BoxLayout.Y_AXIS));
-        add(m_eastPanels, BorderLayout.EAST);
+        gbc.anchor = GridBagConstraints.CENTER;
 
-        m_westPanels = new JPanel();
-        m_westPanels.setLayout(new BoxLayout(m_westPanels, BoxLayout.Y_AXIS));
-        add(m_westPanels, BorderLayout.WEST);
+        gbc.gridheight = 4;
+        gbc.gridwidth = 5; // Remainder?
 
-        m_northPanels = new JPanel();
-        m_northPanels.setLayout(new BoxLayout(m_northPanels, BoxLayout.X_AXIS));
-        add(m_northPanels, BorderLayout.NORTH);
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 1;
+        gbc.weighty = 1;
+
+        m_centerPanel = new JPanel();
+        m_centerPanel.setLayout(new BorderLayout());
+        leftPanel.add(m_centerPanel, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+
+        gbc.gridheight = 1;
+        gbc.gridwidth = 1;
+
+        gbc.insets = new Insets(5,5,5,5);
+
+        gbc.fill = GridBagConstraints.NONE;
+
+        gbc.weightx = 0;
+        gbc.weighty = 1;
+
+        m_leftControl = new JPanel();
+        m_leftControl.setLayout(new BorderLayout());
+        leftPanel.add(m_leftControl, gbc);
+
+        gbc.gridx = 6;
+        gbc.gridy = 3;
+
+        gbc.gridheight = 1;
+        gbc.gridwidth = 1;
+
+        gbc.fill = GridBagConstraints.NONE;
+
+        gbc.weightx = 0;
+        gbc.weighty = 1;
+
+        m_rightControl = new JPanel();
+        m_rightControl.setLayout(new BorderLayout());
+        leftPanel.add(m_rightControl, gbc);
+
+        gbc.gridx = 3;
+        gbc.gridy = 6;
+
+        gbc.gridheight = 1;
+        gbc.gridwidth = 1;
+
+        gbc.weightx = 1;
+        gbc.weighty = 0;
+
+        m_bottomControl = new JPanel();
+        m_bottomControl.setLayout(new BorderLayout());
+        leftPanel.add(m_bottomControl, gbc);
+
+        gbc.gridx = 3;
+        gbc.gridy = 0;
+
+        gbc.gridheight = 1;
+        gbc.gridwidth = 1;
+
+        gbc.weightx = 1;
+        gbc.weighty = 0;
+
+        m_topControl = new JPanel();
+        m_topControl.setLayout(new BorderLayout());
+        leftPanel.add(m_topControl, gbc);
+
+        gbc.insets = new Insets(0,0,0,0);
+        gbc.gridx = 1;
+        gbc.gridy = 5;
+
+        gbc.gridheight = 1;
+        gbc.gridwidth = 5;
+
+        gbc.fill = GridBagConstraints.BOTH;
+
+        m_controlPanel = new JPanel();
+        m_controlPanel.setLayout(new BorderLayout());
+        leftPanel.add(m_controlPanel, gbc);
+
+
+        m_rightPanel = new JPanel();
+        JScrollPane sp = new JScrollPane(m_rightPanel);
+        sp.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        // right side
+        m_rightPanel.setLayout(new BoxLayout(m_rightPanel, BoxLayout.Y_AXIS));
+        m_rightPanel.getInsets().left = 25;
+
+        m_background.setLeftComponent(leftPanel);
+        m_background.setRightComponent(sp);
+        m_background.setResizeWeight(0.85);
+        m_background.setDividerSize(0);
+
+        add(m_background);
+
 
     }
 
@@ -219,24 +325,38 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
         switch (panel.getPosition()) {
             case CENTER:
-                m_centerPanels.add(panel);
+                m_centerPanel.add(panel);
                 break;
-            case NORTH:
-                m_northPanels.add(panel);
+            case SOUTH: // BTMCONTROL
+                m_bottomControl.add(panel);
+                m_controls[0] = panel;
                 break;
-            case SOUTH:
-                m_southPanels.add(panel);
+            case WEST: // LFTCONTROL
+                m_leftControl.add(panel);
+                m_controls[1] = panel;
                 break;
             case EAST:
-                m_eastPanels.add(panel);
+                m_rightControl.add(panel);
+                m_controls[2] = panel;
                 break;
-            case WEST:
-                m_westPanels.add(panel);
+            case NORTH:
+                m_topControl.add(panel);
+                m_controls[3] = panel;
+                break;
+            case CONTROL: // CONTROL
+                m_controlPanel.add(panel);
+                break;
+            case ADDITIONAL: // ADDITIONAL
+                m_rightPanel.add(panel);
                 break;
             default: // hidden
 
         }
 
+    }
+
+    public ViewerComponent[] getControls(){
+        return m_controls;
     }
 
     /**
