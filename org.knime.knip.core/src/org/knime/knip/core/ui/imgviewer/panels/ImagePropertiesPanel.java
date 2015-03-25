@@ -157,7 +157,7 @@ public class ImagePropertiesPanel<T extends Type<T>, I extends IterableInterval<
 
     @Override
     public Position getPosition() {
-        return Position.SOUTH;
+        return Position.ADDITIONAL;
     }
 
     /**

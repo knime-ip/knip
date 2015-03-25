@@ -620,7 +620,7 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
      */
     @Override
     public Position getPosition() {
-        return Position.SOUTH;
+        return Position.CONTROL;
     }
 
     /**

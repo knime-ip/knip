@@ -54,9 +54,12 @@ import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
+import org.knime.knip.core.ui.imgviewer.ExpandingPanel;
 import org.knime.knip.core.ui.imgviewer.ImgCanvas;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
+import org.knime.knip.core.ui.imgviewer.ViewerComponent.Position;
 import org.knime.knip.core.ui.imgviewer.ViewerComponents;
+import org.knime.knip.core.ui.imgviewer.panels.ControlPanel;
 import org.knime.knip.core.ui.imgviewer.panels.LabelOptionPanel;
 import org.knime.knip.core.ui.imgviewer.panels.infobars.HistogramViewInfoPanel;
 import org.knime.knip.core.ui.imgviewer.panels.infobars.ImgViewInfoPanel;
@@ -89,6 +92,12 @@ public class ViewerFactory {
         viewer.addViewerComponent(new AWTImageProvider(cacheSize, new HistogramRU<T>(512)));
         viewer.addViewerComponent(new HistogramViewInfoPanel<T, Img<T>>());
         viewer.addViewerComponent(new ImgCanvas<T, Img<T>>());
+
+        viewer.addViewerComponent(new ControlPanel(Position.NORTH));
+        viewer.addViewerComponent(new ControlPanel(Position.EAST));
+        viewer.addViewerComponent(new ControlPanel(Position.WEST));
+        viewer.addViewerComponent(new ControlPanel(Position.SOUTH));
+
         viewer.addViewerComponent(ViewerComponents.MINIMAP.createInstance());
         viewer.addViewerComponent(ViewerComponents.PLANE_SELECTION.createInstance());
         viewer.addViewerComponent(ViewerComponents.IMAGE_PROPERTIES.createInstance());
@@ -114,11 +123,16 @@ public class ViewerFactory {
         viewer.addViewerComponent(new ImgViewInfoPanel<T>());
         viewer.addViewerComponent(new ImgCanvas<T, Img<T>>());
 
-        viewer.addViewerComponent(ViewerComponents.MINIMAP.createInstance());
-        viewer.addViewerComponent(ViewerComponents.PLANE_SELECTION.createInstance());
-        viewer.addViewerComponent(ViewerComponents.IMAGE_ENHANCE.createInstance());
-        viewer.addViewerComponent(ViewerComponents.RENDERER_SELECTION.createInstance());
-        viewer.addViewerComponent(ViewerComponents.IMAGE_PROPERTIES.createInstance());
+        viewer.addViewerComponent(new ControlPanel(Position.NORTH));
+        viewer.addViewerComponent(new ControlPanel(Position.EAST));
+        viewer.addViewerComponent(new ControlPanel(Position.WEST));
+        viewer.addViewerComponent(new ControlPanel(Position.SOUTH));
+
+        viewer.addViewerComponent(new ExpandingPanel("Minimap",ViewerComponents.MINIMAP.createInstance()));
+        viewer.addViewerComponent(new ExpandingPanel("Plane Selection", ViewerComponents.PLANE_SELECTION.createInstance()));
+        viewer.addViewerComponent(new ExpandingPanel("Image Enhancement",ViewerComponents.IMAGE_ENHANCE.createInstance()));
+        viewer.addViewerComponent(new ExpandingPanel("Renderer Selection",ViewerComponents.RENDERER_SELECTION.createInstance()));
+        viewer.addViewerComponent(new ExpandingPanel("Image Properties",ViewerComponents.IMAGE_PROPERTIES.createInstance()));
 
         return viewer;
 
@@ -136,6 +150,12 @@ public class ViewerFactory {
         viewer.addViewerComponent(new LabelingViewInfoPanel<L>());
 
         viewer.addViewerComponent(new ImgCanvas<LabelingType<L>, RandomAccessibleInterval<LabelingType<L>>>());
+
+
+        viewer.addViewerComponent(new ControlPanel(Position.NORTH));
+        viewer.addViewerComponent(new ControlPanel(Position.EAST));
+        viewer.addViewerComponent(new ControlPanel(Position.WEST));
+        viewer.addViewerComponent(new ControlPanel(Position.SOUTH));
 
         viewer.addViewerComponent(ViewerComponents.MINIMAP.createInstance());
 

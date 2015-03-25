@@ -158,7 +158,7 @@ public class RendererSelectionPanel<T extends Type<T>> extends ViewerComponent {
      */
     @Override
     public Position getPosition() {
-        return Position.SOUTH;
+        return Position.ADDITIONAL;
     }
 
     /**
