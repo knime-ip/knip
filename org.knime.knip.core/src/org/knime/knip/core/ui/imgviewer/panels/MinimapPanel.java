@@ -129,10 +129,10 @@ public class MinimapPanel extends ViewerComponent {
     private EventService m_eventService;
 
     public MinimapPanel() {
-       // super("Minimap", false);
-        super("", true);
+        super("Minimap", false);
+//        super("", true);
         setPreferredSize(new Dimension(160, getPreferredSize().height));
-        setMaximumSize(new Dimension(160, getMaximumSize().height));
+        setMaximumSize(new Dimension(300, 300));
         setLayout(new BorderLayout());
 
         m_offset = new int[2];

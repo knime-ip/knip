@@ -45,10 +45,11 @@ public class ExpandingPanel extends ViewerComponent {
 		arrow.setMaximumSize(new Dimension(15,15));
 		arrow.setPreferredSize(arrow.getMaximumSize());
 		m_header.setLayout(new BoxLayout(m_header, BoxLayout.X_AXIS));
-		m_header.add(Box.createHorizontalStrut(25));
+		m_header.add(Box.createHorizontalStrut(10));
 		m_header.add(new JLabel(name, SwingConstants.CENTER));
 		m_header.add(Box.createHorizontalStrut(25));
 		m_header.add(arrow);
+		m_header.add(Box.createHorizontalStrut(10));
 
 		//m_header.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 		m_header.setMaximumSize(new Dimension(Integer.MAX_VALUE, 15));
