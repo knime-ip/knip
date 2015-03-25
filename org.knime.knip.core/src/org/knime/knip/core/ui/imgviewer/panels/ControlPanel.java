@@ -46,79 +46,102 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.core.ui.imgviewer;
+package org.knime.knip.core.ui.imgviewer.panels;
 
-import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import javax.swing.BorderFactory;
-import javax.swing.JPanel;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.SwingConstants;
+import javax.swing.plaf.basic.BasicArrowButton;
 
-import org.knime.knip.core.ui.event.EventServiceClient;
+import org.knime.knip.core.ui.event.EventService;
+import org.knime.knip.core.ui.imgviewer.ViewerComponent;
 
-/**
- * Generic component class of a viewer.
- *
- *
- * @param <T>
- * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
- */
-public abstract class ViewerComponent extends JPanel implements EventServiceClient {
+public class ControlPanel extends ViewerComponent {
 
+    /**
+     *
+     */
     private static final long serialVersionUID = 1L;
 
-    public enum Position {
-        CENTER, NORTH, SOUTH, WEST, EAST, CONTROL, ADDITIONAL, HIDDEN;
-    }
+    private final Position m_Position;
 
-    /**
-     * @param title a unique title for this option panel
-     * @param isBorderHidden if true, a border is drawn arround the component
-     */
-    public ViewerComponent(final String title, final boolean isBorderHidden) {
+    private final BasicArrowButton m_button;
 
-        if (!isBorderHidden) {
-            setTitle(title);
-        } else {
-            setBorder(BorderFactory.createEmptyBorder());
+    public ControlPanel(final Position pos) {
+        super("", false);
+
+        m_Position = pos;
+        m_button = new BasicArrowButton(SwingConstants.SOUTH);
+
+        if(pos == Position.WEST)
+        {
+            // Y
+            setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+            m_button.setDirection(SwingConstants.WEST);
+            add(m_button);
+            setAlignmentY(Component.CENTER_ALIGNMENT);
         }
+        else if(pos == Position.EAST)
+        {
+         // X
+            setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+            m_button.setDirection(SwingConstants.EAST);
+            add(m_button);
+        }
+        else if(pos == Position.NORTH)
+        {
+         // X
+            setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+            m_button.setDirection(SwingConstants.NORTH);
+            add(m_button);
+        }
+        else if(pos == Position.SOUTH)
+        {
+         // X
+            setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+            m_button.setDirection(SwingConstants.SOUTH);
+            add(m_button);
+        }
+        setPreferredSize(new Dimension(20, 20));
+        setMinimumSize(getPreferredSize());
+
+    }
+
+
+
+    @Override
+    public Position getPosition() {
+        return m_Position;
+    }
+
+    public JButton getButton()
+    {
+        return m_button;
     }
 
     /**
-     * Set the title for the border of this component.
-     *
-     * @param title the title
+     * {@inheritDoc}
      */
-    public void setTitle(final String title) {
-        setBorder(BorderFactory.createTitledBorder(title));
+    @Override
+    public void setEventService(final EventService eventService) {
+        eventService.subscribe(this);
+
     }
 
-    /**
-     * Returns the position in the BorderLayout. Possible values are {@link BorderLayout#NORTH},
-     * {@link BorderLayout#SOUTH}, {@link BorderLayout#WEST},{@link BorderLayout#EAST}, {@link BorderLayout#CENTER}
-     * ,HIDDEN
-     *
-     * A component with hidden position will not be rendered
-     *
-     * @return position in {@link BorderLayout} as string
-     */
-    public abstract Position getPosition();
+    @Override
+    public void saveComponentConfiguration(final ObjectOutput out) throws IOException {
+        // Nothing to do here
+    }
 
-    /**
-     * Serialization
-     *
-     * @param out
-     * @throws IOException
-     */
-    public abstract void saveComponentConfiguration(ObjectOutput out) throws IOException;
-
-    /**
-     * Deserialization
-     */
-    public abstract void loadComponentConfiguration(ObjectInput in) throws IOException, ClassNotFoundException;
+    @Override
+    public void loadComponentConfiguration(final ObjectInput in) throws IOException {
+        // Nothing to do here
+    }
 
 }
