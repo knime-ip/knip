@@ -9,10 +9,8 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.plaf.basic.BasicArrowButton;
 
@@ -35,26 +33,24 @@ public class ExpandingPanel extends ViewerComponent {
 		gbc.anchor = GridBagConstraints.NORTH;
 		gbc.gridx = 0;
 		gbc.gridy = 0;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.fill = GridBagConstraints.NONE;
 		gbc.gridwidth = GridBagConstraints.REMAINDER;
 		gbc.weightx = 1;
 		gbc.weighty = 0;
 
-		m_header = new JPanel();
+		m_header = Box.createHorizontalBox();
 		final BasicArrowButton arrow = new BasicArrowButton(SwingConstants.EAST);
-		arrow.setMaximumSize(new Dimension(15,15));
-		arrow.setPreferredSize(arrow.getMaximumSize());
-		m_header.setLayout(new BoxLayout(m_header, BoxLayout.X_AXIS));
-		m_header.add(Box.createHorizontalStrut(10));
+	//	m_header.setLayout(new BoxLayout(m_header, BoxLayout.X_AXIS));
+		m_header.add(Box.createHorizontalGlue());
 		m_header.add(new JLabel(name, SwingConstants.CENTER));
-		m_header.add(Box.createHorizontalStrut(25));
-		m_header.add(arrow);
 		m_header.add(Box.createHorizontalStrut(10));
+		m_header.add(arrow);
+		arrow.setPreferredSize(new Dimension(15,15));
+		m_header.add(Box.createHorizontalGlue());
 
 		//m_header.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 		m_header.setMaximumSize(new Dimension(Integer.MAX_VALUE, 15));
-		m_header.setMinimumSize(new Dimension(150, 15));
-		m_header.setPreferredSize(m_header.getMinimumSize());
+		m_header.setMinimumSize(new Dimension(getPreferredSize().width, 15));
 		add(m_header, gbc);
 		MouseListener ml = new MouseListener() {
 
@@ -116,6 +112,7 @@ public class ExpandingPanel extends ViewerComponent {
 	@Override
 	public Dimension getMaximumSize() {
 		if (isExpanded){
+		    super.getMaximumSize();
 			Dimension s = new Dimension(m_header.getMaximumSize().width,
 					250);
 			return s;
