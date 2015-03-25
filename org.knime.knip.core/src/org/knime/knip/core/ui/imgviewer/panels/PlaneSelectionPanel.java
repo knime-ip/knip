@@ -148,7 +148,8 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
     private CalibratedSpace<? extends CalibratedAxis> m_calibratedSpace;
 
     public PlaneSelectionPanel() {
-        super("Plane selection", false);
+//        super("Plane selection", false);
+        super("", true);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         // empty panel that ensures a minimum width

@@ -93,8 +93,8 @@ public class RendererSelectionPanel<T extends Type<T>> extends ViewerComponent {
 
     public RendererSelectionPanel() {
 
-        super("Rendering", false);
-
+        //super("Rendering", false);
+        super("", true);
         // renderer selection
         setPreferredSize(new Dimension(200, getMinimumSize().height));
         setMaximumSize(new Dimension(250, getMaximumSize().height));

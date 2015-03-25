@@ -121,7 +121,8 @@ public class ImgNormalizationPanel<T extends RealType<T>, I extends Img<T>> exte
      * @param normalize whether normalization should be enabled
      */
     public ImgNormalizationPanel(final double sat, final boolean normalize) {
-        super("Normalize", false);
+        super("", true);
+//        super("Normalize", false);
 
         setMaximumSize(new Dimension(250, getMaximumSize().height));
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
