@@ -316,7 +316,6 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 			}
 
 			try {
-
 				w.writeImage(img, outfile, format, compression, map);
 
 			} catch (final FormatException e) {
