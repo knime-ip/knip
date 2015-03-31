@@ -106,6 +106,8 @@ import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -285,7 +287,8 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
         sp.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         // right side
         m_rightPanel.setLayout(new BoxLayout(m_rightPanel, BoxLayout.Y_AXIS));
-        m_rightPanel.getInsets().left = 25;
+        m_rightPanel.add(Box.createVerticalStrut(10));
+        m_rightPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
 
         m_background.setLeftComponent(leftPanel);
         m_background.setRightComponent(sp);
@@ -348,11 +351,17 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
                 break;
             case ADDITIONAL: // ADDITIONAL
                 m_rightPanel.add(panel);
+                m_rightPanel.add(Box.createVerticalStrut(2));
+
                 break;
             default: // hidden
 
         }
 
+    }
+
+    public void doneAdding(){
+        m_rightPanel.add(Box.createVerticalGlue());
     }
 
     public ViewerComponent[] getControls(){

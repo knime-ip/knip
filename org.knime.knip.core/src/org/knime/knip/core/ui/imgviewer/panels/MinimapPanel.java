@@ -131,8 +131,8 @@ public class MinimapPanel extends ViewerComponent {
     public MinimapPanel() {
         super("Minimap", false);
 //        super("", true);
-        setPreferredSize(new Dimension(160, getPreferredSize().height));
-        setMaximumSize(new Dimension(300, 300));
+         //setPreferredSize(new Dimension(160, getPreferredSize().height));
+
         setLayout(new BorderLayout());
 
         m_offset = new int[2];
@@ -177,6 +177,7 @@ public class MinimapPanel extends ViewerComponent {
             }
         };
         m_canvas.setBackground(Color.DARK_GRAY);
+        m_canvas.setMinimumSize(new Dimension(200, 200));
         m_canvas.addMouseWheelListener(new MouseWheelListener() {
 
             @Override
@@ -244,7 +245,7 @@ public class MinimapPanel extends ViewerComponent {
                             m_scaleFactor = t;
                         }
 
-                        repaint();
+                        System.out.println(getPreferredSize().height);repaint();
                     }
                 });
                 m_eventService.publish(new MinimapOffsetChgEvent(m_offset));
@@ -270,6 +271,7 @@ public class MinimapPanel extends ViewerComponent {
 
         m_zoomComboBox = new JComboBox(ZOOM_LEVELS);
         m_zoomComboBox.setPreferredSize(new Dimension(55, m_zoomComboBox.getPreferredSize().height));
+        m_zoomComboBox.setMinimumSize(m_zoomComboBox.getPreferredSize());
         m_zoomComboBox.setEditable(true);
 
         jp.add(m_zoomComboBox, BorderLayout.EAST);
@@ -286,6 +288,11 @@ public class MinimapPanel extends ViewerComponent {
                         .doubleValue() / 100));
             }
         });
+        setMaximumSize(new Dimension(getMaximumSize().width, 300));
+        setMinimumSize(new Dimension(getMinimumSize().width, 200));
+        setPreferredSize(new Dimension(getPreferredSize().width, 200));
+        validate();
+        System.out.println(getPreferredSize());
     }
 
     @EventListener

@@ -89,11 +89,17 @@ public class ImagePropertiesPanel<T extends Type<T>, I extends IterableInterval<
 //        super("Image Properties", false);
         super("", true);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setPreferredSize(new Dimension(100, getPreferredSize().height));
+
 
         m_propertiesTable = new JTable();
         m_propertiesTable.setLayout(new BoxLayout(m_propertiesTable, BoxLayout.X_AXIS));
         add(new JScrollPane(m_propertiesTable));
+        //add(Box.createVerticalGlue());
+
+        setMaximumSize(new Dimension(Integer.MAX_VALUE, 200));
+        setMinimumSize(new Dimension(m_propertiesTable.getMinimumSize().width, 100));
+        validate();
+//        System.out.println(getPreferredSize());
     }
 
     /**
@@ -153,6 +159,8 @@ public class ImagePropertiesPanel<T extends Type<T>, I extends IterableInterval<
                 }
             }
         });
+        setPreferredSize(new Dimension(m_propertiesTable.getPreferredSize().width, 150));
+        validate();
     }
 
     @Override
