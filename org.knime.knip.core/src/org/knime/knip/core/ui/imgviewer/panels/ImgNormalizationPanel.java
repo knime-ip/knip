@@ -48,7 +48,6 @@
  */
 package org.knime.knip.core.ui.imgviewer.panels;
 
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -124,7 +123,6 @@ public class ImgNormalizationPanel<T extends RealType<T>, I extends Img<T>> exte
         super("", true);
 //        super("Normalize", false);
 
-        setMaximumSize(new Dimension(250, getMaximumSize().height));
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         m_normalize = new JCheckBox("Normalize");
@@ -143,7 +141,7 @@ public class ImgNormalizationPanel<T extends RealType<T>, I extends Img<T>> exte
         });
 
         add(m_normalize);
-
+        add(Box.createVerticalStrut(5));
         Box saturationBox = Box.createHorizontalBox();
         saturationBox.add(Box.createHorizontalGlue());
         final JLabel saturation = new JLabel("Saturation (%):");
@@ -171,7 +169,6 @@ public class ImgNormalizationPanel<T extends RealType<T>, I extends Img<T>> exte
 
         add(m_saturationSlider);
         add(m_sat);
-        add(Box.createVerticalGlue());
     }
 
     /**

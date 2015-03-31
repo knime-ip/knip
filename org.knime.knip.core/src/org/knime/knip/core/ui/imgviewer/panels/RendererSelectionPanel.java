@@ -96,9 +96,7 @@ public class RendererSelectionPanel<T extends Type<T>> extends ViewerComponent {
         //super("Rendering", false);
         super("", true);
         // renderer selection
-        setPreferredSize(new Dimension(200, getMinimumSize().height));
-        setMaximumSize(new Dimension(250, getMaximumSize().height));
-        setMinimumSize(new Dimension(100, getMinimumSize().height));
+
         setLayout(new BorderLayout());
 
         m_rendList = new JList();
@@ -121,6 +119,10 @@ public class RendererSelectionPanel<T extends Type<T>> extends ViewerComponent {
         });
 
         add(new JScrollPane(m_rendList), BorderLayout.CENTER);
+        setPreferredSize(new Dimension(getPreferredSize().width, 200));
+        setMaximumSize(getPreferredSize());
+        setMinimumSize(new Dimension(100, getMinimumSize().height));
+        validate();
     }
 
     /**
