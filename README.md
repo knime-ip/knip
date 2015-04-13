@@ -26,6 +26,6 @@ Package Organization
 * org.knime.knip.update: Eclipse update site for KNIME Image Processing and depedencies.
 * org.knime.knip.tracking: TrackMate Tracking integration.
 
-Installation and Development
+For Developers:
 ====
-See readme of [this repository](https://github.com/knime-ip/knip-sdk-setup).
+See [this repository](https://github.com/knime-ip/knip-sdk-setup) for instructions.

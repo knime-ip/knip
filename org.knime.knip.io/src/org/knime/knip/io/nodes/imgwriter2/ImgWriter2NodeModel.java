@@ -291,9 +291,8 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 					f.delete();
 
 				} else {
-					LOGGER.warn("The file " + outfile
-							+ " already exits and will be SKIPPED.");
-					continue;
+					throw new InvalidSettingsException("The file " + outfile
+							+ " exits and must not be overwritten due to user settings.");
 				}
 			}
 
@@ -317,7 +316,6 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 			}
 
 			try {
-
 				w.writeImage(img, outfile, format, compression, map);
 
 			} catch (final FormatException e) {

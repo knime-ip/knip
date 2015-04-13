@@ -118,8 +118,8 @@ public class GraphCut2DLab<T extends RealType<T>, L extends Comparable<L>> imple
         m_dimX = dimX;
         m_dimY = dimY;
         m_dimFeat = dimFeat;
-        m_bgLabel = RulebasedLabelFilter.formatRegExp(bgLabel);
-        m_fgLabel = RulebasedLabelFilter.formatRegExp(fgLabel);
+        m_bgLabel = bgLabel;
+        m_fgLabel = fgLabel;
         m_lambda = lambda;
     }
 
@@ -155,9 +155,12 @@ public class GraphCut2DLab<T extends RealType<T>, L extends Comparable<L>> imple
         double srcCount = 0;
         double sinkCount = 0;
 
+        String regExpBg = RulebasedLabelFilter.formatRegExp(m_bgLabel);
+        String regExpFg = RulebasedLabelFilter.formatRegExp(m_fgLabel);
+
         for (final L label : labeling.getLabels()) {
-            isBg = RulebasedLabelFilter.isValid(label, m_bgLabel);
-            isFg = RulebasedLabelFilter.isValid(label, m_fgLabel);
+            isBg = RulebasedLabelFilter.isValid(label, regExpBg);
+            isFg = RulebasedLabelFilter.isValid(label, regExpFg);
 
             if (!isBg && !isFg) {
                 continue;
@@ -165,8 +168,9 @@ public class GraphCut2DLab<T extends RealType<T>, L extends Comparable<L>> imple
 
             final Cursor<T> roiCursor =
                     labeling.getIterableRegionOfInterest(label)
-                            .getIterableIntervalOverROI(ConstantUtils.constantRandomAccessible(src.firstElement(), labeling
-                                                                .numDimensions())).localizingCursor();
+                            .getIterableIntervalOverROI(ConstantUtils.constantRandomAccessible(src.firstElement(),
+                                                                                               labeling.numDimensions()))
+                            .localizingCursor();
 
             final RandomAccess<T> srcRA = src.randomAccess();
 

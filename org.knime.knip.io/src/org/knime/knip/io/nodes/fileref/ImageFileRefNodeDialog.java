@@ -62,7 +62,7 @@ import org.knime.knip.io.nodes.imgreader.ImgReaderNodeModel;
 /**
  * Dialog for the ImageReader to select the files and choose some additional
  * options.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
@@ -73,6 +73,7 @@ public class ImageFileRefNodeDialog extends DefaultNodeSettingsPane {
     // private DialogComponentStringListSelection m_metadatakeys;
 
     private final DialogComponentMultiFileChooser m_filechooser;
+	private static final String CFG_DIR_HISTORY = "image_file_linker_dir_history";
 
     // private DialogComponentProcessExecution m_analyse;
 
@@ -91,7 +92,7 @@ public class ImageFileRefNodeDialog extends DefaultNodeSettingsPane {
                                 ImageFileRefNodeModel.CFG_FILE_LIST,
                                 new String[]{}),
                         ImgReaderNodeDialog.FILEFILTER,
-                        ImgReaderNodeModel.CFG_DIR_HISTORY);
+                        CFG_DIR_HISTORY );
         addDialogComponent(m_filechooser);
 
         addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(

@@ -48,13 +48,13 @@
  */
 package org.knime.knip.core.types;
 
-import net.imglib2.algorithm.region.localneighborhood.HyperSphereShape;
-import net.imglib2.algorithm.region.localneighborhood.RectangleShape;
-import net.imglib2.algorithm.region.localneighborhood.Shape;
+import net.imglib2.algorithm.neighborhood.HyperSphereShape;
+import net.imglib2.algorithm.neighborhood.RectangleShape;
+import net.imglib2.algorithm.neighborhood.Shape;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>

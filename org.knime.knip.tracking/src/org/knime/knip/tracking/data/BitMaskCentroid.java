@@ -47,41 +47,41 @@ import net.imglib2.type.logic.BitType;
  * @author Christian Dietz (University of Konstanz)
  */
 public final class BitMaskCentroid implements
-		UnaryOperation<IterableInterval<BitType>, double[]> {
+        UnaryOperation<IterableInterval<BitType>, double[]> {
 
-	private final long[] offset;
+    private final long[] offset;
 
-	public BitMaskCentroid(long[] offset) {
-		this.offset = offset;
-	}
+    public BitMaskCentroid(long[] offset) {
+        this.offset = offset;
+    }
 
-	@Override
-	public final double[] compute(final IterableInterval<BitType> op,
-			final double[] r) {
+    @Override
+    public final double[] compute(final IterableInterval<BitType> op,
+            final double[] r) {
 
-		final Cursor<BitType> c = op.cursor();
+        final Cursor<BitType> c = op.cursor();
 
-		int ctr = 0;
-		while (c.hasNext()) {
-			if (!c.next().get())
-				continue;
+        int ctr = 0;
+        while (c.hasNext()) {
+            if (!c.next().get())
+                continue;
 
-			for (int i = 0; i < r.length; i++) {
-				r[i] += (c.getDoublePosition(i) + offset[i]);
-			}
+            for (int i = 0; i < r.length; i++) {
+                r[i] += (c.getDoublePosition(i) + offset[i]);
+            }
 
-			ctr++;
-		}
+            ctr++;
+        }
 
-		for (int i = 0; i < r.length; i++) {
-			r[i] /= ctr;
-		}
+        for (int i = 0; i < r.length; i++) {
+            r[i] /= ctr;
+        }
 
-		return r;
-	}
+        return r;
+    }
 
-	@Override
-	public UnaryOperation<IterableInterval<BitType>, double[]> copy() {
-		return new BitMaskCentroid(offset);
-	}
+    @Override
+    public UnaryOperation<IterableInterval<BitType>, double[]> copy() {
+        return new BitMaskCentroid(offset);
+    }
 }

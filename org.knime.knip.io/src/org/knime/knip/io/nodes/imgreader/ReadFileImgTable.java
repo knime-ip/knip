@@ -83,6 +83,7 @@ import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.xml.XMLCell;
 import org.knime.core.data.xml.XMLCellFactory;
 import org.knime.core.node.ExecutionContext;
+import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.util.FileUtil;
 import org.knime.core.util.pathresolve.ResolverUtil;
@@ -92,14 +93,16 @@ import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
 import org.knime.knip.io.ScifioImgSource;
 import org.knime.knip.io.node.dialog.DialogComponentMultiFileChooser;
+import org.knime.knip.io.nodes.imgreader.ImgReaderSettingsModels.MetadataMode;
 
 /**
  * Implements a <code>DataTable</code> that read image data from files.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
+ * @author <a href="mailto:gabriel.einsdorf@uni.kn"> Gabriel Einsdorf</a>
  */
 public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 		DataTable {
@@ -147,7 +150,7 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 	/*
 	 * The option whether to add an ome-xml colmn or not
 	 */
-	private final boolean m_omexml;
+	private boolean m_omexml;
 
 	/*
 	 * An array encoding the selected image planes in the 3-dimensional space
@@ -162,22 +165,59 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 
 	private String m_workflowCanonicalPath;
 
+	private boolean m_readImage;
+
+	// If ome-xml incompatible data should be read as xml annotations
+	private boolean m_readAllMetadata;
+
 	/**
 	 * Creates an new and empty ImageTable and is useful to get the table
 	 * specification without actually knowing the content.
-	 * 
+	 *
 	 * @param omexml
 	 *            if true, a omexml column will be appended to the table
-	 * 
+	 * @throws InvalidSettingsException
+	 *
 	 */
-	public ReadFileImgTable(final boolean omexml) {
+	public ReadFileImgTable(final MetadataMode mode)
+			throws InvalidSettingsException {
 		initCanonicalWorkflowPath();
-		m_omexml = omexml;
+		setMetadataMode(mode);
+	}
+
+	/**
+	 * Set the booleans controling the node output according to the metadata
+	 * mode.
+	 *
+	 * @param mode
+	 *            the metadata mode
+	 * @throws InvalidSettingsException
+	 *             if there is no valid setting for this {@link MetadataMode}.
+	 */
+	private void setMetadataMode(final MetadataMode mode)
+			throws InvalidSettingsException {
+		switch (mode) {
+		case APPEND_METADATA:
+			m_readImage = true;
+			m_omexml = true;
+			break;
+		case NO_METADATA:
+			m_readImage = true;
+			m_omexml = false;
+			break;
+		case METADATA_ONLY:
+			m_omexml = true;
+			m_readImage = false;
+			break;
+		default:
+			throw new InvalidSettingsException("MetadataMode " + mode.name()
+					+ " is not valid!");
+		}
 	}
 
 	/**
 	 * Constructor for an ImageTable.
-	 * 
+	 *
 	 * @param exec
 	 *            the execution context (for the progress bar)
 	 * @param fileList
@@ -186,8 +226,11 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 	 *            the number of files
 	 * @param sel
 	 *            the subset selection
-	 * @param omexml
-	 *            if true, a ome-xml column will be appended to the table
+	 * @param metadataMode
+	 *            the meta data mode seletion.
+	 * @param readAllMetaData
+	 *            if ome-xml incompatible meta data is appended as XML
+	 *            annotation.
 	 * @param checkFileFormat
 	 *            checks the file format newly for each single file (might be a
 	 *            bit slower)
@@ -203,15 +246,16 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 	 *            series, if -1 all series will be read
 	 * @param imgFactory
 	 *            the image factory used to create the individual images
-	 * 
-	 * 
+	 * @throws InvalidSettingsException
+	 *
 	 */
 	public ReadFileImgTable(final ExecutionContext exec,
 			final Iterable<String> fileList, final long numberOfFiles,
-			final SettingsModelSubsetSelection sel, final boolean omexml,
+			final SettingsModelSubsetSelection sel,
+			final MetadataMode metadataMode, final boolean readAllMetaData,
 			final boolean checkFileFormat, final boolean completePathRowKey,
 			final boolean isGroupFiles, final int selectedSeries,
-			final ImgFactory<T> imgFactory) {
+			final ImgFactory<T> imgFactory) throws InvalidSettingsException {
 
 		initCanonicalWorkflowPath();
 		m_completePathRowKey = completePathRowKey;
@@ -219,10 +263,12 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 		m_numberOfFiles = numberOfFiles;
 		m_sel = sel;
 		m_exec = exec;
-		m_omexml = omexml;
+		setMetadataMode(metadataMode);
+		m_readAllMetadata = readAllMetaData;
 		m_selectedSeries = selectedSeries;
 		m_scifioConfig = new SCIFIOConfig()
-				.groupableSetGroupFiles(isGroupFiles);
+				.groupableSetGroupFiles(isGroupFiles)
+				.parserSetSaveOriginalMetadata(m_readAllMetadata);
 		m_imgSource = new ScifioImgSource(imgFactory, checkFileFormat,
 				m_scifioConfig);
 	}
@@ -232,25 +278,25 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 	 */
 	@Override
 	public DataTableSpec getDataTableSpec() {
-		final int col = 0;
-
 		DataColumnSpecCreator creator;
-		final DataColumnSpec[] cspecs = new DataColumnSpec[1 + (m_omexml ? 1
-				: 0)];
-		creator = new DataColumnSpecCreator("Image", ImgPlusCell.TYPE);
-		cspecs[col] = creator.createSpec();
 
+		// size of spec from on the reader settings.
+		final DataColumnSpec[] cspecs = new DataColumnSpec[(m_readImage ? 1 : 0)
+				+ (m_omexml ? 1 : 0)];
+		if (m_readImage) {
+			creator = new DataColumnSpecCreator("Image", ImgPlusCell.TYPE);
+			cspecs[0] = creator.createSpec();
+		}
 		if (m_omexml) {
 			creator = new DataColumnSpecCreator("OME-XML Metadata",
 					XMLCell.TYPE);
 			cspecs[cspecs.length - 1] = creator.createSpec();
 		}
-
 		return new DataTableSpec(cspecs);
 	}
 
 	/**
-	 * 
+	 *
 	 * @return true, if an error occurred while iterating through the filelist
 	 *         to open the images.
 	 */
@@ -342,7 +388,8 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 			public DataRow next() {
 				final Vector<DataCell> row = new Vector<DataCell>();
 
-				final DataCell[] result = new DataCell[m_omexml ? 2 : 1];
+				final DataCell[] result = new DataCell[(m_readImage ? 1 : 0)
+						+ (m_omexml ? 1 : 0)];
 				try {
 					if ((currentSeries + 1) < seriesCount
 							&& m_selectedSeries == -1) {
@@ -393,16 +440,27 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 								+ " selected. File skipped!");
 					}
 
-					List<CalibratedAxis> calibAxes = m_imgSource.getAxes(
-							currentFile, currentSeries);
+					if (m_readImage) {
+						List<CalibratedAxis> calibAxes = m_imgSource.getAxes(
+								currentFile, currentSeries);
 
-					final Pair<TypedAxis, long[]>[] axisSelectionConstraints = m_sel
-							.createSelectionConstraints(
-									m_imgSource.getDimensions(currentFile,
-											currentSeries),
-									calibAxes
-											.toArray(new CalibratedAxis[calibAxes
-													.size()]));
+						final Pair<TypedAxis, long[]>[] axisSelectionConstraints = m_sel
+								.createSelectionConstraints(m_imgSource
+										.getDimensions(currentFile,
+												currentSeries), calibAxes
+										.toArray(new CalibratedAxis[calibAxes
+												.size()]));
+
+						// One _can_ be sure that if and only if
+						// some dims are removed (as they are of
+						// size 1) an optimized iterable interval
+						// is created
+						final ImgPlus<T> resImgPlus = (ImgPlus<T>) m_imgSource
+								.getImg(currentFile, currentSeries,
+										axisSelectionConstraints);
+
+						result[0] = cellFactory.createCell(resImgPlus);
+					}
 
 					// reads the ome xml metadata
 					if (m_omexml) {
@@ -410,16 +468,6 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 								.create(m_imgSource
 										.getOMEXMLMetadata(currentFile));
 					}
-
-					// One _can_ be sure that if and only if
-					// some dims are removed (as they are of
-					// size 1) an optimized iterable interval
-					// is created
-					final ImgPlus<T> resImgPlus = (ImgPlus<T>) m_imgSource
-							.getImg(currentFile, currentSeries,
-									axisSelectionConstraints);
-
-					result[0] = cellFactory.createCell(resImgPlus);
 
 				} catch (final FormatException e) {
 					LOGGER.warn("Format not supported for image " + rowKey
@@ -472,7 +520,7 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 	 * constructor (e.g. scifio specific settings). They have to be passed
 	 * immediately after the instantiation of the {@link ReadFileImgTable}
 	 * -object, otherwise they might not be regarded.
-	 * 
+	 *
 	 * @param key
 	 * @param value
 	 */
@@ -534,6 +582,7 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 		} catch (MalformedURLException e) {
 			return null;
 		} catch (IOException e) {
+			e.printStackTrace();
 			throw new KNIPException(
 					"Can't create temporary file to download image from URL ("
 							+ s + ").", e);

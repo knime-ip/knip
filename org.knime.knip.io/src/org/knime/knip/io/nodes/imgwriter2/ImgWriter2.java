@@ -272,7 +272,6 @@ public class ImgWriter2 {
 					+ img.firstElement().getClass().getSimpleName()
 					+ "format: " + format.getFormatName());
 		}
-		final SCIFIOConfig config = new SCIFIOConfig();
 
 		int[] map;
 		if ((dimMapping == null) || (dimMapping.length != 3)) {
@@ -281,11 +280,12 @@ public class ImgWriter2 {
 			map = dimMapping.clone();
 		}
 
+		// get the number of channels
 		int sizeC = (img.numDimensions() > map[1]) && (map[1] != -1) ? (int) img
 				.dimension(2 + map[1]) : 1;
 		if (sizeC > 3) {
 			LOGGER.warn("Image has more than 3 channels. These channels will be ignored.");
-			sizeC = 3;
+//			sizeC = 3;
 		}
 
 		final int sizeT = (img.numDimensions() > map[2]) && (map[2] != -1) ? (int) img
@@ -297,27 +297,20 @@ public class ImgWriter2 {
 		if (img.numDimensions() > 5) {
 			LOGGER.warn("Image has more than five dimension. These dimensions will be ignored.");
 		}
-
-		config.writerSetFramesPerSecond(m_fps);
-
+		
 		Writer tempWriter = null;
 		try {
 			tempWriter = format.createWriter();
 		} catch (final FormatException e) {
 			LOGGER.error(e.getMessage());
 		}
-
-		if ((compressionType != null)
-				&& (tempWriter.getCompressionTypes() != null)) {
-			config.writerSetCompression(compressionType);
-		}
+		
 		final boolean doStack = tempWriter.canDoStacks();
-
 		if (!doStack && ((sizeT > 1) || (sizeZ > 1))) {
 			throw new FormatException(
 					"Selected format  doesn't support image stacks.");
 		}
-
+		
 		final ImgPlus<T> imp = ImgPlus.wrap(img);
 
 		try {
@@ -336,6 +329,14 @@ public class ImgWriter2 {
 					+ imp.firstElement().getClass().getSimpleName()
 					+ " can't be written in the selected Format.");
 		}
+
+		// create writer configuration
+		final SCIFIOConfig config = new SCIFIOConfig();
+		if ((compressionType != null)
+				&& (tempWriter.getCompressionTypes() != null)) {
+			config.writerSetCompression(compressionType);
+		}
+		config.writerSetFramesPerSecond(m_fps);
 
 		try {
 			m_saver.saveImg(outfile, img, config);

@@ -13,9 +13,9 @@
    height="16"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.3.1 r9886"
-   sodipodi:docname="imgwriter.svg"
-   inkscape:export-filename="/home/hornm/workspaces/eclipse/workspace_indigo/knip/org.knime.knip.io/src/org/knime/knip/io/nodes/imgwriter/imgwriter.png"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="imgwriter2.svg"
+   inkscape:export-filename="/home/gabriel/git/knip/org.knime.knip.io/src/org/knime/knip/io/nodes/imgwriter2/imgwriter2.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -317,16 +317,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="34.25"
-     inkscape:cx="7.9416059"
-     inkscape:cy="8.0000001"
+     inkscape:zoom="24.218407"
+     inkscape:cx="3.458903"
+     inkscape:cy="9.1210185"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1120"
      inkscape:window-height="785"
-     inkscape:window-x="250"
-     inkscape:window-y="45"
+     inkscape:window-x="278"
+     inkscape:window-y="10"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata7">
@@ -347,28 +347,29 @@
      transform="translate(0,-1036.3622)">
     <g
        id="g4663"
-       transform="matrix(1.5657768,0,0,1.597882,-3.8470918,-631.05499)"
+       transform="matrix(-1.5657768,0,0,1.597882,19.864455,-631.05499)"
        style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1">
       <path
          id="path3844-5"
          d="m 11.921875,1048.2685 -8.21875,0"
-         style="color:#000000;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.70830935;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+         style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.70830935;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate"
          inkscape:connector-curvature="0" />
       <path
          sodipodi:nodetypes="cccc"
          id="path4624-5"
          d="m 6.640625,1049.7216 c 0,0 -3.3125,-1.4532 -3.3125,-1.4532 l 3.3125,-1.4531 0,2.9063 z"
-         style="color:#000000;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.70830935;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+         style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.70830935;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate"
          inkscape:connector-curvature="0" />
     </g>
     <rect
        ry="2.5365337e-06"
        rx="1.8662621e-06"
        y="1036.3622"
-       x="0.021897746"
+       x="-15.995461"
        height="16"
        width="2"
        id="rect3089"
-       style="fill:#8c0000;fill-opacity:1;stroke:none" />
+       style="fill:#8c0000;fill-opacity:1;stroke:none"
+       transform="scale(-1,1)" />
   </g>
 </svg>

@@ -50,8 +50,8 @@ package org.knime.knip.core.ops.iterable;
 
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.algorithm.region.localneighborhood.Neighborhood;
-import net.imglib2.algorithm.region.localneighborhood.Shape;
+import net.imglib2.algorithm.neighborhood.Neighborhood;
+import net.imglib2.algorithm.neighborhood.Shape;
 import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.outofbounds.OutOfBoundsFactory;
 import net.imglib2.type.Type;
@@ -60,7 +60,7 @@ import net.imglib2.view.Views;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>

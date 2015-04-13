@@ -88,18 +88,16 @@ final class TrackmateTrackerSettingsModels {
     /**
      * TrackMate feature calculators.
      */
-    static final List<TrackAnalyzer<TrackedNode<String>>> TRACK_ANALYZERS =
-            new ArrayList<TrackAnalyzer<TrackedNode<String>>>() {
-                private static final long serialVersionUID =
-                        7987258171225310650L;
-                {
-                    // add(new TrackIndexAnalyzer<TrackedNode<String>>());
-                    add(new TrackLocationAnalyzer<TrackedNode<String>>());
-                    add(new TrackBranchingAnalyzer<TrackedNode<String>>());
-                    add(new TrackSpeedStatisticsAnalyzer<TrackedNode<String>>());
-                    add(new TrackDurationAnalyzer<TrackedNode<String>>());
-                }
-            };
+    static final List<TrackAnalyzer<TrackedNode<String>>> TRACK_ANALYZERS = new ArrayList<TrackAnalyzer<TrackedNode<String>>>() {
+        private static final long serialVersionUID = 7987258171225310650L;
+        {
+            // add(new TrackIndexAnalyzer<TrackedNode<String>>());
+            add(new TrackLocationAnalyzer<TrackedNode<String>>());
+            add(new TrackBranchingAnalyzer<TrackedNode<String>>());
+            add(new TrackSpeedStatisticsAnalyzer<TrackedNode<String>>());
+            add(new TrackDurationAnalyzer<TrackedNode<String>>());
+        }
+    };
 
     /* KNIME TABLE SETTINGS */
 

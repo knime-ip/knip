@@ -144,7 +144,7 @@ public class UCMOp<L extends Comparable<L>, T extends RealType<T>> implements
 
         // random access cursor with extended borders
         final Cursor<LabelingType<L>> labCur = labeling.localizingCursor();
-        final RandomAccess<LabelingType<L>> labAccess = Views.extendValue(labeling, null).randomAccess();
+        final RandomAccess<LabelingType<L>> labAccess = Views.extendBorder(labeling).randomAccess();
 
         // the 8 neighbors
         final long[][] strucElement = AbstractRegionGrowing.get8ConStructuringElement(labeling.numDimensions());

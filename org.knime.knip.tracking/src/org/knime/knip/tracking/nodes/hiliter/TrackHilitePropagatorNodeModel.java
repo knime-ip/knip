@@ -137,8 +137,8 @@ public class TrackHilitePropagatorNodeModel extends NodeModel implements
                 trackPrefix = TrackHilitePropagatorSettingsModels.DEFAULT_TRACK_PREFIX;
             }
 
-            final HashMap<String, String> labelToTrack = new HashMap<String, String>();
-            final HashMap<String, List<String>> trackToLabels = new HashMap<String, List<String>>();
+            final Map<String, String> labelToTrack = new HashMap<String, String>();
+            final Map<String, List<String>> trackToLabels = new HashMap<String, List<String>>();
 
             // Fill the maps with the associated labelings.
             for (int i = 0; i < mapping.numLists(); i++) {
@@ -153,7 +153,7 @@ public class TrackHilitePropagatorNodeModel extends NodeModel implements
 
                 // Identify the labels and the track
                 String track = "";
-                final ArrayList<String> otherLabels = new ArrayList<String>();
+                final List<String> otherLabels = new ArrayList<String>();
                 for (final String label : localLabels) {
                     if (label.startsWith(trackPrefix)) {
                         track = label;
@@ -260,7 +260,7 @@ public class TrackHilitePropagatorNodeModel extends NodeModel implements
     protected void setInHiLiteHandler(final int inIndex,
             final HiLiteHandler handler) {
         m_hiliteHandler = handler;
-    };
+    }
 
     /**
      * {@inheritDoc}
@@ -403,7 +403,7 @@ public class TrackHilitePropagatorNodeModel extends NodeModel implements
     private RowKey[] getRowKeysFromTracks(final Set<RowKey> tracksToHilite) {
 
         // early escape
-        if (tracksToHilite == null || tracksToHilite.size() == 0) {
+        if (tracksToHilite == null || tracksToHilite.isEmpty()) {
             return new RowKey[0];
         }
 
