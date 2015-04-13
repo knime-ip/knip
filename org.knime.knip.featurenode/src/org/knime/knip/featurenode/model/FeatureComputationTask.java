@@ -1,6 +1,8 @@
 package org.knime.knip.featurenode.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
@@ -11,8 +13,12 @@ import net.imagej.ops.OpRef;
 import net.imagej.ops.features.AbstractAutoResolvingFeatureSet;
 import net.imagej.ops.features.FeatureSet;
 import net.imagej.ops.features.LabeledFeatures;
+import net.imagej.ops.features.sets.GeometricFeatureSet;
+import net.imagej.ops.geometric.polygon.Polygon;
+import net.imagej.ops.geometric.polygon.GeometricPolygonOps.MooreContoursPolygon;
 import net.imglib2.IterableInterval;
 import net.imglib2.type.NativeType;
+import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.util.Pair;
@@ -87,26 +93,30 @@ public class FeatureComputationTask<T extends RealType<T> & NativeType<T>, L ext
 
 				// create a new AbstractAutoResolvingFeatureSet with only the
 				// selected features
-				fs = new AbstractAutoResolvingFeatureSet<IterableInterval<T>, T>() {
 
-					@Override
-					public Set<OpRef<?>> getOutputOps() {
-						return ops;
-					}
+				// fs = new AbstractAutoResolvingFeatureSet<IterableInterval<T>,
+				// T>() {
+				//
+				// @Override
+				// public Set<OpRef<?>> getOutputOps() {
+				// return ops;
+				// }
+				//
+				// @Override
+				// public Set<OpRef<?>> getHiddenOps() {
+				// return arfs.getHiddenOps();
+				// }
+				//
+				// };
 
-					@Override
-					public Set<OpRef<?>> getHiddenOps() {
-						return arfs.getHiddenOps();
-					}
-
-				};
+				fs = (LabeledFeatures<IterableInterval<T>, T>) new RestrictedFeatureSet<IterableInterval<T>, T>(
+						arfs.getClass(), ops, arfs.getHiddenOps());
 			}
 
 			// initialize
 			OpsGateway.getContext().inject(fs);
 			this.compiledFeatureSets.add(fs);
 		}
-
 	}
 
 	@Override
@@ -122,8 +132,30 @@ public class FeatureComputationTask<T extends RealType<T> & NativeType<T>, L ext
 			List<Pair<String, T>> featureSetResults = new ArrayList<Pair<String, T>>();
 
 			// get the results from each feature set
-			for (LabeledFeatures<IterableInterval<T>, T> featureSet : compiledFeatureSets) {
-				featureSetResults.addAll(featureSet.getFeatureList(ii));
+			for (LabeledFeatures<IterableInterval<T>, T> fs : compiledFeatureSets) {
+
+				if (fs instanceof RestrictedFeatureSet) {
+
+					RestrictedFeatureSet<?, T> rfs = (RestrictedFeatureSet<?, T>) fs;
+					if (GeometricFeatureSet.class.isAssignableFrom(rfs
+							.getFeatureSetClass())) {
+
+						RestrictedFeatureSet<Polygon, T> prfs = new RestrictedFeatureSet<Polygon, T>(
+								GeometricFeatureSet.class, rfs.getOutputOps(),
+								rfs.getHiddenOps());
+
+						Polygon p = (Polygon) OpsGateway.getOpService().run(
+								MooreContoursPolygon.class, ii, true, false);
+
+						OpsGateway.getContext().inject(prfs);
+						
+						featureSetResults.addAll(prfs.getFeatureList(p));
+					} else {
+						featureSetResults.addAll(fs.getFeatureList(ii));
+					}
+				} else {
+					featureSetResults.addAll(fs.getFeatureList(ii));
+				}
 			}
 
 			results.add(new FeatureTaskOutput<T, L>(featureTaskInput,

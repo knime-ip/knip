@@ -3,9 +3,14 @@ package org.knime.knip.featurenode.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.imglib2.Cursor;
 import net.imglib2.IterableInterval;
 import net.imglib2.converter.Converter;
 import net.imglib2.converter.Converters;
+import net.imglib2.img.array.ArrayImg;
+import net.imglib2.img.array.ArrayImgs;
+import net.imglib2.img.array.ArrayRandomAccess;
+import net.imglib2.img.basictypeaccess.array.LongArray;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.LabelingType;
 import net.imglib2.roi.IterableRegionOfInterest;
@@ -103,8 +108,9 @@ public class FeatureTaskInput<T extends RealType<T> & NativeType<T>, L extends C
 
 				final IterableInterval<T> ii = iiROI
 						.getIterableIntervalOverROI(imgValue.getImgPlus());
+
 				resultList
-						.add(new ValuePair<IterableInterval<T>, L>(ii, label));
+						.add(new ValuePair<IterableInterval<T>, L>((IterableInterval<T>) iterableIntervalToArrayImg(ii), label));
 			}
 		}
 		// if only the labeling is present
@@ -113,7 +119,7 @@ public class FeatureTaskInput<T extends RealType<T> & NativeType<T>, L extends C
 			Labeling<L> next = labelingValue.getLabeling(); // .getLabels().iterator().next();
 			long[] dimensions = new long[next.numDimensions()];
 			next.dimensions(dimensions);
-			
+
 			for (final L label : labelingValue.getLabeling().getLabels()) {
 				final IterableInterval<LabelingType<L>> ii = labelingValue
 						.getLabeling()
@@ -131,7 +137,7 @@ public class FeatureTaskInput<T extends RealType<T> & NativeType<T>, L extends C
 						}, new BitType());
 
 				resultList.add(new ValuePair<IterableInterval<T>, L>(
-						(IterableInterval<T>) convert, label));
+						(IterableInterval<T>) iterableIntervalToArrayImg(ii), label));
 			}
 
 		}
@@ -142,5 +148,21 @@ public class FeatureTaskInput<T extends RealType<T> & NativeType<T>, L extends C
 		}
 
 		return resultList;
+	}
+
+	private ArrayImg<BitType, LongArray> iterableIntervalToArrayImg(
+			IterableInterval<?> ii) {
+
+		ArrayImg<BitType, LongArray> bits = ArrayImgs.bits(ii.dimension(0),
+				ii.dimension(1));
+		ArrayRandomAccess<BitType> randomAccess = bits.randomAccess();
+		Cursor<?> localizingCursor = ii.localizingCursor();
+		while (localizingCursor.hasNext()) {
+			localizingCursor.next();
+			randomAccess.setPosition(localizingCursor);
+//			randomAccess.get().set(true);
+		}
+
+		return bits;
 	}
 }
