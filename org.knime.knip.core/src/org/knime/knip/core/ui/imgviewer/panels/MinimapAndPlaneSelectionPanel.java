@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2013
+ *  Copyright (C) 2003 - 2015
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -43,82 +43,88 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
+ * Created on Apr 17, 2015 by mdm210958
  */
-package org.knime.knip.core.ui.imgviewer;
+package org.knime.knip.core.ui.imgviewer.panels;
 
-import java.awt.BorderLayout;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import javax.swing.BorderFactory;
-import javax.swing.JPanel;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 
-import org.knime.knip.core.ui.event.EventServiceClient;
+import org.knime.knip.core.ui.event.EventService;
+import org.knime.knip.core.ui.imgviewer.ViewerComponent;
+import org.knime.knip.core.ui.imgviewer.ViewerComponents;
 
 /**
- * Generic component class of a viewer.
  *
- *
- * @param <T>
- * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author mdm210958
  */
-public abstract class ViewerComponent extends JPanel implements EventServiceClient {
+public class MinimapAndPlaneSelectionPanel extends ViewerComponent {
 
-    private static final long serialVersionUID = 1L;
+    /**
+     * @param title
+     * @param isBorderHidden
+     */
 
-    public enum Position {
-        CENTER, NORTH, SOUTH, WEST, EAST, INFO, ADDITIONAL, HIDDEN;
+    private ViewerComponent m_Minimap;
+    private ViewerComponent m_PlaneSelection;
+
+    public MinimapAndPlaneSelectionPanel() {
+        super("", true);
+
+        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+
+        m_Minimap = ViewerComponents.MINIMAP.createInstance();
+        m_PlaneSelection = ViewerComponents.PLANE_SELECTION.createInstance();
+
+        this.add(m_Minimap);
+        this.add(Box.createVerticalStrut(3));
+        this.add(m_PlaneSelection);
+        this.add(Box.createVerticalGlue());
+
     }
 
     /**
-     * @param title a unique title for this option panel
-     * @param isBorderHidden if true, a border is drawn arround the component
+     * {@inheritDoc}
      */
-    public ViewerComponent(final String title, final boolean isBorderHidden) {
+    @Override
+    public void setEventService(final EventService eventService) {
+        m_Minimap.setEventService(eventService);
+        m_PlaneSelection.setEventService(eventService);
 
-        if (!isBorderHidden) {
-            setTitle(title);
-        } else {
-            setBorder(BorderFactory.createEmptyBorder());
-        }
     }
 
     /**
-     * Set the title for the border of this component.
-     *
-     * @param title the title
+     * {@inheritDoc}
      */
-    public void setTitle(final String title) {
-        setBorder(BorderFactory.createTitledBorder(title));
+    @Override
+    public Position getPosition() {
+        return Position.ADDITIONAL;
     }
 
     /**
-     * Returns the position in the BorderLayout. Possible values are {@link BorderLayout#NORTH},
-     * {@link BorderLayout#SOUTH}, {@link BorderLayout#WEST},{@link BorderLayout#EAST}, {@link BorderLayout#CENTER}
-     * ,HIDDEN
-     *
-     * A component with hidden position will not be rendered
-     *
-     * @return position in {@link BorderLayout} as string
+     * {@inheritDoc}
      */
-    public abstract Position getPosition();
+    @Override
+    public void saveComponentConfiguration(final ObjectOutput out) throws IOException {
+        m_Minimap.saveComponentConfiguration(out);
+        m_PlaneSelection.saveComponentConfiguration(out);
+
+    }
 
     /**
-     * Serialization
-     *
-     * @param out
-     * @throws IOException
+     * {@inheritDoc}
      */
-    public abstract void saveComponentConfiguration(ObjectOutput out) throws IOException;
+    @Override
+    public void loadComponentConfiguration(final ObjectInput in) throws IOException, ClassNotFoundException {
+        m_Minimap.loadComponentConfiguration(in);
+        m_PlaneSelection.loadComponentConfiguration(in);
 
-    /**
-     * Deserialization
-     */
-    public abstract void loadComponentConfiguration(ObjectInput in) throws IOException, ClassNotFoundException;
+    }
 
 }

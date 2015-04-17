@@ -52,13 +52,14 @@ import org.knime.knip.core.ui.imgviewer.panels.CaptureScreenshot;
 import org.knime.knip.core.ui.imgviewer.panels.ImagePropertiesPanel;
 import org.knime.knip.core.ui.imgviewer.panels.ImgNormalizationPanel;
 import org.knime.knip.core.ui.imgviewer.panels.LabelFilterPanel;
+import org.knime.knip.core.ui.imgviewer.panels.MinimapAndPlaneSelectionPanel;
 import org.knime.knip.core.ui.imgviewer.panels.MinimapPanel;
 import org.knime.knip.core.ui.imgviewer.panels.PlaneSelectionPanel;
 import org.knime.knip.core.ui.imgviewer.panels.RendererSelectionPanel;
 
 /**
  * Enumeration of "primitive" manipulators the can be created with out further knowledge.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -83,6 +84,13 @@ public enum ViewerComponents {
         @Override
         public ViewerComponent createInstance() {
             return new PlaneSelectionPanel();
+        }
+    },
+
+    MINIMAP_PLANE_SELECTION() {
+        @Override
+        public ViewerComponent createInstance() {
+            return new MinimapAndPlaneSelectionPanel();
         }
     },
     /**

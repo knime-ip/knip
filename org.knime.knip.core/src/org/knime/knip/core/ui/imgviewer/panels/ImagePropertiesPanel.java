@@ -96,8 +96,8 @@ public class ImagePropertiesPanel<T extends Type<T>, I extends IterableInterval<
         add(new JScrollPane(m_propertiesTable));
         //add(Box.createVerticalGlue());
 
-        setMaximumSize(new Dimension(Integer.MAX_VALUE, 200));
-        setMinimumSize(new Dimension(m_propertiesTable.getMinimumSize().width, 100));
+//        setMaximumSize(new Dimension(Integer.MAX_VALUE, 200));
+//        setMinimumSize(new Dimension(m_propertiesTable.getMinimumSize().width, 100));
         validate();
 //        System.out.println(getPreferredSize());
     }

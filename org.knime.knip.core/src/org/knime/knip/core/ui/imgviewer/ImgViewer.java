@@ -100,6 +100,8 @@ package org.knime.knip.core.ui.imgviewer;
  */
 
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -108,7 +110,6 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -160,9 +161,11 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
     private JPanel m_topControl;
 
-    private JPanel m_controlPanel;
+    private JPanel m_infoPanel;
 
     private JPanel m_rightPanel;
+
+    private int m_currentSlot;
 
     private ViewerComponent[] m_controls = new ViewerComponent[4];
 
@@ -194,13 +197,25 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
         GridBagLayout gbl = new GridBagLayout();
         leftPanel.setLayout(gbl);
 
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-
         gbc.anchor = GridBagConstraints.CENTER;
+        gbc.gridx = 2;
+        gbc.gridy = 1;
+        //
+        gbc.gridheight = 1;
+        gbc.gridwidth = 3;
+        gbc.weightx = 1;
+        //
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        //
+        m_infoPanel = new JPanel();
+        m_infoPanel.setLayout(new BorderLayout());
+        leftPanel.add(m_infoPanel, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 2;
 
         gbc.gridheight = 4;
-        gbc.gridwidth = 5; // Remainder?
+        gbc.gridwidth = 5;
 
         gbc.fill = GridBagConstraints.BOTH;
         gbc.weightx = 1;
@@ -211,12 +226,12 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
         leftPanel.add(m_centerPanel, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridy = 4;
 
         gbc.gridheight = 1;
         gbc.gridwidth = 1;
 
-        gbc.insets = new Insets(5,5,5,5);
+        gbc.insets = new Insets(5, 5, 5, 5);
 
         gbc.fill = GridBagConstraints.NONE;
 
@@ -228,7 +243,7 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
         leftPanel.add(m_leftControl, gbc);
 
         gbc.gridx = 6;
-        gbc.gridy = 3;
+        gbc.gridy = 4;
 
         gbc.gridheight = 1;
         gbc.gridwidth = 1;
@@ -268,35 +283,24 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
         m_topControl.setLayout(new BorderLayout());
         leftPanel.add(m_topControl, gbc);
 
-        gbc.insets = new Insets(0,0,0,0);
-        gbc.gridx = 1;
-        gbc.gridy = 5;
-
-        gbc.gridheight = 1;
-        gbc.gridwidth = 5;
-
-        gbc.fill = GridBagConstraints.BOTH;
-
-        m_controlPanel = new JPanel();
-        m_controlPanel.setLayout(new BorderLayout());
-        leftPanel.add(m_controlPanel, gbc);
-
+        gbc.insets = new Insets(0, 0, 0, 0);
 
         m_rightPanel = new JPanel();
         JScrollPane sp = new JScrollPane(m_rightPanel);
+        sp.setMinimumSize(new Dimension(275, sp.getMinimumSize().height));
+        //  sp.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        //  m_rightPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         sp.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         // right side
-        m_rightPanel.setLayout(new BoxLayout(m_rightPanel, BoxLayout.Y_AXIS));
-        m_rightPanel.add(Box.createVerticalStrut(10));
-        m_rightPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+        m_rightPanel.setLayout(new GridBagLayout());
+        m_rightPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
 
         m_background.setLeftComponent(leftPanel);
         m_background.setRightComponent(sp);
-        m_background.setResizeWeight(0.85);
-        m_background.setDividerSize(0);
+        m_background.setResizeWeight(1);
+        m_background.setDividerSize(5);
 
         add(m_background);
-
 
     }
 
@@ -346,12 +350,21 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
                 m_topControl.add(panel);
                 m_controls[3] = panel;
                 break;
-            case CONTROL: // CONTROL
-                m_controlPanel.add(panel);
+            case INFO: // CONTROL
+                m_infoPanel.add(panel);
                 break;
             case ADDITIONAL: // ADDITIONAL
-                m_rightPanel.add(panel);
-                m_rightPanel.add(Box.createVerticalStrut(2));
+                GridBagConstraints gbc = new GridBagConstraints();
+                gbc.insets = new Insets(5, 0, 5, 0);
+                gbc.weightx = 1;
+                gbc.weighty = 0;
+                gbc.anchor = GridBagConstraints.CENTER;
+                gbc.gridx = 0;
+                gbc.gridy = m_currentSlot++;
+                gbc.fill = GridBagConstraints.HORIZONTAL;
+                gbc.gridheight = 1;
+                gbc.gridwidth = GridBagConstraints.REMAINDER;
+                m_rightPanel.add(panel, gbc);
 
                 break;
             default: // hidden
@@ -360,11 +373,19 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
     }
 
-    public void doneAdding(){
-        m_rightPanel.add(Box.createVerticalGlue());
+    public void doneAdding() {
+        GridBagConstraints gbc = new GridBagConstraints();
+        Component panel = Box.createVerticalGlue();
+        gbc.gridx = 0;
+        gbc.gridy = m_currentSlot;
+        gbc.fill = GridBagConstraints.VERTICAL;
+        gbc.weighty = 1;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        m_rightPanel.add(panel, gbc);
     }
 
-    public ViewerComponent[] getControls(){
+    public ViewerComponent[] getControls() {
         return m_controls;
     }
 

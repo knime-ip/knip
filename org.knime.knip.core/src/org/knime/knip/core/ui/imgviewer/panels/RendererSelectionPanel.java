@@ -49,7 +49,6 @@
 package org.knime.knip.core.ui.imgviewer.panels;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -119,9 +118,9 @@ public class RendererSelectionPanel<T extends Type<T>> extends ViewerComponent {
         });
 
         add(new JScrollPane(m_rendList), BorderLayout.CENTER);
-        setPreferredSize(new Dimension(getPreferredSize().width, 200));
-        setMaximumSize(getPreferredSize());
-        setMinimumSize(new Dimension(100, getMinimumSize().height));
+//        setPreferredSize(new Dimension(getPreferredSize().width, 200));
+//        setMaximumSize(getPreferredSize());
+//        setMinimumSize(new Dimension(100, getMinimumSize().height));
         validate();
     }
 

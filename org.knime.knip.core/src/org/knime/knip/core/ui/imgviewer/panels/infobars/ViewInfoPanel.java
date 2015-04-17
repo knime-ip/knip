@@ -234,7 +234,7 @@ public abstract class ViewInfoPanel<T extends Type<T>> extends ViewerComponent {
 
     @Override
     public Position getPosition() {
-        return Position.CENTER;
+        return Position.INFO;
     }
 
     /**
