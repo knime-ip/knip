@@ -50,6 +50,8 @@ package org.knime.knip.core.ui.imgviewer.panels;
 
 import java.awt.Adjustable;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
@@ -150,18 +152,7 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
     public PlaneSelectionPanel() {
 //        super("Plane selection", false);
         super("", true);
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-
-        // empty panel that ensures a minimum width
-        // setting the same thing on this has bad impacts on the
-        // component height
-        final JPanel wider = new JPanel();
-        wider.setMaximumSize(new Dimension(200, wider.getMaximumSize().height));
-        wider.setPreferredSize(new Dimension(200, wider.getPreferredSize().height));
-        wider.setMinimumSize(new Dimension(200, wider.getMinimumSize().height));
-        add(wider);
-
-        setMaximumSize(new Dimension(200, getMaximumSize().height));
+        setLayout(new GridBagLayout());
 
     }
 
@@ -486,10 +477,22 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
             m_steps = new int[m_dims.length];
 
             removeAll();
+            GridBagConstraints gbc = new GridBagConstraints();
+
+            gbc.gridx = 0;
+            gbc.gridy = 0;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            gbc.gridheight = 1;
+            gbc.gridwidth = GridBagConstraints.REMAINDER;
+
+
             final JPanel nPanel = new JPanel();
             nPanel.setLayout(new BoxLayout(nPanel, BoxLayout.X_AXIS));
-            add(nPanel);
-            add(Box.createVerticalStrut(2));
+            add(nPanel, gbc);
+            //add(Box.createVerticalStrut(2));
+
+            gbc.gridy++;
+
             m_totalSlider = new JScrollBar(Adjustable.HORIZONTAL);
             Dimension dim = m_totalSlider.getPreferredSize();
             dim.width = 150;
@@ -510,7 +513,9 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
             actMap.put("BACKWARD", new ForwardBackwardAction("BACKWARD", m_totalSlider, 1));
             final JPanel dimPanel = new JPanel();
             dimPanel.setLayout(new BoxLayout(dimPanel, BoxLayout.Y_AXIS));
-            add(dimPanel);
+            add(dimPanel, gbc);
+
+            gbc.gridy++;
 
             m_scrollBars = new JScrollBar[m_dims.length];
             m_planeCheckBoxes = new JCheckBox[m_dims.length];
@@ -590,7 +595,7 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
                 }
             });
 
-            add(m_calibrationCheckbox);
+            add(m_calibrationCheckbox, gbc);
 
             setPlaneDimensionIndices(m_dim1, m_dim2);
 
@@ -621,7 +626,7 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
      */
     @Override
     public Position getPosition() {
-        return Position.CONTROL;
+        return Position.INFO;
     }
 
     /**

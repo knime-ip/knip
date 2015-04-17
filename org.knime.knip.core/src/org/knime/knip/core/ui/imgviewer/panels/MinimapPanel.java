@@ -288,11 +288,11 @@ public class MinimapPanel extends ViewerComponent {
                         .doubleValue() / 100));
             }
         });
-        setMaximumSize(new Dimension(getMaximumSize().width, 300));
-        setMinimumSize(new Dimension(getMinimumSize().width, 200));
-        setPreferredSize(new Dimension(getPreferredSize().width, 200));
+        setMaximumSize(new Dimension(300, 300));
+        setMinimumSize(new Dimension(200, 200));
+        setPreferredSize(new Dimension(250,250));
         validate();
-        System.out.println(getPreferredSize());
+        System.out.println(getMaximumSize());
     }
 
     @EventListener

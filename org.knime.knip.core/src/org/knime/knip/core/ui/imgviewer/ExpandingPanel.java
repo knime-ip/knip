@@ -149,38 +149,38 @@ public class ExpandingPanel extends ViewerComponent {
         return p;
     }
 
-    @Override
-    public Dimension getMaximumSize() {
-        if (isExpanded) {
-            int h = m_content.getMaximumSize().height + m_header.getMaximumSize().height + 10;
-            int w = Integer.MAX_VALUE;
-            return new Dimension(w, h);
-        } else {
-            return m_header.getMaximumSize();
-        }
-    }
-
-    @Override
-    public Dimension getMinimumSize() {
-        if (isExpanded) {
-            int h = m_content.getMinimumSize().height + m_header.getMinimumSize().height + 10;
-            int w = getPreferredSize().width;
-            return new Dimension(w, h);
-        } else {
-            return m_header.getMinimumSize();
-        }
-    }
-
-    @Override
-    public Dimension getPreferredSize() {
-        if (isExpanded) {
-            int h = m_content.getPreferredSize().height + m_header.getPreferredSize().height + 10;
-            int w = getLayout().preferredLayoutSize(this).width;//super.getPreferredSize().width;
-            return new Dimension(w, h);
-        } else {
-            return m_header.getPreferredSize();
-        }
-    }
+//    @Override
+//    public Dimension getMaximumSize() {
+//        if (isExpanded) {
+//            int h = m_content.getMaximumSize().height + m_header.getMaximumSize().height + 10;
+//            int w = Integer.MAX_VALUE;
+//            return new Dimension(w, h);
+//        } else {
+//            return m_header.getMaximumSize();
+//        }
+//    }
+//
+//    @Override
+//    public Dimension getMinimumSize() {
+//        if (isExpanded) {
+//            int h = m_content.getMinimumSize().height + m_header.getMinimumSize().height + 10;
+//            int w = getPreferredSize().width;
+//            return new Dimension(w, h);
+//        } else {
+//            return m_header.getMinimumSize();
+//        }
+//    }
+//
+//    @Override
+//    public Dimension getPreferredSize() {
+//        if (isExpanded) {
+//            int h = m_content.getPreferredSize().height + m_header.getPreferredSize().height + 10;
+//            int w = getLayout().preferredLayoutSize(this).width;//super.getPreferredSize().width;
+//            return new Dimension(w, h);
+//        } else {
+//            return m_header.getPreferredSize();
+//        }
+//    }
 
     /**
      * {@inheritDoc}
