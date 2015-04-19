@@ -52,7 +52,6 @@ import org.knime.knip.core.ui.imgviewer.panels.CaptureScreenshot;
 import org.knime.knip.core.ui.imgviewer.panels.ImagePropertiesPanel;
 import org.knime.knip.core.ui.imgviewer.panels.ImgNormalizationPanel;
 import org.knime.knip.core.ui.imgviewer.panels.LabelFilterPanel;
-import org.knime.knip.core.ui.imgviewer.panels.MinimapAndPlaneSelectionPanel;
 import org.knime.knip.core.ui.imgviewer.panels.MinimapPanel;
 import org.knime.knip.core.ui.imgviewer.panels.PlaneSelectionPanel;
 import org.knime.knip.core.ui.imgviewer.panels.RendererSelectionPanel;
@@ -90,7 +89,7 @@ public enum ViewerComponents {
     MINIMAP_PLANE_SELECTION() {
         @Override
         public ViewerComponent createInstance() {
-            return new MinimapAndPlaneSelectionPanel();
+            return new MinimapPanel();
         }
     },
     /**

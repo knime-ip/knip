@@ -60,8 +60,6 @@ import java.util.Map.Entry;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingWorker;
 import javax.swing.event.ChangeEvent;
@@ -210,9 +208,13 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     protected Map<String, List<TableCellView>> m_cellViews;
 
-    protected JTabbedPane m_cellViewTabs;
+    // protected JTabbedPane m_cellViewTabs;
 
     protected ChangeListener m_changeListener;
+
+    protected ActionListener m_quickViewListener;
+
+    protected ActionListener m_overviewListener;
 
     protected int m_col = -1;
 
@@ -241,13 +243,13 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     protected int m_row = -1;
 
-    protected JSplitPane m_sp;
-
     protected TableContentView m_tableContentView;
 
     protected TableContentModel m_tableModel;
 
     protected TableView m_tableView;
+
+    protected CellView m_cellView;
 
     protected Map<String, Component> m_viewComponents;
 
@@ -300,9 +302,8 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         m_row = row;
         m_col = col;
 
-
-        final int selection = m_cellViewTabs.getSelectedIndex();
-        m_cellViewTabs.removeAll();
+        final int selection = m_cellView.getSelectedIndex();
+        m_cellView.removeAllTabs();
 
         List<TableCellView> cellView;
 
@@ -318,7 +319,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
             // if no cell view exists for the selected cell
             if (cellView.size() == 0) {
                 m_currentCell = null;
-                m_cellViewTabs.addTab("Viewer", new JLabel("This cell type doesn't provide a Table Cell Viewer!"));
+                m_cellView.addTab("Viewer", new JLabel("This cell type doesn't provide a Table Cell Viewer!"));
                 return;
             }
             m_cellViews.put(currentDataCellClass, cellView);
@@ -326,64 +327,64 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
                 // cache the view component
                 final Component comp = v.getViewComponent();
-                if(v.getViewComponent() instanceof ImgViewer)
-                {
+                if (v.getViewComponent() instanceof ImgViewer) {
                     // Register buttons
-                    ImgViewer vc = (ImgViewer) v.getViewComponent();
-                   ViewerComponent[] ctrls = vc.getControls();
-                   for(int i = 0; i < 4; ++i)
-                   {
-                       JButton b = ((ControlPanel) ctrls[i]).getButton();
-                       if(i == 0) {
-                        b.addActionListener(new ActionListener(){
+                    ImgViewer vc = (ImgViewer)v.getViewComponent();
+                    ViewerComponent[] ctrls = vc.getControls();
+                    for (int i = 0; i < 4; ++i) {
+                        JButton b = ((ControlPanel)ctrls[i]).getButton();
+                        if (i == 0) {
+                            b.addActionListener(new ActionListener() {
 
-                            @Override
-                            public void actionPerformed(final ActionEvent arg0) {
-                                int r = m_row +1;
-                                cellSelectionChanged(r, m_col);
+                                @Override
+                                public void actionPerformed(final ActionEvent arg0) {
+                                    int r = m_row + 1;
+                                    cellSelectionChanged(r, m_col);
 
-                            }
+                                }
 
-                           });
+                            });
+                        }
+                        if (i == 1) {
+                            b.addActionListener(new ActionListener() {
+
+                                @Override
+                                public void actionPerformed(final ActionEvent arg0) {
+                                    int c = m_col - 1;
+                                    cellSelectionChanged(m_row, c);
+
+                                }
+
+                            });
+                        }
+                        if (i == 2) {
+                            b.addActionListener(new ActionListener() {
+
+                                @Override
+                                public void actionPerformed(final ActionEvent arg0) {
+                                    int c = m_col + 1;
+                                    cellSelectionChanged(m_row, c);
+
+                                }
+
+                            });
+                        }
+                        if (i == 3) {
+                            b.addActionListener(new ActionListener() {
+
+                                @Override
+                                public void actionPerformed(final ActionEvent arg0) {
+                                    int r = m_row - 1;
+                                    cellSelectionChanged(r, m_col);
+
+                                }
+
+                            });
+                        }
+
                     }
-                       if(i == 1) {
-                        b.addActionListener(new ActionListener(){
-
-                               @Override
-                               public void actionPerformed(final ActionEvent arg0) {
-                                   int c = m_col -1;
-                                   cellSelectionChanged(m_row, c);
-
-                               }
-
-                              });
-                    }
-                       if(i == 2) {
-                        b.addActionListener(new ActionListener(){
-
-                               @Override
-                               public void actionPerformed(final ActionEvent arg0) {
-                                   int c = m_col +1;
-                                   cellSelectionChanged(m_row, c);
-
-                               }
-
-                              });
-                    }
-                       if(i == 3) {
-                        b.addActionListener(new ActionListener(){
-
-                               @Override
-                               public void actionPerformed(final ActionEvent arg0) {
-                                   int r = m_row -1;
-                                   cellSelectionChanged(r, m_col);
-
-                               }
-
-                              });
-                    }
-
-                   }
+                    vc.getQuickViewButton().addActionListener(m_quickViewListener);
+                    vc.getOverViewButton().addActionListener(m_overviewListener);
                 }
                 m_viewComponents.put(currentDataCellClass + ":" + v.getName(), comp);
 
@@ -393,18 +394,19 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         // add the components to the tabs
         for (final TableCellView v : cellView) {
             try {
-                m_cellViewTabs.addTab(v.getName(), m_viewComponents.get(currentDataCellClass + ":" + v.getName()));
+                m_cellView.addTab(v.getName(), m_viewComponents.get(currentDataCellClass + ":" + v.getName()));
             } catch (final Exception ex) {
                 LOGGER.error("Could not add Tab " + v.getName(), ex);
             }
         }
 
+        m_cellView.setSelectedIndex(Math.max(0, Math.min(selection, m_cellView.getTabCount() - 1)));
 
-
-        m_cellViewTabs.setSelectedIndex(Math.max(0, Math.min(selection, m_cellViewTabs.getTabCount() - 1)));
+        if (getComponent() != m_cellView) {
+            setComponent(m_cellView);
+        }
 
     }
-
 
     protected void initViewComponents() {
 
@@ -412,7 +414,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         final JPanel loadpanel = new JPanel();
         loadpanel.setPreferredSize(new Dimension(600, 400));
 
-        m_sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        // Initialize tableView
 
         m_tableContentView = new TableContentView();
 
@@ -441,7 +443,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
         m_tableContentView.getColumnModel().getSelectionModel().addListSelectionListener(m_listSelectionListenerB);
         m_tableView = new TableView(m_tableContentView);
-       // m_sp.add(m_tableView);
+
         m_tableView.setHiLiteHandler(getNodeModel().getInHiLiteHandler(0));
 
         if (!m_hiliteAdded) {
@@ -451,8 +453,6 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
         m_cellViews = new HashMap<String, List<TableCellView>>();
         m_viewComponents = new HashMap<String, Component>();
-
-        m_cellViewTabs = new JTabbedPane();
 
         // Show waiting indicator and work in background.
         WaitingIndicatorUtils.setWaiting(loadpanel, true);
@@ -468,14 +468,13 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
             @Override
             protected void done() {
                 WaitingIndicatorUtils.setWaiting(loadpanel, false);
-                cellSelectionChanged(0,0);
-                setComponent(m_sp);
+                //cellSelectionChanged(0,0);
+                setComponent(m_tableView);
             }
         };
 
         worker.execute();
-        while(!worker.isDone())
-        {
+        while (!worker.isDone()) {
             //do nothing
         }
         m_changeListener = new ChangeListener() {
@@ -485,23 +484,45 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
             }
         };
 
-        m_cellViewTabs.addChangeListener(m_changeListener);
-        m_sp.setDividerLocation(250);
-        m_sp.add(m_cellViewTabs);
+        m_quickViewListener = new ActionListener() {
 
-//        Temporarily add loadpanel as component, so that the ui stays responsive.
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                m_cellView.setTableViewVisible(!m_cellView.isTableViewVisible());
+
+            }
+        };
+
+        m_overviewListener = new ActionListener() {
+
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                if (getComponent() == m_cellView) {
+                    if (m_cellView.isTableViewVisible()) {
+                        m_cellView.setTableViewVisible(false);
+                    }
+                    setComponent(m_tableView);
+                } else {
+                    // Should not happen.
+                }
+
+            }
+        };
+
+        // Initialize tableView
+
+        m_cellView = new CellView(m_tableView);
+        m_cellView.addTabChangeListener(m_changeListener);
+
+        //        Temporarily add loadpanel as component, so that the ui stays responsive.
         setComponent(loadpanel);
     }
-
 
     protected void loadPortContent() {
         m_tableModel = new TableContentModel();
         m_tableModel.setDataTable(getNodeModel().getInternalTables()[m_portIdx]);
 
         initViewComponents();
-
-
-
 
     }
 
@@ -549,14 +570,14 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
                     .removeListSelectionListener(m_listSelectionListenerB);
         }
 
-        if (m_cellViewTabs != null) {
-            m_cellViewTabs.removeChangeListener(m_changeListener);
+        if (m_cellView != null) {
+            m_cellView.removeTabChangeListener(m_changeListener);
         }
 
         m_cellViews = null;
         m_viewComponents = null;
-        m_cellViewTabs = null;
-        m_sp = null;
+        m_cellView = null;
+
         m_tableContentView = null;
         m_tableModel = null;
         m_currentCell = null;
@@ -577,11 +598,11 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
      */
     protected void tabSelectionChanged() {
 
-        if ((m_cellViewTabs.getSelectedIndex() == -1) || (m_currentCell == null)) {
+        if ((m_cellView.getSelectedIndex() == -1) || (m_currentCell == null)) {
             return;
         }
 
-        m_cellViews.get(m_currentCell.getClass().getCanonicalName()).get(m_cellViewTabs.getSelectedIndex())
+        m_cellViews.get(m_currentCell.getClass().getCanonicalName()).get(m_cellView.getSelectedIndex())
                 .updateComponent(m_currentCell);
 
     }

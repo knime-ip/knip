@@ -110,6 +110,7 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -164,6 +165,10 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
     private JPanel m_infoPanel;
 
     private JPanel m_rightPanel;
+
+    private JButton m_quickViewButton;
+
+    private JButton m_overviewButton;
 
     private int m_currentSlot;
 
@@ -241,6 +246,30 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
         m_leftControl = new JPanel();
         m_leftControl.setLayout(new BorderLayout());
         leftPanel.add(m_leftControl, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 6;
+
+        gbc.weightx = 0;
+        gbc.weighty = 0;
+
+        JPanel tableButtonPanel = new JPanel();
+        tableButtonPanel.setLayout(new BorderLayout());
+        m_quickViewButton = new JButton("Q");
+        tableButtonPanel.add(m_quickViewButton,BorderLayout.CENTER);
+        leftPanel.add(tableButtonPanel, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+
+        gbc.weightx = 0;
+        gbc.weighty = 0;
+
+        JPanel overviewButtonPanel = new JPanel();
+        overviewButtonPanel.setLayout(new BorderLayout());
+        m_overviewButton = new JButton("B");
+        overviewButtonPanel.add(m_overviewButton,BorderLayout.CENTER);
+        leftPanel.add(overviewButtonPanel, gbc);
 
         gbc.gridx = 6;
         gbc.gridy = 4;
@@ -387,6 +416,14 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
     public ViewerComponent[] getControls() {
         return m_controls;
+    }
+
+    public JButton getQuickViewButton() {
+        return m_quickViewButton;
+    }
+
+    public JButton getOverViewButton() {
+        return m_overviewButton;
     }
 
     /**
