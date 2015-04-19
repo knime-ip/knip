@@ -50,34 +50,20 @@ package org.knime.knip.base.nodes.testing.TableCellViewer;
 
 import java.awt.Component;
 import java.awt.Dimension;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ExecutionException;
 
 import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingWorker;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 import org.knime.core.data.DataValue;
 import org.knime.core.node.BufferedDataTableHolder;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeModel;
-import org.knime.core.node.tableview.TableContentView;
-import org.knime.core.node.tableview.TableView;
 import org.knime.knip.base.nodes.view.TableCellView;
 import org.knime.knip.base.nodes.view.TableCellViewNodeView;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
-import org.knime.knip.core.util.waitingindicator.WaitingIndicatorUtils;
 import org.knime.node2012.ViewDocument.View;
 import org.knime.node2012.ViewsDocument.Views;
 
@@ -245,8 +231,8 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
 
             return;
         }
-        final int selection = m_cellViewTabs.getSelectedIndex();
-        m_cellViewTabs.removeAll();
+        final int selection = m_cellView.getSelectedIndex();
+        m_cellView.removeAll();
 
         List<TableCellView> cellView;
 
@@ -264,7 +250,7 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
             // if no cell view exists for the selected cell
             if (cellView.size() == 0) {
                 m_currentCell = null;
-                m_cellViewTabs.addTab("Viewer", new JLabel("This cell type doesn't provide a Table Cell Viewer!"));
+                m_cellView.addTab("Viewer", new JLabel("This cell type doesn't provide a Table Cell Viewer!"));
                 return;
             }
             m_cellViews.put(currentDataCellClass, cellView);
@@ -292,13 +278,13 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
         for (final TableCellView v : cellView) {
 
             try {
-                m_cellViewTabs.addTab(v.getName(), m_viewComponents.get(currentDataCellClass + ":" + v.getName()));
+                m_cellView.addTab(v.getName(), m_viewComponents.get(currentDataCellClass + ":" + v.getName()));
             } catch (final Exception ex) {
                 LOGGER.error("Could not add Tab " + v.getName(), ex);
             }
         }
 
-        m_cellViewTabs.setSelectedIndex(Math.max(0, Math.min(selection, m_cellViewTabs.getTabCount() - 1)));
+        m_cellView.setSelectedIndex(Math.max(0, Math.min(selection, m_cellView.getTabCount() - 1)));
 
     }
 
@@ -309,95 +295,6 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
      */
     protected List<HiddenImageLogger> getImageLogger() {
         return m_logger;
-    }
-
-    @Override
-    protected void initViewComponents() {
-
-        //temporary panel to display loading indicator.
-        final JPanel loadpanel = new JPanel();
-        loadpanel.setPreferredSize(new Dimension(600, 400));
-
-        m_sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-
-        m_tableContentView = new TableContentView();
-
-        m_tableContentView.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-        m_listSelectionListenerA = new ListSelectionListener() {
-            @Override
-            public void valueChanged(final ListSelectionEvent e) {
-                if (e.getValueIsAdjusting()) {
-                    return;
-                }
-                cellSelectionChanged();
-            }
-        };
-
-        m_tableContentView.getSelectionModel().addListSelectionListener(m_listSelectionListenerA);
-        m_listSelectionListenerB = new ListSelectionListener() {
-            @Override
-            public void valueChanged(final ListSelectionEvent e) {
-                if (e.getValueIsAdjusting()) {
-                    return;
-                }
-                cellSelectionChanged();
-            }
-        };
-
-        m_tableContentView.getColumnModel().getSelectionModel().addListSelectionListener(m_listSelectionListenerB);
-        m_tableView = new TableView(m_tableContentView);
-        m_sp.add(m_tableView);
-        m_tableView.setHiLiteHandler(getNodeModel().getInHiLiteHandler(0));
-
-        if (!m_hiliteAdded) {
-            getJMenuBar().add(m_tableView.createHiLiteMenu());
-            m_hiliteAdded = true;
-        }
-
-        m_cellViews = new HashMap<String, List<TableCellView>>();
-        m_viewComponents = new HashMap<String, Component>();
-        m_cellViewTabs = new JTabbedPane();
-
-        // Show waiting indicator and work in background.
-        WaitingIndicatorUtils.setWaiting(loadpanel, true);
-        SwingWorker<T, Integer> worker = new SwingWorker<T, Integer>() {
-
-            @Override
-            protected T doInBackground() throws Exception {
-                m_tableContentView.setModel(m_tableModel);
-                return null;
-            }
-
-            @Override
-            protected void done() {
-                WaitingIndicatorUtils.setWaiting(loadpanel, false);
-                setComponent(m_sp);
-            }
-        };
-
-        worker.execute();
-        try {
-            worker.get();
-        } catch (InterruptedException e1) {
-            //
-        } catch (ExecutionException e1) {
-            //
-        }
-
-        m_changeListener = new ChangeListener() {
-            @Override
-            public void stateChanged(final ChangeEvent e) {
-                tabSelectionChanged();
-            }
-        };
-
-        m_cellViewTabs.addChangeListener(m_changeListener);
-        m_sp.setDividerLocation(250);
-        m_sp.add(m_cellViewTabs);
-
-        //        Temporarily add loadpanel as component, so that the ui stays responsive.
-        setComponent(loadpanel);
     }
 
     /**
@@ -420,13 +317,12 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
                     .removeListSelectionListener(m_listSelectionListenerB);
         }
 
-        if (m_cellViewTabs != null) {
-            m_cellViewTabs.removeChangeListener(m_changeListener);
+        if (m_cellView != null) {
+            m_cellView.removeTabChangeListener(m_changeListener);
         }
 
         m_cellViews = null;
         m_viewComponents = null;
-        m_cellViewTabs = null;
         m_tableContentView = null;
         m_currentCell = null;
         m_logger.clear();
@@ -443,8 +339,8 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
         for (int i = 0; i < m_tableContentView.getRowCount(); ++i) {
             cellSelectionChanged(0, i);
 
-            for (int j = 1; j < m_cellViewTabs.getTabCount(); ++j) {
-                m_cellViewTabs.setSelectedIndex(j);
+            for (int j = 1; j < m_cellView.getTabCount(); ++j) {
+                m_cellView.setSelectedIndex(j);
             }
         }
 
