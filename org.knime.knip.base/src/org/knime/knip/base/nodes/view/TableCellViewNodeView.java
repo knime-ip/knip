@@ -287,8 +287,9 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
      */
     private void cellSelectionChanged(final int row, final int col) {
 
-        // if neither the row nor the column changed, do nothing
+        // if neither the row nor the column changed, switch to view
         if ((row == m_row) && (col == m_col)) {
+            setComponent(m_cellView);
             return;
         }
 
@@ -404,18 +405,64 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
         if (getComponent() != m_cellView) {
             setComponent(m_cellView);
+            m_tableContentView.clearSelection();
         }
 
     }
 
     protected void initViewComponents() {
 
-        //temporary panel to display loading indicator.
+        // Initialize tableView
+        initializeView();
+
+        // Load data into view. Disable a waiting indicator while doing so.
         final JPanel loadpanel = new JPanel();
         loadpanel.setPreferredSize(new Dimension(600, 400));
 
-        // Initialize tableView
+        // Show waiting indicator and work in background.
+        WaitingIndicatorUtils.setWaiting(loadpanel, true);
+        SwingWorker<T, Integer> worker = new SwingWorker<T, Integer>() {
 
+            @Override
+            protected T doInBackground() throws Exception {
+                m_tableContentView.setModel(m_tableModel);
+
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                WaitingIndicatorUtils.setWaiting(loadpanel, false);
+                setComponent(m_tableView);
+            }
+        };
+
+        worker.execute();
+        while (!worker.isDone()) {
+            //do nothing
+        }
+        m_changeListener = new ChangeListener() {
+            @Override
+            public void stateChanged(final ChangeEvent e) {
+                tabSelectionChanged();
+            }
+        };
+
+        initializeListeners();
+
+        // Initialize CellView
+        m_cellView = new CellView(m_tableView);
+
+        m_cellView.addTabChangeListener(m_changeListener);
+
+        //        Temporarily add loadpanel as component, so that the ui stays responsive.
+        setComponent(loadpanel);
+    }
+
+    /**
+     * Creates the underlying TableView and registers it to this dialog.
+     */
+    private void initializeView() {
         m_tableContentView = new TableContentView();
 
         m_tableContentView.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -441,6 +488,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
             }
         };
 
+
         m_tableContentView.getColumnModel().getSelectionModel().addListSelectionListener(m_listSelectionListenerB);
         m_tableView = new TableView(m_tableContentView);
 
@@ -453,37 +501,12 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
         m_cellViews = new HashMap<String, List<TableCellView>>();
         m_viewComponents = new HashMap<String, Component>();
+    }
 
-        // Show waiting indicator and work in background.
-        WaitingIndicatorUtils.setWaiting(loadpanel, true);
-        SwingWorker<T, Integer> worker = new SwingWorker<T, Integer>() {
-
-            @Override
-            protected T doInBackground() throws Exception {
-                m_tableContentView.setModel(m_tableModel);
-
-                return null;
-            }
-
-            @Override
-            protected void done() {
-                WaitingIndicatorUtils.setWaiting(loadpanel, false);
-                //cellSelectionChanged(0,0);
-                setComponent(m_tableView);
-            }
-        };
-
-        worker.execute();
-        while (!worker.isDone()) {
-            //do nothing
-        }
-        m_changeListener = new ChangeListener() {
-            @Override
-            public void stateChanged(final ChangeEvent e) {
-                tabSelectionChanged();
-            }
-        };
-
+    /**
+     * Creates the Listeners used in the displayed views.
+     */
+    private void initializeListeners() {
         m_quickViewListener = new ActionListener() {
 
             @Override
@@ -501,6 +524,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
                     if (m_cellView.isTableViewVisible()) {
                         m_cellView.setTableViewVisible(false);
                     }
+                    m_tableContentView.clearSelection();
                     setComponent(m_tableView);
                 } else {
                     // Should not happen.
@@ -508,14 +532,6 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
             }
         };
-
-        // Initialize tableView
-
-        m_cellView = new CellView(m_tableView);
-        m_cellView.addTabChangeListener(m_changeListener);
-
-        //        Temporarily add loadpanel as component, so that the ui stays responsive.
-        setComponent(loadpanel);
     }
 
     protected void loadPortContent() {

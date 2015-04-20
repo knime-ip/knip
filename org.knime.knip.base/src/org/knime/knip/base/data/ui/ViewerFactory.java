@@ -100,8 +100,9 @@ public class ViewerFactory {
 
         viewer.addViewerComponent(ViewerComponents.MINIMAP.createInstance());
        // viewer.addViewerComponent(ViewerComponents.PLANE_SELECTION.createInstance());
-        viewer.addViewerComponent(ViewerComponents.IMAGE_PROPERTIES.createInstance());
-      //  viewer.doneAdding();
+        viewer.addViewerComponent(new ExpandingPanel("Image Properties",ViewerComponents.IMAGE_PROPERTIES.createInstance()));
+
+        viewer.doneAdding();
 
         return viewer;
     }
@@ -161,15 +162,17 @@ public class ViewerFactory {
 
         viewer.addViewerComponent(ViewerComponents.MINIMAP.createInstance());
 
-        viewer.addViewerComponent(ViewerComponents.PLANE_SELECTION.createInstance());
+       // viewer.addViewerComponent(ViewerComponents.PLANE_SELECTION.createInstance());
 
-        viewer.addViewerComponent(ViewerComponents.RENDERER_SELECTION.createInstance());
+        viewer.addViewerComponent(new ExpandingPanel("Renderer Selection",ViewerComponents.RENDERER_SELECTION.createInstance()));
 
-        viewer.addViewerComponent(ViewerComponents.IMAGE_PROPERTIES.createInstance());
+        viewer.addViewerComponent(new ExpandingPanel("Image Properties",ViewerComponents.IMAGE_PROPERTIES.createInstance()));
 
-        viewer.addViewerComponent(new LabelOptionPanel());
+        viewer.addViewerComponent(new ExpandingPanel("Label Options",new LabelOptionPanel()));
 
-        viewer.addViewerComponent(ViewerComponents.LABEL_FILTER.createInstance());
+        viewer.addViewerComponent(new ExpandingPanel("Label Filter",ViewerComponents.LABEL_FILTER.createInstance()));
+
+        viewer.doneAdding();
 
         return viewer;
     }
