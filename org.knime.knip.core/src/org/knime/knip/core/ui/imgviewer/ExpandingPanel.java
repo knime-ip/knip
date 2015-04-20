@@ -20,19 +20,38 @@ import javax.swing.plaf.basic.BasicArrowButton;
 
 import org.knime.knip.core.ui.event.EventService;
 
+/**
+ * This Class represents a special kind of ViewerComponent intended for the 'toolbar' at the right side of the Viewer.
+ * Its main feature is the ability to show/hide another ViewerComponent.
+ *
+ * @author Andreas Burger, University of Konstance
+ */
 public class ExpandingPanel extends ViewerComponent {
 
+    // The header, displaying a given label
     private JComponent m_header;
 
+    // The wrapped component
     private ViewerComponent m_content;
 
     private boolean isExpanded = false;
 
+    /**
+     * Create a new ExpandingPanel in a collapsed state.
+     * @param name - The name to display in the header
+     * @param content - The {@link ViewerComponent} to wrap
+     */
     public ExpandingPanel(final String name, final ViewerComponent content) {
         this(name, content, false);
 
     }
 
+    /**
+     * Create a new ExpandingPanel with a given title and component. Furthermore, the panel may initially be shown collapsed or expanded.
+     * @param name - The name to display in the header
+     * @param content - The {@link ViewerComponent} to wrap
+     * @param startExpanded - Whether the panel is initially expanded or not
+     */
     public ExpandingPanel(final String name, final ViewerComponent content, final boolean startExpanded) {
         super("", true);
 
@@ -50,6 +69,8 @@ public class ExpandingPanel extends ViewerComponent {
         gbc.weighty = 0;
 
         m_header = Box.createHorizontalBox();
+
+        //TODO Still necessary?
         final BasicArrowButton arrow = new BasicArrowButton(direction) {
 
             /**
@@ -57,13 +78,10 @@ public class ExpandingPanel extends ViewerComponent {
              */
             @Override
             public Dimension getMaximumSize() {
-                // TODO Auto-generated method stub
                 return new Dimension(16, 16);
             }
 
         };
-        //	m_header.setLayout(new BoxLayout(m_header, BoxLayout.X_AXIS));
-        //		m_header.add(Box.createHorizontalGlue());
 
         m_header.add(getDividerPanel());
         m_header.add(Box.createHorizontalStrut(2));
@@ -136,7 +154,7 @@ public class ExpandingPanel extends ViewerComponent {
     }
 
     /**
-     * @return
+     * Creates a new JPanel containing a centered, horizontal line.
      */
     private JPanel getDividerPanel() {
         JSeparator sep = new JSeparator(SwingConstants.HORIZONTAL);
@@ -148,39 +166,6 @@ public class ExpandingPanel extends ViewerComponent {
         p.add(sep, gbc);
         return p;
     }
-
-//    @Override
-//    public Dimension getMaximumSize() {
-//        if (isExpanded) {
-//            int h = m_content.getMaximumSize().height + m_header.getMaximumSize().height + 10;
-//            int w = Integer.MAX_VALUE;
-//            return new Dimension(w, h);
-//        } else {
-//            return m_header.getMaximumSize();
-//        }
-//    }
-//
-//    @Override
-//    public Dimension getMinimumSize() {
-//        if (isExpanded) {
-//            int h = m_content.getMinimumSize().height + m_header.getMinimumSize().height + 10;
-//            int w = getPreferredSize().width;
-//            return new Dimension(w, h);
-//        } else {
-//            return m_header.getMinimumSize();
-//        }
-//    }
-//
-//    @Override
-//    public Dimension getPreferredSize() {
-//        if (isExpanded) {
-//            int h = m_content.getPreferredSize().height + m_header.getPreferredSize().height + 10;
-//            int w = getLayout().preferredLayoutSize(this).width;//super.getPreferredSize().width;
-//            return new Dimension(w, h);
-//        } else {
-//            return m_header.getPreferredSize();
-//        }
-//    }
 
     /**
      * {@inheritDoc}
