@@ -56,7 +56,7 @@ public class DialogComponentLabelingEditorView
 		// of the OverlayAnnotatorView
 		// makes it possible to add the overlays before the input table.
 		SettingsModelLabelEditor model = (SettingsModelLabelEditor)getModel();
-		Map<RowColKey, LabelingEditorChangeTracker> map = model.getTrackerMap();
+		Map<RowColKey, LabelingEditorChangeTracker> map = new HashMap<RowColKey, LabelingEditorChangeTracker>(model.getTrackerMap());
 
 		m_annotatorView.reset();
 		for (RowColKey key : map.keySet()) {
