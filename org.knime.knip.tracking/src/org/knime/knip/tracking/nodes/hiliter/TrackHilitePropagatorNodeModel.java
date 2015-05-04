@@ -333,8 +333,14 @@ public class TrackHilitePropagatorNodeModel extends NodeModel implements
 
             // split the row key into prefix and unique part
             final String rowKey = k.getString();
-            final String lookUpkey = rowKey
-                    .substring(rowKey.lastIndexOf('#') + 1);
+
+            final String lookUpkey;
+            try {
+                lookUpkey = rowKey.substring(rowKey.lastIndexOf('#') + 1);
+            } catch (final StringIndexOutOfBoundsException e) {
+                // the key can't be matched
+                continue;
+            }
 
             // only select rows that are tracks
             if (lookUpkey.startsWith(trackPrefix)) {
@@ -370,9 +376,14 @@ public class TrackHilitePropagatorNodeModel extends NodeModel implements
 
             // split the row key into prefix and unique part
             final String rowKeyString = k.getString();
-            final TrackData data = m_rowIdToTrackData.get(rowKeyString
+            final TrackData data;
+            try {
+                data = m_rowIdToTrackData.get(rowKeyString
                     .substring(0, rowKeyString.lastIndexOf('#')));
-
+            } catch (final StringIndexOutOfBoundsException e) {
+                // the key can't be matched
+                continue;
+            }
             final String lookupKey = rowKeyString.substring(rowKeyString
                     .lastIndexOf('#') + 1);
             if (lookupKey.startsWith(trackPrefix)) {

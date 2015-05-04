@@ -227,6 +227,23 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 		m_metadataMode = EnumUtils.valueForName(
 				m_metadataModeModel.getStringValue(), MetadataMode.values());
 		final ReadFileImgTable<T> tab = new ReadFileImgTable<T>(m_metadataMode);
+
+		String column = m_filenameCol.getStringValue();
+		// optional input configured
+		if (column != null) { 
+			// previously connected`
+			if (inSpecs[0] == null) {
+				throw new InvalidSettingsException(
+						"Optional input is configured but disconected");
+			}
+			// column no longer avaiable
+			if(!inSpecs[0].containsName(m_filenameCol.getStringValue())) {
+				throw new InvalidSettingsException("The configured column: '"
+						+ m_filenameCol.getStringValue()
+						+ "' is no longer avaiable!");
+			}
+		}
+
 		// tab.setDimLabelProperty(m_planeSelect.getDimLabelsAsString());
 		return new DataTableSpec[] { tab.getDataTableSpec() };
 	}
