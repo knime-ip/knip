@@ -121,7 +121,7 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 			.createCustomFileNameModel();
 
 	/*
-	 * output options.
+	 * Output options.
 	 */
 	private final SettingsModelBoolean m_overwrite = ImgWriter2SettingsModels
 			.createOverwriteModel();
@@ -189,8 +189,8 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 		if (m_zMapping.getStringValue().equals(m_cMapping.getStringValue())
 				|| m_zMapping.getStringValue().equals(
 						m_tMapping.getStringValue())
-						|| m_cMapping.getStringValue().equals(
-								m_tMapping.getStringValue())) {
+				|| m_cMapping.getStringValue().equals(
+						m_tMapping.getStringValue())) {
 			throw new InvalidSettingsException(
 					"Dimensions must not be mapped to the same label!");
 		}
