@@ -35,18 +35,18 @@ import net.imglib2.img.basictypeaccess.DoubleAccess;
 import net.imglib2.img.basictypeaccess.array.DoubleArray;
 import net.imglib2.ops.img.BinaryOperationAssignment;
 import net.imglib2.ops.img.UnaryConstantRightAssignment;
-import net.imglib2.ops.operation.iterable.unary.Mean;
+import net.imglib2.ops.img.UnaryOperationAssignment;
 import net.imglib2.ops.operation.iterableinterval.unary.IterableIntervalCopy;
 import net.imglib2.ops.operation.real.binary.RealAdd;
+import net.imglib2.ops.operation.real.binary.RealDivide;
 import net.imglib2.ops.operation.real.binary.RealMultiply;
 import net.imglib2.ops.operation.real.binary.RealPower;
+import net.imglib2.ops.operation.real.unary.RealExp;
 import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.util.Fraction;
 
 /**
  * An implementation of LoG filters.
- *
- * @author Roy Liu, hornm
  */
 public class LaplacianOfGaussian extends ArrayImg<DoubleType, DoubleAccess> {
 
@@ -56,7 +56,7 @@ public class LaplacianOfGaussian extends ArrayImg<DoubleType, DoubleAccess> {
      * @param supportRadius the support radius.
      * @param scale the scale.
      */
-    public LaplacianOfGaussian(final int supportRadius, final double scale) {
+    public LaplacianOfGaussian(final int supportRadius, final double sigma) {
         super(new DoubleArray(ArrayImgFactory.numEntitiesRangeCheck(new long[]{supportRadius * 2 + 1,
                 supportRadius * 2 + 1}, new Fraction(1, 1))), new long[]{supportRadius * 2 + 1, supportRadius * 2 + 1},
                 new Fraction(1, 1));
@@ -67,7 +67,7 @@ public class LaplacianOfGaussian extends ArrayImg<DoubleType, DoubleAccess> {
         // pass it to the NativeContainer
         setLinkedType(linkedType);
 
-        double sigma = (scale * supportRadius) / 3.0f;
+        //double sigma = (scale * supportRadius) / 3.0f;
 
         Img<DoubleType> ptsMatrix = FilterTools.createPointSupport(supportRadius);
 
@@ -85,6 +85,24 @@ public class LaplacianOfGaussian extends ArrayImg<DoubleType, DoubleAccess> {
                 new RealAdd<DoubleType, DoubleType, DoubleType>()).compute(ptsY, ptsX, ptsX);
 
         new UnaryConstantRightAssignment<DoubleType, DoubleType, DoubleType>(
+                new RealDivide<DoubleType, DoubleType, DoubleType>()).compute(ptsX, new DoubleType(-2.0f * sigma * sigma),
+                                                                           ptsX);
+
+        new UnaryOperationAssignment<DoubleType, DoubleType>(new RealExp<DoubleType, DoubleType>()).compute(ptsX, ptsY);
+
+        new UnaryConstantRightAssignment<DoubleType, DoubleType, DoubleType>(
+                new RealAdd<DoubleType, DoubleType, DoubleType>()).compute(ptsX, new DoubleType(1.0), ptsX);
+
+        new UnaryConstantRightAssignment<DoubleType, DoubleType, DoubleType>(
+                new RealDivide<DoubleType, DoubleType, DoubleType>()).compute(ptsX, new DoubleType(- sigma * sigma * sigma * sigma * Math.PI),
+                                                                           ptsX);
+        new BinaryOperationAssignment<DoubleType, DoubleType, DoubleType>(
+                new RealMultiply<DoubleType, DoubleType, DoubleType>()).compute(ptsY, ptsX, ptsX);
+
+        new IterableIntervalCopy<DoubleType>().compute(ptsX, this);
+
+/*
+        new UnaryConstantRightAssignment<DoubleType, DoubleType, DoubleType>(
                 new RealAdd<DoubleType, DoubleType, DoubleType>()).compute(ptsX, new DoubleType(-2.0f * sigma * sigma),
                                                                            ptsX);
 
@@ -101,6 +119,6 @@ public class LaplacianOfGaussian extends ArrayImg<DoubleType, DoubleAccess> {
         new UnaryConstantRightAssignment<DoubleType, DoubleType, DoubleType>(
                 new RealAdd<DoubleType, DoubleType, DoubleType>()).compute(this, new Mean<DoubleType, DoubleType>()
                 .compute(this.cursor(), new DoubleType()), this);
-
+*/
     }
 }

@@ -38,16 +38,14 @@ import net.imglib2.ops.img.UnaryOperationAssignment;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.iterable.unary.Mean;
 import net.imglib2.ops.operation.iterable.unary.Sum;
-import net.imglib2.ops.operation.real.binary.RealAdd;
 import net.imglib2.ops.operation.real.binary.RealMultiply;
+import net.imglib2.ops.operation.real.binary.RealSubtract;
 import net.imglib2.ops.operation.real.unary.RealExp;
 import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.util.Fraction;
 
 /**
- * An implementation of dog filters.
- *
- * @author Roy Liu, hornm
+ * An implementation of derivative of Gaussian filters.
  */
 public class DerivativeOfGaussian extends ArrayImg<DoubleType, DoubleAccess> {
 
@@ -97,7 +95,7 @@ public class DerivativeOfGaussian extends ArrayImg<DoubleType, DoubleAccess> {
 
             case 1:
                 new UnaryConstantRightAssignment<DoubleType, DoubleType, DoubleType>(
-                        new RealAdd<DoubleType, DoubleType, DoubleType>()).compute(this,
+                        new RealSubtract<DoubleType, DoubleType, DoubleType>()).compute(this,
                                                                                    new Mean<DoubleType, DoubleType>()
                                                                                            .compute(this.cursor(),
                                                                                                     new DoubleType()),
