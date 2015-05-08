@@ -130,7 +130,7 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 			.createForceDirCreationModel();
 
 	private final SettingsModelString m_directory = ImgWriter2SettingsModels
-	.createDirectoryModel();
+			.createDirectoryModel();
 
 	private final SettingsModelString m_format = ImgWriter2SettingsModels
 			.createFormatModel();
@@ -186,6 +186,8 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
+
+		// check if dimension mapping is valid
 		if (m_zMapping.getStringValue().equals(m_cMapping.getStringValue())
 				|| m_zMapping.getStringValue().equals(
 						m_tMapping.getStringValue())
@@ -195,18 +197,32 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 					"Dimensions must not be mapped to the same label!");
 		}
 
-		final int colIndex = inSpecs[0].findColumnIndex(m_imgColumn
-				.getStringValue());
-		if (colIndex == -1) {
+		// check if configured filename column is still available
+		String imgNamColumn = m_filenameColumn.getStringValue();
+		if (!imgNamColumn.equals("") // not a newly created node
+				&& !inSpecs[0].containsName(imgNamColumn)) {
+			throw new InvalidSettingsException(
+					"The configured Filename column: '"
+							+ m_filenameColumn.getStringValue()
+							+ "' is no longer avaiable!");
+		}
+
+		// check img column
+		String imgColumn = m_imgColumn.getStringValue();
+		if (imgColumn.equals("")) { // newly created node
 			if ((NodeUtils.autoOptionalColumnSelection(inSpecs[0], m_imgColumn,
 					ImgPlusValue.class)) >= 0) {
 				setWarningMessage("Auto-configure Image Column: "
 						+ m_imgColumn.getStringValue());
 			} else {
-				throw new InvalidSettingsException("No column selected!");
+				throw new InvalidSettingsException("No Image column avaiable!");
 			}
+		} else if (!inSpecs[0].containsName(imgColumn)) {
+			throw new InvalidSettingsException(
+					"The configured Filename column: '"
+							+ m_filenameColumn.getStringValue()
+							+ "' is no longer avaiable!");
 		}
-
 		return null;
 	}
 
@@ -252,6 +268,10 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 				m_imgColumn.getStringValue());
 		final String format = m_format.getStringValue();
 		final String compression = m_compression.getStringValue();
+		String directory = folderPath.toString();
+		if (!directory.endsWith("/")) { // fix directory path
+			directory += "/";
+		}
 
 		/* File name number magic */
 	
@@ -264,26 +284,28 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 		ImgPlus<T> img;
 		String outfile;
 		boolean error = false;
-		String directory = folderPath.toString();
-		if (!directory.endsWith("/")) { // fix directory path
-			directory += "/";
-		}
+
+		final ImgWriter2 writer = new ImgWriter2();
+		writer.setFramesPerSecond(m_frameRate.getIntValue());
 
 		for (DataRow row : inData[0]) {
-			final ImgWriter2 w = new ImgWriter2();
-			w.setFramesPerSecond(m_frameRate.getIntValue());
-
 			if (useCustomName) {
 				outfile = directory + customName
 						+ String.format(digitStringFormat, imgCount);
 			} else if (nameColIndex == -1) {
 				outfile = directory + row.getKey().getString();
-			} else {
-				outfile = directory
-						+ ((StringValue) row.getCell(nameColIndex))
-						.getStringValue();
+			} else { // file name column configured
+				try {
+					outfile = directory
+							+ ((StringValue) row.getCell(nameColIndex))
+									.getStringValue();
+				} catch (ClassCastException e) {
+					throw new IllegalArgumentException(
+							"Missing value in the filename column in row: "
+									+ row.getKey());
+				}
 			}
-			outfile += "." + w.getSuffix(format);
+			outfile += "." + writer.getSuffix(format);
 
 			final File f = new File(outfile);
 			if (f.exists()) {
@@ -298,7 +320,13 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 				}
 			}
 
-			img = ((ImgPlusValue<T>) row.getCell(imgColIndex)).getImgPlus();
+			try {
+				img = ((ImgPlusValue<T>) row.getCell(imgColIndex)).getImgPlus();
+			} catch (ClassCastException e) {
+				throw new IllegalArgumentException(
+						"Missing value in the img column in row: "
+								+ row.getKey());
+			}
 
 			// create dimensions mapping
 			final int[] map = new int[] { -1, -1, -1 };
@@ -318,7 +346,7 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 			}
 
 			try {
-				w.writeImage(img, outfile, format, compression, map);
+				writer.writeImage(img, outfile, format, compression, map);
 
 			} catch (final FormatException e) {
 				LOGGER.error(

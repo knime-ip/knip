@@ -113,7 +113,7 @@ public class ImgWriter2 {
 	 */
 	private final SCIFIO SCIFIO = ScifioGateway.getSCIFIO();
 
-	/* helper to get the list of the supported writers */
+	/* helper to get the list of supported writers */
 	private void retrieveSupportedWriters() {
 
 		if (m_mapFormats == null) {
@@ -127,16 +127,13 @@ public class ImgWriter2 {
 			m_mapFormats = new HashMap<String, Format>();
 
 			int i = 0;
-			final Iterator<Format> it = outFormats.iterator();
-			while (it.hasNext()) {
-				final Format f = it.next();
+			for( Format f : outFormats){	
 				m_writers[i] = f.getClass().getSimpleName()
 						.replace("Format", "")
 						+ " (" + f.getSuffixes()[0] + ")";
 				m_mapFormats.put(m_writers[i], f);
 				i++;
 			}
-
 		}
 	}
 
