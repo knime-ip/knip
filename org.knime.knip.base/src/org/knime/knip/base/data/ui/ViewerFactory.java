@@ -168,9 +168,11 @@ public class ViewerFactory {
 
         viewer.addViewerComponent(new ExpandingPanel("Image Properties",ViewerComponents.IMAGE_PROPERTIES.createInstance()));
 
+        viewer.addViewerComponent(new ExpandingPanel("Label Filter",ViewerComponents.LABEL_FILTER.createInstance(), true));
+
         viewer.addViewerComponent(new ExpandingPanel("Label Options",new LabelOptionPanel()));
 
-        viewer.addViewerComponent(new ExpandingPanel("Label Filter",ViewerComponents.LABEL_FILTER.createInstance()));
+
 
         viewer.doneAdding();
 
