@@ -278,7 +278,6 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         { /*scope for object pair finding */
             ArrayList<int[]> points = new ArrayList<int[]>();
 
-            int squaredDistanceThreshold = m_seedDistanceThreshold * m_seedDistanceThreshold;
             boolean found = false;
 
             NeighborhoodsAccessible<LabelingType<String>> raNeighWatershed =
@@ -303,7 +302,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
                     final double diffY =
                             (iCenter[1] + iPoly.getBounds2D().getY()) - (jCenter[1] + jPoly.getBounds2D().getY());
 
-                    if ((diffX * diffX + diffY * diffY) < squaredDistanceThreshold) {
+                    if ((diffX * diffX + diffY * diffY) < m_seedDistanceThreshold) {
                         found = false; //reset flag
 
                         // find two points close to each other
