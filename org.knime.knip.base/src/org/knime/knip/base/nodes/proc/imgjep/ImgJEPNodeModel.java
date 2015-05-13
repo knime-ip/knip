@@ -448,6 +448,7 @@ public class ImgJEPNodeModel extends NodeModel implements BufferedDataTableHolde
     /** {@inheritDoc} */
     @Override
     protected void reset() {
+        m_data = null;
     }
 
     /** {@inheritDoc} */
