@@ -105,11 +105,13 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -293,7 +295,9 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
         JPanel tableButtonPanel = new JPanel();
         tableButtonPanel.setLayout(new BorderLayout());
-        m_quickViewButton = new JButton("Q");
+        ImageIcon i =  new ImageIcon(this.getClass().getResource("/icons/tableOut.png"));
+        m_quickViewButton = new JButton(new ImageIcon(i.getImage().getScaledInstance(32, 16, java.awt.Image.SCALE_SMOOTH)));
+        m_quickViewButton.setMnemonic(KeyEvent.VK_Q);
         tableButtonPanel.add(m_quickViewButton,BorderLayout.CENTER);
         leftPanel.add(tableButtonPanel, gbc);
 
@@ -302,7 +306,9 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
         JPanel overviewButtonPanel = new JPanel();
         overviewButtonPanel.setLayout(new BorderLayout());
-        m_overviewButton = new JButton("B");
+        i =  new ImageIcon(this.getClass().getResource("/icons/backarrow.png"));
+        m_overviewButton = new JButton(new ImageIcon(i.getImage().getScaledInstance(32, 16, java.awt.Image.SCALE_SMOOTH)));
+        m_overviewButton.setMnemonic(KeyEvent.VK_B);
         overviewButtonPanel.add(m_overviewButton,BorderLayout.CENTER);
         leftPanel.add(overviewButtonPanel, gbc);
 

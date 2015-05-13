@@ -51,6 +51,8 @@ package org.knime.knip.core.ui.imgviewer.panels;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -167,7 +169,17 @@ public class LabelFilterPanel<L> extends ViewerComponent {
 
     public LabelFilterPanel(final boolean enableHilite) {
         super("Labels/Filter", false);
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        setLayout(new GridBagLayout());
+
+        gbc.gridx = 0;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = 1;
+        gbc.weightx = 1;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.fill = GridBagConstraints.BOTH;
 
         m_ruleFilter = new RulebasedLabelFilter<L>();
         m_hiliteFilter = new NameSetbasedLabelFilter<L>(false);
@@ -223,7 +235,7 @@ public class LabelFilterPanel<L> extends ViewerComponent {
         });
 
         m_scrollPane = new JScrollPane(m_jLabelList);
-        m_scrollPane.setPreferredSize(new Dimension(150, 1));
+      //  m_scrollPane.setPreferredSize(new Dimension(150, 1));
 
         final JPanel confirmationPanel = new JPanel();
         confirmationPanel.setLayout(new BoxLayout(confirmationPanel, BoxLayout.X_AXIS));
@@ -252,17 +264,19 @@ public class LabelFilterPanel<L> extends ViewerComponent {
 
         m_operatorBox = new JComboBox(RulebasedLabelFilter.Operator.values());
         m_operatorBox.setSize(new Dimension(40, 22));
-        m_operatorBox.setMaximumSize(new Dimension(40, 22));
+        //m_operatorBox.setMaximumSize(new Dimension(40, 22));
 
         confirmationPanel.add(addButton);
         confirmationPanel.add(m_operatorBox);
         confirmationPanel.add(filterButton);
 
         m_filters = new JScrollPane(m_textFieldsPanel);
-        add(m_filterTabbs);
+        add(m_filterTabbs, gbc);
         m_filterTabbs.add("Labels", m_scrollPane);
         m_filterTabbs.add("Filter Rules", m_filters);
-        add(confirmationPanel);
+
+        gbc.gridheight = GridBagConstraints.REMAINDER;
+        add(confirmationPanel, gbc);
 
         if (enableHilite) {
             m_hilitedLabels = new HashSet<String>();
