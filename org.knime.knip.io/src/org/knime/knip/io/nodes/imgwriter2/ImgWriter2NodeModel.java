@@ -52,6 +52,8 @@ import io.scif.FormatException;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -77,6 +79,8 @@ import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelColumnName;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.node.util.CheckUtils;
+import org.knime.core.util.FileUtil;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.NodeUtils;
 
@@ -117,7 +121,7 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 			.createCustomFileNameModel();
 
 	/*
-	 * output options.
+	 * Output options.
 	 */
 	private final SettingsModelBoolean m_overwrite = ImgWriter2SettingsModels
 			.createOverwriteModel();
@@ -126,7 +130,7 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 			.createForceDirCreationModel();
 
 	private final SettingsModelString m_directory = ImgWriter2SettingsModels
-	.createDirectoryModel();
+			.createDirectoryModel();
 
 	private final SettingsModelString m_format = ImgWriter2SettingsModels
 			.createFormatModel();
@@ -182,27 +186,43 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
+
+		// check if dimension mapping is valid
 		if (m_zMapping.getStringValue().equals(m_cMapping.getStringValue())
 				|| m_zMapping.getStringValue().equals(
 						m_tMapping.getStringValue())
-						|| m_cMapping.getStringValue().equals(
-								m_tMapping.getStringValue())) {
+				|| m_cMapping.getStringValue().equals(
+						m_tMapping.getStringValue())) {
 			throw new InvalidSettingsException(
 					"Dimensions must not be mapped to the same label!");
 		}
 
-		final int colIndex = inSpecs[0].findColumnIndex(m_imgColumn
-				.getStringValue());
-		if (colIndex == -1) {
+		// check if configured filename column is still available
+		String imgNamColumn = m_filenameColumn.getStringValue();
+		if (!imgNamColumn.equals("") // not a newly created node
+				&& !inSpecs[0].containsName(imgNamColumn)) {
+			throw new InvalidSettingsException(
+					"The configured Filename column: '"
+							+ m_filenameColumn.getStringValue()
+							+ "' is no longer avaiable!");
+		}
+
+		// check img column
+		String imgColumn = m_imgColumn.getStringValue();
+		if (imgColumn.equals("")) { // newly created node
 			if ((NodeUtils.autoOptionalColumnSelection(inSpecs[0], m_imgColumn,
 					ImgPlusValue.class)) >= 0) {
 				setWarningMessage("Auto-configure Image Column: "
 						+ m_imgColumn.getStringValue());
 			} else {
-				throw new InvalidSettingsException("No column selected!");
+				throw new InvalidSettingsException("No Image column avaiable!");
 			}
+		} else if (!inSpecs[0].containsName(imgColumn)) {
+			throw new InvalidSettingsException(
+					"The configured Filename column: '"
+							+ m_filenameColumn.getStringValue()
+							+ "' is no longer avaiable!");
 		}
-
 		return null;
 	}
 
@@ -214,27 +234,20 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
 
-		if (m_directory.getStringValue().equals("")) {
-			throw new InvalidSettingsException("No output path selected");
-		}
+		// check and locate target folder
+		CheckUtils.checkDestinationDirectory(m_directory.getStringValue());
+		Path folderPath = FileUtil.resolveToPath(FileUtil.toURL(m_directory
+				.getStringValue()));
 
-		final int imgColIndex = inData[0].getDataTableSpec().findColumnIndex(
-				m_imgColumn.getStringValue());
-		final String format = m_format.getStringValue();
-		final String compression = m_compression.getStringValue();
-		String directory = m_directory.getStringValue();
-		if (!directory.endsWith("/")) {
-			directory += "/";
-		}
-
-		final File tempFile = new File(directory);
-		if (!tempFile.exists()) {
+		// handle target folder
+		final File folderFile = folderPath.toFile();
+		if (!folderFile.exists()) {
 			if (m_forceMkdir.getBooleanValue()) {
 				try {
-					LOGGER.warn("Creating directory: " + directory);
-					FileUtils.forceMkdir(new File(directory));
+					LOGGER.warn("Creating directory: " + folderPath);
+					FileUtils.forceMkdir(folderFile);
 				} catch (final IOException e1) {
-					LOGGER.error("Selected Path " + directory
+					LOGGER.error("Selected Path " + folderPath
 							+ " is not a directory");
 					throw new IOException(
 							"Directory unreachable or file exists with the same name");
@@ -245,43 +258,54 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 			}
 		}
 
+		// loop constants
 		final boolean overwrite = m_overwrite.getBooleanValue();
 		final boolean useCustomName = m_customNameOption.getBooleanValue();
 		final String customName = m_customFileName.getStringValue();
-
-		/* File name number magic */
-		// get number of digits needed for padding
-		final int digits = (int) Math.log10(inData[0].getRowCount()) + 1;
-		final String stringformat = "%0" + digits + "d";
-		int imgCount = 0;
-
 		final int nameColIndex = inData[0].getDataTableSpec().findColumnIndex(
 				m_filenameColumn.getStringValue());
+		final int imgColIndex = inData[0].getDataTableSpec().findColumnIndex(
+				m_imgColumn.getStringValue());
+		final String format = m_format.getStringValue();
+		final String compression = m_compression.getStringValue();
+		String directory = folderPath.toString();
+		if (!directory.endsWith("/")) { // fix directory path
+			directory += "/";
+		}
 
-		final CloseableRowIterator it = inData[0].iterator();
+		/* File name number magic */
+	
+		// get number of digits needed for padding
+		final int digits = (int) Math.log10(inData[0].getRowCount()) + 1;
+		final String digitStringFormat = "%0" + digits + "d";
+		int imgCount = 0;
 
 		// loop variables
 		ImgPlus<T> img;
-		DataRow row;
 		String outfile;
 		boolean error = false;
 
-		while (it.hasNext()) {
-			row = it.next();
-			final ImgWriter2 w = new ImgWriter2();
-			w.setFramesPerSecond(m_frameRate.getIntValue());
+		final ImgWriter2 writer = new ImgWriter2();
+		writer.setFramesPerSecond(m_frameRate.getIntValue());
 
+		for (DataRow row : inData[0]) {
 			if (useCustomName) {
 				outfile = directory + customName
-						+ String.format(stringformat, imgCount);
+						+ String.format(digitStringFormat, imgCount);
 			} else if (nameColIndex == -1) {
 				outfile = directory + row.getKey().getString();
-			} else {
-				outfile = directory
-						+ ((StringValue) row.getCell(nameColIndex))
-						.getStringValue();
+			} else { // file name column configured
+				try {
+					outfile = directory
+							+ ((StringValue) row.getCell(nameColIndex))
+									.getStringValue();
+				} catch (ClassCastException e) {
+					throw new IllegalArgumentException(
+							"Missing value in the filename column in row: "
+									+ row.getKey());
+				}
 			}
-			outfile += "." + w.getSuffix(format);
+			outfile += "." + writer.getSuffix(format);
 
 			final File f = new File(outfile);
 			if (f.exists()) {
@@ -296,7 +320,13 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 				}
 			}
 
-			img = ((ImgPlusValue<T>) row.getCell(imgColIndex)).getImgPlus();
+			try {
+				img = ((ImgPlusValue<T>) row.getCell(imgColIndex)).getImgPlus();
+			} catch (ClassCastException e) {
+				throw new IllegalArgumentException(
+						"Missing value in the img column in row: "
+								+ row.getKey());
+			}
 
 			// create dimensions mapping
 			final int[] map = new int[] { -1, -1, -1 };
@@ -316,7 +346,7 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 			}
 
 			try {
-				w.writeImage(img, outfile, format, compression, map);
+				writer.writeImage(img, outfile, format, compression, map);
 
 			} catch (final FormatException e) {
 				LOGGER.error(
