@@ -134,7 +134,6 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 						m_currentIt++;
 						return hasNext();
 					}
-
 				}
 
 				@Override
@@ -161,7 +160,7 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 	/* data table for the table cell viewer */
 	private BufferedDataTable m_data;
 
-	private final SettingsModelString m_filenameCol = ImgReaderSettingsModels
+	private final SettingsModelString m_filenameColumn = ImgReaderSettingsModels
 			.createFilenameColumnModel();
 
 	/*
@@ -207,7 +206,7 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 		m_settingsCollection = new ArrayList<SettingsModel>();
 		m_settingsCollection.add(m_files);
 		m_settingsCollection.add(m_planeSelect);
-		m_settingsCollection.add(m_filenameCol);
+		m_settingsCollection.add(m_filenameColumn);
 		m_settingsCollection.add(m_completePathRowKey);
 		m_settingsCollection.add(m_checkFileFormat);
 
@@ -228,18 +227,18 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 				m_metadataModeModel.getStringValue(), MetadataMode.values());
 		final ReadFileImgTable<T> tab = new ReadFileImgTable<T>(m_metadataMode);
 
-		String column = m_filenameCol.getStringValue();
+		String column = m_filenameColumn.getStringValue();
 		// optional input configured
-		if (column != null) { 
+		if (!column.equals("")) { 
 			// previously connected`
 			if (inSpecs[0] == null) {
 				throw new InvalidSettingsException(
 						"Optional input is configured but disconected");
 			}
 			// column no longer avaiable
-			if(!inSpecs[0].containsName(m_filenameCol.getStringValue())) {
+			if(!inSpecs[0].containsName(m_filenameColumn.getStringValue())) {
 				throw new InvalidSettingsException("The configured column: '"
-						+ m_filenameCol.getStringValue()
+						+ m_filenameColumn.getStringValue()
 						+ "' is no longer avaiable!");
 			}
 		}
@@ -266,7 +265,7 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 
 		if (inData[0] != null) {
 			final int colIdx = inData[0].getDataTableSpec().findColumnIndex(
-					m_filenameCol.getStringValue());
+					m_filenameColumn.getStringValue());
 			if (colIdx >= 0) {
 				tableImgList = new Iterable<String>() {
 					@Override
@@ -298,7 +297,6 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 						};
 					}
 				};
-
 			}
 
 		}
