@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2013
+ *  Copyright (C) 2003 - 2015
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -178,7 +178,8 @@ class LaplacianOfGaussianSetting extends SerializableSetting<Img<DoubleType>[]> 
 
     @Override
     public Img<DoubleType>[] get() {
-        return new Img[]{new LaplacianOfGaussian(m_supportRadius, m_sigma)};
+        // Arguments are supportRadius, Sigma, and number of dimensions.
+        return new Img[]{LaplacianOfGaussian.create(m_supportRadius, m_sigma, 4)};
     }
 
 }
