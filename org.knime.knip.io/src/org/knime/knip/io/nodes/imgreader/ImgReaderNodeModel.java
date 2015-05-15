@@ -229,7 +229,7 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 
 		String column = m_filenameColumn.getStringValue();
 		// optional input configured
-		if (!column.equals("")) { 
+		if (column != null && !column.equals("")) { 
 			// previously connected`
 			if (inSpecs[0] == null) {
 				throw new InvalidSettingsException(
