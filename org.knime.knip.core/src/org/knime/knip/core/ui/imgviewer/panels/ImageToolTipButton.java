@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2013
+ *  Copyright (C) 2003 - 2015
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -43,105 +43,44 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
+ * Created on May 15, 2015 by pop210958
  */
 package org.knime.knip.core.ui.imgviewer.panels;
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
+import java.awt.Image;
 
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.SwingConstants;
+import javax.swing.JToolTip;
 import javax.swing.plaf.basic.BasicArrowButton;
 
-import org.knime.knip.core.ui.event.EventService;
-import org.knime.knip.core.ui.imgviewer.ViewerComponent;
+/**
+ *
+ * @author pop210958
+ */
+public class ImageToolTipButton extends BasicArrowButton {
 
-public class ControlPanel extends ViewerComponent {
+    private Image m_img;
 
     /**
-     *
+     * @param direction
      */
-    private static final long serialVersionUID = 1L;
-
-    private final Position m_Position;
-
-    private final BasicArrowButton m_button;
-
-    public ControlPanel(final Position pos) {
-        super("", false);
-
-        m_Position = pos;
-        m_button = new ImageToolTipButton(SwingConstants.SOUTH);
-
-        if(pos == Position.WEST)
-        {
-            // Y
-            setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-            m_button.setDirection(SwingConstants.WEST);
-            add(m_button);
-            setAlignmentY(Component.CENTER_ALIGNMENT);
-        }
-        else if(pos == Position.EAST)
-        {
-         // X
-            setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-            m_button.setDirection(SwingConstants.EAST);
-            add(m_button);
-        }
-        else if(pos == Position.NORTH)
-        {
-         // X
-            setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-            m_button.setDirection(SwingConstants.NORTH);
-            add(m_button);
-        }
-        else if(pos == Position.SOUTH)
-        {
-         // X
-            setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-            m_button.setDirection(SwingConstants.SOUTH);
-            add(m_button);
-        }
-        setPreferredSize(new Dimension(20, 20));
-        setMinimumSize(getPreferredSize());
-
+    public ImageToolTipButton(final int direction) {
+        super(direction);
     }
 
-
-
-    @Override
-    public Position getPosition() {
-        return m_Position;
-    }
-
-    public JButton getButton()
+    public void setToolTipImage(final Image img)
     {
-        return m_button;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setEventService(final EventService eventService) {
-        eventService.subscribe(this);
-
+        m_img = img;
+        this.setToolTipText("");
     }
 
     @Override
-    public void saveComponentConfiguration(final ObjectOutput out) throws IOException {
-        // Nothing to do here
-    }
-
-    @Override
-    public void loadComponentConfiguration(final ObjectInput in) throws IOException {
-        // Nothing to do here
-    }
+    public JToolTip createToolTip() {
+        if(m_img != null) {
+            return new ImageToolTip(m_img);
+        }
+        return null;
+      }
 
 }

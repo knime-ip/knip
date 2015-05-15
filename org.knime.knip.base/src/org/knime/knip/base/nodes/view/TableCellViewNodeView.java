@@ -57,7 +57,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
@@ -76,9 +75,12 @@ import org.knime.core.node.NodeView;
 import org.knime.core.node.tableview.TableContentModel;
 import org.knime.core.node.tableview.TableContentView;
 import org.knime.core.node.tableview.TableView;
+import org.knime.knip.base.data.img.ImgPlusCell;
+import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.ui.imgviewer.ViewerComponent;
 import org.knime.knip.core.ui.imgviewer.panels.ControlPanel;
+import org.knime.knip.core.ui.imgviewer.panels.ImageToolTipButton;
 import org.knime.knip.core.util.waitingindicator.WaitingIndicatorUtils;
 import org.knime.node.v210.ViewDocument.View;
 import org.knime.node.v210.ViewsDocument.Views;
@@ -282,6 +284,11 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         cellSelectionChanged(row, col);
     }
 
+    private boolean cellExists(final int row, final int col)
+    {
+        return (col >= 0 && col < m_tableModel.getColumnCount() && row >= 0 && row < m_tableModel.getRowCount());
+    }
+
     /*
      * called if the selected cell changes
      */
@@ -304,11 +311,14 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         m_col = col;
 
         final int selection = m_cellView.getSelectedIndex();
-        m_cellView.removeAllTabs();
-
         List<TableCellView> cellView;
 
+
         final String currentDataCellClass = m_currentCell.getClass().getCanonicalName();
+        boolean isLabeling = false;
+        if(m_tableModel.getValueAt(row, col) instanceof LabelingCell) {
+            isLabeling = true;
+        }
 
         // cache cell view
         if ((cellView = m_cellViews.get(currentDataCellClass)) == null) {
@@ -325,7 +335,6 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
             }
             m_cellViews.put(currentDataCellClass, cellView);
             for (final TableCellView v : cellView) {
-
                 // cache the view component
                 final Component comp = v.getViewComponent();
                 if (v.getViewComponent() instanceof ImgViewer) {
@@ -333,7 +342,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
                     ImgViewer vc = (ImgViewer)v.getViewComponent();
                     ViewerComponent[] ctrls = vc.getControls();
                     for (int i = 0; i < 4; ++i) {
-                        JButton b = ((ControlPanel)ctrls[i]).getButton();
+                        ImageToolTipButton b = (ImageToolTipButton)((ControlPanel)ctrls[i]).getButton();
                         if (i == 0) {
                             b.addActionListener(new ActionListener() {
 
@@ -357,6 +366,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
                                 }
 
                             });
+
                         }
                         if (i == 2) {
                             b.addActionListener(new ActionListener() {
@@ -396,6 +406,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         for (final TableCellView v : cellView) {
             try {
                 m_cellView.addTab(v.getName(), m_viewComponents.get(currentDataCellClass + ":" + v.getName()));
+                updateToolTips(row, col, isLabeling, v);
             } catch (final Exception ex) {
                 LOGGER.error("Could not add Tab " + v.getName(), ex);
             }
@@ -408,6 +419,63 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
             m_tableContentView.clearSelection();
         }
 
+    }
+
+    /**
+     * @param row
+     * @param col
+     * @param isLabeling
+     * @param v
+     */
+    private void updateToolTips(final int row, final int col, final boolean isLabeling, final TableCellView v) {
+        if (v.getViewComponent() instanceof ImgViewer) {
+            // Register buttons
+            ImgViewer vc = (ImgViewer)v.getViewComponent();
+            ViewerComponent[] ctrls = vc.getControls();
+            for (int i = 0; i < 4; ++i) {
+                ImageToolTipButton b = (ImageToolTipButton)((ControlPanel)ctrls[i]).getButton();
+                if (i == 0) {
+                    if(cellExists(m_row+1, col)) {
+                        if(!isLabeling) {
+                            b.setToolTipImage(((ImgPlusCell)m_tableModel.getValueAt(m_row+1, col)).getThumbnail(null));
+                        } else {
+                            b.setToolTipImage(((LabelingCell)m_tableModel.getValueAt(m_row+1, col)).getThumbnail(null));
+                        }
+                    }
+                }
+                if (i == 1) {
+
+                    if(cellExists(row, col-1)) {
+                        if(!isLabeling) {
+                            b.setToolTipImage(((ImgPlusCell)m_tableModel.getValueAt(row, col-1)).getThumbnail(null));
+                        } else {
+                            b.setToolTipImage(((LabelingCell)m_tableModel.getValueAt(row, col-1)).getThumbnail(null));
+                        }
+                    }
+                }
+                if (i == 2) {
+
+                    if(cellExists(row, col+1)) {
+                        if(!isLabeling) {
+                            b.setToolTipImage(((ImgPlusCell)m_tableModel.getValueAt(row, col+1)).getThumbnail(null));
+                        } else {
+                            b.setToolTipImage(((LabelingCell)m_tableModel.getValueAt(row, col+1)).getThumbnail(null));
+                        }
+                    }
+                }
+                if (i == 3) {
+
+                    if(cellExists(m_row-1, col)) {
+                        if(!isLabeling) {
+                            b.setToolTipImage(((ImgPlusCell)m_tableModel.getValueAt(m_row-1, col)).getThumbnail(null));
+                        } else {
+                            b.setToolTipImage(((LabelingCell)m_tableModel.getValueAt(m_row-1, col)).getThumbnail(null));
+                        }
+                    }
+                }
+
+            }
+        }
     }
 
     protected void initViewComponents() {
