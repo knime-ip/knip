@@ -168,7 +168,7 @@ public class LabelFilterPanel<L> extends ViewerComponent {
     }
 
     public LabelFilterPanel(final boolean enableHilite) {
-        super("Labels/Filter", false);
+        super("Labels/Filter", true);
 
         GridBagConstraints gbc = new GridBagConstraints();
 
