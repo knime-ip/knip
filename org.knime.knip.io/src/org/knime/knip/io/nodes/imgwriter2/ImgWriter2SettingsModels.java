@@ -118,4 +118,11 @@ final class ImgWriter2SettingsModels {
     static SettingsModelString createTimeMappingModel() {
         return new SettingsModelString("t_dim_mapping_key", "Time");
     }
+
+    /**
+     * @return Model to store the if the writers should write sequentially.
+     */
+	static SettingsModelBoolean createWriteSequentiallyModel() {
+		return new SettingsModelBoolean("write_sequential_key", true);
+	}
 }

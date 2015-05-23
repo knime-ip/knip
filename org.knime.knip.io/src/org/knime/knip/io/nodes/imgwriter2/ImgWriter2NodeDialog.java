@@ -204,7 +204,9 @@ public class ImgWriter2NodeDialog extends DefaultNodeSettingsPane {
         addDialogComponent(new DialogComponentNumber(
                 ImgWriter2SettingsModels.createFrameRateModel(),
                 "Frames per second (if applicable)", 1));
-
+		addDialogComponent(new DialogComponentBoolean(
+				ImgWriter2SettingsModels.createWriteSequentiallyModel(),
+				"Write files sequentially"));
     }
 
     /* called, when another format was selected */

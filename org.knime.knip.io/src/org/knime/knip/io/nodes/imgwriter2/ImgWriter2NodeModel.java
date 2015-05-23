@@ -141,6 +141,9 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 	private final SettingsModelInteger m_frameRate = ImgWriter2SettingsModels
 			.createFrameRateModel();
 
+	private SettingsModelBoolean m_writeSequentially = ImgWriter2SettingsModels
+			.createWriteSequentiallyModel();
+
 	/*
 	 * MAPPING SETTINGS MODELS.
 	 */
@@ -285,8 +288,9 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 		String outfile;
 		boolean error = false;
 
-		final ImgWriter2 writer = new ImgWriter2();
-		writer.setFramesPerSecond(m_frameRate.getIntValue());
+		final ImgWriter2 writer = new ImgWriter2().setWriteSequantially(
+				m_writeSequentially.getBooleanValue()).setFramesPerSecond(
+				m_frameRate.getIntValue());
 
 		for (DataRow row : inData[0]) {
 			if (useCustomName) {
