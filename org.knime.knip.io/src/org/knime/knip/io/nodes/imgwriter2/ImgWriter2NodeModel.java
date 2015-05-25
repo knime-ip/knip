@@ -238,7 +238,15 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 			final ExecutionContext exec) throws Exception {
 
 		// check and locate target folder
-		CheckUtils.checkDestinationDirectory(m_directory.getStringValue());
+		try {
+			CheckUtils.checkDestinationDirectory(m_directory.getStringValue());
+		} catch (InvalidSettingsException e) {
+			// allow creation of nonexistent directories if set in the options.
+			if (!e.getMessage().endsWith("does not exist")
+					|| !m_forceMkdir.getBooleanValue()) {
+				throw e;
+			}
+		}
 		Path folderPath = FileUtil.resolveToPath(FileUtil.toURL(m_directory
 				.getStringValue()));
 
