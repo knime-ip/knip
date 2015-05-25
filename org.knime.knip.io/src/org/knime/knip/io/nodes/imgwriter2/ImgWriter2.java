@@ -276,15 +276,14 @@ public class ImgWriter2 {
 		} else {
 			map = dimMapping.clone();
 		}
-
+		
 		// get the number of channels
 		int sizeC = (img.numDimensions() > map[1]) && (map[1] != -1) ? (int) img
 				.dimension(2 + map[1]) : 1;
 		if (sizeC > 3) {
-			LOGGER.warn("Image has more than 3 channels. These channels will be ignored.");
-//			sizeC = 3;
+			LOGGER.warn("Image has more than 3 channels. These channels might be ignored my some formats.");
 		}
-
+		
 		final int sizeT = (img.numDimensions() > map[2]) && (map[2] != -1) ? (int) img
 				.dimension(2 + map[2]) : 1;
 
