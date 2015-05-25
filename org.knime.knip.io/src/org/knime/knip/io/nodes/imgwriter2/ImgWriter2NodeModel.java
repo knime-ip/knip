@@ -199,7 +199,7 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 
 		// check if configured filename column is still available
 		String imgNamColumn = m_filenameColumn.getStringValue();
-		if (!imgNamColumn.equals("") // not a newly created node
+		if (imgNamColumn!= null && !imgNamColumn.equals("") // not a newly created node
 				&& !inSpecs[0].containsName(imgNamColumn)) {
 			throw new InvalidSettingsException(
 					"The configured Filename column: '"
