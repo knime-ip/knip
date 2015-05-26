@@ -195,7 +195,7 @@ public class ImgWriter2NodeDialog extends DefaultNodeSettingsPane {
                 Arrays.asList(labels)));
         addDialogComponent(new DialogComponentStringSelection(
                 ImgWriter2SettingsModels.createChannelMappingModel(),
-                "Channel label (max. 3 channels used)", Arrays.asList(labels)));
+                "Channel label", Arrays.asList(labels)));
         addDialogComponent(new DialogComponentStringSelection(
                 ImgWriter2SettingsModels.createTimeMappingModel(),
                 "Time label", Arrays.asList(labels)));
