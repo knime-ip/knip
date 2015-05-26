@@ -130,8 +130,6 @@ public class MinimapPanel extends ViewerComponent {
 
     public MinimapPanel() {
         super("Minimap", false);
-//        super("", true);
-         //setPreferredSize(new Dimension(160, getPreferredSize().height));
 
         setLayout(new BorderLayout());
 
@@ -292,7 +290,6 @@ public class MinimapPanel extends ViewerComponent {
         setMinimumSize(new Dimension(200, 200));
         setPreferredSize(new Dimension(250,250));
         validate();
-        System.out.println(getMaximumSize());
     }
 
     @EventListener

@@ -89,7 +89,11 @@ public class ViewerFactory {
     public static <T extends RealType<T>> ImgViewer createHistViewer(final int cacheSize) {
         final ImgViewer viewer = new ImgViewer();
 
-        viewer.addViewerComponent(new AWTImageProvider(cacheSize, new HistogramRU<T>(512)));
+        final AWTImageProvider histProvider = new AWTImageProvider(cacheSize, new HistogramRU<T>(512));
+        histProvider.setEventService(viewer.getEventService());
+
+        viewer.addViewerComponent(histProvider);
+
         viewer.addViewerComponent(new HistogramViewInfoPanel<T, Img<T>>());
         viewer.addViewerComponent(new ImgCanvas<T, Img<T>>());
 
@@ -99,7 +103,6 @@ public class ViewerFactory {
         viewer.addViewerComponent(new ControlPanel(Position.SOUTH));
 
         viewer.addViewerComponent(ViewerComponents.MINIMAP_PLANE_SELECTION.createInstance());
-       // viewer.addViewerComponent(ViewerComponents.PLANE_SELECTION.createInstance());
         viewer.addViewerComponent(new ExpandingPanel("Image Properties",ViewerComponents.IMAGE_PROPERTIES.createInstance()));
 
         viewer.doneAdding();
@@ -162,15 +165,15 @@ public class ViewerFactory {
 
         viewer.addViewerComponent(ViewerComponents.MINIMAP_PLANE_SELECTION.createInstance());
 
-       // viewer.addViewerComponent(ViewerComponents.PLANE_SELECTION.createInstance());
+        viewer.addViewerComponent(new ExpandingPanel("Labels/Filter",ViewerComponents.LABEL_FILTER.createInstance(), true));
+
+        viewer.addViewerComponent(new ExpandingPanel("Label Options",new LabelOptionPanel()));
 
         viewer.addViewerComponent(new ExpandingPanel("Renderer Selection",ViewerComponents.RENDERER_SELECTION.createInstance()));
 
         viewer.addViewerComponent(new ExpandingPanel("Image Properties",ViewerComponents.IMAGE_PROPERTIES.createInstance()));
 
-        viewer.addViewerComponent(new ExpandingPanel("Labels/Filter",ViewerComponents.LABEL_FILTER.createInstance(), true));
 
-        viewer.addViewerComponent(new ExpandingPanel("Label Options",new LabelOptionPanel()));
 
 
 

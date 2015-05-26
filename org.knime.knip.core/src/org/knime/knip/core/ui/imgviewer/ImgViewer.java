@@ -116,6 +116,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JToggleButton;
 import javax.swing.ScrollPaneConstants;
 
 import org.knime.knip.core.data.img.DefaultImgMetadata;
@@ -174,7 +175,7 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
     // Buttons available in this viewer
 
-    private JButton m_quickViewButton;
+    private JToggleButton m_quickViewButton;
 
     private JButton m_overviewButton;
 
@@ -296,7 +297,9 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
         JPanel tableButtonPanel = new JPanel();
         tableButtonPanel.setLayout(new BorderLayout());
         ImageIcon i =  new ImageIcon(this.getClass().getResource("/icons/tableOut.png"));
-        m_quickViewButton = new JButton(new ImageIcon(i.getImage().getScaledInstance(32, 16, java.awt.Image.SCALE_SMOOTH)));
+        ImageIcon i2 =  new ImageIcon(this.getClass().getResource("/icons/tableIn.png"));
+        m_quickViewButton = new JToggleButton(new ImageIcon(i.getImage().getScaledInstance(32, 16, java.awt.Image.SCALE_SMOOTH)));
+        m_quickViewButton.setSelectedIcon(new ImageIcon(i2.getImage().getScaledInstance(32, 16, java.awt.Image.SCALE_SMOOTH)));
         m_quickViewButton.setMnemonic(KeyEvent.VK_Q);
         tableButtonPanel.add(m_quickViewButton,BorderLayout.CENTER);
         leftPanel.add(tableButtonPanel, gbc);
@@ -416,14 +419,27 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
         m_rightPanel.add(panel, gbc);
     }
 
+    /**
+     * Returns the four buttons used to navigate the Table in the order bottom, left, right, top.
+     *
+     * @return An array containing the navigation buttons
+     */
     public ViewerComponent[] getControls() {
         return m_controls;
     }
 
-    public JButton getQuickViewButton() {
+    /**
+     * Returns the button used to show the quick view of the table in the viewer
+     * @return the button used to show the quickview
+     */
+    public JToggleButton getQuickViewButton() {
         return m_quickViewButton;
     }
 
+    /**
+     * Returns the button used to return to the main table view in the viewer
+     * @return the return-button
+     */
     public JButton getOverViewButton() {
         return m_overviewButton;
     }

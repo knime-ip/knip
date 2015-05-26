@@ -184,7 +184,8 @@ public class CellView extends JPanel {
         if (isVisible) {
             m_tablePanel.add(m_tableView, BorderLayout.CENTER);
             m_background.setBottomComponent(m_tablePanel);
-            m_background.setDividerLocation(0.9);
+            m_tableView.getRowHeight();
+            m_background.setDividerLocation(this.getHeight() - (m_tableView.getColumnHeaderViewHeight() + m_tableView.getRowHeight() + m_background.getDividerSize()));
         } else {
             m_tablePanel.removeAll();
             m_background.remove(2);
@@ -196,7 +197,6 @@ public class CellView extends JPanel {
      * @return whether the TableView is currently visible or not
      */
     public boolean isTableViewVisible() {
-        // TODO Auto-generated method stub
         return m_isVisible;
     }
 

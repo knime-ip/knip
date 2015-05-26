@@ -55,20 +55,26 @@ import javax.swing.JToolTip;
 import javax.swing.plaf.basic.BasicArrowButton;
 
 /**
+ * This class implements a BasicArrowButton while allowing an image to be displayed as tooltip.
  *
- * @author pop210958
+ * @author Andreas Burger, University of Konstanz
  */
 public class ImageToolTipButton extends BasicArrowButton {
 
     private Image m_img;
 
     /**
-     * @param direction
+     * Creates a new ImageToolTipButton with the given direction. See {@link BasicArrowButton} for more details.
+     * @param direction The direction of the arrow to display on the button.
      */
     public ImageToolTipButton(final int direction) {
         super(direction);
     }
 
+    /**
+     * Sets the image to display in the tooltip and enables tooltip rendering.
+     * @param img The image to display.
+     */
     public void setToolTipImage(final Image img)
     {
         m_img = img;
