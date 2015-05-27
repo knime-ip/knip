@@ -68,6 +68,10 @@ import org.knime.core.node.tableview.TableView;
  */
 public class CellView extends JPanel {
 
+    public static enum TableDir {
+        BOTTOM, LEFT
+    };
+
     // The TabbedPane holding all the views of the cell
     private JTabbedPane m_cellView;
 
@@ -76,16 +80,21 @@ public class CellView extends JPanel {
 
     private JPanel m_tablePanel;
 
-    private boolean m_isVisible = false;
+    private boolean m_isBottomVisible = false;
 
-    // JSplitPane to allow displaying of both the TabbedPane and the TableView
-    private JSplitPane m_background;
+    private boolean m_isLeftVisible = false;
+
+    // JSplitPanes to allow displaying of both the TabbedPane and the TableView
+    private JSplitPane m_verticalSplit;
+
+    private JSplitPane m_horizontalSplit;
 
     public CellView(final TableView tableView) {
         m_tableView = tableView;
         m_cellView = new JTabbedPane();
 
-        m_background = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        m_verticalSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        m_horizontalSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -98,12 +107,13 @@ public class CellView extends JPanel {
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.fill = GridBagConstraints.BOTH;
 
-        m_background.setTopComponent(m_cellView);
+        m_verticalSplit.setTopComponent(m_cellView);
+        m_horizontalSplit.setRightComponent(m_verticalSplit);
 
-        // Initialize the panel used for the bottom component here, but don't set it.
         m_tablePanel = new JPanel(new BorderLayout());
 
-        add(m_background, gbc);
+
+        add(m_horizontalSplit, gbc);
 
     }
 
@@ -168,6 +178,7 @@ public class CellView extends JPanel {
 
     /**
      * Get the number of tabs currently available in the tabbed pane of this view
+     *
      * @return an integer specifying the number of tabbed pages
      * @see JTabbedPane#getTabCount()
      */
@@ -176,28 +187,94 @@ public class CellView extends JPanel {
     }
 
     /**
-     * Sets the visibility of the TableView referenced by this View.
+     * Sets the visibility of the TableView given by its location in the View.
+     *
      * @param isVisible - boolean specifying the desired visibility state
+     * @param d The location of the table whose visibility will be set
      */
-    public void setTableViewVisible(final boolean isVisible) {
-        m_isVisible = isVisible;
-        if (isVisible) {
-            m_tablePanel.add(m_tableView, BorderLayout.CENTER);
-            m_background.setBottomComponent(m_tablePanel);
-            m_tableView.getRowHeight();
-            m_background.setDividerLocation(this.getHeight() - (m_tableView.getColumnHeaderViewHeight() + m_tableView.getRowHeight() + m_background.getDividerSize()));
+    public void setTableViewVisible(final boolean isVisible, final TableDir d) {
+        m_tablePanel.add(m_tableView);
+        if (d == TableDir.BOTTOM) {
+            if (isVisible) {
+                closeTableView(TableDir.LEFT);
+                m_isLeftVisible = !isVisible;
+                showTableView(d);
+            } else {
+                closeTableView(d);
+            }
+            m_isBottomVisible = isVisible;
         } else {
-            m_tablePanel.removeAll();
-            m_background.remove(2);
+
+            if (isVisible) {
+                closeTableView(TableDir.BOTTOM);
+                m_isBottomVisible = !isVisible;
+                showTableView(d);
+            } else {
+                closeTableView(d);
+            }
+            m_isLeftVisible = isVisible;
         }
         validate();
     }
 
+    private void closeTableView(final TableDir d) {
+        if (d == TableDir.BOTTOM) {
+            if (m_isBottomVisible) {
+                m_verticalSplit.remove(2);
+            }
+        } else {
+            if (m_isLeftVisible) {
+                m_horizontalSplit.remove(2);
+            }
+        }
+    }
+
+    private void showTableView(final TableDir d) {
+
+        if (d == TableDir.BOTTOM) {
+
+            m_verticalSplit.setBottomComponent(m_tablePanel);
+            m_verticalSplit.setDividerLocation(this.getHeight()
+                    - (m_tableView.getColumnHeaderViewHeight() + m_tableView.getRowHeight() + m_verticalSplit
+                            .getDividerSize()));
+
+        } else {
+
+            m_horizontalSplit.setLeftComponent(m_tablePanel);
+            m_horizontalSplit.setDividerLocation(m_tableView.getRowHeader().getWidth() + m_tableView.getColumnWidth()
+                    + m_verticalSplit.getDividerSize());
+        }
+    }
+
     /**
+     * Sets the visibility of both TableViews.
+     *
+     * @param isVisible - boolean specifying the desired visibility state
+     * @param d The location of the table whose visibility will be set
+     */
+    public void hideTableViews() {
+        closeTableView(TableDir.LEFT);
+        closeTableView(TableDir.BOTTOM);
+        m_isBottomVisible = false;
+        m_isLeftVisible = false;
+
+        validate();
+    }
+
+    public boolean isTableViewVisible() {
+        return m_isLeftVisible || m_isBottomVisible;
+    }
+
+    /**
+     * @param d The direction of the table whose visibility shall be checked
      * @return whether the TableView is currently visible or not
      */
-    public boolean isTableViewVisible() {
-        return m_isVisible;
+    public boolean isTableViewVisible(final TableDir d) {
+        if (d == TableDir.LEFT) {
+            return m_isLeftVisible;
+        } else {
+            return m_isBottomVisible;
+        }
     }
 
 }

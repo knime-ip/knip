@@ -111,6 +111,9 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.ButtonModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -151,7 +154,7 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
     /* def */
     private static final long serialVersionUID = 1L;
 
-   // Panels of this viewer
+    // Panels of this viewer
 
     private JSplitPane m_background;
 
@@ -175,7 +178,9 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
     // Buttons available in this viewer
 
-    private JToggleButton m_quickViewButton;
+    private JToggleButton m_bottomQuickViewButton;
+
+    private JToggleButton m_leftQuickViewButton;
 
     private JButton m_overviewButton;
 
@@ -295,13 +300,43 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
         gbc.weighty = 0;
 
         JPanel tableButtonPanel = new JPanel();
-        tableButtonPanel.setLayout(new BorderLayout());
-        ImageIcon i =  new ImageIcon(this.getClass().getResource("/icons/tableOut.png"));
-        ImageIcon i2 =  new ImageIcon(this.getClass().getResource("/icons/tableIn.png"));
-        m_quickViewButton = new JToggleButton(new ImageIcon(i.getImage().getScaledInstance(32, 16, java.awt.Image.SCALE_SMOOTH)));
-        m_quickViewButton.setSelectedIcon(new ImageIcon(i2.getImage().getScaledInstance(32, 16, java.awt.Image.SCALE_SMOOTH)));
-        m_quickViewButton.setMnemonic(KeyEvent.VK_Q);
-        tableButtonPanel.add(m_quickViewButton,BorderLayout.CENTER);
+        tableButtonPanel.setLayout(new BoxLayout(tableButtonPanel, BoxLayout.Y_AXIS));
+
+        ImageIcon i = new ImageIcon(this.getClass().getResource("/icons/tableup.png"));
+        ImageIcon i2 = new ImageIcon(this.getClass().getResource("/icons/tabledown.png"));
+        ImageIcon i3 = new ImageIcon(this.getClass().getResource("/icons/tableright.png"));
+        ImageIcon i4 = new ImageIcon(this.getClass().getResource("/icons/tableleft.png"));
+
+        m_leftQuickViewButton =
+                new JToggleButton(new ImageIcon(i3.getImage().getScaledInstance(32, 16, java.awt.Image.SCALE_SMOOTH)));
+        m_leftQuickViewButton.setSelectedIcon(new ImageIcon(i4.getImage()
+                .getScaledInstance(32, 16, java.awt.Image.SCALE_SMOOTH)));
+        m_leftQuickViewButton.setMnemonic(KeyEvent.VK_W);
+        tableButtonPanel.add(m_leftQuickViewButton);
+
+        m_bottomQuickViewButton =
+                new JToggleButton(new ImageIcon(i.getImage().getScaledInstance(32, 16, java.awt.Image.SCALE_SMOOTH)));
+        m_bottomQuickViewButton.setSelectedIcon(new ImageIcon(i2.getImage()
+                .getScaledInstance(32, 16, java.awt.Image.SCALE_SMOOTH)));
+        m_bottomQuickViewButton.setMnemonic(KeyEvent.VK_Q);
+        tableButtonPanel.add(m_bottomQuickViewButton);
+
+        final ButtonGroup toggleGroup = new ButtonGroup() {
+            // Custom ButtonGroup to enable deselecting all buttons.
+            @Override
+            public void setSelected(final ButtonModel model, final boolean selected) {
+                if (selected) {
+                    //default - single selection
+                    super.setSelected(model, selected);
+                } else {
+                    //deselected - clear all.
+                    clearSelection();
+                }
+            }
+        };
+        toggleGroup.add(m_bottomQuickViewButton);
+        toggleGroup.add(m_leftQuickViewButton);
+
         leftPanel.add(tableButtonPanel, gbc);
 
         gbc.gridx = 0;
@@ -309,10 +344,11 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
         JPanel overviewButtonPanel = new JPanel();
         overviewButtonPanel.setLayout(new BorderLayout());
-        i =  new ImageIcon(this.getClass().getResource("/icons/backarrow.png"));
-        m_overviewButton = new JButton(new ImageIcon(i.getImage().getScaledInstance(32, 16, java.awt.Image.SCALE_SMOOTH)));
+        i = new ImageIcon(this.getClass().getResource("/icons/backarrow.png"));
+        m_overviewButton =
+                new JButton(new ImageIcon(i.getImage().getScaledInstance(32, 16, java.awt.Image.SCALE_SMOOTH)));
         m_overviewButton.setMnemonic(KeyEvent.VK_B);
-        overviewButtonPanel.add(m_overviewButton,BorderLayout.CENTER);
+        overviewButtonPanel.add(m_overviewButton, BorderLayout.CENTER);
         leftPanel.add(overviewButtonPanel, gbc);
 
         // Right panel, i.e. the menus
@@ -430,14 +466,25 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
     /**
      * Returns the button used to show the quick view of the table in the viewer
+     *
      * @return the button used to show the quickview
      */
-    public JToggleButton getQuickViewButton() {
-        return m_quickViewButton;
+    public JToggleButton getBottomQuickViewButton() {
+        return m_bottomQuickViewButton;
+    }
+
+    /**
+     * Returns the button used to show the quick view of the table in the viewer
+     *
+     * @return the button used to show the quickview
+     */
+    public JToggleButton getLeftQuickViewButton() {
+        return m_leftQuickViewButton;
     }
 
     /**
      * Returns the button used to return to the main table view in the viewer
+     *
      * @return the return-button
      */
     public JButton getOverViewButton() {

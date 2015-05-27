@@ -49,7 +49,9 @@
 package org.knime.knip.base.nodes.view;
 
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.math.BigInteger;
@@ -78,6 +80,7 @@ import org.knime.core.node.tableview.TableContentView;
 import org.knime.core.node.tableview.TableView;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.labeling.LabelingCell;
+import org.knime.knip.base.nodes.view.CellView.TableDir;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.ui.imgviewer.ViewerComponent;
 import org.knime.knip.core.ui.imgviewer.panels.ControlPanel;
@@ -215,9 +218,11 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     protected ChangeListener m_changeListener;
 
-    protected ActionListener m_quickViewListener;
+    protected ActionListener m_bottomQuickViewListener;
 
-    protected ActionListener m_overviewListener;
+    protected ActionListener m_leftQuickViewListener;
+
+    protected ActionListener m_OverviewListener;
 
     protected int m_col = -1;
 
@@ -435,8 +440,9 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
             }
             // Link the quickview and the return button to the prepared listeners.
-            vc.getQuickViewButton().addActionListener(m_quickViewListener);
-            vc.getOverViewButton().addActionListener(m_overviewListener);
+            vc.getBottomQuickViewButton().addActionListener(m_bottomQuickViewListener);
+            vc.getLeftQuickViewButton().addActionListener(m_leftQuickViewListener);
+            vc.getOverViewButton().addActionListener(m_OverviewListener);
         }
     }
 
@@ -553,8 +559,23 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
         m_cellView.addTabChangeListener(m_changeListener);
 
+
         //        Temporarily add loadpanel as component, so that the ui stays responsive.
         setComponent(loadpanel);
+
+    }
+
+    protected Frame getFrame() {
+        Frame f = null;
+        Container c = getComponent().getParent();
+        while (c != null) {
+            if (c instanceof Frame) {
+                f = (Frame)c;
+                break;
+            }
+            c = c.getParent();
+        }
+        return f;
     }
 
     /**
@@ -604,22 +625,31 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
      * Creates the Listeners used in the displayed views.
      */
     private void initializeListeners() {
-        m_quickViewListener = new ActionListener() {
+        m_bottomQuickViewListener = new ActionListener() {
 
             @Override
             public void actionPerformed(final ActionEvent e) {
-                m_cellView.setTableViewVisible(!m_cellView.isTableViewVisible());
+                m_cellView.setTableViewVisible(!m_cellView.isTableViewVisible(TableDir.BOTTOM), TableDir.BOTTOM);
 
             }
         };
 
-        m_overviewListener = new ActionListener() {
+        m_leftQuickViewListener = new ActionListener() {
+
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                m_cellView.setTableViewVisible(!m_cellView.isTableViewVisible(TableDir.LEFT), TableDir.LEFT);
+
+            }
+        };
+
+        m_OverviewListener = new ActionListener() {
 
             @Override
             public void actionPerformed(final ActionEvent e) {
                 if (getComponent() == m_cellView) {
                     if (m_cellView.isTableViewVisible()) {
-                        m_cellView.setTableViewVisible(false);
+                        m_cellView.hideTableViews();
                     }
                     m_tableContentView.clearSelection();
                     setComponent(m_tableView);
@@ -715,9 +745,12 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
             return;
         }
 
-        TableCellView cv = m_cellViews.get(m_currentCell.getClass().getCanonicalName()).get(m_cellView.getSelectedIndex());
+        TableCellView cv =
+                m_cellViews.get(m_currentCell.getClass().getCanonicalName()).get(m_cellView.getSelectedIndex());
         if (cv.getViewComponent() instanceof ImgViewer) {
-            ((ImgViewer)cv.getViewComponent()).getQuickViewButton().setSelected(m_cellView.isTableViewVisible());
+            ImgViewer v = ((ImgViewer)cv.getViewComponent());
+            v.getLeftQuickViewButton().setSelected(m_cellView.isTableViewVisible(TableDir.LEFT));
+            v.getBottomQuickViewButton().setSelected(m_cellView.isTableViewVisible(TableDir.BOTTOM));
         }
         cv.updateComponent(m_currentCell);
 
