@@ -317,6 +317,8 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         final int selection = m_cellView.getSelectedIndex();
         List<TableCellView> cellView;
 
+        m_cellView.removeAllTabs();
+
         final String currentDataCellClass = m_currentCell.getClass().getCanonicalName();
         boolean isLabeling = false;
         if (m_tableModel.getValueAt(row, col) instanceof LabelingCell) {
