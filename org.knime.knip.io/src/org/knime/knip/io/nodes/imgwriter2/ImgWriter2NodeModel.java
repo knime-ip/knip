@@ -52,7 +52,6 @@ import io.scif.FormatException;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -64,7 +63,6 @@ import org.apache.commons.io.FileUtils;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.StringValue;
-import org.knime.core.data.container.CloseableRowIterator;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -141,6 +139,9 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 	private final SettingsModelInteger m_frameRate = ImgWriter2SettingsModels
 			.createFrameRateModel();
 
+	private SettingsModelBoolean m_writeSequentially = ImgWriter2SettingsModels
+			.createWriteSequentiallyModel();
+
 	/*
 	 * MAPPING SETTINGS MODELS.
 	 */
@@ -188,18 +189,13 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 			throws InvalidSettingsException {
 
 		// check if dimension mapping is valid
-		if (m_zMapping.getStringValue().equals(m_cMapping.getStringValue())
-				|| m_zMapping.getStringValue().equals(
-						m_tMapping.getStringValue())
-				|| m_cMapping.getStringValue().equals(
-						m_tMapping.getStringValue())) {
-			throw new InvalidSettingsException(
-					"Dimensions must not be mapped to the same label!");
-		}
+		checkDimensionMapping();
 
 		// check if configured filename column is still available
 		String imgNamColumn = m_filenameColumn.getStringValue();
-		if (!imgNamColumn.equals("") // not a newly created node
+
+		// not a newly created node
+		if (imgNamColumn != null && !imgNamColumn.equals("") 
 				&& !inSpecs[0].containsName(imgNamColumn)) {
 			throw new InvalidSettingsException(
 					"The configured Filename column: '"
@@ -227,6 +223,24 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 	}
 
 	/**
+	 * Checks that the dimension mappings, making sure no dimensions are mapped
+	 * to the same label.
+	 * 
+	 * @throws InvalidSettingsException
+	 *             when dimensions are mapped to the same labels.
+	 */
+	private void checkDimensionMapping() throws InvalidSettingsException {
+		if (m_zMapping.getStringValue().equals(m_cMapping.getStringValue())
+				|| m_zMapping.getStringValue().equals(
+						m_tMapping.getStringValue())
+				|| m_cMapping.getStringValue().equals(
+						m_tMapping.getStringValue())) {
+			throw new InvalidSettingsException(
+					"Dimensions must not be mapped to the same label!");
+		}
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@SuppressWarnings("unchecked")
@@ -234,27 +248,44 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
 
+		checkDimensionMapping();
+
 		// check and locate target folder
-		CheckUtils.checkDestinationDirectory(m_directory.getStringValue());
+		try {
+			CheckUtils.checkDestinationDirectory(m_directory.getStringValue());
+		} catch (InvalidSettingsException e) {
+			// allow creation of nonexistent directories if set in the options.
+			if (e.getMessage().endsWith("does not exist")) {
+				if (!m_forceMkdir.getBooleanValue()) { // option not set
+					throw new InvalidSettingsException(
+							"Output directory doesn't exist, you can force the creation in the node settings.");
+				}
+			} else {
+				// don't hide other exceptions
+				throw e;
+			}
+		}
 		Path folderPath = FileUtil.resolveToPath(FileUtil.toURL(m_directory
 				.getStringValue()));
+		if (folderPath == null) {
+			throw new InvalidSettingsException("Could not locate:"
+					+ m_directory.getStringValue()
+					+ ", are you trying to write to an non local directory?");
+		}
 
 		// handle target folder
 		final File folderFile = folderPath.toFile();
-		if (!folderFile.exists()) {
-			if (m_forceMkdir.getBooleanValue()) {
-				try {
-					LOGGER.warn("Creating directory: " + folderPath);
-					FileUtils.forceMkdir(folderFile);
-				} catch (final IOException e1) {
-					LOGGER.error("Selected Path " + folderPath
-							+ " is not a directory");
-					throw new IOException(
-							"Directory unreachable or file exists with the same name");
-				}
-			} else {
+		if (!folderFile.exists()) { // create nonexistent folders must be set to
+									// reach this point!.
+			try {
+				LOGGER.warn("Creating directory: "
+						+ m_directory.getStringValue());
+				FileUtils.forceMkdir(folderFile);
+			} catch (final IOException e1) {
+				LOGGER.error("Selected Path " + folderPath
+						+ " is not a directory");
 				throw new IOException(
-						"Output directory doesn't exist, you can force the creation in the node settings.");
+						"Directory unreachable or file exists with the same name");
 			}
 		}
 
@@ -274,7 +305,7 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 		}
 
 		/* File name number magic */
-	
+
 		// get number of digits needed for padding
 		final int digits = (int) Math.log10(inData[0].getRowCount()) + 1;
 		final String digitStringFormat = "%0" + digits + "d";
@@ -285,8 +316,9 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 		String outfile;
 		boolean error = false;
 
-		final ImgWriter2 writer = new ImgWriter2();
-		writer.setFramesPerSecond(m_frameRate.getIntValue());
+		final ImgWriter2 writer = new ImgWriter2().setWriteSequantially(
+				m_writeSequentially.getBooleanValue()).setFramesPerSecond(
+				m_frameRate.getIntValue());
 
 		for (DataRow row : inData[0]) {
 			if (useCustomName) {

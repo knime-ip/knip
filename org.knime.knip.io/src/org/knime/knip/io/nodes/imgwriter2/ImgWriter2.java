@@ -102,16 +102,18 @@ public class ImgWriter2 {
 	/* Handles the writing on disk */
 	private ImgSaver m_saver;
 
+	/*
+	 * Provides access to SCifio methods
+	 */
+	private final SCIFIO SCIFIO = ScifioGateway.getSCIFIO();
+
+	private boolean m_writeSequentially = true;
+
 	/**
 	 * Creates an new writer. *
 	 */
 	public ImgWriter2() {
 	}
-
-	/*
-	 * Provides access to SCifio methods
-	 */
-	private final SCIFIO SCIFIO = ScifioGateway.getSCIFIO();
 
 	/* helper to get the list of supported writers */
 	private void retrieveSupportedWriters() {
@@ -276,15 +278,14 @@ public class ImgWriter2 {
 		} else {
 			map = dimMapping.clone();
 		}
-
+		
 		// get the number of channels
 		int sizeC = (img.numDimensions() > map[1]) && (map[1] != -1) ? (int) img
 				.dimension(2 + map[1]) : 1;
 		if (sizeC > 3) {
-			LOGGER.warn("Image has more than 3 channels. These channels will be ignored.");
-//			sizeC = 3;
+			LOGGER.warn("Image has more than 3 channels. These channels might be ignored my some formats.");
 		}
-
+		
 		final int sizeT = (img.numDimensions() > map[2]) && (map[2] != -1) ? (int) img
 				.dimension(2 + map[2]) : 1;
 
@@ -328,12 +329,12 @@ public class ImgWriter2 {
 		}
 
 		// create writer configuration
-		final SCIFIOConfig config = new SCIFIOConfig();
+		final SCIFIOConfig config = new SCIFIOConfig().writerSetSequential(
+				m_writeSequentially).writerSetFramesPerSecond(m_fps);
 		if ((compressionType != null)
 				&& (tempWriter.getCompressionTypes() != null)) {
 			config.writerSetCompression(compressionType);
 		}
-		config.writerSetFramesPerSecond(m_fps);
 
 		try {
 			m_saver.saveImg(outfile, img, config);
@@ -345,7 +346,25 @@ public class ImgWriter2 {
 		}
 	}
 
-	public void setFramesPerSecond(final int fps) {
+	/**
+	 * Sets the FPS for the writer
+	 * 
+	 * @param fps
+	 * @return the writer (for chaining)
+	 */
+	public ImgWriter2 setFramesPerSecond(final int fps) {
 		m_fps = fps;
+		return this;
+	}
+
+	/**
+	 * Sets if the writer writes files sequentially .
+	 * 
+	 * @param fps
+	 * @return the writer (for chaining)
+	 */
+	public ImgWriter2 setWriteSequantially(boolean writeSequentially) {
+		m_writeSequentially = writeSequentially;
+		return this;
 	}
 }
