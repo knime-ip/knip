@@ -275,21 +275,17 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 
 		// handle target folder
 		final File folderFile = folderPath.toFile();
-		if (!folderFile.exists()) {
-			if (m_forceMkdir.getBooleanValue()) {
-				try {
-					LOGGER.warn("Creating directory: "
-							+ m_directory.getStringValue());
-					FileUtils.forceMkdir(folderFile);
-				} catch (final IOException e1) {
-					LOGGER.error("Selected Path " + folderPath
-							+ " is not a directory");
-					throw new IOException(
-							"Directory unreachable or file exists with the same name");
-				}
-			} else {
+		if (!folderFile.exists()) { // create nonexistent folders must be set to
+									// reach this point!.
+			try {
+				LOGGER.warn("Creating directory: "
+						+ m_directory.getStringValue());
+				FileUtils.forceMkdir(folderFile);
+			} catch (final IOException e1) {
+				LOGGER.error("Selected Path " + folderPath
+						+ " is not a directory");
 				throw new IOException(
-						"Output directory doesn't exist, you can force the creation in the node settings.");
+						"Directory unreachable or file exists with the same name");
 			}
 		}
 
