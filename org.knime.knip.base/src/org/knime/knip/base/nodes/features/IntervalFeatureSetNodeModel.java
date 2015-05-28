@@ -335,13 +335,19 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
                     new LabelingDependency<L>(m_leftFilterSelection.getRulebasedFilter(),
                             m_rightFilterSelection.getRulebasedFilter(), m_intersectionMode.getBooleanValue());
 
-            final Map<L, List<L>> dependencies = Operations.compute(dependencyOp, labeling);
+            final Map<L, List<L>> dependencies;
+            if ((m_leftFilterSelection.getRules().length != 0 || m_rightFilterSelection.getRules().length != 0)
+                    || m_appendDependencies.getBooleanValue()) {
+                dependencies = Operations.compute(dependencyOp, labeling);
+            } else {
+                dependencies = null;
+            }
 
             final Collection<L> labels = labeling.getLabels();
 
             IterableRegionOfInterest labelRoi;
             for (final L label : labels) {
-                if (!dependencies.keySet().contains(label)) {
+                if (dependencies != null && !dependencies.keySet().contains(label)) {
                     continue;
                 }
 
