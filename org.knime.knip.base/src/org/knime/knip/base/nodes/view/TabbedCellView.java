@@ -60,7 +60,7 @@ import org.knime.core.node.tableview.TableView;
 /**
  * This Class represents the Cell-side part of the TableCellViewer - plus some additional convenience features.
  *
- * @author Andreas Burger, University of Constance
+ * @author Andreas Burger, University of Konstance
  */
 public class TabbedCellView extends AbstractCellView {
 
