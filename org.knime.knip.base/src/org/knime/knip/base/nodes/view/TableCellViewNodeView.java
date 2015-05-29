@@ -80,7 +80,7 @@ import org.knime.core.node.tableview.TableContentView;
 import org.knime.core.node.tableview.TableView;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.labeling.LabelingCell;
-import org.knime.knip.base.nodes.view.CellView.TableDir;
+import org.knime.knip.base.nodes.view.AbstractCellView.TableDir;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.ui.imgviewer.ViewerComponent;
 import org.knime.knip.core.ui.imgviewer.panels.ControlPanel;
@@ -257,7 +257,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     protected TableView m_tableView;
 
-    protected CellView m_cellView;
+    protected TabbedCellView m_cellView;
 
     protected Map<String, Component> m_viewComponents;
 
@@ -555,7 +555,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         initializeListeners();
 
         // Initialize CellView
-        m_cellView = new CellView(m_tableView);
+        m_cellView = new TabbedCellView(m_tableView);
 
         m_cellView.addTabChangeListener(m_changeListener);
 

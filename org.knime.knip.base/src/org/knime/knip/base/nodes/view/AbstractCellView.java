@@ -45,53 +45,44 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ---------------------------------------------------------------------
  *
- * Created on 19.04.2015 by Andi
+ * Created on May 29, 2015 by pop210958
  */
 package org.knime.knip.base.nodes.view;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.event.ChangeListener;
 
 import org.knime.core.node.tableview.TableView;
 
 /**
- * This Class represents the Cell-side part of the TableCellViewer - plus some additional convenience features.
  *
- * @author Andreas Burger, University of Constance
+ * @author pop210958
  */
-public class CellView extends JPanel {
+public abstract class AbstractCellView extends JPanel {
 
     public static enum TableDir {
         BOTTOM, LEFT
-    };
+    }
 
-    // The TabbedPane holding all the views of the cell
-    private JTabbedPane m_cellView;
+    protected JPanel m_tablePanel;
 
-    // A reference to the TableView stored in the TableCellViewer
-    private final TableView m_tableView;
-
-    private JPanel m_tablePanel;
+    protected final TableView m_tableView;
 
     private boolean m_isBottomVisible = false;
 
     private boolean m_isLeftVisible = false;
 
-    // JSplitPanes to allow displaying of both the TabbedPane and the TableView
-    private JSplitPane m_verticalSplit;
+    protected JSplitPane m_verticalSplit;
 
-    private JSplitPane m_horizontalSplit;
+    protected JSplitPane m_horizontalSplit;
 
-    public CellView(final TableView tableView) {
+    public AbstractCellView(final TableView tableView) {
+
         m_tableView = tableView;
-        m_cellView = new JTabbedPane();
 
         m_verticalSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         m_horizontalSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
@@ -107,83 +98,13 @@ public class CellView extends JPanel {
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.fill = GridBagConstraints.BOTH;
 
-        m_verticalSplit.setTopComponent(m_cellView);
+
         m_horizontalSplit.setRightComponent(m_verticalSplit);
 
         m_tablePanel = new JPanel(new BorderLayout());
 
-
         add(m_horizontalSplit, gbc);
 
-    }
-
-    /**
-     * Add an additional tab to the tabbed pane held by this view.
-     *
-     * @param title - the title to be displayed in this tab
-     * @param component - the component to be displayed when this tab is clicked
-     * @see JTabbedPane#addTab(String, Component)
-     */
-    public void addTab(final String title, final Component component) {
-        m_cellView.addTab(title, component);
-    }
-
-    /**
-     * Add a changeListener to the tabbed pane held by this view.
-     *
-     * @param listener - the ChangeListener to add
-     * @see JTabbedPane#addChangeListener(ChangeListener)
-     */
-    public void addTabChangeListener(final ChangeListener listener) {
-        m_cellView.addChangeListener(listener);
-    }
-
-    /**
-     * Remove a changeListener from the tabbed pane held by this view.
-     *
-     * @param listener - the ChangeListener to remove
-     * @see JTabbedPane#removeChangeListener(ChangeListener)
-     */
-    public void removeTabChangeListener(final ChangeListener changeListener) {
-        m_cellView.removeChangeListener(changeListener);
-
-    }
-
-    /**
-     * Get the tab selected in the tabbed pane embedded in this view
-     *
-     * @return the index of the selected tab
-     * @see JTabbedPane#getSelectedIndex()
-     */
-    public int getSelectedIndex() {
-        return m_cellView.getSelectedIndex();
-    }
-
-    /**
-     * Set the tab selected in the tabbed pane embedded in this view
-     *
-     * @param index - the index to be selected
-     * @see JTabbedPane#setSelectedIndex(int)
-     */
-    public void setSelectedIndex(final int index) {
-        m_cellView.setSelectedIndex(index);
-    }
-
-    /**
-     * @see JTabbedPane#removeAll()
-     */
-    public void removeAllTabs() {
-        m_cellView.removeAll();
-    }
-
-    /**
-     * Get the number of tabs currently available in the tabbed pane of this view
-     *
-     * @return an integer specifying the number of tabbed pages
-     * @see JTabbedPane#getTabCount()
-     */
-    public int getTabCount() {
-        return m_cellView.getTabCount();
     }
 
     /**
