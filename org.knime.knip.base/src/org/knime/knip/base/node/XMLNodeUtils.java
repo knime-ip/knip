@@ -57,8 +57,8 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeLogger;
-import org.knime.node.v28.KnimeNodeDocument.KnimeNode;
-import org.knime.node2012.KnimeNodeDocument;
+import org.knime.node.v210.KnimeNodeDocument;
+import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 
 /**
  * Helper class essentially to parse and add the xml-file content to XMLBeans objects representing the node description
@@ -72,7 +72,7 @@ public class XMLNodeUtils {
 
     private static final NodeLogger LOGGER = NodeLogger.getLogger(XMLNodeUtils.class);
 
-    private static final String NAMESPACE = "http://knime.org/node2012";
+    private static final String NAMESPACE = "http://knime.org/node/v2.10";
 
     /**
      * Adds the xml content of the file *NodeFactory.xml in the same package to the xml bean (KnimeNodeDocument).
