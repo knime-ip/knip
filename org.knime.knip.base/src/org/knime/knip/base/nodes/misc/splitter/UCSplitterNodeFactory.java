@@ -75,12 +75,9 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.GenericValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeModel;
-import org.knime.knip.base.node.XMLNodeUtils;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
-import org.knime.knip.base.nodes.view.TableCellViewNodeView;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
-import org.knime.node.v210.KnimeNodeDocument;
 
 /**
  *
@@ -93,17 +90,6 @@ public class UCSplitterNodeFactory<T extends RealType<T>> extends
 
     private static SettingsModelDimSelection createDimSelectionModel() {
         return new SettingsModelDimSelection("dim_selection", "X", "Y");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void createNodeDescription(final KnimeNodeDocument doc) {
-        XMLNodeUtils.addXMLNodeDescriptionTo(doc, getClass());
-        //     TODO: Add correct description   ValueToCellNodeDialog.addTabsDescriptionTo(doc.getKnimeNode().getFullDescription());
-        TableCellViewNodeView.addViewDescriptionTo(doc.getKnimeNode().addNewViews());
-
     }
 
     /**
