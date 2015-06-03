@@ -53,10 +53,10 @@ import net.imglib2.type.numeric.RealType;
 
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
-import org.knime.node2012.KnimeNodeDocument.KnimeNode;
-import org.knime.node2012.OptionDocument.Option;
-import org.knime.node2012.TabDocument.Tab;
-import org.knime.node2012.UlDocument.Ul;
+import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
+import org.knime.node.v210.OptionDocument.Option;
+import org.knime.node.v210.TabDocument.Tab;
+import org.knime.node.v210.UlDocument.Ul;
 
 /**
  * NodeFactory for {@link IterableIntervalsNodeModel}

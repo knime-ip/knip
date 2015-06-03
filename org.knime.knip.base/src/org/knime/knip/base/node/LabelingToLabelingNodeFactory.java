@@ -50,7 +50,7 @@ package org.knime.knip.base.node;
 
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
-import org.knime.node2012.KnimeNodeDocument.KnimeNode;
+import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 
 /**
  * {@link LabelingToLabelingNodeDialog} for corresponding {@link LabelingToLabelingNodeModel}

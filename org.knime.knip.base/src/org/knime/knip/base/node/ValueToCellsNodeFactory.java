@@ -49,12 +49,7 @@
 package org.knime.knip.base.node;
 
 import org.knime.core.data.DataValue;
-import org.knime.core.node.DynamicNodeFactory;
 import org.knime.core.node.NodeSetFactory;
-import org.knime.core.node.NodeView;
-import org.knime.knip.base.nodes.view.TableCellViewNodeView;
-import org.knime.node2012.KnimeNodeDocument;
-import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 
 /**
  * Node factory mapping a data values to multiple data cell. Please note that if this factory is used, the node has to
@@ -68,99 +63,6 @@ import org.knime.node2012.KnimeNodeDocument.KnimeNode;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 public abstract class ValueToCellsNodeFactory<VIN extends DataValue> extends
-        DynamicNodeFactory<ValueToCellsNodeModel<VIN>> {
-
-    /**
-     * {@inheritDoc}
-     * @deprecated
-     */
-    @Deprecated
-    @Override
-    protected final void addNodeDescription(final KnimeNodeDocument doc) {
-        createNodeDescription(doc);
-
-        KnimeNode node = doc.getKnimeNode();
-        if (node == null) {
-            XMLNodeUtils.addXMLNodeDescriptionTo(doc, this.getClass());
-            node = doc.getKnimeNode();
-        }
-
-        // Load if possible
-        if (node != null) {
-
-            // add description of this dialog
-            ValueToCellsNodeDialog.addTabsDescriptionTo(doc.getKnimeNode().getFullDescription());
-            TableCellViewNodeView.addViewDescriptionTo(node.addNewViews());
-
-            if (node.getPorts() == null) {
-                //add default port description
-                //TODO!
-            }
-
-            // Add user stuff
-            addNodeDescriptionContent(node);
-        }
-    }
-
-    /**
-     * Overwrite this method to add additional details programmatically to the already existing node description
-     * (created either from an xml file or in {@link ValueToCellsNodeFactory#createNodeDescription(KnimeNodeDocument)}.
-     *
-     * @param node
-     */
-    protected void addNodeDescriptionContent(final KnimeNode node) {
-        // Nothing to do here
-    }
-
-    /**
-     * Overwrite this method if you want to create the node description programmatically. A description in the xml file
-     * named after the derived class will not be used.
-     *
-     * @param doc
-     */
-    protected void createNodeDescription(final KnimeNodeDocument doc) {
-        // May be overwritten
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected int getNrNodeViews() {
-        return 1;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeView<ValueToCellsNodeModel<VIN>> createNodeView(final int viewIndex,
-                                                               final ValueToCellsNodeModel<VIN> nodeModel) {
-        return new TableCellViewNodeView<ValueToCellsNodeModel<VIN>>(nodeModel);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected final boolean hasDialog() {
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     */
-    @Override
-    protected ValueToCellsNodeDialog<VIN> createNodeDialogPane() {
-        return createNodeDialog();
-    }
-
-    /**
-     * Create {@link ValueToCellNodeDialog}
-     *
-     * @return the new dialog
-     */
-    protected abstract ValueToCellsNodeDialog<VIN> createNodeDialog();
+        AbstractValueToCellNodeFactory<ValueToCellsNodeDialog<VIN>, ValueToCellsNodeModel<VIN>> {
 
 }

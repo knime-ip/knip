@@ -50,6 +50,7 @@ package org.knime.knip.base.node;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.math.BigInteger;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -62,13 +63,13 @@ import org.knime.core.node.defaultnodesettings.DialogComponentColumnFilter;
 import org.knime.core.node.defaultnodesettings.DialogComponentString;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.knime.node2012.FullDescriptionDocument.FullDescription;
-import org.knime.node2012.InPortDocument.InPort;
-import org.knime.node2012.KnimeNodeDocument.KnimeNode;
-import org.knime.node2012.OptionDocument.Option;
-import org.knime.node2012.OutPortDocument.OutPort;
-import org.knime.node2012.PortsDocument.Ports;
-import org.knime.node2012.TabDocument.Tab;
+import org.knime.node.v210.FullDescriptionDocument.FullDescription;
+import org.knime.node.v210.InPortDocument.InPort;
+import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
+import org.knime.node.v210.OptionDocument.Option;
+import org.knime.node.v210.OutPortDocument.OutPort;
+import org.knime.node.v210.PortsDocument.Ports;
+import org.knime.node.v210.TabDocument.Tab;
 
 /**
  * Dialog corresponding to the {@link ValueToCellNodeModel} which already contains dialog components, but others can
@@ -92,11 +93,11 @@ public abstract class ValueToCellNodeDialog<VIN extends DataValue> extends LazyN
         final InPort inPort = ports.addNewInPort();
         inPort.newCursor().setTextValue("Images");
         inPort.setName("Images");
-        inPort.setIndex(0);
+        inPort.setIndex(new BigInteger("0"));
         inPort.newCursor().setTextValue("Images");
         final OutPort outPort = ports.addNewOutPort();
         outPort.setName("Processed Images");
-        outPort.setIndex(0);
+        outPort.setIndex(new BigInteger("0"));
         outPort.newCursor().setTextValue("Processed Images");
     }
 

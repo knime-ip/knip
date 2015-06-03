@@ -49,11 +49,11 @@
 package org.knime.knip.base.node.dialog;
 
 import org.knime.core.node.defaultnodesettings.SettingsModel;
-import org.knime.node2012.OptionDocument.Option;
-import org.knime.node2012.PDocument.P;
+import org.knime.node.v210.OptionDocument.Option;
+import org.knime.node.v210.PDocument.P;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>

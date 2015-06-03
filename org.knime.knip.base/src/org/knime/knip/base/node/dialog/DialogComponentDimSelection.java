@@ -73,7 +73,7 @@ import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.knip.base.KNIMEKNIPPlugin;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
-import org.knime.node2012.OptionDocument.Option;
+import org.knime.node.v210.OptionDocument.Option;
 
 /**
  * Dialog component to select image axis.
