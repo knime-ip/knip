@@ -50,6 +50,7 @@ package org.knime.knip.base.nodes.view;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,8 +77,8 @@ import org.knime.core.node.tableview.TableContentModel;
 import org.knime.core.node.tableview.TableContentView;
 import org.knime.core.node.tableview.TableView;
 import org.knime.knip.core.util.waitingindicator.WaitingIndicatorUtils;
-import org.knime.node2012.ViewDocument.View;
-import org.knime.node2012.ViewsDocument.Views;
+import org.knime.node.v210.ViewDocument.View;
+import org.knime.node.v210.ViewsDocument.Views;
 
 /*
  * ------------------------------------------------------------------------
@@ -147,7 +148,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
      */
     public static void addViewDescriptionTo(final Views views) {
         final View view = views.addNewView();
-        view.setIndex(0);
+        view.setIndex(new BigInteger("0"));
         view.setName("Table Cell View");
 
         final Map<Class<? extends DataValue>, List<String>> descs =
