@@ -66,9 +66,9 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.IterableIntervalsNodeDialog;
 import org.knime.knip.base.node.IterableIntervalsNodeFactory;
 import org.knime.knip.base.node.IterableIntervalsNodeModel;
-import org.knime.node2012.FullDescriptionDocument.FullDescription;
-import org.knime.node2012.KnimeNodeDocument;
-import org.knime.node2012.KnimeNodeDocument.KnimeNode;
+import org.knime.node.v210.FullDescriptionDocument.FullDescription;
+import org.knime.node.v210.KnimeNodeDocument;
+import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 
 /**
  * Factory class to produce an image inverter node.

@@ -54,6 +54,8 @@ import java.util.Map;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.node.DynamicNodeFactory;
+import org.knime.core.node.NodeDescription;
+import org.knime.core.node.NodeDescription210Proxy;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeView;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
@@ -71,11 +73,11 @@ import org.knime.knip.base.nodes.io.kernel.filter.PrewittConfiguration;
 import org.knime.knip.base.nodes.io.kernel.filter.RobertsConfiguration;
 import org.knime.knip.base.nodes.io.kernel.filter.SobelConfiguration;
 import org.knime.knip.base.nodes.view.TableCellViewNodeView;
-import org.knime.node2012.KnimeNodeDocument;
+import org.knime.node.v210.KnimeNodeDocument;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -90,11 +92,16 @@ public class ConvolutionKernelNodeFactory<T extends RealType<T>> extends Dynamic
 
     /**
      * {@inheritDoc}
+     * @return
      */
     @Override
-    protected void addNodeDescription(final KnimeNodeDocument doc) {
+    protected NodeDescription createNodeDescription() {
+        KnimeNodeDocument doc = KnimeNodeDocument.Factory.newInstance();
+
         XMLNodeUtils.addXMLNodeDescriptionTo(doc, getClass());
         TableCellViewNodeView.addViewDescriptionTo(doc.getKnimeNode().addNewViews());
+
+        return new NodeDescription210Proxy(doc);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})

@@ -71,8 +71,8 @@ import org.knime.knip.core.ops.filters.GaussNativeTypeOp;
 import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
 import org.knime.knip.core.types.OutOfBoundsStrategyFactory;
 import org.knime.knip.core.util.ImgPlusFactory;
-import org.knime.node2012.KnimeNodeDocument.KnimeNode;
-import org.knime.node2012.TabDocument.Tab;
+import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
+import org.knime.node.v210.TabDocument.Tab;
 
 /**
  * NodeModel to wrap {@link Gauss3} Algorithm
