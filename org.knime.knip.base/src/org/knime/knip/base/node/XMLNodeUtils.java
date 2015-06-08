@@ -73,6 +73,7 @@ public class XMLNodeUtils {
     private static final NodeLogger LOGGER = NodeLogger.getLogger(XMLNodeUtils.class);
 
     private static final String NAMESPACE = "http://knime.org/node/v2.10";
+    private static final String NAMESPACE_DEPRECATED = "http://knime.org/node2012";
 
     /**
      * Adds the xml content of the file *NodeFactory.xml in the same package to the xml bean (KnimeNodeDocument).
@@ -82,6 +83,44 @@ public class XMLNodeUtils {
      */
     @SuppressWarnings("rawtypes")
     public static void addXMLNodeDescriptionTo(final KnimeNodeDocument doc,
+                                               final Class<? extends NodeFactory> factoryClass) {
+
+        final ClassLoader loader = factoryClass.getClassLoader();
+        InputStream propInStream;
+        String path;
+        Class<?> clazz = factoryClass;
+
+        do {
+            path = clazz.getPackage().getName();
+            path = path.replace('.', '/') + "/" + clazz.getSimpleName() + ".xml";
+
+            propInStream = loader.getResourceAsStream(path);
+            clazz = clazz.getSuperclass();
+        } while ((propInStream == null) && (clazz != Object.class));
+
+        if (propInStream != null) {
+            try {
+                addXMLNodeDescriptionTo(doc, propInStream);
+            } catch (final XmlException e) {
+                LOGGER.coding("Node description for node " + factoryClass.getSimpleName()
+                        + " can not be read from xml stream.", e);
+            } catch (final IOException e) {
+                LOGGER.coding("Node description for node " + factoryClass.getSimpleName()
+                        + " can not be read from xml file.", e);
+            }
+        }
+    }
+
+    /**
+     * Adds the xml content of the file *NodeFactory.xml in the same package to the xml bean (KnimeNodeDocument).
+     *
+     * @param doc
+     * @param factoryClass
+     * @deprecated Consider using {@link org.knime.node.v210.KnimeNodeDocument} instead.
+     */
+    @Deprecated
+    @SuppressWarnings("rawtypes")
+    public static void addXMLNodeDescriptionTo(final org.knime.node2012.KnimeNodeDocument doc,
                                                final Class<? extends NodeFactory> factoryClass) {
 
         final ClassLoader loader = factoryClass.getClassLoader();
@@ -132,7 +171,32 @@ public class XMLNodeUtils {
         doc.addNewKnimeNode().set(test.getKnimeNode());
     }
 
+    /**
+     * Adds the xml content from the stream to the xml bean node description.
+     *
+     * @param doc
+     * @param inStream
+     * @throws XmlException
+     * @throws IOException
+     * @deprecated Consider using {@link org.knime.node.v210.KnimeNodeDocument} instead.
+     */
+    @Deprecated
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static void addXMLNodeDescriptionTo(final org.knime.node2012.KnimeNodeDocument doc, final InputStream inStream)
+            throws XmlException, IOException {
+        final XmlOptions xmlopts = new XmlOptions();
+        final Map map = new HashMap(2);
+        map.put("", NAMESPACE_DEPRECATED);
+        xmlopts.setLoadSubstituteNamespaces(map);
+        final Map suggestedPrefixes = new HashMap(2);
+        suggestedPrefixes.put(NAMESPACE_DEPRECATED, "");
+        xmlopts.setSaveSuggestedPrefixes(suggestedPrefixes);
+        final KnimeNodeDocument test = KnimeNodeDocument.Factory.parse(inStream, xmlopts);
+        doc.addNewKnimeNode().set(test.getKnimeNode());
+    }
+
     private XMLNodeUtils() {
         // utility class
     }
+
 }

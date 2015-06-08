@@ -49,10 +49,13 @@
  */
 package org.knime.knip.base.node;
 
+import java.lang.reflect.Method;
+
 import org.knime.core.node.BufferedDataTableHolder;
 import org.knime.core.node.DynamicNodeFactory;
 import org.knime.core.node.NodeDescription;
 import org.knime.core.node.NodeDescription210Proxy;
+import org.knime.core.node.NodeDescription27Proxy;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeView;
@@ -67,13 +70,48 @@ import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
  *
  * @author <a href="mailto:jonathan.hale@uni.kn">Jonathan Hale</a>
  */
-public abstract class AbstractValueToCellNodeFactory<DIALOG extends NodeDialogPane, MODEL extends NodeModel & BufferedDataTableHolder> extends DynamicNodeFactory<MODEL>{
+public abstract class AbstractValueToCellNodeFactory<DIALOG extends NodeDialogPane, MODEL extends NodeModel & BufferedDataTableHolder>
+        extends DynamicNodeFactory<MODEL> {
+
+    /**
+     * Check if the inheriting class is using deprecated node descriptions.
+     *
+     * @return true if the derived class overrides
+     *         {@link #addNodeDescriptionContent(org.knime.node2012.KnimeNodeDocument.KnimeNode)}.
+     *
+     */
+    private boolean usingDeprecatedDoc() {
+        try {
+            // get the deprecated addNodeDescriptionContent method
+            Method method =
+                    getClass().getMethod("addNodeDescriptionContent",
+                                         org.knime.node2012.KnimeNodeDocument.KnimeNode.class);
+
+            if (method.getDeclaringClass() != AbstractValueToCellNodeFactory.class) {
+                // subclass overrides deprecated addNodeDescriptionContent(...)
+                return true;
+            }
+
+            method = getClass().getMethod("createNodeDescription",
+                                                      org.knime.node2012.KnimeNodeDocument.class);
+
+            // return whether subclass overrides deprecated createNodeDescription(...)
+            return method.getDeclaringClass() != AbstractValueToCellNodeFactory.class;
+        } catch (NoSuchMethodException | SecurityException e) {
+            // will not happen.
+            return false;
+        }
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
     protected final NodeDescription createNodeDescription() {
+        if (usingDeprecatedDoc()) {
+            return createNodeDescriptionDeprecated();
+        }
+
         final KnimeNodeDocument doc = KnimeNodeDocument.Factory.newInstance();
         createNodeDescription(doc);
 
@@ -102,6 +140,38 @@ public abstract class AbstractValueToCellNodeFactory<DIALOG extends NodeDialogPa
     }
 
     /**
+     * @deprecated Keep until {@link #addNodeDescription(org.knime.node2012.KnimeNodeDocument)} is removed.
+     */
+    @Deprecated
+    protected final NodeDescription createNodeDescriptionDeprecated() {
+        final org.knime.node2012.KnimeNodeDocument doc = org.knime.node2012.KnimeNodeDocument.Factory.newInstance();
+        createNodeDescription(doc);
+
+        org.knime.node2012.KnimeNodeDocument.KnimeNode node = doc.getKnimeNode();
+        if (node == null) {
+            XMLNodeUtils.addXMLNodeDescriptionTo(doc, this.getClass());
+            node = doc.getKnimeNode();
+        }
+
+        // Load if possible
+        if (node != null) {
+
+            // add description of "this" dialog
+            ValueToCellNodeDialog.addTabsDescriptionTo(node.getFullDescription());
+            TableCellViewNodeView.addViewDescriptionTo(node.addNewViews());
+
+            if (node.getPorts() == null) {
+                ValueToCellNodeDialog.addPortsDescriptionTo(node);
+            }
+
+            // Add user stuff
+            addNodeDescriptionContent(node);
+        }
+
+        return new NodeDescription27Proxy(doc);
+    }
+
+    /**
      * Overwrite this method to add additional details programmatically to the already existing node description
      * (created either from an xml file or in
      * {@link GenericValueToCellNodeFactory#createNodeDescription(KnimeNodeDocument)}.
@@ -113,12 +183,37 @@ public abstract class AbstractValueToCellNodeFactory<DIALOG extends NodeDialogPa
     }
 
     /**
+     * Overwrite this method to add additional details programmatically to the already existing node description
+     * (created either from an xml file or in
+     * {@link GenericValueToCellNodeFactory#createNodeDescription(KnimeNodeDocument)}.
+     *
+     * @param node
+     * @deprecated Consider using {@link org.knime.node.v210.KnimeNodeDocument.KnimeNode} instead.
+     */
+    @Deprecated
+    protected void addNodeDescriptionContent(final org.knime.node2012.KnimeNodeDocument.KnimeNode node) {
+        // Nothing to do here
+    }
+
+    /**
      * Overwrite this method if you want to create the node description programmatically. A description in the xml file
      * named after the derived class will not be used.
      *
      * @param doc
      */
     protected void createNodeDescription(final KnimeNodeDocument doc) {
+        // May be overwritten
+    }
+
+    /**
+     * Overwrite this method if you want to create the node description programmatically. A description in the xml file
+     * named after the derived class will not be used.
+     *
+     * @param doc
+     * @deprecated Consider using {@link org.knime.node.v210.KnimeNodeDocument} instead.
+     */
+    @Deprecated
+    protected void createNodeDescription(final org.knime.node2012.KnimeNodeDocument doc) {
         // May be overwritten
     }
 

@@ -102,6 +102,26 @@ public abstract class ValueToCellNodeDialog<VIN extends DataValue> extends LazyN
     }
 
     /**
+     * Adds the port description to the node description.
+     *
+     * @param node
+     * @deprecated Consider using {@link org.knime.node.v210.KnimeNodeDocument.KnimeNode} instead.
+     */
+    @Deprecated
+    static void addPortsDescriptionTo(final org.knime.node2012.KnimeNodeDocument.KnimeNode node) {
+        final org.knime.node2012.PortsDocument.Ports ports = node.addNewPorts();
+        final org.knime.node2012.InPortDocument.InPort inPort = ports.addNewInPort();
+        inPort.newCursor().setTextValue("Images");
+        inPort.setName("Images");
+        inPort.setIndex(0);
+        inPort.newCursor().setTextValue("Images");
+        final org.knime.node2012.OutPortDocument.OutPort outPort = ports.addNewOutPort();
+        outPort.setName("Processed Images");
+        outPort.setIndex(0);
+        outPort.newCursor().setTextValue("Processed Images");
+    }
+
+    /**
      * Adds the description of the column selection tab to the node description.
      *
      * @param desc
@@ -110,6 +130,30 @@ public abstract class ValueToCellNodeDialog<VIN extends DataValue> extends LazyN
         final Tab tab = desc.addNewTab();
         tab.setName("Column Selection");
         Option opt = tab.addNewOption();
+        opt.setName("Column Creation Mode");
+        opt.addNewP()
+                .newCursor()
+                .setTextValue("Mode how to handle the selected column. The processed column can be added to a new table, appended to the end of the table, or the old column can be replaced by the new result");
+        opt = tab.addNewOption();
+        opt.setName("Column Suffix");
+        opt.newCursor()
+                .setTextValue("A suffix appended to the column name. If \"Append\" is not selected, it can be left empty.");
+        opt = tab.addNewOption();
+        opt.setName("Column Selection");
+        opt.newCursor().setTextValue("Selection of the columns to be processed.");
+    }
+
+    /**
+     * Adds the description of the column selection tab to the node description.
+     *
+     * @param desc
+     * @deprecated Consider using {@link org.knime.node.v210.FullDescriptionDocument.FullDescription} instead.
+     */
+    @Deprecated
+    static void addTabsDescriptionTo(final org.knime.node2012.FullDescriptionDocument.FullDescription desc) {
+        final org.knime.node2012.TabDocument.Tab tab = desc.addNewTab();
+        tab.setName("Column Selection");
+        org.knime.node2012.OptionDocument.Option opt = tab.addNewOption();
         opt.setName("Column Creation Mode");
         opt.addNewP()
                 .newCursor()

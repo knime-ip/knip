@@ -169,6 +169,37 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     }
 
+    /**
+     * Add the description of the view.
+     *
+     * @param views
+     *
+     * @deprecated Consider using {@link org.knime.node.v210.ViewsDocument.Views}
+     */
+    @Deprecated
+    public static void addViewDescriptionTo(final org.knime.node2012.ViewsDocument.Views views) {
+        final org.knime.node2012.ViewDocument.View view = views.addNewView();
+        view.setIndex(0);
+        view.setName("Table Cell View");
+
+        final Map<Class<? extends DataValue>, List<String>> descs =
+                TableCellViewsManager.getInstance().getTableCellViewDescriptions();
+        view.newCursor()
+                .setTextValue("Another, possibly interactive, view on table cells. Displays the selected cells with their associated viewer if it exists. Available views are:");
+        view.addNewBr();
+        for (final Entry<Class<? extends DataValue>, List<String>> entry : descs.entrySet()) {
+
+            view.addB("- " + entry.getKey().getSimpleName());
+            view.addNewBr();
+            for (final String d : entry.getValue()) {
+                view.addI("-- " + d);
+                view.addNewBr();
+            }
+
+        }
+
+    }
+
     protected Map<String, List<TableCellView>> m_cellViews;
 
     protected JTabbedPane m_cellViewTabs;
