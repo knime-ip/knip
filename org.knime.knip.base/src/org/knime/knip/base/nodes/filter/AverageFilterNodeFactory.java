@@ -61,9 +61,9 @@ import net.imglib2.type.numeric.real.DoubleType;
 
 import org.knime.knip.core.ops.iterable.SlidingMeanIntegralImgBinaryOp;
 import org.knime.knip.core.util.ImgPlusFactory;
-import org.knime.node2012.FullDescriptionDocument.FullDescription;
-import org.knime.node2012.KnimeNodeDocument;
-import org.knime.node2012.KnimeNodeDocument.KnimeNode;
+import org.knime.node.v210.FullDescriptionDocument.FullDescription;
+import org.knime.node.v210.KnimeNodeDocument;
+import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 
 /**
  * TODO Auto-generated

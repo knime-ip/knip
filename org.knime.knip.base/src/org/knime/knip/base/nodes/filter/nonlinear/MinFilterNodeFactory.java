@@ -59,9 +59,9 @@ import org.knime.core.node.NodeModel;
 import org.knime.knip.base.nodes.filter.AbstractSlidingWindowOperationNodeModel;
 import org.knime.knip.base.nodes.filter.SlidingWindowOperationNodeDialog;
 import org.knime.knip.base.nodes.filter.SlidingWindowOperationNodeFactory;
-import org.knime.node2012.FullDescriptionDocument.FullDescription;
-import org.knime.node2012.KnimeNodeDocument;
-import org.knime.node2012.KnimeNodeDocument.KnimeNode;
+import org.knime.node.v210.FullDescriptionDocument.FullDescription;
+import org.knime.node.v210.KnimeNodeDocument;
+import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 
 /**
  * {@link NodeModel} for Minimum Filter

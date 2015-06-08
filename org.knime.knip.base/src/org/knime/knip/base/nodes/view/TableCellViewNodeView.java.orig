@@ -76,8 +76,8 @@ import org.knime.core.node.tableview.TableContentModel;
 import org.knime.core.node.tableview.TableContentView;
 import org.knime.core.node.tableview.TableView;
 import org.knime.knip.core.util.waitingindicator.WaitingIndicatorUtils;
-import org.knime.node2012.ViewDocument.View;
-import org.knime.node2012.ViewsDocument.Views;
+import org.knime.node.v210.ViewDocument.View;
+import org.knime.node.v210.ViewsDocument.Views;
 
 /*
  * ------------------------------------------------------------------------

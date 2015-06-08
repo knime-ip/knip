@@ -78,7 +78,7 @@ import org.knime.knip.base.node.dialog.DescriptionHelper;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.dialog.DialogComponentSpanSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
-import org.knime.node2012.KnimeNodeDocument.KnimeNode;
+import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 
 /**
  *

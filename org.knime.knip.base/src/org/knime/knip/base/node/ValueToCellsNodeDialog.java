@@ -56,9 +56,9 @@ import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.knime.node2012.FullDescriptionDocument.FullDescription;
-import org.knime.node2012.OptionDocument.Option;
-import org.knime.node2012.TabDocument.Tab;
+import org.knime.node.v210.FullDescriptionDocument.FullDescription;
+import org.knime.node.v210.OptionDocument.Option;
+import org.knime.node.v210.TabDocument.Tab;
 
 /**
  * Dialog corresponding to the {@link ValueToCellsNodeModel} which already contains dialog components, but others can

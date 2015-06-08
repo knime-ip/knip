@@ -49,16 +49,21 @@
 package org.knime.knip.base.nodes.view;
 
 import org.knime.core.node.DynamicNodeFactory;
+import org.knime.core.node.NodeDescription;
+import org.knime.core.node.NodeDescription210Proxy;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeView;
 import org.knime.knip.base.node.XMLNodeUtils;
-import org.knime.node2012.KnimeNodeDocument;
+import org.knime.node.v210.KnimeNodeDocument;
 
 /**
- * 
+ * Factory for {@link TableCellViewNodeModel}.
+ *
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author <a href="mailto:jonathan.hale@uni.kn">Jonathan Hale</a>
  */
 public class TableCellViewNodeFactory extends DynamicNodeFactory<TableCellViewNodeModel> {
 
@@ -66,9 +71,13 @@ public class TableCellViewNodeFactory extends DynamicNodeFactory<TableCellViewNo
      * {@inheritDoc}
      */
     @Override
-    protected void addNodeDescription(final KnimeNodeDocument doc) {
+    protected NodeDescription createNodeDescription() {
+        final KnimeNodeDocument doc = KnimeNodeDocument.Factory.newInstance();
+
         XMLNodeUtils.addXMLNodeDescriptionTo(doc, this.getClass());
         TableCellViewNodeView.addViewDescriptionTo(doc.getKnimeNode().addNewViews());
+
+        return new NodeDescription210Proxy(doc);
     }
 
     /**
@@ -93,7 +102,7 @@ public class TableCellViewNodeFactory extends DynamicNodeFactory<TableCellViewNo
      */
     @Override
     public NodeView<TableCellViewNodeModel> createNodeView(final int viewIndex, final TableCellViewNodeModel nodeModel) {
-        return new TableCellViewNodeView(nodeModel);
+        return new TableCellViewNodeView<>(nodeModel);
     }
 
     /**

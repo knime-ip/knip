@@ -50,6 +50,7 @@ package org.knime.knip.base.nodes.view;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,8 +77,8 @@ import org.knime.core.node.tableview.TableContentModel;
 import org.knime.core.node.tableview.TableContentView;
 import org.knime.core.node.tableview.TableView;
 import org.knime.knip.core.util.waitingindicator.WaitingIndicatorUtils;
-import org.knime.node2012.ViewDocument.View;
-import org.knime.node2012.ViewsDocument.Views;
+import org.knime.node.v210.ViewDocument.View;
+import org.knime.node.v210.ViewsDocument.Views;
 
 /*
  * ------------------------------------------------------------------------
@@ -135,6 +136,9 @@ import org.knime.node2012.ViewsDocument.Views;
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author <a href="mailto:jonathan.hale@uni.kn">Jonathan Hale</a>
+ *
+ * @param <T> {@link NodeModel} subclass this {@link TableCellViewNodeView} belongs to.
  */
 public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder> extends NodeView<T> {
 
@@ -147,6 +151,37 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
      */
     public static void addViewDescriptionTo(final Views views) {
         final View view = views.addNewView();
+        view.setIndex(new BigInteger("0"));
+        view.setName("Table Cell View");
+
+        final Map<Class<? extends DataValue>, List<String>> descs =
+                TableCellViewsManager.getInstance().getTableCellViewDescriptions();
+        view.newCursor()
+                .setTextValue("Another, possibly interactive, view on table cells. Displays the selected cells with their associated viewer if it exists. Available views are:");
+        view.addNewBr();
+        for (final Entry<Class<? extends DataValue>, List<String>> entry : descs.entrySet()) {
+
+            view.addB("- " + entry.getKey().getSimpleName());
+            view.addNewBr();
+            for (final String d : entry.getValue()) {
+                view.addI("-- " + d);
+                view.addNewBr();
+            }
+
+        }
+
+    }
+
+    /**
+     * Add the description of the view.
+     *
+     * @param views
+     *
+     * @deprecated Consider using {@link org.knime.node.v210.ViewsDocument.Views}
+     */
+    @Deprecated
+    public static void addViewDescriptionTo(final org.knime.node2012.ViewsDocument.Views views) {
+        final org.knime.node2012.ViewDocument.View view = views.addNewView();
         view.setIndex(0);
         view.setName("Table Cell View");
 

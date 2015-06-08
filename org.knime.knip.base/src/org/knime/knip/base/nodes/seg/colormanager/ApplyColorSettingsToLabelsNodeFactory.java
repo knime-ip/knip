@@ -50,6 +50,8 @@
 package org.knime.knip.base.nodes.seg.colormanager;
 
 import org.knime.core.node.DynamicNodeFactory;
+import org.knime.core.node.NodeDescription;
+import org.knime.core.node.NodeDescription210Proxy;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeView;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
@@ -58,7 +60,7 @@ import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelectio
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.XMLNodeUtils;
 import org.knime.knip.base.nodes.view.TableCellViewNodeView;
-import org.knime.node2012.KnimeNodeDocument;
+import org.knime.node.v210.KnimeNodeDocument;
 
 /**
  * NodeFactory to {@link ApplyColorSettingsToLabelsNodeFactory}
@@ -81,13 +83,18 @@ public class ApplyColorSettingsToLabelsNodeFactory<L extends Comparable<L>> exte
 
     /**
      * {@inheritDoc}
+     * @return
      * @deprecated
      */
     @Deprecated
     @Override
-    protected void addNodeDescription(final KnimeNodeDocument doc) {
+    protected NodeDescription createNodeDescription() {
+        final KnimeNodeDocument doc = KnimeNodeDocument.Factory.newInstance();
+
         XMLNodeUtils.addXMLNodeDescriptionTo(doc, getClass());
         TableCellViewNodeView.addViewDescriptionTo(doc.getKnimeNode().addNewViews());
+
+        return new NodeDescription210Proxy(doc);
     }
 
     /**

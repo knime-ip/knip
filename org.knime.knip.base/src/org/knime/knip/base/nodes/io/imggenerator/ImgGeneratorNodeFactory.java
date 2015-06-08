@@ -52,16 +52,18 @@ import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.node.DynamicNodeFactory;
+import org.knime.core.node.NodeDescription;
+import org.knime.core.node.NodeDescription210Proxy;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeView;
 import org.knime.knip.base.node.XMLNodeUtils;
 import org.knime.knip.base.nodes.view.TableCellViewNodeView;
-import org.knime.node2012.KnimeNodeDocument;
-import org.knime.node2012.KnimeNodeDocument.KnimeNode;
+import org.knime.node.v210.KnimeNodeDocument;
+import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 
 /**
  * The Factory class for the Image Reader.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -110,7 +112,9 @@ public class ImgGeneratorNodeFactory<T extends NativeType<T> & RealType<T>> exte
     }
 
     @Override
-    protected final void addNodeDescription(final KnimeNodeDocument doc) {
+    protected NodeDescription createNodeDescription() {
+        KnimeNodeDocument doc = KnimeNodeDocument.Factory.newInstance();
+
         KnimeNode node = doc.getKnimeNode();
         if (node == null) {
             XMLNodeUtils.addXMLNodeDescriptionTo(doc, this.getClass());
@@ -121,6 +125,9 @@ public class ImgGeneratorNodeFactory<T extends NativeType<T> & RealType<T>> exte
         if (node != null) {
             TableCellViewNodeView.addViewDescriptionTo(node.addNewViews());
         }
+
+        return new NodeDescription210Proxy(doc);
     }
+
 
 }

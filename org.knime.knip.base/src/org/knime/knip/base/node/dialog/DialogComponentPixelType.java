@@ -51,8 +51,8 @@ package org.knime.knip.base.node.dialog;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.knip.core.types.NativeTypes;
 import org.knime.knip.core.util.EnumUtils;
-import org.knime.node2012.OptionDocument.Option;
-import org.knime.node2012.PDocument.P;
+import org.knime.node.v210.OptionDocument.Option;
+import org.knime.node.v210.PDocument.P;
 
 /**
  *

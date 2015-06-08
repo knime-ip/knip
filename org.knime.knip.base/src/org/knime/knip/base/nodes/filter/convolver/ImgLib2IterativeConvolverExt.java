@@ -68,8 +68,8 @@ import org.knime.knip.core.algorithm.convolvers.ImgLib2IterativeConvolver;
 import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
 import org.knime.knip.core.types.OutOfBoundsStrategyFactory;
 import org.knime.knip.core.util.ImgUtils;
-import org.knime.node2012.OptionDocument.Option;
-import org.knime.node2012.TabDocument.Tab;
+import org.knime.node.v210.OptionDocument.Option;
+import org.knime.node.v210.TabDocument.Tab;
 
 /**
  * TODO Auto-generated

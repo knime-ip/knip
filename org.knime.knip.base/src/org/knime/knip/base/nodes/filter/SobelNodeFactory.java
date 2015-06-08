@@ -86,7 +86,7 @@ import org.knime.knip.core.algorithm.convolvers.filter.linear.ConstantFilter;
 import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
 import org.knime.knip.core.types.OutOfBoundsStrategyFactory;
 import org.knime.knip.core.util.ImgUtils;
-import org.knime.node2012.KnimeNodeDocument.KnimeNode;
+import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 
 /**
  * TODO Auto-generated

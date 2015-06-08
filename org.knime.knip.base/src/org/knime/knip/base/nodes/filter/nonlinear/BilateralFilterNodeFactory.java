@@ -67,7 +67,7 @@ import org.knime.knip.base.node.dialog.DescriptionHelper;
 import org.knime.knip.base.node.dialog.DialogComponentSpanSelection;
 import org.knime.knip.core.ops.filters.BilateralFilter;
 import org.knime.knip.core.util.ImgPlusFactory;
-import org.knime.node2012.KnimeNodeDocument.KnimeNode;
+import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 
 /**
  * {@link NodeModel} for {@link BilateralFilter}

@@ -59,10 +59,10 @@ import org.knime.knip.base.node.dialog.DialogComponentOutOfBoundsSelection;
 import org.knime.knip.base.node.dialog.DialogComponentSpanSelection;
 import org.knime.knip.core.types.NeighborhoodType;
 import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
-import org.knime.node2012.FullDescriptionDocument.FullDescription;
-import org.knime.node2012.KnimeNodeDocument.KnimeNode;
-import org.knime.node2012.OptionDocument.Option;
-import org.knime.node2012.TabDocument.Tab;
+import org.knime.node.v210.FullDescriptionDocument.FullDescription;
+import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
+import org.knime.node.v210.OptionDocument.Option;
+import org.knime.node.v210.TabDocument.Tab;
 
 /**
  *

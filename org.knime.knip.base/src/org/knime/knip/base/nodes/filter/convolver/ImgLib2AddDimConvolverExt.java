@@ -60,8 +60,8 @@ import net.imglib2.view.Views;
 import org.knime.knip.core.algorithm.convolvers.AdditionDimImgConvolver;
 import org.knime.knip.core.algorithm.convolvers.ImgLib2FourierConvolver;
 import org.knime.knip.core.types.OutOfBoundsStrategyFactory;
-import org.knime.node2012.OptionDocument.Option;
-import org.knime.node2012.TabDocument.Tab;
+import org.knime.node.v210.OptionDocument.Option;
+import org.knime.node.v210.TabDocument.Tab;
 
 /**
  * TODO Auto-generated

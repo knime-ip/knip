@@ -59,7 +59,7 @@ import net.imglib2.type.numeric.RealType;
 import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
-import org.knime.node2012.TabDocument.Tab;
+import org.knime.node.v210.TabDocument.Tab;
 
 /**
  * TODO Auto-generated

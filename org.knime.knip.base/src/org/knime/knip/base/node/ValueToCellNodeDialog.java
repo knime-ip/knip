@@ -50,6 +50,7 @@ package org.knime.knip.base.node;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.math.BigInteger;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -62,13 +63,13 @@ import org.knime.core.node.defaultnodesettings.DialogComponentColumnFilter;
 import org.knime.core.node.defaultnodesettings.DialogComponentString;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.knime.node2012.FullDescriptionDocument.FullDescription;
-import org.knime.node2012.InPortDocument.InPort;
-import org.knime.node2012.KnimeNodeDocument.KnimeNode;
-import org.knime.node2012.OptionDocument.Option;
-import org.knime.node2012.OutPortDocument.OutPort;
-import org.knime.node2012.PortsDocument.Ports;
-import org.knime.node2012.TabDocument.Tab;
+import org.knime.node.v210.FullDescriptionDocument.FullDescription;
+import org.knime.node.v210.InPortDocument.InPort;
+import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
+import org.knime.node.v210.OptionDocument.Option;
+import org.knime.node.v210.OutPortDocument.OutPort;
+import org.knime.node.v210.PortsDocument.Ports;
+import org.knime.node.v210.TabDocument.Tab;
 
 /**
  * Dialog corresponding to the {@link ValueToCellNodeModel} which already contains dialog components, but others can
@@ -77,8 +78,9 @@ import org.knime.node2012.TabDocument.Tab;
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author <a href="mailto:jonathan.hale@uni.kn">Jonathan Hale</a>
  *
- * @param <VIN>
+ * @param <VIN> Input {@link DataValue}.
  */
 public abstract class ValueToCellNodeDialog<VIN extends DataValue> extends LazyNodeDialogPane {
 
@@ -92,9 +94,29 @@ public abstract class ValueToCellNodeDialog<VIN extends DataValue> extends LazyN
         final InPort inPort = ports.addNewInPort();
         inPort.newCursor().setTextValue("Images");
         inPort.setName("Images");
-        inPort.setIndex(0);
+        inPort.setIndex(new BigInteger("0"));
         inPort.newCursor().setTextValue("Images");
         final OutPort outPort = ports.addNewOutPort();
+        outPort.setName("Processed Images");
+        outPort.setIndex(new BigInteger("0"));
+        outPort.newCursor().setTextValue("Processed Images");
+    }
+
+    /**
+     * Adds the port description to the node description.
+     *
+     * @param node
+     * @deprecated Consider using {@link org.knime.node.v210.KnimeNodeDocument.KnimeNode} instead.
+     */
+    @Deprecated
+    static void addPortsDescriptionTo(final org.knime.node2012.KnimeNodeDocument.KnimeNode node) {
+        final org.knime.node2012.PortsDocument.Ports ports = node.addNewPorts();
+        final org.knime.node2012.InPortDocument.InPort inPort = ports.addNewInPort();
+        inPort.newCursor().setTextValue("Images");
+        inPort.setName("Images");
+        inPort.setIndex(0);
+        inPort.newCursor().setTextValue("Images");
+        final org.knime.node2012.OutPortDocument.OutPort outPort = ports.addNewOutPort();
         outPort.setName("Processed Images");
         outPort.setIndex(0);
         outPort.newCursor().setTextValue("Processed Images");
@@ -109,6 +131,30 @@ public abstract class ValueToCellNodeDialog<VIN extends DataValue> extends LazyN
         final Tab tab = desc.addNewTab();
         tab.setName("Column Selection");
         Option opt = tab.addNewOption();
+        opt.setName("Column Creation Mode");
+        opt.addNewP()
+                .newCursor()
+                .setTextValue("Mode how to handle the selected column. The processed column can be added to a new table, appended to the end of the table, or the old column can be replaced by the new result");
+        opt = tab.addNewOption();
+        opt.setName("Column Suffix");
+        opt.newCursor()
+                .setTextValue("A suffix appended to the column name. If \"Append\" is not selected, it can be left empty.");
+        opt = tab.addNewOption();
+        opt.setName("Column Selection");
+        opt.newCursor().setTextValue("Selection of the columns to be processed.");
+    }
+
+    /**
+     * Adds the description of the column selection tab to the node description.
+     *
+     * @param desc
+     * @deprecated Consider using {@link org.knime.node.v210.FullDescriptionDocument.FullDescription} instead.
+     */
+    @Deprecated
+    static void addTabsDescriptionTo(final org.knime.node2012.FullDescriptionDocument.FullDescription desc) {
+        final org.knime.node2012.TabDocument.Tab tab = desc.addNewTab();
+        tab.setName("Column Selection");
+        org.knime.node2012.OptionDocument.Option opt = tab.addNewOption();
         opt.setName("Column Creation Mode");
         opt.addNewP()
                 .newCursor()

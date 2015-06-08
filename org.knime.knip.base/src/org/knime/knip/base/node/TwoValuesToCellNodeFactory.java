@@ -50,12 +50,7 @@ package org.knime.knip.base.node;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataValue;
-import org.knime.core.node.DynamicNodeFactory;
 import org.knime.core.node.NodeSetFactory;
-import org.knime.core.node.NodeView;
-import org.knime.knip.base.nodes.view.TableCellViewNodeView;
-import org.knime.node2012.KnimeNodeDocument;
-import org.knime.node2012.KnimeNodeDocument.KnimeNode;
 
 /**
  * Node factory mapping two data values to a data cell. Please note that if this factory is used, the node has to be
@@ -65,106 +60,15 @@ import org.knime.node2012.KnimeNodeDocument.KnimeNode;
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author <a href="mailto:jonathan.hale@uni.kn">Jonathan Hale</a>
+ *
+ * @see TwoValuesToCellNodeModel
+ * @see TwoValuesToCellNodeDialog
  *
  * @param <VIN1>
  * @param <VIN2>
  */
-public abstract class TwoValuesToCellNodeFactory<VIN1 extends DataValue, VIN2 extends DataValue> extends
-        DynamicNodeFactory<TwoValuesToCellNodeModel<VIN1, VIN2, ? extends DataCell>> {
-
-    /**
-     * {@inheritDoc}
-     *
-     * @deprecated
-     */
-    @Deprecated
-    @Override
-    protected final void addNodeDescription(final KnimeNodeDocument doc) {
-        createNodeDescription(doc);
-
-        KnimeNode node = doc.getKnimeNode();
-        if (node == null) {
-            XMLNodeUtils.addXMLNodeDescriptionTo(doc, this.getClass());
-            node = doc.getKnimeNode();
-        }
-
-        // Load if possible
-        if (node != null) {
-
-            // add description of this dialog
-            TwoValuesToCellNodeDialog.addTabsDescriptionTo(node.getFullDescription());
-            TableCellViewNodeView.addViewDescriptionTo(node.addNewViews());
-
-            if (node.getPorts() == null) {
-                //add default port description
-                TwoValuesToCellNodeDialog.addPortsDescriptionTo(node);
-            }
-
-            // Add user stuff
-            addNodeDescriptionContent(node);
-        }
-    }
-
-    /**
-     * Overwrite this method to add additional details programmatically to the already existing node description
-     * (created either from an xml file or in
-     * {@link TwoValuesToCellNodeFactory#createNodeDescription(KnimeNodeDocument)}.
-     *
-     * @param node
-     */
-    protected void addNodeDescriptionContent(final KnimeNode node) {
-        // Nothing to do here
-    }
-
-    /**
-     * Overwrite this method if you want to create the node description programmatically. A description in the xml file
-     * named after the derived class will not be used.
-     *
-     * @param doc
-     */
-    protected void createNodeDescription(final KnimeNodeDocument doc) {
-        // May be overwritten
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected int getNrNodeViews() {
-        return 1;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public
-            NodeView<TwoValuesToCellNodeModel<VIN1, VIN2, ? extends DataCell>>
-            createNodeView(final int viewIndex, final TwoValuesToCellNodeModel<VIN1, VIN2, ? extends DataCell> nodeModel) {
-        return new TableCellViewNodeView<TwoValuesToCellNodeModel<VIN1, VIN2, ? extends DataCell>>(nodeModel);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected final boolean hasDialog() {
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     */
-    @Override
-    protected TwoValuesToCellNodeDialog<VIN1, VIN2> createNodeDialogPane() {
-        return createNodeDialog();
-    }
-
-    /**
-     *
-     * @return the new dialog
-     */
-    protected abstract TwoValuesToCellNodeDialog<VIN1, VIN2> createNodeDialog();
-
+public abstract class TwoValuesToCellNodeFactory<VIN1 extends DataValue, VIN2 extends DataValue>
+        extends
+        AbstractValueToCellNodeFactory<TwoValuesToCellNodeDialog<VIN1, VIN2>, TwoValuesToCellNodeModel<VIN1, VIN2, ? extends DataCell>> {
 }

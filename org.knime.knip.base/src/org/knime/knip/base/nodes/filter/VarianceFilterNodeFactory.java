@@ -55,9 +55,9 @@ import net.imglib2.ops.operation.iterable.unary.Variance;
 import net.imglib2.outofbounds.OutOfBoundsFactory;
 import net.imglib2.type.numeric.RealType;
 
-import org.knime.node2012.FullDescriptionDocument.FullDescription;
-import org.knime.node2012.KnimeNodeDocument;
-import org.knime.node2012.KnimeNodeDocument.KnimeNode;
+import org.knime.node.v210.FullDescriptionDocument.FullDescription;
+import org.knime.node.v210.KnimeNodeDocument;
+import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 
 /**
  * {@link VarianceFilterNodeFactory} as {@link SlidingWindowOperationNodeFactory}

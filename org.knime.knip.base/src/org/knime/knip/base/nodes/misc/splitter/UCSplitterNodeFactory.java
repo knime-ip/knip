@@ -67,22 +67,17 @@ import net.imglib2.type.numeric.RealType;
 import org.knime.core.data.DataType;
 import org.knime.core.data.collection.CollectionCellFactory;
 import org.knime.core.data.collection.ListCell;
-import org.knime.core.node.DynamicNodeFactory;
 import org.knime.core.node.ExecutionContext;
-import org.knime.core.node.NodeDialogPane;
-import org.knime.core.node.NodeView;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.base.node.GenericValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeModel;
-import org.knime.knip.base.node.XMLNodeUtils;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
-import org.knime.knip.base.nodes.view.TableCellViewNodeView;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
-import org.knime.node2012.KnimeNodeDocument;
 
 /**
  *
@@ -91,7 +86,7 @@ import org.knime.node2012.KnimeNodeDocument;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 public class UCSplitterNodeFactory<T extends RealType<T>> extends
-        DynamicNodeFactory<ValueToCellNodeModel<ImgPlusValue<T>, ListCell>> {
+        GenericValueToCellNodeFactory<ImgPlusValue<T>, ValueToCellNodeModel<ImgPlusValue<T>, ListCell>> {
 
     private static SettingsModelDimSelection createDimSelectionModel() {
         return new SettingsModelDimSelection("dim_selection", "X", "Y");
@@ -101,18 +96,7 @@ public class UCSplitterNodeFactory<T extends RealType<T>> extends
      * {@inheritDoc}
      */
     @Override
-    protected void addNodeDescription(final KnimeNodeDocument doc) {
-        XMLNodeUtils.addXMLNodeDescriptionTo(doc, getClass());
-        //     TODO: Add correct description   ValueToCellNodeDialog.addTabsDescriptionTo(doc.getKnimeNode().getFullDescription());
-        TableCellViewNodeView.addViewDescriptionTo(doc.getKnimeNode().addNewViews());
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected NodeDialogPane createNodeDialogPane() {
+    protected ValueToCellNodeDialog<ImgPlusValue<T>> createNodeDialog() {
         return new ValueToCellNodeDialog<ImgPlusValue<T>>() {
 
             @Override
@@ -187,31 +171,6 @@ public class UCSplitterNodeFactory<T extends RealType<T>> extends
                 m_imgCellFactory = new ImgPlusCellFactory(exec);
             }
         };
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeView<ValueToCellNodeModel<ImgPlusValue<T>, ListCell>>
-            createNodeView(final int viewIndex, final ValueToCellNodeModel<ImgPlusValue<T>, ListCell> nodeModel) {
-        return new TableCellViewNodeView<ValueToCellNodeModel<ImgPlusValue<T>, ListCell>>(nodeModel);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected int getNrNodeViews() {
-        return 1;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected boolean hasDialog() {
-        return true;
     }
 
 }

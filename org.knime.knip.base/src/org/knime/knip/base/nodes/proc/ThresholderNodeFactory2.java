@@ -90,7 +90,7 @@ import org.knime.knip.core.algorithm.types.ThresholdingType;
 import org.knime.knip.core.ops.interval.AutoThreshold;
 import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgUtils;
-import org.knime.node2012.KnimeNodeDocument.KnimeNode;
+import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 
 /**
  * Deprecated. Use ROI based ThresholderNodeFactory3 (ImgThresholder)

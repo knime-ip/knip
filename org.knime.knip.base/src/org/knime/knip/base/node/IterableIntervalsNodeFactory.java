@@ -53,10 +53,10 @@ import net.imglib2.type.numeric.RealType;
 
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
-import org.knime.node2012.KnimeNodeDocument.KnimeNode;
-import org.knime.node2012.OptionDocument.Option;
-import org.knime.node2012.TabDocument.Tab;
-import org.knime.node2012.UlDocument.Ul;
+import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
+import org.knime.node.v210.OptionDocument.Option;
+import org.knime.node.v210.TabDocument.Tab;
+import org.knime.node.v210.UlDocument.Ul;
 
 /**
  * NodeFactory for {@link IterableIntervalsNodeModel}
@@ -115,10 +115,10 @@ public abstract class IterableIntervalsNodeFactory<T extends RealType<T>, V exte
                 .newCursor()
                 .setTextValue("The FillingMode determines how all values, which lie outside your defined region of interest, will be set. This option is only needed if you choose a labeling column, such that the node operates on ROIs instead of the entire image. There are currently four FillingModes:");
         Ul list = opt.addNewUl();
-        list.addLi("Value of Source: In this mode, pixels outside of the ROIs remain unchanged. ");
-        list.addLi("Minimum of Result Type: Here, values outside of the ROI are set to the smallest legal value of the output image type. ");
-        list.addLi("Maximum of Result Type: All values outside of the ROI are set to the largest posible value of the output image type. ");
-        list.addLi("No Filling: No action is taken after initializing the target image, thus all pixels outside the ROIs remain zero. ");
+        list.addNewLi().addNewTt().setStringValue("Value of Source: In this mode, pixels outside of the ROIs remain unchanged. ");
+        list.addNewLi().addNewTt().setStringValue("Minimum of Result Type: Here, values outside of the ROI are set to the smallest legal value of the output image type. ");
+        list.addNewLi().addNewTt().setStringValue("Maximum of Result Type: All values outside of the ROI are set to the largest posible value of the output image type. ");
+        list.addNewLi().addNewTt().setStringValue("No Filling: No action is taken after initializing the target image, thus all pixels outside the ROIs remain zero. ");
 
     }
 

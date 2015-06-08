@@ -55,8 +55,8 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.dialog.DescriptionHelper;
 import org.knime.knip.base.node.dialog.DialogComponentOutOfBoundsSelection;
-import org.knime.node2012.KnimeNodeDocument.KnimeNode;
-import org.knime.node2012.TabDocument.Tab;
+import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
+import org.knime.node.v210.TabDocument.Tab;
 
 /**
  *

@@ -50,7 +50,7 @@ package org.knime.knip.base.node.dialog;
 
 import java.util.List;
 
-import org.knime.node2012.TabDocument.Tab;
+import org.knime.node.v210.TabDocument.Tab;
 
 /**
  *
