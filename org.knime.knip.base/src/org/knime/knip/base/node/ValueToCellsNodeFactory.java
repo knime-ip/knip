@@ -57,10 +57,14 @@ import org.knime.core.node.NodeSetFactory;
  * NOT work so far.
  *
  *
- * @param <VIN>
+ * @param <VIN> Input {@link DataValue}.
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author <a href="mailto:jonathan.hale@uni.kn">Jonathan Hale</a>
+ *
+ * @see ValueToCellsNodeModel
+ * @see ValueToCellsNodeDialog
  */
 public abstract class ValueToCellsNodeFactory<VIN extends DataValue> extends
         AbstractValueToCellNodeFactory<ValueToCellsNodeDialog<VIN>, ValueToCellsNodeModel<VIN>> {

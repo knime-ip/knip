@@ -60,9 +60,10 @@ import org.knime.core.node.NodeSetFactory;
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author <a href="mailto:jonathan.hale@uni.kn">Jonathan Hale</a>
  *
- * @param <VIN>
- * @param <M>
+ * @param <VIN> Input {@link DataValue}.
+ * @param <M> Subtype of {@link ValueToCellNodeModel} which is created by this factory.
  */
 public abstract class GenericValueToCellNodeFactory<VIN extends DataValue, M extends ValueToCellNodeModel<VIN, ? extends DataCell>>
         extends AbstractValueToCellNodeFactory<ValueToCellNodeDialog<VIN>, M> {

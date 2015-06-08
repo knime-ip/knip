@@ -64,9 +64,16 @@ import org.knime.node.v210.KnimeNodeDocument;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 
 /**
+ * {@link AbstractValueToCellNodeFactory} is a abstract implementation of {@link DynamicNodeFactory} for
+ * {@link BufferedDataTableHolder} {@link NodeModel}, which have a {@link NodeDialogPane} and adds a
+ * {@link TableCellViewNodeView} to it.
  *
  * @param <DIALOG> dialog pane type
  * @param <MODEL> node model type
+ *
+ * @see TwoValuesToCellNodeFactory
+ * @see ValueToCellsNodeFactory
+ * @see GenericValueToCellNodeFactory
  *
  * @author <a href="mailto:jonathan.hale@uni.kn">Jonathan Hale</a>
  */
@@ -74,12 +81,13 @@ public abstract class AbstractValueToCellNodeFactory<DIALOG extends NodeDialogPa
         extends DynamicNodeFactory<MODEL> {
 
     /**
-     * Check if the inheriting class is using deprecated node descriptions.
+     * Check if the subclass is using deprecated node descriptions.
      *
      * @return true if the derived class overrides
      *         {@link #addNodeDescriptionContent(org.knime.node2012.KnimeNodeDocument.KnimeNode)}.
-     *
+     * @deprecated Remove when support for deprecated node descriptions is dropped.
      */
+    @Deprecated
     private boolean usingDeprecatedDoc() {
         try {
             // get the deprecated addNodeDescriptionContent method
@@ -92,8 +100,7 @@ public abstract class AbstractValueToCellNodeFactory<DIALOG extends NodeDialogPa
                 return true;
             }
 
-            method = getClass().getMethod("createNodeDescription",
-                                                      org.knime.node2012.KnimeNodeDocument.class);
+            method = getClass().getMethod("createNodeDescription", org.knime.node2012.KnimeNodeDocument.class);
 
             // return whether subclass overrides deprecated createNodeDescription(...)
             return method.getDeclaringClass() != AbstractValueToCellNodeFactory.class;
@@ -109,6 +116,7 @@ public abstract class AbstractValueToCellNodeFactory<DIALOG extends NodeDialogPa
     @Override
     protected final NodeDescription createNodeDescription() {
         if (usingDeprecatedDoc()) {
+            // TODO: remove when support for deprecated node descriptions is dropped.
             return createNodeDescriptionDeprecated();
         }
 
@@ -177,6 +185,7 @@ public abstract class AbstractValueToCellNodeFactory<DIALOG extends NodeDialogPa
      * {@link GenericValueToCellNodeFactory#createNodeDescription(KnimeNodeDocument)}.
      *
      * @param node
+     * @see #createNodeDescription(KnimeNodeDocument)
      */
     protected void addNodeDescriptionContent(final KnimeNode node) {
         // Nothing to do here
@@ -188,7 +197,10 @@ public abstract class AbstractValueToCellNodeFactory<DIALOG extends NodeDialogPa
      * {@link GenericValueToCellNodeFactory#createNodeDescription(KnimeNodeDocument)}.
      *
      * @param node
-     * @deprecated Consider using {@link org.knime.node.v210.KnimeNodeDocument.KnimeNode} instead.
+     * @see #createNodeDescription(org.knime.node2012.KnimeNodeDocument)
+     * @deprecated Consider using Consider using {@link org.knime.node.v210.KnimeNodeDocument.KnimeNode} and override
+     *             {@link #createNodeDescription(org.knime.node.v210.KnimeNodeDocument)} and
+     *             {@link #addNodeDescriptionContent(org.knime.node.v210.KnimeNodeDocument.KnimeNode)} instead.
      */
     @Deprecated
     protected void addNodeDescriptionContent(final org.knime.node2012.KnimeNodeDocument.KnimeNode node) {
@@ -200,6 +212,7 @@ public abstract class AbstractValueToCellNodeFactory<DIALOG extends NodeDialogPa
      * named after the derived class will not be used.
      *
      * @param doc
+     * @see #addNodeDescriptionContent(KnimeNode)
      */
     protected void createNodeDescription(final KnimeNodeDocument doc) {
         // May be overwritten
@@ -210,7 +223,11 @@ public abstract class AbstractValueToCellNodeFactory<DIALOG extends NodeDialogPa
      * named after the derived class will not be used.
      *
      * @param doc
-     * @deprecated Consider using {@link org.knime.node.v210.KnimeNodeDocument} instead.
+     * @see #addNodeDescriptionContent(org.knime.node2012.KnimeNodeDocument.KnimeNode)
+     * @deprecated Consider using {@link org.knime.node.v210.KnimeNodeDocument} and override
+     *             {@link #createNodeDescription(org.knime.node.v210.KnimeNodeDocument)} and
+     *             {@link #addNodeDescriptionContent(org.knime.node.v210.KnimeNodeDocument.KnimeNode)} instead.
+     *
      */
     @Deprecated
     protected void createNodeDescription(final org.knime.node2012.KnimeNodeDocument doc) {
@@ -245,14 +262,17 @@ public abstract class AbstractValueToCellNodeFactory<DIALOG extends NodeDialogPa
      * {@inheritDoc}
      */
     @Override
-    protected final DIALOG createNodeDialogPane() {
+    protected DIALOG createNodeDialogPane() {
         return createNodeDialog();
     }
 
     /**
-     *
      * @return the new dialog
+     * @deprecated Override {@link #createNodeDialogPane()} instead (renaming should do the job).
      */
+    @Deprecated
+    /* TODO: Remove with next major API breaking release. #createNodeDialogPane()
+     * is just fine and has better naming (since returns a NodeDialogPane) */
     protected abstract DIALOG createNodeDialog();
 
 }
