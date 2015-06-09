@@ -49,12 +49,14 @@
 package org.knime.knip.base.nodes.testing;
 
 import org.knime.core.node.DynamicNodeFactory;
+import org.knime.core.node.NodeDescription;
+import org.knime.core.node.NodeDescription210Proxy;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.XMLNodeUtils;
-import org.knime.node2012.KnimeNodeDocument;
+import org.knime.node.v210.KnimeNodeDocument;
 
 /**
  * {@link NodeFactory} to compare to Labeling
@@ -68,10 +70,12 @@ import org.knime.node2012.KnimeNodeDocument;
 public class LabelingComparatorNodeFactory<L extends Comparable<L>> extends
         DynamicNodeFactory<ComparatorNodeModel<LabelingValue<L>, LabelingValue<L>>> {
 
-    @Deprecated
     @Override
-    protected void addNodeDescription(final KnimeNodeDocument doc) {
+    protected NodeDescription createNodeDescription() {
+        KnimeNodeDocument doc = KnimeNodeDocument.Factory.newInstance();
         XMLNodeUtils.addXMLNodeDescriptionTo(doc, getClass());
+
+        return new NodeDescription210Proxy(doc);
     }
 
     @Override
