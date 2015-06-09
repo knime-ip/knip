@@ -191,7 +191,7 @@ public class XMLNodeUtils {
         final Map suggestedPrefixes = new HashMap(2);
         suggestedPrefixes.put(NAMESPACE_DEPRECATED, "");
         xmlopts.setSaveSuggestedPrefixes(suggestedPrefixes);
-        final KnimeNodeDocument test = KnimeNodeDocument.Factory.parse(inStream, xmlopts);
+        final org.knime.node2012.KnimeNodeDocument test = org.knime.node2012.KnimeNodeDocument.Factory.parse(inStream, xmlopts);
         doc.addNewKnimeNode().set(test.getKnimeNode());
     }
 

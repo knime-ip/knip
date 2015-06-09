@@ -52,12 +52,14 @@ import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.node.DynamicNodeFactory;
+import org.knime.core.node.NodeDescription;
+import org.knime.core.node.NodeDescription210Proxy;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.XMLNodeUtils;
-import org.knime.node2012.KnimeNodeDocument;
+import org.knime.node.v210.KnimeNodeDocument;
 
 /**
  * {@link NodeFactory} for {@link ImgComparatorNodeModel}
@@ -71,10 +73,12 @@ import org.knime.node2012.KnimeNodeDocument;
 public class ImgComparatorNodeFactory<T extends NativeType<T> & RealType<T>> extends
         DynamicNodeFactory<ComparatorNodeModel<ImgPlusValue<T>, ImgPlusValue<T>>> {
 
-    @Deprecated
     @Override
-    protected void addNodeDescription(final KnimeNodeDocument doc) {
+    protected NodeDescription createNodeDescription() {
+        KnimeNodeDocument doc = KnimeNodeDocument.Factory.newInstance();
         XMLNodeUtils.addXMLNodeDescriptionTo(doc, getClass());
+
+        return new NodeDescription210Proxy(doc);
     }
 
     @Override
