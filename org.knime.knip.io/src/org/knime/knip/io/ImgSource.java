@@ -89,7 +89,7 @@ public interface ImgSource {
 	 *            description of the exact image source (URL, ...)
 	 * @param currentSeries
 	 *            image number in a dataset with multiple images
-	 * @return
+	 * @return list of Axis
 	 * @throws Exception
 	 */
 	public List<CalibratedAxis> getAxes(String imgRef, int currentSeries)
@@ -110,7 +110,6 @@ public interface ImgSource {
 			throws Exception;
 
 	/**
-	 * @param <T>
 	 * @param imgRef
 	 *            description of the exact {@link Img} source (URL, ...)
 	 * @param currentSeries
@@ -129,7 +128,6 @@ public interface ImgSource {
 	 * 
 	 * @param imgRef
 	 *            description of the exact image source (URL, ...)
-	 * @param <T>
 	 * @param axisSelectionConstraints
 	 *            allows to specify selected indices for the axes. Per default
 	 *            all indices are considered to be selected <br>
@@ -182,7 +180,6 @@ public interface ImgSource {
 
 	// TODO planeNo is not supported atm
 	/**
-	 * @param <T>
 	 * @param imgRef
 	 *            description of the exact image source (URL, ...)
 	 * @param planeNo

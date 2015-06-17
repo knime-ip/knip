@@ -78,7 +78,6 @@ import org.slf4j.LoggerFactory;
  * 
  * @author dietzc, hornm, zinsmaie
  * 
- * @param <L>
  */
 public class SettingsModelOverlayAnnotator extends SettingsModelAnnotatorView<Overlay> {
 

@@ -357,8 +357,6 @@ public class TrackHilitePropagatorNodeModel extends NodeModel implements
      * Creates a List of row keys that are on the same Track as the row keys in
      * the Event. If the event contains
      *
-     * @return @ param event the hiliting event
-     *
      * @return a set of rowkeys that are on the same tracks as the keys in the
      *         hiliting event.
      */

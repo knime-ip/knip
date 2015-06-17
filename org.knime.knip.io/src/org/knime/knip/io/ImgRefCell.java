@@ -287,7 +287,7 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * 
 	 */
 	@SuppressWarnings({ "unchecked" })
 	private Img<T> getImg() {
@@ -309,7 +309,6 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
 	}
 
 	/**
-	 * {@inheritDoc}
 	 */
 	@SuppressWarnings({ "unchecked" })
 	private Img<T> getImgCopy() {

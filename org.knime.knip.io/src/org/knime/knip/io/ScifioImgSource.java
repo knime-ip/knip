@@ -221,7 +221,7 @@ public class ScifioImgSource implements ImgSource {
 
 	/**
 	 * @param ref
-	 * @return
+	 * @return omexml metadata string
 	 * @throws Exception
 	 */
 	public String getOMEXMLMetadata(final String imgRef) throws Exception {
