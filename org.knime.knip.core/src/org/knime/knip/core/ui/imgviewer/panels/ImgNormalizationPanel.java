@@ -65,6 +65,8 @@ import javax.swing.event.ChangeListener;
 import net.imglib2.img.Img;
 import net.imglib2.type.numeric.RealType;
 
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.ViewerComponent;
 import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
@@ -199,8 +201,12 @@ public class ImgNormalizationPanel<T extends RealType<T>, I extends Img<T>> exte
 
     @Override
     public void loadComponentConfiguration(final ObjectInput in) throws IOException {
+        @SuppressWarnings("deprecation")
+        IEclipsePreferences prefs = new InstanceScope().getNode("org.knime.ip");
+        System.out.println("asdf");
         m_saturationSlider.setValue(in.readInt());
         m_normalize.setSelected(in.readBoolean());
+
     }
 
 }

@@ -139,3 +139,4 @@ Export-Package: net.imglib2.ops.condition,
  org.knime.knip.core.util.waitingindicator,
  org.knime.knip.core.util.waitingindicator.libs,
  org.knime.knip.io.nodes.annotation.deprecated
+Import-Package: org.eclipse.ui

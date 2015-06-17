@@ -54,7 +54,7 @@ import org.knime.knip.base.KNIMEKNIPPlugin;
 
 /**
  * Class used to initialize default preference values.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -80,6 +80,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
         store.setDefault(PreferenceConstants.P_IMAGE_CELL_HEIGHT, "200");
         store.setDefault(PreferenceConstants.P_BUFFEREDIMAGES_CACHE_SIZE, "200");
         store.setDefault(PreferenceConstants.P_THUMBNAIL_IMAGE_RATIO, ".01");
+        store.setDefault(PreferenceConstants.P_ALWAYS_NORMALIZE, "false");
     }
 
 }

@@ -406,8 +406,13 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
                         @Override
                         public void actionPerformed(final ActionEvent arg0) {
                             int c = m_col - 1;
+                            if(!cellExists(m_row, c)) {
+                                if(cellExists(m_row-1, m_tableModel.getColumnCount()-1)) {
+                                    cellSelectionChanged(m_row-1, m_tableModel.getColumnCount()-1);
+                                }
+                            } else {
                             cellSelectionChanged(m_row, c);
-
+                            }
                         }
 
                     });
@@ -419,8 +424,13 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
                         @Override
                         public void actionPerformed(final ActionEvent arg0) {
                             int c = m_col + 1;
+                            if(!cellExists(m_row, c)) {
+                                if(cellExists(m_row+1, m_tableModel.getColumnCount()-1)) {
+                                    cellSelectionChanged(m_row+1, m_tableModel.getColumnCount()-1);
+                                }
+                            } else {
                             cellSelectionChanged(m_row, c);
-
+                            }
                         }
 
                     });

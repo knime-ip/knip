@@ -46,29 +46,24 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.base.prefs;
+package org.knime.knip.base;
 
 /**
- * Constant definitions for plug-in preferences
- *
+ * TODO Auto-generated
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class PreferenceConstants {
+public class KNIPConstants {
 
-    public static final String P_BUFFEREDIMAGES_CACHE_SIZE = "bufferedImagesCacheSizePreference";
+    public static final String IMGID_LABEL_DELIMITER = "#";
 
-    public static final String P_COMPRESS_FILES = "compressFiles";
+    public static final int THREADS_PER_NODE = (int)(Runtime.getRuntime().availableProcessors() * 1.5);
 
-    public static final String P_DIM_LABELS = "dimLabelsPreference";
-
-    public static final String P_IMAGE_CELL_HEIGHT = "imageCellHeightPreference";
-
-    public static final String P_MAX_FILE_SIZE = "fileSize";
-
-    public static final String P_THUMBNAIL_IMAGE_RATIO = "thumbnailImageRatio";
-
-    public static final String P_ALWAYS_NORMALIZE = "alwaysNormalizeImages";
+    /**
+     * Suffix to be added to files if they are zip compressed.
+     */
+    public static final String ZIP_SUFFIX = ".zip";
 
 }

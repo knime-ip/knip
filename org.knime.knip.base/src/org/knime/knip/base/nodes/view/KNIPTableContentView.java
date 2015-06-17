@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2013
+ *  Copyright (C) 2003 - 2015
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -43,32 +43,28 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
+ * Created on Jun 16, 2015 by pop210958
  */
-package org.knime.knip.base.prefs;
+package org.knime.knip.base.nodes.view;
+
+import org.knime.core.node.tableview.TableContentView;
 
 /**
- * Constant definitions for plug-in preferences
  *
- * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author Andreas Burger
  */
-public class PreferenceConstants {
+public class KNIPTableContentView extends TableContentView {
 
-    public static final String P_BUFFEREDIMAGES_CACHE_SIZE = "bufferedImagesCacheSizePreference";
-
-    public static final String P_COMPRESS_FILES = "compressFiles";
-
-    public static final String P_DIM_LABELS = "dimLabelsPreference";
-
-    public static final String P_IMAGE_CELL_HEIGHT = "imageCellHeightPreference";
-
-    public static final String P_MAX_FILE_SIZE = "fileSize";
-
-    public static final String P_THUMBNAIL_IMAGE_RATIO = "thumbnailImageRatio";
-
-    public static final String P_ALWAYS_NORMALIZE = "alwaysNormalizeImages";
+//    @Override
+//    public Component prepareRenderer(final TableCellRenderer renderer,
+//            final int row, final int column) {
+//       Component res = super.prepareRenderer(renderer, row, column);
+//
+//
+//
+//
+//    }
 
 }
