@@ -464,16 +464,27 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
      * @param isLabeling is the displayed image a labeling?
      * @param v the TableCellView to update
      */
-    private void updateToolTips(final int row, final int col, final boolean isLabeling, final TableCellView v) {
+    private void updateToolTips(final int row, final int col, final boolean err_isLabeling, final TableCellView v) {
+
+        //TODO: remove err_isLabeling and improve logic
+
         if (v.getViewComponent() instanceof ImgViewer) {
             // Get buttons
             ImgViewer vc = (ImgViewer)v.getViewComponent();
             ViewerComponent[] ctrls = vc.getControls();
 
+
+
             for (int i = 0; i < 4; ++i) {
                 ImageToolTipButton b = (ImageToolTipButton)((ControlPanel)ctrls[i]).getButton();
+                boolean isLabeling = false;
                 if (i == 0) {
                     if (cellExists(m_row + 1, col)) {
+
+                        if (m_tableModel.getValueAt(row+1, col) instanceof LabelingCell) {
+                            isLabeling = true;
+                        }
+
                         if (!isLabeling) {
                             b.setToolTipImage(((ImgPlusCell<?>)m_tableModel.getValueAt(m_row + 1, col))
                                     .getThumbnail(null));
@@ -486,6 +497,11 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
                 if (i == 1) {
 
                     if (cellExists(row, col - 1)) {
+
+                        if (m_tableModel.getValueAt(row, col - 1) instanceof LabelingCell) {
+                            isLabeling = true;
+                        }
+
                         if (!isLabeling) {
                             b.setToolTipImage(((ImgPlusCell<?>)m_tableModel.getValueAt(row, col - 1))
                                     .getThumbnail(null));
@@ -497,7 +513,14 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
                 }
                 if (i == 2) {
 
+
                     if (cellExists(row, col + 1)) {
+
+
+                        if (m_tableModel.getValueAt(row, col + 1) instanceof LabelingCell) {
+                            isLabeling = true;
+                        }
+
                         if (!isLabeling) {
                             b.setToolTipImage(((ImgPlusCell<?>)m_tableModel.getValueAt(row, col + 1))
                                     .getThumbnail(null));
@@ -510,6 +533,10 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
                 if (i == 3) {
 
                     if (cellExists(m_row - 1, col)) {
+
+                        if (m_tableModel.getValueAt(row - 1, col) instanceof LabelingCell) {
+                            isLabeling = true;
+                        }
                         if (!isLabeling) {
                             b.setToolTipImage(((ImgPlusCell<?>)m_tableModel.getValueAt(m_row - 1, col))
                                     .getThumbnail(null));
