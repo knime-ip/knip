@@ -51,6 +51,8 @@ package org.knime.knip.base.nodes.seg.waehlby;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 
 import net.imglib2.Cursor;
@@ -239,7 +241,15 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         ArrayList<LabeledObject> objects = new ArrayList<LabeledObject>();
 
         // Get some more information about the objects. Contour, bounding box etc
-        for (String label : watershedResult.getLabels()) {
+        final ArrayList<String> sortedLabels = new ArrayList<String>(watershedResult.getLabels());
+        Collections.sort(sortedLabels, new Comparator<String>() {
+
+            @Override
+            public int compare(final String o1, final String o2) {
+                return o1.compareTo(o2) * -1;
+            }
+        });
+        for (final String label : sortedLabels) {
             IterableRegionOfInterest iROI = watershedResult.getIterableRegionOfInterest(label);
 
             IterableInterval<LabelingType<String>> intervalOverSrc = iROI.getIterableIntervalOverROI(watershedResult);
