@@ -358,14 +358,14 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         for (final TableCellView v : cellView) {
             try {
                 m_cellView.addTab(v.getName(), m_viewComponents.get(currentDataCellClass + ":" + v.getName()));
-                updateToolTips(row, col, isLabeling, v);
+                updateToolTips(row, col, v);
             } catch (final Exception ex) {
                 LOGGER.error("Could not add Tab " + v.getName(), ex);
             }
         }
 
         m_cellView.setSelectedIndex(Math.max(0, Math.min(selection, m_cellView.getTabCount() - 1)));
-
+        m_cellView.scrollTablesToIndex(row, col);
         if (getComponent() != m_cellView) {
             setComponent(m_cellView);
             m_tableContentView.clearSelection();
@@ -425,8 +425,8 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
                         public void actionPerformed(final ActionEvent arg0) {
                             int c = m_col + 1;
                             if(!cellExists(m_row, c)) {
-                                if(cellExists(m_row+1, m_tableModel.getColumnCount()-1)) {
-                                    cellSelectionChanged(m_row+1, m_tableModel.getColumnCount()-1);
+                                if(cellExists(m_row+1, 0)) {
+                                    cellSelectionChanged(m_row+1, 0);
                                 }
                             } else {
                             cellSelectionChanged(m_row, c);
@@ -464,7 +464,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
      * @param isLabeling is the displayed image a labeling?
      * @param v the TableCellView to update
      */
-    private void updateToolTips(final int row, final int col, final boolean err_isLabeling, final TableCellView v) {
+    private void updateToolTips(final int row, final int col, final TableCellView v) {
 
         //TODO: remove err_isLabeling and improve logic
 

@@ -52,6 +52,7 @@ package org.knime.knip.base.nodes.view;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Rectangle;
 
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
@@ -180,6 +181,12 @@ public abstract class AbstractCellView extends JPanel {
         m_isLeftVisible = false;
 
         validate();
+    }
+
+    public void scrollTablesToIndex(final int i, final int j){
+        m_tableView.getContentTable().scrollRectToVisible(new Rectangle(m_tableView.getContentTable().getCellRect(i, j, true)));
+        m_tableView.getContentTable().changeSelection(i, j, false, false);
+
     }
 
     public boolean isTableViewVisible() {

@@ -355,7 +355,7 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
         m_rightPanel = new JPanel();
         JScrollPane sp = new JScrollPane(m_rightPanel);
-        sp.setMinimumSize(new Dimension(275, sp.getMinimumSize().height));
+        sp.setMinimumSize(new Dimension(300, sp.getMinimumSize().height));
         sp.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         m_rightPanel.setLayout(new GridBagLayout());
         m_rightPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
