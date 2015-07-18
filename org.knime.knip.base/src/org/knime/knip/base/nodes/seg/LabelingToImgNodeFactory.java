@@ -52,10 +52,10 @@ import java.io.IOException;
 import java.util.List;
 
 import net.imagej.ImgPlus;
+import net.imglib2.Cursor;
 import net.imglib2.exception.IncompatibleTypeException;
 import net.imglib2.labeling.Labeling;
 import net.imglib2.labeling.NativeImgLabeling;
-import net.imglib2.ops.operation.labeling.unary.LabelingToImg;
 import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.type.numeric.RealType;
 
@@ -138,11 +138,23 @@ public class LabelingToImgNodeFactory<L extends Comparable<L>, V extends Integer
                 final RealType outType =
                         (RealType)NativeTypes.getTypeInstance(NativeTypes.valueOf(m_outputImg.getStringValue()));
 
-                final ImgPlus out =
+                final ImgPlus<RealType> out =
                         new ImgPlus(lab.getStorageImg().factory().imgFactory(outType)
                                 .create(lab.getStorageImg(), outType));
 
-                new LabelingToImg<L, V>().compute(lab, out);
+                final Cursor<V> inC = lab.getStorageImg().cursor();
+                final Cursor<RealType> outC = out.cursor();
+
+                double outMax = outType.getMaxValue();
+
+                while (outC.hasNext()) {
+                    int val = inC.next().getInteger();
+                    if (val > outMax) {
+                        outC.next().setReal(outMax);
+                    } else {
+                        outC.next().setReal(val);
+                    }
+                }
 
                 for (int a = 0; a < cellValue.getDimensions().length; a++) {
                     out.setAxis(cellValue.getLabelingMetadata().axis(a).copy(), a);
