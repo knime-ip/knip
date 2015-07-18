@@ -50,10 +50,13 @@ package org.knime.knip.base.data.labeling;
 
 import java.io.IOException;
 
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.NativeImgLabeling;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.Type;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.Util;
+import net.imglib2.view.Views;
 
 import org.knime.core.data.filestore.FileStoreFactory;
 import org.knime.core.node.ExecutionContext;
@@ -87,26 +90,25 @@ public class LabelingCellFactory extends KNIPCellFactory {
      * @return {@link LabelingCell}
      * @throws IOException
      */
-    public final <L extends Comparable<L>> LabelingCell<L> createCell(final Labeling<L> lab,
-                                                                      final LabelingMetadata metadata)
-            throws IOException {
+    public final <L> LabelingCell<L> createCell(final RandomAccessibleInterval<LabelingType<L>> lab,
+                                                final LabelingMetadata metadata) throws IOException {
         return new LabelingCell<L>(lab, metadata, getFileStore(getLabelingSize(lab)));
 
     }
 
     @SuppressWarnings("rawtypes")
-    private final <L extends Comparable<L>> double getLabelingSize(final Labeling<L> lab) {
+    private final <L> double getLabelingSize(final RandomAccessibleInterval<LabelingType<L>> lab) {
         long bitsPerPixel = 8;
-        if (lab instanceof NativeImgLabeling) {
-            final Type t = (Type)((NativeImgLabeling)lab).getStorageImg().firstElement();
+        if (lab instanceof ImgLabeling) {
+            final Type t = Util.getTypeFromInterval(((ImgLabeling)lab).getIndexImg());
             if (t instanceof RealType) {
                 bitsPerPixel = ((RealType)t).getBitsPerPixel();
             }
 
         }
         //defensive estimation of the size of the mapping (number of lists * 4 bytes per list)
-        long mapSize = lab.firstElement().getMapping().numLists() * 4;
-        return (bitsPerPixel / 8) * lab.size() + mapSize;
+        long mapSize = Util.getTypeFromInterval(lab).getMapping().numSets() * 4;
+        return (bitsPerPixel / 8) * Views.iterable(lab).size() + mapSize;
     }
 
 }

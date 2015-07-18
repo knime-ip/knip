@@ -87,10 +87,10 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.knip.base.KNIPConstants;
-import org.knime.knip.base.ThreadPoolExecutorService;
 import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.exceptions.KNIPRuntimeException;
 import org.knime.knip.base.exceptions.LoggerHelper;
+import org.knime.knip.core.ThreadPoolExecutorService;
 
 /**
  *

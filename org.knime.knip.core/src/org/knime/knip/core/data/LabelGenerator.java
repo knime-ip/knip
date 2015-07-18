@@ -54,7 +54,7 @@ package org.knime.knip.core.data;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public interface LabelGenerator<L extends Comparable<L>> {
+public interface LabelGenerator<L> {
 
     void reset();
 

@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,9 +27,9 @@ import net.imagej.axis.Axes;
 import net.imagej.axis.AxisType;
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccess;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.ops.operation.iterableinterval.unary.Centroid;
+import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.type.logic.BitType;
 
 import org.jgrapht.alg.ConnectivityInspector;
@@ -61,6 +62,7 @@ import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingCellFactory;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.NodeUtils;
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.data.img.LabelingMetadata;
 import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.tracking.data.TrackedNode;
@@ -92,66 +94,66 @@ public class LAPTrackerNodeModel extends NodeModel implements
     /*
      * KNIME SETTINGS MODELS
      */
-    private final SettingsModelString m_sourceLabelingColumn = LAPTrackerSettingsModels
-            .createSourceLabelingSettingsModel();
+    private final SettingsModelString m_sourceLabelingColumn =
+            LAPTrackerSettingsModels.createSourceLabelingSettingsModel();
 
-    private final SettingsModelFilterString m_columns = LAPTrackerSettingsModels
-            .createColumnSelectionModel();
+    private final SettingsModelFilterString m_columns =
+            LAPTrackerSettingsModels.createColumnSelectionModel();
 
-    private final SettingsModelString m_timeAxisModel = LAPTrackerSettingsModels
-            .createTimeAxisModel();
+    private final SettingsModelString m_timeAxisModel =
+            LAPTrackerSettingsModels.createTimeAxisModel();
 
-    private final SettingsModelString m_bitMaskColumnModel = LAPTrackerSettingsModels
-            .createBitMaskModel();
+    private final SettingsModelString m_bitMaskColumnModel =
+            LAPTrackerSettingsModels.createBitMaskModel();
 
-    private final SettingsModelString m_labelColumnModel = LAPTrackerSettingsModels
-            .createLabelModel();
+    private final SettingsModelString m_labelColumnModel =
+            LAPTrackerSettingsModels.createLabelModel();
 
-    private final SettingsModelBoolean m_attachSourceLabelings = LAPTrackerSettingsModels
-            .createAttachSourceLabelingsModel();
+    private final SettingsModelBoolean m_attachSourceLabelings =
+            LAPTrackerSettingsModels.createAttachSourceLabelingsModel();
 
-    private final SettingsModelBoolean m_useCustomTrackPrefix = LAPTrackerSettingsModels
-            .createUseCustomTrackPrefixModel();
+    private final SettingsModelBoolean m_useCustomTrackPrefix =
+            LAPTrackerSettingsModels.createUseCustomTrackPrefixModel();
 
-    private final SettingsModelString m_customTrackPrefix = LAPTrackerSettingsModels
-            .createCustomTrackPrefixModel();
+    private final SettingsModelString m_customTrackPrefix =
+            LAPTrackerSettingsModels.createCustomTrackPrefixModel();
 
     /*
      * TRACKMATE SETTINGS
      */
 
-    private final SettingsModelString m_trackingAlgorithmModel = LAPTrackerSettingsModels
-            .createTrackingAlgorithmModel();
+    private final SettingsModelString m_trackingAlgorithmModel =
+            LAPTrackerSettingsModels.createTrackingAlgorithmModel();
 
-    private final SettingsModelBoolean m_allowGapClosingModel = LAPTrackerSettingsModels
-            .createAllowGapClosingModel();
+    private final SettingsModelBoolean m_allowGapClosingModel =
+            LAPTrackerSettingsModels.createAllowGapClosingModel();
 
-    private final SettingsModelBoolean m_allowMergingModel = LAPTrackerSettingsModels
-            .createAllowMergingModel();
+    private final SettingsModelBoolean m_allowMergingModel =
+            LAPTrackerSettingsModels.createAllowMergingModel();
 
-    private final SettingsModelBoolean m_allowSplittingModel = LAPTrackerSettingsModels
-            .createAllowSplittingModel();
+    private final SettingsModelBoolean m_allowSplittingModel =
+            LAPTrackerSettingsModels.createAllowSplittingModel();
 
-    private final SettingsModelInteger m_gapClosingMaxFrameModel = LAPTrackerSettingsModels
-            .createMaxFrameGapClosingModel();
+    private final SettingsModelInteger m_gapClosingMaxFrameModel =
+            LAPTrackerSettingsModels.createMaxFrameGapClosingModel();
 
-    private final SettingsModelDouble m_alternativeLinkingCostFactor = LAPTrackerSettingsModels
-            .createAlternativeLinkingCostFactor();
+    private final SettingsModelDouble m_alternativeLinkingCostFactor =
+            LAPTrackerSettingsModels.createAlternativeLinkingCostFactor();
 
-    private final SettingsModelDouble m_cutoffPercentileModel = LAPTrackerSettingsModels
-            .createCutoffPercentileModel();
+    private final SettingsModelDouble m_cutoffPercentileModel =
+            LAPTrackerSettingsModels.createCutoffPercentileModel();
 
-    private final SettingsModelDouble m_gapClosingMaxDistanceModel = LAPTrackerSettingsModels
-            .createGapClosingMaxDistanceModel();
+    private final SettingsModelDouble m_gapClosingMaxDistanceModel =
+            LAPTrackerSettingsModels.createGapClosingMaxDistanceModel();
 
-    private final SettingsModelDouble m_linkingMaxDistanceModel = LAPTrackerSettingsModels
-            .createLinkingMaxDistanceModel();
+    private final SettingsModelDouble m_linkingMaxDistanceModel =
+            LAPTrackerSettingsModels.createLinkingMaxDistanceModel();
 
-    private final SettingsModelDouble m_mergingMaxDistanceModel = LAPTrackerSettingsModels
-            .createMergingMaxDistance();
+    private final SettingsModelDouble m_mergingMaxDistanceModel =
+            LAPTrackerSettingsModels.createMergingMaxDistance();
 
-    private final SettingsModelDouble m_splittingMaxDistance = LAPTrackerSettingsModels
-            .createSplittingMaxDistance();
+    private final SettingsModelDouble m_splittingMaxDistance =
+            LAPTrackerSettingsModels.createSplittingMaxDistance();
 
     private BufferedDataTable m_resultTable;
 
@@ -201,31 +203,33 @@ public class LAPTrackerNodeModel extends NodeModel implements
         final int[] featureIndices = getSelectedColumnIndices(spec);
 
         // get bitmask & time
-        final int bitMaskColumnIdx = getColIndices(m_bitMaskColumnModel,
-                ImgPlusValue.class, spec);
+        final int bitMaskColumnIdx =
+                getColIndices(m_bitMaskColumnModel, ImgPlusValue.class, spec);
 
-        final int labelIdx = getColIndices(m_labelColumnModel,
-                StringValue.class, spec, bitMaskColumnIdx);
+        final int labelIdx =
+                getColIndices(m_labelColumnModel, StringValue.class, spec,
+                        bitMaskColumnIdx);
 
-        final int sourceLabelingIdx = getColIndices(m_sourceLabelingColumn,
-                LabelingValue.class, spec);
+        final int sourceLabelingIdx =
+                getColIndices(m_sourceLabelingColumn, LabelingValue.class, spec);
 
         // time axis
         final AxisType timeAxis = Axes.get(m_timeAxisModel.getStringValue());
 
         // Source labeling. Important: Since now only one labeling is allowed.
-        Labeling<?> sourceLabeling = null;
+        RandomAccessibleInterval<?> sourceLabeling = null;
         String sourceLabelingName = "";
         LabelingMetadata sourceLabelingMetadata = null;
 
-        final TrackableObjectCollection<TrackedNode<String>> trackedNodes = new DefaultTOCollection<TrackedNode<String>>();
+        final TrackableObjectCollection<TrackedNode<String>> trackedNodes =
+                new DefaultTOCollection<TrackedNode<String>>();
         for (final DataRow row : inData[0]) {
             exec.checkCanceled();
-            final ImgPlusValue<BitType> bitMaskValue = ((ImgPlusValue<BitType>) row
-                    .getCell(bitMaskColumnIdx));
+            final ImgPlusValue<BitType> bitMaskValue =
+                    ((ImgPlusValue<BitType>) row.getCell(bitMaskColumnIdx));
             final ImgPlus<BitType> bitMask = bitMaskValue.getImgPlus();
-            final String label = ((StringValue) row.getCell(labelIdx))
-                    .getStringValue();
+            final String label =
+                    ((StringValue) row.getCell(labelIdx)).getStringValue();
 
             // get time dimension
             final int timeIdx = bitMask.dimensionIndex(timeAxis);
@@ -238,8 +242,8 @@ public class LAPTrackerNodeModel extends NodeModel implements
             // here: if source labeling is null set it. only one source is
             // allowed since now
             if (sourceLabeling == null) {
-                final LabelingValue<?> labValue = ((LabelingValue<?>) row
-                        .getCell(sourceLabelingIdx));
+                final LabelingValue<?> labValue =
+                        ((LabelingValue<?>) row.getCell(sourceLabelingIdx));
                 sourceLabeling = labValue.getLabeling();
                 sourceLabelingName = labValue.getLabelingMetadata().getName();
                 sourceLabelingMetadata = labValue.getLabelingMetadata();
@@ -251,34 +255,37 @@ public class LAPTrackerNodeModel extends NodeModel implements
                         "Since now only labels from one Labeling are allowed. Use KNIME Loops!");
             }
 
-            final Map<String, Double> featureMap = new HashMap<String, Double>();
+            final Map<String, Double> featureMap =
+                    new HashMap<String, Double>();
             for (final int idx : featureIndices) {
                 featureMap.put(columnNames[idx],
                         ((DoubleValue) row.getCell(idx)).getDoubleValue());
             }
 
             final Centroid centroid = new Centroid();
-            final double[] pos = centroid.compute(bitMask,
-                    new double[bitMask.numDimensions()]);
+            final double[] pos =
+                    centroid.compute(bitMask,
+                            new double[bitMask.numDimensions()]);
 
             for (int d = 0; d < pos.length; d++) {
                 pos[d] += bitMaskValue.getMinimum()[d];
             }
 
             // add the node
-            final TrackedNode<String> trackedNode = new TrackedNode<String>(
-                    bitMask, pos, bitMaskValue.getMinimum(), label, timeIdx,
-                    featureMap);
+            final TrackedNode<String> trackedNode =
+                    new TrackedNode<String>(bitMask, pos,
+                            bitMaskValue.getMinimum(), label, timeIdx,
+                            featureMap);
 
             trackedNodes.add(trackedNode, trackedNode.frame());
         }
 
         // Set-Up the tracker
-        final GenericLapTracker<String> tracker = new GenericLapTracker<String>(
-                EnumUtils.valueForName(
+        final GenericLapTracker<String> tracker =
+                new GenericLapTracker<String>(EnumUtils.valueForName(
                         m_trackingAlgorithmModel.getStringValue(),
                         LAPTrackerAlgorithm.values()), trackedNodes,
-                initSettings());
+                        initSettings());
 
         // Start tracking
         tracker.setNumThreads(Runtime.getRuntime().availableProcessors());
@@ -286,32 +293,37 @@ public class LAPTrackerNodeModel extends NodeModel implements
 
         // use the results and create output labeling
         // create tracks
-        final ConnectivityInspector<TrackedNode<String>, DefaultWeightedEdge> inspector = new ConnectivityInspector<TrackedNode<String>, DefaultWeightedEdge>(
-                tracker.getResult());
-        final List<Set<TrackedNode<String>>> unsortedSegments = inspector
-                .connectedSets();
-        final ArrayList<SortedSet<TrackedNode<String>>> trackSegments = new ArrayList<SortedSet<TrackedNode<String>>>(
-                unsortedSegments.size());
+        final ConnectivityInspector<TrackedNode<String>, DefaultWeightedEdge> inspector =
+                new ConnectivityInspector<TrackedNode<String>, DefaultWeightedEdge>(
+                        tracker.getResult());
+        final List<Set<TrackedNode<String>>> unsortedSegments =
+                inspector.connectedSets();
+        final ArrayList<SortedSet<TrackedNode<String>>> trackSegments =
+                new ArrayList<SortedSet<TrackedNode<String>>>(
+                        unsortedSegments.size());
 
         for (final Set<TrackedNode<String>> set : unsortedSegments) {
-            final SortedSet<TrackedNode<String>> sortedSet = new TreeSet<TrackedNode<String>>(
-                    TrackableObjectUtils.frameComparator());
+            final SortedSet<TrackedNode<String>> sortedSet =
+                    new TreeSet<TrackedNode<String>>(
+                            TrackableObjectUtils.frameComparator());
             sortedSet.addAll(set);
             trackSegments.add(sortedSet);
         }
 
         int trackCtr = 0;
-        final Labeling<String> res = sourceLabeling.<String> factory().create(
-                sourceLabeling);
-        final RandomAccess<LabelingType<String>> resAccess = res.randomAccess();
+        final ImgLabeling<String, ?> res =
+                (ImgLabeling<String, ?>) KNIPGateway.ops().createImgLabeling(
+                        sourceLabeling);
+        final RandomAccess<net.imglib2.roi.labeling.LabelingType<String>> resAccess =
+                res.randomAccess();
         final RandomAccess<?> srcAccess = sourceLabeling.randomAccess();
 
-        final boolean useCustomPrefix = m_useCustomTrackPrefix
-                .getBooleanValue();
+        final boolean useCustomPrefix =
+                m_useCustomTrackPrefix.getBooleanValue();
         final String customPrefix = m_customTrackPrefix.getStringValue();
 
-        final boolean attachSourceLabelings = m_attachSourceLabelings
-                .getBooleanValue();
+        final boolean attachSourceLabelings =
+                m_attachSourceLabelings.getBooleanValue();
         final int numDims = resAccess.numDimensions();
         for (final SortedSet<TrackedNode<String>> track : trackSegments) {
             for (final TrackedNode<String> node : track) {
@@ -327,8 +339,8 @@ public class LAPTrackerNodeModel extends NodeModel implements
                                 + node.offset(d), d);
                     }
                     // set all the important information
-                    final List<String> labeling = new ArrayList<String>(
-                            resAccess.get().getLabeling());
+                    final Set<String> labeling =
+                            new HashSet<String>(resAccess.get());
 
                     // add custom track prefix if selected
                     if (useCustomPrefix) {
@@ -340,22 +352,22 @@ public class LAPTrackerNodeModel extends NodeModel implements
                     // add original labeling if selected by the user
                     if (attachSourceLabelings) {
                         srcAccess.setPosition(resAccess);
-                        final List<?> localLabelings = ((LabelingType<?>) srcAccess
-                                .get()).getLabeling();
+                        final Set<?> localLabelings = (Set<?>) srcAccess.get();
                         for (final Object o : localLabelings) {
                             labeling.add(o.toString());
                         }
                     }
-                    resAccess.get().setLabeling(labeling);
+                    resAccess.get().clear();
+                    resAccess.get().addAll(labeling);
                 }
             }
             trackCtr++;
         }
 
-        final LabelingCellFactory labelingCellFactory = new LabelingCellFactory(
-                exec);
-        final BufferedDataContainer container = exec
-                .createDataContainer(createOutSpec()[0]);
+        final LabelingCellFactory labelingCellFactory =
+                new LabelingCellFactory(exec);
+        final BufferedDataContainer container =
+                exec.createDataContainer(createOutSpec()[0]);
 
         container.addRowToTable(new DefaultRow(sourceLabelingName,
                 labelingCellFactory.createCell(res, sourceLabelingMetadata)));
@@ -366,8 +378,8 @@ public class LAPTrackerNodeModel extends NodeModel implements
 
     private Map<String, Object> initSettings() {
         // Set the tracking settings
-        final Map<String, Object> settings = LAPUtils
-                .getDefaultLAPSettingsMap();
+        final Map<String, Object> settings =
+                LAPUtils.getDefaultLAPSettingsMap();
         settings.put(KEY_LINKING_MAX_DISTANCE,
                 m_linkingMaxDistanceModel.getDoubleValue());
         settings.put(KEY_ALLOW_GAP_CLOSING,
@@ -532,7 +544,8 @@ public class LAPTrackerNodeModel extends NodeModel implements
         }
 
         // get column indices
-        final List<Integer> colIndices = new ArrayList<Integer>(colNames.size());
+        final List<Integer> colIndices =
+                new ArrayList<Integer>(colNames.size());
         for (int i = 0; i < colNames.size(); i++) {
             final int colIdx = inSpec.findColumnIndex(colNames.get(i));
             if (colIdx == -1) {
@@ -569,8 +582,9 @@ public class LAPTrackerNodeModel extends NodeModel implements
 
         int colIdx = -1;
         if (model.getStringValue() != null) {
-            colIdx = NodeUtils.autoColumnSelection(inSpec, model, clazz,
-                    this.getClass(), excludeCols);
+            colIdx =
+                    NodeUtils.autoColumnSelection(inSpec, model, clazz,
+                            this.getClass(), excludeCols);
         }
         return colIdx;
     }

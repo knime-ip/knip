@@ -49,7 +49,6 @@
 package org.knime.knip.core.ops.labeling;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -63,7 +62,6 @@ import java.util.concurrent.FutureTask;
 
 import net.imagej.ImgPlus;
 import net.imglib2.Cursor;
-import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.converter.Converter;
@@ -71,9 +69,6 @@ import net.imglib2.converter.read.ConvertedRandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.img.sparse.NtreeImgFactory;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
-import net.imglib2.labeling.NativeImgLabeling;
 import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.ops.operation.iterableinterval.unary.Centroid;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.DistanceMap;
@@ -81,12 +76,16 @@ import net.imglib2.ops.operation.randomaccessibleinterval.unary.LocalMaximaForDi
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.LocalMaximaForDistanceMap.NeighborhoodType;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.AbstractRegionGrowing;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.CCA;
-import net.imglib2.roi.IterableRegionOfInterest;
+import net.imglib2.roi.Regions;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelRegion;
+import net.imglib2.roi.labeling.LabelRegions;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.integer.IntType;
 import net.imglib2.type.numeric.real.FloatType;
-import net.imglib2.util.ConstantUtils;
 
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.algorithm.extendedem.AttributeTmp;
 import org.knime.knip.core.algorithm.extendedem.ExtendedEM;
 import org.knime.knip.core.algorithm.extendedem.InstanceTmp;
@@ -103,8 +102,12 @@ import org.knime.knip.core.ops.bittype.PositionsToBitTypeImage;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @author metznerj, University of Konstanz
+ *
+ * @param <L>
  */
-public class CellClumpedSplitter<L extends Comparable<L>> implements UnaryOperation<Labeling<L>, Labeling<Integer>> {
+@Deprecated
+public class CellClumpedSplitter<L> implements
+        UnaryOperation<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<Integer>>> {
 
     private final LocalMaximaForDistanceMap<FloatType> m_localMaximaOp;
 
@@ -145,7 +148,7 @@ public class CellClumpedSplitter<L extends Comparable<L>> implements UnaryOperat
 
             @Override
             public void convert(final LabelingType<L> input, final BitType output) {
-                output.set(!input.getLabeling().isEmpty());
+                output.set(!input.isEmpty());
 
             }
         };
@@ -173,7 +176,9 @@ public class CellClumpedSplitter<L extends Comparable<L>> implements UnaryOperat
     private Integer m_label = 0;
 
     @Override
-    public Labeling<Integer> compute(final Labeling<L> cellLabeling, final Labeling<Integer> res) {
+    public RandomAccessibleInterval<LabelingType<Integer>>
+            compute(final RandomAccessibleInterval<LabelingType<L>> cellLabeling,
+                    final RandomAccessibleInterval<LabelingType<Integer>> res) {
 
         /*
          * dim test
@@ -193,7 +198,8 @@ public class CellClumpedSplitter<L extends Comparable<L>> implements UnaryOperat
         /*
          * label queue
          */
-        final Queue<L> cellsQueue = new LinkedList<L>(cellLabeling.getLabels());
+        final LabelRegions<L> regions = KNIPGateway.regions().regions(cellLabeling);
+        final Queue<L> cellsQueue = new LinkedList<L>(regions.getExistingLabels());
 
         final RandomAccessibleInterval<FloatType> distanceMap =
                 m_distanceMap.compute(bitMask, new ArrayImgFactory<FloatType>().create(bitMask, new FloatType()));
@@ -208,20 +214,15 @@ public class CellClumpedSplitter<L extends Comparable<L>> implements UnaryOperat
                                                       new ImgPlus<BitType>(new NtreeImgFactory<BitType>()
                                                               .create(cellLabeling, new BitType())));
 
-        final Labeling<Integer> lab =
-                new NativeImgLabeling<Integer, IntType>(new NtreeImgFactory<IntType>().create(cellLabeling,
-                                                                                              new IntType()));
+        final RandomAccessibleInterval<LabelingType<Integer>> lab =
+                new ImgLabeling<Integer, IntType>(new NtreeImgFactory<IntType>().create(cellLabeling, new IntType()));
         new CCA<BitType>(AbstractRegionGrowing.get8ConStructuringElement(maxima.numDimensions()), new BitType())
                 .compute(maxima, lab);
 
-        final Collection<Integer> labels = lab.firstElement().getMapping().getLabels();
+        final LabelRegions<Integer> intRegions = KNIPGateway.regions().regions(lab);
         final ArrayList<long[]> centroidsList = new ArrayList<long[]>();
-        for (final Integer i : labels) {
-            final IterableInterval<BitType> ii =
-                    lab.getIterableRegionOfInterest(i)
-                            .getIterableIntervalOverROI(ConstantUtils.constantRandomAccessible(new BitType(), lab
-                                                                .numDimensions()));
-            final double[] centroidD = new Centroid().compute(ii, new double[ii.numDimensions()]);
+        for (final LabelRegion<Integer> region : intRegions) {
+            final double[] centroidD = new Centroid().compute(region, new double[region.numDimensions()]);
 
             final long[] centroidL = new long[numDim];
             for (int d = 0; d < numDim; ++d) {
@@ -249,8 +250,8 @@ public class CellClumpedSplitter<L extends Comparable<L>> implements UnaryOperat
          */
         while (!cellsQueue.isEmpty()) {
             final FutureTask<Long> task =
-                    new FutureTask<Long>(new ClusterThread(cellLabeling.getIterableRegionOfInterest(cellsQueue.poll()),
-                            distanceMap, localMaxima, res, boundaries));
+                    new FutureTask<Long>(new ClusterThread(regions.getLabelRegion(cellsQueue.poll()), distanceMap,
+                            localMaxima, res, boundaries));
             m_splittedQueue.add(task);
             m_executor.execute(task);
         }
@@ -331,7 +332,7 @@ public class CellClumpedSplitter<L extends Comparable<L>> implements UnaryOperat
         /*
          * random Access over res
          */
-        private final Labeling<Integer> m_res;
+        private final RandomAccessibleInterval<LabelingType<Integer>> m_res;
 
         /*
          * random Access over res
@@ -370,17 +371,18 @@ public class CellClumpedSplitter<L extends Comparable<L>> implements UnaryOperat
         /**
          * Constructor
          *
-         * @param roi target
+         * @param labelRegion target
          * @param distanceMap distance map
          * @param localMaxima local maxima of distance map
          * @param res
          * @param dimension boundaries of source image
          */
-        public ClusterThread(final IterableRegionOfInterest roi, final RandomAccessibleInterval<FloatType> distanceMap,
-                             final Img<BitType> localMaxima, final Labeling<Integer> res, final long[] dimension) {
+        public ClusterThread(final LabelRegion<L> labelRegion, final RandomAccessibleInterval<FloatType> distanceMap,
+                             final Img<BitType> localMaxima, final RandomAccessibleInterval<LabelingType<Integer>> res,
+                             final long[] dimension) {
             m_numDim = distanceMap.numDimensions();
             m_localMaximaAccess = localMaxima.randomAccess();
-            m_distanceMapRoiCursor = roi.getIterableIntervalOverROI(distanceMap).localizingCursor();
+            m_distanceMapRoiCursor = Regions.sample(labelRegion, distanceMap).localizingCursor();
             m_res = res;
             m_resRandomAccess = res.randomAccess();
             m_distanceMapRandomAccess = distanceMap.randomAccess();
@@ -451,7 +453,7 @@ public class CellClumpedSplitter<L extends Comparable<L>> implements UnaryOperat
                 for (int c = 0; c < (m_numOfCluster == 0 ? 1 : m_numOfCluster); ++c) {
                     final List<Integer> labeling = new ArrayList<Integer>();
                     labeling.add(++m_label);
-                    listMap.put(c, m_resRandomAccess.get().intern(labeling));
+                    listMap.put(c, labeling);
                 }
                 m_distanceMapRoiCursor.reset();
                 if (m_EM != null) {
@@ -474,7 +476,8 @@ public class CellClumpedSplitter<L extends Comparable<L>> implements UnaryOperat
                                 cMax = c;
                             }
                         }
-                        m_resRandomAccess.get().setLabeling(listMap.get(cMax));
+                        m_resRandomAccess.get().clear();
+                        m_resRandomAccess.get().addAll(listMap.get(cMax));
                     }
                 } else {
                     /*
@@ -484,7 +487,8 @@ public class CellClumpedSplitter<L extends Comparable<L>> implements UnaryOperat
                     while (m_distanceMapRoiCursor.hasNext()) {
                         m_distanceMapRoiCursor.fwd();
                         m_resRandomAccess.setPosition(m_distanceMapRoiCursor);
-                        m_resRandomAccess.get().setLabeling(listMap.get(0));
+                        m_resRandomAccess.get().clear();
+                        m_resRandomAccess.get().addAll(listMap.get(0));
                     }
                 }
             }
@@ -838,7 +842,8 @@ public class CellClumpedSplitter<L extends Comparable<L>> implements UnaryOperat
     }
 
     @Override
-    public UnaryOperation<Labeling<L>, Labeling<Integer>> copy() {
+    public UnaryOperation<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<Integer>>>
+            copy() {
         return new CellClumpedSplitter<L>(m_neighborhood, m_executor, m_minMaximaSize, m_ignoreValueBelowAvgPrecent,
                 m_maxInterations);
     }

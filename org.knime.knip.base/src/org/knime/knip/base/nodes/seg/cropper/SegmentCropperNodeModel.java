@@ -65,14 +65,16 @@ import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.img.ImgView;
 import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingView;
-import net.imglib2.labeling.NativeImgLabeling;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.img.unary.ImgCopyOperation;
 import net.imglib2.ops.operation.iterable.unary.Fill;
-import net.imglib2.roi.IterableRegionOfInterest;
+import net.imglib2.roi.IterableRegion;
+import net.imglib2.roi.Regions;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelRegions;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.logic.BitType;
+import net.imglib2.type.logic.BoolType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 
@@ -105,6 +107,7 @@ import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.node.nodesettings.SettingsModelFilterSelection;
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.data.DefaultNamed;
 import org.knime.knip.core.data.DefaultSourced;
 import org.knime.knip.core.data.img.DefaultImageMetadata;
@@ -324,17 +327,16 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
                 img = ((ImgPlusValue<T>)row.getCell(imgColIndex)).getImgPlus();
             }
 
-            Labeling<L> labeling = labelingValue.getLabeling();
+            RandomAccessibleInterval<LabelingType<L>> labeling = labelingValue.getLabeling();
             if (img != null) {
                 labeling =
-                        new LabelingView<L>(MiscViews.synchronizeDimensionality(labelingValue.getLabeling(),
-                                                                                labelingValue.getLabelingMetadata(),
-                                                                                img, img), labeling.<L> factory());
+                        MiscViews.synchronizeDimensionality(labelingValue.getLabeling(),
+                                                            labelingValue.getLabelingMetadata(), img, img);
             }
 
             ImgFactory<T> fac = null;
-            if (labeling instanceof NativeImgLabeling) {
-                fac = ((NativeImgLabeling)labeling).getStorageImg().factory();
+            if (labeling instanceof ImgLabeling && ((ImgLabeling)labeling).getIndexImg() instanceof Img) {
+                fac = ((Img)((ImgLabeling)labeling).getIndexImg()).factory();
             } else if (img != null) {
                 fac = img.factory();
             } else {
@@ -344,13 +346,14 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
             final Map<L, List<L>> dependedLabels = Operations.compute(labelingDependency, labeling);
             final StringBuffer stringBuffer = new StringBuffer();
-            for (final L l : labeling.getLabels()) {
+            final LabelRegions<L> regions = KNIPGateway.regions().regions(labeling);
+            for (final L l : regions.getExistingLabels()) {
 
                 if (!leftFilter.isValid(l)) {
                     continue;
                 }
 
-                final IterableRegionOfInterest roi = labeling.getIterableRegionOfInterest(l);
+                final IterableRegion<BoolType> roi = Regions.iterable(regions.getLabelRegion(l));
 
                 final long[] min = new long[roi.numDimensions()];
                 final long[] max = new long[roi.numDimensions()];
@@ -395,9 +398,9 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
                 } else {
                     res = (Img<T>)fac.imgFactory(new BitType()).create(new FinalInterval(min, max), new BitType());
-                    new ImgCopyOperation().compute(new ImgView<T>(Views.zeroMin((RandomAccessibleInterval<T>)Views
-                                                           .interval(Views.raster(roi), new FinalInterval(min, max))),
-                                                           fac), Views.flatIterable(res));
+                    copy((ImgView<BoolType>)new ImgView<T>(Views.zeroMin((RandomAccessibleInterval<T>)Views
+                                 .interval(roi, new FinalInterval(min, max))), fac),
+                         (IterableInterval<BitType>)Views.flatIterable(res));
                 }
 
                 final List<DataCell> cells = new ArrayList<DataCell>();
@@ -446,15 +449,29 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
     }
 
     /**
+     * @param imgView
+     * @param flatIterable
+     */
+    private void copy(final ImgView<BoolType> imgView, final IterableInterval<BitType> iterable) {
+        Cursor<BoolType> inCursor = Views.flatIterable(imgView).cursor();
+        Cursor<BitType> outCursor = iterable.cursor();
+
+        while (inCursor.hasNext()) {
+            outCursor.next().set(inCursor.next().get());
+        }
+
+    }
+
+    /**
      * @param res
      * @param img
      * @param roi
      */
-    private void writeInRes(final Img<T> res, final ImgPlus<T> img, final IterableRegionOfInterest roi) {
-        IterableInterval<T> interval = roi.getIterableIntervalOverROI(img);
-        Cursor<T> roiCursor = interval.cursor();
-        RandomAccess<T> ra = res.randomAccess();
-        long[] pos = new long[img.numDimensions()];
+    private void writeInRes(final Img<T> res, final ImgPlus<T> img, final IterableRegion<BoolType> roi) {
+        final IterableInterval<T> interval = Regions.sample(roi, img);
+        final Cursor<T> roiCursor = interval.cursor();
+        final RandomAccess<T> ra = res.randomAccess();
+        final long[] pos = new long[img.numDimensions()];
         while (roiCursor.hasNext()) {
             roiCursor.next();
             for (int d = 0; d < pos.length; d++) {

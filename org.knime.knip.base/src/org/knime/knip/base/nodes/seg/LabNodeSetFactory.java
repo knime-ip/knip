@@ -130,7 +130,6 @@ public class LabNodeSetFactory implements NodeSetFactory {
         //        m_nodeFactories.put(EdgeObjectsExcluderNodeFactory.class.getCanonicalName(), "/community/knip/labeling");
         m_nodeFactories.put(ExtractOutlineLabelingNodeFactory.class.getCanonicalName(), "/community/knip/labeling");
         m_nodeFactories.put(LabelingOrthoCropperNodeFactory.class.getCanonicalName(), "/community/knip/labeling");
-        m_nodeFactories.put(TransferLabelsNodeFactory.class.getCanonicalName(), "/community/knip/labeling");
         m_nodeFactories.put(VoronoiSegNodeFactory.class.getCanonicalName(), "/community/knip/labeling");
         m_nodeFactories.put(GraphCutNodeFactory.class.getCanonicalName(), "/community/knip/labeling");
         m_nodeFactories.put(SegmentCropperNodeFactory.class.getCanonicalName(), "/community/knip/labeling");

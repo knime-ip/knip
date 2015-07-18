@@ -69,11 +69,11 @@ import org.knime.core.data.DataType;
 import org.knime.core.data.DataValue;
 import org.knime.knip.base.KNIMEKNIPPlugin;
 import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.awt.AWTImageTools;
 import org.knime.knip.core.awt.Real2GreyColorRenderer;
 import org.knime.knip.core.data.algebra.ExtendedPolygon;
 import org.knime.knip.core.io.externalization.ExtendedPolygonDeSerializer;
-import org.knime.knip.core.util.ImgUtils;
 import org.scijava.Named;
 
 /**
@@ -221,7 +221,8 @@ public class PolygonCell extends DataCell implements PolygonValue, ImgPlusValue<
     @Override
     public ImgPlus<BitType> getImgPlusCopy() {
         final ImgPlus<BitType> imgPlus = getImgPlus();
-        return new ImgPlusCopy<BitType>().compute(imgPlus, new ImgPlus<BitType>(ImgUtils.createEmptyImg(imgPlus)));
+        return new ImgPlusCopy<BitType>().compute(imgPlus, new ImgPlus<BitType>((Img<BitType>)KNIPGateway.ops()
+                .createImg(imgPlus), imgPlus));
     }
 
     /**

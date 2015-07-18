@@ -55,10 +55,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import net.imglib2.Cursor;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.ops.img.UnaryObjectFactory;
 import net.imglib2.ops.operation.UnaryOutputOperation;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.view.Views;
 
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter;
 
@@ -80,7 +81,7 @@ import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class LabelingDependency<L extends Comparable<L>> implements UnaryOutputOperation<Labeling<L>, Map<L, List<L>>> {
+public class LabelingDependency<L> implements UnaryOutputOperation<RandomAccessibleInterval<LabelingType<L>>, Map<L, List<L>>> {
 
     private final RulebasedLabelFilter<L> m_leftFilter;
 
@@ -104,28 +105,28 @@ public class LabelingDependency<L extends Comparable<L>> implements UnaryOutputO
     }
 
     @Override
-    public Map<L, List<L>> compute(final Labeling<L> op, final Map<L, List<L>> r) {
+    public Map<L, List<L>> compute(final RandomAccessibleInterval<LabelingType<L>> op, final Map<L, List<L>> r) {
 
         final HashMap<L, HashMap<L, Integer>> labelMap = new HashMap<L, HashMap<L, Integer>>();
         final HashMap<L, Integer> sizeMap = new HashMap<L, Integer>();
 
-        final Cursor<LabelingType<L>> cursor = op.cursor();
+        final Cursor<LabelingType<L>> cursor = Views.iterable(op).cursor();
 
         while (cursor.hasNext()) {
             cursor.fwd();
 
-            if (cursor.get().getLabeling() == null || cursor.get().getLabeling().isEmpty()) {
+            if (cursor.get() == null || cursor.get().isEmpty()) {
                 continue;
             }
 
-            for (final L outerL : m_leftFilter.filterLabeling(cursor.get().getLabeling())) {
+            for (final L outerL : m_leftFilter.filterLabeling(cursor.get())) {
 
                 if (!labelMap.containsKey(outerL)) {
                     labelMap.put(outerL, new HashMap<L, Integer>());
                     sizeMap.put(outerL, 0);
                 }
 
-                for (final L innerL : m_rightFilter.filterLabeling(cursor.get().getLabeling())) {
+                for (final L innerL : m_rightFilter.filterLabeling(cursor.get())) {
                     if (outerL.equals(innerL)) {
                         continue;
                     }
@@ -168,16 +169,16 @@ public class LabelingDependency<L extends Comparable<L>> implements UnaryOutputO
     }
 
     @Override
-    public UnaryOutputOperation<Labeling<L>, Map<L, List<L>>> copy() {
+    public UnaryOutputOperation<RandomAccessibleInterval<LabelingType<L>>, Map<L, List<L>>> copy() {
         return new LabelingDependency<L>(m_leftFilter.copy(), m_leftFilter.copy(), m_intersectionMode);
     }
 
     @Override
-    public UnaryObjectFactory<Labeling<L>, Map<L, List<L>>> bufferFactory() {
-        return new UnaryObjectFactory<Labeling<L>, Map<L, List<L>>>() {
+    public UnaryObjectFactory<RandomAccessibleInterval<LabelingType<L>>, Map<L, List<L>>> bufferFactory() {
+        return new UnaryObjectFactory<RandomAccessibleInterval<LabelingType<L>>, Map<L, List<L>>>() {
 
             @Override
-            public Map<L, List<L>> instantiate(final Labeling<L> a) {
+            public Map<L, List<L>> instantiate(final RandomAccessibleInterval<LabelingType<L>> a) {
                 return new HashMap<L, List<L>>();
             }
         };

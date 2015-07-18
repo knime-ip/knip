@@ -60,7 +60,6 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -86,8 +85,12 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.imglib2.labeling.Labeling;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.roi.labeling.LabelRegions;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.util.Util;
 
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableUtils;
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
@@ -113,7 +116,7 @@ import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class LabelFilterPanel<L extends Comparable<L>> extends ViewerComponent {
+public class LabelFilterPanel<L> extends ViewerComponent {
 
     private static final long serialVersionUID = 1L;
 
@@ -133,7 +136,7 @@ public class LabelFilterPanel<L extends Comparable<L>> extends ViewerComponent {
 
     private JPanel m_textFieldsPanel;
 
-    private Labeling<L> m_labeling;
+    private RandomAccessibleInterval<LabelingType<L>> m_labeling;
 
     private final JTabbedPane m_filterTabbs = new JTabbedPane();
 
@@ -155,6 +158,8 @@ public class LabelFilterPanel<L extends Comparable<L>> extends ViewerComponent {
     private boolean m_showHilitedOnly = false;
 
     private boolean m_showUnhilitedOnly = false;
+
+    private LabelRegions<L> m_regions;
 
     public LabelFilterPanel() {
         this(false);
@@ -313,13 +318,13 @@ public class LabelFilterPanel<L extends Comparable<L>> extends ViewerComponent {
             // only hilited
             final HashSet<String> filterSet = new HashSet<String>();
             if ((m_hilitedLabels != null) && (m_hilitedLabels.size() > 0)) {
-                for (final L o : m_labeling.getLabels()) {
+                for (final L o : m_regions.getExistingLabels()) {
                     if (!m_hilitedLabels.contains(o.toString())) {
                         filterSet.add(o.toString());
                     }
                 }
             } else {
-                for (final L o : m_labeling.getLabels()) {
+                for (final L o : m_regions.getExistingLabels()) {
                     filterSet.add(o.toString());
                 }
             }
@@ -344,7 +349,8 @@ public class LabelFilterPanel<L extends Comparable<L>> extends ViewerComponent {
             m_activeLabels.clear();
 
             // filter with hilites
-            Collection<L> filtered = m_ruleFilter.filterLabeling(m_labeling.firstElement().getMapping().getLabels());
+            Collection<L> filtered =
+                    m_ruleFilter.filterLabeling(Util.getTypeFromInterval(m_labeling).getMapping().getLabels());
 
             // filter with rules
             if (m_showHilitedOnly || m_showUnhilitedOnly) {
@@ -366,7 +372,9 @@ public class LabelFilterPanel<L extends Comparable<L>> extends ViewerComponent {
             }
 
             m_eventService.publish(new ImgRedrawEvent());
-            Collections.sort(m_activeLabels);
+
+            //TODO fixme
+            //Collections.sort(m_activeLabels);
 
             m_jLabelList.setListData(m_activeLabels);
         }
@@ -385,15 +393,16 @@ public class LabelFilterPanel<L extends Comparable<L>> extends ViewerComponent {
     @EventListener
     public void onLabelingUpdated(final LabelingWithMetadataChgEvent<L> e) {
         m_labeling = e.getData();
+        m_regions = KNIPGateway.regions().regions(m_labeling);
 
         m_activeLabels.clear();
-        for (final L label : m_labeling.firstElement().getMapping().getLabels()) {
+        for (final L label : Util.getTypeFromInterval(m_labeling).getMapping().getLabels()) {
             if (m_ruleFilter.isValid(label)) {
                 m_activeLabels.add(label);
             }
         }
 
-        Collections.sort(m_activeLabels);
+        //TODO Collections.sort(m_activeLabels);
         m_jLabelList.setListData(m_activeLabels);
     }
 
@@ -476,6 +485,7 @@ public class LabelFilterPanel<L extends Comparable<L>> extends ViewerComponent {
         final JPopupMenu contextMenu = new JPopupMenu();
 
         final JMenuItem jumpToLabel = new JMenuItem("Jump to label");
+
         jumpToLabel.addActionListener(new ActionListener() {
 
             @SuppressWarnings("unchecked")
@@ -483,8 +493,7 @@ public class LabelFilterPanel<L extends Comparable<L>> extends ViewerComponent {
             public void actionPerformed(final ActionEvent e) {
                 final long[] min = new long[m_labeling.numDimensions()];
 
-                m_labeling.getRasterStart((L)m_jLabelList.getSelectedValue(), min);
-
+                m_regions.getLabelRegion((L)m_jLabelList.getSelectedValue()).min(min);
                 m_eventService.publish(new ForcePlanePosEvent(min));
                 m_eventService.publish(new ImgRedrawEvent());
             }

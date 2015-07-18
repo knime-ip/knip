@@ -53,18 +53,19 @@ import java.awt.Graphics;
 import java.util.Set;
 
 import net.imglib2.FinalInterval;
-import net.imglib2.Interval;
+import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.display.screenimage.awt.ARGBScreenImage;
 import net.imglib2.display.screenimage.awt.AWTScreenImage;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingMapping;
-import net.imglib2.labeling.LabelingType;
-import net.imglib2.labeling.LabelingView;
 import net.imglib2.ops.operation.SubsetOperations;
-import net.imglib2.roi.IterableRegionOfInterest;
+import net.imglib2.roi.Regions;
+import net.imglib2.roi.labeling.LabelRegion;
+import net.imglib2.roi.labeling.LabelRegions;
+import net.imglib2.roi.labeling.LabelingMapping;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.Type;
 
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableUtils;
 import org.knime.knip.core.awt.parametersupport.RendererWithHilite;
 import org.knime.knip.core.awt.parametersupport.RendererWithLabels;
@@ -77,7 +78,7 @@ import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter.Operator;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class BoundingBoxLabelRenderer<L extends Comparable<L> & Type<L>> implements ImageRenderer<LabelingType<L>>,
+public class BoundingBoxLabelRenderer<L extends Type<L>> implements ImageRenderer<LabelingType<L>>,
         RendererWithLabels<L>, RendererWithHilite {
 
     /**
@@ -115,12 +116,7 @@ public class BoundingBoxLabelRenderer<L extends Comparable<L> & Type<L>> impleme
     private AWTScreenImage render(final int dimX, final int dimY, final long[] planePos,
                                   final RandomAccessibleInterval<LabelingType<L>> labeling,
                                   final Set<String> activeLabels, final double scale, final boolean withLabelString) {
-        Labeling<L> subLab = null;
-        if (labeling instanceof Labeling) {
-            subLab = (Labeling<L>)labeling;
-        } else {
-            subLab = new LabelingView<L>(labeling, null);
-        }
+        RandomAccessibleInterval<LabelingType<L>> subLab = null;
 
         if (subLab.numDimensions() > 2) {
             final long[] min = planePos.clone();
@@ -132,16 +128,14 @@ public class BoundingBoxLabelRenderer<L extends Comparable<L> & Type<L>> impleme
             max[dimX] = subLab.max(dimX);
             max[dimY] = subLab.max(dimY);
 
-            subLab =
-                    new LabelingView<L>(SubsetOperations.subsetview(subLab, new FinalInterval(min, max)),
-                            subLab.<L> factory());
+            subLab = SubsetOperations.subsetview(subLab, new FinalInterval(min, max));
         }
 
         final long[] dims = new long[subLab.numDimensions()];
         subLab.dimensions(dims);
         final int width = (int)(dims[dimX] * scale);
         final int height;
-        if(subLab.numDimensions() < 2 ){
+        if (subLab.numDimensions() < 2) {
             height = (int)scale;
         } else {
             height = (int)(dims[dimY] * scale);
@@ -151,7 +145,8 @@ public class BoundingBoxLabelRenderer<L extends Comparable<L> & Type<L>> impleme
         final Graphics g = res.image().getGraphics();
         g.setColor(Color.black);
 
-        for (final L label : subLab.getLabels()) {
+        final LabelRegions<L> regions = KNIPGateway.regions().regions(subLab);
+        for (final L label : regions.getExistingLabels()) {
 
             // test hilite
             if ((m_hilitedLabels != null) && m_hilitedLabels.contains(label.toString())) {
@@ -170,22 +165,23 @@ public class BoundingBoxLabelRenderer<L extends Comparable<L> & Type<L>> impleme
             // test active labels (null = all active)
             if ((activeLabels == null) || activeLabels.contains(label.toString())) {
 
-                final IterableRegionOfInterest roi = subLab.getIterableRegionOfInterest(label);
-                final Interval ii = roi.getIterableIntervalOverROI(subLab);
-                if(roi.numDimensions() > 1) {
-                g.drawRect((int)(ii.min(X) * scale) - 1, (int)(ii.min(Y) * scale) - 1,
-                           (int)((ii.dimension(X)) * scale) + 1, (int)((ii.dimension(Y)) * scale) + 1);
+                final LabelRegion<L> roi = regions.getLabelRegion(label);
+                final IterableInterval<LabelingType<L>> ii = Regions.sample(roi, subLab);
 
-                if (withLabelString) {
-                    if (scale > .6) {
+                if (roi.numDimensions() > 1) {
+                    g.drawRect((int)(ii.min(X) * scale) - 1, (int)(ii.min(Y) * scale) - 1,
+                               (int)((ii.dimension(X)) * scale) + 1, (int)((ii.dimension(Y)) * scale) + 1);
 
-                        g.drawString(label.toString(), (int)((ii.min(X) + 1) * scale), (int)((ii.min(Y) + 10) * scale));
+                    if (withLabelString) {
+                        if (scale > .6) {
+
+                            g.drawString(label.toString(), (int)((ii.min(X) + 1) * scale),
+                                         (int)((ii.min(Y) + 10) * scale));
+                        }
                     }
-                }
-                }
-                else {
-                    g.drawRect((int)(ii.min(X) * scale) - 1, (int) scale - 1,
-                               (int)((ii.dimension(X)) * scale) + 1, (int)scale + 1);
+                } else {
+                    g.drawRect((int)(ii.min(X) * scale) - 1, (int)scale - 1, (int)((ii.dimension(X)) * scale) + 1,
+                               (int)scale + 1);
 
                     if (withLabelString) {
                         if (scale > .6) {

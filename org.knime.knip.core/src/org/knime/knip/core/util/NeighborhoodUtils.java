@@ -51,7 +51,7 @@ package org.knime.knip.core.util;
 import java.util.Arrays;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -62,7 +62,7 @@ public class NeighborhoodUtils {
     /**
      * Return an array of offsets to the 8-connected (or N-d equivalent) structuring element for the dimension space.
      * The structuring element is the list of offsets from the center to the pixels to be examined.
-     * 
+     *
      * @param dimensions
      * @return the structuring element.
      */
@@ -99,7 +99,7 @@ public class NeighborhoodUtils {
     /**
      * Return an array of offsets to the -connected (or N-d equivalent) structuring element for the dimension space. The
      * structuring element is the list of offsets from the center to the pixels to be examined.
-     * 
+     *
      * @param dimensions
      * @return the structuring element.
      */

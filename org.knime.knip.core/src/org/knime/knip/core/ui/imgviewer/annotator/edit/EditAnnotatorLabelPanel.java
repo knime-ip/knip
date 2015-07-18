@@ -53,7 +53,6 @@ import java.awt.Dimension;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Collections;
 import java.util.Vector;
 
 import javax.swing.BoxLayout;
@@ -61,7 +60,9 @@ import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 
-import net.imglib2.labeling.Labeling;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.util.Util;
 
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
@@ -75,7 +76,7 @@ import org.knime.knip.core.ui.imgviewer.events.LabelingWithMetadataChgEvent;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class EditAnnotatorLabelPanel<L extends Comparable<L>> extends ViewerComponent {
+public class EditAnnotatorLabelPanel<L> extends ViewerComponent {
 
     private static final long serialVersionUID = 1L;
 
@@ -100,14 +101,13 @@ public class EditAnnotatorLabelPanel<L extends Comparable<L>> extends ViewerComp
 
     @EventListener
     public void onLabelingUpdated(final LabelingWithMetadataChgEvent<L> e) {
-        Labeling<L> labeling = e.getData();
+        RandomAccessibleInterval<LabelingType<L>> labeling = e.getData();
 
         m_labels.clear();
-        for (final L label : labeling.firstElement().getMapping().getLabels()) {
+        for (final L label : Util.getTypeFromInterval(labeling).getMapping().getLabels()) {
             m_labels.add(label);
         }
 
-        Collections.sort(m_labels);
         m_jLabelList.setListData(m_labels);
     }
 

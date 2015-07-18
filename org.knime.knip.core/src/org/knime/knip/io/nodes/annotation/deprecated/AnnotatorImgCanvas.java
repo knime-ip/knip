@@ -48,7 +48,7 @@
  */
 package org.knime.knip.io.nodes.annotation.deprecated;
 
-import net.imglib2.img.Img;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
@@ -60,17 +60,17 @@ import org.knime.knip.core.ui.imgviewer.annotator.tools.AnnotatorNoTool;
 
 /**
  * blocks panning if a interactive tool like rectangle selection... is selected.
- * 
- * 
+ *
+ *
  * @param <T>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class AnnotatorImgCanvas<T extends RealType<T> & NativeType<T>> extends ImgCanvas<T, Img<T>> {
+public class AnnotatorImgCanvas<T extends RealType<T> & NativeType<T>> extends ImgCanvas<T, RandomAccessibleInterval<T>> {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 1L;
 
@@ -90,7 +90,7 @@ public class AnnotatorImgCanvas<T extends RealType<T> & NativeType<T>> extends I
     }
 
     @EventListener
-    public void onAnnotatorReset(AnnotatorResetEvent e) {
+    public void onAnnotatorReset(final AnnotatorResetEvent e) {
         m_image = null;
     }
 };

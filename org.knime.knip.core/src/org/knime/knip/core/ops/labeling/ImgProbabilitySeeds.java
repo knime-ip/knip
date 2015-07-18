@@ -53,16 +53,17 @@ import java.util.Random;
 
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccess;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.ops.operation.iterableinterval.unary.MinMax;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.DoubleType;
+import net.imglib2.util.Util;
 import net.imglib2.util.ValuePair;
 import net.imglib2.view.Views;
 
@@ -70,13 +71,13 @@ import org.knime.knip.core.data.LabelGenerator;
 
 /**
  * Samples seeding points randomly according to the image pixel intensity values.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 public class ImgProbabilitySeeds<T extends RealType<T>, L extends Comparable<L>> implements
-        UnaryOperation<Img<T>, Labeling<L>> {
+        UnaryOperation<Img<T>, RandomAccessibleInterval<LabelingType<L>>> {
 
     private final int m_avgDistance;
 
@@ -92,7 +93,7 @@ public class ImgProbabilitySeeds<T extends RealType<T>, L extends Comparable<L>>
      * {@inheritDoc}
      */
     @Override
-    public Labeling<L> compute(final Img<T> input, final Labeling<L> output) {
+    public RandomAccessibleInterval<LabelingType<L>> compute(final Img<T> input, final RandomAccessibleInterval<LabelingType<L>> output) {
 
         m_seedGen.reset();
         final Random rand = new Random();
@@ -113,7 +114,8 @@ public class ImgProbabilitySeeds<T extends RealType<T>, L extends Comparable<L>>
                 in.next();
                 out.setPosition(in);
                 if (rand.nextFloat() < ((min + in.get().getRealDouble()) / range)) {
-                    out.get().setLabel(m_seedGen.nextLabel());
+                    out.get().clear();
+                    out.get().add(m_seedGen.nextLabel());
                 }
             }
 
@@ -127,7 +129,7 @@ public class ImgProbabilitySeeds<T extends RealType<T>, L extends Comparable<L>>
 
             final long[] currentGridPos = new long[output.numDimensions()];
             final RandomAccess<LabelingType<L>> outLabRA =
-                    Views.extendValue(output, output.firstElement().createVariable()).randomAccess();
+                    Views.extendValue(output, Util.getTypeFromInterval(output).createVariable()).randomAccess();
             final RandomAccess<T> inImgRA =
                     Views.extendValue(input, input.firstElement().createVariable()).randomAccess();
 
@@ -151,7 +153,9 @@ public class ImgProbabilitySeeds<T extends RealType<T>, L extends Comparable<L>>
                 double sum = calcCdf(cdfCur, inImgRA, currentGridPos);
                 sum = rand.nextDouble() * sum;
                 retrieveRandPosition(cdfCur, outLabRA, sum, currentGridPos);
-                outLabRA.get().setLabel(m_seedGen.nextLabel());
+
+                outLabRA.get().clear();
+                outLabRA.get().add(m_seedGen.nextLabel());
 
                 // next position in the higher
                 // dimensions than 0
@@ -222,7 +226,7 @@ public class ImgProbabilitySeeds<T extends RealType<T>, L extends Comparable<L>>
      * {@inheritDoc}
      */
     @Override
-    public UnaryOperation<Img<T>, Labeling<L>> copy() {
+    public UnaryOperation<Img<T>, RandomAccessibleInterval<LabelingType<L>>> copy() {
         return new ImgProbabilitySeeds<T, L>(m_seedGen, m_avgDistance);
     }
 

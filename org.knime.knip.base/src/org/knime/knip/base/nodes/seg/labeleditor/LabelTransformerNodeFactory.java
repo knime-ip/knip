@@ -52,10 +52,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import net.imglib2.Cursor;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.view.Views;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
@@ -72,6 +74,7 @@ import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.util.StringTransformer;
 
 /**
@@ -136,17 +139,19 @@ public class LabelTransformerNodeFactory<L extends Comparable<L>> extends ValueT
                 final StringTransformer transformer = new StringTransformer(m_expressionModel.getStringValue(), "$");
 
                 // The input labeling
-                final Labeling<L> labeling = cellLabelingVal.getLabeling();
-                final Labeling<String> res = labeling.<String> factory().create(labeling);
+                final RandomAccessibleInterval<LabelingType<L>> labeling = cellLabelingVal.getLabeling();
+                final RandomAccessibleInterval<LabelingType<String>> res =
+                        (RandomAccessibleInterval<LabelingType<String>>)KNIPGateway.ops()
+                                .createImgLabeling(labeling);
 
-                final Cursor<LabelingType<L>> inCursor = labeling.cursor();
-                final Cursor<LabelingType<String>> outCursor = res.cursor();
+                final Cursor<LabelingType<L>> inCursor = Views.iterable(labeling).cursor();
+                final Cursor<LabelingType<String>> outCursor = Views.iterable(res).cursor();
 
                 while (inCursor.hasNext()) {
                     inCursor.fwd();
                     outCursor.fwd();
 
-                    final List<L> inLabeling = inCursor.get().getLabeling();
+                    final Set<L> inLabeling = inCursor.get();
 
                     if (inLabeling.isEmpty()) {
                         continue;
@@ -159,7 +164,8 @@ public class LabelTransformerNodeFactory<L extends Comparable<L>> extends ValueT
                         labelList.add(transformer.transform(m_objects));
                     }
 
-                    outCursor.get().setLabeling(labelList);
+                    outCursor.get().clear();
+                    outCursor.get().addAll(labelList);
                 }
 
                 final LabelingCell<String> lab =

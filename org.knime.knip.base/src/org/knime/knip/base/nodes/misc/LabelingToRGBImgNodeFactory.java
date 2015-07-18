@@ -50,6 +50,7 @@ package org.knime.knip.base.nodes.misc;
 
 import java.awt.Color;
 import java.util.List;
+import java.util.Set;
 
 import net.imagej.ImgPlus;
 import net.imagej.axis.Axes;
@@ -57,14 +58,15 @@ import net.imagej.axis.CalibratedAxis;
 import net.imagej.axis.DefaultLinearAxis;
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccess;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.type.numeric.real.DoubleType;
+import net.imglib2.view.Views;
 
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
@@ -165,7 +167,7 @@ public class LabelingToRGBImgNodeFactory<T extends RealType<T>, L extends Compar
 
             @Override
             protected ImgPlusCell<UnsignedByteType> compute(final LabelingValue<L> cellValue) throws Exception {
-                final Labeling<L> lab = cellValue.getLabeling();
+                final RandomAccessibleInterval<LabelingType<L>> lab = cellValue.getLabeling();
 
                 final LabelingColorTable colorMapping =
                         new ExtendedLabelingColorTable(cellValue.getLabelingMetadata().getLabelingColorTable(),
@@ -191,7 +193,7 @@ public class LabelingToRGBImgNodeFactory<T extends RealType<T>, L extends Compar
                     }
                 }
 
-                final Cursor<LabelingType<L>> labCur = lab.localizingCursor();
+                final Cursor<LabelingType<L>> labCur = Views.iterable(lab).localizingCursor();
 
 
                 //load the dims from labeling and append one 0
@@ -206,7 +208,7 @@ public class LabelingToRGBImgNodeFactory<T extends RealType<T>, L extends Compar
                         new ArrayImgFactory<UnsignedByteType>().create(dims, new UnsignedByteType());
                 final RandomAccess<UnsignedByteType> raOut = res.randomAccess();
 
-                List<L> labels;
+                Set<L> labels;
 
                 if (m_imgColNr != -1) {
                     //render with img overlay
@@ -221,7 +223,7 @@ public class LabelingToRGBImgNodeFactory<T extends RealType<T>, L extends Compar
                             raOut.setPosition(labCur.getLongPosition(d), d);
                             raIn.setPosition(labCur.getLongPosition(d), d);
                         }
-                        labels = labCur.get().getLabeling();
+                        labels = labCur.get();
                         imgConverter.convert(raIn.get(), converterOut);
                         int normedImgValue = 0x000000FF & converterOut.get();
 
@@ -249,7 +251,7 @@ public class LabelingToRGBImgNodeFactory<T extends RealType<T>, L extends Compar
                         for (int d = 0; d < lab.numDimensions(); d++) {
                             raOut.setPosition(labCur.getLongPosition(d), d);
                         }
-                        labels = labCur.get().getLabeling();
+                        labels = labCur.get();
                         if (!labels.isEmpty()) {
 
                             final Color c = new Color(LabelingColorTableUtils.getAverageColor(colorMapping, labels));

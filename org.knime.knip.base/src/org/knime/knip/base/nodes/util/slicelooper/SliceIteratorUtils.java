@@ -57,10 +57,8 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.img.ImgView;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingFactory;
-import net.imglib2.labeling.LabelingView;
 import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.Type;
 import net.imglib2.type.numeric.RealType;
@@ -120,9 +118,9 @@ public class SliceIteratorUtils {
      * @param fac
      * @return
      */
-    static <L extends Comparable<L>> Labeling<L> getLabelingAsView(final Labeling<L> in, final Interval i,
-                                                                   final LabelingFactory<L> fac) {
-        return new LabelingView<L>(SubsetOperations.subsetview(in, i), fac);
+    static <L extends Comparable<L>> RandomAccessibleInterval<LabelingType<L>>
+            getLabelingAsView(final RandomAccessibleInterval<LabelingType<L>> in, final Interval i) {
+        return SubsetOperations.subsetview(in, i);
     }
 
     /**
@@ -150,7 +148,6 @@ public class SliceIteratorUtils {
         return new DataTableSpec(names.toArray(new String[names.size()]), types.toArray(new DataType[types.size()]));
     }
 
-
     /**
      *
      * @param inSpec
@@ -167,7 +164,7 @@ public class SliceIteratorUtils {
         if (columns != null) {
             for (String col : columns.getIncludeList()) {
                 final int colIdx = inSpec.findColumnIndex(col);
-                if(colIdx == -1) {
+                if (colIdx == -1) {
                     continue;
                 }
                 DataColumnSpec colSpec = inSpec.getColumnSpec(colIdx);
@@ -190,8 +187,7 @@ public class SliceIteratorUtils {
                 DataType colType = colSpec.getType();
                 if (colType.isCompatible(ImgPlusValue.class) || colType.isCompatible(LabelingValue.class)) {
                     selectedIdx.add(i);
-                }
-                else {
+                } else {
                     logger.warn("Waning: Column " + colSpec.getName()
                             + " will be ignored! Only ImgPlusValue and LabelingValue are used!");
                 }

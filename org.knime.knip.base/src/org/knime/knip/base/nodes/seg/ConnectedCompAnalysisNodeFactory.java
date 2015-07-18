@@ -53,12 +53,13 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import net.imagej.ImgPlus;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.NativeImgLabeling;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.AbstractRegionGrowing;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.CCA;
 import net.imglib2.ops.types.ConnectedType;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.IntType;
@@ -78,11 +79,11 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
 import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.util.EnumUtils;
-import org.knime.knip.core.util.ImgUtils;
 
 /**
  * Factory class to produce a Connected Component Analysis Node.
@@ -200,9 +201,10 @@ public class ConnectedCompAnalysisNodeFactory<T extends RealType<T> & Comparable
 
                 final CCA<T> cca = new CCA<T>(structuringElement, background);
 
-                final Labeling<Integer> lab =
-                        new NativeImgLabeling<Integer, IntType>(ImgUtils.<IntType> createEmptyCopy(ImgFactoryTypes
-                                .getImgFactory(m_factory.getStringValue(), img.getImg()), img, new IntType()));
+                final RandomAccessibleInterval<LabelingType<Integer>> lab =
+                        new ImgLabeling<Integer, IntType>((RandomAccessibleInterval<IntType>)KNIPGateway.ops()
+                                .createImg(img, new IntType(),
+                                           ImgFactoryTypes.getImgFactory(m_factory.getStringValue(), img.getImg())));
 
                 try {
                     SubsetOperations.iterate(cca, m_dimSelection.getSelectedDimIndices(img), img, lab,

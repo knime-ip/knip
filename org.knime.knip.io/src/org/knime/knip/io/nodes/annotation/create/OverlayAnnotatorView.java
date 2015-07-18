@@ -182,13 +182,16 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
 	@Override
 	protected void currentSelectionChanged(DataCell[] currentRow,
 			int currentColNr, RowColKey key) {
-		ImgPlus<T> imgPlus = ((ImgPlusValue<T>) currentRow[currentColNr])
-				.getImgPlus();
+		if (!currentRow[currentColNr].isMissing()) {
 
-		m_eventService.publish(new ImgWithMetadataChgEvent(imgPlus.getImg(),
-				imgPlus));
-		m_eventService.publish(new AnnotatorRowColKeyChgEvent(key));
-		m_eventService.publish(new ImgRedrawEvent());
+			ImgPlus<T> imgPlus = ((ImgPlusValue<T>) currentRow[currentColNr])
+					.getImgPlus();
+
+			m_eventService.publish(new ImgWithMetadataChgEvent(
+					imgPlus.getImg(), imgPlus));
+			m_eventService.publish(new AnnotatorRowColKeyChgEvent(key));
+			m_eventService.publish(new ImgRedrawEvent());
+		}
 	}
 
 	@Override

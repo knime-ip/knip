@@ -48,13 +48,12 @@
  */
 package org.knime.knip.base.nodes.testing;
 
-import java.util.Iterator;
-import java.util.List;
+import java.util.Set;
 
 import net.imglib2.Cursor;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
-import net.imglib2.labeling.LabelingView;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.view.Views;
 
 import org.knime.core.data.DataRow;
 import org.knime.knip.base.data.labeling.LabelingValue;
@@ -75,15 +74,11 @@ public class LabelingComparatorNodeModel<L extends Comparable<L>> extends
     @Override
     protected void compare(final DataRow row, final LabelingValue<L> vin1, final LabelingValue<L> vin2) {
 
-        final Labeling<L> labeling1 = vin1.getLabeling();
-        final Labeling<L> labeling2 = vin2.getLabeling();
+        final RandomAccessibleInterval<LabelingType<L>> labeling1 = vin1.getLabeling();
+        final RandomAccessibleInterval<LabelingType<L>> labeling2 = vin2.getLabeling();
 
         final LabelingMetadata meta1 = vin1.getLabelingMetadata();
         final LabelingMetadata meta2 = vin2.getLabelingMetadata();
-
-        if (labeling1.factory().getClass() != labeling2.factory().getClass()) {
-            throw new IllegalStateException("Factory of the images are not the same! " + row.getKey().toString());
-        }
 
         if (labeling1.numDimensions() != labeling2.numDimensions()) {
             throw new IllegalStateException("Number of dimensions of images is not the same! "
@@ -119,37 +114,17 @@ public class LabelingComparatorNodeModel<L extends Comparable<L>> extends
             }
         }
 
-        final Cursor<LabelingType<L>> c1;
-        final Cursor<LabelingType<L>> c2;
-
-        if (labeling1 instanceof LabelingView || labeling2 instanceof LabelingView) {
-            c1 = new LabelingView<L>(labeling1, null).cursor();
-            c2 = new LabelingView<L>(labeling2, null).cursor();
-        } else {
-            c1 = labeling1.cursor();
-            c2 = labeling2.cursor();
-        }
+        final Cursor<LabelingType<L>> c1 = Views.flatIterable(labeling1).cursor();
+        final Cursor<LabelingType<L>> c2 = Views.flatIterable(labeling2).cursor();
 
         while (c1.hasNext()) {
             c1.fwd();
             c2.fwd();
 
-            final List<L> list1 = c1.get().getLabeling();
-            final List<L> list2 = c2.get().getLabeling();
+            final Set<L> list1 = c1.get();
+            final Set<L> list2 = c2.get();
 
-            if (list1.size() == list2.size()) {
-                final Iterator<L> iter1 = list1.iterator();
-                final Iterator<L> iter2 = list2.iterator();
-
-                while (iter1.hasNext()) {
-                    final L t1 = iter1.next();
-                    final L t2 = iter2.next();
-
-                    if (!t1.equals(t2)) {
-                        throw new IllegalStateException("Two labelings are not the same" + row.getKey().toString());
-                    }
-                }
-            } else {
+            if (!list1.equals(list2)) {
                 throw new IllegalStateException("Two labelings are not the same" + row.getKey().toString());
             }
         }

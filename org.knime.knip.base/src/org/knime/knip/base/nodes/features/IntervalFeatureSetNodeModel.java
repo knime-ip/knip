@@ -52,7 +52,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -61,19 +60,22 @@ import net.imagej.ImgPlus;
 import net.imagej.ImgPlusMetadata;
 import net.imagej.space.CalibratedSpace;
 import net.imglib2.IterableInterval;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.converter.Converter;
+import net.imglib2.converter.Converters;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgView;
 import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingView;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.util.MetadataUtil;
-import net.imglib2.roi.IterableRegionOfInterest;
+import net.imglib2.roi.Regions;
+import net.imglib2.roi.labeling.LabelRegion;
+import net.imglib2.roi.labeling.LabelRegions;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.logic.BitType;
+import net.imglib2.type.logic.BoolType;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.util.ConstantUtils;
 import net.imglib2.util.ValuePair;
-import net.imglib2.view.Views;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnProperties;
@@ -108,6 +110,7 @@ import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.node.nodesettings.SettingsModelFilterSelection;
 import org.knime.knip.base.nodes.features.providers.FeatureSetProvider;
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
 import org.knime.knip.core.data.img.LabelingMetadata;
 import org.knime.knip.core.ops.misc.LabelingDependency;
@@ -257,7 +260,7 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
             row = it.next();
 
             ImgPlus<T> img = null;
-            Labeling<L> labeling = null;
+            RandomAccessibleInterval<LabelingType<L>> labeling = null;
             LabelingMetadata labelingMetadata = null;
 
             DataCell imgCell = null;
@@ -324,9 +327,7 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
                     LOGGER.warn("The dimensions of Labeling and Image in Row " + row.getKey()
                             + " are not compatible. Dimensions of labeling are virtually adjusted to match size.");
 
-                    labeling =
-                            new LabelingView<L>(MiscViews.synchronizeDimensionality(labeling, labelingMetadata, img,
-                                                                                    img), labeling.<L> factory());
+                    labeling = MiscViews.synchronizeDimensionality(labeling, labelingMetadata, img, img);
                 }
 
             }
@@ -335,23 +336,16 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
                     new LabelingDependency<L>(m_leftFilterSelection.getRulebasedFilter(),
                             m_rightFilterSelection.getRulebasedFilter(), m_intersectionMode.getBooleanValue());
 
-            final Map<L, List<L>> dependencies;
-            if ((m_leftFilterSelection.getRules().length != 0 || m_rightFilterSelection.getRules().length != 0)
-                    || m_appendDependencies.getBooleanValue()) {
-                dependencies = Operations.compute(dependencyOp, labeling);
-            } else {
-                dependencies = null;
-            }
+            final Map<L, List<L>> dependencies = Operations.compute(dependencyOp, labeling);
 
-            final Collection<L> labels = labeling.getLabels();
+            final LabelRegions<L> regions = KNIPGateway.regions().regions(labeling);
 
-            IterableRegionOfInterest labelRoi;
-            for (final L label : labels) {
-                if (dependencies != null && !dependencies.keySet().contains(label)) {
+            for (final L label : regions.getExistingLabels()) {
+                if (!dependencies.keySet().contains(label)) {
                     continue;
                 }
 
-                labelRoi = labeling.getIterableRegionOfInterest(label);
+                final LabelRegion<L> labelRoi = regions.getLabelRegion(label);
                 IterableInterval<T> ii;
 
                 // segment image
@@ -372,20 +366,23 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
                 mdata.setSource(labVal.getLabelingMetadata().getName());
 
                 if (img == null) {
-                    ii =
-                            labelRoi.getIterableIntervalOverROI(ConstantUtils
-                                    .constantRandomAccessible((T)new BitType(), labeling.numDimensions()));
+                    ii = (IterableInterval<T>)labelRoi;
                 } else {
-                    ii = labelRoi.getIterableIntervalOverROI(img);
+                    ii = Regions.sample(labelRoi, img);
                 }
                 cells.clear();
                 if (m_appendSegmentInformation.getBooleanValue()) {
 
                     final Img<BitType> bitMask =
-                            new ImgView<BitType>(Views.zeroMin(Views.interval(Views.raster(labelRoi), labelRoi
-                                    .getIterableIntervalOverROI(ConstantUtils
-                                            .constantRandomAccessible(new BitType(), labeling.numDimensions())))),
-                                    new ArrayImgFactory<BitType>());
+                            new ImgView<BitType>(Converters.convert((RandomAccessibleInterval<BoolType>)labelRoi,
+                                                                    new Converter<BoolType, BitType>() {
+
+                                                                        @Override
+                                                                        public void convert(final BoolType arg0,
+                                                                                            final BitType arg1) {
+                                                                            arg1.set(arg0.get());
+                                                                        }
+                                                                    }, new BitType()), new ArrayImgFactory<BitType>());
 
                     // min
                     final long[] min = new long[ii.numDimensions()];

@@ -1,7 +1,9 @@
+package org.knime.knip.core;
+
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2013
+ *  Copyright (C) 2003 - 2015
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -46,80 +48,67 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.core.util;
 
-import net.imagej.ImgPlus;
-import net.imglib2.IterableRealInterval;
-import net.imglib2.RandomAccess;
-import net.imglib2.RealInterval;
-import net.imglib2.img.Img;
-import net.imglib2.type.Type;
+import net.imagej.ops.OpService;
+
+import org.knime.knip.scijava.core.ResourceAwareClassLoader;
+import org.scijava.Context;
+import org.scijava.plugin.DefaultPluginFinder;
+import org.scijava.plugin.PluginIndex;
+import org.scijava.thread.ThreadService;
 
 /**
+ * Encapsulates the SciJava instance as singleton.
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class CursorTools {
+public class KNIPGateway {
 
-    /**
-     * Helper to set positions even though the position-array dimension and cursor dimension don't match.
-     *
-     * @param pos
-     * @param access
-     */
-    public static <T extends Type<T>> void setPosition(final RandomAccess<T> access, final long[] pos) {
+    private static KNIPGateway m_instance;
 
-        for (int i = 0; i < Math.min(pos.length, access.numDimensions()); i++) {
-            access.setPosition(pos[i], i);
-        }
+    private static OpService m_os;
 
+    private static ThreadService m_ts;
+
+    private static LabelingService m_ls;
+
+    private final Context m_context;
+
+    private KNIPGateway() {
+        // set log level
+        System.setProperty("scijava.log.level", "error");
+
+        m_context =
+                new Context(new PluginIndex(new DefaultPluginFinder(new ResourceAwareClassLoader(getClass()
+                        .getClassLoader(), getClass()))));
     }
 
-    public static boolean equalIterationOrder(final IterableRealInterval<?> a, final IterableRealInterval<?>... bs) {
-        for (int i = 1; i < bs.length; i++) {
-            if (!equalIterationOrder(a, bs[i])) {
-                return false;
-            }
+    public static synchronized KNIPGateway getInstance() {
+        if (m_instance == null) {
+            m_instance = new KNIPGateway();
         }
-        return true;
+        return m_instance;
     }
 
-    public static boolean equalIterationOrder(final IterableRealInterval<?> a, final IterableRealInterval<?> b) {
-        // If one is not an image
-        if (!(a instanceof Img) || !(b instanceof Img)) {
-            return a.iterationOrder().equals(b.iterationOrder());
+    public static OpService ops() {
+        if (m_os == null) {
+            m_os = getInstance().m_context.getService(OpService.class);
         }
-        // If not a pair of special types unpack the image plus type
-        if (b instanceof ImgPlus) {
-            return a.iterationOrder().equals(((ImgPlus<?>)b).getImg().iterationOrder());
-        }
-        if (a instanceof ImgPlus) {
-            return b.iterationOrder().equals(((ImgPlus<?>)a).getImg().iterationOrder());
-        }
-        // Default image test
-        return a.iterationOrder().equals(b.iterationOrder());
+        return m_os;
     }
 
-    public static boolean equalInterval(final RealInterval a, final RealInterval... bs) {
-        for (int i = 1; i < bs.length; i++) {
-            if (!equalInterval(a, bs[i])) {
-                return false;
-            }
+    public static ThreadService threads() {
+        if (m_ts == null) {
+            m_ts = getInstance().m_context.getService(ThreadService.class);
         }
-        return true;
+        return m_ts;
     }
 
-    public static boolean equalInterval(final RealInterval a, final RealInterval b) {
-        for (int i = 0; i < a.numDimensions(); i++) {
-            if (a.realMin(i) != b.realMin(i)) {
-                return false;
-            }
-            if (a.realMax(i) != b.realMax(i)) {
-                return false;
-            }
+    public static LabelingService regions() {
+        if (m_ls == null) {
+            m_ls = getInstance().m_context.getService(LabelingService.class);
         }
-        return true;
+        return m_ls;
     }
+
 }

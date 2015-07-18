@@ -57,19 +57,22 @@ import net.imglib2.Cursor;
 import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccess;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.exception.IncompatibleTypeException;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgView;
-import net.imglib2.labeling.Labeling;
 import net.imglib2.ops.operation.BinaryObjectFactory;
 import net.imglib2.ops.operation.BinaryOutputOperation;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.iterableinterval.unary.MakeHistogram;
+import net.imglib2.roi.labeling.LabelRegions;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.logic.BitType;
+import net.imglib2.type.logic.BoolType;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.util.ConstantUtils;
 import net.imglib2.util.IntervalIndexer;
 
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter;
 
 /**
@@ -83,7 +86,7 @@ import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter;
  * @param <L>
  */
 public class GraphCut2DLab<T extends RealType<T>, L extends Comparable<L>> implements
-        BinaryOutputOperation<Img<T>, Labeling<L>, Img<BitType>> {
+        BinaryOutputOperation<Img<T>, RandomAccessibleInterval<LabelingType<L>>, Img<BitType>> {
 
     private Set<long[]> m_sources;
 
@@ -140,7 +143,8 @@ public class GraphCut2DLab<T extends RealType<T>, L extends Comparable<L>> imple
      * @return the resulting BitType image
      */
     @Override
-    public Img<BitType> compute(final Img<T> src, final Labeling<L> labeling, final Img<BitType> res) {
+    public Img<BitType> compute(final Img<T> src, final RandomAccessibleInterval<LabelingType<L>> labeling,
+                                final Img<BitType> res) {
 
         boolean isBg, isFg;
 
@@ -155,23 +159,16 @@ public class GraphCut2DLab<T extends RealType<T>, L extends Comparable<L>> imple
         double srcCount = 0;
         double sinkCount = 0;
 
-        String regExpBg = RulebasedLabelFilter.formatRegExp(m_bgLabel);
-        String regExpFg = RulebasedLabelFilter.formatRegExp(m_fgLabel);
-
-        for (final L label : labeling.getLabels()) {
-            isBg = RulebasedLabelFilter.isValid(label, regExpBg);
-            isFg = RulebasedLabelFilter.isValid(label, regExpFg);
+        LabelRegions<L> regions = KNIPGateway.regions().regions(labeling);
+        for (final L label : regions.getExistingLabels()) {
+            isBg = RulebasedLabelFilter.isValid(label, m_bgLabel);
+            isFg = RulebasedLabelFilter.isValid(label, m_fgLabel);
 
             if (!isBg && !isFg) {
                 continue;
             }
 
-            final Cursor<T> roiCursor =
-                    labeling.getIterableRegionOfInterest(label)
-                            .getIterableIntervalOverROI(ConstantUtils.constantRandomAccessible(src.firstElement(),
-                                                                                               labeling.numDimensions()))
-                            .localizingCursor();
-
+            final Cursor<BoolType> roiCursor = regions.getLabelRegion(label).cursor();
             final RandomAccess<T> srcRA = src.randomAccess();
 
             while (roiCursor.hasNext()) {
@@ -453,8 +450,8 @@ public class GraphCut2DLab<T extends RealType<T>, L extends Comparable<L>> imple
      * @return empty result {@link Img}
      * @throws IncompatibleTypeException
      */
-    public Img<BitType> createEmptyOutput(final Img<T> src, final Labeling<L> src2, final long[] dims)
-            throws IncompatibleTypeException {
+    public Img<BitType> createEmptyOutput(final Img<T> src, final RandomAccessibleInterval<LabelingType<L>> src2,
+                                          final long[] dims) throws IncompatibleTypeException {
         return src.factory().imgFactory(new BitType()).create(dims, new BitType());
     }
 
@@ -497,16 +494,16 @@ public class GraphCut2DLab<T extends RealType<T>, L extends Comparable<L>> imple
     }
 
     @Override
-    public BinaryOutputOperation<Img<T>, Labeling<L>, Img<BitType>> copy() {
+    public BinaryOutputOperation<Img<T>, RandomAccessibleInterval<LabelingType<L>>, Img<BitType>> copy() {
         return new GraphCut2DLab<T, L>(m_lambda, m_fgLabel, m_bgLabel, m_dimX, m_dimY, m_dimFeat);
     }
 
     @Override
-    public BinaryObjectFactory<Img<T>, Labeling<L>, Img<BitType>> bufferFactory() {
-        return new BinaryObjectFactory<Img<T>, Labeling<L>, Img<BitType>>() {
+    public BinaryObjectFactory<Img<T>, RandomAccessibleInterval<LabelingType<L>>, Img<BitType>> bufferFactory() {
+        return new BinaryObjectFactory<Img<T>, RandomAccessibleInterval<LabelingType<L>>, Img<BitType>>() {
 
             @Override
-            public Img<BitType> instantiate(final Img<T> src, final Labeling<L> labeling) {
+            public Img<BitType> instantiate(final Img<T> src, final RandomAccessibleInterval<LabelingType<L>> labeling) {
                 try {
                     return createEmptyOutput(src, labeling, resultDims(src, labeling));
                 } catch (final IncompatibleTypeException e) {

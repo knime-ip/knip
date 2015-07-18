@@ -138,8 +138,8 @@ public class ImgComparatorNodeModel<T extends NativeType<T> & RealType<T>> exten
         while (c1.hasNext()) {
             c1.fwd();
             c2.fwd();
-            if (Double.compare(c1.get().getRealDouble(), c2.get().getRealDouble()) != 0) {
-                throw new IllegalStateException("Content of images is not the same!" + row.getKey().toString());
+            if (Math.abs((c1.get().getRealDouble() - c2.get().getRealDouble())) > 0.000000001) {
+                throw new IllegalStateException("Content of images is not the same: " + row.getKey().toString());
             }
         }
     }

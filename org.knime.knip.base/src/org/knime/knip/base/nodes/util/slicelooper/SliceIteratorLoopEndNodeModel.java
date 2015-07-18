@@ -56,14 +56,16 @@ import net.imagej.ImgPlus;
 import net.imagej.ImgPlusMetadata;
 import net.imagej.axis.CalibratedAxis;
 import net.imagej.space.CalibratedSpace;
+import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingFactory;
 import net.imglib2.ops.util.MetadataUtil;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.Util;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
@@ -87,6 +89,7 @@ import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingCellFactory;
 import org.knime.knip.base.data.labeling.LabelingValue;
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
 import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.data.img.LabelingMetadata;
@@ -256,7 +259,7 @@ public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>
 
                     // create new output image
                     final Img<T> res =
-                            fac.create(loopStartNode.getResDimensions(firstImgValue.getImgPlus(),count), firstImgValue
+                            fac.create(loopStartNode.getResDimensions(firstImgValue.getImgPlus(), count), firstImgValue
                                     .getImgPlus().firstElement().createVariable());
 
                     // copy all image slices in new created output image
@@ -283,23 +286,24 @@ public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>
                     outCells[j] = m_imgPlusCellFactory.createCell(res, outMetadata);
 
                 } else {
-                    // it must be a labeling
-
                     // get the labeling value
                     final LabelingValue<L> firstLabelingValue = (LabelingValue<L>)firstValue;
 
-                    // get the labeling factory
-                    final LabelingFactory<L> fac = firstLabelingValue.getLabeling().factory();
-
                     // create new labeling
-                    final Labeling<L> res =
-                            fac.create(loopStartNode.getResDimensions(firstLabelingValue.getLabeling(),count));
+                    final RandomAccessibleInterval<LabelingType<L>> res =
+                            (RandomAccessibleInterval<LabelingType<L>>)KNIPGateway
+                                    .ops()
+                                    .createImgLabeling(new FinalInterval(loopStartNode.getResDimensions(firstLabelingValue
+                                                    .getLabeling(), count)),
+                                            Util.getTypeFromInterval(firstLabelingValue.getLabeling()).createVariable());
 
                     // copy all labeling slices in new created labeling
                     int i = 0;
                     for (final DataValue value : m_cells.get(j)) {
-                        final Labeling<L> outSlice = SliceIteratorUtils.getLabelingAsView(res, refIntervals[i++], fac);
-                        final Labeling<L> labeling = ((LabelingValue<L>)value).getLabeling();
+                        final RandomAccessibleInterval<LabelingType<L>> outSlice =
+                                SliceIteratorUtils.getLabelingAsView(res, refIntervals[i++]);
+                        final RandomAccessibleInterval<LabelingType<L>> labeling =
+                                ((LabelingValue<L>)value).getLabeling();
                         SliceIteratorUtils.copy(labeling, outSlice);
                     }
 

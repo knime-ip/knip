@@ -55,7 +55,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import net.imagej.ImgPlus;
-import net.imglib2.labeling.Labeling;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.ops.img.UnaryObjectFactory;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.SubsetOperations;
@@ -64,6 +64,7 @@ import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.ops.operation.labeling.unary.DilateLabeling;
 import net.imglib2.ops.operation.labeling.unary.ErodeLabeling;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.morph.StructuringElementCursor;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.logic.BitType;
 
 import org.knime.core.data.DataRow;
@@ -87,6 +88,7 @@ import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
+import org.knime.knip.core.KNIPGateway;
 
 /**
  * {@link NodeModel} for Morphological Labeling Operations
@@ -207,11 +209,11 @@ public class MorphLabelingOpsNodeModel<L extends Comparable<L>> extends
 
     private ImgPlus<BitType> m_currentStruct;
 
-    private UnaryObjectFactory<Labeling<L>, Labeling<L>> m_fac;
+    private UnaryObjectFactory<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<L>>> m_fac;
 
     private LabelingCellFactory m_labCellFactory;
 
-    private UnaryOperation<Labeling<L>, Labeling<L>> m_operation;
+    private UnaryOperation<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<L>>> m_operation;
 
     private final SettingsModelString m_smConnectionType = createConnectionTypeModel();
 
@@ -256,17 +258,20 @@ public class MorphLabelingOpsNodeModel<L extends Comparable<L>> extends
     @Override
     protected LabelingCell<L> compute(final LabelingValue<L> cellValue) throws IOException {
 
-        m_fac = new UnaryObjectFactory<Labeling<L>, Labeling<L>>() {
+        m_fac =
+                new UnaryObjectFactory<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<L>>>() {
 
-            @Override
-            public Labeling<L> instantiate(final Labeling<L> a) {
+                    @Override
+                    public RandomAccessibleInterval<LabelingType<L>>
+                            instantiate(final RandomAccessibleInterval<LabelingType<L>> a) {
 
-                return a.<L> factory().create(a);
-            }
-        };
+                        return (RandomAccessibleInterval<LabelingType<L>>)KNIPGateway.ops().createImgLabeling(a);
+                    }
+                };
 
-        final Labeling<L> in = cellValue.getLabeling();
-        final Labeling<L> out = in.<L> factory().create(in);
+        final RandomAccessibleInterval<LabelingType<L>> in = cellValue.getLabeling();
+        final RandomAccessibleInterval<LabelingType<L>> out =
+                (RandomAccessibleInterval<LabelingType<L>>)KNIPGateway.ops().createImgLabeling(in);
 
         if (m_currentStruct != null) {
             m_operation = createOperation(StructuringElementCursor.createElementFromImg(m_currentStruct));
@@ -312,7 +317,8 @@ public class MorphLabelingOpsNodeModel<L extends Comparable<L>> extends
      * @param structuringElement
      * @return
      */
-    private UnaryOperation<Labeling<L>, Labeling<L>> createOperation(final long[][] structuringElement) {
+    private UnaryOperation<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<L>>>
+            createOperation(final long[][] structuringElement) {
 
         final boolean labelingBased = LabelHandling.value(m_smLabelingBased.getStringValue()) == LabelHandling.LABELING;
         long[][] localStruct = structuringElement;
@@ -334,11 +340,11 @@ public class MorphLabelingOpsNodeModel<L extends Comparable<L>> extends
                 }
         }
 
-        UnaryOutputOperation<Labeling<L>, Labeling<L>> simpleErode =
+        UnaryOutputOperation<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<L>>> simpleErode =
                 Operations.iterate(Operations.wrap(new ErodeLabeling<L>(localStruct, labelingBased), m_fac),
                                    m_smIterations.getIntValue());
 
-        UnaryOutputOperation<Labeling<L>, Labeling<L>> simpleDilate =
+        UnaryOutputOperation<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<L>>> simpleDilate =
                 Operations.iterate(Operations.wrap(new DilateLabeling<L>(localStruct, labelingBased), m_fac),
                                    m_smIterations.getIntValue());
 

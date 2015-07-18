@@ -53,12 +53,13 @@ import java.util.List;
 
 import net.imagej.axis.CalibratedAxis;
 import net.imglib2.Interval;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingView;
-import net.imglib2.labeling.NativeImgLabeling;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.labeling.unary.MergeLabelings;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.IntegerType;
+import net.imglib2.util.Util;
 import net.imglib2.view.Views;
 
 import org.knime.core.node.ExecutionContext;
@@ -143,13 +144,13 @@ public class LabelingOrthoCropperNodeFactory<L extends Comparable<L>> extends Va
 
             @Override
             protected LabelingCell<L> compute(final LabelingValue<L> cellValue) throws Exception {
-                Labeling<L> res;
+                RandomAccessibleInterval<LabelingType<L>> res;
 
                 if (m_subsetSel.isCompletelySelected()) {
-                    return m_labCellFactory.createCell(cellValue.getLabeling().copy(), cellValue.getLabelingMetadata());
+                    return m_labCellFactory.createCell(cellValue.getLabeling(), cellValue.getLabelingMetadata());
                 } else {
 
-                    final Labeling<L> lab = cellValue.getLabeling();
+                    final RandomAccessibleInterval<LabelingType<L>> lab = cellValue.getLabeling();
 
                     final long[] dimensions = new long[lab.numDimensions()];
                     lab.dimensions(dimensions);
@@ -158,23 +159,25 @@ public class LabelingOrthoCropperNodeFactory<L extends Comparable<L>> extends Va
                             m_subsetSel.createSelectedIntervals(dimensions, cellValue.getLabelingMetadata());
 
                     @SuppressWarnings("unchecked")
-                    final LabelingView<L>[] subLab = new LabelingView[intervals.length];
+                    final RandomAccessibleInterval<LabelingType<L>>[] subLab =
+                            new RandomAccessibleInterval[intervals.length];
 
                     for (int i = 0; i < subLab.length; i++) {
-                        subLab[i] = new LabelingView<L>(Views.offsetInterval(lab, intervals[i]), lab.<L> factory());
+                        subLab[i] = Views.offsetInterval(lab, intervals[i]);
                     }
 
                     // TODO: Assumption here is that
                     // Labeling =
-                    // NativeImgLabeling
+                    // ImgLabeling
                     @SuppressWarnings("unchecked")
                     final MergeLabelings<L> mergeOp =
-                            new MergeLabelings<L>(((NativeImgLabeling<L, ? extends IntegerType<?>>)lab).getStorageImg()
-                                    .firstElement().createVariable(), m_smAdjustDimensionality.getBooleanValue());
+                            new MergeLabelings<L>(
+                                    Util.getTypeFromInterval(((ImgLabeling<L, ? extends IntegerType<?>>)lab)
+                                            .getIndexImg()), m_smAdjustDimensionality.getBooleanValue());
 
                     long totalSize = 0;
                     for (int i = 0; i < subLab.length; i++) {
-                        totalSize += subLab[i].size();
+                        totalSize += Views.iterable(subLab[i]).size();
                     }
 
                     if (subLab.length == totalSize) {

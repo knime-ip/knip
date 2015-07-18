@@ -53,11 +53,14 @@ import java.util.List;
 
 import net.imagej.ImgPlus;
 import net.imglib2.Cursor;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.exception.IncompatibleTypeException;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.NativeImgLabeling;
+import net.imglib2.img.Img;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
 
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.NodeFactory;
@@ -70,11 +73,12 @@ import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.types.NativeTypes;
 import org.knime.knip.core.util.EnumUtils;
 
 /**
- * {@link NodeFactory} to convert {@link Labeling} to an {@link ImgPlus} of arbitrary {@link RealType}
+ * {@link NodeFactory} to convert {@link ImgLabeling} to an {@link ImgPlus} of arbitrary {@link RealType}
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -133,22 +137,20 @@ public class LabelingToImgNodeFactory<L extends Comparable<L>, V extends Integer
             @Override
             protected ImgPlusCell<V> compute(final LabelingValue<L> cellValue) throws IncompatibleTypeException,
                     IOException {
-                final NativeImgLabeling<L, V> lab = (NativeImgLabeling<L, V>)cellValue.getLabeling();
+                final RandomAccessibleInterval<LabelingType<L>> lab = cellValue.getLabeling();
 
                 final RealType outType =
                         (RealType)NativeTypes.getTypeInstance(NativeTypes.valueOf(m_outputImg.getStringValue()));
 
-                final ImgPlus<RealType> out =
-                        new ImgPlus(lab.getStorageImg().factory().imgFactory(outType)
-                                .create(lab.getStorageImg(), outType));
+                final ImgPlus<RealType> out = new ImgPlus((Img<RealType>)KNIPGateway.ops().createImg(lab, outType));
 
-                final Cursor<V> inC = lab.getStorageImg().cursor();
+                final Cursor<LabelingType<L>> inC = Views.iterable(lab).cursor();
                 final Cursor<RealType> outC = out.cursor();
 
                 double outMax = outType.getMaxValue();
 
                 while (outC.hasNext()) {
-                    int val = inC.next().getInteger();
+                    int val = inC.next().getIndex().getInteger();
                     if (val > outMax) {
                         outC.next().setReal(outMax);
                     } else {
@@ -175,5 +177,4 @@ public class LabelingToImgNodeFactory<L extends Comparable<L>, V extends Integer
             }
         };
     }
-
 }

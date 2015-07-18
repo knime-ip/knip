@@ -50,10 +50,11 @@ package org.knime.knip.base.nodes.seg;
 
 import java.util.List;
 
-import net.imglib2.labeling.Labeling;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.labeling.unary.ExtractLabelingOutline;
 import net.imglib2.ops.types.ConnectedType;
+import net.imglib2.roi.labeling.LabelingType;
 
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
@@ -67,6 +68,7 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.util.EnumUtils;
 
 /**
@@ -137,16 +139,17 @@ public class ExtractOutlineLabelingNodeFactory<L extends Comparable<L>> extends
 
             @Override
             protected LabelingCell<L> compute(final LabelingValue<L> cellValue) throws Exception {
-                final Labeling<L> lab = cellValue.getLabeling();
+                final RandomAccessibleInterval<LabelingType<L>> lab = cellValue.getLabeling();
                 final ExtractLabelingOutline<L> op =
                         new ExtractLabelingOutline<L>(EnumUtils.valueForName(m_type.getStringValue(),
                                                                              ConnectedType.values()));
 
-                final Labeling<L> out =
+                final RandomAccessibleInterval<LabelingType<L>> out =
                         SubsetOperations.iterate(op,
                                                  m_dimSelection.getSelectedDimIndices(cellValue.getLabelingMetadata()),
-                                                 cellValue.getLabeling(), lab.<L> factory().create(lab),
-                                                 getExecutorService());
+                                                 cellValue.getLabeling(),
+                                                 (RandomAccessibleInterval<LabelingType<L>>)KNIPGateway.ops()
+                                                         .createImgLabeling(lab), getExecutorService());
 
                 return m_labCellFactory.createCell(out, cellValue.getLabelingMetadata());
             }

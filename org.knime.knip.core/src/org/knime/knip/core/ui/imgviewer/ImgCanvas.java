@@ -74,8 +74,7 @@ import java.util.Arrays;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import net.imglib2.IterableInterval;
-import net.imglib2.RandomAccessible;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.Type;
 
 import org.knime.knip.core.ui.event.EventListener;
@@ -106,7 +105,7 @@ import org.knime.knip.core.ui.imgviewer.panels.MinimapPanel;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class ImgCanvas<T extends Type<T>, I extends IterableInterval<T> & RandomAccessible<T>> extends ViewerComponent {
+public class ImgCanvas<T extends Type<T>, I extends RandomAccessibleInterval<T>> extends ViewerComponent {
 
     private static BufferedImage TEXTMSGIMG = new BufferedImage(100, 50, BufferedImage.TYPE_INT_RGB);
 

@@ -56,14 +56,17 @@ import java.util.List;
 
 import net.imagej.ImgPlusMetadata;
 import net.imglib2.Cursor;
-import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccess;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.labeling.Labeling;
+import net.imglib2.roi.IterableRegion;
+import net.imglib2.roi.Regions;
+import net.imglib2.roi.labeling.LabelRegion;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.logic.BitType;
+import net.imglib2.type.logic.BoolType;
 import net.imglib2.type.numeric.IntegerType;
-import net.imglib2.util.ConstantUtils;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnProperties;
@@ -93,6 +96,7 @@ import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.NodeUtils;
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.data.DefaultNamed;
 import org.knime.knip.core.data.DefaultSourced;
 import org.knime.knip.core.data.img.DefaultImageMetadata;
@@ -148,15 +152,15 @@ public class Lab2TableNodeModel<L extends Comparable<L>, II extends IntegerType<
     /*
      * Helper to create a binary mask from a region of interest.
      */
-    private Img<BitType> createBinaryMask(final IterableInterval<BitType> ii) {
-        final Img<BitType> mask = new ArrayImgFactory<BitType>().create(ii, new BitType());
+    private Img<BitType> createBinaryMask(final IterableRegion<BoolType> ir) {
+        final Img<BitType> mask = new ArrayImgFactory<BitType>().create(ir, new BitType());
 
         final RandomAccess<BitType> maskRA = mask.randomAccess();
-        final Cursor<BitType> cur = ii.localizingCursor();
+        final Cursor<BoolType> cur = ir.localizingCursor();
         while (cur.hasNext()) {
             cur.fwd();
             for (int d = 0; d < cur.numDimensions(); d++) {
-                maskRA.setPosition(cur.getLongPosition(d) - ii.min(d), d);
+                maskRA.setPosition(cur.getLongPosition(d) - ir.min(d), d);
             }
             maskRA.get().set(true);
         }
@@ -185,25 +189,18 @@ public class Lab2TableNodeModel<L extends Comparable<L>, II extends IntegerType<
                 continue;
             }
             final LabelingValue<L> labVal = (LabelingValue<L>)row.getCell(labColIdx);
-            final Labeling<L> lab = labVal.getLabeling();
+            final RandomAccessibleInterval<LabelingType<L>> lab = labVal.getLabeling();
 
-            final List<L> labels = lab.firstElement().getMapping().getLabels();
+            for (final LabelRegion<L> label : KNIPGateway.regions().regions(lab)) {
 
-            IterableInterval ii;
-            for (final L label : labels) {
-
-                ii =
-                        lab.getIterableRegionOfInterest(label)
-                                .getIterableIntervalOverROI(ConstantUtils.constantRandomAccessible(new BitType(), lab
-                                                                    .numDimensions()));
-
+                final IterableRegion<BoolType> ir = Regions.iterable(label);
                 final List<DataCell> cells = new ArrayList<DataCell>();
 
                 // segment image
-                final long[] min = new long[ii.numDimensions()];
+                final long[] min = new long[ir.numDimensions()];
 
                 for (int j = 0; j < min.length; j++) {
-                    min[j] = ii.min(j);
+                    min[j] = ir.min(j);
                 }
                 final LabelingMetadata lmdata = labVal.getLabelingMetadata();
 
@@ -211,7 +208,7 @@ public class Lab2TableNodeModel<L extends Comparable<L>, II extends IntegerType<
                         new DefaultImgMetadata(lmdata, new DefaultNamed(label.toString()), new DefaultSourced(
                                 lmdata.getName()), new DefaultImageMetadata());
 
-                cells.add(imgCellFactory.createCell(createBinaryMask(ii), mdata, min));
+                cells.add(imgCellFactory.createCell(createBinaryMask(ir), mdata, min));
 
                 // Segment label
                 cells.add(new StringCell(label.toString()));

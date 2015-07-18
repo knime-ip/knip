@@ -69,8 +69,6 @@ import net.imglib2.exception.IncompatibleTypeException;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
-import net.imglib2.labeling.NativeImgLabeling;
 import net.imglib2.ops.img.UnaryOperationBasedConverter;
 import net.imglib2.ops.operation.BinaryObjectFactory;
 import net.imglib2.ops.operation.BinaryOutputOperation;
@@ -80,18 +78,23 @@ import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.Ab
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.CCA;
 import net.imglib2.ops.operation.real.unary.RealUnaryOperation;
 import net.imglib2.outofbounds.OutOfBoundsBorderFactory;
-import net.imglib2.roi.IterableRegionOfInterest;
+import net.imglib2.roi.Regions;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelRegion;
+import net.imglib2.roi.labeling.LabelRegions;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.ShortType;
 import net.imglib2.type.numeric.real.FloatType;
+import net.imglib2.util.Util;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 
 import org.knime.knip.base.nodes.io.kernel.structuring.SphereSetting;
 import org.knime.knip.base.nodes.proc.maxfinder.MaximumFinderOp;
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.data.algebra.ExtendedPolygon;
-import org.knime.knip.core.ops.labeling.LabelingCleaner;
 import org.knime.knip.core.ops.labeling.WatershedWithSheds;
 import org.knime.knip.core.util.Triple;
 
@@ -107,8 +110,9 @@ import org.knime.knip.core.util.Triple;
  * @param <L> Type of the input {@link Labeling}<L>
  * @param <T> Type of the input {@link RandomAccessibleInterval}<T>
  */
-public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> implements
-        BinaryOutputOperation<Labeling<L>, RandomAccessibleInterval<T>, Labeling<String>> {
+public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>>
+        implements
+        BinaryOutputOperation<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<T>, RandomAccessibleInterval<LabelingType<String>>> {
 
     /**
      * Segmentation type enum
@@ -184,8 +188,9 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
      * {@inheritDoc}
      */
     @Override
-    public Labeling<String> compute(final Labeling<L> inLab, final RandomAccessibleInterval<T> img,
-                                    final Labeling<String> outLab) {
+    public RandomAccessibleInterval<LabelingType<String>>
+            compute(final RandomAccessibleInterval<LabelingType<L>> inLab, final RandomAccessibleInterval<T> img,
+                    final RandomAccessibleInterval<LabelingType<String>> outLab) {
 
         Img<FloatType> imgAlice = m_floatFactory.create(img, new FloatType());
         Img<FloatType> imgBob = m_floatFactory.create(img, new FloatType());
@@ -219,16 +224,16 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
                 new OutOfBoundsBorderFactory<FloatType, RandomAccessibleInterval<FloatType>>()).compute(imgAliceExt,
                                                                                                         imgBob);
 
-        NativeImgLabeling<Integer, ShortType> seeds =
-                new NativeImgLabeling<Integer, ShortType>(new ArrayImgFactory<ShortType>().create(img, new ShortType()));
+        ImgLabeling<Integer, ShortType> seeds =
+                new ImgLabeling<Integer, ShortType>(new ArrayImgFactory<ShortType>().create(img, new ShortType()));
 
         Img<BitType> imgChris = new ArrayImgFactory<BitType>().create(img, new BitType());
         new MaximumFinderOp<FloatType>(0, 0).compute(imgBob, imgChris);
 
         m_cca.compute(imgChris, seeds);
 
-        Labeling<String> watershedResult =
-                new NativeImgLabeling<String, ShortType>(new ArrayImgFactory<ShortType>().create(img, new ShortType()));
+        RandomAccessibleInterval<LabelingType<String>> watershedResult =
+                new ImgLabeling<String, ShortType>(new ArrayImgFactory<ShortType>().create(img, new ShortType()));
         /* Seeded Watershed */
 
         m_watershed.compute(invertImg(imgAlice, new FloatType()), seeds, watershedResult);
@@ -240,19 +245,22 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         ArrayImgFactory<BitType> bitFactory = new ArrayImgFactory<BitType>();
         ArrayList<LabeledObject> objects = new ArrayList<LabeledObject>();
 
-        // Get some more information about the objects. Contour, bounding box etc
-        final ArrayList<String> sortedLabels = new ArrayList<String>(watershedResult.getLabels());
-        Collections.sort(sortedLabels, new Comparator<String>() {
+        LabelRegions<String> regions = KNIPGateway.regions().regions(watershedResult);
+        final ArrayList<String> labels = new ArrayList<String>(regions.getExistingLabels());
+        Collections.sort(labels, new Comparator<String>() {
 
             @Override
             public int compare(final String o1, final String o2) {
                 return o1.compareTo(o2) * -1;
             }
         });
-        for (final String label : sortedLabels) {
-            IterableRegionOfInterest iROI = watershedResult.getIterableRegionOfInterest(label);
 
-            IterableInterval<LabelingType<String>> intervalOverSrc = iROI.getIterableIntervalOverROI(watershedResult);
+        //                 Get some more information about the objects. Contour, bounding box etc
+        for (final String label : labels) {
+            System.out.println(label);
+
+            IterableInterval<LabelingType<String>> intervalOverSrc =
+                    Regions.sample(regions.getLabelRegion(label), watershedResult);
 
             //Create individual images for every object
             Img<BitType> objImage = bitFactory.create(intervalOverSrc, new BitType());
@@ -280,9 +288,14 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
             objects.add(new LabeledObject(poly, label, min, intervalOverSrc));
         }
 
-        new LabelingCleaner<String>().compute(watershedResult, outLab);
+        Cursor<LabelingType<String>> outC = Views.iterable(outLab).cursor();
+        Cursor<LabelingType<String>> inC = Views.iterable(watershedResult).cursor();
 
-        ArrayList<Triple<LabeledObject, LabeledObject, String>> mergedList =
+        while (inC.hasNext()) {
+            outC.next().addAll(inC.next());
+        }
+
+        final ArrayList<Triple<LabeledObject, LabeledObject, String>> mergedList =
                 new ArrayList<Triple<LabeledObject, LabeledObject, String>>();
 
         { /*scope for object pair finding */
@@ -291,8 +304,9 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
             boolean found = false;
 
             NeighborhoodsAccessible<LabelingType<String>> raNeighWatershed =
-                    RECTANGLE_SHAPE.neighborhoodsRandomAccessibleSafe(Views.interval(Views
-                            .extendValue(watershedResult, new LabelingType<String>()), watershedResult));
+                    RECTANGLE_SHAPE
+                            .neighborhoodsRandomAccessibleSafe(Views.interval(Views.extendValue(watershedResult, Util
+                                    .getTypeFromInterval(watershedResult).createVariable()), watershedResult));
 
             // find two objects that are closer than rSize
             for (int i = 0; i < objects.size(); ++i) {
@@ -341,13 +355,16 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
 
                             //overwrite i to have label of j
                             while (curs.hasNext()) {
-                                curs.next().setLabel(ijLabel);
+                                LabelingType<String> next = curs.next();
+                                next.clear();
+                                next.add(ijLabel);
                             }
 
                             //set label of all points
                             for (int[] point : points) {
                                 raWatershed.setPosition(point);
-                                raWatershed.get().setLabel(ijLabel);
+                                raWatershed.get().clear();
+                                raWatershed.get().add(ijLabel);
                             }
 
                             //fill remaining gap for both points
@@ -375,16 +392,17 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         } /*end scope for object finding */
 
         RandomAccess<LabelingType<String>> raOut = outLab.randomAccess();
+
+        regions = KNIPGateway.regions().regions(watershedResult, true);
         // Decide on circularity and size whether to actually merge the found objects
         for (Triple<LabeledObject, LabeledObject, String> triple : mergedList) {
             final String label = triple.getThird();
 
-            IterableRegionOfInterest roi = watershedResult.getIterableRegionOfInterest(label);
+            final LabelRegion<String> roi = regions.getLabelRegion(label);
 
-            IterableInterval<LabelingType<String>> intervalOverSrc = roi.getIterableIntervalOverROI(watershedResult);
+            final IterableInterval<LabelingType<String>> intervalOverSrc = Regions.sample(roi, watershedResult);
 
-            //Create individual images for every object
-            Img<BitType> objImage = bitFactory.create(intervalOverSrc, new BitType());
+            final Img<BitType> objImage = bitFactory.create(intervalOverSrc, new BitType());
 
             final long[] min = new long[2];
             intervalOverSrc.min(min);
@@ -422,12 +440,13 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
                 while (curs.hasNext()) {
                     curs.fwd();
                     raOut.setPosition(curs);
-                    raOut.get().setLabel(label);
+                    raOut.get().clear();
+                    raOut.get().add(label);
                 }
             }
         }
 
-        return outLab;
+        return watershedResult;
 
     }
 
@@ -450,7 +469,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         while (cNeigh.hasNext()) {
             final LabelingType<String> p = cNeigh.next();
 
-            if (!p.getLabeling().contains(label)) {
+            if (!p.contains(label)) {
                 numNonij = 0;
                 leq2 = true;
 
@@ -458,7 +477,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
                 Cursor<LabelingType<String>> curs = ra.get().cursor();
 
                 while (curs.hasNext()) {
-                    if (!curs.next().getLabeling().contains(label)) {
+                    if (!curs.next().contains(label)) {
                         ++numNonij;
 
                         if (numNonij > 2) {
@@ -469,7 +488,8 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
                 }
 
                 if (leq2) {
-                    p.setLabel(label);
+                    p.clear();
+                    p.add(label);
                 }
             }
         }
@@ -485,11 +505,15 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
      * {@inheritDoc}
      */
     @Override
-    public BinaryObjectFactory<Labeling<L>, RandomAccessibleInterval<T>, Labeling<String>> bufferFactory() {
-        return new BinaryObjectFactory<Labeling<L>, RandomAccessibleInterval<T>, Labeling<String>>() {
+    public
+            BinaryObjectFactory<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<T>, RandomAccessibleInterval<LabelingType<String>>>
+            bufferFactory() {
+        return new BinaryObjectFactory<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<T>, RandomAccessibleInterval<LabelingType<String>>>() {
             @Override
-            public Labeling<String> instantiate(final Labeling<L> lab, final RandomAccessibleInterval<T> in) {
-                return lab.<String> factory().create(lab);
+            public RandomAccessibleInterval<LabelingType<String>>
+                    instantiate(final RandomAccessibleInterval<LabelingType<L>> lab,
+                                final RandomAccessibleInterval<T> in) {
+                return (RandomAccessibleInterval<LabelingType<String>>)KNIPGateway.ops().createImgLabeling(lab);
             }
         };
     }
@@ -498,7 +522,9 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
      * {@inheritDoc}
      */
     @Override
-    public BinaryOutputOperation<Labeling<L>, RandomAccessibleInterval<T>, Labeling<String>> copy() {
+    public
+            BinaryOutputOperation<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<T>, RandomAccessibleInterval<LabelingType<String>>>
+            copy() {
         return new WaehlbySplitterOp<L, T>(m_segType, m_seedDistanceThreshold, m_minMergeSize, m_gaussSize,
                 (CCA<BitType>)m_cca.copy(), (WatershedWithSheds<FloatType, Integer>)m_watershed.copy());
     }
@@ -582,14 +608,14 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
          */
         @Override
         public void convert(final LT input, final BitType output) {
-            output.set(!input.getLabeling().isEmpty());
+            output.set(!input.isEmpty());
         }
 
     }
 
-    private void split(final String shedLabel, final Labeling<String> watershedResult,
+    private void split(final String shedLabel, final RandomAccessibleInterval<LabelingType<String>> watershedResult,
                        final RandomAccessibleInterval<BitType> inLabMasked) {
-        Cursor<LabelingType<String>> cursor = watershedResult.cursor();
+        Cursor<LabelingType<String>> cursor = Views.iterable(watershedResult).cursor();
         RandomAccess<BitType> ra = inLabMasked.randomAccess();
 
         while (cursor.hasNext()) {
@@ -597,8 +623,8 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
 
             ra.setPosition(cursor);
 
-            if (type.getLabeling().contains(shedLabel) || !ra.get().get()) {
-                type.setLabeling(type.getMapping().emptyList());
+            if (type.contains(shedLabel) || !ra.get().get()) {
+                type.clear();
             }
         }
 

@@ -50,7 +50,7 @@ package org.knime.knip.core.awt.converter;
 
 import gnu.trove.map.hash.TIntIntHashMap;
 import net.imglib2.converter.Converter;
-import net.imglib2.labeling.LabelingType;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.ARGBType;
 
 /**
@@ -60,7 +60,7 @@ import net.imglib2.type.numeric.ARGBType;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class LabelingTypeARGBConverter<L extends Comparable<L>> implements Converter<LabelingType<L>, ARGBType> {
+public class LabelingTypeARGBConverter<L> implements Converter<LabelingType<L>, ARGBType> {
 
     private final TIntIntHashMap m_colorTable;
 

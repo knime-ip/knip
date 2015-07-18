@@ -64,16 +64,17 @@ import net.imglib2.Cursor;
 import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccess;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.iterator.IntervalIterator;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
-import net.imglib2.labeling.NativeImgLabeling;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.util.Intervals;
+import net.imglib2.util.Util;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 
@@ -107,7 +108,6 @@ import org.knime.knip.core.data.IntegerLabelGenerator;
 import org.knime.knip.core.data.LabelGenerator;
 import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.data.img.LabelingMetadata;
-import org.knime.knip.core.types.ConstantLabelingType;
 import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.types.NativeTypes;
 import org.knime.knip.core.util.EnumUtils;
@@ -180,7 +180,7 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>, L
     private T m_resType;
 
     // field for the labeling generation
-    private Labeling<L> m_resultLab = null;
+    private RandomAccessibleInterval<LabelingType<L>> m_resultLab = null;
 
     private LabelingMetadata m_resultMetadata = null;
 
@@ -265,15 +265,7 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>, L
                 }
 
             }
-
-            if (m_resAccess.get().getLabeling().isEmpty()) {
-                m_resAccess.get().setLabel(label);
-            } else {
-                final ArrayList<L> tmp = new ArrayList<L>(m_resAccess.get().getLabeling());
-                tmp.add(label);
-                m_resAccess.get().setLabeling(tmp);
-            }
-
+            m_resAccess.get().add(label);
         }
         return true;
 
@@ -329,9 +321,9 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>, L
             // todo make the generation of the result
             // labeling configurable
             final Interval i = new FinalInterval(iv.getMinimum(), iv.getMaximum());
-            m_resultLab = new NativeImgLabeling<L, T>(m_factory.create(i, m_resType));
+            m_resultLab = new ImgLabeling<L, T>(m_factory.create(i, m_resType));
             m_resAccess =
-                    Views.extendValue(m_resultLab, (LabelingType<L>)new ConstantLabelingType<String>(""))
+                    Views.extendValue(m_resultLab, Util.getTypeFromInterval(m_resultLab).createVariable())
                             .randomAccess();
             m_resultMetadata = new DefaultLabelingMetadata(iv.getCalibratedSpace(), iv.getName(), iv.getSource(), null);
 
@@ -409,16 +401,16 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>, L
             m_dcLabelingType =
                     new DialogComponentStringSelection(createLabelingTypeModel(), "Result labeling type",
                             EnumUtils.getStringListFromName(NativeTypes.SHORTTYPE, NativeTypes.BITTYPE,
-                                                           NativeTypes.BYTETYPE, NativeTypes.INTTYPE,
-                                                           NativeTypes.UNSIGNEDSHORTTYPE, NativeTypes.UNSIGNEDINTTYPE,
-                                                           NativeTypes.UNSIGNEDBYTETYPE));
+                                                            NativeTypes.BYTETYPE, NativeTypes.INTTYPE,
+                                                            NativeTypes.UNSIGNEDSHORTTYPE, NativeTypes.UNSIGNEDINTTYPE,
+                                                            NativeTypes.UNSIGNEDBYTETYPE));
 
             m_dcLabelingFactory =
                     new DialogComponentStringSelection(createLabelingFactoryModel(), "Result labeling factory",
                             EnumUtils.getStringListFromName(ImgFactoryTypes.ARRAY_IMG_FACTORY,
-                                                           ImgFactoryTypes.CELL_IMG_FACTORY,
-                                                           ImgFactoryTypes.NTREE_IMG_FACTORY,
-                                                           ImgFactoryTypes.PLANAR_IMG_FACTORY));
+                                                            ImgFactoryTypes.CELL_IMG_FACTORY,
+                                                            ImgFactoryTypes.NTREE_IMG_FACTORY,
+                                                            ImgFactoryTypes.PLANAR_IMG_FACTORY));
             m_dcAvoidOverlapCol =
                     new DialogComponentColumnNameSelection(createAvoidOverlapOrderColModel(),
                             "Order to avoid segment overlap", 0, false, true, DoubleValue.class);
@@ -508,7 +500,7 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>, L
 
         if (m_intervalCol.length() == 0) {
             // compose result and return
-            m_resultLab = new NativeImgLabeling<L, T>(m_factory.create(m_maxDims, m_resType));
+            m_resultLab = new ImgLabeling<L, T>(m_factory.create(m_maxDims, m_resType));
             m_resultMetadata =
                     new DefaultLabelingMetadata(new DefaultCalibratedSpace(m_maxDims.length), new DefaultNamed(
                             "Unknown"), new DefaultSourced("Unknown"), null);

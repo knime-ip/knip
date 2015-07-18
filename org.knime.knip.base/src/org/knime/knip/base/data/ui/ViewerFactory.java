@@ -48,9 +48,9 @@
  */
 package org.knime.knip.base.data.ui;
 
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
@@ -135,7 +135,7 @@ public class ViewerFactory {
 
         viewer.addViewerComponent(new LabelingViewInfoPanel<L>());
 
-        viewer.addViewerComponent(new ImgCanvas<LabelingType<L>, Labeling<L>>());
+        viewer.addViewerComponent(new ImgCanvas<LabelingType<L>, RandomAccessibleInterval<LabelingType<L>>>());
 
         viewer.addViewerComponent(ViewerComponents.MINIMAP.createInstance());
 

@@ -50,19 +50,13 @@
 package org.knime.knip.core.io.externalization.externalizers;
 
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import net.imglib2.Cursor;
 import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingMapping;
-import net.imglib2.labeling.LabelingType;
-import net.imglib2.labeling.NativeImgLabeling;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.type.numeric.integer.UnsignedIntType;
 import net.imglib2.type.numeric.integer.UnsignedShortType;
@@ -74,24 +68,25 @@ import org.knime.knip.core.io.externalization.Externalizer;
 /**
  * Default Externalizer for Labelings.
  *
- * @author Christian Dietz TODO: Deserialized labelings are always NativeImgLabelings since now.
  */
-public class LabelingExt0 implements Externalizer<Labeling> {
+@SuppressWarnings("rawtypes")
+@Deprecated
+public class LabelingExt0 implements Externalizer<ImgLabeling> {
 
     /**
      * {@inheritDoc}
      */
     @Override
     public String getId() {
-        return this.getClass().getSimpleName();
+        return "LabelingView";
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Class<? extends Labeling> getType() {
-        return Labeling.class;
+    public Class<? extends ImgLabeling> getType() {
+        return ImgLabeling.class;
     }
 
     /**
@@ -105,9 +100,9 @@ public class LabelingExt0 implements Externalizer<Labeling> {
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings({"unchecked"})
     @Override
-    public Labeling read(final BufferedDataInputStream in) throws Exception {
+    public ImgLabeling read(final BufferedDataInputStream in) throws Exception {
 
         int numDims = in.readInt();
         long[] dims = new long[numDims];
@@ -117,24 +112,18 @@ public class LabelingExt0 implements Externalizer<Labeling> {
         }
         int numLabels = in.readInt();
 
-        NativeImgLabeling labeling;
+        ImgLabeling labeling;
         if (numLabels < Byte.MAX_VALUE * 2) {
-            labeling =
-                    new NativeImgLabeling<>(
-                            new ArrayImgFactory<UnsignedByteType>().create(dims, new UnsignedByteType()));
+            labeling = new ImgLabeling<>(new ArrayImgFactory<UnsignedByteType>().create(dims, new UnsignedByteType()));
         } else if (numLabels < Short.MAX_VALUE * 2) {
             labeling =
-                    new NativeImgLabeling<>(new ArrayImgFactory<UnsignedShortType>().create(dims,
-                                                                                            new UnsignedShortType()));
+                    new ImgLabeling<>(new ArrayImgFactory<UnsignedShortType>().create(dims, new UnsignedShortType()));
         } else {
-            labeling =
-                    new NativeImgLabeling<>(new ArrayImgFactory<UnsignedIntType>().create(dims, new UnsignedIntType()));
+            labeling = new ImgLabeling<>(new ArrayImgFactory<UnsignedIntType>().create(dims, new UnsignedIntType()));
         }
-
 
         ObjectInputStream inStream = new ObjectInputStream(in);
         Cursor<LabelingType> cursor = labeling.cursor();
-        Map<Integer, Comparable[]> lists = new HashMap<>();
 
         try {
             while (cursor.hasNext()) {
@@ -144,24 +133,20 @@ public class LabelingExt0 implements Externalizer<Labeling> {
                     continue;
                 }
 
-                final int idx = inStream.readInt();
-                Comparable[] array = lists.get(idx);
-                if (array == null) {
-                    Object[] objs = (Object[])inStream.readObject();
-                    array = new Comparable[objs.length];
+                // we don't need this
+                inStream.readInt();
+                Object[] objs = (Object[])inStream.readObject();
+                Set array = new HashSet<>();
 
-                    for (int k = 0; k < objs.length; k++) {
-                        array[k] = (Comparable)objs[k];
-                    }
-
-                    lists.put(idx, array);
+                for (int k = 0; k < objs.length; k++) {
+                    array.add(objs[k]);
                 }
-                cursor.get().setLabeling(array);
+
+                cursor.get().addAll(array);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
 
         return labeling;
     }
@@ -169,40 +154,9 @@ public class LabelingExt0 implements Externalizer<Labeling> {
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
-    public void write(final BufferedDataOutputStream out, final Labeling obj) throws Exception {
-
-        out.writeInt(obj.numDimensions());
-        for (int d = 0; d < obj.numDimensions(); d++) {
-            out.writeLong(obj.dimension(d));
-        }
-
-        out.writeInt(obj.getLabels().size());
-
-        Cursor<LabelingType> cursor = obj.cursor();
-
-        LabelingType<?> type = (LabelingType<?>)obj.firstElement();
-        LabelingMapping<?> mapping = type.getMapping();
-
-        ObjectOutputStream oos = new ObjectOutputStream(out);
-
-        Set<Integer> validIndices = new HashSet<>();
-        while (cursor.hasNext()) {
-            List list = cursor.next().getLabeling();
-
-            if (list.isEmpty()) {
-                oos.writeBoolean(false);
-            } else {
-                oos.writeBoolean(true);
-                int idx = mapping.indexOf(list);
-                oos.writeInt(idx);
-
-                if (!validIndices.contains(idx)) {
-                    oos.writeObject(list.toArray());
-                }
-            }
-        }
+    public void write(final BufferedDataOutputStream out, final ImgLabeling obj) throws Exception {
+        throw new IllegalStateException("This shouldn't be called anymore");
     }
 
 }

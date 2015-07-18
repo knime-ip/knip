@@ -50,7 +50,7 @@ package org.knime.knip.core.awt.parametersupport;
 
 import java.util.Set;
 
-import net.imglib2.labeling.LabelingMapping;
+import net.imglib2.roi.labeling.LabelingMapping;
 
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter.Operator;
 
@@ -61,7 +61,7 @@ import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter.Operator;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public interface RendererWithLabels<L extends Comparable<L>> {
+public interface RendererWithLabels<L> {
 
     public void setActiveLabels(Set<String> activeLabels);
 

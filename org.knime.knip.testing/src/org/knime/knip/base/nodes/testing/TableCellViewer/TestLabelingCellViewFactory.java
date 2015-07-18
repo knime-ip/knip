@@ -48,7 +48,7 @@
  */
 package org.knime.knip.base.nodes.testing.TableCellViewer;
 
-import net.imglib2.labeling.LabelingType;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.IntegerType;
 
 import org.knime.core.data.DataValue;
