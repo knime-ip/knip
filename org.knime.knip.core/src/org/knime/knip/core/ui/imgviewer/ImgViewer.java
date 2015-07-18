@@ -108,10 +108,10 @@ import javax.swing.JPanel;
 import net.imagej.ImgPlus;
 import net.imagej.ImgPlusMetadata;
 import net.imagej.space.DefaultCalibratedSpace;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgView;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingView;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 
@@ -252,12 +252,12 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
      * @param labeling
      * @param metadata
      */
-    public <L extends Comparable<L>> void setLabeling(final Labeling<L> labeling, final LabelingMetadata metadata) {
+    public <L> void setLabeling(final RandomAccessibleInterval<LabelingType<L>> labeling, final LabelingMetadata metadata) {
         // make sure that at least two dimensions exist
-        Labeling<L> labeling2d = labeling;
+        RandomAccessibleInterval<LabelingType<L>> labeling2d = labeling;
         LabelingMetadata resMetadata = metadata;
         if (labeling2d.numDimensions() <= 1) {
-            labeling2d = new LabelingView<L>(Views.addDimension(labeling2d, 0, 0), labeling2d.<L> factory());
+            labeling2d = Views.addDimension(labeling2d, 0, 0);
             resMetadata =
                     new DefaultLabelingMetadata(new DefaultCalibratedSpace(2), resMetadata, resMetadata,
                             resMetadata.getLabelingColorTable());

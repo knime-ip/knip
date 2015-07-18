@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2013
+ *  Copyright (C) 2003 - 2015
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -43,88 +43,25 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
+ * Created on Feb 4, 2015 by dietzc
  */
-package org.knime.knip.core.types;
+package org.knime.knip.core;
 
-import java.util.List;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.roi.labeling.LabelRegions;
+import net.imglib2.roi.labeling.LabelingType;
 
-import net.imglib2.labeling.LabelingMapping;
-import net.imglib2.labeling.LabelingType;
-import net.imglib2.type.numeric.IntegerType;
+import org.scijava.service.Service;
 
 /**
- * TODO Auto-generated
- * 
- * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author Christian Dietz, University of Konstanz
  */
-public class ConstantLabelingType<T extends Comparable<T>> extends LabelingType<T> {
+public interface LabelingService extends Service {
 
-    public ConstantLabelingType(final List<T> labeling) {
-        super(labeling);
-    }
+    <L> LabelRegions<L> regions(final RandomAccessibleInterval<LabelingType<L>> labeling);
 
-    /**
-     * Constructor for mirroring state with another labeling
-     * 
-     * @param type Wrapped type
-     * @param mapping Mapping from wrapped type to LabelingList
-     * @param generation Generation of the type
-     */
-    protected ConstantLabelingType(final IntegerType<?> type, final LabelingMapping<T> mapping, final long[] generation) {
-        super(type, mapping, generation);
-    }
-
-    // this is the constructor if you want it to read from an array
-    public ConstantLabelingType(final IntegerType<?> type, final LabelingMapping<T> mapping) {
-        super(type, mapping);
-    }
-
-    public ConstantLabelingType(final T value) {
-        super(value);
-    }
-
-    // this is the constructor if you want it to be a variable
-    public ConstantLabelingType() {
-        super();
-    }
-
-    /**
-     * ConstantLabelingType. Nothing happens here
-     * 
-     * @param labeling
-     */
-    @Override
-    public void setLabeling(final List<T> labeling) {
-        // do nothing
-    }
-
-    /**
-     * ConstantLabelingType. Nothing happens here
-     * 
-     * @param labeling
-     */
-    @Override
-    public void setLabeling(final T[] labeling) {
-        // do nothing
-    }
-
-    /**
-     * ConstantLabelingType. Nothing happens here
-     * 
-     * @param m_labeling
-     */
-    @Override
-    public void setLabel(final T label) {
-        // do nothing
-    }
-
-    @Override
-    public LabelingType<T> copy() {
-        return new ConstantLabelingType<T>(getLabeling());
-    }
+    <L> LabelRegions<L> regions(RandomAccessibleInterval<LabelingType<L>> watershedResult, boolean forceUpdate);
 
 }

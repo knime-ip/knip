@@ -57,16 +57,17 @@ import net.imglib2.Cursor;
 import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccess;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
-import net.imglib2.labeling.NativeImgLabeling;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.type.numeric.integer.IntType;
+import net.imglib2.util.Util;
 import net.imglib2.view.Views;
 
 import org.knime.base.data.aggregation.AggregationOperator;
@@ -128,7 +129,7 @@ public class LabelingComposeOperatorDeprecated<T extends IntegerType<T> & Native
     private T m_resType;
 
     // field for the labeling generation
-    private Labeling<String> m_resultLab = null;
+    private RandomAccessibleInterval<LabelingType<String>> m_resultLab = null;
 
     private LabelingMetadata m_resultMetadata = null;
 
@@ -213,14 +214,7 @@ public class LabelingComposeOperatorDeprecated<T extends IntegerType<T> & Native
 
             }
 
-            if (m_resAccess.get().getLabeling().isEmpty()) {
-                m_resAccess.get().setLabel(label);
-            } else {
-                final ArrayList<String> tmp = new ArrayList<String>(m_resAccess.get().getLabeling());
-                tmp.add(label);
-                m_resAccess.get().setLabeling(tmp);
-            }
-
+            m_resAccess.get().add(label);
         }
         return true;
 
@@ -276,8 +270,10 @@ public class LabelingComposeOperatorDeprecated<T extends IntegerType<T> & Native
                 // todo make the generation of the result
                 // labeling configurable
                 final Interval i = new FinalInterval(iv.getMinimum(), iv.getMaximum());
-                m_resultLab = new NativeImgLabeling<String, T>(m_factory.create(i, m_resType));
-                m_resAccess = Views.extendValue(m_resultLab, new LabelingType<String>("")).randomAccess();
+                m_resultLab = new ImgLabeling<String, T>(m_factory.create(i, m_resType));
+                m_resAccess =
+                        Views.extendValue(m_resultLab, Util.getTypeFromInterval(m_resultLab).createVariable())
+                                .randomAccess();
                 m_resultMetadata =
                         new DefaultLabelingMetadata(iv.getCalibratedSpace(), iv.getName(), iv.getSource(),
                                 new DefaultLabelingColorTable());
@@ -327,7 +323,7 @@ public class LabelingComposeOperatorDeprecated<T extends IntegerType<T> & Native
     protected DataCell getResultInternal() {
         if (m_intervalCol == null) {
             // compose result and return
-            m_resultLab = new NativeImgLabeling<String, T>(m_factory.create(m_maxDims, m_resType));
+            m_resultLab = new ImgLabeling<String, T>(m_factory.create(m_maxDims, m_resType));
             m_resultMetadata =
                     new DefaultLabelingMetadata(new DefaultCalibratedSpace(m_maxDims.length), new DefaultNamed(
                             "Unknown"), new DefaultSourced("Unknown"), new DefaultLabelingColorTable());

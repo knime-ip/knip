@@ -50,19 +50,19 @@ package org.knime.knip.core.ops.labeling;
 
 import net.imglib2.Interval;
 import net.imglib2.RandomAccess;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.ops.operation.UnaryOperation;
+import net.imglib2.roi.labeling.LabelingType;
 
 import org.knime.knip.core.data.LabelGenerator;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class RegularGridSeeds<L extends Comparable<L>> implements UnaryOperation<Interval, Labeling<L>> {
+public class RegularGridSeeds<L> implements UnaryOperation<Interval, RandomAccessibleInterval<LabelingType<L>>> {
 
     private final int m_avgDistance;
 
@@ -78,17 +78,20 @@ public class RegularGridSeeds<L extends Comparable<L>> implements UnaryOperation
      * {@inheritDoc}
      */
     @Override
-    public Labeling<L> compute(final Interval input, final Labeling<L> output) {
+    public RandomAccessibleInterval<LabelingType<L>> compute(final Interval input,
+                                                             final RandomAccessibleInterval<LabelingType<L>> output) {
         m_seedGen.reset();
         final RandomAccess<LabelingType<L>> out = output.randomAccess();
+
         while (out.getIntPosition(output.numDimensions() - 1) < input.dimension(output.numDimensions() - 1)) {
-            out.get().setLabel(m_seedGen.nextLabel());
+
+            out.get().add(m_seedGen.nextLabel());
             out.move(m_avgDistance, 0);
 
             // next position in the higher
             // dimensions than 0
             for (int i = 0; i < (output.numDimensions() - 1); i++) {
-                if (out.getIntPosition(i) > input.dimension(i)) {
+                if (out.getIntPosition(i) > input.max(i)) {
                     out.setPosition(0, i);
                     out.move(m_avgDistance, i + 1);
                 }
@@ -101,7 +104,7 @@ public class RegularGridSeeds<L extends Comparable<L>> implements UnaryOperation
      * {@inheritDoc}
      */
     @Override
-    public UnaryOperation<Interval, Labeling<L>> copy() {
+    public UnaryOperation<Interval, RandomAccessibleInterval<LabelingType<L>>> copy() {
         return new RegularGridSeeds<L>(m_seedGen, m_avgDistance);
     }
 

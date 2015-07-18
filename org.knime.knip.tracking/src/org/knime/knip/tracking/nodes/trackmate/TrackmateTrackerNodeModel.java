@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,14 +29,17 @@ import net.imagej.axis.AxisType;
 import net.imglib2.Cursor;
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccess;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
 import net.imglib2.ops.operation.iterableinterval.unary.Centroid;
 import net.imglib2.ops.util.MetadataUtil;
+import net.imglib2.roi.Regions;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelRegions;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.logic.BitType;
-import net.imglib2.util.ConstantUtils;
+import net.imglib2.type.logic.BoolType;
 
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.DefaultWeightedEdge;
@@ -76,6 +80,7 @@ import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingCellFactory;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.NodeUtils;
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
 import org.knime.knip.core.data.img.LabelingMetadata;
 import org.knime.knip.tracking.data.TrackedNode;
@@ -256,6 +261,7 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("unchecked")
     @Override
     protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
             final ExecutionContext exec) throws Exception {
@@ -304,7 +310,7 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
                 retrieveTrackSegments(tracker);
 
         // create the result labeling
-        final Labeling<String> resultLabeling =
+        final ImgLabeling<String, ?> resultLabeling =
                 createResultLabeling(srcLabelingValue.getLabeling(), tracks,
                         trackPrefix);
 
@@ -500,14 +506,16 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
      *            the string prefix for the tracks.
      * @return
      */
-    private Labeling<String> createResultLabeling(
-            final Labeling<?> sourceLabeling,
+    private ImgLabeling<String, ?> createResultLabeling(
+            final RandomAccessibleInterval<LabelingType<String>> sourceLabeling,
             final List<SortedSet<TrackedNode<String>>> tracks,
             final String trackPrefix) {
 
         final RandomAccess<?> srcAccess = sourceLabeling.randomAccess();
-        final Labeling<String> resultLabeling =
-                sourceLabeling.<String> factory().create(sourceLabeling);
+        @SuppressWarnings("unchecked")
+        final ImgLabeling<String, ?> resultLabeling =
+                (ImgLabeling<String, ?>) KNIPGateway.ops().createImgLabeling(
+                        sourceLabeling);
         final RandomAccess<LabelingType<String>> resAccess =
                 resultLabeling.randomAccess();
 
@@ -531,22 +539,21 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
                                 + node.offset(d), d);
                     }
                     // set all the important information
-                    final List<String> labeling =
-                            new ArrayList<String>(resAccess.get().getLabeling());
+                    final Set<String> labeling =
+                            new HashSet<String>(resAccess.get());
 
                     labeling.add(trackPrefix + trackCtr);
 
                     // add original labelings if selected by the user
                     if (attachSourceLabelings) {
                         srcAccess.setPosition(resAccess);
-                        final List<?> localLabelings =
-                                ((LabelingType<?>) srcAccess.get())
-                                        .getLabeling();
+                        final Set<?> localLabelings = (Set<?>) srcAccess.get();
                         for (final Object o : localLabelings) {
                             labeling.add(o.toString());
                         }
                     }
-                    resAccess.get().setLabeling(labeling);
+                    resAccess.get().clear();
+                    resAccess.get().addAll(labeling);
                 }
             }
             trackCtr++;
@@ -609,7 +616,7 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
      */
     private BufferedDataTable[] createResultTables(final ExecutionContext exec,
             final LabelingValue<String> srcLabelingValue,
-            final Labeling<String> resultLabeling,
+            final ImgLabeling<String, ?> resultLabeling,
             final List<SortedSet<TrackedNode<String>>> tracks,
             final String trackPrefix,
             final Map<Integer, Map<String, Double>> featureValues)
@@ -678,7 +685,8 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
      */
     private DataRow createTrackFeatureRow(final String sourceLabelingName,
             final Map<String, Double> featureMap, final String trackName,
-            final ImgPlusMetadata mdata, final Labeling<String> resultLabeling,
+            final ImgPlusMetadata mdata,
+            final ImgLabeling<String, ?> resultLabeling,
             final ExecutionContext exec) throws IOException {
 
         final List<DataCell> cells =
@@ -716,15 +724,14 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
      * @param trackName
      * @returns
      */
-    private Img<BitType> createBinaryMask(Labeling<String> resultLabeling,
-            String trackName) {
+    private Img<BitType> createBinaryMask(
+            ImgLabeling<String, ?> resultLabeling, String trackName) {
 
-        final IterableInterval<BitType> labelII =
-                resultLabeling.getIterableRegionOfInterest(trackName)
-                        .getIterableIntervalOverROI(
-                                ConstantUtils.constantRandomAccessible(
-                                        new BitType(),
-                                        resultLabeling.numDimensions()));
+        final LabelRegions<String> regions =
+                KNIPGateway.regions().regions(resultLabeling);
+
+        final IterableInterval<BoolType> labelII =
+                Regions.iterable(regions.getLabelRegion(trackName));
 
         final long[] dimensions = new long[labelII.numDimensions()];
         labelII.dimensions(dimensions);
@@ -732,7 +739,7 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
         final Img<BitType> mask =
                 new ArrayImgFactory<BitType>().create(labelII, new BitType());
         final RandomAccess<BitType> maskRA = mask.randomAccess();
-        final Cursor<BitType> cur = labelII.localizingCursor();
+        final Cursor<BoolType> cur = labelII.localizingCursor();
 
         while (cur.hasNext()) {
             cur.fwd();

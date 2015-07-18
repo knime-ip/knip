@@ -96,9 +96,9 @@ import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
 import org.knime.knip.core.types.OutOfBoundsStrategyFactory;
-import org.knime.knip.core.util.ImgUtils;
 
 /**
  * NodeModel for Morphological Image Operations
@@ -289,7 +289,7 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
                                 }
                             }
                         };
-                final Img<BitType> out = ImgUtils.createEmptyCopy(in, new BitType());
+                final Img<BitType> out = (Img<BitType>)KNIPGateway.ops().createImg(in, new BitType());
 
                 Img<BitType> inAsBitType = (Img<BitType>)in;
 
@@ -321,7 +321,7 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
                     }
                 };
 
-                final Img<T> out = ImgUtils.createEmptyCopy(in);
+                final Img<T> out = (Img<T>)KNIPGateway.ops().create(in);
                 final UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> op =
                         createOperationGray(m_structElement, m_smDimensions.getSelectedDimIndices(in).length,
                                             OutOfBoundsStrategyFactory.getStrategy(m_smOutOfBoundsStrategy

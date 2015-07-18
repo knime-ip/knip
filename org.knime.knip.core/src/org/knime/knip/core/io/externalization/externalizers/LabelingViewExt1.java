@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2013
+ *  Copyright (C) 2003 - 2014
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -43,74 +43,90 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
+ * Created on Jul 2, 2014 by dietzc
  */
-package org.knime.knip.core.util;
+package org.knime.knip.core.io.externalization.externalizers;
 
-import net.imglib2.RandomAccess;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.type.numeric.RealType;
+import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelingType;
 
-import org.apache.commons.math3.linear.AbstractRealMatrix;
-import org.apache.commons.math3.linear.Array2DRowRealMatrix;
-import org.apache.commons.math3.linear.RealMatrix;
+import org.knime.knip.core.io.externalization.BufferedDataInputStream;
+import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
+import org.knime.knip.core.io.externalization.Externalizer;
+import org.knime.knip.core.io.externalization.ExternalizerManager;
+import org.knime.knip.core.labeling.LabelingView;
 
 /**
- * TODO Auto-generated
- * 
- * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ *
+ * @author dietzc
  */
-public class ImgBasedRealMatrix<T extends RealType<T>, IN extends RandomAccessibleInterval<T>> extends
-        AbstractRealMatrix {
+@Deprecated
+public class LabelingViewExt1 implements Externalizer<LabelingView> {
 
-    private final RandomAccess<T> m_rndAccess;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getId() {
+        return this.getClass().getSimpleName();
+    }
 
-    private final IN m_in;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Class<? extends LabelingView> getType() {
+        return LabelingView.class;
+    }
 
-    public ImgBasedRealMatrix(final IN in) {
-        if (in.numDimensions() != 2) {
-            throw new IllegalArgumentException("In must have exact two dimensions to be handled as a matrix");
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getPriority() {
+        return 1;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public LabelingView read(final BufferedDataInputStream in) throws Exception {
+        Object read = ExternalizerManager.read(in);
+
+        final ImgLabeling lab;
+        if(read instanceof ImgLabeling){
+            lab = (ImgLabeling)read;
+        }else if(read instanceof Img){
+            lab = new ImgLabeling<>((Img)read);
+            ImgLabelingExt0.readMapping(in, lab.getMapping());
+        }else{
+            throw new IllegalArgumentException("Shouldn't happen at all");
         }
-        m_in = in;
-        m_rndAccess = in.randomAccess();
+        return new LabelingView(lab, null);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public RealMatrix createMatrix(final int rowDimension, final int columnDimension) {
-        return new Array2DRowRealMatrix(rowDimension, columnDimension);
+    public void write(final BufferedDataOutputStream out, final LabelingView obj) throws Exception {
+        if (obj.getDelegate() instanceof ImgLabeling) {
+            ExternalizerManager.write(out, obj.getDelegate());
+        } else {
+            final Img<LabelingType<?>> img;
+            if (obj.getDelegate() instanceof Img) {
+               img = (Img<LabelingType<?>>)obj.getDelegate();
+            }else{
+                img = new ImgView<LabelingType<?>>(obj.getDelegate(), obj.getFac());
+            }
+            ExternalizerManager.write(out, img);
+            ImgLabelingExt0.writeMapping(out, img.firstElement().getMapping());
+        }
     }
-
-    @Override
-    public RealMatrix copy() {
-        throw new UnsupportedOperationException("Unsupported");
-    }
-
-    @Override
-    public double getEntry(final int row, final int column) {
-        m_rndAccess.setPosition(row, 1);
-        m_rndAccess.setPosition(column, 0);
-
-        return m_rndAccess.get().getRealDouble();
-    }
-
-    @Override
-    public void setEntry(final int row, final int column, final double value) {
-        m_rndAccess.setPosition(row, 1);
-        m_rndAccess.setPosition(column, 0);
-        m_rndAccess.get().setReal(value);
-    }
-
-    @Override
-    public int getRowDimension() {
-        return (int)m_in.dimension(0);
-    }
-
-    @Override
-    public int getColumnDimension() {
-        return (int)m_in.dimension(1);
-    }
-
 }

@@ -60,9 +60,10 @@ import net.imagej.ImgPlusMetadata;
 import net.imagej.axis.CalibratedAxis;
 import net.imagej.space.CalibratedSpace;
 import net.imglib2.Interval;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
-import net.imglib2.labeling.Labeling;
 import net.imglib2.ops.util.MetadataUtil;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
@@ -372,11 +373,11 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
                 if (Math.signum(idx) < 0 || (idx == 0 && m_firstIsLabeling)) {
                     @SuppressWarnings("unchecked")
                     final LabelingValue<L> value = ((LabelingValue<L>)m_currentRow.getCell(idx * -1));
-                    final Labeling<L> labeling = value.getLabeling();
+                    final RandomAccessibleInterval<LabelingType<L>> labeling = value.getLabeling();
                     final LabelingMetadata inMetadata = value.getLabelingMetadata();
 
-                    final Labeling<L> outLabeling =
-                            SliceIteratorUtils.getLabelingAsView(labeling, currInterval, labeling.<L> factory());
+                    final RandomAccessibleInterval<LabelingType<L>> outLabeling =
+                            SliceIteratorUtils.getLabelingAsView(labeling, currInterval);
                     final int deltaDim = labeling.numDimensions() - outLabeling.numDimensions();
 
                     final LabelingMetadata outMetadata =

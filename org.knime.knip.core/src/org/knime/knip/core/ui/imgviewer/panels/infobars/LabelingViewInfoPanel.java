@@ -56,8 +56,10 @@ import net.imagej.axis.TypedAxis;
 import net.imagej.space.TypedSpace;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccess;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.util.Util;
 
 /**
  *
@@ -67,7 +69,7 @@ import net.imglib2.labeling.LabelingType;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class LabelingViewInfoPanel<L extends Comparable<L>> extends ViewInfoPanel<LabelingType<L>> {
+public class LabelingViewInfoPanel<L> extends ViewInfoPanel<LabelingType<L>> {
 
     /**
      *
@@ -80,9 +82,8 @@ public class LabelingViewInfoPanel<L extends Comparable<L>> extends ViewInfoPane
                                       final TypedSpace<? extends TypedAxis> axes,
                                       final RandomAccess<LabelingType<L>> rndAccess, final long[] coords) {
 
-
-        if (!(interval instanceof Labeling)) {
-             //hack to exit the method if it is e.g. called with an image. In the long run ViewInfoPanel
+        if (!isLabeling(interval)) {
+            //hack to exit the method if it is e.g. called with an image. In the long run ViewInfoPanel
             //should be adapted such that this can't happen any more. The problem is the IntervalChang method.
             return null;
         }
@@ -116,8 +117,8 @@ public class LabelingViewInfoPanel<L extends Comparable<L>> extends ViewInfoPane
         if ((coords[m_sel.getPlaneDimIndex1()] != -1) && (coords[m_sel.getPlaneDimIndex2()] != -1)) {
             rndAccess.setPosition(coords);
             valueBuffer.append("[");
-            if (rndAccess.get().getLabeling().size() > 0) {
-                for (final L label : rndAccess.get().getLabeling()) {
+            if (rndAccess.get().size() > 0) {
+                for (final L label : rndAccess.get()) {
                     valueBuffer.append(label.toString());
                     valueBuffer.append(";");
                 }
@@ -137,12 +138,22 @@ public class LabelingViewInfoPanel<L extends Comparable<L>> extends ViewInfoPane
         return buffer.toString();
     }
 
+    /**
+     * @param interval
+     * @return
+     */
+    private boolean isLabeling(final Interval interval) {
+        return interval instanceof ImgLabeling
+                || (interval instanceof RandomAccessibleInterval && (Util
+                        .getTypeFromInterval((RandomAccessibleInterval)interval) instanceof LabelingType));
+    }
+
     @Override
     protected String updateImageLabel(final StringBuffer buffer, final Interval interval,
                                       final RandomAccess<LabelingType<L>> rndAccess, final String imgName) {
 
-        if (!(interval instanceof Labeling)) {
-             //hack to exit the method if it is e.g. called with an image. In the long run ViewInfoPanel
+        if (!(isLabeling(interval))) {
+            //hack to exit the method if it is e.g. called with an image. In the long run ViewInfoPanel
             //should be adapted such that this can't happen any more. The problem is the IntervalChang method.
             return null;
         }

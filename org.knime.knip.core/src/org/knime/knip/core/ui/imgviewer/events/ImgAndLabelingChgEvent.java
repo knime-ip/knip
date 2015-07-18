@@ -52,7 +52,7 @@ import net.imagej.Sourced;
 import net.imagej.space.CalibratedSpace;
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.labeling.Labeling;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.Type;
 import net.imglib2.view.Views;
 
@@ -67,7 +67,7 @@ import org.scijava.Named;
  */
 public class ImgAndLabelingChgEvent<T extends Type<T>, L extends Comparable<L>> implements KNIPEvent {
 
-    private final Labeling<L> m_labeling;
+    private final RandomAccessibleInterval<LabelingType<L>> m_labeling;
 
     private final RandomAccessibleInterval<T> m_img;
 
@@ -82,7 +82,7 @@ public class ImgAndLabelingChgEvent<T extends Type<T>, L extends Comparable<L>> 
      * @param name
      * @param cspace
      */
-    public ImgAndLabelingChgEvent(final RandomAccessibleInterval<T> img, final Labeling<L> labeling, final Named name,
+    public ImgAndLabelingChgEvent(final RandomAccessibleInterval<T> img, final RandomAccessibleInterval<LabelingType<L>> labeling, final Named name,
                                   final Sourced source, final CalibratedSpace cspace) {
         m_img = img;
         m_name = name;
@@ -140,7 +140,7 @@ public class ImgAndLabelingChgEvent<T extends Type<T>, L extends Comparable<L>> 
     /**
      * @return the labeling
      */
-    public Labeling<L> getLabeling() {
+    public RandomAccessibleInterval<LabelingType<L>> getLabeling() {
         return m_labeling;
     }
 

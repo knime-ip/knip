@@ -50,14 +50,13 @@ package org.knime.knip.base.nodes.io.seeds;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import net.imagej.ImgPlus;
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccess;
-import net.imglib2.img.sparse.NtreeImgFactory;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
-import net.imglib2.labeling.NativeImgLabeling;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.IntType;
 import net.imglib2.view.Views;
@@ -76,6 +75,7 @@ import org.knime.knip.base.data.labeling.LabelingCellFactory;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
 import org.knime.knip.core.data.IntegerLabelGenerator;
 import org.knime.knip.core.data.img.DefaultLabelingMetadata;
@@ -83,7 +83,6 @@ import org.knime.knip.core.ops.labeling.ImgProbabilitySeeds;
 import org.knime.knip.core.ops.labeling.RandomSeeds;
 import org.knime.knip.core.ops.labeling.RegularGridSeeds;
 import org.knime.knip.core.util.EnumUtils;
-import org.knime.knip.core.util.ImgUtils;
 import org.knime.knip.core.util.NeighborhoodUtils;
 
 /**
@@ -164,9 +163,9 @@ public class SeedGeneratorNodeFactory<T extends RealType<T>> extends ValueToCell
             @Override
             protected LabelingCell<Integer> compute(final ImgPlusValue<T> cell) throws Exception {
                 final ImgPlus<T> input = cell.getImgPlus();
-                final Labeling<Integer> output =
-                        new NativeImgLabeling<Integer, IntType>(
-                                ImgUtils.createEmptyCopy(new NtreeImgFactory<IntType>(), input, new IntType()));
+                final ImgLabeling<Integer, IntType> output =
+                        (ImgLabeling<Integer, IntType>)KNIPGateway.ops().createImgLabeling(cell.getImgPlus(),
+                                                                                           new IntType());
 
                 if (m_smSeedGenerator.getStringValue().equals(SeedGenerator.Image_Probability.name())) {
                     /*
@@ -208,7 +207,7 @@ public class SeedGeneratorNodeFactory<T extends RealType<T>> extends ValueToCell
                     final List<long[]> seedPos = new ArrayList<long[]>();
                     while (labCur.hasNext()) {
                         labCur.fwd();
-                        if (!labCur.get().getLabeling().isEmpty()) {
+                        if (!labCur.get().isEmpty()) {
                             final long[] p = new long[labCur.numDimensions()];
                             labCur.localize(p);
                             seedPos.add(p);
@@ -231,10 +230,10 @@ public class SeedGeneratorNodeFactory<T extends RealType<T>> extends ValueToCell
                         }
                         if (posChanged) {
                             labRA.setPosition(p);
-                            final List<Integer> l = labRA.get().getLabeling();
-                            labRA.get().setLabeling(labRA.get().getMapping().emptyList());
+                            final Set<Integer> l = labRA.get();
+                            labRA.get().clear();
                             labRA.setPosition(minPos);
-                            labRA.get().setLabeling(l);
+                            labRA.get().addAll(l);
                             posChanged = false;
                         }
 

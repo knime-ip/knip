@@ -71,6 +71,7 @@ import org.knime.knip.core.io.externalization.externalizers.ImageMetadataExt2;
 import org.knime.knip.core.io.externalization.externalizers.ImgExt0;
 import org.knime.knip.core.io.externalization.externalizers.ImgExt1;
 import org.knime.knip.core.io.externalization.externalizers.ImgExt2;
+import org.knime.knip.core.io.externalization.externalizers.ImgLabelingExt0;
 import org.knime.knip.core.io.externalization.externalizers.ImgMetadataExt0;
 import org.knime.knip.core.io.externalization.externalizers.ImgMetadataExt1;
 import org.knime.knip.core.io.externalization.externalizers.ImgViewExt0;
@@ -78,6 +79,7 @@ import org.knime.knip.core.io.externalization.externalizers.LabelingExt0;
 import org.knime.knip.core.io.externalization.externalizers.LabelingMappingExt0;
 import org.knime.knip.core.io.externalization.externalizers.LabelingMetadataExt0;
 import org.knime.knip.core.io.externalization.externalizers.LabelingViewExt0;
+import org.knime.knip.core.io.externalization.externalizers.LabelingViewExt1;
 import org.knime.knip.core.io.externalization.externalizers.NamedExt0;
 import org.knime.knip.core.io.externalization.externalizers.NativeImgLabelingExt0;
 import org.knime.knip.core.io.externalization.externalizers.NtreeImgExt0;
@@ -144,21 +146,25 @@ public final class ExternalizerManager {
         registerExternalizer(new NamedExt0());
         registerExternalizer(new SourcedExt0());
         registerExternalizer(new ClassExt0());
-        registerExternalizer(new LabelingMappingExt0());
-        registerExternalizer(new NativeImgLabelingExt0());
         registerExternalizer(new ObjectExt0());
-        registerExternalizer(new LabelingMetadataExt0());
         registerExternalizer(new DefaultLabelingColorTableExt0());
 
         registerExternalizer(new ImageMetadataExt0());
         registerExternalizer(new ImageMetadataExt1());
         registerExternalizer(new ImageMetadataExt2());
 
-
         registerExternalizer(new DefaultLinearSpaceExt0());
 
+        registerExternalizer(new ImgLabelingExt0());
+        registerExternalizer(new ImgLabelingExt0());
+
+        registerExternalizer(new LabelingMetadataExt0());
+
+        registerExternalizer(new NativeImgLabelingExt0());
         registerExternalizer(new LabelingViewExt0());
+        registerExternalizer(new LabelingViewExt1());
         registerExternalizer(new LabelingExt0());
+        registerExternalizer(new LabelingMappingExt0());
 
         registerExtensionPoints();
 
@@ -196,6 +202,7 @@ public final class ExternalizerManager {
      */
     public static synchronized <T> T read(final BufferedDataInputStream in) throws Exception {
         final String key = readString(in);
+
         final Externalizer<T> ext = ID_EXT_MAP.get(key);
         if (ext == null) {
             throw new IOException("No externalizer available with id " + key);

@@ -72,20 +72,20 @@ import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.KNIPConstants;
-import org.knime.knip.base.ThreadPoolExecutorService;
 import org.knime.knip.base.exceptions.KNIPRuntimeException;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
 import org.knime.knip.base.node.dialog.DescriptionHelper;
 import org.knime.knip.base.node.dialog.DialogComponentOutOfBoundsSelection;
+import org.knime.knip.core.KNIPGateway;
+import org.knime.knip.core.ThreadPoolExecutorService;
 import org.knime.knip.core.algorithm.convolvers.Convolver;
 import org.knime.knip.core.algorithm.convolvers.DirectConvolver;
 import org.knime.knip.core.algorithm.convolvers.ImgLib2FourierConvolver;
 import org.knime.knip.core.algorithm.convolvers.filter.linear.ConstantFilter;
 import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
 import org.knime.knip.core.types.OutOfBoundsStrategyFactory;
-import org.knime.knip.core.util.ImgUtils;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 
 /**
@@ -253,7 +253,7 @@ class SobelOp<T extends RealType<T> & NativeType<T>> implements UnaryOutputOpera
 
         cX.compute(Views.interval(Views.extend(img, m_fac), img), X, resx);
 
-        final Img<T> resy = ImgUtils.createEmptyImg(img);
+        final Img<T> resy = (Img<T>)KNIPGateway.ops().createImg(img);
 
         cY.compute(Views.interval(Views.extend(img, m_fac), img), Y, resy);
 
@@ -288,7 +288,7 @@ class SobelOp<T extends RealType<T> & NativeType<T>> implements UnaryOutputOpera
 
             @Override
             public ImgPlus<T> instantiate(final ImgPlus<T> a) {
-                return new ImgPlus<T>(ImgUtils.createEmptyCopy(a), a);
+                return new ImgPlus<T>((Img<T>)KNIPGateway.ops().createImg(a), a);
             }
         };
     }

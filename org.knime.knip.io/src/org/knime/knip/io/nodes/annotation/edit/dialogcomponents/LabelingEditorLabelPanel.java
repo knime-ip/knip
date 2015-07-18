@@ -57,7 +57,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.Box;
@@ -364,7 +364,7 @@ public class LabelingEditorLabelPanel extends AnnotatorLabelPanel {
 	/**
 	 * @param list
 	 */
-	public void addLabels(final List<String> list) {
+	public void addLabels(final Set<String> list) {
 
 		for (String label : list) {
 			if (!m_labels.contains(label) && !m_newLabels.contains(label)) {

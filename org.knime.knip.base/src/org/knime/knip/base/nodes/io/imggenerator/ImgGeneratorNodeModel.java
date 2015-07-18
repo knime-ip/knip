@@ -220,6 +220,7 @@ public class ImgGeneratorNodeModel<T extends NativeType<T> & RealType<T>> extend
      */
     public ImgGeneratorNodeModel() {
         super(0, 1);
+
         m_settings = new ArrayList<SettingsModel>();
 
         m_settings.add(m_numImgs);

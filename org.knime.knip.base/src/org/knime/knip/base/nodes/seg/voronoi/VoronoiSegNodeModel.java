@@ -57,13 +57,14 @@ import java.util.concurrent.ExecutionException;
 
 import net.imagej.ImgPlus;
 import net.imglib2.Cursor;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
 import net.imglib2.ops.operation.BinaryOperation;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.VoronoiLikeRegionGrowing;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
@@ -93,10 +94,11 @@ import org.knime.knip.base.data.labeling.LabelingCellFactory;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
+import org.knime.knip.core.KNIPGateway;
 
 /**
- * 
- * 
+ *
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -195,7 +197,8 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
 
                 final ImgPlusValue<T> cellValue = ((ImgPlusValue<T>)row.getCell(imgColIdx));
                 final ImgPlus<T> img = cellValue.getImgPlus();
-                final Labeling<L> seed = ((LabelingValue<L>)row.getCell(seedColIdx)).getLabeling();
+                final RandomAccessibleInterval<LabelingType<L>> seed =
+                        ((LabelingValue<L>)row.getCell(seedColIdx)).getLabeling();
                 final long[] imgDims = new long[img.numDimensions()];
                 final long[] labDims = new long[seed.numDimensions()];
                 img.dimensions(imgDims);
@@ -216,7 +219,9 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
                 // prepare for the segmentation (ready to take off)
                 WrappedVoronoi voro = new WrappedVoronoi(img.firstElement());
 
-                Labeling<L> out = seed.<L> factory().create(seed);
+                final RandomAccessibleInterval<LabelingType<L>> out =
+                        (RandomAccessibleInterval<LabelingType<L>>)KNIPGateway.ops().createImgLabeling(seed);
+
                 try {
                     SubsetOperations.iterate(voro, m_dimSelectionModel.getSelectedDimIndices(img), img, seed, out);
                 } catch (InterruptedException e1) {
@@ -235,15 +240,16 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
                         throw new RuntimeException(e);
                     }
                 } else {
-                    final Labeling<L> resSeedless = out.<L> factory().create(out);
-                    final Cursor<LabelingType<L>> srcCur = seed.cursor();
-                    final Cursor<LabelingType<L>> resCur = out.cursor();
-                    final Cursor<LabelingType<L>> resSeedlessCur = resSeedless.cursor();
+                    final RandomAccessibleInterval<LabelingType<L>> resSeedless =
+                            (RandomAccessibleInterval<LabelingType<L>>)KNIPGateway.ops().create(out);
+                    final Cursor<LabelingType<L>> srcCur = Views.iterable(seed).cursor();
+                    final Cursor<LabelingType<L>> resCur = Views.iterable(out).cursor();
+                    final Cursor<LabelingType<L>> resSeedlessCur = Views.iterable(resSeedless).cursor();
                     while (srcCur.hasNext()) {
                         srcCur.fwd();
                         resCur.fwd();
                         resSeedlessCur.fwd();
-                        if (!resCur.get().getLabeling().isEmpty() && srcCur.get().getLabeling().isEmpty()) {
+                        if (!resCur.get().isEmpty() && srcCur.get().isEmpty()) {
                             resSeedlessCur.get().set(resCur.get());
                         }
                     }
@@ -355,7 +361,7 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
 
     /**
      * does nothing.
-     * 
+     *
      * @see org.knime.core.node.NodeModel# loadInternals(java.io.File, org.knime.core.node.ExecutionMonitor)
      */
     @Override
@@ -366,7 +372,7 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
 
     /**
      * load settings.
-     * 
+     *
      * @see org.knime.core.node.NodeModel#loadValidatedSettingsFrom (NodeSettingsRO)
      * @param settings where from
      * @throws InvalidSettingsException when sth's wrong
@@ -389,7 +395,7 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
 
     /**
      * reset.
-     * 
+     *
      * @see org.knime.core.node.NodeModel#reset()
      */
     @Override
@@ -398,7 +404,7 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
 
     /**
      * does nothing.
-     * 
+     *
      * @see org.knime.core.node.NodeModel# saveInternals(java.io.File, org.knime.core.node.ExecutionMonitor)
      */
     @Override
@@ -409,7 +415,7 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
 
     /**
      * save settings.
-     * 
+     *
      * @see org.knime.core.node.NodeModel#saveSettingsTo (NodeSettingsWO)
      * @param settings where
      */
@@ -434,7 +440,7 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
 
     /**
      * validate settings.
-     * 
+     *
      * @see org.knime.core.node.NodeModel#validateSettings (NodeSettingsRO)
      * @param settings settings
      * @throws InvalidSettingsException when sth's wrong
@@ -455,7 +461,9 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
 
     }
 
-    class WrappedVoronoi implements BinaryOperation<Img<T>, Labeling<L>, Labeling<L>> {
+    class WrappedVoronoi
+            implements
+            BinaryOperation<Img<T>, RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<L>>> {
 
         private T type;
 
@@ -471,7 +479,9 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
          * {@inheritDoc}
          */
         @Override
-        public Labeling<L> compute(final Img<T> img, final Labeling<L> seed, final Labeling<L> output) {
+        public RandomAccessibleInterval<LabelingType<L>>
+                compute(final Img<T> img, final RandomAccessibleInterval<LabelingType<L>> seed,
+                        final RandomAccessibleInterval<LabelingType<L>> output) {
 
             return new VoronoiLikeRegionGrowing<L, T>(img, type, fillHoles).compute(seed, output);
         }
@@ -480,7 +490,9 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
          * {@inheritDoc}
          */
         @Override
-        public BinaryOperation<Img<T>, Labeling<L>, Labeling<L>> copy() {
+        public
+                BinaryOperation<Img<T>, RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<L>>>
+                copy() {
             return new WrappedVoronoi(type);
         }
 

@@ -60,7 +60,7 @@ import net.imglib2.type.numeric.RealType;
 
 /**
  * Matrix multiplication.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -70,7 +70,7 @@ public class MatMul<T extends RealType<T> & NativeType<T>> implements
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @return
      */
     @Override
@@ -106,7 +106,7 @@ public class MatMul<T extends RealType<T> & NativeType<T>> implements
     }
 
     /**
-     * 
+     *
      * @author hornm, University of Konstanz
      */
     private class RandomAccess2D<TT extends RealType<TT>> {

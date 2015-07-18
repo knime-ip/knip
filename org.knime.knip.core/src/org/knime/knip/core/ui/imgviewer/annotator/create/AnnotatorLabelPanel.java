@@ -58,7 +58,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.AbstractButton;
@@ -359,7 +359,7 @@ public class AnnotatorLabelPanel extends ViewerComponent {
     /**
      * @param list
      */
-    public void addLabels(final List<String> list) {
+    public void addLabels(final Set<String> list) {
 
         for (String label : list) {
             if (!m_labels.contains(label)) {

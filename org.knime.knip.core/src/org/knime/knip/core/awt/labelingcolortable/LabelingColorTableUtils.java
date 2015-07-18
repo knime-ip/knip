@@ -49,10 +49,10 @@
 package org.knime.knip.core.awt.labelingcolortable;
 
 import java.awt.Color;
-import java.util.List;
+import java.util.Set;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -78,7 +78,7 @@ public final class LabelingColorTableUtils {
 
     /**
      * Globally set the Color of the BoundingBox in the Renderer
-     * 
+     *
      * @param color
      */
     public static void setBoundingBoxColor(final Color color) {
@@ -86,7 +86,7 @@ public final class LabelingColorTableUtils {
     }
 
     /**
-     * 
+     *
      * @return Color for the bounding box
      */
     public static Color getBoundingBoxColor() {
@@ -95,7 +95,7 @@ public final class LabelingColorTableUtils {
 
     /**
      * TODO
-     * 
+     *
      * @param rgb
      * @param transparency
      * @return
@@ -106,7 +106,7 @@ public final class LabelingColorTableUtils {
 
     /**
      * TODO
-     * 
+     *
      * @param r
      * @param g
      * @param b
@@ -123,16 +123,16 @@ public final class LabelingColorTableUtils {
 
     /**
      * TODO
-     * 
+     *
      * @param table
      * @param labels
      * @return
      */
-    public static <L extends Comparable<L>> int getAverageColor(final LabelingColorTable table, final List<L> labels) {
+    public static <L> int getAverageColor(final LabelingColorTable table, final Set<L> labels) {
 
         double totalRes = 0;
-        for (int i = 0; i < labels.size(); i++) {
-            totalRes += (double)table.getColor(labels.get(i)) / labels.size();
+        for (final L label : labels) {
+            totalRes += (double)table.getColor(label) / labels.size();
         }
 
         return (int)totalRes;
@@ -140,13 +140,13 @@ public final class LabelingColorTableUtils {
 
     /**
      * TODO: Returns an {@link ExtendedLabelingColorTable}.
-     * 
+     *
      * @param table
      * @param handler
      * @return
      */
-    public static <L extends Comparable<L>> ExtendedLabelingColorTable
-            extendLabelingColorTable(final LabelingColorTable table, final MissingColorHandler handler) {
+    public static <L> ExtendedLabelingColorTable extendLabelingColorTable(final LabelingColorTable table,
+                                                                          final MissingColorHandler handler) {
         return new ExtendedLabelingColorTable(table, handler);
     }
 

@@ -54,9 +54,10 @@ import java.util.List;
 
 import net.imagej.ImageMetadata;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.labeling.Labeling;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.Type;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.Util;
 
 /**
  * TODO Auto-generated
@@ -72,7 +73,7 @@ public class RendererFactory {
 
         final List<ImageRenderer> res = new ArrayList<ImageRenderer>();
 
-        if (img instanceof Labeling) {
+        if (Util.getTypeFromInterval(img) instanceof LabelingType) {
             res.add(new ColorLabelingRenderer());
             res.add(new BoundingBoxLabelRenderer());
             res.add(new BoundingBoxRandomColorLabelRenderer());

@@ -54,14 +54,14 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import net.imagej.ImgPlus;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingView;
-import net.imglib2.labeling.NativeImgLabeling;
 import net.imglib2.ops.operation.BinaryOperation;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.AbstractRegionGrowing;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.IntType;
 
@@ -93,10 +93,10 @@ import org.knime.knip.core.util.NeighborhoodUtils;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class WatershedNodeFactory<T extends RealType<T>, L extends Comparable<L>> extends
+public class WatershedNodeFactory<T extends RealType<T>, L> extends
         TwoValuesToCellNodeFactory<ImgPlusValue<T>, LabelingValue<L>> {
 
-    private final class WatershedOperationWrapper1 implements BinaryOperation<Img<T>, Labeling<L>, Labeling<L>> {
+    private final class WatershedOperationWrapper1 implements BinaryOperation<Img<T>, RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<L>>> {
 
         private final WatershedWithThreshold<T, L> m_ws;
 
@@ -108,7 +108,7 @@ public class WatershedNodeFactory<T extends RealType<T>, L extends Comparable<L>
          * {@inheritDoc}
          */
         @Override
-        public Labeling<L> compute(final Img<T> inputA, final Labeling<L> inputB, final Labeling<L> output) {
+        public RandomAccessibleInterval<LabelingType<L>> compute(final Img<T> inputA, final RandomAccessibleInterval<LabelingType<L>> inputB, final RandomAccessibleInterval<LabelingType<L>> output) {
             m_ws.setSeeds(inputB);
             m_ws.setOutputLabeling(output);
             m_ws.setIntensityImage(inputA);
@@ -127,7 +127,7 @@ public class WatershedNodeFactory<T extends RealType<T>, L extends Comparable<L>
          * {@inheritDoc}
          */
         @Override
-        public BinaryOperation<Img<T>, Labeling<L>, Labeling<L>> copy() {
+        public BinaryOperation<Img<T>, RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<L>>> copy() {
             return new WatershedOperationWrapper1(m_ws);
         }
 
@@ -242,16 +242,14 @@ public class WatershedNodeFactory<T extends RealType<T>, L extends Comparable<L>
             @Override
             protected LabelingCell<?> compute(final ImgPlusValue<T> cellValue1, final LabelingValue<L> cellValue2)
                     throws Exception {
-                Labeling<L> lab = cellValue2.getLabeling();
+                RandomAccessibleInterval<LabelingType<L>> lab = cellValue2.getLabeling();
                 final ImgPlus<T> img = cellValue1.getImgPlus();
-                final Labeling<?> out;
+                final ImgLabeling<?, ?> out;
 
                 if (m_virtualExtend.getBooleanValue()) {
-                    lab =
-                            new LabelingView<L>(MiscViews.synchronizeDimensionality(lab,
+                    lab = MiscViews.synchronizeDimensionality(lab,
                                                                                     cellValue2.getLabelingMetadata(),
-                                                                                    img, cellValue1.getMetadata()),
-                                    lab.<L> factory());
+                                                                                    img, cellValue1.getMetadata());
                 } else if (lab.numDimensions() != img.numDimensions()) {
                     throw new IllegalArgumentException("The dimensionality of the seed labeling ("
                             + lab.numDimensions() + ") does not match that of the intensity image ("
@@ -262,8 +260,8 @@ public class WatershedNodeFactory<T extends RealType<T>, L extends Comparable<L>
                     WatershedWithSheds<T, L> ws =
                             new WatershedWithSheds<T, L>(NeighborhoodUtils.get4ConStructuringElement(img
                                     .numDimensions()));
-                    Labeling<String> tmp =
-                            new NativeImgLabeling<String, IntType>(new ArrayImgFactory<IntType>().create(img,
+                    ImgLabeling<String, IntType> tmp =
+                            new ImgLabeling<String, IntType>(new ArrayImgFactory<IntType>().create(img,
                                                                                                          new IntType()));
                     SubsetOperations.iterate(ws, m_dimSelection.getSelectedDimIndices(cellValue1.getMetadata()), img,
                                              lab, tmp);
@@ -271,13 +269,13 @@ public class WatershedNodeFactory<T extends RealType<T>, L extends Comparable<L>
                 } else {
                     final WatershedWithThreshold<T, L> ws = new WatershedWithThreshold<T, L>();
 
-                    Labeling<L> tmp =
-                            new NativeImgLabeling<L, IntType>(new ArrayImgFactory<IntType>().create(img, new IntType()));
+                    ImgLabeling<L, ?> tmp =
+                            new ImgLabeling<L, IntType>(new ArrayImgFactory<IntType>().create(img, new IntType()));
                     if (m_useThreshold.getBooleanValue()) {
                         ws.setThreshold(m_thresholdValue.getDoubleValue());
                     }
 
-                    final BinaryOperation<Img<T>, Labeling<L>, Labeling<L>> operation =
+                    final BinaryOperation<Img<T>, RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<L>>> operation =
                             new WatershedOperationWrapper1(ws);
                     SubsetOperations.iterate(operation, m_dimSelection.getSelectedDimIndices(cellValue1.getMetadata()),
                                              img, lab, tmp);

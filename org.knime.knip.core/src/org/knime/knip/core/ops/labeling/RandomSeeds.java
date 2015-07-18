@@ -52,24 +52,25 @@ import java.util.Random;
 
 import net.imglib2.Interval;
 import net.imglib2.RandomAccess;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.ops.operation.UnaryOperation;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.util.Util;
 import net.imglib2.view.Views;
 
 import org.knime.knip.core.data.LabelGenerator;
 
 /**
- * 
- * 
+ *
+ *
  * random seed with a certain average distance
- * 
- * 
+ *
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class RandomSeeds<L extends Comparable<L>> implements UnaryOperation<Interval, Labeling<L>> {
+public class RandomSeeds<L> implements UnaryOperation<Interval, RandomAccessibleInterval<LabelingType<L>>> {
 
     private final int m_avgDistance;
 
@@ -84,12 +85,12 @@ public class RandomSeeds<L extends Comparable<L>> implements UnaryOperation<Inte
      * {@inheritDoc}
      */
     @Override
-    public Labeling<L> compute(final Interval input, final Labeling<L> output) {
+    public RandomAccessibleInterval<LabelingType<L>> compute(final Interval input, final RandomAccessibleInterval<LabelingType<L>> output) {
         m_seedGen.reset();
         final Random rand = new Random();
         final long[] currentGridPos = new long[output.numDimensions()];
         final RandomAccess<LabelingType<L>> out =
-                Views.extendValue(output, output.firstElement().createVariable()).randomAccess();
+                Views.extendValue(output, Util.getTypeFromInterval(output).createVariable()).randomAccess();
 
         while (currentGridPos[currentGridPos.length - 1] < input.dimension(currentGridPos.length - 1)) {
 
@@ -103,7 +104,8 @@ public class RandomSeeds<L extends Comparable<L>> implements UnaryOperation<Inte
                 out.setPosition(currentGridPos[i] + rand.nextInt(m_avgDistance), i);
 
             }
-            out.get().setLabel(m_seedGen.nextLabel());
+            out.get().clear();
+            out.get().add(m_seedGen.nextLabel());
 
             // next position in the higher
             // dimensions than 0
@@ -122,7 +124,7 @@ public class RandomSeeds<L extends Comparable<L>> implements UnaryOperation<Inte
      * {@inheritDoc}
      */
     @Override
-    public UnaryOperation<Interval, Labeling<L>> copy() {
+    public UnaryOperation<Interval, RandomAccessibleInterval<LabelingType<L>>> copy() {
         return new RandomSeeds<L>(m_seedGen, m_avgDistance);
     }
 

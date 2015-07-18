@@ -48,9 +48,10 @@
  */
 package org.knime.knip.base.node;
 
-import net.imglib2.labeling.Labeling;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.UnaryOutputOperation;
+import net.imglib2.roi.labeling.LabelingType;
 
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.NodeModel;
@@ -142,7 +143,7 @@ public abstract class LabelingToLabelingNodeModel<L extends Comparable<L>, M ext
     @Override
     protected LabelingCell<M> compute(final LabelingValue<L> cellValue) throws Exception {
 
-        final UnaryOutputOperation<Labeling<L>, Labeling<M>> op = op(cellValue.getLabeling());
+        final UnaryOutputOperation<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<M>>> op = op(cellValue.getLabeling());
 
         return m_labelingCellFactory.createCell(SubsetOperations.iterate(op, m_dimSelection
                 .getSelectedDimIndices(cellValue.getLabelingMetadata()), cellValue.getLabeling(), op.bufferFactory()
@@ -155,7 +156,7 @@ public abstract class LabelingToLabelingNodeModel<L extends Comparable<L>, M ext
      * @param labeling The incoming {@link Labeling}
      * @return Operation which will be used to map from {@link Labeling} to another {@link Labeling}
      */
-    protected abstract UnaryOutputOperation<Labeling<L>, Labeling<M>> op(Labeling<L> labeling);
+    protected abstract UnaryOutputOperation<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<M>>> op(RandomAccessibleInterval<LabelingType<L>> labeling);
 
     /**
      * {@inheritDoc}

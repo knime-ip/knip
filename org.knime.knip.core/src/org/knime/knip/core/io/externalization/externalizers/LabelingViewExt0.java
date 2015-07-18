@@ -49,9 +49,6 @@
  */
 package org.knime.knip.core.io.externalization.externalizers;
 
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingView;
-
 import org.knime.knip.core.io.externalization.BufferedDataInputStream;
 import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
 import org.knime.knip.core.io.externalization.Externalizer;
@@ -61,7 +58,8 @@ import org.knime.knip.core.io.externalization.ExternalizerManager;
  *
  * @author dietzc
  */
-public class LabelingViewExt0 implements Externalizer<Labeling> {
+@Deprecated
+public class LabelingViewExt0 implements Externalizer<Object> {
 
     /**
      * {@inheritDoc}
@@ -75,8 +73,8 @@ public class LabelingViewExt0 implements Externalizer<Labeling> {
      * {@inheritDoc}
      */
     @Override
-    public Class<? extends Labeling> getType() {
-        return LabelingView.class;
+    public Class<? extends Object> getType() {
+        return Object.class;
     }
 
     /**
@@ -91,7 +89,7 @@ public class LabelingViewExt0 implements Externalizer<Labeling> {
      * {@inheritDoc}
      */
     @Override
-    public Labeling read(final BufferedDataInputStream in) throws Exception {
+    public Object read(final BufferedDataInputStream in) throws Exception {
         return ExternalizerManager.read(in);
     }
 
@@ -99,8 +97,8 @@ public class LabelingViewExt0 implements Externalizer<Labeling> {
      * {@inheritDoc}
      */
     @Override
-    public void write(final BufferedDataOutputStream out, final Labeling obj) throws Exception {
-        ExternalizerManager.write(out, obj, Labeling.class);
+    public void write(final BufferedDataOutputStream out, final Object obj) throws Exception {
+        throw new IllegalStateException("this shouldn't be called (deprecation)!");
     }
 
 }

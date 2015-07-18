@@ -65,7 +65,7 @@ import org.knime.knip.core.ui.event.KNIPEvent;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @author dietyc
  */
-public class NameSetbasedLabelFilter<L extends Comparable<L>> implements LabelFilter<L>, KNIPEvent {
+public class NameSetbasedLabelFilter<L> implements LabelFilter<L>, KNIPEvent {
 
     private HashSet<String> m_filterSet;
 

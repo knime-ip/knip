@@ -49,36 +49,29 @@
  */
 package org.knime.knip.base.node;
 
-import net.imagej.ImgPlus;
-import net.imglib2.Cursor;
-import net.imglib2.IterableInterval;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
-import net.imglib2.ops.operation.ImgOperations;
-import net.imglib2.ops.operation.SubsetOperations;
-import net.imglib2.ops.operation.UnaryOperation;
-import net.imglib2.roi.IterableRegionOfInterest;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.view.Views;
-
-import org.knime.core.data.DataRow;
-import org.knime.core.data.DataTableSpec;
-import org.knime.core.node.BufferedDataTable;
-import org.knime.core.node.ExecutionContext;
-import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeLogger;
-import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
-import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.knime.core.node.port.PortObject;
-import org.knime.core.node.port.PortObjectSpec;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.util.EnumUtils;
-import org.knime.knip.core.util.ImgUtils;
+
+import net.imagej.ImgPlus;
+import net.imglib2.Cursor;
+import net.imglib2.IterableInterval;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.Img;
+import net.imglib2.ops.operation.ImgOperations;
+import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.ops.operation.UnaryOperation;
+import net.imglib2.roi.Regions;
+import net.imglib2.roi.labeling.LabelRegion;
+import net.imglib2.roi.labeling.LabelRegions;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
 
 /**
  * Remark: Note this class has some redundant implementations to {@link ImgPlusToImgPlusNodeModel}. Anyway, the
@@ -184,7 +177,7 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
     /*
      * Labeling of the current {@link DataRow}. Can be null if no column with labeling is selected by the user.
      */
-    private Labeling<L> m_currentLabeling;
+    private RandomAccessibleInterval<LabelingType<L>> m_currentLabeling;
 
     /**
      * Stores the dimension selection. Can be null.
@@ -347,12 +340,11 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
             }
 
         } else {
-            for (L label : m_currentLabeling.getLabels()) {
-                IterableRegionOfInterest iterableRegionOfInterest =
-                        m_currentLabeling.getIterableRegionOfInterest(label);
+            final LabelRegions<L> regions = KNIPGateway.regions().regions(m_currentLabeling);
+            for (LabelRegion<L> region : regions) {
 
-                IterableInterval<T> inII = iterableRegionOfInterest.getIterableIntervalOverROI(in);
-                IterableInterval<V> outII = iterableRegionOfInterest.getIterableIntervalOverROI(res);
+                IterableInterval<T> inII = Regions.sample(region, in);
+                IterableInterval<V> outII = Regions.sample(region, res);
 
                 UnaryOperation<IterableInterval<T>, IterableInterval<V>> operation = operation();
 
@@ -375,11 +367,11 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
                     break;
                 case SOURCE:
                     // here we need to do something special
-                    Cursor<LabelingType<L>> cursor = Views.flatIterable(m_currentLabeling).cursor();
-                    Cursor<V> outCursor = Views.flatIterable(res).cursor();
-                    Cursor<T> inCursor = Views.flatIterable(in).cursor();
+                    final Cursor<LabelingType<L>> cursor = Views.flatIterable(m_currentLabeling).cursor();
+                    final Cursor<V> outCursor = Views.flatIterable(res).cursor();
+                    final Cursor<T> inCursor = Views.flatIterable(in).cursor();
                     while (cursor.hasNext()) {
-                        if (cursor.next().getLabeling().isEmpty()) {
+                        if (cursor.next().isEmpty()) {
                             outCursor.next().setReal(inCursor.next().getRealDouble());
                         } else {
                             outCursor.fwd();
@@ -397,7 +389,7 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
         Cursor<LabelingType<L>> cursor = Views.flatIterable(m_currentLabeling).cursor();
         Cursor<V> outCursor = res.cursor();
         while (cursor.hasNext()) {
-            if (cursor.next().getLabeling().isEmpty()) {
+            if (cursor.next().isEmpty()) {
                 outCursor.next().setReal(val);
             } else {
                 outCursor.fwd();
@@ -415,9 +407,7 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
      * @return
      */
     private ImgPlus<V> createResultImage(final ImgPlus<T> in) {
-        ImgPlus<V> out = new ImgPlus<V>(ImgUtils.createEmptyCopy(in, getOutType(in.firstElement())), in);
-        out.setSource(in.getSource());
-        return out;
+        return new ImgPlus<V>((Img<V>)KNIPGateway.ops().createImg(in, getOutType(in.firstElement())), in);
     }
 
     /**

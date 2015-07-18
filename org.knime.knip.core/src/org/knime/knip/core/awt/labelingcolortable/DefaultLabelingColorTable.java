@@ -83,7 +83,7 @@ public class DefaultLabelingColorTable implements LabelingColorTable {
      * {@inheritDoc}
      */
     @Override
-    public <L extends Comparable<L>> int getColor(final L label) {
+    public <L> int getColor(final L label) {
 
         final int hashCode = label.hashCode();
         int res = m_colorTable.get(hashCode);
@@ -100,7 +100,7 @@ public class DefaultLabelingColorTable implements LabelingColorTable {
      * {@inheritDoc}
      */
     @Override
-    public <L extends Comparable<L>> void setColor(final L l, final int color) {
+    public <L> void setColor(final L l, final int color) {
         m_colorTable.put(l.hashCode(), LabelingColorTableUtils.getTransparentRGBA(color, 255));
     }
 
@@ -108,7 +108,7 @@ public class DefaultLabelingColorTable implements LabelingColorTable {
      * {@inheritDoc}
      */
     @Override
-    public <L extends Comparable<L>> boolean isColorDefined(final L label) {
+    public <L> boolean isColorDefined(final L label) {
         return m_colorTable.containsKey(label.hashCode());
     }
 

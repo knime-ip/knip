@@ -1,10 +1,7 @@
 package org.knime.knip.io.nodes.annotation.edit;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.imglib2.converter.Converter;
-import net.imglib2.labeling.LabelingType;
+import net.imglib2.roi.labeling.LabelingType;
 
 /**
  * Converts any labeling to a String labeling.
@@ -18,14 +15,9 @@ public class ToStringLabelingConverter<T extends Comparable<T>> implements
 
 	@Override
 	public void convert(LabelingType<T> input, LabelingType<String> output) {
-		List<String> res = new ArrayList<String>(input.getLabeling().size());
-
-		for (int i = 0; i < input.getLabeling().size(); ++i)
-			res.add(input.getLabeling().get(i).toString());
-
-
-		output.setLabeling(res);
-
+		output.clear();
+		for (T label : input)
+			output.add(label.toString());
 	}
 
 }

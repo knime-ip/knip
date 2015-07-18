@@ -341,8 +341,7 @@ public class SetImgMetadataNodeModel<T extends RealType<T>> extends NodeModel im
      */
     @Override
     protected void reset() {
-        // TODO Auto-generated method stub
-
+        m_data = null;
     }
 
     /**

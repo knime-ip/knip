@@ -51,10 +51,11 @@ package org.knime.knip.base.nodes.proc.ucm;
 import java.util.List;
 
 import net.imagej.ImgPlus;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.labeling.Labeling;
 import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.FloatType;
 
@@ -141,7 +142,7 @@ public class UCMNodeModel<T extends RealType<T>, L extends Comparable<L>> extend
             throws Exception {
 
         // containers to work on
-        final Labeling<L> labeling = cellValue.getLabeling();
+        final RandomAccessibleInterval<LabelingType<L>> labeling = cellValue.getLabeling();
         final ImgPlus<T> inImg = img.getImgPlus();
         final Img<FloatType> result = new ArrayImgFactory<FloatType>().create(cellValue.getLabeling(), new FloatType());
 

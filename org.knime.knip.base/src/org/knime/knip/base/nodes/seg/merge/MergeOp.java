@@ -49,22 +49,23 @@
  */
 package org.knime.knip.base.nodes.seg.merge;
 
-import net.imglib2.labeling.Labeling;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.ops.img.UnaryObjectFactory;
 import net.imglib2.ops.operation.UnaryOutputOperation;
+import net.imglib2.roi.labeling.LabelingType;
 
 /**
  *
  * @author jonathan.hale
  */
 public class MergeOp<L extends Comparable<L>> implements
-        UnaryOutputOperation<Labeling<L>, Labeling<L>> {
+        UnaryOutputOperation<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<L>>> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Labeling<L> compute(final Labeling<L> input, final Labeling<L> output) {
+    public RandomAccessibleInterval<LabelingType<L>> compute(final RandomAccessibleInterval<LabelingType<L>> input, final RandomAccessibleInterval<LabelingType<L>> output) {
         // TODO Auto-generated method stub
         return null;
     }
@@ -73,7 +74,7 @@ public class MergeOp<L extends Comparable<L>> implements
      * {@inheritDoc}
      */
     @Override
-    public UnaryObjectFactory<Labeling<L>, Labeling<L>> bufferFactory() {
+    public UnaryObjectFactory<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<L>>> bufferFactory() {
         // TODO Auto-generated method stub
         return null;
     }
@@ -82,7 +83,7 @@ public class MergeOp<L extends Comparable<L>> implements
      * {@inheritDoc}
      */
     @Override
-    public UnaryOutputOperation<Labeling<L>, Labeling<L>> copy() {
+    public UnaryOutputOperation<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<L>>> copy() {
         // TODO Auto-generated method stub
         return null;
     }

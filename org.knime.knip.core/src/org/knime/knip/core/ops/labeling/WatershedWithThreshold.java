@@ -36,23 +36,21 @@
 
 package org.knime.knip.core.ops.labeling;
 
-import java.util.List;
+import java.util.HashSet;
 import java.util.PriorityQueue;
+import java.util.Set;
 
 import net.imglib2.Cursor;
+import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.algorithm.OutputAlgorithm;
 import net.imglib2.algorithm.labeling.AllConnectedComponents;
 import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingOutOfBoundsRandomAccessFactory;
-import net.imglib2.labeling.LabelingType;
-import net.imglib2.labeling.NativeImgLabeling;
-import net.imglib2.outofbounds.OutOfBounds;
-import net.imglib2.outofbounds.OutOfBoundsConstantValueFactory;
-import net.imglib2.outofbounds.OutOfBoundsFactory;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.IntType;
+import net.imglib2.util.Intervals;
 import net.imglib2.view.Views;
 
 /**
@@ -69,20 +67,20 @@ import net.imglib2.view.Views;
  *
  * @author Lee Kamentsky
  */
-public class WatershedWithThreshold<T extends RealType<T>, L extends Comparable<L>> implements
-        OutputAlgorithm<Labeling<L>> {
+public class WatershedWithThreshold<T extends RealType<T>, L> implements
+        OutputAlgorithm<RandomAccessibleInterval<LabelingType<L>>> {
 
-    private static class PixelIntensity<U extends Comparable<U>> implements Comparable<PixelIntensity<U>> {
+    private static class PixelIntensity<U> implements Comparable<PixelIntensity<U>> {
         private final long m_index;
 
         private final long m_age;
 
         private final double m_intensity;
 
-        private final List<U> m_labeling;
+        private final Set<U> m_labeling;
 
         public PixelIntensity(final long[] position, final long[] dimensions, final double intensity, final long age,
-                              final List<U> labeling) {
+                              final Set<U> labeling) {
             long index = position[0];
             long multiplier = dimensions[0];
             for (int i = 1; i < dimensions.length; i++) {
@@ -92,7 +90,7 @@ public class WatershedWithThreshold<T extends RealType<T>, L extends Comparable<
 
             this.m_index = index;
             this.m_intensity = intensity;
-            this.m_labeling = labeling;
+            this.m_labeling = new HashSet<U>(labeling);
             this.m_age = age;
         }
 
@@ -113,18 +111,18 @@ public class WatershedWithThreshold<T extends RealType<T>, L extends Comparable<
             }
         }
 
-        List<U> getLabeling() {
+        Set<U> getLabeling() {
             return m_labeling;
         }
     }
 
     protected RandomAccessibleInterval<T> m_img;
 
-    protected Labeling<L> m_seeds;
+    protected RandomAccessibleInterval<LabelingType<L>> m_seeds;
 
     private long[][] m_structuringElement;
 
-    protected Labeling<L> m_output;
+    protected RandomAccessibleInterval<LabelingType<L>> m_output;
 
     private String m_errorMessage;
 
@@ -145,7 +143,7 @@ public class WatershedWithThreshold<T extends RealType<T>, L extends Comparable<
      * @param seeds a labeling of the space, defining the first pixels in the space to be labeled. The seeded pixels
      *            will be similarly labeled in the output as will be their watershed neighbors.
      */
-    public void setSeeds(final Labeling<L> seeds) {
+    public void setSeeds(final RandomAccessibleInterval<LabelingType<L>> seeds) {
         this.m_seeds = seeds;
     }
 
@@ -165,7 +163,7 @@ public class WatershedWithThreshold<T extends RealType<T>, L extends Comparable<
      *
      * @param outputLabeling
      */
-    public void setOutputLabeling(final Labeling<L> outputLabeling) {
+    public void setOutputLabeling(final RandomAccessibleInterval<LabelingType<L>> outputLabeling) {
         m_output = outputLabeling;
     }
 
@@ -195,8 +193,8 @@ public class WatershedWithThreshold<T extends RealType<T>, L extends Comparable<
         if (m_output == null) {
             final long[] dimensions = new long[m_img.numDimensions()];
             m_img.dimensions(dimensions);
-            final NativeImgLabeling<L, IntType> o =
-                    new NativeImgLabeling<L, IntType>(new ArrayImgFactory<IntType>().create(dimensions, new IntType()));
+            final ImgLabeling<L, IntType> o =
+                    new ImgLabeling<L, IntType>(new ArrayImgFactory<IntType>().create(dimensions, new IntType()));
             m_output = o;
         }
         /*
@@ -205,20 +203,17 @@ public class WatershedWithThreshold<T extends RealType<T>, L extends Comparable<
          * that returns the maximum intensity if out of bounds so that
          * in-bounds will be in a deep valley.
          */
-        final OutOfBoundsFactory<LabelingType<L>, Labeling<L>> factory =
-                new LabelingOutOfBoundsRandomAccessFactory<L, Labeling<L>>();
-        final OutOfBounds<LabelingType<L>> outputAccess = factory.create(m_output);
+        final RandomAccess<LabelingType<L>> outputAccess = m_output.randomAccess();
 
         final T maxVal = Views.iterable(m_img).firstElement().createVariable();
         maxVal.setReal(maxVal.getMaxValue());
-        final OutOfBoundsFactory<T, RandomAccessibleInterval<T>> oobImageFactory = new OutOfBoundsConstantValueFactory<T, RandomAccessibleInterval<T>>(maxVal);
-        final OutOfBounds<T> imageAccess = oobImageFactory.create(m_img);
+        final RandomAccess<T> imageAccess = Views.extendValue(m_img, maxVal).randomAccess();
 
         /*
          * Start by loading up a priority queue with the seeded pixels
          */
         final PriorityQueue<PixelIntensity<L>> pq = new PriorityQueue<PixelIntensity<L>>();
-        final Cursor<LabelingType<L>> c = m_seeds.localizingCursor();
+        final Cursor<LabelingType<L>> c = Views.iterable(m_seeds).localizingCursor();
 
         final long[] dimensions = new long[m_img.numDimensions()];
         m_output.dimensions(dimensions);
@@ -228,26 +223,28 @@ public class WatershedWithThreshold<T extends RealType<T>, L extends Comparable<
 
         while (c.hasNext()) {
             final LabelingType<L> tSrc = c.next();
-            List<L> l = tSrc.getLabeling();
-            if (l.isEmpty()) {
+            if (tSrc.isEmpty()) {
                 continue;
             }
 
             c.localize(position);
-            imageAccess.setPosition(position);
-            if (imageAccess.isOutOfBounds()) {
+            imageAccess.setPosition(c);
+            if (!Intervals.contains(m_img, imageAccess)) {
                 continue;
             }
             outputAccess.setPosition(position);
-            if (outputAccess.isOutOfBounds()) {
+            if (!Intervals.contains(m_output, outputAccess)) {
                 continue;
             }
             final double intensity = imageAccess.get().getRealDouble();
             if (!((m_threshold != null) && (intensity >= m_threshold.doubleValue()))) {
                 final LabelingType<L> tDest = outputAccess.get();
-                l = tDest.intern(l);
-                tDest.setLabeling(l);
-                pq.add(new PixelIntensity<L>(position, dimensions, intensity, age++, l));
+                tDest.clear();
+                tDest.addAll(tSrc);
+                if(tDest.isEmpty()){
+                    System.out.println("WTF");
+                }
+                pq.add(new PixelIntensity<L>(position, dimensions, intensity, age++, tDest));
             }
         }
         /*
@@ -274,24 +271,25 @@ public class WatershedWithThreshold<T extends RealType<T>, L extends Comparable<
          */
         while (!pq.isEmpty()) {
             final PixelIntensity<L> currentPI = pq.remove();
-            final List<L> l = currentPI.getLabeling();
+            final Set<L> l = currentPI.getLabeling();
             currentPI.getPosition(position, dimensions);
             outputAccess.setPosition(position);
             imageAccess.setPosition(position);
+
             for (final long[] offset : strelMoves) {
                 outputAccess.move(offset);
                 imageAccess.move(offset);
-                if (outputAccess.isOutOfBounds()) {
+                if (!Intervals.contains(m_output, outputAccess)) {
                     continue;
                 }
-                if (imageAccess.isOutOfBounds()) {
+                if (!Intervals.contains(m_img, imageAccess)) {
                     continue;
                 }
                 final LabelingType<L> outputLabelingType = outputAccess.get();
-                if (!outputLabelingType.getLabeling().isEmpty()) {
+                if (!outputLabelingType.isEmpty()) {
                     continue;
                 }
-                outputLabelingType.setLabeling(l);
+                outputLabelingType.addAll(l);
                 final double intensity = imageAccess.get().getRealDouble();
                 if (!((m_threshold != null) && (intensity >= m_threshold.doubleValue()))) {
                     outputAccess.localize(destPosition);
@@ -343,7 +341,7 @@ public class WatershedWithThreshold<T extends RealType<T>, L extends Comparable<
     }
 
     @Override
-    public Labeling<L> getResult() {
+    public RandomAccessibleInterval<LabelingType<L>> getResult() {
         return m_output;
     }
 }

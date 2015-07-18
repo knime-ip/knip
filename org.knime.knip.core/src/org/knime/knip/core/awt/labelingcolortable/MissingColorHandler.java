@@ -61,5 +61,5 @@ public interface MissingColorHandler {
     /**
      * Retrieve the RGB color as int
      */
-    public <L extends Comparable<L>> int getColor(L label);
+    public <L> int getColor(L label);
 }

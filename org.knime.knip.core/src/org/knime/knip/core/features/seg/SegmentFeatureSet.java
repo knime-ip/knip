@@ -58,6 +58,7 @@ import net.imglib2.Cursor;
 import net.imglib2.IterableInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgView;
+import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.iterableinterval.unary.CalculateDiameter;
@@ -70,7 +71,6 @@ import org.knime.knip.core.features.FeatureSet;
 import org.knime.knip.core.features.FeatureTargetListener;
 import org.knime.knip.core.features.ObjectCalcAndCache;
 import org.knime.knip.core.features.SharesObjects;
-import org.knime.knip.core.util.ImgUtils;
 
 /**
  *
@@ -184,7 +184,7 @@ public class SegmentFeatureSet implements FeatureSet, SharesObjects {
             } else {
 
                 final Img<BitType> bitMask = m_ocac.binaryMask2D(interval);
-                m_outline = m_outlineOp.compute(bitMask, ImgUtils.createEmptyImg(bitMask));
+                m_outline = m_outlineOp.compute(bitMask, new ArrayImgFactory<BitType>().create(bitMask, new BitType()));
                 m_perimeter = Operations.compute(m_calculatePerimeter, m_outline).get();
 
                 if (m_enabled.get(1 + m_defaultAxis.length) || m_enabled.get(3 + m_defaultAxis.length)) {

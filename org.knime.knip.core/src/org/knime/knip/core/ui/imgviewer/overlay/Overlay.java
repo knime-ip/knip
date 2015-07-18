@@ -60,21 +60,17 @@ import java.util.List;
 
 import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
-import net.imglib2.exception.IncompatibleTypeException;
-import net.imglib2.img.NativeImgFactory;
-import net.imglib2.img.planar.PlanarImgFactory;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingView;
-import net.imglib2.labeling.NativeImgLabeling;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.integer.ByteType;
-import net.imglib2.type.numeric.integer.IntType;
 import net.imglib2.type.numeric.integer.LongType;
 import net.imglib2.type.numeric.integer.ShortType;
-import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.type.numeric.integer.UnsignedShortType;
 
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
 import org.knime.knip.core.awt.labelingcolortable.LabelingColorTable;
 import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableUtils;
@@ -87,9 +83,9 @@ import org.knime.knip.core.ui.imgviewer.events.OverlayChgEvent;
 
 /**
  * Overlay
- * 
+ *
  * @TODO: Replace by ImageJ2 implementations or actually use ImageJ2?
- * 
+ *
  * @param
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -112,10 +108,10 @@ public class Overlay implements EventServiceClient, Externalizable {
 
     /**
      * No-arguments constructor need for externalization of overlays. Don't use this.
-     * 
+     *
      * @throws SecurityException
      * @throws IllegalArgumentException
-     * 
+     *
      */
     public Overlay() {
         m_elements = new ArrayList<OverlayElement2D>();
@@ -270,65 +266,54 @@ public class Overlay implements EventServiceClient, Externalizable {
     /**
      * @return
      */
-    public Labeling<String> renderSegmentationImage(final NativeImgFactory<?> factory, final NativeTypes type) {
-        return renderSegmentationImage(factory, true, type);
+    public RandomAccessibleInterval<LabelingType<String>> renderSegmentationImage(final NativeTypes type) {
+        return renderSegmentationImage(true, type);
     }
 
     /**
-     * 
+     *
      * @param addSegmentID if true, an additional label with a unique id for each segment is added
      * @return
      */
-    public NativeImgLabeling<String, ?> renderSegmentationImage(final NativeImgFactory<?> factory,
-                                                                final boolean addSegmentID, final NativeTypes type) {
+    @SuppressWarnings("unchecked")
+    public ImgLabeling<String, ?> renderSegmentationImage(final boolean addSegmentID, final NativeTypes type) {
 
-        NativeImgLabeling<String, ?> res = null;
-        try {
-
-            switch (type) {
-                case BITTYPE:
-                    res =
-                            new NativeImgLabeling<String, BitType>(factory.imgFactory(new BitType())
-                                    .create(m_dims, new BitType()));
-                    break;
-                case BYTETYPE:
-                    res =
-                            new NativeImgLabeling<String, ByteType>(factory.imgFactory(new ByteType())
-                                    .create(m_dims, new ByteType()));
-                    break;
-                case SHORTTYPE:
-                    res =
-                            new NativeImgLabeling<String, ShortType>(factory.imgFactory(new ShortType())
-                                    .create(m_dims, new ShortType()));
-                    break;
-                case LONGTYPE:
-                    res =
-                            new NativeImgLabeling<String, LongType>(factory.imgFactory(new LongType())
-                                    .create(m_dims, new LongType()));
-                    break;
-                case UNSIGNEDSHORTTYPE:
-                    res =
-                            new NativeImgLabeling<String, UnsignedShortType>(factory
-                                    .imgFactory(new UnsignedShortType()).create(m_dims, new UnsignedShortType()));
-                    break;
-                case UNSIGNEDBYTETYPE:
-                    res =
-                            new NativeImgLabeling<String, UnsignedByteType>(factory.imgFactory(new UnsignedByteType())
-                                    .create(m_dims, new UnsignedByteType()));
-                    break;
-                default:
-                    res =
-                            new NativeImgLabeling<String, IntType>(factory.imgFactory(new IntType())
-                                    .create(m_dims, new IntType()));
-            }
-        } catch (final IncompatibleTypeException e1) {
-            throw new RuntimeException(e1);
-        } finally {
-            if (res == null) {
+        ImgLabeling<String, ?> res = null;
+        switch (type) {
+            case BITTYPE:
                 res =
-                        new NativeImgLabeling<String, IntType>(new PlanarImgFactory<IntType>().create(m_dims,
-                                                                                                      new IntType()));
-            }
+                        (ImgLabeling<String, ?>)KNIPGateway.ops().createImgLabeling(new FinalInterval(m_dims),
+                                                                                    new BitType());
+                break;
+            case BYTETYPE:
+                res =
+                        (ImgLabeling<String, ?>)KNIPGateway.ops().createImgLabeling(new FinalInterval(m_dims),
+                                                                                    new ByteType());
+                break;
+            case SHORTTYPE:
+                res =
+                        (ImgLabeling<String, ?>)KNIPGateway.ops().createImgLabeling(new FinalInterval(m_dims),
+                                                                                    new ShortType());
+                break;
+            case LONGTYPE:
+                res =
+                        (ImgLabeling<String, ?>)KNIPGateway.ops().createImgLabeling(new FinalInterval(m_dims),
+                                                                                    new LongType());
+                break;
+            case UNSIGNEDSHORTTYPE:
+                res =
+                        (ImgLabeling<String, ?>)KNIPGateway.ops().createImgLabeling(new FinalInterval(m_dims),
+                                                                                    new UnsignedShortType());
+                break;
+            case UNSIGNEDBYTETYPE:
+                res =
+                        (ImgLabeling<String, ?>)KNIPGateway.ops().createImgLabeling(new FinalInterval(m_dims),
+                                                                                    new UnsignedShortType());
+                break;
+            default:
+                res =
+                        (ImgLabeling<String, ?>)KNIPGateway.ops().createImgLabeling(new FinalInterval(m_dims),
+                                                                                    new ShortType());
         }
 
         final long[] minExtend = new long[res.numDimensions()];
@@ -341,8 +326,6 @@ public class Overlay implements EventServiceClient, Externalizable {
                 listToSet.add("Segment: " + segId++);
             }
 
-            listToSet = res.getMapping().intern(listToSet);
-
             for (int d = 0; d < res.numDimensions(); d++) {
                 if (e.isOrientation(d)) {
                     minExtend[d] = 0;
@@ -353,8 +336,8 @@ public class Overlay implements EventServiceClient, Externalizable {
                 }
             }
 
-            e.renderOnSegmentationImage(new LabelingView<String>(SubsetOperations.subsetview(res, new FinalInterval(
-                                                minExtend, maxExtend)), res.<String> factory()), listToSet);
+            e.renderOnSegmentationImage(SubsetOperations.subsetview(res, new FinalInterval(minExtend, maxExtend)),
+                                        listToSet);
         }
         return res;
     }
@@ -386,7 +369,6 @@ public class Overlay implements EventServiceClient, Externalizable {
 
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException {
         m_elements.clear();
