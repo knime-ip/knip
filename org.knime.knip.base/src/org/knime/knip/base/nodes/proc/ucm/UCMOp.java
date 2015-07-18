@@ -58,13 +58,16 @@ import java.util.Iterator;
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
 import net.imglib2.ops.operation.BinaryOperation;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.AbstractRegionGrowing;
+import net.imglib2.roi.labeling.LabelRegions;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.FloatType;
+import net.imglib2.util.Util;
 import net.imglib2.view.Views;
+
+import org.knime.knip.core.KNIPGateway;
 
 /**
  * Operation encapsulating functionality of UltraMetricContourMaps UCMs are a extraction system that combines several
@@ -81,8 +84,9 @@ import net.imglib2.view.Views;
  * @param <L>
  * @param <T>
  */
-public class UCMOp<L extends Comparable<L>, T extends RealType<T>> implements
-        BinaryOperation<Labeling<L>, RandomAccessibleInterval<T>, RandomAccessibleInterval<FloatType>> {
+public class UCMOp<L extends Comparable<L>, T extends RealType<T>>
+        implements
+        BinaryOperation<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<T>, RandomAccessibleInterval<FloatType>> {
 
     private final int maxNumFaces;
 
@@ -115,7 +119,7 @@ public class UCMOp<L extends Comparable<L>, T extends RealType<T>> implements
      * {@inheritDoc}
      */
     @Override
-    public RandomAccessibleInterval<FloatType> compute(final Labeling<L> labeling,
+    public RandomAccessibleInterval<FloatType> compute(final RandomAccessibleInterval<LabelingType<L>> labeling,
                                                        final RandomAccessibleInterval<T> inImg,
                                                        final RandomAccessibleInterval<FloatType> result) {
 
@@ -138,13 +142,17 @@ public class UCMOp<L extends Comparable<L>, T extends RealType<T>> implements
         final RandomAccess<T> imgAccess = inImg.randomAccess();
 
         // | Create Faces
-        for (L label : labeling.getLabels()) {
+        final LabelRegions<L> regions = KNIPGateway.regions().regions(labeling);
+        for (L label : regions.getExistingLabels()) {
             faces.put(label.toString(), new UCMFace(label.toString()));
         }
 
         // random access cursor with extended borders
-        final Cursor<LabelingType<L>> labCur = labeling.localizingCursor();
-        final RandomAccess<LabelingType<L>> labAccess = Views.extendBorder(labeling).randomAccess();
+        final Cursor<LabelingType<L>> labCur = Views.iterable(labeling).localizingCursor();
+
+        final LabelingType<L> empty = Util.getTypeFromInterval(labeling).createVariable();
+        empty.clear();
+        final RandomAccess<LabelingType<L>> labAccess = Views.extendValue(labeling, empty).randomAccess();
 
         // the 8 neighbors
         final long[][] strucElement = AbstractRegionGrowing.get8ConStructuringElement(labeling.numDimensions());
@@ -162,7 +170,7 @@ public class UCMOp<L extends Comparable<L>, T extends RealType<T>> implements
         while (labCur.hasNext()) {
             labCur.fwd();
             // if pixel is part of a boundary
-            if (labCur.get().getLabeling().get(0).toString().equals(boundaryLabel)) {
+            if (labCur.get().iterator().next().toString().equals(boundaryLabel)) {
                 tempLabels = new HashSet<String>();
                 // iterate neighborhood to collect the faces
                 for (int s = 0; s < strucElement.length; s++) {
@@ -170,8 +178,8 @@ public class UCMOp<L extends Comparable<L>, T extends RealType<T>> implements
                         // the neighboring pixel
                         labAccess.setPosition(labCur.getLongPosition(d) + strucElement[s][d], d);
                         // if not outside the image
-                        if (labAccess.get() != null) {
-                            L label = labAccess.get().getLabeling().get(0);
+                        if (labAccess.get().size() != 0) {
+                            L label = labAccess.get().iterator().next();
                             if (!label.toString().equals(boundaryLabel)) {
                                 // add face as neighbor
                                 tempLabels.add(label.toString());
@@ -192,8 +200,8 @@ public class UCMOp<L extends Comparable<L>, T extends RealType<T>> implements
                                 continue;
                             }
                             // if not outside the image
-                            if (labAccess.get() != null) {
-                                String label = labAccess.get().getLabeling().get(0).toString();
+                            if (labAccess.get().size() != 0) {
+                                String label = labAccess.get().iterator().next().toString();
                                 if (!label.toString().equals(boundaryLabel)) {
                                     // add face as neighbor
                                     tempLabels.add(label);
@@ -482,7 +490,9 @@ public class UCMOp<L extends Comparable<L>, T extends RealType<T>> implements
      * {@inheritDoc}
      */
     @Override
-    public BinaryOperation<Labeling<L>, RandomAccessibleInterval<T>, RandomAccessibleInterval<FloatType>> copy() {
+    public
+            BinaryOperation<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<T>, RandomAccessibleInterval<FloatType>>
+            copy() {
         return new UCMOp<L, T>(maxNumFaces, maxFacePercent, minBoundaryWeight, boundaryLabel);
     }
 }

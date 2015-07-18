@@ -86,10 +86,10 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.algorithm.types.ThresholdingType;
 import org.knime.knip.core.ops.interval.AutoThreshold;
 import org.knime.knip.core.util.EnumUtils;
-import org.knime.knip.core.util.ImgUtils;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 
 /**
@@ -230,9 +230,8 @@ public class ThresholderNodeFactory2<T extends RealType<T>> extends ValueToCellN
                 final ImgPlusCell[] resCells = new ImgPlusCell[thresholders.length];
                 for (int i = 0; i < resCells.length; i++) {
                     final ImgPlus<BitType> res =
-                            new ImgPlus<BitType>(ImgUtils.createEmptyCopy(imgPlus,
-                                                                          imgPlus.factory().imgFactory(new BitType()),
-                                                                          new BitType()), imgPlus);
+                            new ImgPlus<BitType>((Img<BitType>)KNIPGateway.ops().createImg(imgPlus, new BitType()),
+                                    imgPlus);
                     res.setName(res.getName());
                     if (thresholders[i] == ThresholdingType.MANUAL) {
 

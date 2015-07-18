@@ -64,10 +64,10 @@ import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.algorithm.convolvers.ImgLib2IterativeConvolver;
 import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
 import org.knime.knip.core.types.OutOfBoundsStrategyFactory;
-import org.knime.knip.core.util.ImgUtils;
 import org.knime.node.v210.OptionDocument.Option;
 import org.knime.node.v210.TabDocument.Tab;
 
@@ -106,7 +106,7 @@ public class ImgLib2IterativeConvolverExt<T extends RealType<T>, K extends RealT
 
             @Override
             public ImgPlus<O> instantiate(final ImgPlus<T> inputA, final Img<K>[] inputB) {
-                return new ImgPlus<O>(ImgUtils.createEmptyCopy(inputA, m_resType), inputA);
+                return new ImgPlus<O>((Img<O>)KNIPGateway.ops().createImg(inputA, m_resType), inputA);
             }
         };
     }
@@ -125,7 +125,8 @@ public class ImgLib2IterativeConvolverExt<T extends RealType<T>, K extends RealT
         final OutOfBoundsFactory<O, RandomAccessibleInterval<O>> b =
                 OutOfBoundsStrategyFactory.getStrategy(m_outOfBounds, output.firstElement(), input.firstElement());
 
-        new ImgLib2IterativeConvolver<T, K, O>(output.factory(), a, b, getExecutorService()).compute(input, kernels, output);
+        new ImgLib2IterativeConvolver<T, K, O>(output.factory(), a, b, getExecutorService()).compute(input, kernels,
+                                                                                                     output);
 
         return output;
     }

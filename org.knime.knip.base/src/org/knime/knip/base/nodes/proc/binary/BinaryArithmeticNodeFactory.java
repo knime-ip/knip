@@ -75,8 +75,8 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.TwoValuesToCellNodeDialog;
 import org.knime.knip.base.node.TwoValuesToCellNodeFactory;
 import org.knime.knip.base.node.TwoValuesToCellNodeModel;
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.util.EnumUtils;
-import org.knime.knip.core.util.ImgUtils;
 import org.knime.knip.core.util.MiscViews;
 
 /**
@@ -183,7 +183,7 @@ public final class BinaryArithmeticNodeFactory extends
 
                 final ImgPlus<BitType> img1 = cellValue1.getImgPlus();
                 ImgPlus<BitType> img2 = cellValue2.getImgPlus();
-                final Img<BitType> out = ImgUtils.createEmptyImg(cellValue1.getImgPlus());
+                final Img<BitType> out = (Img<BitType>)KNIPGateway.ops().createImg(cellValue1.getImgPlus());
 
                 if (m_synchronize.getBooleanValue()) {
                     img2 =

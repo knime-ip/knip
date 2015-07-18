@@ -80,12 +80,12 @@ import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.interpolation.randomaccess.NearestNeighborInterpolatorFactory;
-import net.imglib2.labeling.Labeling;
 import net.imglib2.outofbounds.OutOfBoundsBorderFactory;
 import net.imglib2.realtransform.AffineGet;
 import net.imglib2.realtransform.AffineTransform2D;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.realtransform.RealViews;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.Type;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
@@ -347,7 +347,7 @@ public final class AWTImageTools {
 
     }
 
-    public static <L extends Comparable<L>> void showInFrame(final Labeling<L> lab, String title) {
+    public static <L> void showInFrame(final RandomAccessibleInterval<LabelingType<L>> lab, String title) {
         final int w = (int)lab.dimension(0);
         final int h = (int)lab.dimension(1);
         title = title + " (" + w + "x" + h + ")";

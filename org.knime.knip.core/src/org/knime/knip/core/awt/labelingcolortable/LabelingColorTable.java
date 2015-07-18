@@ -67,21 +67,21 @@ public interface LabelingColorTable {
      * @param l
      * @param col
      */
-    <L extends Comparable<L>> void setColor(final L l, final int col);
+    <L> void setColor(final L l, final int col);
 
     /**
      * 
      * @param label
      * @return color for a given label, -1 if color is undefined for label
      */
-    <L extends Comparable<L>> int getColor(final L label);
+    <L> int getColor(final L label);
 
     /**
      * Returns false if color is not defined
      * 
      * @param label
      */
-    <L extends Comparable<L>> boolean isColorDefined(final L label);
+    <L> boolean isColorDefined(final L label);
 
     /**
      * @return

@@ -57,7 +57,7 @@ import java.util.Collection;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public interface LabelFilter<L extends Comparable<L>> extends Externalizable {
+public interface LabelFilter<L> extends Externalizable {
     /**
      * @param labels is a empty list, if all labels have been filtered out
      * @return

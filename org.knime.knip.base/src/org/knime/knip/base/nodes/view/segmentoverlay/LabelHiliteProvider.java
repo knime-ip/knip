@@ -55,7 +55,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.imglib2.RandomAccess;
-import net.imglib2.labeling.LabelingType;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.data.RowKey;
@@ -197,7 +197,7 @@ public class LabelHiliteProvider<L extends Comparable<L>, T extends RealType<T>>
 
             boolean hilite = false;
             final Set<RowKey> keys = new HashSet<RowKey>();
-            for (final L label : m_labelingAccess.get().getLabeling()) {
+            for (final L label : m_labelingAccess.get()) {
                 final String l = label.toString();
                 if (!m_hilitedLabels.contains(l)) {
                     m_hilitedLabels.add(l);

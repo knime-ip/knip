@@ -50,6 +50,11 @@ package org.knime.knip.base.nodes.misc;
 
 import java.util.List;
 
+import net.imglib2.Cursor;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.view.Views;
+
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.knip.base.data.labeling.LabelingCell;
@@ -58,10 +63,10 @@ import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
-import org.knime.knip.core.ops.labeling.MakeStringLabeling;
+import org.knime.knip.core.KNIPGateway;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -84,10 +89,21 @@ public class LabToStringLabNodeFactory<L extends Comparable<L>> extends ValueToC
 
             @Override
             protected LabelingCell<String> compute(final LabelingValue<L> cellValue) throws Exception {
-                return m_labCellFactory
-                        .createCell(new MakeStringLabeling<L>().compute(cellValue.getLabeling(), cellValue
-                                            .getLabeling().<String> factory().create(cellValue.getLabeling())),
-                                    cellValue.getLabelingMetadata());
+
+                final RandomAccessibleInterval<LabelingType<String>> res =
+                        (RandomAccessibleInterval<LabelingType<String>>)KNIPGateway.ops()
+                                .createImgLabeling(cellValue.getLabeling());
+
+                final Cursor<LabelingType<String>> resC = Views.iterable(res).cursor();
+                final Cursor<LabelingType<L>> srcC = Views.iterable(cellValue.getLabeling()).cursor();
+
+                while (srcC.hasNext()) {
+                    resC.fwd();
+                    for (L label : srcC.next()) {
+                        resC.get().add(label.toString());
+                    }
+                }
+                return m_labCellFactory.createCell(res, cellValue.getLabelingMetadata());
             }
 
             /**

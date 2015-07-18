@@ -276,18 +276,22 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
 
         int i = 0;
         final long[] max = new long[img2d.numDimensions()];
+        final long[] min = new long[img2d.numDimensions()];
         max[0] = img2d.max(0);
         max[1] = img2d.max(1);
+        min[0] = img2d.min(0);
+        min[1] = img2d.min(1);
         for (i = 2; i < img2d.numDimensions(); i++) {
             if ((img2d.dimension(i) == 2) || (img2d.dimension(i) == 3)) {
                 max[i] = img2d.max(i);
+                min[i] = img2d.min(i);
                 break;
             }
         }
 
         final RandomAccessibleInterval<T> toRender;
         if (img2d == m_img) {
-            toRender = SubsetOperations.subsetview(m_img, new FinalInterval(new long[img2d.numDimensions()], max));
+            toRender = SubsetOperations.subsetview(m_img, new FinalInterval(min, max));
         } else {
             toRender = img2d;
         }

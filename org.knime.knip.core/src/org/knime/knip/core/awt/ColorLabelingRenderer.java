@@ -51,15 +51,14 @@ package org.knime.knip.core.awt;
 import gnu.trove.map.hash.TIntIntHashMap;
 
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.display.projector.IterableIntervalProjector2D;
 import net.imglib2.display.screenimage.awt.ARGBScreenImage;
-import net.imglib2.labeling.LabelingMapping;
-import net.imglib2.labeling.LabelingType;
+import net.imglib2.roi.labeling.LabelingMapping;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.ARGBType;
 
 import org.knime.knip.core.awt.converter.LabelingTypeARGBConverter;
@@ -80,8 +79,8 @@ import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter.Operator;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class ColorLabelingRenderer<L extends Comparable<L>> extends ProjectingRenderer<LabelingType<L>> implements
-        RendererWithLabels<L>, RendererWithHilite, LabelingColorTableRenderer {
+public class ColorLabelingRenderer<L> extends ProjectingRenderer<LabelingType<L>> implements RendererWithLabels<L>,
+        RendererWithHilite, LabelingColorTableRenderer {
 
     /**
      * RENDERER_NAME.
@@ -170,14 +169,14 @@ public class ColorLabelingRenderer<L extends Comparable<L>> extends ProjectingRe
 
     private void rebuildLabelConverter() {
         m_rebuildRequired = false;
-        final int labelListIndexSize = m_labelMapping.numLists();
+        final int labelListIndexSize = m_labelMapping.numSets();
         final TIntIntHashMap colorTable = new TIntIntHashMap();
 
         for (int i = 0; i < labelListIndexSize; i++) {
 
             final int color =
                     getColorForLabeling(m_activeLabels, m_operator, m_hilitedLabels, m_isHiliteMode,
-                                        m_labelMapping.listAtIndex(i));
+                                        m_labelMapping.labelsAtIndex(i));
             colorTable.put(i, color);
         }
 
@@ -185,7 +184,7 @@ public class ColorLabelingRenderer<L extends Comparable<L>> extends ProjectingRe
     }
 
     private int getColorForLabeling(final Set<String> activeLabels, final Operator op, final Set<String> hilitedLabels,
-                                    final boolean isHiliteMode, final List<L> labeling) {
+                                    final boolean isHiliteMode, final Set<L> labeling) {
 
         if (labeling.size() == 0) {
             return WHITE_RGB;
@@ -196,7 +195,7 @@ public class ColorLabelingRenderer<L extends Comparable<L>> extends ProjectingRe
             return LabelingColorTableUtils.<L> getAverageColor(m_colorMapping, labeling);
         }
 
-        List<L> filteredLabels;
+        Set<L> filteredLabels;
         if (activeLabels != null) {
             filteredLabels = intersection(activeLabels, op, labeling);
         } else {
@@ -216,10 +215,10 @@ public class ColorLabelingRenderer<L extends Comparable<L>> extends ProjectingRe
         }
     }
 
-    private boolean checkHilite(final List<L> labeling, final Set<String> hilitedLabels) {
+    private boolean checkHilite(final Set<L> labeling, final Set<String> hilitedLabels) {
         if ((hilitedLabels != null) && (hilitedLabels.size() > 0)) {
-            for (int i = 0; i < labeling.size(); i++) {
-                if (hilitedLabels.contains(labeling.get(i).toString())) {
+            for (final L label : labeling) {
+                if (hilitedLabels.contains(label.toString())) {
                     return true;
                 }
             }
@@ -227,14 +226,13 @@ public class ColorLabelingRenderer<L extends Comparable<L>> extends ProjectingRe
         return false;
     }
 
-    private List<L> intersection(final Set<String> activeLabels, final Operator op, final List<L> labeling) {
-
-        final List<L> intersected = new ArrayList<L>(4);
+    private Set<L> intersection(final Set<String> activeLabels, final Operator op, final Set<L> labeling) {
+        final Set<L> intersected = new HashSet<L>(4);
 
         if (op == Operator.OR) {
-            for (int i = 0; i < labeling.size(); i++) {
-                if (activeLabels.contains(labeling.get(i).toString())) {
-                    intersected.add(labeling.get(i));
+            for (final L label : labeling) {
+                if (activeLabels.contains(labeling.toString())) {
+                    intersected.add(label);
                 }
             }
         } else if (op == Operator.AND) {
@@ -243,11 +241,11 @@ public class ColorLabelingRenderer<L extends Comparable<L>> extends ProjectingRe
             }
         } else if (op == Operator.XOR) {
             boolean addedOne = false;
-            for (int i = 0; i < labeling.size(); i++) {
-                if (activeLabels.contains(labeling.get(i).toString())) {
+            for (L label : labeling) {
+                if (activeLabels.contains(label.toString())) {
 
                     if (!addedOne) {
-                        intersected.add(labeling.get(i));
+                        intersected.add(label);
                         addedOne = true;
                     } else {
                         // only 0,1 or 1,0 should result

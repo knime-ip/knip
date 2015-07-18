@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2013
+ *  Copyright (C) 2003 - 2015
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -43,46 +43,43 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
+ * Created on Feb 4, 2015 by dietzc
  */
-package org.knime.knip.core.ops.labeling;
+package org.knime.knip.core;
 
-import net.imglib2.Cursor;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
-import net.imglib2.ops.operation.UnaryOperation;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.roi.labeling.LabelRegions;
+import net.imglib2.roi.labeling.LabelingType;
+
+import org.scijava.Priority;
+import org.scijava.plugin.Plugin;
+import org.scijava.service.AbstractService;
+import org.scijava.service.Service;
 
 /**
- * LabelingCleaner
- *
- *
- * For every label in {@link Labeling} "op", copies all labeled pixels to {@link Labeling} "res".
- * This gets rid of labeled pixels whose labels have been deleted from "op".
- *
- * @param <L>
- * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
- * @author schoenen
+ * @author Christian Dietz, University of Konstanz
  */
-public final class LabelingCleaner<L extends Comparable<L>> implements UnaryOperation<Labeling<L>, Labeling<L>> {
+@Plugin(type = Service.class, priority = Priority.NORMAL_PRIORITY)
+public class DefaultLabelingService extends AbstractService implements LabelingService {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public final Labeling<L> compute(final Labeling<L> op, final Labeling<L> res) {
-        for (final L l : op.getLabels()) {
-            final Cursor<LabelingType<L>> c =
-                    op.getIterableRegionOfInterest(l).getIterableIntervalOverROI(res).cursor();
-            while (c.hasNext()) {
-                c.next().setLabel(l);
-            }
-        }
-
-        return res;
+    public <L> LabelRegions<L> regions(final RandomAccessibleInterval<LabelingType<L>> labeling) {
+        return regions(labeling, false);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public UnaryOperation<Labeling<L>, Labeling<L>> copy() {
-        return new LabelingCleaner<L>();
+    public <L> LabelRegions<L> regions(final RandomAccessibleInterval<LabelingType<L>> labeling,
+                                       final boolean forceUpdate) {
+        // TODO
+        return new LabelRegions<L>(labeling);
     }
+
 }

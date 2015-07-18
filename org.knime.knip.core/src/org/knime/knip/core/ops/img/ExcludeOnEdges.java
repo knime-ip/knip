@@ -10,13 +10,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -28,7 +28,7 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * The views and conclusions contained in the software and documentation are
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of any organization.
@@ -37,23 +37,27 @@
 package org.knime.knip.core.ops.img;
 
 import java.util.HashSet;
-import java.util.List;
+import java.util.Set;
 
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccess;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.ops.operation.UnaryOperation;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.view.Views;
 
 /**
  * @author Slawek Mazur (University of Konstanz)
- * 
+ *
  * @param <L>
  */
-public class ExcludeOnEdges<L extends Comparable<L>> implements UnaryOperation<Labeling<L>, Labeling<L>> {
+public class ExcludeOnEdges<L> implements
+        UnaryOperation<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<L>>> {
 
     @Override
-    public Labeling<L> compute(Labeling<L> inLabeling, Labeling<L> outLabeling) {
+    public RandomAccessibleInterval<LabelingType<L>>
+            compute(final RandomAccessibleInterval<LabelingType<L>> inLabeling,
+                    final RandomAccessibleInterval<LabelingType<L>> outLabeling) {
 
         if (inLabeling.numDimensions() != 2) {
             throw new IllegalArgumentException("Exclude on edges works only on two dimensional images");
@@ -62,12 +66,12 @@ public class ExcludeOnEdges<L extends Comparable<L>> implements UnaryOperation<L
         long[] dims = new long[inLabeling.numDimensions()];
         inLabeling.dimensions(dims);
 
-        HashSet<List<L>> indices = new HashSet<List<L>>();
+        HashSet<Set<L>> indices = new HashSet<Set<L>>();
 
         RandomAccess<LabelingType<L>> outRndAccess = outLabeling.randomAccess();
         RandomAccess<LabelingType<L>> inRndAccess = inLabeling.randomAccess();
 
-        Cursor<LabelingType<L>> cur = inLabeling.cursor();
+        Cursor<LabelingType<L>> cur = Views.iterable(inLabeling).cursor();
 
         long[] pos = new long[inLabeling.numDimensions()];
 
@@ -89,8 +93,8 @@ public class ExcludeOnEdges<L extends Comparable<L>> implements UnaryOperation<L
                     pos[d] = k;
                     inRndAccess.setPosition(pos);
 
-                    if (0 != inRndAccess.get().getLabeling().size()) {
-                        indices.add(inRndAccess.get().getLabeling());
+                    if (0 != inRndAccess.get().size()) {
+                        indices.add(inRndAccess.get());
                     }
                 }
             }
@@ -98,10 +102,11 @@ public class ExcludeOnEdges<L extends Comparable<L>> implements UnaryOperation<L
 
         while (cur.hasNext()) {
             cur.fwd();
-            if (!indices.contains(cur.get().getLabeling())) {
+            if (!indices.contains(cur.get())) {
                 cur.localize(pos);
                 outRndAccess.setPosition(pos);
-                outRndAccess.get().setLabeling(cur.get().getLabeling());
+                outRndAccess.get().clear();
+                outRndAccess.get().addAll(cur.get());
             }
         }
         return outLabeling;
@@ -109,7 +114,7 @@ public class ExcludeOnEdges<L extends Comparable<L>> implements UnaryOperation<L
     }
 
     @Override
-    public UnaryOperation<Labeling<L>, Labeling<L>> copy() {
+    public UnaryOperation<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<L>>> copy() {
         return new ExcludeOnEdges<L>();
     }
 

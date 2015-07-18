@@ -53,48 +53,49 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.imglib2.Cursor;
 import net.imglib2.Interval;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingMapping;
-import net.imglib2.labeling.LabelingType;
 import net.imglib2.roi.IterableRegionOfInterest;
+import net.imglib2.roi.labeling.LabelingMapping;
+import net.imglib2.roi.labeling.LabelingType;
 
 /**
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
- *         Zinsmaier</a>
+ * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 public abstract class OverlayElement implements Externalizable {
 
+    public static final long serialVersionUID = -6238097072751536653l;
+
     /**
-     * The dimensions of the {@link OverlayElement} which have a value greater
-     * than one
+     * The dimensions of the {@link OverlayElement} which have a value greater than one
      */
     private int[] m_orientation;
 
     /**
      * Labels of the {@link OverlayElement}
      */
-    private List<String> m_labels;
+    private Set<String> m_labels;
 
     /**
-     * The status of the {@link OverlayElement} corresponds to the current
-     * status of the {@link OverlayElement} in the annotation process. see
-     * {@link OverlayElementStatus} for further details
+     * The status of the {@link OverlayElement} corresponds to the current status of the {@link OverlayElement} in the
+     * annotation process. see {@link OverlayElementStatus} for further details
      */
     private OverlayElementStatus m_status;
 
     /* */
     private int m_numDims;
 
-    private List<String> m_tmpLabelList;
+    private Set<String> m_tmpLabelList;
 
     /**
      *
@@ -118,13 +119,12 @@ public abstract class OverlayElement implements Externalizable {
     public abstract void translate(long[] pos);
 
     public OverlayElement() {
-        m_labels = new ArrayList<String>();
+        m_labels = new HashSet<String>();
         m_status = OverlayElementStatus.IDLE;
-        m_tmpLabelList = new ArrayList<String>();
+        m_tmpLabelList = new HashSet<String>();
     }
 
-    public OverlayElement(final long[] planePos, final int[] orientation,
-                          final String... labels) {
+    public OverlayElement(final long[] planePos, final int[] orientation, final String... labels) {
         this();
 
         m_planePos = planePos.clone();
@@ -141,8 +141,7 @@ public abstract class OverlayElement implements Externalizable {
 
     /**
      *
-     * @return current {@link OverlayElementStatus} of the
-     *         {@link OverlayElement}
+     * @return current {@link OverlayElementStatus} of the {@link OverlayElement}
      */
     public OverlayElementStatus getStatus() {
         return m_status;
@@ -167,10 +166,9 @@ public abstract class OverlayElement implements Externalizable {
 
     /**
      *
-     * Number of dimensions of the given OverlayElement e.g. a plane has
-     * 2-Dimensions, cube 3-dimensions etc. There is no relation between the
-     * labeled {@link Img} respec. the resulting {@link Labeling} and the
-     * dimensionality of the {@link OverlayElement}
+     * Number of dimensions of the given OverlayElement e.g. a plane has 2-Dimensions, cube 3-dimensions etc. There is
+     * no relation between the labeled {@link Img} respec. the resulting {@link Labeling} and the dimensionality of the
+     * {@link OverlayElement}
      *
      * @return
      */
@@ -182,7 +180,7 @@ public abstract class OverlayElement implements Externalizable {
      *
      * @return labeling of the {@link OverlayElement}
      */
-    public List<String> getLabels() {
+    public Set<String> getLabels() {
         return m_labels;
     }
 
@@ -227,13 +225,11 @@ public abstract class OverlayElement implements Externalizable {
     /**
      * Renders the {@link OverlayElement} into a given segmentation
      *
-     * @param labeling the {@link Labeling} where the {@link OverlayElement} is
-     *            rendered to
+     * @param labeling the {@link Labeling} where the {@link OverlayElement} is rendered to
      *
-     * @param internedList the labels as InternedList representation (given by
-     *            the {@link LabelingMapping})
+     * @param internedList the labels as InternedList representation (given by the {@link LabelingMapping})
      */
-    public void renderOnSegmentationImage(final Labeling<String> labeling,
+    public void renderOnSegmentationImage(final RandomAccessibleInterval<LabelingType<String>> labeling,
                                           final List<String> internedList) {
 
         if (labeling.numDimensions() != getNumDimensions()) {
@@ -241,9 +237,7 @@ public abstract class OverlayElement implements Externalizable {
                     "(Sub)Labeling must have the same number of dimensions as the OverlayElement");
         }
 
-        final Cursor<LabelingType<String>> c =
-                getRegionOfInterest().getIterableIntervalOverROI(labeling)
-                        .cursor();
+        final Cursor<LabelingType<String>> c = getRegionOfInterest().getIterableIntervalOverROI(labeling).cursor();
 
         final long[] pos = new long[c.numDimensions()];
         while (c.hasNext()) {
@@ -252,19 +246,20 @@ public abstract class OverlayElement implements Externalizable {
 
             if (contains(pos)) {
 
-                if (c.get().getLabeling().isEmpty()) {
-                    c.get().setLabeling(internedList);
+                if (c.get().isEmpty()) {
+                    c.get().clear();
+                    c.get().addAll(internedList);
                 } else {
 
                     m_tmpLabelList.addAll(internedList);
 
-                    for (final String label : c.get().getLabeling()) {
+                    for (final String label : c.get()) {
                         if (!m_tmpLabelList.contains(label)) {
                             m_tmpLabelList.add(label);
                         }
                     }
-
-                    c.get().setLabeling(m_tmpLabelList);
+                    c.get().clear();
+                    c.get().addAll(m_tmpLabelList);
                     m_tmpLabelList.clear();
                 }
             }
@@ -272,8 +267,7 @@ public abstract class OverlayElement implements Externalizable {
     }
 
     /**
-     * @return position of the upper left corner of the overlayelement in the
-     *         dimensionality of the annotated img
+     * @return position of the upper left corner of the overlayelement in the dimensionality of the annotated img
      *
      */
     public long[] getPlanePos() {
@@ -281,8 +275,7 @@ public abstract class OverlayElement implements Externalizable {
     }
 
     /**
-     * Method to indicate weather the overlay element lies in one dimensions or
-     * not
+     * Method to indicate weather the overlay element lies in one dimensions or not
      *
      * @param dim the dimension to check
      *
@@ -311,15 +304,14 @@ public abstract class OverlayElement implements Externalizable {
         }
 
         out.writeInt(m_labels.size());
-        for (int i = 0; i < m_labels.size(); i++) {
-            out.writeUTF(m_labels.get(i));
+        for (String label : m_labels) {
+            out.writeUTF(label);
         }
 
     }
 
     @Override
-    public void readExternal(final ObjectInput in) throws IOException,
-            ClassNotFoundException {
+    public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException {
         m_labels.clear();
 
         int num = in.readInt();

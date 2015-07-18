@@ -56,7 +56,7 @@ import net.imagej.axis.TypedAxis;
 import net.imagej.space.TypedSpace;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccess;
-import net.imglib2.labeling.LabelingType;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 
@@ -121,8 +121,8 @@ public class ImgLabelingViewInfoPanel<T extends RealType<T>, L extends Comparabl
             valueBuffer.append("Img: [" + m_imgRA.get().toString() + "]");
 
             valueBuffer.append(" Labeling: [");
-            if (m_rndAccess.get().getLabeling().size() > 0) {
-                for (final L label : m_rndAccess.get().getLabeling()) {
+            if (m_rndAccess.get().size() > 0) {
+                for (final L label : m_rndAccess.get()) {
                     valueBuffer.append(label.toString() + ";");
                 }
                 valueBuffer.deleteCharAt(valueBuffer.length() - 1);

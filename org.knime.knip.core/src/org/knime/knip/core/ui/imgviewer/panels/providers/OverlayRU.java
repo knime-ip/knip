@@ -56,7 +56,7 @@ import java.awt.Image;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 
-import net.imglib2.labeling.LabelingType;
+import net.imglib2.roi.labeling.LabelingType;
 
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
@@ -76,7 +76,7 @@ import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @param <L>
  */
-public class OverlayRU<L extends Comparable<L>> extends AbstractDefaultRU<LabelingType<L>> {
+public class OverlayRU<L> extends AbstractDefaultRU<LabelingType<L>> {
 
     /** context that allows to create graphics that fit the environment OS .. */
     private final GraphicsConfiguration m_graphicsConfig = GraphicsEnvironment.getLocalGraphicsEnvironment()

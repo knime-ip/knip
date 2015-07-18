@@ -51,9 +51,10 @@ package org.knime.knip.base.nodes.seg.cellclumpedsplitter;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
-import net.imglib2.labeling.Labeling;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.LocalMaximaForDistanceMap.NeighborhoodType;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.node.ExecutionContext;
@@ -72,6 +73,7 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.ops.labeling.CellClumpedSplitter;
 import org.knime.knip.core.util.EnumUtils;
 
@@ -180,7 +182,7 @@ public class CellClumpedSplitterNodeFactory<T extends RealType<T>, L extends Com
             @Override
             protected LabelingCell<Integer> compute(final LabelingValue<L> cellLabelingVal) throws Exception {
 
-                final Labeling<L> labeling = cellLabelingVal.getLabeling();
+                final RandomAccessibleInterval<LabelingType<L>> labeling = cellLabelingVal.getLabeling();
 
                 m_executor = getExecutorService();
                 final CellClumpedSplitter<L> op =
@@ -188,10 +190,13 @@ public class CellClumpedSplitterNodeFactory<T extends RealType<T>, L extends Com
                                 m_executor, m_smMinMaximaSize.getDoubleValue(),
                                 m_smIgnoreValueBelowAvgPrecent.getDoubleValue(), m_smMaxInterations.getIntValue());
 
-                final Labeling<Integer> out =
-                        SubsetOperations.iterate(op, m_smDimSelection.getSelectedDimIndices(cellLabelingVal
-                                .getLabelingMetadata()), labeling, cellLabelingVal.getLabeling().<Integer> factory()
-                                .create(cellLabelingVal.getLabeling()));
+                final RandomAccessibleInterval<LabelingType<Integer>> out =
+                        (RandomAccessibleInterval<LabelingType<Integer>>)KNIPGateway.ops()
+                                .createImgLabeling(cellLabelingVal.getLabeling(), Integer.class);
+
+                SubsetOperations.iterate(op,
+                                         m_smDimSelection.getSelectedDimIndices(cellLabelingVal.getLabelingMetadata()),
+                                         labeling, out);
 
                 return m_labCellFactory.createCell(out, cellLabelingVal.getLabelingMetadata());
 

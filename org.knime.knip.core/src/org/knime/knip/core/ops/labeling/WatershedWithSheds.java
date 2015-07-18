@@ -1,46 +1,39 @@
 package org.knime.knip.core.ops.labeling;
 
-import java.util.List;
+import java.util.HashSet;
 import java.util.PriorityQueue;
+import java.util.Set;
 
 import net.imglib2.Cursor;
 import net.imglib2.IterableInterval;
+import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.algorithm.labeling.AllConnectedComponents;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingOutOfBoundsRandomAccessFactory;
-import net.imglib2.labeling.LabelingType;
-import net.imglib2.labeling.NativeImgLabeling;
 import net.imglib2.ops.operation.BinaryObjectFactory;
 import net.imglib2.ops.operation.BinaryOutputOperation;
-import net.imglib2.outofbounds.OutOfBounds;
-import net.imglib2.outofbounds.OutOfBoundsConstantValueFactory;
-import net.imglib2.outofbounds.OutOfBoundsFactory;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.IntType;
+import net.imglib2.util.Intervals;
 import net.imglib2.view.Views;
 
 /**
- * Watershed algorithms. The watershed algorithm segments and labels an image
- * using an analogy to a landscape. The image intensities are turned into the
- * z-height of the landscape and the landscape is "filled with water" and the
- * bodies of water label the landscape's pixels. Here is the reference for the
- * original paper:
+ * Watershed algorithms. The watershed algorithm segments and labels an image using an analogy to a landscape. The image
+ * intensities are turned into the z-height of the landscape and the landscape is "filled with water" and the bodies of
+ * water label the landscape's pixels. Here is the reference for the original paper:
  *
- * Lee Vincent, Pierre Soille, Watersheds in digital spaces: An efficient
- * algorithm based on immersion simulations, IEEE Trans. Pattern Anal. Machine
- * Intell., 13(6) 583-598 (1991)
+ * Lee Vincent, Pierre Soille, Watersheds in digital spaces: An efficient algorithm based on immersion simulations, IEEE
+ * Trans. Pattern Anal. Machine Intell., 13(6) 583-598 (1991)
  *
- * Watersheds are often performed on the gradient of an intensity image or one
- * where the edges of the object boundaries have been enhanced. The resulting
- * image has a depressed object interior and a ridge which constrains the
- * watershed boundary.
+ * Watersheds are often performed on the gradient of an intensity image or one where the edges of the object boundaries
+ * have been enhanced. The resulting image has a depressed object interior and a ridge which constrains the watershed
+ * boundary.
  *
- * This is a modification of the original implementation from Lee Kamentsky to be
- * able to add the watersheds as well (e.g. for region merging by means of the
- * boundaries).
+ * This is a modification of the original implementation from Lee Kamentsky to be able to add the watersheds as well
+ * (e.g. for region merging by means of the boundaries).
  *
  * @author Lee Kamentsky
  * @author Martin Horn
@@ -52,15 +45,15 @@ import net.imglib2.view.Views;
  *
  */
 
-public class WatershedWithSheds<T extends RealType<T>, L extends Comparable<L>>
-        implements BinaryOutputOperation<RandomAccessibleInterval<T>, Labeling<L>, Labeling<String>> {
+public class WatershedWithSheds<T extends RealType<T>, L>
+        implements
+        BinaryOutputOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<String>>> {
 
     /**
      *
      * @param <U> Pixel Type
      */
-    protected static class PixelIntensity<U extends Comparable<U>> implements
-            Comparable<PixelIntensity<U>> {
+    protected static class PixelIntensity<U extends Comparable<U>> implements Comparable<PixelIntensity<U>> {
         /**
          * Index
          */
@@ -79,18 +72,19 @@ public class WatershedWithSheds<T extends RealType<T>, L extends Comparable<L>>
         /**
          * Labeling
          */
-        protected final List<U> m_labeling;
+        protected final Set<U> m_labeling;
 
         /**
          * Constructor of PixelIntensity
+         *
          * @param position
          * @param dimensions
          * @param intensity
          * @param age
          * @param labeling
          */
-        public PixelIntensity(final long[] position, final long[] dimensions,
-                final double intensity, final long age, final List<U> labeling) {
+        public PixelIntensity(final long[] position, final long[] dimensions, final double intensity, final long age,
+                              final Set<U> labeling) {
             long index = position[0];
             long multiplier = dimensions[0];
             for (int i = 1; i < dimensions.length; i++) {
@@ -100,7 +94,7 @@ public class WatershedWithSheds<T extends RealType<T>, L extends Comparable<L>>
 
             this.m_index = index;
             this.m_intensity = intensity;
-            this.m_labeling = labeling;
+            this.m_labeling = new HashSet<>(labeling);
             this.m_age = age;
         }
 
@@ -121,7 +115,7 @@ public class WatershedWithSheds<T extends RealType<T>, L extends Comparable<L>>
             }
         }
 
-        List<U> getLabeling() {
+        Set<U> getLabeling() {
             return m_labeling;
         }
     }
@@ -136,10 +130,9 @@ public class WatershedWithSheds<T extends RealType<T>, L extends Comparable<L>>
      */
     protected ImgFactory<IntType> m_factory;
 
-
     /**
-     * Constructor of WatershedsWithSheds
-     * Uses a default ArrayImgFactory<IntType>() as result factory.
+     * Constructor of WatershedsWithSheds Uses a default ArrayImgFactory<IntType>() as result factory.
+     *
      * @param structuringElement Structuring Element
      */
     public WatershedWithSheds(final long[][] structuringElement) {
@@ -148,6 +141,7 @@ public class WatershedWithSheds<T extends RealType<T>, L extends Comparable<L>>
 
     /**
      * Constructor of WatershedsWithSheds
+     *
      * @param structuringElement Structuring Element
      * @param factory Factory for result
      */
@@ -159,12 +153,9 @@ public class WatershedWithSheds<T extends RealType<T>, L extends Comparable<L>>
     /**
      * Set the structuring element that defines the connectivity
      *
-     * @param structuringElement an array of offsets where each element of the
-     *            array gives the offset of a connected pixel from a pixel of
-     *            interest. You can use
-     *            AllConnectedComponents.getStructuringElement to get an
-     *            8-connected (or N-dimensional equivalent) structuring element
-     *            (all adjacent pixels + diagonals).
+     * @param structuringElement an array of offsets where each element of the array gives the offset of a connected
+     *            pixel from a pixel of interest. You can use AllConnectedComponents.getStructuringElement to get an
+     *            8-connected (or N-dimensional equivalent) structuring element (all adjacent pixels + diagonals).
      */
     public void setStructuringElement(final long[][] structuringElement) {
         m_structuringElement = structuringElement;
@@ -172,6 +163,7 @@ public class WatershedWithSheds<T extends RealType<T>, L extends Comparable<L>>
 
     /**
      * Sets the ImgFactory used for output Img.
+     *
      * @param factory
      */
     public void setResultFactory(final ImgFactory<IntType> factory) {
@@ -180,23 +172,23 @@ public class WatershedWithSheds<T extends RealType<T>, L extends Comparable<L>>
 
     /**
      * Check if input is valid
+     *
      * @param image
      * @param seeds
      * @param output
      */
-    public void checkInput(final RandomAccessibleInterval<T> image, final Labeling<L> seeds,
-            final Labeling<String> output) {
+    public void checkInput(final RandomAccessibleInterval<T> image,
+                           final RandomAccessibleInterval<LabelingType<L>> seeds,
+                           final RandomAccessibleInterval<LabelingType<String>> output) {
         if (seeds.numDimensions() != image.numDimensions()) {
             throw new IllegalArgumentException(
-                    String.format(
-                            "The dimensionality of the seed labeling (%dD) does not match that of the intensity image (%dD)",
-                            seeds.numDimensions(), image.numDimensions()));
+                    String.format("The dimensionality of the seed labeling (%dD) does not match that of the intensity image (%dD)",
+                                  seeds.numDimensions(), image.numDimensions()));
         }
         if (seeds.numDimensions() != output.numDimensions()) {
             throw new IllegalArgumentException(
-                    String.format(
-                            "The dimensionality of the seed labeling (%dD) does not match that of the output labeling (%dD)",
-                            seeds.numDimensions(), output.numDimensions()));
+                    String.format("The dimensionality of the seed labeling (%dD) does not match that of the output labeling (%dD)",
+                                  seeds.numDimensions(), output.numDimensions()));
         }
         for (int i = 0; i < m_structuringElement.length; i++) {
             if (m_structuringElement[i].length != seeds.numDimensions()) {
@@ -210,14 +202,13 @@ public class WatershedWithSheds<T extends RealType<T>, L extends Comparable<L>>
      * {@inheritDoc}
      */
     @Override
-    public Labeling<String> compute(final RandomAccessibleInterval<T> input,
-            final Labeling<L> seeds, final Labeling<String> output) {
+    public RandomAccessibleInterval<LabelingType<String>>
+            compute(final RandomAccessibleInterval<T> input, final RandomAccessibleInterval<LabelingType<L>> seeds,
+                    final RandomAccessibleInterval<LabelingType<String>> output) {
         checkInput(input, seeds, output);
 
         if (m_structuringElement == null) {
-            m_structuringElement =
-                    AllConnectedComponents.getStructuringElement(input
-                            .numDimensions());
+            m_structuringElement = AllConnectedComponents.getStructuringElement(input.numDimensions());
         }
 
         IterableInterval<T> iterableInput = Views.iterable(input);
@@ -231,22 +222,18 @@ public class WatershedWithSheds<T extends RealType<T>, L extends Comparable<L>>
          * maximum intensity if out of bounds so that in-bounds will be in a
          * deep valley.
          */
-        OutOfBoundsFactory<LabelingType<String>, Labeling<String>> factory =
-                new LabelingOutOfBoundsRandomAccessFactory<String, Labeling<String>>();
-        OutOfBounds<LabelingType<String>> outputAccess = factory.create(output);
+        final RandomAccess<LabelingType<String>> outputAccess = output.randomAccess();
 
-        T maxVal = iterableInput.firstElement().createVariable();
+        final T maxVal = iterableInput.firstElement().createVariable();
         maxVal.setReal(maxVal.getMaxValue());
-        OutOfBoundsFactory<T, RandomAccessibleInterval<T>> oobImageFactory =
-                new OutOfBoundsConstantValueFactory<T, RandomAccessibleInterval<T>>(maxVal);
-        OutOfBounds<T> imageAccess = oobImageFactory.create(input);
+
+        final RandomAccess<T> imageAccess = Views.extendValue(input, maxVal).randomAccess();
 
         /*
          * Start by loading up a priority queue with the seeded pixels
          */
-        PriorityQueue<PixelIntensity<String>> pq =
-                new PriorityQueue<PixelIntensity<String>>();
-        Cursor<LabelingType<L>> c = seeds.localizingCursor();
+        PriorityQueue<PixelIntensity<String>> pq = new PriorityQueue<PixelIntensity<String>>();
+        Cursor<LabelingType<L>> c = Views.iterable(seeds).localizingCursor();
 
         long[] dimensions = new long[input.numDimensions()];
         output.dimensions(dimensions);
@@ -259,27 +246,25 @@ public class WatershedWithSheds<T extends RealType<T>, L extends Comparable<L>>
          * pixel priority queue
          */
         while (c.hasNext()) {
-            LabelingType<L> tSrc = c.next();
-            List<L> l = tSrc.getLabeling();
+            Set<L> l = c.next();
             if (l.isEmpty()) {
                 continue;
             }
 
             c.localize(position);
             imageAccess.setPosition(position);
-            if (imageAccess.isOutOfBounds()) {
+            if (!Intervals.contains(input, imageAccess)) {
                 continue;
             }
             outputAccess.setPosition(position);
-            if (outputAccess.isOutOfBounds()) {
+            if (!Intervals.contains(output, outputAccess)) {
                 continue;
             }
-            LabelingType<String> tDest = outputAccess.get();
-            List<String> newl = tDest.intern(l.get(0).toString());
-            tDest.setLabeling(newl);
+            final LabelingType<String> tDest = outputAccess.get();
+            tDest.clear();
+            tDest.add(l.iterator().next().toString());
             double intensity = imageAccess.get().getRealDouble();
-            pq.add(new PixelIntensity<String>(position, dimensions, intensity,
-                    age++, newl));
+            pq.add(new PixelIntensity<String>(position, dimensions, intensity, age++, tDest));
         }
         /*
          * Rework the structuring element into a series of consecutive offsets
@@ -290,12 +275,9 @@ public class WatershedWithSheds<T extends RealType<T>, L extends Comparable<L>>
         for (int i = 0; i < m_structuringElement.length; i++) {
             strelMoves[i] = new long[input.numDimensions()];
             for (int j = 0; j < input.numDimensions(); j++) {
-                strelMoves[i][j] =
-                        m_structuringElement[i][j] - currentOffset[j];
+                strelMoves[i][j] = m_structuringElement[i][j] - currentOffset[j];
                 if (i > 0) {
-                    currentOffset[j] +=
-                            m_structuringElement[i][j]
-                                    - m_structuringElement[i - 1][j];
+                    currentOffset[j] += m_structuringElement[i][j] - m_structuringElement[i - 1][j];
                 } else {
                     currentOffset[j] += m_structuringElement[i][j];
                 }
@@ -307,50 +289,48 @@ public class WatershedWithSheds<T extends RealType<T>, L extends Comparable<L>>
          */
 
         // label marking the boundaries
-        String boundaries = "Watershed";
+        Set<String> boundaries = new HashSet<>();
+        boundaries.add("Watershed");
+
+        Set<String> dummy = new HashSet<>();
+        dummy.add("dummy");
 
         // dummy to mark nodes as visited
-        String dummy = "dummy";
         while (!pq.isEmpty()) {
             PixelIntensity<String> currentPI = pq.remove();
-            List<String> l = currentPI.getLabeling();
+            Set<String> l = currentPI.getLabeling();
             currentPI.getPosition(position, dimensions);
             outputAccess.setPosition(position);
             imageAccess.setPosition(position);
             for (long[] offset : strelMoves) {
                 outputAccess.move(offset);
                 imageAccess.move(offset);
-                LabelingType<String> outputLabelingType = outputAccess.get();
-                if (outputAccess.isOutOfBounds()) {
-                    l = outputLabelingType.intern(boundaries);
+                final LabelingType<String> outputLabelingType = outputAccess.get();
+                if (!Intervals.contains(output, outputAccess)) {
+                    l = boundaries;
                     break;
                 }
 
-                if (outputLabelingType.getLabeling().isEmpty()) {
+                if (outputLabelingType.isEmpty()) {
                     double intensity = imageAccess.get().getRealDouble();
                     outputAccess.localize(destPosition);
-                    pq.add(new PixelIntensity<String>(destPosition, dimensions,
-                            intensity, age++, currentPI.getLabeling()));
+                    pq.add(new PixelIntensity<String>(destPosition, dimensions, intensity, age++, currentPI
+                            .getLabeling()));
 
                     // dummy to mark positions as visited
-                    outputLabelingType.setLabeling(outputLabelingType
-                            .intern(dummy));
+                    outputLabelingType.clear();
+                    outputLabelingType.addAll(dummy);
 
-                } else if (outputLabelingType.getLabeling() != l
-                        && !outputLabelingType.getLabeling().get(0)
-                                .equals(dummy)
-                        && !outputLabelingType.getLabeling().get(0)
-                                .equals(boundaries)) {
-                    l = outputLabelingType.intern(boundaries);
-
-                    // }
-
+                } else if (!outputLabelingType.equals(l) && !outputLabelingType.equals(dummy)
+                        && !outputLabelingType.equals(boundaries)) {
+                    l = boundaries;
                 }
 
             }
             outputAccess.setPosition(position);
             LabelingType<String> outputLabelingType = outputAccess.get();
-            outputLabelingType.setLabeling(l);
+            outputLabelingType.clear();
+            outputLabelingType.addAll(l);
         }
 
         return output;
@@ -360,13 +340,16 @@ public class WatershedWithSheds<T extends RealType<T>, L extends Comparable<L>>
      * {@inheritDoc}
      */
     @Override
-    public BinaryObjectFactory<RandomAccessibleInterval<T>, Labeling<L>, Labeling<String>> bufferFactory() {
-        return new BinaryObjectFactory<RandomAccessibleInterval<T>, Labeling<L>, Labeling<String>>() {
+    public
+            BinaryObjectFactory<RandomAccessibleInterval<T>, RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<String>>>
+            bufferFactory() {
+        return new BinaryObjectFactory<RandomAccessibleInterval<T>, RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<String>>>() {
 
             @Override
-            public Labeling<String> instantiate(final RandomAccessibleInterval<T> inputA,
-                    final Labeling<L> inputB) {
-                return new NativeImgLabeling<String, IntType>(m_factory.create(inputA, new IntType()));
+            public RandomAccessibleInterval<LabelingType<String>>
+                    instantiate(final RandomAccessibleInterval<T> inputA,
+                                final RandomAccessibleInterval<LabelingType<L>> inputB) {
+                return new ImgLabeling<String, IntType>(m_factory.create(inputA, new IntType()));
             }
         };
     }
@@ -375,7 +358,9 @@ public class WatershedWithSheds<T extends RealType<T>, L extends Comparable<L>>
      * {@inheritDoc}
      */
     @Override
-    public BinaryOutputOperation<RandomAccessibleInterval<T>, Labeling<L>, Labeling<String>> copy() {
+    public
+            BinaryOutputOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<String>>>
+            copy() {
         return new WatershedWithSheds<T, L>(m_structuringElement.clone());
     }
 

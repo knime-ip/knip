@@ -55,8 +55,8 @@ import java.util.Set;
 
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.display.screenimage.awt.AWTScreenImage;
-import net.imglib2.labeling.LabelingMapping;
-import net.imglib2.labeling.LabelingType;
+import net.imglib2.roi.labeling.LabelingMapping;
+import net.imglib2.roi.labeling.LabelingType;
 
 import org.knime.knip.core.awt.AWTImageTools;
 import org.knime.knip.core.awt.labelingcolortable.LabelingColorTable;
@@ -91,7 +91,7 @@ import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
  *
  * @param <L> labeling based type of the rendered source
  */
-public class LabelingRU<L extends Comparable<L>> extends AbstractDefaultRU<LabelingType<L>> {
+public class LabelingRU<L> extends AbstractDefaultRU<LabelingType<L>> {
 
     /** Identifying hashCode of the last rendered image. */
     private int m_hashOfLastRendering;

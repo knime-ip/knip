@@ -46,7 +46,7 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.base;
+package org.knime.knip.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -154,13 +154,13 @@ public class ThreadPoolExecutorService implements ExecutorService {
 
     @Override
     public void shutdown() {
-        m_pool.shutdown();
+//        m_pool.shutdown();
     }
 
     @Override
     public List<Runnable> shutdownNow() {
-        m_pool.interruptAll();
-        m_pool.shutdown();
+//        m_pool.interruptAll();
+//        m_pool.shutdown();
         return new ArrayList<Runnable>();
     }
 

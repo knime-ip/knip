@@ -71,7 +71,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -82,13 +81,13 @@ import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingView;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.iterableinterval.unary.Centroid;
+import net.imglib2.roi.Regions;
+import net.imglib2.roi.labeling.LabelRegion;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.util.ConstantUtils;
 import net.imglib2.view.Views;
 
 import org.knime.core.data.DataRow;
@@ -122,6 +121,7 @@ import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelFilterSelection;
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.algorithm.PolarImageFactory;
 import org.knime.knip.core.data.algebra.ExtendedPolygon;
 import org.knime.knip.core.data.algebra.Vector;
@@ -268,7 +268,7 @@ public class ContourDetectorNodeModel<T extends RealType<T>, L extends Comparabl
 
             // Creating seed intervals according to img plane
             // selection (must be 2D)
-            final Labeling<L> seeds = ((LabelingValue<L>)currentRow.getCell(m_seedColIdx)).getLabeling();
+            final RandomAccessibleInterval<LabelingType<L>> seeds = ((LabelingValue<L>)currentRow.getCell(m_seedColIdx)).getLabeling();
 
             final Interval[] resIntervals =
                     m_smImgDimensions.getIntervals((((LabelingValue<L>)currentRow.getCell(m_seedColIdx))
@@ -341,30 +341,21 @@ public class ContourDetectorNodeModel<T extends RealType<T>, L extends Comparabl
                 Vector[] seedingPoints;
                 List<L> usedLabels = null;
 
-                final Labeling<L> subLabeling =
-                        new LabelingView<L>(SubsetOperations.subsetview(seeds, resIntervals[i]), seeds.<L> factory());
+                final RandomAccessibleInterval<LabelingType<L>> subLabeling = SubsetOperations.subsetview(seeds, resIntervals[i]);
 
                 if (subLabeling.numDimensions() != 2) {
                     throw new IllegalStateException("Seeds should be two accessed via a 2-dimensional interval");
                 }
 
-                final Collection<L> labels = subLabeling.getLabels();
-
-                if (labels.size() == 0) {
-                    continue;
-                }
-                final List<Vector> seedsVector = new ArrayList<Vector>(labels.size());
+                final List<Vector> seedsVector = new ArrayList<Vector>();
                 usedLabels = new ArrayList<L>();
-                for (final L label : subLabeling.getLabels()) {
-                    if (!filter.isValid(label)) {
+                for (final LabelRegion<L> region : KNIPGateway.regions().regions(subLabeling)) {
+                    if (!filter.isValid(region.getLabel())) {
                         continue;
                     }
                     final double[] centroidAsDouble =
                             centroidOp
-                                    .compute(subLabeling.getIterableRegionOfInterest(label)
-                                                     .getIterableIntervalOverROI(ConstantUtils.constantRandomAccessible(
-                                                                                         new BitType(), subLabeling
-                                                                                                 .numDimensions())),
+                                    .compute(Regions.iterable(region),
                                              new double[subLabeling.numDimensions()]);
                     final long[] centroid = new long[centroidAsDouble.length];
                     int a = 0;
@@ -372,7 +363,7 @@ public class ContourDetectorNodeModel<T extends RealType<T>, L extends Comparabl
                         centroid[a++] = Math.round(d);
                     }
 
-                    usedLabels.add(label);
+                    usedLabels.add(region.getLabel());
                     seedsVector.add(new Vector(centroid));
                 }
                 seedingPoints = seedsVector.toArray(new Vector[seedsVector.size()]);

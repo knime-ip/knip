@@ -56,15 +56,15 @@ import net.imglib2.img.Img;
 import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.type.numeric.RealType;
 
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.algorithm.PolarImageFactory;
 import org.knime.knip.core.data.algebra.ExtendedPolygon;
 import org.knime.knip.core.data.algebra.Vector;
 import org.knime.knip.core.data.labeling.Signature;
-import org.knime.knip.core.util.ImgUtils;
 import org.knime.knip.core.util.PermutationSort;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -167,7 +167,7 @@ public class ContourDetector<T extends RealType<T>> {
 
                 if (m_preProc != null) {
                     if (tmpImg == null) {
-                        tmpImg = ImgUtils.createEmptyImg(polImg);
+                        tmpImg = (Img<T>)KNIPGateway.ops().createImg(polImg);
                     }
                     m_preProc.compute(polImg, tmpImg);
 
@@ -257,7 +257,7 @@ public class ContourDetector<T extends RealType<T>> {
     /**
      * Distributes a set of points over an area of the specified width and height as a regular lattice (with gaps-pixel
      * space in between).
-     * 
+     *
      * @param gaps
      * @param width
      * @param height

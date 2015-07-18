@@ -67,9 +67,8 @@ import net.imagej.space.CalibratedSpace;
 import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
 import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.view.Views;
 
 import org.knime.core.data.DataCell;
@@ -108,7 +107,7 @@ import org.scijava.Named;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class LabelingCell<L extends Comparable<L>> extends FileStoreCell implements LabelingValue<L>, StringValue,
+public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, StringValue,
         IntervalValue {
 
     /**
@@ -177,7 +176,7 @@ public class LabelingCell<L extends Comparable<L>> extends FileStoreCell impleme
     private FileStoreCellMetadata m_fileMetadata;
 
     /* the labeling object */
-    private Labeling<L> m_lab;
+    private RandomAccessibleInterval<LabelingType<L>> m_lab;
 
     /* metadata of the labeling */
     private LabelingCellMetadata m_labelingMetadata;
@@ -198,12 +197,12 @@ public class LabelingCell<L extends Comparable<L>> extends FileStoreCell impleme
      * @param metadata {@link LabelingMetadata} of the {@link Labeling} stored in this cell
      * @param fileStore {@link FileStore} used to serialize/deserialize this cell
      */
-    protected LabelingCell(final Labeling<L> labeling, final LabelingMetadata metadata, final FileStore fileStore) {
+    protected LabelingCell(final RandomAccessibleInterval<LabelingType<L>> labeling, final LabelingMetadata metadata, final FileStore fileStore) {
         super(fileStore);
         final long[] dimensions = new long[labeling.numDimensions()];
         labeling.dimensions(dimensions);
         m_lab = labeling;
-        m_labelingMetadata = new LabelingCellMetadata(metadata, labeling.size(), dimensions, null);
+        m_labelingMetadata = new LabelingCellMetadata(metadata, Views.iterable(labeling).size(), dimensions, null);
         m_fileMetadata = new FileStoreCellMetadata(-1, false, null);
 
     }
@@ -300,20 +299,10 @@ public class LabelingCell<L extends Comparable<L>> extends FileStoreCell impleme
      * {@inheritDoc}
      */
     @Override
-    public synchronized Labeling<L> getLabeling() {
+    public synchronized RandomAccessibleInterval<LabelingType<L>> getLabeling() {
         // lazily load the labeling data only on demand
         readLabelingData(m_fileMetadata.getOffset(), false);
         return m_lab;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public synchronized Labeling<L> getLabelingCopy() {
-        // lazily load the labeling data only on demand
-        readLabelingData(m_fileMetadata.getOffset(), false);
-        return m_lab.copy();
     }
 
     /**

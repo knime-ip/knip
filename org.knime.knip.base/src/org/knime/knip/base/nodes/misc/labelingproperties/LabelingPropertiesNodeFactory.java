@@ -55,6 +55,7 @@ import java.util.Collection;
 import java.util.List;
 
 import net.imagej.axis.TypedAxis;
+import net.imglib2.roi.labeling.LabelRegions;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataType;
@@ -72,6 +73,7 @@ import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.ValueToCellsNodeDialog;
 import org.knime.knip.base.node.ValueToCellsNodeFactory;
 import org.knime.knip.base.node.ValueToCellsNodeModel;
+import org.knime.knip.core.KNIPGateway;
 
 /**
  *
@@ -127,6 +129,8 @@ public class LabelingPropertiesNodeFactory<L extends Comparable<L>> extends Valu
 
                 final long[] dimsArray = cellValue.getDimensions();
 
+                final LabelRegions<L> regions = KNIPGateway.regions().regions(cellValue.getLabeling());
+
                 int ctr = 0;
                 for (int feat = selection.nextSetBit(0); feat >= 0; feat = selection.nextSetBit(feat + 1)) {
                     switch (feat) {
@@ -159,18 +163,18 @@ public class LabelingPropertiesNodeFactory<L extends Comparable<L>> extends Valu
                             // .<L> factory()
                             // .getClass()
                             // .getSimpleName());
-                            cells[ctr++] = new StringCell("NativeImgLabelingFactory");
+                            cells[ctr++] = new StringCell("ImgLabelingFactory");
                             break;
                         case 4:
-                            final Collection<L> labels5 = cellValue.getLabeling().getLabels();
+                            final Collection<L> labels5 = regions.getExistingLabels();
                             cells[ctr++] = new IntCell(labels5.size());
                             break;
                         case 5:
-                            final Collection<L> labels6 = cellValue.getLabeling().getLabels();
+                            final Collection<L> labels6 = regions.getExistingLabels();
 
                             double sizeLabels = 1;
                             for (final L label : labels6) {
-                                sizeLabels += cellValue.getLabeling().getArea(label);
+                                sizeLabels += regions.getLabelRegion(label).size();
                             }
 
                             cells[ctr++] = new DoubleCell(sizeLabels / labels6.size());

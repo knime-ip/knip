@@ -48,9 +48,7 @@
  */
 package org.knime.knip.base.nodes.view.segmentoverlay;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -66,16 +64,16 @@ import javax.swing.event.ListSelectionListener;
 import net.imagej.ImgPlus;
 import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.converter.Converter;
+import net.imglib2.converter.Converters;
 import net.imglib2.img.Img;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingMapping;
-import net.imglib2.labeling.LabelingView;
-import net.imglib2.labeling.NativeImgLabeling;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.ByteType;
 import net.imglib2.util.ConstantUtils;
 import net.imglib2.util.Intervals;
+import net.imglib2.util.Util;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.node.NodeLogger;
@@ -113,17 +111,6 @@ import org.knime.knip.core.util.MiscViews;
  */
 public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<L>, I extends IntegerType<I>> extends
         NodeView<SegmentOverlayNodeModel<T, L>> implements ListSelectionListener {
-
-    private class ExtNativeImgLabeling<LL extends Comparable<LL>, II extends IntegerType<II>> extends
-            NativeImgLabeling<LL, II> {
-        /**
-         * @param img
-         */
-        public ExtNativeImgLabeling(final Img<II> img, final LabelingMapping<LL> mapping) {
-            super(img);
-            super.mapping = mapping;
-        }
-    }
 
     /* A node logger */
     static NodeLogger LOGGER = NodeLogger.getLogger(SegmentOverlayNodeView.class);
@@ -338,7 +325,7 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
             }
 
             // Update Labeling Mapping for Hiliting
-            Labeling<L> labeling = currentLabelingCell.getLabeling();
+            RandomAccessibleInterval<LabelingType<L>> labeling = currentLabelingCell.getLabeling();
             LabelingMetadata labelingMetadata = currentLabelingCell.getLabelingMetadata();
 
             final Map<String, Object> transformationInputMap = new HashMap<String, Object>();
@@ -349,39 +336,25 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
             transformationInputMap.put(LabelTransformVariables.RowID.toString(), m_tableContentView.getContentModel()
                     .getRowKey(row));
 
-            if (labeling instanceof NativeImgLabeling) {
-                if (getNodeModel().isTransformationActive()) {
-                    final Img<I> nativeImgLabeling = ((NativeImgLabeling<L, I>)labeling).getStorageImg();
+            // read only converter
+            Converters.convert(labeling, new Converter<LabelingType<L>, LabelingType<String>>() {
 
-                    final LabelingMapping<String> newMapping =
-                            new LabelingMapping<String>(nativeImgLabeling.firstElement().createVariable());
-                    final LabelingMapping<L> oldMapping = labeling.firstElement().getMapping();
-                    for (int i = 0; i < oldMapping.numLists(); i++) {
-                        final List<String> newList = new ArrayList<String>();
-                        for (final L label : oldMapping.listAtIndex(i)) {
-                            transformationInputMap.put(LabelTransformVariables.Label.toString(), label.toString());
-                            newList.add(getNodeModel().getTransformer().transform(transformationInputMap));
-                        }
-
-                        newMapping.intern(newList);
+                @Override
+                public void convert(final LabelingType<L> arg0, final LabelingType<String> arg1) {
+                    for (L label : arg0) {
+                        transformationInputMap.put(LabelTransformVariables.Label.toString(), label.toString());
+                        arg1.add(getNodeModel().getTransformer().transform(transformationInputMap));
                     }
-
-                    // Unsafe cast but works
-                    labeling = (Labeling<L>)new ExtNativeImgLabeling<String, I>(nativeImgLabeling, newMapping);
                 }
-            } else {
-                LOGGER.warn("Labeling Transformer settings don't have any effect, as onlyNativeImgLabelings are supported, yet");
-            }
+            }, (LabelingType<String>)Util.getTypeFromInterval(labeling).createVariable());
 
             if (!Intervals.equalDimensions(underlyingInterval, currentLabelingCell.getLabeling())) {
                 labeling =
-                        new LabelingView<>(MiscViews.synchronizeDimensionality(currentLabelingCell.getLabeling(),
-                                                                               currentLabelingCell
-                                                                                       .getLabelingMetadata(),
-                                                                               underlyingInterval,
-                                                                               (ImgPlus<T>)underlyingInterval),
-                                currentLabelingCell.getLabeling().<L> factory());
+                        MiscViews.synchronizeDimensionality(currentLabelingCell.getLabeling(),
+                                                            currentLabelingCell.getLabelingMetadata(),
+                                                            underlyingInterval,
 
+                                                            (ImgPlus<T>)underlyingInterval);
                 labelingMetadata =
                         new DefaultLabelingMetadata((ImgPlus<T>)underlyingInterval, labelingMetadata, labelingMetadata,
                                 labelingMetadata.getLabelingColorTable());

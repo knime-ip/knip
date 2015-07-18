@@ -80,9 +80,9 @@ import org.knime.knip.base.node.TwoValuesToCellNodeFactory;
 import org.knime.knip.base.node.TwoValuesToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.ops.seg.GraphCut2D;
 import org.knime.knip.core.ops.seg.GraphCut2DLab;
-import org.knime.knip.core.util.ImgUtils;
 
 /**
  *
@@ -311,10 +311,13 @@ public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
                         Img<BitType> out = null;
 
                         out =
-                                SubsetOperations.iterate(cutOp, m_dimSelection.getSelectedDimIndices(imgPlus),
-                                                         cellValue1.getImgPlus(), cellValue2.getLabeling(), ImgUtils
-                                                                 .createEmptyCopy(cellValue1.getImgPlus(),
-                                                                                  new BitType()), getExecutorService());
+                                SubsetOperations.iterate(cutOp,
+                                                         m_dimSelection.getSelectedDimIndices(imgPlus),
+                                                         cellValue1.getImgPlus(),
+                                                         cellValue2.getLabeling(),
+                                                         (Img<BitType>)KNIPGateway.ops()
+                                                                 .createImgLabeling(cellValue1.getImgPlus(), new BitType()),
+                                                         getExecutorService());
 
                         return m_imgCellFactory.createCell(out, cellValue1.getMetadata());
 
@@ -350,8 +353,9 @@ public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
 
                         out =
                                 SubsetOperations.iterate(cutOp, m_dimSelection.getSelectedDimIndices(imgPlus),
-                                                         cellValue1.getImgPlus(), ImgUtils.createEmptyCopy(cellValue1
-                                                                 .getImgPlus(), new BitType()), getExecutorService());
+                                                         cellValue1.getImgPlus(), (Img<BitType>)KNIPGateway.ops()
+                                                                 .create(cellValue1.getImgPlus(), new BitType()),
+                                                         getExecutorService());
 
                         return m_imgCellFactory.createCell(out, cellValue1.getMetadata());
                     } else {

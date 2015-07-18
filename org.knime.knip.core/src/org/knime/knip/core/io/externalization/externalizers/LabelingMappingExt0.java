@@ -67,6 +67,7 @@ import org.knime.knip.core.io.externalization.ExternalizerManager;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
+@Deprecated
 public class LabelingMappingExt0 implements Externalizer<LabelingMapping> {
 
     /**
@@ -124,16 +125,7 @@ public class LabelingMappingExt0 implements Externalizer<LabelingMapping> {
      */
     @Override
     public void write(final BufferedDataOutputStream out, final LabelingMapping obj) throws Exception {
-
-        out.writeInt(obj.numLists());
-
-        for (int i = 0; i < obj.numLists(); i++) {
-            final List list = obj.listAtIndex(i);
-            out.writeInt(list.size());
-            for (final Object type : list) {
-                ExternalizerManager.write(out, type);
-            }
-        }
+        throw new IllegalStateException("Method should never be called again");
     }
 
     private class UnsafeLabelingMapping extends LabelingMapping {

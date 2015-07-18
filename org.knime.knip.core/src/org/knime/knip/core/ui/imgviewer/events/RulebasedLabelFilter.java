@@ -71,7 +71,7 @@ import org.knime.knip.core.ui.event.KNIPEvent;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class RulebasedLabelFilter<L extends Comparable<L>> implements LabelFilter<L>, Externalizable, KNIPEvent {
+public class RulebasedLabelFilter<L> implements LabelFilter<L>, Externalizable, KNIPEvent {
 
     public enum Operator {
         OR, AND, XOR
@@ -262,7 +262,7 @@ public class RulebasedLabelFilter<L extends Comparable<L>> implements LabelFilte
         return m_tmpLabeling;
     }
 
-    public static <L extends Comparable<L>> boolean isValid(final L label, final String rule) {
+    public static <L> boolean isValid(final L label, final String rule) {
         return label.toString().matches(rule);
     }
 

@@ -86,12 +86,12 @@ public class RandomMissingColorHandler implements MissingColorHandler {
         return col;
     }
 
-    public static <L extends Comparable<L>> void setColor(final L o, final int color) {
+    public static <L> void setColor(final L o, final int color) {
         m_colorTable.put(o.hashCode(), color);
         m_generation++;
     }
 
-    public static <L extends Comparable<L>> void resetColor(final L o) {
+    public static <L> void resetColor(final L o) {
         m_colorTable.put(o.hashCode(), randomColor());
         m_generation++;
     }
@@ -116,7 +116,7 @@ public class RandomMissingColorHandler implements MissingColorHandler {
         m_seed = s;
     }
 
-    public static <L extends Comparable<L>> int getLabelColor(final L label) {
+    public static <L> int getLabelColor(final L label) {
 
         final int hashCode = label.hashCode();
         int res = m_colorTable.get(hashCode);
@@ -132,7 +132,7 @@ public class RandomMissingColorHandler implements MissingColorHandler {
      * {@inheritDoc}
      */
     @Override
-    public final <L extends Comparable<L>> int getColor(final L label) {
+    public final <L> int getColor(final L label) {
         return RandomMissingColorHandler.getLabelColor(label);
     }
 

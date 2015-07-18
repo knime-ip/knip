@@ -141,6 +141,7 @@ public class SettingsModelOverlayAnnotator extends SettingsModelAnnotatorView<Ov
 		// load the labeling hashmap
 		try {
 			int numOverlays = settings.getInt("numOverlayEntries");
+			
 
 			// load drawings
 			m_labelingMap = new HashMap<RowColKey, Overlay>();

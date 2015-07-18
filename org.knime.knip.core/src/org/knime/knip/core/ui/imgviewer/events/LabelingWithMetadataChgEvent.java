@@ -48,8 +48,8 @@
  */
 package org.knime.knip.core.ui.imgviewer.events;
 
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.roi.labeling.LabelingType;
 
 import org.knime.knip.core.data.img.LabelingMetadata;
 
@@ -62,8 +62,8 @@ import org.knime.knip.core.data.img.LabelingMetadata;
  *
  * @param <L>
  */
-public class LabelingWithMetadataChgEvent<L extends Comparable<L>> extends
-        IntervalWithMetadataChgEvent<LabelingType<L>, Labeling<L>> {
+public class LabelingWithMetadataChgEvent<L> extends
+        IntervalWithMetadataChgEvent<LabelingType<L>, RandomAccessibleInterval<LabelingType<L>>> {
 
     private final LabelingMetadata m_labelingMetadata;
 
@@ -73,7 +73,7 @@ public class LabelingWithMetadataChgEvent<L extends Comparable<L>> extends
      * @param labeling the labeling
      * @param metadata metadata of the labeling
      */
-    public LabelingWithMetadataChgEvent(final Labeling<L> labeling, final LabelingMetadata metadata) {
+    public LabelingWithMetadataChgEvent(final RandomAccessibleInterval<LabelingType<L>> labeling, final LabelingMetadata metadata) {
         super(labeling, metadata, metadata, metadata);
         m_labelingMetadata = metadata;
     }

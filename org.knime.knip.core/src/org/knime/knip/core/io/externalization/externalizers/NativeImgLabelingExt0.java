@@ -48,23 +48,31 @@
  */
 package org.knime.knip.core.io.externalization.externalizers;
 
+import java.io.IOException;
+
+import net.imglib2.Cursor;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.labeling.LabelingMapping;
 import net.imglib2.labeling.NativeImgLabeling;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.IntegerType;
 
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.io.externalization.BufferedDataInputStream;
 import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
 import org.knime.knip.core.io.externalization.Externalizer;
 import org.knime.knip.core.io.externalization.ExternalizerManager;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class NativeImgLabelingExt0 implements Externalizer<NativeImgLabeling> {
+@Deprecated
+public class NativeImgLabelingExt0 implements Externalizer<ImgLabeling> {
 
     /**
      * {@inheritDoc}
@@ -78,8 +86,8 @@ public class NativeImgLabelingExt0 implements Externalizer<NativeImgLabeling> {
      * {@inheritDoc}
      */
     @Override
-    public Class<NativeImgLabeling> getType() {
-        return NativeImgLabeling.class;
+    public Class<ImgLabeling> getType() {
+        return ImgLabeling.class;
     }
 
     /**
@@ -94,27 +102,35 @@ public class NativeImgLabelingExt0 implements Externalizer<NativeImgLabeling> {
      * {@inheritDoc}
      */
     @Override
-    public NativeImgLabeling read(final BufferedDataInputStream in) throws Exception {
-        // Create Labeling
+    public ImgLabeling read(final BufferedDataInputStream in) throws Exception {
+
+        // for backwards compatibility we read in the old labeling and copy it
         final Img img = ExternalizerManager.<Img> read(in);
         final LabelingMapping mapping = ExternalizerManager.<LabelingMapping> read(in);
-        final NativeImgLabeling<? extends Comparable<?>, ? extends IntegerType<?>> res =
-                new ExtNativeImgLabeling(img, mapping);
+
+        final ImgLabeling<Object, ?> res = new ImgLabeling((RandomAccessibleInterval)KNIPGateway.ops().create(img));
+        final Cursor<net.imglib2.labeling.LabelingType<?>> c1 = new ExtNativeImgLabeling(img, mapping).cursor();
+        final Cursor<LabelingType<Object>> c2 = res.cursor();
+
+        while (c1.hasNext()) {
+            c2.next().addAll(c1.next().getLabeling());
+        }
+
         return res;
+    }
+
+    private static String readString(final BufferedDataInputStream in) throws IOException {
+        final char[] s = new char[in.readInt()];
+        in.read(s);
+        return new String(s);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void write(final BufferedDataOutputStream out, final NativeImgLabeling obj) throws Exception {
-
-        // write the backed image
-        ExternalizerManager.write(out, obj.getStorageImg());
-
-        // write the actual mapping
-        ExternalizerManager.write(out, obj.getMapping());
-
+    public void write(final BufferedDataOutputStream out, final ImgLabeling obj) throws Exception {
+        throw new IllegalStateException("this shouldn't ever happen again");
     }
 
     private class ExtNativeImgLabeling<T extends Comparable<T>, I extends IntegerType<I>> extends

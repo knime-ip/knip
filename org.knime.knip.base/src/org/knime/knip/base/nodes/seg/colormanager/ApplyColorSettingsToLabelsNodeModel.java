@@ -52,6 +52,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
+import net.imglib2.roi.labeling.LabelRegions;
+
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
@@ -74,6 +76,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.data.labeling.LabelingCellFactory;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.NodeUtils;
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
 import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 
@@ -194,7 +197,8 @@ public class ApplyColorSettingsToLabelsNodeModel<L extends Comparable<L>> extend
                         resMetadata.setLabelingColorTable(new DefaultLabelingColorTable());
                     }
 
-                    for (L label : labVal.getLabeling().getLabels()) {
+                    final LabelRegions<L> regions = KNIPGateway.regions().regions(labVal.getLabeling());
+                    for (L label : regions.getExistingLabels()) {
                         Integer color = null;
                         if ((color = mapping.get(label.toString())) == null) {
                             LOGGER.warn("Couldn't find color for label "

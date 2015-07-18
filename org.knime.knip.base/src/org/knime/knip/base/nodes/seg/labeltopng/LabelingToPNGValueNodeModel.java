@@ -62,11 +62,12 @@ import javax.imageio.ImageIO;
 
 import net.imagej.ImgPlus;
 import net.imglib2.Interval;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.Type;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.DoubleType;
+import net.imglib2.util.Util;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataType;
@@ -99,7 +100,7 @@ import org.knime.knip.core.awt.labelingcolortable.RandomMissingColorHandler;
 import org.knime.knip.core.awt.parametersupport.RendererWithLabels;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -155,15 +156,15 @@ public class LabelingToPNGValueNodeModel<T extends RealType<T>, L extends Compar
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @throws KNIPException
-     * 
+     *
      * @throws IllegalArgumentException
      */
     @Override
     protected ListCell compute(final ImgPlusValue<T> imgValue, final LabelingValue<L> labelingValue)
             throws IOException, KNIPException {
-        final Labeling<L> lab = labelingValue.getLabeling();
+        final RandomAccessibleInterval<LabelingType<L>> lab = labelingValue.getLabeling();
         final ImgPlus<T> imgPlus = imgValue.getImgPlus();
 
         //render with image first check dimensionality
@@ -221,7 +222,7 @@ public class LabelingToPNGValueNodeModel<T extends RealType<T>, L extends Compar
         return res;
     }
 
-    private BufferedImage createLabelImage(final Labeling<L> lab, final LabelingColorTable table, final long[] min,
+    private BufferedImage createLabelImage(final RandomAccessibleInterval<LabelingType<L>> lab, final LabelingColorTable table, final long[] min,
                                            final int X, final int Y) {
         ImageRenderer<LabelingType<L>> labRenderer;
         LabelingColorTable extendedTable =
@@ -246,7 +247,7 @@ public class LabelingToPNGValueNodeModel<T extends RealType<T>, L extends Compar
                     .getBooleanValue());
         }
 
-        ((RendererWithLabels<L>)labRenderer).setLabelMapping(lab.firstElement().getMapping());
+        ((RendererWithLabels<L>)labRenderer).setLabelMapping(Util.getTypeFromInterval(lab).getMapping());
 
         BufferedImage label = AWTImageTools.makeBuffered(labRenderer.render(lab, X, Y, min).image());
         return label;

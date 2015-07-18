@@ -53,7 +53,8 @@ import java.awt.RenderingHints;
 
 import javax.swing.Icon;
 
-import net.imglib2.labeling.Labeling;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.roi.labeling.LabelingType;
 
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataValue;
@@ -70,7 +71,7 @@ import org.knime.knip.core.data.img.LabelingMetadata;
  *
  * @param <L>
  */
-public interface LabelingValue<L extends Comparable<L>> extends DataValue {
+public interface LabelingValue<L> extends DataValue {
 
     /** Gathers meta information to this type. */
     public static final class LabelingUtilityFactory extends UtilityFactory {
@@ -128,12 +129,7 @@ public interface LabelingValue<L extends Comparable<L>> extends DataValue {
     /**
      * @return the labeling object
      */
-    Labeling<L> getLabeling();
-
-    /**
-     * @return a copy of the labeling object
-     */
-    Labeling<L> getLabelingCopy();
+    RandomAccessibleInterval<LabelingType<L>> getLabeling();
 
     /**
      * @return the meta data for the labeling

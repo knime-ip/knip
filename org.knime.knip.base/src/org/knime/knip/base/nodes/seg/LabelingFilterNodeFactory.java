@@ -48,8 +48,6 @@
  */
 package org.knime.knip.base.nodes.seg;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -60,10 +58,10 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import net.imagej.axis.CalibratedAxis;
-import net.imglib2.IterableInterval;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingMapping;
-import net.imglib2.labeling.LabelingType;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.roi.Regions;
+import net.imglib2.roi.labeling.LabelRegions;
+import net.imglib2.roi.labeling.LabelingType;
 
 import org.knime.base.util.WildcardMatcher;
 import org.knime.core.data.DataCell;
@@ -83,6 +81,7 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
+import org.knime.knip.core.KNIPGateway;
 
 /**
  * Node to filter a labeling according to easily calculated characteristics (e.g. segment size, border segments, regular
@@ -228,10 +227,11 @@ public class LabelingFilterNodeFactory<L extends Comparable<L>> extends ValueToC
 
             @Override
             protected LabelingCell<L> compute(final LabelingValue<L> cellValue) throws Exception {
-                Labeling<L> lab = cellValue.getLabeling();
+                RandomAccessibleInterval<LabelingType<L>> lab = cellValue.getLabeling();
 
                 //calculate labeling statistics
-                Collection<L> labels = lab.getLabels();
+                LabelRegions<L> regions = KNIPGateway.regions().regions(lab);
+                Collection<L> labels = regions.getExistingLabels();
 
                 //labels to be included in the result labeling
                 Set<String> include = new HashSet<String>(labels.size());
@@ -250,10 +250,11 @@ public class LabelingFilterNodeFactory<L extends Comparable<L>> extends ValueToC
 
                     //filter according to label size
                     if (m_smMaxArea.getIntValue() != Integer.MAX_VALUE
-                            && lab.getArea(label) > m_smMaxArea.getIntValue()) {
+                            && regions.getLabelRegion(label).size() > m_smMaxArea.getIntValue()) {
                         continue;
                     }
-                    if (m_smMinArea.getIntValue() != 0 && lab.getArea(label) < m_smMinArea.getIntValue()) {
+                    if (m_smMinArea.getIntValue() != 0
+                            && regions.getLabelRegion(label).size() < m_smMinArea.getIntValue()) {
                         continue;
                     }
 
@@ -263,7 +264,8 @@ public class LabelingFilterNodeFactory<L extends Comparable<L>> extends ValueToC
                         cellValue.getLabelingMetadata().axes(axes);
                         long[] min = new long[lab.numDimensions()];
                         long[] max = new long[lab.numDimensions()];
-                        lab.getExtents(label, min, max);
+                        regions.getLabelRegion(label).min(min);
+                        regions.getLabelRegion(label).max(max);
                         boolean touchesBorder = false;
                         for (int i = 0; i < max.length; i++) {
                             //skip non-selected dims
@@ -287,26 +289,11 @@ public class LabelingFilterNodeFactory<L extends Comparable<L>> extends ValueToC
                 }
 
                 //TODO speed-up: decide whether to make a copy or an empty copy (depending on the amount of segments to be included/excluded) and remove excluded segments or add included segments
-                Labeling<L> res = (Labeling<L>)lab.factory().create(lab);
-                LabelingMapping<L> resMapping = res.firstElement().getMapping();
-                for (L label : labels) {
+                final RandomAccessibleInterval<LabelingType<L>> res = (RandomAccessibleInterval<LabelingType<L>>)KNIPGateway.ops().createImgLabeling(lab);
+                for (final L label : labels) {
                     if (include.contains(label.toString())) {
-                        IterableInterval<LabelingType<L>> ii =
-                                lab.getIterableRegionOfInterest(label).getIterableIntervalOverROI(res);
-                        if (!m_smContainsNoOverlappingSegments.getBooleanValue()) {
-                            List<L> tmpList = new ArrayList<L>(5);
-                            for (LabelingType<L> type : ii) {
-                                tmpList.clear();
-                                tmpList.addAll(type.getLabeling());
-                                tmpList.add(label);
-                                type.setLabeling(tmpList);
-                            }
-                        } else {
-                            //speed-up: pre-create the labeling if overlapping segment are not expected
-                            List<L> labeling = resMapping.intern(Arrays.asList(label));
-                            for (LabelingType<L> type : ii) {
-                                type.setLabeling(labeling);
-                            }
+                        for (final LabelingType<L> type : Regions.sample(regions.getLabelRegion(label), res)) {
+                            type.add(label);
                         }
                     }
                 }

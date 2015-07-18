@@ -48,14 +48,11 @@
  */
 package org.knime.knip.base.nodes.seg;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.converter.Converter;
-import net.imglib2.converter.read.ConvertedRandomAccessibleInterval;
-import net.imglib2.labeling.Labeling;
-import net.imglib2.labeling.LabelingType;
-import net.imglib2.labeling.LabelingView;
+import net.imglib2.converter.Converters;
 import net.imglib2.ops.img.BinaryOperationAssignment;
 import net.imglib2.ops.operation.labeling.binary.LabelingTypeAnd;
 import net.imglib2.ops.operation.labeling.binary.LabelingTypeCongruent;
@@ -63,6 +60,10 @@ import net.imglib2.ops.operation.labeling.binary.LabelingTypeDifference;
 import net.imglib2.ops.operation.labeling.binary.LabelingTypeIntersect;
 import net.imglib2.ops.operation.labeling.binary.LabelingTypeMerge;
 import net.imglib2.ops.operation.labeling.binary.LabelingTypeXOR;
+import net.imglib2.roi.labeling.LabelRegions;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.util.Util;
+import net.imglib2.view.Views;
 
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.NodeLogger;
@@ -77,8 +78,8 @@ import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.TwoValuesToCellNodeDialog;
 import org.knime.knip.base.node.TwoValuesToCellNodeFactory;
 import org.knime.knip.base.node.TwoValuesToCellNodeModel;
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.util.EnumUtils;
-import org.knime.knip.core.util.ImgUtils;
 import org.knime.knip.core.util.MiscViews;
 
 /**
@@ -86,16 +87,18 @@ import org.knime.knip.core.util.MiscViews;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  *
- * @param <IL>
- * @param <OL>
+ * @param <I1>
+ * @param <I2>
+ * @param <O>
  */
-public final class LabelingArithmeticNodeFactory<IL extends Comparable<IL>, OL extends Comparable<OL>> extends
-        TwoValuesToCellNodeFactory<LabelingValue<IL>, LabelingValue<IL>> {
+public final class LabelingArithmeticNodeFactory<I1, I2, O extends Comparable<O>> extends
+        TwoValuesToCellNodeFactory<LabelingValue<I1>, LabelingValue<I2>> {
 
     /**
-     * TODO: javadoc Operations
+     * Method which is performed for the labeling arithmetic operation
+     *
+     * @author dietzc
      */
-    @SuppressWarnings("javadoc")
     public enum Method {
         AND, CONGRUENT, DIFFERENCE, INTERSECT, MERGE, XOR;
     }
@@ -114,8 +117,8 @@ public final class LabelingArithmeticNodeFactory<IL extends Comparable<IL>, OL e
      * {@inheritDoc}
      */
     @Override
-    protected TwoValuesToCellNodeDialog<LabelingValue<IL>, LabelingValue<IL>> createNodeDialog() {
-        return new TwoValuesToCellNodeDialog<LabelingValue<IL>, LabelingValue<IL>>() {
+    protected TwoValuesToCellNodeDialog<LabelingValue<I1>, LabelingValue<I2>> createNodeDialog() {
+        return new TwoValuesToCellNodeDialog<LabelingValue<I1>, LabelingValue<I2>>() {
 
             @Override
             public void addDialogComponents() {
@@ -145,14 +148,12 @@ public final class LabelingArithmeticNodeFactory<IL extends Comparable<IL>, OL e
      *
      */
     @Override
-    public TwoValuesToCellNodeModel<LabelingValue<IL>, LabelingValue<IL>, LabelingCell<OL>> createNodeModel() {
-        return new TwoValuesToCellNodeModel<LabelingValue<IL>, LabelingValue<IL>, LabelingCell<OL>>() {
+    public TwoValuesToCellNodeModel<LabelingValue<I1>, LabelingValue<I2>, LabelingCell<O>> createNodeModel() {
+        return new TwoValuesToCellNodeModel<LabelingValue<I1>, LabelingValue<I2>, LabelingCell<O>>() {
 
             private LabelingCellFactory m_labelingCellFactory;
 
             private final SettingsModelString m_methodName = createMethodNameModel();
-
-            private BinaryOperationAssignment<LabelingType<OL>, LabelingType<OL>, LabelingType<OL>> m_op;
 
             private final SettingsModelBoolean m_synchronize = createVirtuallySynchronizeModel();
 
@@ -165,114 +166,98 @@ public final class LabelingArithmeticNodeFactory<IL extends Comparable<IL>, OL e
 
             @SuppressWarnings("unchecked")
             @Override
-            protected LabelingCell<OL> compute(final LabelingValue<IL> cellValue1, final LabelingValue<IL> cellValue2)
+            protected LabelingCell<O> compute(final LabelingValue<I1> cellValue1, final LabelingValue<I2> cellValue2)
                     throws Exception {
 
-                final Labeling<IL> lab1 =
-                        new LabelingView<IL>(cellValue1.getLabeling(), cellValue1.getLabeling().<IL> factory());
-                final Labeling<IL> lab2 = new LabelingView<IL>(cellValue2.getLabeling(), lab1.<IL> factory());
+                final RandomAccessibleInterval<LabelingType<I1>> lab1 = cellValue1.getLabeling();
+                final RandomAccessibleInterval<LabelingType<I2>> lab2 = cellValue2.getLabeling();
                 boolean stringBased = false;
-                if (lab1.firstElement().getMapping().getLabels().size() > 0
-                        && lab2.firstElement().getMapping().getLabels().size() > 0) {
-                    if (!(lab1.firstElement().getMapping().getLabels().get(0).getClass().isAssignableFrom(lab2
-                            .firstElement().getMapping().getLabels().get(0).getClass()))) {
+
+                LabelRegions<I1> regions1 = KNIPGateway.regions().regions(lab1);
+                LabelRegions<I2> regions2 = KNIPGateway.regions().regions(lab2);
+
+                if (regions1.getExistingLabels().size() > 0 && regions2.getExistingLabels().size() > 0) {
+                    if (!(regions1.getExistingLabels().iterator().next().getClass().isAssignableFrom(regions2
+                            .getExistingLabels().iterator().next().getClass()))) {
 
                         LOGGER.debug("Labeling types are not compatible. Using Strings for comparsion. The resulting labeling will also be String based");
                         stringBased = true;
                     }
                 }
 
-                Labeling<IL> synchronizedLab = lab2;
+                RandomAccessibleInterval<LabelingType<I2>> synchronizedLab = lab2;
                 if (m_synchronize.getBooleanValue()) {
                     synchronizedLab =
-                            new LabelingView<IL>(MiscViews.synchronizeDimensionality(lab2,
-                                                                                     cellValue2.getLabelingMetadata(),
-                                                                                     lab1,
-                                                                                     cellValue1.getLabelingMetadata()),
-                                    lab1.<IL> factory());
+                            MiscViews.synchronizeDimensionality(lab2, cellValue2.getLabelingMetadata(), lab1,
+                                                                cellValue1.getLabelingMetadata());
                 }
-                Labeling<OL> nativeRes = (Labeling<OL>)ImgUtils.createEmptyCopy(cellValue1.getLabeling());
-                Labeling<OL> res = new LabelingView<OL>(nativeRes, lab1.<OL> factory());
 
+                RandomAccessibleInterval<LabelingType<O>> res = null;
                 if (stringBased) {
-                    LabelingView<OL> lab1ToProcess =
-                            new LabelingView<OL>(
-                                    new ConvertedRandomAccessibleInterval<LabelingType<IL>, LabelingType<OL>>(lab1,
-                                            new LToString(), new LabelingType<OL>()), lab1.<OL> factory());
+                    res =
+                            (RandomAccessibleInterval<LabelingType<O>>)KNIPGateway.ops()
+                                    .createImgLabeling(cellValue1.getLabeling());
 
-                    LabelingView<OL> lab2ToProcess =
-                            new LabelingView<OL>(
-                                    new ConvertedRandomAccessibleInterval<LabelingType<IL>, LabelingType<OL>>(
-                                            synchronizedLab, new LToString(), new LabelingType<OL>()),
-                                    lab2.<OL> factory());
+                    final RandomAccessibleInterval<LabelingType<String>> lab1ToProcess =
+                            Converters.convert(lab1, new LToString<I1, String>(), (LabelingType<String>)Util
+                                    .getTypeFromInterval(lab1).createVariable());
 
-                    m_op.compute(lab1ToProcess, lab2ToProcess, res);
+                    final RandomAccessibleInterval<LabelingType<String>> lab2ToProcess =
+                            Converters.convert(synchronizedLab, new LToString<I2, String>(), (LabelingType<String>)Util
+                                    .getTypeFromInterval(lab1).createVariable());
+
+                    this.getOp().compute(Views.iterable(lab1ToProcess), Views.iterable(lab2ToProcess),
+                                         Views.iterable(res));
                 } else {
-                    m_op.compute((Labeling<OL>)lab1, (Labeling<OL>)synchronizedLab, res);
+                    res =
+                            (RandomAccessibleInterval<LabelingType<O>>)KNIPGateway.ops()
+                                    .createImgLabeling(cellValue1.getLabeling());
+                    this.getOp().compute(Views.iterable(lab1), Views.iterable(synchronizedLab), Views.iterable(res));
                 }
 
-
-                return m_labelingCellFactory.createCell(nativeRes, cellValue1.getLabelingMetadata());
+                return m_labelingCellFactory.createCell(res, cellValue1.getLabelingMetadata());
             }
 
             @Override
             protected void prepareExecute(final ExecutionContext exec) {
+                m_labelingCellFactory = new LabelingCellFactory(exec);
+            }
+
+            @SuppressWarnings({"rawtypes", "unchecked"})
+            private BinaryOperationAssignment getOp() {
                 switch (Method.valueOf(m_methodName.getStringValue())) {
                     case CONGRUENT:
-                        m_op =
-                                new BinaryOperationAssignment<LabelingType<OL>, LabelingType<OL>, LabelingType<OL>>(
-                                        new LabelingTypeCongruent<OL>());
-                        break;
+                        return new BinaryOperationAssignment(new LabelingTypeCongruent());
                     case DIFFERENCE:
-                        m_op =
-                                new BinaryOperationAssignment<LabelingType<OL>, LabelingType<OL>, LabelingType<OL>>(
-                                        new LabelingTypeDifference<OL>());
-                        break;
+                        return new BinaryOperationAssignment(new LabelingTypeDifference());
                     case MERGE:
-                        m_op =
-                                new BinaryOperationAssignment<LabelingType<OL>, LabelingType<OL>, LabelingType<OL>>(
-                                        new LabelingTypeMerge<OL>());
-                        break;
+                        return new BinaryOperationAssignment(new LabelingTypeMerge());
                     case AND:
-                        m_op =
-                                new BinaryOperationAssignment<LabelingType<OL>, LabelingType<OL>, LabelingType<OL>>(
-                                        new LabelingTypeAnd<OL>());
-                        break;
+                        return new BinaryOperationAssignment(new LabelingTypeAnd());
                     case XOR:
-                        m_op =
-                                new BinaryOperationAssignment<LabelingType<OL>, LabelingType<OL>, LabelingType<OL>>(
-                                        new LabelingTypeXOR<OL>());
-                        break;
+                        return new BinaryOperationAssignment(new LabelingTypeXOR());
                     case INTERSECT:
-                        m_op =
-                                new BinaryOperationAssignment<LabelingType<OL>, LabelingType<OL>, LabelingType<OL>>(
-                                        new LabelingTypeIntersect<OL>());
-                        break;
+                        return new BinaryOperationAssignment(new LabelingTypeIntersect());
                 }
-                m_labelingCellFactory = new LabelingCellFactory(exec);
+
+                throw new IllegalStateException("unknown arithmetic operation");
             }
 
         };
     }
 
-    class LToString implements Converter<LabelingType<IL>, LabelingType<OL>> {
-
-        private ArrayList<OL> list;
-        {
-            list = new ArrayList<OL>();
-        }
+    class LToString<II, OO> implements Converter<LabelingType<II>, LabelingType<OO>> {
 
         /**
          * {@inheritDoc}
          */
         @SuppressWarnings("unchecked")
         @Override
-        public void convert(final LabelingType<IL> input, final LabelingType<OL> output) {
-            list.clear();
-            for (IL label : input.getLabeling()) {
-                list.add((OL)label.toString());
+        public void convert(final LabelingType<II> input, final LabelingType<OO> output) {
+            output.clear();
+            for (II label : input) {
+                output.add((OO)label.toString());
             }
-            output.setLabeling(list);
         }
     }
 }

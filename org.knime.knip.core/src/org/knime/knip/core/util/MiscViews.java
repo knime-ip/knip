@@ -61,9 +61,6 @@ import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.img.ImgView;
-import net.imglib2.labeling.LabelingFactory;
-import net.imglib2.labeling.LabelingType;
-import net.imglib2.labeling.LabelingView;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.util.MetadataUtil;
 import net.imglib2.type.Type;
@@ -104,15 +101,6 @@ public class MiscViews {
             return (ImgView<T>)randAccessible;
         } else {
             return new ImgView<T>(randAccessible, fac);
-        }
-    }
-
-    public static <L extends Comparable<L>> LabelingView<L>
-            labelingView(final RandomAccessibleInterval<LabelingType<L>> randAccessible, final LabelingFactory<L> fac) {
-        if (randAccessible instanceof LabelingView) {
-            return (LabelingView<L>)randAccessible;
-        } else {
-            return new LabelingView<L>(randAccessible, fac);
         }
     }
 

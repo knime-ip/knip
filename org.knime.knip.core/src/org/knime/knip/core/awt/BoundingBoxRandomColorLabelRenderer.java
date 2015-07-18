@@ -54,8 +54,8 @@ import java.util.Set;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.display.screenimage.awt.ARGBScreenImage;
 import net.imglib2.display.screenimage.awt.AWTScreenImage;
-import net.imglib2.labeling.LabelingMapping;
-import net.imglib2.labeling.LabelingType;
+import net.imglib2.roi.labeling.LabelingMapping;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.Type;
 
 import org.knime.knip.core.awt.labelingcolortable.LabelingColorTable;
