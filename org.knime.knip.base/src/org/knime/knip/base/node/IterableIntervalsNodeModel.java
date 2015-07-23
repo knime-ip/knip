@@ -415,7 +415,9 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
      * @return
      */
     private ImgPlus<V> createResultImage(final ImgPlus<T> in) {
-        return new ImgPlus<V>(ImgUtils.createEmptyCopy(in, getOutType(in.firstElement())), in);
+        ImgPlus<V> out = new ImgPlus<V>(ImgUtils.createEmptyCopy(in, getOutType(in.firstElement())), in);
+        out.setSource(in.getSource());
+        return out;
     }
 
     /**

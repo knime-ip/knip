@@ -406,7 +406,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
                 final LabelingMetadata lmdata = labelingValue.getLabelingMetadata();
                 final ImgPlusMetadata metadata =
                         new DefaultImgMetadata(lmdata, new DefaultNamed(l.toString()), new DefaultSourced(
-                                lmdata.getName()), new DefaultImageMetadata());
+                                lmdata.getSource()), new DefaultImageMetadata());
 
                 cells.add(imgCellFactory.createCell(res, metadata, min));
                 if (imgColIndex != -1) {
