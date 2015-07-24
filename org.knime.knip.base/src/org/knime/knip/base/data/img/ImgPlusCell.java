@@ -194,8 +194,18 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
      * @param fileStore
      */
     protected ImgPlusCell(final Img<T> img, final ImgPlusMetadata metadata, final FileStore fileStore) {
-        this(img, metadata, null, fileStore);
+        this(img, metadata, getMinFromImg(img), fileStore);
 
+    }
+
+    /**
+     * @param img
+     * @return
+     */
+    private static long[] getMinFromImg(final Img<?> img) {
+        long[] min = new long[img.numDimensions()];
+        img.min(min);
+        return min;
     }
 
     /**
@@ -286,6 +296,9 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
                 max[i] = img2d.max(i);
                 min[i] = img2d.min(i);
                 break;
+            } else {
+                min[i] = img2d.min(i);
+                max[i] = img2d.min(i);
             }
         }
 
