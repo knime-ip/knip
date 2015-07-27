@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import org.knime.core.node.tableview.TableView;
+import org.knime.knip.core.ui.event.KNIPEvent;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
 
 /**
@@ -39,6 +40,16 @@ public class PlainCellView extends AbstractCellView {
             }
         });
 
+
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void broadcastEvent(final KNIPEvent e) {
+        m_cellView.getEventService().publish(e);
     }
 
 }

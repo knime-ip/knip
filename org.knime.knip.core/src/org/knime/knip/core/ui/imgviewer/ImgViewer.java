@@ -455,6 +455,10 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
         m_rightPanel.add(panel, gbc);
     }
 
+    private void addControls(){
+
+    }
+
     /**
      * Returns the four buttons used to navigate the Table in the order bottom, left, right, top.
      *

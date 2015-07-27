@@ -67,8 +67,10 @@ import java.io.ObjectOutput;
 
 import javax.swing.JPanel;
 
+import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.ViewerComponent;
+import org.knime.knip.core.ui.imgviewer.events.TablePositionEvent;
 
 /**
  *
@@ -79,6 +81,14 @@ public class TableOverviewPanel extends ViewerComponent {
     private EventService m_eventService;
 
     private final JPanel m_canvas;
+
+    private  int m_width = 0;
+
+    private  int m_height = 0;
+
+    private  int m_x = 0;
+
+    private  int m_y = 0;
 
     /**
      * @param title
@@ -101,11 +111,11 @@ public class TableOverviewPanel extends ViewerComponent {
                 Rectangle2D b = t.getBounds();
                 int r;
                 if(dir == 0) {
-                    r= (int)(b.getHeight() + 5);
+                    r= (int)(b.getHeight() + 8);
                 } else{
                     r =(int)(b.getWidth() +5);
                 }
-                g.setColor(Color.DARK_GRAY);
+                g.setColor(Color.GRAY);
                 g.fillOval((int)mid.getX()-r/2, (int)mid.getY()-r/2, r, r);
                 g.setColor(Color.BLACK);
 
@@ -126,29 +136,45 @@ public class TableOverviewPanel extends ViewerComponent {
             @Override
             public void paint(final Graphics g) {
                 super.paint(g);
+                int boxwidth = 100;
+                int boxheight = 50;
+
+                int w = getWidth();
+                int h = getHeight();
+
                 Graphics2D g2 = (Graphics2D)g;
                 g2.setColor(Color.LIGHT_GRAY);
                 g2.setStroke( new BasicStroke(3.0f));
-                g2.fill(new RoundRectangle2D.Double(100, 100, getWidth()-200, getHeight()-200,20,20));
+                g2.fill(new RoundRectangle2D.Double(w/2 - boxwidth/2, h/2 - boxheight/2, boxwidth, boxheight,20,20));
                 g2.setColor(Color.BLACK);
-                g2.drawString("X", 115, 130);
-                g2.drawString("Y", 150, 130);
-                drawArrow(100 + (getWidth()-200)/2, 95 , 100 + (getWidth()-200)/2, 35, "Top", g2, 0);
 
-                drawArrow(100 + (getWidth()-200) + 5, 100 + (getHeight() -200)/2 , getWidth()-35, 100 + (getHeight() -200)/2 , "Right", g2, 1);
+                Font f = g.getFont();
+                TextLayout t = new TextLayout("X: "+ m_x, f, g2.getFontRenderContext());
+                Rectangle2D b = t.getBounds();
 
-                drawArrow(95, 100 + (getHeight() -200)/2 , 35, 100 + (getHeight() -200)/2 , "Left", g2, 1);
+                g2.drawString("X: "+m_x, (int)(w/2 - 25-b.getWidth()/2), (int)(h/2 + b.getHeight()/2));
 
-                drawArrow(100 + (getWidth()-200)/2, 100 + (getHeight()-200) + 5 , 100 + (getWidth()-200)/2, getHeight()-35, "Bottom", g2, 0);
+                t = new TextLayout("Y: "+ m_y, f, g2.getFontRenderContext());
+                b = t.getBounds();
+
+                g2.drawString("Y: "+m_y, (int)(w/2 + 25-b.getWidth()/2), (int)(h/2 + b.getHeight()/2));
+
+                drawArrow(w/2, h/2 - boxheight/2 - 5, w/2, 20,""  + (m_y), g2, 0);
+
+                drawArrow(w/2 + boxwidth/2 + 5, h/2 , w - 20, h/2 , "" + (m_width-m_x -1), g2, 1);
+//
+                drawArrow(w/2 - boxwidth/2 - 5, h/2 , 20, h/2 , "" + (m_x), g2, 1);
+//
+                drawArrow(w/2, h/2 + boxheight/2 + 5, w/2, h - 20, "" + (m_height-m_y -1), g2, 0);
             }
         };
-       m_canvas.setBackground(Color.DARK_GRAY);
+       m_canvas.setBackground(Color.GRAY);
         m_canvas.setMinimumSize(new Dimension(200, 200));
 
         add(m_canvas, BorderLayout.CENTER);
-        setMaximumSize(new Dimension(300, 300));
+        setMaximumSize(new Dimension(300, 200));
         setMinimumSize(new Dimension(200, 200));
-        setPreferredSize(new Dimension(250, 250));
+        setPreferredSize(new Dimension(250, 200));
         validate();
     }
 
@@ -158,7 +184,17 @@ public class TableOverviewPanel extends ViewerComponent {
     @Override
     public void setEventService(final EventService eventService) {
         m_eventService = eventService;
+        m_eventService.subscribe(this);
 
+    }
+
+    @EventListener
+    public void onTablePositionEvent(final TablePositionEvent e)
+    {
+        m_height = e.getheight();
+        m_width = e.getwidth();
+        m_x = e.getx();
+        m_y = e.gety();
     }
 
     /**

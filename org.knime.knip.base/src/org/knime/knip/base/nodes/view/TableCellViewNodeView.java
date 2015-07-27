@@ -83,6 +83,7 @@ import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.nodes.view.AbstractCellView.TableDir;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.ui.imgviewer.ViewerComponent;
+import org.knime.knip.core.ui.imgviewer.events.TablePositionEvent;
 import org.knime.knip.core.ui.imgviewer.panels.ControlPanel;
 import org.knime.knip.core.ui.imgviewer.panels.ImageToolTipButton;
 import org.knime.knip.core.util.waitingindicator.WaitingIndicatorUtils;
@@ -359,6 +360,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
             try {
                 m_cellView.addTab(v.getName(), m_viewComponents.get(currentDataCellClass + ":" + v.getName()));
                 updateToolTips(row, col, v);
+                m_cellView.broadcastEvent(new TablePositionEvent(m_tableModel.getColumnCount(), m_tableModel.getRowCount(), col, row));
             } catch (final Exception ex) {
                 LOGGER.error("Could not add Tab " + v.getName(), ex);
             }
@@ -466,7 +468,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
      */
     private void updateToolTips(final int row, final int col, final TableCellView v) {
 
-        //TODO: remove err_isLabeling and improve logic
+        //TODO: improve logic
 
         if (v.getViewComponent() instanceof ImgViewer) {
             // Get buttons

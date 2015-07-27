@@ -58,6 +58,7 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
 import org.knime.core.node.tableview.TableView;
+import org.knime.knip.core.ui.event.KNIPEvent;
 
 /**
  *
@@ -204,5 +205,7 @@ public abstract class AbstractCellView extends JPanel {
             return m_isBottomVisible;
         }
     }
+
+    public abstract void broadcastEvent(final KNIPEvent e);
 
 }
