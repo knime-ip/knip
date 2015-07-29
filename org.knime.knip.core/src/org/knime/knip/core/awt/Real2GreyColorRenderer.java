@@ -50,7 +50,7 @@ package org.knime.knip.core.awt;
 
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.display.projector.AbstractProjector2D;
-import net.imglib2.display.screenimage.awt.ARGBScreenImage;
+import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.knip.core.awt.parametersupport.RendererWithNormalization;
@@ -91,8 +91,8 @@ public class Real2GreyColorRenderer<R extends RealType<R>> extends ProjectingRen
      */
     @Override
     protected AbstractProjector2D getProjector(final int dimX, final int dimY,
-                                                            final RandomAccessibleInterval<R> source,
-                                                            final ARGBScreenImage target) { // only 2 and 3 dim are valid
+                                               final RandomAccessibleInterval<R> source,
+                                               final RandomAccessibleInterval<ARGBType> target) { // only 2 and 3 dim are valid
         // for color rendering
         if ((m_colorDim == -1) || (source.numDimensions() <= m_colorDim) || (source.dimension(m_colorDim) <= 1)
                 || (source.dimension(m_colorDim) > 3)) {

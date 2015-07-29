@@ -53,6 +53,8 @@ import net.imglib2.display.projector.AbstractProjector2D;
 import net.imglib2.display.screenimage.awt.ARGBScreenImage;
 import net.imglib2.display.screenimage.awt.AWTScreenImage;
 import net.imglib2.type.Type;
+import net.imglib2.type.numeric.ARGBType;
+import net.imglib2.view.Views;
 
 /**
  * TODO Auto-generated
@@ -65,19 +67,31 @@ public abstract class ProjectingRenderer<T extends Type<T>> implements ImageRend
 
     @Override
     public AWTScreenImage render(final RandomAccessibleInterval<T> source, final int dimX, final int dimY,
-                              final long[] planePos) {
+                                 final long[] planePos) {
 
         return project2D(source, dimX, dimY, planePos);
     }
 
     private AWTScreenImage project2D(final RandomAccessibleInterval<T> source, final int dimX, final int dimY,
-                                  final long[] planePos) {
+                                     final long[] planePos) {
 
         final int width = (int)source.dimension(dimX);
         final int height = (int)source.dimension(dimY);
 
         final ARGBScreenImage target = new ARGBScreenImage(width, height);
-        final AbstractProjector2D projector = getProjector(dimX, dimY, source, target);
+
+        RandomAccessibleInterval<ARGBType> raiARGBType = target;
+
+        final long[] min = new long[source.numDimensions()];
+        source.min(min);
+
+        for (int d = 0; d < min.length; d++) {
+            if (min[d] != 0) {
+                raiARGBType = Views.translate(target, min);
+            }
+        }
+
+        final AbstractProjector2D projector = getProjector(dimX, dimY, source, raiARGBType);
 
         projector.setPosition(planePos);
         projector.map();
@@ -92,7 +106,7 @@ public abstract class ProjectingRenderer<T extends Type<T>> implements ImageRend
      * @param target
      * @return
      */
-    protected abstract AbstractProjector2D getProjector(int dimX, int dimY,
-                                                                     RandomAccessibleInterval<T> source,
-                                                                     ARGBScreenImage target);
+    protected abstract AbstractProjector2D getProjector(final int dimX, final int dimY,
+                                                        final RandomAccessibleInterval<T> source,
+                                                        final RandomAccessibleInterval<ARGBType> target);
 }
