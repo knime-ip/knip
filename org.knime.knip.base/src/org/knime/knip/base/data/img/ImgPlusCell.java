@@ -57,6 +57,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -353,12 +354,16 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
         readImgData(m_fileMetadata.getOffset(), false);
 
         final long[] minimum = getMinimum();
+        final long[] localMin = new long[minimum.length];
+        m_img.min(localMin);
         Img<T> tmp = m_img;
 
-        for (int d = 0; d < minimum.length; d++) {
-            if (minimum[d] != 0) {
-                tmp = ImgView.wrap(Views.translate(tmp, minimum), m_img.factory());
-                break;
+        if (!Arrays.equals(minimum, localMin)) {
+            for (int d = 0; d < minimum.length; d++) {
+                if (minimum[d] != 0) {
+                    tmp = ImgView.wrap(Views.translate(tmp, minimum), m_img.factory());
+                    break;
+                }
             }
         }
 
