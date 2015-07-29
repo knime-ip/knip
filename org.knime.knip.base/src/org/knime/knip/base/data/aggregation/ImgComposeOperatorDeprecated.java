@@ -52,6 +52,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.imagej.ImgPlus;
 import net.imagej.ImgPlusMetadata;
 import net.imagej.space.DefaultCalibratedSpace;
 import net.imglib2.Cursor;
@@ -285,7 +286,7 @@ public class ImgComposeOperatorDeprecated<T1 extends RealType<T1>, T2 extends Re
 
         // return the already composed result
         try {
-            return getImgPlusCellFactory().createCell(m_resultImg, m_resultMetadata);
+            return getImgPlusCellFactory().createCell(new ImgPlus(m_resultImg, m_resultMetadata));
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }

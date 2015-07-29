@@ -49,9 +49,11 @@
 package org.knime.knip.base.node;
 
 import net.imagej.ImgPlus;
+import net.imglib2.img.ImgView;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
 
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.NodeLogger;
@@ -168,10 +170,22 @@ public abstract class ImgPlusToImgPlusNodeModel<T extends RealType<T>, V extends
 
         final int[] selection = m_dimSelection.getSelectedDimIndices(cellValue.getMetadata());
 
-        return m_imgCellFactory.createCell(SubsetOperations.iterate(op, selection, cellValue.getImgPlus(), op
-                                                   .bufferFactory().instantiate(cellValue.getImgPlus()), m_active
-                                                   ? getExecutorService() : null),
-                                           cellValue.getMinimum());
+        ImgPlus<T> in = cellValue.getImgPlus();
+
+        final long[] inMin = new long[in.numDimensions()];
+        in.min(inMin);
+
+        ImgPlus<V> out = op.bufferFactory().instantiate(cellValue.getImgPlus());
+
+        for (int d = 0; d < inMin.length; d++) {
+            if (inMin[d] != 0) {
+                out = new ImgPlus<V>(ImgView.wrap(Views.translate(out, inMin), out.factory()), out);
+                break;
+            }
+        }
+
+        return m_imgCellFactory.createCell(SubsetOperations.iterate(op, selection, in, out, m_active
+                ? getExecutorService() : null));
     }
 
     /**

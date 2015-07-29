@@ -51,6 +51,7 @@ package org.knime.knip.base.nodes.filter.nonlinear;
 import java.util.List;
 
 import net.imagej.ImgPlus;
+import net.imagej.ops.MetadataUtil;
 import net.imglib2.converter.read.ConvertedRandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgView;
@@ -244,8 +245,9 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
                     resImg = (Img<T>)unsignedByteTypeResImg;
                 }
 
-                return m_imgCellFactory.createCell(resImg, cellValue.getMetadata());
-
+                final ImgPlus res = new ImgPlus(resImg, cellValue.getMetadata());
+                MetadataUtil.copySource(cellValue.getMetadata(), res);
+                return m_imgCellFactory.createCell(res);
             }
 
             /**

@@ -316,10 +316,11 @@ public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
                                                          cellValue1.getImgPlus(),
                                                          cellValue2.getLabeling(),
                                                          (Img<BitType>)KNIPGateway.ops()
-                                                                 .createImgLabeling(cellValue1.getImgPlus(), new BitType()),
+                                                                 .createImgLabeling(cellValue1.getImgPlus(),
+                                                                                    new BitType()),
                                                          getExecutorService());
 
-                        return m_imgCellFactory.createCell(out, cellValue1.getMetadata());
+                        return m_imgCellFactory.createCell(new ImgPlus(out, cellValue1.getMetadata()));
 
                     } else {
                         cutOp =
@@ -327,9 +328,9 @@ public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
                                         m_bgLabel.getStringValue(), selectedDims[0], selectedDims[1],
                                         selectedFeatDims[0]);
 
-                        return m_imgCellFactory
-                                .createCell(Operations.compute(cutOp, imgPlus, cellValue2.getLabeling()),
-                                            cellValue1.getMetadata());
+                        return m_imgCellFactory.createCell(new ImgPlus(Operations.compute(cutOp, imgPlus,
+                                                                                          cellValue2.getLabeling()),
+                                cellValue1.getMetadata()));
                     }
 
                 } else {
@@ -357,14 +358,14 @@ public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
                                                                  .create(cellValue1.getImgPlus(), new BitType()),
                                                          getExecutorService());
 
-                        return m_imgCellFactory.createCell(out, cellValue1.getMetadata());
+                        return m_imgCellFactory.createCell(new ImgPlus(out, cellValue1.getMetadata()));
                     } else {
                         final GraphCut2D<T, Img<T>, Img<BitType>> cutOp =
                                 new GraphCut2D<T, Img<T>, Img<BitType>>(m_pottsWeight.getDoubleValue(),
                                         selectedDims[0], selectedDims[1], selectedFeatDims[0], sink, source);
 
-                        return m_imgCellFactory
-                                .createCell(Operations.compute(cutOp, imgPlus), cellValue1.getMetadata());
+                        return m_imgCellFactory.createCell(new ImgPlus(Operations.compute(cutOp, imgPlus), cellValue1
+                                .getMetadata()));
                     }
 
                 }

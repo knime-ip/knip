@@ -195,7 +195,7 @@ public class ThresholderNodeFactory<T extends RealType<T>> extends ValueToCellNo
                     new UnaryRelationAssigment<T>(new RealGreaterThanConstant<T>(type)).compute(cellValue.getImgPlus(),
                                                                                                 res);
 
-                    return m_imgCellFactory.createCell(res, cellValue.getMetadata());
+                    return m_imgCellFactory.createCell(new ImgPlus<>(res, cellValue.getMetadata()));
                 }
 
                 try {

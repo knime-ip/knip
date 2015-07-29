@@ -51,6 +51,7 @@ package org.knime.knip.base.nodes.proc.ucm;
 import java.util.List;
 
 import net.imagej.ImgPlus;
+import net.imagej.ops.MetadataUtil;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgFactory;
@@ -131,7 +132,6 @@ public class UCMNodeModel<T extends RealType<T>, L extends Comparable<L>> extend
 
     private ImgPlusCellFactory m_imgCellFactory;
 
-
     @Override
     protected void prepareExecute(final ExecutionContext exec) {
         m_imgCellFactory = new ImgPlusCellFactory(exec);
@@ -154,7 +154,9 @@ public class UCMNodeModel<T extends RealType<T>, L extends Comparable<L>> extend
         SubsetOperations.iterate(ucmOp, m_dimSelection.getSelectedDimIndices(inImg), labeling, inImg, result,
                                  getExecutorService());
 
-        return m_imgCellFactory.createCell(result, img.getMetadata());
+        final ImgPlus res = new ImgPlus(result, img.getMetadata());
+        MetadataUtil.copySource(img.getMetadata(), res);
+        return m_imgCellFactory.createCell(res);
     }
 
     @Override

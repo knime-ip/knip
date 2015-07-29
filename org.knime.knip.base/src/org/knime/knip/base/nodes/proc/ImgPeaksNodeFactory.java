@@ -154,7 +154,7 @@ public class ImgPeaksNodeFactory<T extends RealType<T>> extends ValueToCellNodeF
 
                 }
 
-                return m_imgCellFactory.createCell(res, imgPlus);
+                return m_imgCellFactory.createCell(new ImgPlus<>(res, imgPlus));
             }
 
             /**

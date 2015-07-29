@@ -81,6 +81,7 @@ import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.iterableinterval.unary.Centroid;
 import net.imglib2.roi.Regions;
@@ -268,7 +269,8 @@ public class ContourDetectorNodeModel<T extends RealType<T>, L extends Comparabl
 
             // Creating seed intervals according to img plane
             // selection (must be 2D)
-            final RandomAccessibleInterval<LabelingType<L>> seeds = ((LabelingValue<L>)currentRow.getCell(m_seedColIdx)).getLabeling();
+            final RandomAccessibleInterval<LabelingType<L>> seeds =
+                    ((LabelingValue<L>)currentRow.getCell(m_seedColIdx)).getLabeling();
 
             final Interval[] resIntervals =
                     m_smImgDimensions.getIntervals((((LabelingValue<L>)currentRow.getCell(m_seedColIdx))
@@ -341,7 +343,8 @@ public class ContourDetectorNodeModel<T extends RealType<T>, L extends Comparabl
                 Vector[] seedingPoints;
                 List<L> usedLabels = null;
 
-                final RandomAccessibleInterval<LabelingType<L>> subLabeling = SubsetOperations.subsetview(seeds, resIntervals[i]);
+                final RandomAccessibleInterval<LabelingType<L>> subLabeling =
+                        SubsetOperations.subsetview(seeds, resIntervals[i]);
 
                 if (subLabeling.numDimensions() != 2) {
                     throw new IllegalStateException("Seeds should be two accessed via a 2-dimensional interval");
@@ -354,9 +357,7 @@ public class ContourDetectorNodeModel<T extends RealType<T>, L extends Comparabl
                         continue;
                     }
                     final double[] centroidAsDouble =
-                            centroidOp
-                                    .compute(Regions.iterable(region),
-                                             new double[subLabeling.numDimensions()]);
+                            centroidOp.compute(Regions.iterable(region), new double[subLabeling.numDimensions()]);
                     final long[] centroid = new long[centroidAsDouble.length];
                     int a = 0;
                     for (final double d : centroidAsDouble) {
@@ -436,8 +437,9 @@ public class ContourDetectorNodeModel<T extends RealType<T>, L extends Comparabl
                     resMin[selected[1]] = (long)r.getMinY();
 
                     con.addRowToTable(new DefaultRow(new RowKey(rowKey), cellFactory.createCell(new ImgPlus<BitType>(
-                            resBitMask, img), resMin), currentRow.getCell(m_seedColIdx), new DoubleCell(cd
-                            .getContourScore(c)), new StringCell(label.toString())));
+                            ImgView.wrap(Views.translate(resBitMask, resMin), img.factory().imgFactory(new BitType())),
+                            img)), currentRow.getCell(m_seedColIdx), new DoubleCell(cd.getContourScore(c)),
+                            new StringCell(label.toString())));
                 }
                 exec.checkCanceled();
                 processedRows++;

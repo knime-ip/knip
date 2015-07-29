@@ -283,7 +283,7 @@ public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>
                     MetadataUtil.copyTypedSpace(space, outMetadata);
 
                     // store created cell
-                    outCells[j] = m_imgPlusCellFactory.createCell(res, outMetadata);
+                    outCells[j] = m_imgPlusCellFactory.createCell(new ImgPlus(res, outMetadata));
 
                 } else {
                     // get the labeling value
@@ -291,11 +291,12 @@ public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>
 
                     // create new labeling
                     final RandomAccessibleInterval<LabelingType<L>> res =
-                            (RandomAccessibleInterval<LabelingType<L>>)KNIPGateway
-                                    .ops()
-                                    .createImgLabeling(new FinalInterval(loopStartNode.getResDimensions(firstLabelingValue
-                                                    .getLabeling(), count)),
-                                            Util.getTypeFromInterval(firstLabelingValue.getLabeling()).createVariable());
+                            (RandomAccessibleInterval<LabelingType<L>>)KNIPGateway.ops()
+                                    .createImgLabeling(new FinalInterval(
+                                                               loopStartNode.getResDimensions(firstLabelingValue
+                                                                       .getLabeling(), count)),
+                                                       Util.getTypeFromInterval(firstLabelingValue.getLabeling())
+                                                               .createVariable());
 
                     // copy all labeling slices in new created labeling
                     int i = 0;

@@ -411,7 +411,9 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
                         new DefaultImgMetadata(lmdata, new DefaultNamed(l.toString()), new DefaultSourced(
                                 lmdata.getName()), new DefaultImageMetadata());
 
-                cells.add(imgCellFactory.createCell(res, metadata, min));
+                ImgPlus<T> resImgPlus = new ImgPlus<>(ImgView.wrap(Views.translate(res, min), res.factory()), metadata);
+                resImgPlus.setSource(metadata.getSource());
+                cells.add(imgCellFactory.createCell(resImgPlus));
                 if (imgColIndex != -1) {
                     cells.add(row.getCell(imgColIndex));
                 }

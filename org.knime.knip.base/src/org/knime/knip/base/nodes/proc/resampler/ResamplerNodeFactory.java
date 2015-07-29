@@ -176,10 +176,8 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
                     }
                 }
 
-                return m_imgCellFactory.createCell(resample(img,
-                                                            Mode.valueOf(m_interpolationSettings.getStringValue()),
-                                                            new FinalInterval(newDimensions), scaleFactors), cellValue
-                                                           .getMetadata());
+                return m_imgCellFactory.createCell(new ImgPlus(resample(img, Mode.valueOf(m_interpolationSettings
+                        .getStringValue()), new FinalInterval(newDimensions), scaleFactors), cellValue.getMetadata()));
             }
 
             /**

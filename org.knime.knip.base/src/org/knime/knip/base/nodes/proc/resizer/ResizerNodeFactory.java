@@ -238,9 +238,11 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
                             .dimension(i)) / newDimensions[i])), i);
                 }
 
-                return m_imgCellFactory.createCell(resample(img, EnumUtils.valueForName(m_extensionTypeModel
-                                                                    .getStringValue(), ResizeStrategy.values()),
-                                                            new FinalInterval(newDimensions), scaleFactors), metadata);
+                return m_imgCellFactory
+                        .createCell(new ImgPlus(resample(img, EnumUtils.valueForName(m_extensionTypeModel
+                                                                 .getStringValue(), ResizeStrategy.values()),
+                                                         new FinalInterval(newDimensions),
+                                                         scaleFactors), metadata));
             }
 
             /**

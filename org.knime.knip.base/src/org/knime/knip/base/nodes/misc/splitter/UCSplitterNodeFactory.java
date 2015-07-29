@@ -135,7 +135,8 @@ public class UCSplitterNodeFactory<T extends RealType<T>> extends
                 for (int i = 0; i < tmp.length; i++) {
 
                     // TODO Test it here
-                    final Img<T> subImg = new ImgView<T>(SubsetOperations.subsetview(img.getImg(), tmp[i]), img.factory());
+                    final Img<T> subImg =
+                            new ImgView<T>(SubsetOperations.subsetview(img.getImg(), tmp[i]), img.factory());
 
                     final CalibratedSpace<CalibratedAxis> cSpace = new DefaultCalibratedSpace(subImg.numDimensions());
                     final CalibratedAxis[] axes = new CalibratedAxis[img.numDimensions()];
@@ -149,7 +150,7 @@ public class UCSplitterNodeFactory<T extends RealType<T>> extends
 
                     final ImgPlusMetadata metadata = new DefaultImgMetadata(cSpace, img, img, img);
 
-                    cells.add(m_imgCellFactory.createCell(subImg, metadata));
+                    cells.add(m_imgCellFactory.createCell(new ImgPlus(subImg, metadata)));
                 }
 
                 return CollectionCellFactory.createListCell(cells);

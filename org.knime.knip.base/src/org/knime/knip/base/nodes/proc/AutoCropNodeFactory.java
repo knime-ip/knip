@@ -198,9 +198,9 @@ public class AutoCropNodeFactory<T extends RealType<T>> extends ValueToCellNodeF
                 final Cursor<T> cur = img.localizingCursor();
 
                 final long[] min = new long[img.numDimensions()];
-                img.max(min);
+                img.min(min);
                 final long[] max = new long[img.numDimensions()];
-                img.min(max);
+                img.max(max);
 
                 while (cur.hasNext()) {
                     cur.fwd();
@@ -254,7 +254,7 @@ public class AutoCropNodeFactory<T extends RealType<T>> extends ValueToCellNodeF
                     cur2.get().set(cur1.get());
                 }
 
-                return m_imgCellFactory.createCell(res, img, min);
+                return m_imgCellFactory.createCell(new ImgPlus<>(res, img));
             }
 
             /**

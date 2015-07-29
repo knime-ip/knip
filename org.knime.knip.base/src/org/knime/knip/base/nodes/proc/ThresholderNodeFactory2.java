@@ -219,7 +219,7 @@ public class ThresholderNodeFactory2<T extends RealType<T>> extends ValueToCellN
 
                 if (imgPlus.firstElement() instanceof BitType) {
                     LOGGER.warn("Threshold of BitType image cannot be calculated. Image is returned as is.");
-                    return m_imgCellFactory.createCell(imgPlus, imgPlus, ((ImgPlusValue)cellValue).getMinimum());
+                    return m_imgCellFactory.createCell(imgPlus);
                 }
 
                 final String[] methods = m_thresholderSettings.getStringArrayValue();
@@ -240,27 +240,24 @@ public class ThresholderNodeFactory2<T extends RealType<T>> extends ValueToCellN
 
                         new UnaryRelationAssigment<T>(new RealGreaterThanConstant<T>(type)).compute(imgPlus, res);
 
-                        resCells[i] = m_imgCellFactory.createCell(res, res, ((ImgPlusValue)cellValue).getMinimum());
+                        resCells[i] = m_imgCellFactory.createCell(res);
                     } else if (thresholders[i] == ThresholdingType.INTERMODES
                             || thresholders[i] == ThresholdingType.MINIMUM
                             || thresholders[i] == ThresholdingType.ISODATA) {
                         LOGGER.warn("MINIMUM, INTERMODES and ISODATA are currently not supported because their implementation can result in incorrect results. A missing cell has been created.");
-                        return m_imgCellFactory.createCell(imgPlus, imgPlus, ((ImgPlusValue)cellValue).getMinimum());
+                        return m_imgCellFactory.createCell(imgPlus);
                     } else {
                         UnaryOutputOperation<ImgPlus<T>, ImgPlus<BitType>> op =
                                 ImgOperations.wrapII(new AutoThreshold<T>(thresholders[i]), new BitType());
 
-                        final Img<BitType> out;
-
                         try {
-                            out =
-                                    SubsetOperations.iterate(op, m_dimSelection.getSelectedDimIndices(imgPlus),
-                                                             imgPlus, res, getExecutorService());
+                            SubsetOperations.iterate(op, m_dimSelection.getSelectedDimIndices(imgPlus), imgPlus, res,
+                                                     getExecutorService());
                         } catch (Exception e) {
                             throw new KNIPRuntimeException(e.getMessage(), e);
                         }
 
-                        resCells[i] = m_imgCellFactory.createCell(out, res, ((ImgPlusValue)cellValue).getMinimum());
+                        resCells[i] = m_imgCellFactory.createCell(res);
                     }
 
                 }
@@ -319,5 +316,4 @@ public class ThresholderNodeFactory2<T extends RealType<T>> extends ValueToCellN
 
         };
     }
-
 }

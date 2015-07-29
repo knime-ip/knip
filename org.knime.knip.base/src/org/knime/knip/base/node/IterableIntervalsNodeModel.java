@@ -391,7 +391,8 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
                     break;
             }
         }
-        return m_cellFactory.createCell(res, cellValue.getMinimum());
+
+        return m_cellFactory.createCell(res);
     }
 
     // fills the res with val if labeling contains no labels at a certain position

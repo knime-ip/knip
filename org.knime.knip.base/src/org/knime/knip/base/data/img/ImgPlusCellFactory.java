@@ -51,7 +51,6 @@ package org.knime.knip.base.data.img;
 import java.io.IOException;
 
 import net.imagej.ImgPlus;
-import net.imagej.ImgPlusMetadata;
 import net.imglib2.img.Img;
 import net.imglib2.type.numeric.RealType;
 
@@ -85,31 +84,6 @@ public final class ImgPlusCellFactory extends KNIPCellFactory {
 
     /**
      * @param <T>
-     * @param img
-     * @param metadata
-     * @return {@link ImgPlusCell}
-     * @throws IOException
-     */
-    public final <T extends RealType<T>> ImgPlusCell<T> createCell(final Img<T> img, final ImgPlusMetadata metadata)
-            throws IOException {
-        return new ImgPlusCell<T>(img, metadata, getFileStore(getImgSize(img)));
-    }
-
-    /**
-     * @param <T>
-     * @param img
-     * @param metadata
-     * @param min
-     * @return cell
-     * @throws IOException
-     */
-    public final <T extends RealType<T>> ImgPlusCell<T> createCell(final Img<T> img, final ImgPlusMetadata metadata,
-                                                                   final long[] min) throws IOException {
-        return new ImgPlusCell<T>(img, metadata, min.clone(), getFileStore(getImgSize(img)));
-    }
-
-    /**
-     * @param <T>
      * @param imgPlus
      *
      * @return {@link ImgPlusCell}
@@ -117,18 +91,6 @@ public final class ImgPlusCellFactory extends KNIPCellFactory {
      */
     public final <T extends RealType<T>> ImgPlusCell<T> createCell(final ImgPlus<T> imgPlus) throws IOException {
         return new ImgPlusCell<T>(imgPlus, getFileStore(getImgSize(imgPlus.getImg())));
-    }
-
-    /**
-     * @param <T>
-     * @param imgPlus
-     * @param min
-     * @return {@link ImgPlusCell}
-     * @throws IOException
-     */
-    public final <T extends RealType<T>> ImgPlusCell<T> createCell(final ImgPlus<T> imgPlus, final long[] min)
-            throws IOException {
-        return new ImgPlusCell<T>(imgPlus, imgPlus, min.clone(), getFileStore(getImgSize(imgPlus)));
     }
 
     private final <T extends RealType<T>> double getImgSize(final Img<T> img) {

@@ -56,6 +56,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import net.imagej.ImgPlus;
+import net.imagej.ops.MetadataUtil;
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.exception.IncompatibleTypeException;
@@ -301,7 +302,9 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
                 SubsetOperations.iterate(op, m_smDimensions.getSelectedDimIndices(in), new ImgView<BitType>(
                         inAsBitType, inAsBitType.factory()), out, getExecutorService());
 
-                return (ImgPlusCell<T>)m_imgCellFactory.createCell(out, in);
+                final ImgPlus res = new ImgPlus(out, in);
+                MetadataUtil.copySource(in, res);
+                return m_imgCellFactory.createCell(res);
             } catch (final InterruptedException e) {
                 LOGGER.warn("Thread execution was interrupted", e);
                 throw new KNIPException(e.getMessage());
@@ -329,7 +332,9 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
 
                 SubsetOperations.iterate(op, m_smDimensions.getSelectedDimIndices(in),
                                          new ImgView<T>(in, in.factory()), out, getExecutorService());
-                return m_imgCellFactory.createCell(out, in);
+                final ImgPlus res = new ImgPlus(out, in);
+                MetadataUtil.copySource(in, res);
+                return m_imgCellFactory.createCell(res);
             } catch (final InterruptedException e) {
                 LOGGER.warn("Thread execution was interrupted", e);
                 throw new KNIPException(e.getMessage());
@@ -401,7 +406,6 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
         return kernel;
     }
 
-    @SuppressWarnings("deprecation")
     private UnaryOutputOperation<RandomAccessibleInterval<BitType>, RandomAccessibleInterval<BitType>>
             createOperationBit(final long[][] structuringElement,
                                final OutOfBoundsFactory<BitType, RandomAccessibleInterval<BitType>> oobFac) {

@@ -57,6 +57,7 @@ import java.util.List;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
+import net.imagej.ImgPlus;
 import net.imagej.ImgPlusMetadata;
 import net.imagej.space.DefaultCalibratedSpace;
 import net.imglib2.Cursor;
@@ -359,7 +360,7 @@ public class ImgComposeOperator<T1 extends RealType<T1>, T2 extends RealType<T2>
 
         // return the already composed result
         try {
-            return getImgPlusCellFactory().createCell(m_resultImg, m_resultMetadata);
+            return getImgPlusCellFactory().createCell(new ImgPlus(m_resultImg, m_resultMetadata));
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }

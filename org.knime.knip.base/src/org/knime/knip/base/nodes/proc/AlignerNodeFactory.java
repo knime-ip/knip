@@ -251,12 +251,14 @@ public class AlignerNodeFactory<T extends RealType<T>, V extends RealType<V>> ex
                     ivs[0] = new FinalInterval(mins, maxs);
                 }
 
-                return m_imgCellFactory.createCell(Operations.compute(new Aligner<T, V>(selectedDims1, selectedDim2,
-                                                                              ivs[0], sizemode, alignmode, m_stepSize
-                                                                                      .getIntValue(), m_minPixOverlap
-                                                                                      .getIntValue()), imgPlus,
-                                                                      cellValueB.getImgPlus()), cellValueA
-                        .getMetadata());
+                return m_imgCellFactory.createCell(new ImgPlus<>(Operations.compute(new Aligner<T, V>(selectedDims1,
+                                                                                            selectedDim2, ivs[0],
+                                                                                            sizemode, alignmode,
+                                                                                            m_stepSize.getIntValue(),
+                                                                                            m_minPixOverlap
+                                                                                                    .getIntValue()),
+                                                                                    imgPlus, cellValueB.getImgPlus()),
+                        cellValueA.getMetadata()));
             }
 
             /**
