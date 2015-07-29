@@ -240,7 +240,6 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>, L
      */
     private boolean addToLabeling(final ImgPlusValue<BitType> val, L label) {
         final Img<BitType> img = val.getImgPlus();
-        final long[] min = val.getMinimum();
 
         if (img.numDimensions() != m_resultLab.numDimensions()) {
             return false;
@@ -256,15 +255,7 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>, L
             if (!cur.get().get()) {
                 continue;
             }
-            for (int d = 0; d < min.length; d++) {
-                if (img.numDimensions() > d) {
-                    m_resAccess.setPosition(Math.min(m_resultLab.dimension(d),
-                                                     Math.max(0, min[d] + cur.getLongPosition(d))), d);
-                } else {
-                    m_resAccess.setPosition(Math.min(m_resultLab.dimension(d), Math.max(0, min[d])), d);
-                }
-
-            }
+            m_resAccess.setPosition(cur);
             m_resAccess.get().add(label);
         }
         return true;
