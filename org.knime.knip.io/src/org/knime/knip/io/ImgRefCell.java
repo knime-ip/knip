@@ -580,4 +580,9 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
 		return m_imgRef;
 	}
 
+	@Override
+	public long[] getMinimum() {
+		throw new UnsupportedOperationException("");
+	}
+
 }

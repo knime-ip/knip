@@ -148,6 +148,12 @@ public interface ImgPlusValue<T extends RealType<T>> extends DataValue {
     public ImgPlusMetadata getMetadata();
 
     /**
+     * @return the minimum of images. NB: Should be the same as img.min(..)
+     */
+    @Deprecated
+    public long[] getMinimum();
+
+    /**
      * @return the pixel type of the image
      */
     public Class<T> getPixelType();
