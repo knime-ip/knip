@@ -372,32 +372,36 @@ public final class AWTImageTools {
                                                                                  final double factor,
                                                                                  final long[] startPos) {
 
-        int width;
-        int height;
+        long width;
+        long height;
 
         FinalInterval interval;
         AffineGet transform;
+
+        long[] min = new long[img.numDimensions()];
+        img.min(min);
+
         if (img.numDimensions() == 1) {
-            width = Math.max(1, (int)(img.dimension(0) * factor));
+            width = min[0] + Math.max(1, (int)(img.dimension(0) * factor));
             height = 1;
 
             transform = new AffineTransform2D();
             ((AffineTransform2D)transform).scale(factor);
-            interval = new FinalInterval(new long[]{width, height});
+            interval = new FinalInterval(min, new long[]{width - 1, height - 1});
             img = MiscViews.synchronizeDimensionality(img, interval);
         } else if (img.numDimensions() == 2) {
-            width = Math.max(1, (int)(img.dimension(0) * factor));
-            height = Math.max(1, (int)(img.dimension(1) * factor));
+            width = min[0] + Math.max(1, (int)(img.dimension(0) * factor));
+            height = min[1] + Math.max(1, (int)(img.dimension(1) * factor));
             transform = new AffineTransform2D();
             ((AffineTransform2D)transform).scale(factor);
-            interval = new FinalInterval(new long[]{width, height});
+            interval = new FinalInterval(min, new long[]{width - 1, height - 1});
         } else if (img.numDimensions() == 3) {
-            width = Math.max(1, (int)(img.dimension(0) * factor));
-            height = Math.max(1, (int)(img.dimension(1) * factor));
+            width = min[0] + Math.max(1, (int)(img.dimension(0) * factor));
+            height = min[1] + Math.max(1, (int)(img.dimension(1) * factor));
             transform = new AffineTransform3D();
             ((AffineTransform3D)transform).set(factor, 0.0, 0.0, 0.0, 0.0, factor, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
-            interval = new FinalInterval(new long[]{width, height, img.dimension(2)});
+            interval = new FinalInterval(min, new long[]{width, height, img.dimension(2)});
 
         } else {
             throw new IllegalArgumentException("Images with more than 3 dimensions are not supported!");

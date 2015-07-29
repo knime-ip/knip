@@ -50,9 +50,9 @@ package org.knime.knip.core.awt;
 
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.display.projector.IterableIntervalProjector2D;
-import net.imglib2.display.screenimage.awt.ARGBScreenImage;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
 
 import org.knime.knip.core.awt.lookup.LookupTable;
 import org.knime.knip.core.awt.parametersupport.RendererWithLookupTable;
@@ -112,7 +112,7 @@ public class Real2ColorByLookupTableRenderer<T extends RealType<T>> extends Proj
     @Override
     protected IterableIntervalProjector2D<T, ARGBType> getProjector(final int dimX, final int dimY,
                                                     final RandomAccessibleInterval<T> source,
-                                                    final ARGBScreenImage target) {
-        return new IterableIntervalProjector2D<T, ARGBType>(dimX, dimY, source, target, m_converter);
+                                                    final RandomAccessibleInterval<ARGBType> target) {
+        return new IterableIntervalProjector2D<T, ARGBType>(dimX, dimY, source, Views.iterable(target), m_converter);
     }
 }

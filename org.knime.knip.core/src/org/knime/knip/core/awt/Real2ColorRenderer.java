@@ -50,9 +50,9 @@ package org.knime.knip.core.awt;
 
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.display.projector.sampler.SamplingProjector2D;
-import net.imglib2.display.screenimage.awt.ARGBScreenImage;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
 
 import org.knime.knip.core.awt.converter.RealColorARGBConverter;
 import org.knime.knip.core.awt.parametersupport.RendererWithNormalization;
@@ -89,9 +89,9 @@ public class Real2ColorRenderer<R extends RealType<R>> extends ProjectingRendere
     @Override
     protected SamplingProjector2D<R, ARGBType> getProjector(final int dimX, final int dimY,
                                                             final RandomAccessibleInterval<R> source,
-                                                            final ARGBScreenImage target) {
+                                                            final RandomAccessibleInterval<ARGBType> target) {
 
-        return new SamplingProjector2D<R, ARGBType>(dimX, dimY, source, target, m_converter, m_projectedDimension);
+        return new SamplingProjector2D<R, ARGBType>(dimX, dimY, source, Views.iterable(target), m_converter, m_projectedDimension);
     }
 
 }
