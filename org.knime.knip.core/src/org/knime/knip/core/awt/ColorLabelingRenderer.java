@@ -56,10 +56,10 @@ import java.util.Set;
 
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.display.projector.IterableIntervalProjector2D;
-import net.imglib2.display.screenimage.awt.ARGBScreenImage;
 import net.imglib2.roi.labeling.LabelingMapping;
 import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.ARGBType;
+import net.imglib2.view.Views;
 
 import org.knime.knip.core.awt.converter.LabelingTypeARGBConverter;
 import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
@@ -147,7 +147,7 @@ public class ColorLabelingRenderer<L> extends ProjectingRenderer<LabelingType<L>
     @Override
     protected IterableIntervalProjector2D<LabelingType<L>, ARGBType>
             getProjector(final int dimX, final int dimY, final RandomAccessibleInterval<LabelingType<L>> source,
-                         final ARGBScreenImage target) {
+                         final RandomAccessibleInterval<ARGBType> target) {
 
         if (m_rebuildRequired) {
             m_rebuildRequired = false;
@@ -162,7 +162,7 @@ public class ColorLabelingRenderer<L> extends ProjectingRenderer<LabelingType<L>
             rebuildLabelConverter();
         }
 
-        return new IterableIntervalProjector2D<LabelingType<L>, ARGBType>(dimX, dimY, source, target, m_converter);
+        return new IterableIntervalProjector2D<LabelingType<L>, ARGBType>(dimX, dimY, source, Views.iterable(target), m_converter);
     }
 
     // create the converter

@@ -54,10 +54,10 @@ import net.imglib2.display.ColorTable16;
 import net.imglib2.display.ColorTable8;
 import net.imglib2.display.projector.AbstractProjector2D;
 import net.imglib2.display.projector.IterableIntervalProjector2D;
-import net.imglib2.display.screenimage.awt.ARGBScreenImage;
 import net.imglib2.display.screenimage.awt.AWTScreenImage;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
 
 import org.knime.knip.core.awt.converter.RealTableColorARGBConverter;
 import org.knime.knip.core.awt.parametersupport.RendererWithColorTable;
@@ -142,9 +142,10 @@ public class Real2TableColorRenderer<R extends RealType<R>> extends ProjectingRe
 
     @Override
     protected AbstractProjector2D getProjector(final int dimX, final int dimY,
-                                               final RandomAccessibleInterval<R> source, final ARGBScreenImage target) {
+                                               final RandomAccessibleInterval<R> source,
+                                               final RandomAccessibleInterval<ARGBType> target) {
 
-        return new IterableIntervalProjector2D<R, ARGBType>(dimX, dimY, source, target, m_converter);
+        return new IterableIntervalProjector2D<R, ARGBType>(dimX, dimY, source, Views.iterable(target), m_converter);
     }
 
     @Override
