@@ -699,7 +699,8 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
         final Img<BitType> bitMask =
                 createBinaryMask(resultLabeling, trackName);
 
-        cells.add(new ImgPlusCellFactory(exec).createCell(bitMask, mdata));
+        cells.add(new ImgPlusCellFactory(exec).createCell(new ImgPlus(bitMask,
+                mdata)));
 
         // Features
         for (final TrackMateTrackFeature feature : TrackMateTrackFeature

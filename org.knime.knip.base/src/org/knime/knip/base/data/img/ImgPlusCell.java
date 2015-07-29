@@ -69,6 +69,7 @@ import net.imagej.space.CalibratedSpace;
 import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.util.MetadataUtil;
 import net.imglib2.type.numeric.RealType;
@@ -186,19 +187,6 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
     }
 
     /**
-     * Creates a new img plus cell using the given file store, i.e. writes the image data into the file provided by the
-     * file store.
-     *
-     * @param img
-     * @param metadata
-     * @param fileStore
-     */
-    protected ImgPlusCell(final Img<T> img, final ImgPlusMetadata metadata, final FileStore fileStore) {
-        this(img, metadata, getMinFromImg(img), fileStore);
-
-    }
-
-    /**
      * @param img
      * @return
      */
@@ -218,13 +206,14 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
      *
      * @param fileStore
      */
-    protected ImgPlusCell(final Img<T> img, final ImgPlusMetadata metadata, final long[] min, final FileStore fileStore) {
+    protected ImgPlusCell(final Img<T> img, final ImgPlusMetadata metadata, final FileStore fileStore) {
         super(fileStore);
-        if (img instanceof ImgPlus) {
+        m_img = img;
+
+        while (m_img instanceof ImgPlus) {
             m_img = ((ImgPlus<T>)img).getImg();
-        } else {
-            m_img = img;
         }
+
         final long[] dimensions = new long[img.numDimensions()];
         img.dimensions(dimensions);
 
@@ -232,7 +221,8 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
 
         m_imgMetadata =
                 new ImgPlusCellMetadata(MetadataUtil.copyImgPlusMetadata(metadata, new DefaultImgMetadata(
-                        dimensions.length)), img.size(), min, dimensions, img.firstElement().getClass(), null);
+                        dimensions.length)), img.size(), getMinFromImg(img), dimensions, img.firstElement().getClass(),
+                        null);
     }
 
     /**
@@ -361,8 +351,20 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
     @Override
     public synchronized ImgPlus<T> getImgPlus() {
         readImgData(m_fileMetadata.getOffset(), false);
-        final ImgPlus<T> imgPlus = new ImgPlus<T>(m_img, m_imgMetadata.getMetadata());
+
+        final long[] minimum = getMinimum();
+        Img<T> tmp = m_img;
+
+        for (int d = 0; d < minimum.length; d++) {
+            if (minimum[d] != 0) {
+                tmp = ImgView.wrap(Views.translate(tmp, minimum), m_img.factory());
+                break;
+            }
+        }
+
+        final ImgPlus<T> imgPlus = new ImgPlus<T>(tmp, m_imgMetadata.getMetadata());
         imgPlus.setSource(m_imgMetadata.getMetadata().getSource());
+
         return imgPlus;
     }
 

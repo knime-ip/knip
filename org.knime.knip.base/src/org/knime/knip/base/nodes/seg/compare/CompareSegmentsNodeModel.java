@@ -57,11 +57,11 @@ import java.util.Arrays;
 
 import net.imglib2.Interval;
 import net.imglib2.RandomAccess;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.iterator.IntervalIterator;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.util.Intervals;
-import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 
 import org.knime.base.node.parallel.appender.AppendColumn;
@@ -245,11 +245,8 @@ public class CompareSegmentsNodeModel extends ThreadedColAppenderNodeModel {
             return 0;
         }
 
-        long[] min1 = val1.getMinimum();
-        long[] min2 = val2.getMinimum();
-
-        IntervalView<BitType> iv1 = Views.translate(img1, min1);
-        IntervalView<BitType> iv2 = Views.translate(img2, min2);
+        RandomAccessibleInterval<BitType> iv1 = img1;
+        RandomAccessibleInterval<BitType> iv2 = img2;
 
         //adopt image dimension if they are different
         int dimDiff = img1.numDimensions() - img2.numDimensions();

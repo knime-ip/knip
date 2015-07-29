@@ -235,7 +235,7 @@ public final class GrayscaleReconstructionNodeFactory<T extends RealType<T>> ext
                 Img<T> out = marker.copy();
                 SubsetOperations.iterate(op, selectedDimIndices, mask, out, getExecutorService());
 
-                return m_imgCellFactory.createCell(out, cellValue1.getMetadata());
+                return m_imgCellFactory.createCell(new ImgPlus(out, cellValue1.getMetadata()));
             }
 
             /**

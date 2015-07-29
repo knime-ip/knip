@@ -54,11 +54,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import net.imagej.ImgPlus;
 import net.imagej.ImgPlusMetadata;
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.roi.IterableRegion;
 import net.imglib2.roi.Regions;
@@ -67,6 +69,7 @@ import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.logic.BoolType;
 import net.imglib2.type.numeric.IntegerType;
+import net.imglib2.view.Views;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnProperties;
@@ -208,7 +211,8 @@ public class Lab2TableNodeModel<L extends Comparable<L>, II extends IntegerType<
                         new DefaultImgMetadata(lmdata, new DefaultNamed(label.toString()), new DefaultSourced(
                                 lmdata.getName()), new DefaultImageMetadata());
 
-                cells.add(imgCellFactory.createCell(createBinaryMask(ir), mdata, min));
+                cells.add(imgCellFactory.createCell(new ImgPlus(
+                        ImgView.wrap(Views.translate(createBinaryMask(ir), min), new ArrayImgFactory<BitType>()), mdata)));
 
                 // Segment label
                 cells.add(new StringCell(label.toString()));

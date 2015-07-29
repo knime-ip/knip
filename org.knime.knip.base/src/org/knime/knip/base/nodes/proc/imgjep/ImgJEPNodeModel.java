@@ -321,7 +321,7 @@ public class ImgJEPNodeModel extends NodeModel implements BufferedDataTableHolde
 
                 }
                 try {
-                    return m_imgCellFactory.createCell(imgRes, referenceMetadata);
+                    return m_imgCellFactory.createCell(new ImgPlus(imgRes, referenceMetadata));
                 } catch (final IOException e) {
                     throw new RuntimeException(e);
                 }

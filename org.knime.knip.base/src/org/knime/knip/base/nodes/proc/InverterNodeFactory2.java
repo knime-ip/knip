@@ -59,6 +59,7 @@ import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.ops.operation.real.unary.RealUnaryOperation;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
 
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.knip.base.data.img.ImgPlusCell;
@@ -170,12 +171,11 @@ public class InverterNodeFactory2<T extends RealType<T>, L extends Comparable<L>
                 } else {
                     // this can be done faster
                     ImgPlus<T> in = cellValue.getImgPlus();
-                    return m_cellFactory.createCell(new ImgPlus<T>(new ImgView<T>(
-                                                            new ConvertedRandomAccessibleInterval<T, T>(in,
-                                                                    new UnaryOperationBasedConverter<T, T>(createOp(in
-                                                                            .firstElement().createVariable())),
-                                                                    getOutType(in.firstElement())), in.factory()), in),
-                                                    cellValue.getMinimum());
+                    return m_cellFactory.createCell(new ImgPlus<T>(new ImgView<T>(Views
+                            .translate(new ConvertedRandomAccessibleInterval<T, T>(in,
+                                               new UnaryOperationBasedConverter<T, T>(createOp(in.firstElement()
+                                                       .createVariable())), getOutType(in.firstElement())), cellValue
+                                               .getMinimum()), in.factory()), in));
                 }
             }
 

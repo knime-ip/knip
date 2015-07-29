@@ -174,7 +174,7 @@ public class ConvertImgNodeFactory<T extends RealType<T> & NativeType<T>> extend
              *
              * @throws IllegalArgumentException
              */
-            @SuppressWarnings({"unchecked", "rawtypes"})
+            @SuppressWarnings({"unchecked", "rawtypes", "deprecation"})
             @Override
             protected ImgPlusCell compute(final ImgPlusValue<T> cellValue) throws IOException {
                 final ImgPlus<T> img = cellValue.getImgPlus();
@@ -224,7 +224,10 @@ public class ConvertImgNodeFactory<T extends RealType<T> & NativeType<T>> extend
                         throw new IllegalArgumentException("Unsupported conversion.");
                 }
 
-                return m_imgCellFactory.createCell(new ImgView(res, img.factory()), img);
+                final ImgPlus resImgPlus = new ImgPlus(new ImgView(res, img.factory()), img);
+                resImgPlus.setSource(img.getSource());
+
+                return m_imgCellFactory.createCell(resImgPlus);
             }
 
             public synchronized <O extends RealType<O> & NativeType<O>> Img<O> convert(final Img<T> img,

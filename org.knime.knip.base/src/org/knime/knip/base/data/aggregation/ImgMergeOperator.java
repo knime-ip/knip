@@ -628,10 +628,10 @@ public class ImgMergeOperator<T extends RealType<T> & NativeType<T>, A, ADA exte
         for (int i = 0; i < m_data.size(); i++) {
             mirror.add(m_typeHandler.wrap(m_data.get(i)));
         }
-        final CustomPlanarImg img = new CustomPlanarImg(mirror, m_dims, new Fraction(1,1));
+        final CustomPlanarImg img = new CustomPlanarImg(mirror, m_dims, new Fraction(1, 1));
         img.setLinkedType(m_typeHandler.createLinkedType(img));
         try {
-            return getImgPlusCellFactory().createCell(img, m_metadata);
+            return getImgPlusCellFactory().createCell(new ImgPlus(img, m_metadata));
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }

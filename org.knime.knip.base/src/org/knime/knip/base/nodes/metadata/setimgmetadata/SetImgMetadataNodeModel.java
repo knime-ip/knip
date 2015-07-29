@@ -56,7 +56,9 @@ import net.imagej.ImgPlusMetadata;
 import net.imagej.axis.Axes;
 import net.imagej.axis.DefaultLinearAxis;
 import net.imagej.space.DefaultCalibratedSpace;
+import net.imglib2.img.ImgView;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
@@ -251,7 +253,8 @@ public class SetImgMetadataNodeModel<T extends RealType<T>> extends NodeModel im
                                 source), imgPlus);
 
                 try {
-                    return new DataCell[]{imgFactory.createCell(imgPlus.getImg(), metadata, min)};
+                    return new DataCell[]{imgFactory.createCell(new ImgPlus<>(ImgView.wrap(Views.translate(imgPlus
+                            .getImg(), min), imgPlus.getImg().factory()), metadata))};
                 } catch (final IOException e) {
                     throw new RuntimeException(e);
                 }

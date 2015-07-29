@@ -64,7 +64,7 @@ import org.knime.knip.base.node.TwoValuesToCellNodeFactory;
 import org.knime.knip.base.node.TwoValuesToCellNodeModel;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -125,7 +125,7 @@ public class TransferImgMetadataNodeFactory<T extends RealType<T>> extends
                 final ImgPlus<T> res = cellValue2.getImgPlusCopy();
                 MetadataUtil.copyImgPlusMetadata(src, res);
 
-                return m_imgCellFactory.createCell(res, res, cellValue1.getMinimum());
+                return m_imgCellFactory.createCell(res);
             }
 
             /**

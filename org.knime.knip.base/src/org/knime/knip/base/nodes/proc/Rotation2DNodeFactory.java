@@ -225,7 +225,7 @@ public class Rotation2DNodeFactory<T extends RealType<T>> extends ValueToCellNod
                         new ImgRotate2D<T>(m_angle.getDoubleValue(), dimIndices[0], dimIndices[1],
                                 m_keepSize.getBooleanValue(), min, center);
 
-                return m_imgCellFactory.createCell(Operations.compute(rot, srcImg), srcImg);
+                return m_imgCellFactory.createCell(new ImgPlus<>(Operations.compute(rot, srcImg), srcImg));
             }
 
             /**
