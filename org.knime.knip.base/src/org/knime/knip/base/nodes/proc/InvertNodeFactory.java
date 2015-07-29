@@ -59,7 +59,6 @@ import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.ops.operation.real.unary.RealUnaryOperation;
 import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.view.Views;
 
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
@@ -138,11 +137,10 @@ public class InvertNodeFactory<T extends RealType<T>> extends ValueToCellNodeFac
                     invert = new RealInvert<T, T>();
                 }
 
-                return m_imgCellFactory.createCell(new ImgPlus<>(new ImgView<T>(Views
-                        .translate(new ConvertedRandomAccessibleInterval<T, T>(img,
-                                           new UnaryOperationBasedConverter<T, T>(invert), img.firstElement()
-                                                   .createVariable()),
-                                   ((ImgPlusValue)cellValue).getMinimum()), img.factory()), cellValue.getMetadata()));
+                return m_imgCellFactory.createCell(new ImgPlus<>(new ImgView<T>(
+                        new ConvertedRandomAccessibleInterval<T, T>(img,
+                                new UnaryOperationBasedConverter<T, T>(invert), img.firstElement().createVariable()),
+                        img.factory()), cellValue.getMetadata()));
             }
         };
     }

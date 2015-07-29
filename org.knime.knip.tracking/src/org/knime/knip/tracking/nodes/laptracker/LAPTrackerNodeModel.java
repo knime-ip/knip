@@ -267,14 +267,9 @@ public class LAPTrackerNodeModel extends NodeModel implements
                     centroid.compute(bitMask,
                             new double[bitMask.numDimensions()]);
 
-            for (int d = 0; d < pos.length; d++) {
-                pos[d] += bitMaskValue.getMinimum()[d];
-            }
-
             // add the node
             final TrackedNode<String> trackedNode =
-                    new TrackedNode<String>(bitMask, pos,
-                            bitMaskValue.getMinimum(), label, timeIdx,
+                    new TrackedNode<String>(bitMask, pos, label, timeIdx,
                             featureMap);
 
             trackedNodes.add(trackedNode, trackedNode.frame());
@@ -335,8 +330,8 @@ public class LAPTrackerNodeModel extends NodeModel implements
                     }
 
                     for (int d = 0; d < numDims; d++) {
-                        resAccess.setPosition(bitMaskCursor.getLongPosition(d)
-                                + node.offset(d), d);
+                        resAccess.setPosition(bitMaskCursor.getLongPosition(d),
+                                d);
                     }
                     // set all the important information
                     final Set<String> labeling =

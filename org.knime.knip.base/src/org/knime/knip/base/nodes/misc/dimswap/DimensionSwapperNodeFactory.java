@@ -129,7 +129,9 @@ public class DimensionSwapperNodeFactory<T extends RealType<T>> extends ValueToC
             @Override
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
                 final ImgPlus<T> img = cellValue.getImgPlus();
-                long[] minimum = cellValue.getMinimum();
+                long[] minimum = new long[img.numDimensions()];
+                img.min(minimum);
+
                 long[] permutedMinimum = new long[minimum.length];
 
                 int[] mapping = new int[img.numDimensions()];

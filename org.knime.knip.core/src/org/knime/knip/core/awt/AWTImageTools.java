@@ -383,11 +383,10 @@ public final class AWTImageTools {
 
         if (img.numDimensions() == 1) {
             width = min[0] + Math.max(1, (int)(img.dimension(0) * factor));
-            height = min[1] + 1;
 
             transform = new AffineTransform2D();
             ((AffineTransform2D)transform).scale(factor);
-            interval = new FinalInterval(min, new long[]{width - 1, height - 1});
+            interval = new FinalInterval(new long[]{min[0], 0}, new long[]{width - 1, 0});
             img = MiscViews.synchronizeDimensionality(img, interval);
         } else if (img.numDimensions() == 2) {
             width = min[0] + Math.max(1, (int)(img.dimension(0) * factor));
