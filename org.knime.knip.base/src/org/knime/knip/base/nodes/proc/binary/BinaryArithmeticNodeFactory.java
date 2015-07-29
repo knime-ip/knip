@@ -203,7 +203,7 @@ public final class BinaryArithmeticNodeFactory extends
                 }
                 m_op.compute(iiIn1, iiIn2, iiOut);
 
-                return m_imgCellFactory.createCell(out, cellValue1.getMetadata());
+                return m_imgCellFactory.createCell(new ImgPlus<>(out, cellValue1.getMetadata()));
 
             }
 
@@ -231,5 +231,4 @@ public final class BinaryArithmeticNodeFactory extends
 
         };
     }
-
 }

@@ -51,9 +51,11 @@ package org.knime.knip.base.nodes.proc;
 import java.util.List;
 
 import net.imagej.ImgPlus;
+import net.imglib2.img.ImgView;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.imgplus.unary.ImgPlusExtendDims;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
 
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.DialogComponentString;
@@ -124,15 +126,20 @@ public class DimExtendNodeFactory<T extends RealType<T>> extends ValueToCellNode
 
             @Override
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
-                ImgPlus<T> res = Operations.compute(m_ext, cellValue.getImgPlus());
-                res.setName(cellValue.getMetadata().getName());
-                res.setSource(cellValue.getMetadata().getSource());
 
                 long[] minimum = cellValue.getMinimum();
                 long[] newMinimum = new long[minimum.length + 1];
                 System.arraycopy(minimum, 0, newMinimum, 0, minimum.length);
 
-                return m_imgCellFactory.createCell(res, newMinimum);
+                ImgPlus<T> res = Operations.compute(m_ext, cellValue.getImgPlus());
+                res =
+                        new ImgPlus<T>(
+                                ImgView.wrap(Views.translate(res, newMinimum), cellValue.getImgPlus().factory()), res);
+
+                res.setName(cellValue.getMetadata().getName());
+                res.setSource(cellValue.getMetadata().getSource());
+
+                return m_imgCellFactory.createCell(res);
             }
 
             @Override

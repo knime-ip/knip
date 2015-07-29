@@ -406,7 +406,7 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
                     MetadataUtil.copySource(inMetadata, outMetadata);
                     MetadataUtil.copyAndCleanTypedSpace(currInterval, inMetadata, outMetadata);
 
-                    cells[j] = m_imgPlusCellFactory.createCell(outImg, outMetadata);
+                    cells[j] = m_imgPlusCellFactory.createCell(new ImgPlus(outImg, outMetadata));
                 }
             }
             container.addRowToTable(new DefaultRow("Slice " + i, cells));

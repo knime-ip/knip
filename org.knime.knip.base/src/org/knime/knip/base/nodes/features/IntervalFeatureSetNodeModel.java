@@ -384,14 +384,7 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
                                                                         }
                                                                     }, new BitType()), new ArrayImgFactory<BitType>());
 
-                    // min
-                    final long[] min = new long[ii.numDimensions()];
-
-                    for (int j = 0; j < min.length; j++) {
-                        min[j] = ii.min(j);
-                    }
-
-                    cells.add(cellFactory.createCell(bitMask, mdata, min));
+                    cells.add(cellFactory.createCell(new ImgPlus(bitMask, mdata)));
 
                     // Segment label
                     cells.add(new StringCell(label.toString()));

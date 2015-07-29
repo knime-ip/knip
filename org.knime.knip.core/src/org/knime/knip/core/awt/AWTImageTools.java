@@ -383,7 +383,7 @@ public final class AWTImageTools {
 
         if (img.numDimensions() == 1) {
             width = min[0] + Math.max(1, (int)(img.dimension(0) * factor));
-            height = 1;
+            height = min[1] + 1;
 
             transform = new AffineTransform2D();
             ((AffineTransform2D)transform).scale(factor);

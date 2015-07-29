@@ -54,6 +54,7 @@ import net.imagej.ImgPlus;
 import net.imagej.axis.TypedAxis;
 import net.imglib2.img.ImgView;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
 
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.NodeFactory;
@@ -146,7 +147,8 @@ public class DimensionSwapperNodeFactory<T extends RealType<T>> extends ValueToC
                         permutedMinimum[i] = minimum[mapping[i]];
                     }
 
-                    return m_imgCellFactory.createCell(res, permutedMinimum);
+                    return m_imgCellFactory.createCell(new ImgPlus<>(
+                            ImgView.wrap(Views.translate(res, permutedMinimum), res.factory()), res));
 
                 } catch (IllegalArgumentException e) {
                     throw new KNIPException(e.getMessage());
