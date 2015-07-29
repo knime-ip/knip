@@ -179,7 +179,8 @@ public class LabelingComposeOperatorDeprecated<T extends IntegerType<T> & Native
      */
     private boolean addToLabeling(final ImgPlusValue<BitType> val) {
         final Img<BitType> img = val.getImgPlus();
-        final long[] min = val.getMinimum();
+        final long[] min = new long[img.numDimensions()];
+        img.min(min);
 
         if (img.numDimensions() != m_resultLab.numDimensions()) {
             return false;
@@ -255,7 +256,8 @@ public class LabelingComposeOperatorDeprecated<T extends IntegerType<T> & Native
                 LOGGER.warn("Bitmask in row " + row.getKey() + " cannot be added to the result.");
                 return true;
             } else {
-                final long[] min = imgVal.getMinimum();
+                final long[] min = new long[dims.length];
+                imgVal.getImgPlus().min(min);
                 for (int i = 0; i < m_maxDims.length; i++) {
                     m_maxDims[i] = Math.max(m_maxDims[i], min[i] + dims[i]);
                 }

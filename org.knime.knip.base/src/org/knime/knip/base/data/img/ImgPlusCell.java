@@ -359,6 +359,8 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
         Img<T> tmp = m_img;
 
         if (!Arrays.equals(minimum, localMin)) {
+
+
             for (int d = 0; d < minimum.length; d++) {
                 if (minimum[d] != 0) {
                     tmp = ImgView.wrap(Views.translate(tmp, minimum), m_img.factory());
@@ -366,7 +368,6 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
                 }
             }
         }
-
         final ImgPlus<T> imgPlus = new ImgPlus<T>(tmp, m_imgMetadata.getMetadata());
         imgPlus.setSource(m_imgMetadata.getMetadata().getSource());
 

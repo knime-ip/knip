@@ -503,14 +503,6 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
-	public long[] getMinimum() {
-		return new long[getDimensions().length];
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public Class<T> getPixelType() {

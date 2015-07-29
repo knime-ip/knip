@@ -232,7 +232,8 @@ public class SetImgMetadataNodeModel<T extends RealType<T>> extends NodeModel im
                     }
                 }
 
-                final long[] min = imgPlusVal.getMinimum();
+                final long[] min = new long[imgPlusVal.getDimensions().length];
+                imgPlusVal.getImgPlus().min(min);
                 for (int i = 0; i < Math.min(min.length, m_offsetColIndices.length); i++) {
                     if (m_offsetColIndices[i] != -1) {
                         min[i] = ((LongValue)row.getCell(m_offsetColIndices[i])).getLongValue();

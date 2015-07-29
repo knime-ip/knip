@@ -148,11 +148,6 @@ public interface ImgPlusValue<T extends RealType<T>> extends DataValue {
     public ImgPlusMetadata getMetadata();
 
     /**
-     * @return the minimum/offset of the imageF
-     */
-    public long[] getMinimum();
-
-    /**
      * @return the pixel type of the image
      */
     public Class<T> getPixelType();

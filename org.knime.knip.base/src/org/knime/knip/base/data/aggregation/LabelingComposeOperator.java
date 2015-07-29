@@ -75,7 +75,6 @@ import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.util.Intervals;
 import net.imglib2.util.Util;
-import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 
 import org.knime.base.data.aggregation.AggregationOperator;
@@ -336,7 +335,8 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>, L
                 LOGGER.warn("Bitmask in row " + row.getKey() + " cannot be added to the result.");
                 return true;
             } else {
-                final long[] min = imgVal.getMinimum();
+                final long[] min = new long[dims.length];
+                imgVal.getImgPlus().min(min);
                 for (int i = 0; i < m_maxDims.length; i++) {
                     m_maxDims[i] = Math.max(m_maxDims[i], min[i] + dims[i]);
                 }
@@ -578,11 +578,8 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>, L
         final Img<BitType> img1 = val1.getImgPlus();
         final Img<BitType> img2 = val2.getImgPlus();
 
-        final long[] min1 = val1.getMinimum();
-        final long[] min2 = val2.getMinimum();
-
-        final IntervalView<BitType> iv1 = Views.translate(img1, min1);
-        final IntervalView<BitType> iv2 = Views.translate(img2, min2);
+        final RandomAccessibleInterval<BitType> iv1 = img1;
+        final RandomAccessibleInterval<BitType> iv2 = img2;
 
         final Interval intersect = Intervals.intersect(iv1, iv2);
         for (int i = 0; i < intersect.numDimensions(); i++) {
