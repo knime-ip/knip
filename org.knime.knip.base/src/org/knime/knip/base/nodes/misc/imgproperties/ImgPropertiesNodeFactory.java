@@ -187,10 +187,11 @@ public class ImgPropertiesNodeFactory<T extends RealType<T>> extends ValueToCell
                             cells[ctr++] = CollectionCellFactory.createListCell(calibration);
                             break;
                         case 9:
-                            long[] offsets = imgPlusValue.getMinimum();
-                            final List<LongCell> offsetCells = new ArrayList<LongCell>(offsets.length);
-                            for (int i = 0; i < offsets.length; i++) {
-                                offsetCells.add(new LongCell(offsets[i]));
+                            long[] min = new long[imgPlusValue.getDimensions().length];
+                            imgPlusValue.getImgPlus().min(min);
+                            final List<LongCell> offsetCells = new ArrayList<LongCell>(min.length);
+                            for (int i = 0; i < min.length; i++) {
+                                offsetCells.add(new LongCell(min[i]));
                             }
                             cells[ctr++] = CollectionCellFactory.createListCell(offsetCells);
                             break;

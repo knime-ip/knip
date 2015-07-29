@@ -106,8 +106,14 @@ public class ImgComparatorNodeModel<T extends NativeType<T> & RealType<T>> exten
             throw new IllegalStateException("Sources of images is not the same! " + row.getKey().toString());
         }
 
-        if (!Arrays.equals(vin1.getMinimum(), vin2.getMinimum())) {
-            throw new IllegalStateException("Minima of images are not the same");
+        long[] min1 = new long[img1.numDimensions()];
+        img1.min(min1);
+
+        long[] min2 = new long[img2.numDimensions()];
+        img2.min(min2);
+
+        if (!Arrays.equals(min1, min2)) {
+            throw new IllegalStateException("Minimum of images is not the same! " + row.getKey().toString());
         }
 
         for (int d = 0; d < img1.numDimensions(); d++) {

@@ -152,7 +152,8 @@ public class ImgComposeOperatorDeprecated<T1 extends RealType<T1>, T2 extends Re
      */
     private boolean addToImage(final ImgPlusValue<T1> val) {
         final Img<T1> patch = val.getImgPlus();
-        final long[] min = val.getMinimum();
+        final long[] min = new long[patch.numDimensions()];
+        patch.min(min);
 
         if (patch.numDimensions() != m_resultImg.numDimensions()) {
             return false;
@@ -209,7 +210,8 @@ public class ImgComposeOperatorDeprecated<T1 extends RealType<T1>, T2 extends Re
                 LOGGER.warn("Patch in row " + row.getKey() + " cannot be added to the result.");
                 return true;
             } else {
-                final long[] min = imgVal.getMinimum();
+                final long[] min = new long[dims.length];
+                imgVal.getImgPlus().min(min);
                 for (int i = 0; i < m_maxDims.length; i++) {
                     m_maxDims[i] = Math.max(m_maxDims[i], min[i] + dims[i]);
                 }

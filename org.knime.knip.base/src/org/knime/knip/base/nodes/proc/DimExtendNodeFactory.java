@@ -127,7 +127,9 @@ public class DimExtendNodeFactory<T extends RealType<T>> extends ValueToCellNode
             @Override
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
 
-                long[] minimum = cellValue.getMinimum();
+                long[] minimum = new long[cellValue.getDimensions().length];
+                cellValue.getImgPlus().min(minimum);
+
                 long[] newMinimum = new long[minimum.length + 1];
                 System.arraycopy(minimum, 0, newMinimum, 0, minimum.length);
 

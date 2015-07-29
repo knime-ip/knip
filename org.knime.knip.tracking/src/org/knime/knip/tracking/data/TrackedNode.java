@@ -14,20 +14,17 @@ public class TrackedNode<L extends Comparable<L>> extends
     private final Map<String, Double> m_features;
     private final L m_label;
     private final ImgPlus<BitType> m_bitMask;
-    private final long[] m_offset;
 
     private int m_frame;
     private boolean m_isVisible;
 
     public TrackedNode(final ImgPlus<BitType> bitMask, final double[] center,
-            final long[] offset, final L label, final int timeIdx,
-            final Map<String, Double> features) {
+            final L label, final int timeIdx, final Map<String, Double> features) {
         super(position(center, timeIdx), label.toString(),
                 (int) center[timeIdx]);
         m_features = features;
         m_label = label;
         m_bitMask = bitMask;
-        m_offset = offset;
         m_frame = (int) center[timeIdx];
         m_isVisible = true;
     }
@@ -79,10 +76,6 @@ public class TrackedNode<L extends Comparable<L>> extends
 
     public L label() {
         return m_label;
-    }
-
-    public long offset(final int d) {
-        return m_offset[d];
     }
 
     @Override
