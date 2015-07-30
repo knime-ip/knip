@@ -141,8 +141,7 @@ public class LabelTransformerNodeFactory<L extends Comparable<L>> extends ValueT
                 // The input labeling
                 final RandomAccessibleInterval<LabelingType<L>> labeling = cellLabelingVal.getLabeling();
                 final RandomAccessibleInterval<LabelingType<String>> res =
-                        (RandomAccessibleInterval<LabelingType<String>>)KNIPGateway.ops()
-                                .createImgLabeling(labeling);
+                        KNIPGateway.ops().create().imgLabeling(labeling);
 
                 final Cursor<LabelingType<L>> inCursor = Views.iterable(labeling).cursor();
                 final Cursor<LabelingType<String>> outCursor = Views.iterable(res).cursor();

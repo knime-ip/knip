@@ -214,8 +214,7 @@ public class ImgToLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>> 
                             "Only Images of type IntegerType can be converted into a Labeling. Use the converter to convert your Image e.g. to ShortType, IntType, ByteType or BitType.");
                 }
 
-                @SuppressWarnings("unchecked")
-                final ImgLabeling<Integer, T> lab = (ImgLabeling<Integer, T>)KNIPGateway.ops().createImgLabeling(img);
+                final ImgLabeling<Integer, T> lab = KNIPGateway.ops().create().imgLabeling(img);
 
                 final boolean setBGValue = m_setBackground.getBooleanValue();
                 final Cursor<T> cursor = img.cursor();
@@ -224,7 +223,7 @@ public class ImgToLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>> 
                     int val = cursor.next().getInteger();
                     if (!setBGValue || val != m_background.getIntValue()) {
                         labType.next().add(val);
-                    }else{
+                    } else {
                         labType.fwd();
                     }
                 }

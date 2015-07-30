@@ -53,7 +53,6 @@ import net.imagej.ImgPlus;
 import net.imglib2.Cursor;
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.Img;
 import net.imglib2.ops.operation.ImgOperations;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.UnaryOperation;
@@ -418,7 +417,7 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
      * @return
      */
     private ImgPlus<V> createResultImage(final ImgPlus<T> in) {
-        return new ImgPlus<V>((Img<V>)KNIPGateway.ops().createImg(in, getOutType(in.firstElement())), in);
+        return new ImgPlus<V>(KNIPGateway.ops().create().img(in, getOutType(in.firstElement())), in);
     }
 
     /**

@@ -167,7 +167,7 @@ public class ContourDetector<T extends RealType<T>> {
 
                 if (m_preProc != null) {
                     if (tmpImg == null) {
-                        tmpImg = (Img<T>)KNIPGateway.ops().createImg(polImg);
+                        tmpImg = KNIPGateway.ops().create().img(polImg);
                     }
                     m_preProc.compute(polImg, tmpImg);
 

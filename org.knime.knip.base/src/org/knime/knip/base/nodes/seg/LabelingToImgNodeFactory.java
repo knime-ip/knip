@@ -55,7 +55,6 @@ import net.imagej.ImgPlus;
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.exception.IncompatibleTypeException;
-import net.imglib2.img.Img;
 import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.IntegerType;
@@ -142,7 +141,7 @@ public class LabelingToImgNodeFactory<L extends Comparable<L>, V extends Integer
                 final RealType outType =
                         (RealType)NativeTypes.getTypeInstance(NativeTypes.valueOf(m_outputImg.getStringValue()));
 
-                final ImgPlus<RealType> out = new ImgPlus((Img<RealType>)KNIPGateway.ops().createImg(lab, outType));
+                final ImgPlus<RealType> out = new ImgPlus(KNIPGateway.ops().create().img(lab, outType));
 
                 final Cursor<LabelingType<L>> inC = Views.iterable(lab).cursor();
                 final Cursor<RealType> outC = out.cursor();

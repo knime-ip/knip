@@ -253,7 +253,7 @@ class SobelOp<T extends RealType<T> & NativeType<T>> implements UnaryOutputOpera
 
         cX.compute(Views.interval(Views.extend(img, m_fac), img), X, resx);
 
-        final Img<T> resy = (Img<T>)KNIPGateway.ops().createImg(img);
+        final Img<T> resy = KNIPGateway.ops().create().img(img);
 
         cY.compute(Views.interval(Views.extend(img, m_fac), img), Y, resy);
 
@@ -288,7 +288,7 @@ class SobelOp<T extends RealType<T> & NativeType<T>> implements UnaryOutputOpera
 
             @Override
             public ImgPlus<T> instantiate(final ImgPlus<T> a) {
-                return new ImgPlus<T>((Img<T>)KNIPGateway.ops().createImg(a), a);
+                return new ImgPlus<T>(KNIPGateway.ops().create().img(a), a);
             }
         };
     }

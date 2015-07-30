@@ -289,7 +289,7 @@ public class LabelingFilterNodeFactory<L extends Comparable<L>> extends ValueToC
                 }
 
                 //TODO speed-up: decide whether to make a copy or an empty copy (depending on the amount of segments to be included/excluded) and remove excluded segments or add included segments
-                final RandomAccessibleInterval<LabelingType<L>> res = (RandomAccessibleInterval<LabelingType<L>>)KNIPGateway.ops().createImgLabeling(lab);
+                final RandomAccessibleInterval<LabelingType<L>> res = KNIPGateway.ops().create().imgLabeling(lab);
                 for (final L label : labels) {
                     if (include.contains(label.toString())) {
                         for (final LabelingType<L> type : Regions.sample(regions.getLabelRegion(label), res)) {

@@ -265,13 +265,12 @@ public class MorphLabelingOpsNodeModel<L extends Comparable<L>> extends
                     public RandomAccessibleInterval<LabelingType<L>>
                             instantiate(final RandomAccessibleInterval<LabelingType<L>> a) {
 
-                        return (RandomAccessibleInterval<LabelingType<L>>)KNIPGateway.ops().createImgLabeling(a);
+                        return KNIPGateway.ops().create().imgLabeling(a);
                     }
                 };
 
         final RandomAccessibleInterval<LabelingType<L>> in = cellValue.getLabeling();
-        final RandomAccessibleInterval<LabelingType<L>> out =
-                (RandomAccessibleInterval<LabelingType<L>>)KNIPGateway.ops().createImgLabeling(in);
+        final RandomAccessibleInterval<LabelingType<L>> out = KNIPGateway.ops().create().imgLabeling(in);
 
         if (m_currentStruct != null) {
             m_operation = createOperation(StructuringElementCursor.createElementFromImg(m_currentStruct));

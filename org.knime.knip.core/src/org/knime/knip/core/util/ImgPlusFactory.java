@@ -50,7 +50,6 @@ package org.knime.knip.core.util;
 
 import net.imagej.ImgPlus;
 import net.imglib2.IterableInterval;
-import net.imglib2.img.Img;
 import net.imglib2.ops.img.UnaryObjectFactory;
 import net.imglib2.type.numeric.RealType;
 
@@ -74,7 +73,7 @@ public class ImgPlusFactory<T extends RealType<T>, V extends RealType<V>> implem
 
     @Override
     public ImgPlus<V> instantiate(final ImgPlus<T> a) {
-        final ImgPlus<V> emptyCopy = new ImgPlus<V>((Img<V>)KNIPGateway.ops().createImg(a, m_outType), a);
+        final ImgPlus<V> emptyCopy = new ImgPlus<V>(KNIPGateway.ops().create().img(a, m_outType), a);
         emptyCopy.setSource(a.getSource());
         return emptyCopy;
     }

@@ -183,7 +183,7 @@ public final class BinaryArithmeticNodeFactory extends
 
                 final ImgPlus<BitType> img1 = cellValue1.getImgPlus();
                 ImgPlus<BitType> img2 = cellValue2.getImgPlus();
-                final Img<BitType> out = (Img<BitType>)KNIPGateway.ops().createImg(cellValue1.getImgPlus());
+                final Img<BitType> out = KNIPGateway.ops().create().img(cellValue1.getImgPlus());
 
                 if (m_synchronize.getBooleanValue()) {
                     img2 =

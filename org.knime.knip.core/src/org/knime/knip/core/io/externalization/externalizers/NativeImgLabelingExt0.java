@@ -51,7 +51,6 @@ package org.knime.knip.core.io.externalization.externalizers;
 import java.io.IOException;
 
 import net.imglib2.Cursor;
-import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.labeling.LabelingMapping;
 import net.imglib2.labeling.NativeImgLabeling;
@@ -108,7 +107,7 @@ public class NativeImgLabelingExt0 implements Externalizer<ImgLabeling> {
         final Img img = ExternalizerManager.<Img> read(in);
         final LabelingMapping mapping = ExternalizerManager.<LabelingMapping> read(in);
 
-        final ImgLabeling<Object, ?> res = new ImgLabeling((RandomAccessibleInterval)KNIPGateway.ops().create(img));
+        final ImgLabeling<Object, ?> res = new ImgLabeling(KNIPGateway.ops().create().img(img));
         final Cursor<net.imglib2.labeling.LabelingType<?>> c1 = new ExtNativeImgLabeling(img, mapping).cursor();
         final Cursor<LabelingType<Object>> c2 = res.cursor();
 

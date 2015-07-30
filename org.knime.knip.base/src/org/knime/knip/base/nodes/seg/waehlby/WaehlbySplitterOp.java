@@ -513,7 +513,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>>
             public RandomAccessibleInterval<LabelingType<String>>
                     instantiate(final RandomAccessibleInterval<LabelingType<L>> lab,
                                 final RandomAccessibleInterval<T> in) {
-                return (RandomAccessibleInterval<LabelingType<String>>)KNIPGateway.ops().createImgLabeling(lab);
+                return KNIPGateway.ops().create().imgLabeling(lab);
             }
         };
     }

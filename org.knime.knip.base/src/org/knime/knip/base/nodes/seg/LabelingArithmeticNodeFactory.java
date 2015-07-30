@@ -194,9 +194,7 @@ public final class LabelingArithmeticNodeFactory<I1, I2, O extends Comparable<O>
 
                 RandomAccessibleInterval<LabelingType<O>> res = null;
                 if (stringBased) {
-                    res =
-                            (RandomAccessibleInterval<LabelingType<O>>)KNIPGateway.ops()
-                                    .createImgLabeling(cellValue1.getLabeling());
+                    res = KNIPGateway.ops().create().imgLabeling(cellValue1.getLabeling());
 
                     final RandomAccessibleInterval<LabelingType<String>> lab1ToProcess =
                             Converters.convert(lab1, new LToString<I1, String>(), (LabelingType<String>)Util
@@ -209,9 +207,7 @@ public final class LabelingArithmeticNodeFactory<I1, I2, O extends Comparable<O>
                     this.getOp().compute(Views.iterable(lab1ToProcess), Views.iterable(lab2ToProcess),
                                          Views.iterable(res));
                 } else {
-                    res =
-                            (RandomAccessibleInterval<LabelingType<O>>)KNIPGateway.ops()
-                                    .createImgLabeling(cellValue1.getLabeling());
+                    res = KNIPGateway.ops().create().imgLabeling(cellValue1.getLabeling());
                     this.getOp().compute(Views.iterable(lab1), Views.iterable(synchronizedLab), Views.iterable(res));
                 }
 
