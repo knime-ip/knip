@@ -290,7 +290,7 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
                                 }
                             }
                         };
-                final Img<BitType> out = (Img<BitType>)KNIPGateway.ops().createImg(in, new BitType());
+                final Img<BitType> out = KNIPGateway.ops().create().img(in, new BitType());
 
                 Img<BitType> inAsBitType = (Img<BitType>)in;
 
@@ -324,7 +324,7 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
                     }
                 };
 
-                final Img<T> out = (Img<T>)KNIPGateway.ops().create(in);
+                final Img<T> out = (Img<T>)KNIPGateway.ops().create().img(in);
                 final UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> op =
                         createOperationGray(m_structElement, m_smDimensions.getSelectedDimIndices(in).length,
                                             OutOfBoundsStrategyFactory.getStrategy(m_smOutOfBoundsStrategy

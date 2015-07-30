@@ -202,9 +202,11 @@ public class ConnectedCompAnalysisNodeFactory<T extends RealType<T> & Comparable
                 final CCA<T> cca = new CCA<T>(structuringElement, background);
 
                 final RandomAccessibleInterval<LabelingType<Integer>> lab =
-                        new ImgLabeling<Integer, IntType>((RandomAccessibleInterval<IntType>)KNIPGateway.ops()
-                                .createImg(img, new IntType(),
-                                           ImgFactoryTypes.getImgFactory(m_factory.getStringValue(), img.getImg())));
+                        new ImgLabeling<Integer, IntType>(KNIPGateway
+                                .ops()
+                                .create()
+                                .img(img, new IntType(),
+                                     ImgFactoryTypes.getImgFactory(m_factory.getStringValue(), img.getImg())));
 
                 try {
                     SubsetOperations.iterate(cca, m_dimSelection.getSelectedDimIndices(img), img, lab,

@@ -350,6 +350,7 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
         // get all information needed from table
         final DataTableSpec spec = inData[0].getSpec();
         final String[] columnNames = spec.getColumnNames();
+
         final int[] featureIndices = getSelectedColumnIndices(spec);
 
         // get bitmask index
@@ -509,8 +510,7 @@ public class TrackmateTrackerNodeModel extends NodeModel implements
         final RandomAccess<?> srcAccess = sourceLabeling.randomAccess();
         @SuppressWarnings("unchecked")
         final ImgLabeling<String, ?> resultLabeling =
-                (ImgLabeling<String, ?>) KNIPGateway.ops().createImgLabeling(
-                        sourceLabeling);
+                KNIPGateway.ops().create().imgLabeling(sourceLabeling);
         final RandomAccess<LabelingType<String>> resAccess =
                 resultLabeling.randomAccess();
 

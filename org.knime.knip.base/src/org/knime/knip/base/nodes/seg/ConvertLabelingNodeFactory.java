@@ -167,12 +167,12 @@ public class ConvertLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>
                         (NativeType<?>)NativeTypes.valueOf(m_targetType.getStringValue().toUpperCase())
                                 .getTypeInstance();
 
-                final  ImgLabeling<L, ?> resLab;
+                final ImgLabeling<L, ?> resLab;
                 if (facType == ImgFactoryTypes.SOURCE_FACTORY) {
                     if (img instanceof ImgLabeling) {
                         resLab = new ImgLabeling(((Img)((ImgLabeling)img).getIndexImg()).factory().create(img, type));
                     } else {
-                        resLab = (ImgLabeling<L, ?>)KNIPGateway.ops().createImgLabeling(img);
+                        resLab = (ImgLabeling<L, ?>)KNIPGateway.ops().create().imgLabeling(img);
                     }
                 } else {
                     resLab = new ImgLabeling(ImgFactoryTypes.<NativeType> getImgFactory(facType).create(img, type));

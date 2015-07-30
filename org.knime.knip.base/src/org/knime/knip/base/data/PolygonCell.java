@@ -221,8 +221,8 @@ public class PolygonCell extends DataCell implements PolygonValue, ImgPlusValue<
     @Override
     public ImgPlus<BitType> getImgPlusCopy() {
         final ImgPlus<BitType> imgPlus = getImgPlus();
-        return new ImgPlusCopy<BitType>().compute(imgPlus, new ImgPlus<BitType>((Img<BitType>)KNIPGateway.ops()
-                .createImg(imgPlus), imgPlus));
+        return new ImgPlusCopy<BitType>().compute(imgPlus, new ImgPlus<BitType>(
+                KNIPGateway.ops().create().img(imgPlus), imgPlus));
     }
 
     /**

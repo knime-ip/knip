@@ -55,7 +55,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import net.imagej.ImgPlus;
-import net.imglib2.img.Img;
 import net.imglib2.ops.img.UnaryRelationAssigment;
 import net.imglib2.ops.operation.ImgOperations;
 import net.imglib2.ops.operation.SubsetOperations;
@@ -230,7 +229,7 @@ public class ThresholderNodeFactory2<T extends RealType<T>> extends ValueToCellN
                 final ImgPlusCell[] resCells = new ImgPlusCell[thresholders.length];
                 for (int i = 0; i < resCells.length; i++) {
                     final ImgPlus<BitType> res =
-                            new ImgPlus<BitType>((Img<BitType>)KNIPGateway.ops().createImg(imgPlus, new BitType()),
+                            new ImgPlus<BitType>(KNIPGateway.ops().create().img(imgPlus, new BitType()),
                                     imgPlus);
                     res.setName(res.getName());
                     if (thresholders[i] == ThresholdingType.MANUAL) {

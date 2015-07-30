@@ -106,7 +106,7 @@ public class ImgLib2IterativeConvolverExt<T extends RealType<T>, K extends RealT
 
             @Override
             public ImgPlus<O> instantiate(final ImgPlus<T> inputA, final Img<K>[] inputB) {
-                return new ImgPlus<O>((Img<O>)KNIPGateway.ops().createImg(inputA, m_resType), inputA);
+                return new ImgPlus<O>(KNIPGateway.ops().create().img(inputA, m_resType), inputA);
             }
         };
     }

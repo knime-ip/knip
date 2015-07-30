@@ -144,12 +144,13 @@ public class ExtractOutlineLabelingNodeFactory<L extends Comparable<L>> extends
                         new ExtractLabelingOutline<L>(EnumUtils.valueForName(m_type.getStringValue(),
                                                                              ConnectedType.values()));
 
+                final RandomAccessibleInterval<LabelingType<L>> imgLabeling =
+                        KNIPGateway.ops().create().imgLabeling(lab);
+
                 final RandomAccessibleInterval<LabelingType<L>> out =
                         SubsetOperations.iterate(op,
                                                  m_dimSelection.getSelectedDimIndices(cellValue.getLabelingMetadata()),
-                                                 cellValue.getLabeling(),
-                                                 (RandomAccessibleInterval<LabelingType<L>>)KNIPGateway.ops()
-                                                         .createImgLabeling(lab), getExecutorService());
+                                                 cellValue.getLabeling(), imgLabeling, getExecutorService());
 
                 return m_labCellFactory.createCell(out, cellValue.getLabelingMetadata());
             }
@@ -163,5 +164,4 @@ public class ExtractOutlineLabelingNodeFactory<L extends Comparable<L>> extends
             }
         };
     }
-
 }

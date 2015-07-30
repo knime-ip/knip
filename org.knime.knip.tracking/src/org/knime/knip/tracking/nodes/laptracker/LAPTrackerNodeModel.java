@@ -307,8 +307,7 @@ public class LAPTrackerNodeModel extends NodeModel implements
 
         int trackCtr = 0;
         final ImgLabeling<String, ?> res =
-                (ImgLabeling<String, ?>) KNIPGateway.ops().createImgLabeling(
-                        sourceLabeling);
+                KNIPGateway.ops().create().imgLabeling(sourceLabeling);
         final RandomAccess<net.imglib2.roi.labeling.LabelingType<String>> resAccess =
                 res.randomAccess();
         final RandomAccess<?> srcAccess = sourceLabeling.randomAccess();

@@ -219,8 +219,7 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
                 // prepare for the segmentation (ready to take off)
                 WrappedVoronoi voro = new WrappedVoronoi(img.firstElement());
 
-                final RandomAccessibleInterval<LabelingType<L>> out =
-                        (RandomAccessibleInterval<LabelingType<L>>)KNIPGateway.ops().createImgLabeling(seed);
+                final RandomAccessibleInterval<LabelingType<L>> out = KNIPGateway.ops().create().imgLabeling(seed);
 
                 try {
                     SubsetOperations.iterate(voro, m_dimSelectionModel.getSelectedDimIndices(img), img, seed, out);
@@ -241,7 +240,7 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
                     }
                 } else {
                     final RandomAccessibleInterval<LabelingType<L>> resSeedless =
-                            (RandomAccessibleInterval<LabelingType<L>>)KNIPGateway.ops().create(out);
+                            KNIPGateway.ops().create().imgLabeling(out);
                     final Cursor<LabelingType<L>> srcCur = Views.iterable(seed).cursor();
                     final Cursor<LabelingType<L>> resCur = Views.iterable(out).cursor();
                     final Cursor<LabelingType<L>> resSeedlessCur = Views.iterable(resSeedless).cursor();
