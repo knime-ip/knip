@@ -164,8 +164,7 @@ public class SeedGeneratorNodeFactory<T extends RealType<T>> extends ValueToCell
             protected LabelingCell<Integer> compute(final ImgPlusValue<T> cell) throws Exception {
                 final ImgPlus<T> input = cell.getImgPlus();
                 final ImgLabeling<Integer, IntType> output =
-                        (ImgLabeling<Integer, IntType>)KNIPGateway.ops().createImgLabeling(cell.getImgPlus(),
-                                                                                           new IntType());
+                        KNIPGateway.ops().create().imgLabeling(cell.getImgPlus(), new IntType());
 
                 if (m_smSeedGenerator.getStringValue().equals(SeedGenerator.Image_Probability.name())) {
                     /*

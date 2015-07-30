@@ -150,8 +150,7 @@ public class WaehlbySplitterNodeFactory<T extends RealType<T>, L extends Compara
 
                 final RandomAccessibleInterval<LabelingType<L>> labeling = cellLabelingVal.getLabeling();
                 final RandomAccessibleInterval<LabelingType<String>> out =
-                        (RandomAccessibleInterval<LabelingType<String>>)KNIPGateway.ops()
-                                .createImgLabeling(labeling);
+                        KNIPGateway.ops().create().imgLabeling(labeling);
 
                 int[] selectedDimIndices =
                         m_smDimSelection.getSelectedDimIndices(cellLabelingVal.getLabelingMetadata());

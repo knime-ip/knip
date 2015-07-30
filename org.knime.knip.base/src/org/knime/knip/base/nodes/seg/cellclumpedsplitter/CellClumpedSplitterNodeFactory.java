@@ -191,8 +191,8 @@ public class CellClumpedSplitterNodeFactory<T extends RealType<T>, L extends Com
                                 m_smIgnoreValueBelowAvgPrecent.getDoubleValue(), m_smMaxInterations.getIntValue());
 
                 final RandomAccessibleInterval<LabelingType<Integer>> out =
-                        (RandomAccessibleInterval<LabelingType<Integer>>)KNIPGateway.ops()
-                                .createImgLabeling(cellLabelingVal.getLabeling(), Integer.class);
+                        (RandomAccessibleInterval<LabelingType<Integer>>)KNIPGateway.ops().create()
+                                .imgLabeling(cellLabelingVal.getLabeling(), Integer.class);
 
                 SubsetOperations.iterate(op,
                                          m_smDimSelection.getSelectedDimIndices(cellLabelingVal.getLabelingMetadata()),

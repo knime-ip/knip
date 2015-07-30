@@ -281,39 +281,25 @@ public class Overlay implements EventServiceClient, Externalizable {
         ImgLabeling<String, ?> res = null;
         switch (type) {
             case BITTYPE:
-                res =
-                        (ImgLabeling<String, ?>)KNIPGateway.ops().createImgLabeling(new FinalInterval(m_dims),
-                                                                                    new BitType());
+                res = KNIPGateway.ops().create().imgLabeling(new FinalInterval(m_dims), new BitType());
                 break;
             case BYTETYPE:
-                res =
-                        (ImgLabeling<String, ?>)KNIPGateway.ops().createImgLabeling(new FinalInterval(m_dims),
-                                                                                    new ByteType());
+                res = KNIPGateway.ops().create().imgLabeling(new FinalInterval(m_dims), new ByteType());
                 break;
             case SHORTTYPE:
-                res =
-                        (ImgLabeling<String, ?>)KNIPGateway.ops().createImgLabeling(new FinalInterval(m_dims),
-                                                                                    new ShortType());
+                res = KNIPGateway.ops().create().imgLabeling(new FinalInterval(m_dims), new ShortType());
                 break;
             case LONGTYPE:
-                res =
-                        (ImgLabeling<String, ?>)KNIPGateway.ops().createImgLabeling(new FinalInterval(m_dims),
-                                                                                    new LongType());
+                res = KNIPGateway.ops().create().imgLabeling(new FinalInterval(m_dims), new LongType());
                 break;
             case UNSIGNEDSHORTTYPE:
-                res =
-                        (ImgLabeling<String, ?>)KNIPGateway.ops().createImgLabeling(new FinalInterval(m_dims),
-                                                                                    new UnsignedShortType());
+                res = KNIPGateway.ops().create().imgLabeling(new FinalInterval(m_dims), new UnsignedShortType());
                 break;
             case UNSIGNEDBYTETYPE:
-                res =
-                        (ImgLabeling<String, ?>)KNIPGateway.ops().createImgLabeling(new FinalInterval(m_dims),
-                                                                                    new UnsignedShortType());
+                res = KNIPGateway.ops().create().imgLabeling(new FinalInterval(m_dims), new UnsignedShortType());
                 break;
             default:
-                res =
-                        (ImgLabeling<String, ?>)KNIPGateway.ops().createImgLabeling(new FinalInterval(m_dims),
-                                                                                    new ShortType());
+                res = KNIPGateway.ops().create().imgLabeling(new FinalInterval(m_dims), new ShortType());
         }
 
         final long[] minExtend = new long[res.numDimensions()];

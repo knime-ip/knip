@@ -315,9 +315,8 @@ public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
                                                          m_dimSelection.getSelectedDimIndices(imgPlus),
                                                          cellValue1.getImgPlus(),
                                                          cellValue2.getLabeling(),
-                                                         (Img<BitType>)KNIPGateway.ops()
-                                                                 .createImgLabeling(cellValue1.getImgPlus(),
-                                                                                    new BitType()),
+                                                         KNIPGateway.ops().create()
+                                                                 .img(cellValue1.getImgPlus(), new BitType()),
                                                          getExecutorService());
 
                         return m_imgCellFactory.createCell(new ImgPlus(out, cellValue1.getMetadata()));
@@ -354,8 +353,8 @@ public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
 
                         out =
                                 SubsetOperations.iterate(cutOp, m_dimSelection.getSelectedDimIndices(imgPlus),
-                                                         cellValue1.getImgPlus(), (Img<BitType>)KNIPGateway.ops()
-                                                                 .create(cellValue1.getImgPlus(), new BitType()),
+                                                         cellValue1.getImgPlus(), KNIPGateway.ops()
+                                                                 .create().img(cellValue1.getImgPlus(), new BitType()),
                                                          getExecutorService());
 
                         return m_imgCellFactory.createCell(new ImgPlus(out, cellValue1.getMetadata()));
@@ -400,5 +399,4 @@ public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
             }
         };
     }
-
 }

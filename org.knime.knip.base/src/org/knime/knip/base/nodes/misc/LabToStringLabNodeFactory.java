@@ -91,8 +91,7 @@ public class LabToStringLabNodeFactory<L extends Comparable<L>> extends ValueToC
             protected LabelingCell<String> compute(final LabelingValue<L> cellValue) throws Exception {
 
                 final RandomAccessibleInterval<LabelingType<String>> res =
-                        (RandomAccessibleInterval<LabelingType<String>>)KNIPGateway.ops()
-                                .createImgLabeling(cellValue.getLabeling());
+                        KNIPGateway.ops().create().imgLabeling(cellValue.getLabeling());
 
                 final Cursor<LabelingType<String>> resC = Views.iterable(res).cursor();
                 final Cursor<LabelingType<L>> srcC = Views.iterable(cellValue.getLabeling()).cursor();
