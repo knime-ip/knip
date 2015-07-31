@@ -116,7 +116,7 @@ public class BoundingBoxLabelRenderer<L extends Type<L>> implements ImageRendere
     private AWTScreenImage render(final int dimX, final int dimY, final long[] planePos,
                                   final RandomAccessibleInterval<LabelingType<L>> labeling,
                                   final Set<String> activeLabels, final double scale, final boolean withLabelString) {
-        RandomAccessibleInterval<LabelingType<L>> subLab = null;
+        RandomAccessibleInterval<LabelingType<L>> subLab = labeling;
 
         if (subLab.numDimensions() > 2) {
             final long[] min = planePos.clone();
