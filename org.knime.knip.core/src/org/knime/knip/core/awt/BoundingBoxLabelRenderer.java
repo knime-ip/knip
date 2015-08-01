@@ -63,7 +63,6 @@ import net.imglib2.roi.labeling.LabelRegion;
 import net.imglib2.roi.labeling.LabelRegions;
 import net.imglib2.roi.labeling.LabelingMapping;
 import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.type.Type;
 
 import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableUtils;
@@ -78,8 +77,8 @@ import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter.Operator;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class BoundingBoxLabelRenderer<L extends Type<L>> implements ImageRenderer<LabelingType<L>>,
-        RendererWithLabels<L>, RendererWithHilite {
+public class BoundingBoxLabelRenderer<L> implements ImageRenderer<LabelingType<L>>, RendererWithLabels<L>,
+        RendererWithHilite {
 
     /**
      * RENDERER_NAME.
@@ -116,26 +115,26 @@ public class BoundingBoxLabelRenderer<L extends Type<L>> implements ImageRendere
     private AWTScreenImage render(final int dimX, final int dimY, final long[] planePos,
                                   final RandomAccessibleInterval<LabelingType<L>> labeling,
                                   final Set<String> activeLabels, final double scale, final boolean withLabelString) {
-        RandomAccessibleInterval<LabelingType<L>> subLab = null;
+        RandomAccessibleInterval<LabelingType<L>> lab = labeling;
 
-        if (subLab.numDimensions() > 2) {
+        if (lab.numDimensions() > 2) {
             final long[] min = planePos.clone();
             final long[] max = planePos.clone();
 
             min[dimX] = 0;
             min[dimY] = 0;
 
-            max[dimX] = subLab.max(dimX);
-            max[dimY] = subLab.max(dimY);
+            max[dimX] = lab.max(dimX);
+            max[dimY] = lab.max(dimY);
 
-            subLab = SubsetOperations.subsetview(subLab, new FinalInterval(min, max));
+            lab = SubsetOperations.subsetview(lab, new FinalInterval(min, max));
         }
 
-        final long[] dims = new long[subLab.numDimensions()];
-        subLab.dimensions(dims);
+        final long[] dims = new long[lab.numDimensions()];
+        lab.dimensions(dims);
         final int width = (int)(dims[dimX] * scale);
         final int height;
-        if (subLab.numDimensions() < 2) {
+        if (lab.numDimensions() < 2) {
             height = (int)scale;
         } else {
             height = (int)(dims[dimY] * scale);
@@ -145,7 +144,7 @@ public class BoundingBoxLabelRenderer<L extends Type<L>> implements ImageRendere
         final Graphics g = res.image().getGraphics();
         g.setColor(Color.black);
 
-        final LabelRegions<L> regions = KNIPGateway.regions().regions(subLab);
+        final LabelRegions<L> regions = KNIPGateway.regions().regions(lab);
         for (final L label : regions.getExistingLabels()) {
 
             // test hilite
@@ -166,7 +165,7 @@ public class BoundingBoxLabelRenderer<L extends Type<L>> implements ImageRendere
             if ((activeLabels == null) || activeLabels.contains(label.toString())) {
 
                 final LabelRegion<L> roi = regions.getLabelRegion(label);
-                final IterableInterval<LabelingType<L>> ii = Regions.sample(roi, subLab);
+                final IterableInterval<LabelingType<L>> ii = Regions.sample(roi, lab);
 
                 if (roi.numDimensions() > 1) {
                     g.drawRect((int)(ii.min(X) * scale) - 1, (int)(ii.min(Y) * scale) - 1,
