@@ -60,9 +60,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  * Manager to queue arbitrary objects to be propagated to the listeners.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -113,13 +113,17 @@ public class EventService {
             m_eventQueue.add(event);
         }
 
-        if (m_openQueue) {
-            m_openQueue = false;
-            while (!m_eventQueue.isEmpty()) {
-                processQueue();
-            }
+        try {
+            if (m_openQueue) {
+                m_openQueue = false;
+                while (!m_eventQueue.isEmpty()) {
+                    processQueue();
+                }
 
-            m_openQueue = true;
+                m_openQueue = true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
