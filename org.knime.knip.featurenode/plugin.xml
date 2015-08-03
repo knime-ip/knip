@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+
+   <!-- This is an example for providing an own category 
+      <extension
+         point="org.knime.workbench.repository.categories">
+      <category
+            description="Category containing my nodes"
+            icon="icons/default.png"
+            level-id="myNodes"
+            name="My nodes"
+            path="/"/>
+   </extension>
+   -->
+   
+   <extension
+         point="org.knime.workbench.repository.nodes">
+      <node
+            expert-flag="false"
+            factory-class="org.knime.knip.featurenode.FeatureNodeFactory"
+            id="org.knime.knip.featurenode.FeatureNodeFactory">
+      </node>
+   </extension>
+   
+</plugin>
