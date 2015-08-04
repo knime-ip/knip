@@ -197,7 +197,9 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 			completionService.submit(new FeatureComputationTask<T, L>(inputFeatureSets, featureTaskInput));
 
 			exec.checkCanceled();
-			exec.setProgress(((double) completionService.getNumberOfSubmittedTasks() / inData[0].getRowCount()) / 2);
+			exec.setProgress(((completionService.getNumberOfSubmittedTasks() / (double) inData[0].getRowCount()) * 0.2),
+					"Processed row " + completionService.getNumberOfSubmittedTasks() + " of "
+							+ inData[0].getRowCount());
 		}
 
 		// shutdown pool
@@ -220,8 +222,11 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 			}
 
 			exec.checkCanceled();
-			exec.setProgress(0.5 + ((completionService.getNumberOfCompletedTasks()
-					/ (double) completionService.getNumberOfSubmittedTasks()) / 2d));
+			exec.setProgress(
+					0.2d + ((completionService.getNumberOfCompletedTasks()
+							/ (double) completionService.getNumberOfSubmittedTasks()) * 0.8),
+					"Calculated features for row " + completionService.getNumberOfCompletedTasks() + " of "
+							+ completionService.getNumberOfSubmittedTasks());
 		}
 
 		// no results, just return input data
@@ -241,39 +246,30 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 		final List<FeatureSetInfo> inputFeatureSets = new ArrayList<FeatureSetInfo>();
 
 		for (final FeatureSetInfo fsi : featureSets) {
-			if (Geometric2DFeatureSet.class.isAssignableFrom(fsi
-					.getFeatureSetClass()) && labelingColumnIndex == -1) {
+			if (Geometric2DFeatureSet.class.isAssignableFrom(fsi.getFeatureSetClass()) && labelingColumnIndex == -1) {
 				LOGGER.warn("Geometric 2D Feature Set will be ignored, since no Labeling Column is selected.");
-			} else if (Geometric3DFeatureSet.class.isAssignableFrom(fsi
-					.getFeatureSetClass()) && labelingColumnIndex == -1) {
+			} else if (Geometric3DFeatureSet.class.isAssignableFrom(fsi.getFeatureSetClass())
+					&& labelingColumnIndex == -1) {
 				LOGGER.warn("Geometric 3D Feature Set will be ignored, since no Labeling Column is selected.");
-			} else if (FirstOrderStatFeatureSet.class.isAssignableFrom(fsi
-					.getFeatureSetClass()) && imgColumnIndex == -1) {
+			} else
+				if (FirstOrderStatFeatureSet.class.isAssignableFrom(fsi.getFeatureSetClass()) && imgColumnIndex == -1) {
 				LOGGER.warn("First Order Statistics Feature Set will be ignored, since no Image Column is selected.");
-			} else if (Haralick3DFeatureSet.class.isAssignableFrom(fsi
-					.getFeatureSetClass())
-					&& m_dimselectionModel.getNumSelectedDimLabels() != 3) {
+			} else if (Haralick3DFeatureSet.class.isAssignableFrom(fsi.getFeatureSetClass())
+					&& this.m_dimselectionModel.getNumSelectedDimLabels() != 3) {
 				LOGGER.warn("Haralick 3D Feature Set will be ignored, since "
-						+ m_dimselectionModel.getNumSelectedDimLabels()
-						+ " dimensions are selected and not 3.");
-			} else if (Haralick2DFeatureSet.class.isAssignableFrom(fsi
-					.getFeatureSetClass())
-					&& m_dimselectionModel.getNumSelectedDimLabels() != 2) {
+						+ this.m_dimselectionModel.getNumSelectedDimLabels() + " dimensions are selected and not 3.");
+			} else if (Haralick2DFeatureSet.class.isAssignableFrom(fsi.getFeatureSetClass())
+					&& this.m_dimselectionModel.getNumSelectedDimLabels() != 2) {
 				LOGGER.warn("Haralick 2D Feature Set will be ignored, since "
-						+ m_dimselectionModel.getNumSelectedDimLabels()
-						+ " dimensions are selected and not 2.");
-			} else if (Geometric2DFeatureSet.class.isAssignableFrom(fsi
-					.getFeatureSetClass())
-					&& m_dimselectionModel.getNumSelectedDimLabels() != 2) {
+						+ this.m_dimselectionModel.getNumSelectedDimLabels() + " dimensions are selected and not 2.");
+			} else if (Geometric2DFeatureSet.class.isAssignableFrom(fsi.getFeatureSetClass())
+					&& this.m_dimselectionModel.getNumSelectedDimLabels() != 2) {
 				LOGGER.warn("Geometric 2D Feature Set will be ignored, since "
-						+ m_dimselectionModel.getNumSelectedDimLabels()
-						+ " dimensions are selected and not 2.");
-			} else if (Geometric3DFeatureSet.class.isAssignableFrom(fsi
-					.getFeatureSetClass())
-					&& m_dimselectionModel.getNumSelectedDimLabels() != 3) {
+						+ this.m_dimselectionModel.getNumSelectedDimLabels() + " dimensions are selected and not 2.");
+			} else if (Geometric3DFeatureSet.class.isAssignableFrom(fsi.getFeatureSetClass())
+					&& this.m_dimselectionModel.getNumSelectedDimLabels() != 3) {
 				LOGGER.warn("Geometric 3D Feature Set will be ignored, since "
-						+ m_dimselectionModel.getNumSelectedDimLabels()
-						+ " dimensions are selected and not 3.");
+						+ this.m_dimselectionModel.getNumSelectedDimLabels() + " dimensions are selected and not 3.");
 			} else {
 				inputFeatureSets.add(fsi);
 			}
@@ -360,9 +356,8 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void loadInternals(final File internDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 		// do nothing
 	}
 

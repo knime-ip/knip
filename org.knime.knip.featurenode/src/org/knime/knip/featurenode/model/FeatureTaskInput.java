@@ -1,5 +1,6 @@
 package org.knime.knip.featurenode.model;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,7 +39,7 @@ public class FeatureTaskInput<T extends Type<T>, L extends Comparable<L>> {
 	private final ImgPlusCellFactory m_imgCellFactory;
 	private final DataRow m_dataRow;
 	private final DataTableSpec m_inputSpec;
-	private final Map<L, List<L>> m_overlappingLabels;
+	private Map<L, List<L>> m_overlappingLabels;
 
 	/**
 	 * Default constructor
@@ -64,10 +65,6 @@ public class FeatureTaskInput<T extends Type<T>, L extends Comparable<L>> {
 		this.m_imgCellFactory = imgCellFactory;
 		this.m_inputSpec = inputSpec;
 		this.m_dataRow = row;
-
-		this.m_overlappingLabels = Operations.compute(new LabelingDependency<L>(labelSettings.getRuleBasedLabelFilter(),
-				new RulebasedLabelFilter<L>(), labelSettings.isIntersectionMode()), getLabelRegions());
-
 	}
 
 	/**
@@ -148,6 +145,17 @@ public class FeatureTaskInput<T extends Type<T>, L extends Comparable<L>> {
 	}
 
 	public Map<L, List<L>> getOverlappingLabels() {
+
+		if (this.m_overlappingLabels == null) {
+			final Map<L, List<L>> compute = Operations
+					.compute(
+							new LabelingDependency<L>(getLabelSettings().getRuleBasedLabelFilter(),
+									new RulebasedLabelFilter<L>(), getLabelSettings().isIntersectionMode()),
+							getLabelRegions());
+
+			this.m_overlappingLabels = (compute == null) ? new HashMap<L, List<L>>() : compute;
+		}
+
 		return this.m_overlappingLabels;
 	}
 }
