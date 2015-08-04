@@ -89,7 +89,6 @@ import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.node.nodesettings.SettingsModelFilterSelection;
 import org.knime.knip.base.nodes.features.providers.FeatureSetProvider;
-import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
 import org.knime.knip.core.data.img.LabelingMetadata;
 import org.knime.knip.core.ops.misc.LabelingDependency;
@@ -339,7 +338,8 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
 
             final Map<L, List<L>> dependencies = Operations.compute(dependencyOp, labeling);
 
-            final LabelRegions<L> regions = KNIPGateway.regions().regions(labeling);
+            final LabelRegions<L> regions = new LabelRegions<L>(labeling);
+
 
             for (final L label : regions.getExistingLabels()) {
                 if (!dependencies.keySet().contains(label)) {
