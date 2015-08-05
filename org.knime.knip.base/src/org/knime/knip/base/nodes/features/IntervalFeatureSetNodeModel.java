@@ -56,27 +56,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import net.imagej.ImgPlus;
-import net.imagej.ImgPlusMetadata;
-import net.imagej.space.CalibratedSpace;
-import net.imglib2.IterableInterval;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.converter.Converter;
-import net.imglib2.converter.Converters;
-import net.imglib2.img.Img;
-import net.imglib2.img.ImgView;
-import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.ops.operation.Operations;
-import net.imglib2.ops.util.MetadataUtil;
-import net.imglib2.roi.Regions;
-import net.imglib2.roi.labeling.LabelRegion;
-import net.imglib2.roi.labeling.LabelRegions;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.type.logic.BitType;
-import net.imglib2.type.logic.BoolType;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.util.ValuePair;
-
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnProperties;
 import org.knime.core.data.DataColumnSpec;
@@ -110,11 +89,31 @@ import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.node.nodesettings.SettingsModelFilterSelection;
 import org.knime.knip.base.nodes.features.providers.FeatureSetProvider;
-import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
 import org.knime.knip.core.data.img.LabelingMetadata;
 import org.knime.knip.core.ops.misc.LabelingDependency;
 import org.knime.knip.core.util.MiscViews;
+
+import net.imagej.ImgPlus;
+import net.imagej.ImgPlusMetadata;
+import net.imagej.space.CalibratedSpace;
+import net.imglib2.IterableInterval;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.converter.Converter;
+import net.imglib2.converter.Converters;
+import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
+import net.imglib2.img.array.ArrayImgFactory;
+import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.util.MetadataUtil;
+import net.imglib2.roi.Regions;
+import net.imglib2.roi.labeling.LabelRegion;
+import net.imglib2.roi.labeling.LabelRegions;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.logic.BitType;
+import net.imglib2.type.logic.BoolType;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.ValuePair;
 
 /**
  * A abstract node model, which allows to calculate arbitrary features on {@link IterableInterval}s. That intervals can
@@ -301,7 +300,8 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
                 img = ((ImgPlusValue<T>)imgCell).getImgPlus();
                 for (final FeatureSetProvider<ValuePair<IterableInterval<T>, CalibratedSpace>> featSet : m_featSetProviders) {
                     if (isFeatureSetActive(featSet.getFeatureSetId())) {
-                        featSet.calcAndAddFeatures(new ValuePair<IterableInterval<T>, CalibratedSpace>(img, img), cells);
+                        featSet.calcAndAddFeatures(new ValuePair<IterableInterval<T>, CalibratedSpace>(img, img),
+                                                   cells);
                     }
                 }
                 exec.setProgress(i++ / count, "Calculated features for row " + row.getKey().toString());
@@ -338,7 +338,8 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
 
             final Map<L, List<L>> dependencies = Operations.compute(dependencyOp, labeling);
 
-            final LabelRegions<L> regions = KNIPGateway.regions().regions(labeling);
+            final LabelRegions<L> regions = new LabelRegions<L>(labeling);
+
 
             for (final L label : regions.getExistingLabels()) {
                 if (!dependencies.keySet().contains(label)) {
@@ -373,16 +374,14 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
                 cells.clear();
                 if (m_appendSegmentInformation.getBooleanValue()) {
 
-                    final Img<BitType> bitMask =
-                            new ImgView<BitType>(Converters.convert((RandomAccessibleInterval<BoolType>)labelRoi,
-                                                                    new Converter<BoolType, BitType>() {
+                    final Img<BitType> bitMask = new ImgView<BitType>(Converters
+                            .convert((RandomAccessibleInterval<BoolType>)labelRoi, new Converter<BoolType, BitType>() {
 
-                                                                        @Override
-                                                                        public void convert(final BoolType arg0,
-                                                                                            final BitType arg1) {
-                                                                            arg1.set(arg0.get());
-                                                                        }
-                                                                    }, new BitType()), new ArrayImgFactory<BitType>());
+                                @Override
+                                public void convert(final BoolType arg0, final BitType arg1) {
+                                    arg1.set(arg0.get());
+                                }
+                            }, new BitType()), new ArrayImgFactory<BitType>());
 
                     cells.add(cellFactory.createCell(new ImgPlus(bitMask, mdata)));
 
@@ -435,7 +434,8 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
         if ((m_type == FeatureType.IMAGE) || (m_type == FeatureType.IMAGE_AND_LABELING)) {
             imgColIndex = inSpec.findColumnIndex(m_imgColumn.getStringValue());
             if (imgColIndex == -1) {
-                if ((imgColIndex = NodeUtils.autoOptionalColumnSelection(inSpec, m_imgColumn, ImgPlusValue.class)) >= 0) {
+                if ((imgColIndex =
+                        NodeUtils.autoOptionalColumnSelection(inSpec, m_imgColumn, ImgPlusValue.class)) >= 0) {
                     setWarningMessage("Auto-configure Image Column: " + m_imgColumn.getStringValue());
                 } else {
                     throw new InvalidSettingsException("No column selected!");
@@ -451,7 +451,8 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
         if ((m_type == FeatureType.LABELING) || (m_type == FeatureType.IMAGE_AND_LABELING)) {
             labColIndex = inSpec.findColumnIndex(m_labColumn.getStringValue());
             if (labColIndex == -1) {
-                if ((labColIndex = NodeUtils.autoOptionalColumnSelection(inSpec, m_labColumn, LabelingValue.class)) >= 0) {
+                if ((labColIndex =
+                        NodeUtils.autoOptionalColumnSelection(inSpec, m_labColumn, LabelingValue.class)) >= 0) {
                     setWarningMessage("Auto-configure Labeling Column: " + m_labColumn.getStringValue());
                 } else {
                     throw new InvalidSettingsException("No column selected!");
@@ -471,8 +472,8 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
                 // StringCell.TYPE).createSpec());
                 final DataColumnSpecCreator colspecCreator =
                         new DataColumnSpecCreator("Source Labeling", inSpec.getColumnSpec(labColIdx).getType());
-                colspecCreator.setProperties(new DataColumnProperties(Collections
-                        .singletonMap(DataValueRenderer.PROPERTY_PREFERRED_RENDERER, "String")));
+                colspecCreator.setProperties(new DataColumnProperties(
+                        Collections.singletonMap(DataValueRenderer.PROPERTY_PREFERRED_RENDERER, "String")));
                 specs.add(colspecCreator.createSpec());
             }
 
@@ -507,8 +508,8 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
     }
 
     @Override
-    protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
+    protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec)
+            throws IOException, CanceledExecutionException {
         // Nothing to do here
     }
 
@@ -558,8 +559,8 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
     }
 
     @Override
-    protected void saveInternals(final File nodeInternDir, final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
+    protected void saveInternals(final File nodeInternDir, final ExecutionMonitor exec)
+            throws IOException, CanceledExecutionException {
         // Nothing to do here
     }
 
