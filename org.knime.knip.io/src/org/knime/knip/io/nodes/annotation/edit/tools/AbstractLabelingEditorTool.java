@@ -86,18 +86,18 @@ public abstract class AbstractLabelingEditorTool implements EventServiceClient {
 		m_eventService = e;
 	}
 
-	public abstract void onLeftClick(Collection<String> labels,
+	public abstract void onLeftClick(int index,
 			String[] selectedLabels);
 
-	public abstract void onRightClick(Collection<String> labels,
+	public abstract void onRightClick(int index,
 			String[] selectedLabels);
 
 	public void onMousePressed(final ImgViewerMouseEvent e,
-			final Collection<String> labels, String[] selectedLabels) {
+			int index, String[] selectedLabels) {
 		if (e.isLeftDown())
-			onLeftClick(labels, selectedLabels);
+			onLeftClick(index, selectedLabels);
 		else if (e.isRightDown())
-			onRightClick(labels, selectedLabels);
+			onRightClick(index, selectedLabels);
 
 	}
 

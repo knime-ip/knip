@@ -14,7 +14,10 @@ import java.util.Set;
 
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.numeric.IntegerType;
+import net.imglib2.type.numeric.integer.IntType;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
@@ -50,7 +53,7 @@ public class LabelingEditorManager extends HiddenViewerComponent {
 	private String[] m_selectedLabels;
 
 	// The currently selected labeling
-	private RandomAccessibleInterval<LabelingType<String>> m_currentLabeling;
+	private EditorLabeling m_currentLabeling;
 
 	private PlaneSelectionEvent m_sel;
 
@@ -188,7 +191,7 @@ public class LabelingEditorManager extends HiddenViewerComponent {
 	}
 
 	public void setLabeling(
-			final RandomAccessibleInterval<LabelingType<String>> labeling) {
+			final EditorLabeling labeling) {
 		m_currentLabeling = labeling;
 	}
 
@@ -198,45 +201,45 @@ public class LabelingEditorManager extends HiddenViewerComponent {
 	 * @param e
 	 *            The delete-event
 	 */
-	@EventListener
-	public void onLabelRemove(final LabelingEditorDeleteEvent e) {
-		final List<String> labels = new LinkedList<String>(
-				e.getModifiedLabels());
-
-		// Labelings have to be sorted!
-		Collections.sort(labels);
-
-		final List<String> removedLabels = new LinkedList<String>(
-				e.getDeletedLabel());
-
-		LabelingEditorChangeTracker tracker = m_IdTrackerMap
-				.get(m_currentRowKey);
-		tracker.remove(labels, removedLabels);
-
-		m_eventService.publish(new ImgRedrawEvent());
-	}
-
-	/**
-	 * Called, when a Label is added to a labeling by the user.
-	 * 
-	 * @param e
-	 *            The add-event.
-	 */
-	@EventListener
-	public void onLabelAdd(final LabelingEditorAddEvent e) {
-		final List<String> labels = new LinkedList<String>(
-				e.getModifiedLabels());
-
-		final List<String> addedLabels = new LinkedList<String>(
-				e.getNewLabels());
-
-		// Labelings have to be sorted!
-		Collections.sort(labels);
-
-		m_IdTrackerMap.get(m_currentRowKey).insert(labels, addedLabels);
-
-		m_eventService.publish(new ImgRedrawEvent());
-	}
+//	@EventListener
+//	public void onLabelRemove(final LabelingEditorDeleteEvent e) {
+//		final List<String> labels = new LinkedList<String>(
+//				e.getModifiedLabels());
+//
+//		// Labelings have to be sorted!
+//		Collections.sort(labels);
+//
+//		final List<String> removedLabels = new LinkedList<String>(
+//				e.getDeletedLabel());
+//
+//		LabelingEditorChangeTracker tracker = m_IdTrackerMap
+//				.get(m_currentRowKey);
+//		tracker.remove(labels, removedLabels);
+//
+//		m_eventService.publish(new ImgRedrawEvent());
+//	}
+//
+//	/**
+//	 * Called, when a Label is added to a labeling by the user.
+//	 * 
+//	 * @param e
+//	 *            The add-event.
+//	 */
+//	@EventListener
+//	public void onLabelAdd(final LabelingEditorAddEvent e) {
+//		final List<String> labels = new LinkedList<String>(
+//				e.getModifiedLabels());
+//
+//		final List<String> addedLabels = new LinkedList<String>(
+//				e.getNewLabels());
+//
+//		// Labelings have to be sorted!
+//		Collections.sort(labels);
+//
+//		m_IdTrackerMap.get(m_currentRowKey).insert(labels, addedLabels);
+//
+//		m_eventService.publish(new ImgRedrawEvent());
+//	}
 
 	@EventListener
 	/**
@@ -278,21 +281,19 @@ public class LabelingEditorManager extends HiddenViewerComponent {
 
 		return true;
 	}
+	
 
 	/**
-	 * This function handles mouse input. The selected labels are computed and
-	 * passed on to the currently selected tool.
+	 * TBD
 	 * 
 	 * @param e
 	 *            The mouse-event
 	 */
 	@EventListener
 	public void onMousePressed(final ImgViewerMousePressedEvent e) {
-		Collection<String> labels = new HashSet<String>();
 		if ((m_currentLabeling != null) && (m_currentTool != null)) {
 			RandomAccess<LabelingType<String>> ra = m_currentLabeling
 					.randomAccess();
-
 			final long[] sel = m_sel.getPlanePos();
 
 			sel[m_sel.getPlaneDimIndex1()] = e.getPosX();
@@ -304,13 +305,11 @@ public class LabelingEditorManager extends HiddenViewerComponent {
 				else
 					seld[i] = (long) m_currentLabeling.realMax(i);
 			}
-
 			ra.setPosition(sel);
-			labels = new HashSet<String>(ra.get());
+			m_currentLabeling.insert(ra.get().getIndex().getInteger(), "Yolo");
+			//m_currentTool.onMousePressed(e, ra.get().getIndex().getInteger(), m_selectedLabels);
 		}
-		if (labels.isEmpty())
-			return;
-		m_currentTool.onMousePressed(e, labels, m_selectedLabels);
+
 	}
 
 	/**

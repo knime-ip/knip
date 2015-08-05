@@ -179,7 +179,7 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 		// Ensure that the complete labeling is loaded
 		currTrack.disableFiltering();
 		
-		RandomAccessibleInterval<LabelingType<String>> lab = new EditorLabeling((ImgLabeling<L, IntType>) m_currentCell.getLabeling());
+		EditorLabeling lab = new EditorLabeling((ImgLabeling<L, IntType>) m_currentCell.getLabeling());
 		
 //		ImgLabeling<L, IntType> t_lab = (ImgLabeling<L, IntType>) m_currentCell.getLabeling();
 //		
@@ -208,7 +208,7 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 //						new ToStringLabelingConverter<L>(),
 //						new LabelingType<String>()), null);
 
-//		m_annotationManager.setLabeling(stringLabeling);
+		m_annotationManager.setLabeling(lab);
 //
 //		m_currentChangeLabeling = convertedLabeling;
 //

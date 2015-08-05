@@ -60,19 +60,19 @@ import org.knime.knip.core.ui.event.KNIPEvent;
  */
 public class LabelingEditorDeleteEvent implements KNIPEvent {
 
-	private final Collection<String> m_labels;
+	private final int m_index;
 
 	private final Collection<String> m_delete;
 
-	public LabelingEditorDeleteEvent(final Collection<String> labels,
+	public LabelingEditorDeleteEvent(final int index,
 			final Collection<String> deletedLabels) {
-		m_labels = labels;
+		 m_index = index;
 		m_delete = deletedLabels;
 
 	}
 
-	public Collection<String> getModifiedLabels() {
-		return m_labels;
+	public int getIndex() {
+		return m_index;
 	}
 
 	public Collection<String> getDeletedLabel() {

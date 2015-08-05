@@ -1,7 +1,11 @@
 package org.knime.knip.io.nodes.annotation.edit.control;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import net.imglib2.roi.labeling.LabelingMapping;
 import net.imglib2.roi.labeling.LabelingType;
@@ -11,12 +15,15 @@ public class EditorLabelingType extends LabelingType<String> {
 
 	protected final LabelingType<String> m_labeling;
 	private IntegerType<?> m_type;
+	
+	private Map<Integer, Set<String>> m_Map = new HashMap<Integer, Set<String>>();
 
 	protected EditorLabelingType(final IntegerType<?> type,
 			LabelingType<String> wrapped) {
 		super(type, null, null);
 		m_labeling = wrapped;
 		m_type = type;
+		Set<String> test = new HashSet<String>();
 
 	}
 
@@ -29,6 +36,19 @@ public class EditorLabelingType extends LabelingType<String> {
 	public boolean add(String label) {
 		// TODO Auto-generated method stub
 		return m_labeling.add(label);
+	}
+	
+	public void insert(int index, String label){
+		if(m_Map.containsKey(index))
+		{
+			m_Map.get(index).add(label);
+		} else {
+			Set<String> s = new HashSet<String>();
+			m_labeling.getIndex().setInteger(index);
+			s.addAll(m_labeling);
+			s.add(label);
+			m_Map.put(index,s);
+		}
 	}
 
 	/*
@@ -184,8 +204,14 @@ public class EditorLabelingType extends LabelingType<String> {
 	@Override
 	public Iterator<String> iterator() {
 		m_labeling.getIndex().setInteger(m_type.getInteger());
-		return m_labeling.iterator();
+		if(m_Map.containsKey(m_type.getInteger()))
+		{
+			return m_Map.get(m_type.getInteger()).iterator();
+		} else
+			return m_labeling.iterator();
 	}
+	
+	
 
 	/*
 	 * (non-Javadoc)

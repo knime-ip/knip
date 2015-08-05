@@ -69,16 +69,16 @@ public class LabelingEditorModificationTool extends AbstractLabelingEditorTool {
 	}
 
 	@Override
-	public void onLeftClick(Collection<String> labels, String[] selectedLabels) {
+	public void onLeftClick(int index, String[] selectedLabels) {
 		List<String> labelsToAdd = Arrays.asList(selectedLabels);
-		m_eventService.publish(new LabelingEditorAddEvent(labels, labelsToAdd));
+		m_eventService.publish(new LabelingEditorAddEvent(index, labelsToAdd));
 
 	}
 
 	@Override
-	public void onRightClick(Collection<String> labels, String[] selectedLabels) {
+	public void onRightClick(int index, String[] selectedLabels) {
 		List<String> labelsToDelete = Arrays.asList(selectedLabels);
-		m_eventService.publish(new LabelingEditorDeleteEvent(labels,
+		m_eventService.publish(new LabelingEditorDeleteEvent(index,
 				labelsToDelete));
 
 	}

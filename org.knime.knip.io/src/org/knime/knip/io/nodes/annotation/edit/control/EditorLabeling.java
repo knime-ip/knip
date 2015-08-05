@@ -18,7 +18,7 @@ import net.imglib2.view.Views;
 
 public class EditorLabeling extends ImgLabeling<String, IntType> {
 
-	private final RandomAccess<LabelingType<String>> m_ra;
+	private final LabelingEditorConvertedRandomAccess m_ra;
 
 	private final LabelingType<String> m_lt;
 
@@ -26,7 +26,7 @@ public class EditorLabeling extends ImgLabeling<String, IntType> {
 
 		super(originalLabeling.getIndexImg());
 		m_lt = super.randomAccess().get();
-		m_ra = this.randomAccess();
+		m_ra = (LabelingEditorConvertedRandomAccess)this.randomAccess();
 		EditorLabelingAccess access = new EditorLabelingAccess(getMapping());
 		LabelingMapping<T> oc = originalLabeling.getMapping();
 		List<Set<String>> sets = new LinkedList<Set<String>>();
@@ -41,12 +41,16 @@ public class EditorLabeling extends ImgLabeling<String, IntType> {
 
 	class LabelingEditorConvertedRandomAccess extends
 			AbstractConvertedRandomAccess<IntType, LabelingType<String>> {
-		private final LabelingType<String> type;
+		private final EditorLabelingType type;
 
 		public LabelingEditorConvertedRandomAccess(
 				final RandomAccess<IntType> source) {
 			super(source);
 			this.type = new EditorLabelingType(source.get(), m_lt);
+		}
+		
+		public void insert(int index, String label){
+			type.insert(index, label);
 		}
 
 		@Override
@@ -110,6 +114,10 @@ public class EditorLabeling extends ImgLabeling<String, IntType> {
 	public Cursor<LabelingType<String>> localizingCursor() {
 		return new LabelingEditorConvertedCursor(Views.iterable(getIndexImg())
 				.localizingCursor());
+	}
+	
+	public void insert(int index, String label){
+		m_ra.insert(index, label);
 	}
 
 	static class EditorLabelingAccess extends
