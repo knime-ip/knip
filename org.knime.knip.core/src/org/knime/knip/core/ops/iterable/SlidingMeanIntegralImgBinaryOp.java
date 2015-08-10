@@ -48,6 +48,9 @@
  */
 package org.knime.knip.core.ops.iterable;
 
+import org.knime.knip.core.ops.integralimage.IntegralImgND;
+import org.knime.knip.core.ops.integralimage.IntegralImgSumAgent;
+
 import net.imglib2.Cursor;
 import net.imglib2.FinalInterval;
 import net.imglib2.IterableInterval;
@@ -65,12 +68,9 @@ import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 
-import org.knime.knip.core.ops.integralimage.IntegralImgND;
-import org.knime.knip.core.ops.integralimage.IntegralImgSumAgent;
-
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -120,7 +120,7 @@ public class SlidingMeanIntegralImgBinaryOp<T extends RealType<T>, V extends Rea
         final IntervalView<T> extended =
                 Views.offset(Views.interval(Views.extend(input, m_outOfBounds), new FinalInterval(min, max)), min);
 
-        final RandomAccessibleInterval<IntType> ii = Operations.compute(m_iiOp, extended);
+        final RandomAccessibleInterval<IntType> ii = (RandomAccessibleInterval<IntType>)Operations.compute(m_iiOp, extended);
 
         final DoubleType mean = new DoubleType();
         final long[] p1 = new long[input.numDimensions()];
