@@ -1,13 +1,13 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: FeatureNode-Node extension for KNIME Workbench
+Bundle-Name: KNIME Featurenode extension for KNIME Workbench
 Bundle-SymbolicName: org.knime.knip.featurenode;singleton:=true
-Bundle-Version: 1.0.0
-Bundle-Vendor: Daniel Seebacher
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: KNIME Image Processing
 Require-Bundle: org.eclipse.core.runtime,
- org.knime.workbench.core,
- org.knime.workbench.repository,
- org.knime.base,
+ org.knime.workbench.core;bundle-version="3.0.0",
+ org.knime.workbench.repository;bundle-version="3.0.0",
+ org.knime.base;bundle-version="3.0.0",
  imagej-common;bundle-version="0.12.0",
  imglib2-roi;bundle-version="0.2.1",
  imglib2;bundle-version="2.2.0",
@@ -21,14 +21,14 @@ Require-Bundle: org.eclipse.core.runtime,
  scijava-plugins-commands;bundle-version="0.1.8",
  scijava-ui-awt;bundle-version="0.1.3",
  scijava-ui-swing;bundle-version="0.3.0",
- org.knime.knip.base;bundle-version="1.3.0",
- org.knime.knip.core;bundle-version="1.3.0",
- org.knime.knip.io;bundle-version="1.3.0",
- miglayout-swing,
+ org.knime.knip.base;bundle-version="1.4.0",
+ org.knime.knip.core;bundle-version="1.4.0",
+ org.knime.knip.io;bundle-version="1.4.0",
+ miglayout-swing;bundle-version="4.2.0",
  scijava-common;bundle-version="2.42.2",
  org.apache.commons.math3;bundle-version="3.2.0"
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
  lib/imagej-ops-0.14.0-SNAPSHOT.jar
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 

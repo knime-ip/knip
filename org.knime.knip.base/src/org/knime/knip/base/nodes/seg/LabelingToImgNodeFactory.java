@@ -51,16 +51,6 @@ package org.knime.knip.base.nodes.seg;
 import java.io.IOException;
 import java.util.List;
 
-import net.imagej.ImgPlus;
-import net.imglib2.Cursor;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.exception.IncompatibleTypeException;
-import net.imglib2.roi.labeling.ImgLabeling;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.type.numeric.IntegerType;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.view.Views;
-
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
@@ -76,6 +66,16 @@ import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.types.NativeTypes;
 import org.knime.knip.core.util.EnumUtils;
 
+import net.imagej.ImgPlus;
+import net.imglib2.Cursor;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.exception.IncompatibleTypeException;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.numeric.IntegerType;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
+
 /**
  * {@link NodeFactory} to convert {@link ImgLabeling} to an {@link ImgPlus} of arbitrary {@link RealType}
  *
@@ -86,8 +86,8 @@ import org.knime.knip.core.util.EnumUtils;
  * @param <L>
  * @param <V>
  */
-public class LabelingToImgNodeFactory<L extends Comparable<L>, V extends IntegerType<V>> extends
-        ValueToCellNodeFactory<LabelingValue<L>> {
+public class LabelingToImgNodeFactory<L extends Comparable<L>, V extends IntegerType<V>>
+        extends ValueToCellNodeFactory<LabelingValue<L>> {
 
     private static SettingsModelString createOutputImgModel() {
         return new SettingsModelString("output", NativeTypes.BITTYPE.toString());
@@ -134,8 +134,8 @@ public class LabelingToImgNodeFactory<L extends Comparable<L>, V extends Integer
              */
             @SuppressWarnings({"rawtypes", "unchecked"})
             @Override
-            protected ImgPlusCell<V> compute(final LabelingValue<L> cellValue) throws IncompatibleTypeException,
-                    IOException {
+            protected ImgPlusCell<V> compute(final LabelingValue<L> cellValue)
+                    throws IncompatibleTypeException, IOException {
                 final RandomAccessibleInterval<LabelingType<L>> lab = cellValue.getLabeling();
 
                 final RealType outType =
