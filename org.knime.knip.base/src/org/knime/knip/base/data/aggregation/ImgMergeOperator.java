@@ -29,6 +29,19 @@ import java.util.ArrayList;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
+import org.knime.base.data.aggregation.AggregationOperator;
+import org.knime.base.data.aggregation.GlobalSettings;
+import org.knime.base.data.aggregation.OperatorColumnSettings;
+import org.knime.core.data.DataCell;
+import org.knime.core.data.DataRow;
+import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DataType;
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.NotConfigurableException;
+import org.knime.core.node.defaultnodesettings.DialogComponentString;
+import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
@@ -39,7 +52,6 @@ import net.imagej.axis.Axes;
 import net.imagej.axis.CalibratedAxis;
 import net.imagej.axis.DefaultLinearAxis;
 import net.imagej.space.DefaultCalibratedSpace;
-import net.imagej.types.DataType;
 import net.imglib2.img.array.ArrayImg;
 import net.imglib2.img.basictypeaccess.array.ArrayDataAccess;
 import net.imglib2.img.basictypeaccess.array.ByteArray;
@@ -67,8 +79,8 @@ import net.imglib2.util.Fraction;
  * @author Martin Horn, University of Konstanz
  *
  */
-public class ImgMergeOperator<T extends RealType<T> & NativeType<T>, A, ADA extends ArrayDataAccess<ADA>> extends
-        ImgAggregrationOperation {
+public class ImgMergeOperator<T extends RealType<T> & NativeType<T>, A, ADA extends ArrayDataAccess<ADA>>
+        extends ImgAggregrationOperation {
 
     private class ByteTypeHandler implements RealTypeHandler<ByteType, byte[], ByteArray> {
         /**
@@ -302,13 +314,13 @@ public class ImgMergeOperator<T extends RealType<T> & NativeType<T>, A, ADA exte
     }
 
     private interface RealTypeHandler<T, A, ADA> {
-        /**
-         * @param srcArray
-         * @param resArray
-         * @param fromIndex
-         * @return the new index
-         */
-        int copyData(A srcArray, A resArray, int fromIndex);
+            /**
+             * @param srcArray
+             * @param resArray
+             * @param fromIndex
+             * @return the new index
+             */
+            int copyData(A srcArray, A resArray, int fromIndex);
 
         A createArray(int size);
 
@@ -503,15 +515,15 @@ public class ImgMergeOperator<T extends RealType<T> & NativeType<T>, A, ADA exte
         final ImgPlus<T> img = ((ImgPlusValue<T>)cell).getImgPlus();
 
         if ((m_type != null) && !img.firstElement().getClass().isAssignableFrom(m_type.getClass())) {
-            throw new IllegalArgumentException("Image " + img.getName()
-                    + " not compatible with first-row image. Different type!");
+            throw new IllegalArgumentException(
+                    "Image " + img.getName() + " not compatible with first-row image. Different type!");
         }
 
         if (m_dims != null) {
             for (int i = 0; i < 2; i++) {
                 if (img.dimension(i) != m_dims[i]) {
-                    throw new IllegalArgumentException("Image " + img.getName()
-                            + " not compatible with first-row image. Different dimension!");
+                    throw new IllegalArgumentException(
+                            "Image " + img.getName() + " not compatible with first-row image. Different dimension!");
                 }
             }
 
@@ -536,8 +548,8 @@ public class ImgMergeOperator<T extends RealType<T> & NativeType<T>, A, ADA exte
             } else if (m_type instanceof DoubleType) {
                 m_typeHandler = (RealTypeHandler<T, A, ADA>)new DoubleTypeHandler();
             } else {
-                throw new IllegalArgumentException("Pixel type " + m_type.getClass().getSimpleName()
-                        + " not supported for merging.");
+                throw new IllegalArgumentException(
+                        "Pixel type " + m_type.getClass().getSimpleName() + " not supported for merging.");
             }
             m_data = new ArrayList<A>();
 
