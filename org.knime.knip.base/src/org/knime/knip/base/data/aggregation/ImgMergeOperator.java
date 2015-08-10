@@ -29,12 +29,17 @@ import java.util.ArrayList;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
+import org.knime.knip.base.data.img.ImgPlusCell;
+import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.core.data.img.DefaultImgMetadata;
+
 import net.imagej.ImgPlus;
 import net.imagej.ImgPlusMetadata;
 import net.imagej.axis.Axes;
 import net.imagej.axis.CalibratedAxis;
 import net.imagej.axis.DefaultLinearAxis;
 import net.imagej.space.DefaultCalibratedSpace;
+import net.imagej.types.DataType;
 import net.imglib2.img.array.ArrayImg;
 import net.imglib2.img.basictypeaccess.array.ArrayDataAccess;
 import net.imglib2.img.basictypeaccess.array.ByteArray;
@@ -55,23 +60,6 @@ import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.util.Fraction;
-
-import org.knime.base.data.aggregation.AggregationOperator;
-import org.knime.base.data.aggregation.GlobalSettings;
-import org.knime.base.data.aggregation.OperatorColumnSettings;
-import org.knime.core.data.DataCell;
-import org.knime.core.data.DataRow;
-import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.DataType;
-import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeSettingsRO;
-import org.knime.core.node.NodeSettingsWO;
-import org.knime.core.node.NotConfigurableException;
-import org.knime.core.node.defaultnodesettings.DialogComponentString;
-import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.knime.knip.base.data.img.ImgPlusCell;
-import org.knime.knip.base.data.img.ImgPlusValue;
-import org.knime.knip.core.data.img.DefaultImgMetadata;
 
 /**
  * Aggregation operator which merges images.
@@ -422,7 +410,7 @@ public class ImgMergeOperator<T extends RealType<T> & NativeType<T>, A, ADA exte
          */
         @Override
         public int copyData(final short[] srcArray, final short[] resArray, final int fromIndex) {
-            System.arraycopy(srcArray, 0, resArray, fromIndex, srcArray.length);
+            System.arraycopy(srcArray, 0, resArray, fromIndex, resArray.length);
             return fromIndex + srcArray.length;
         }
 
