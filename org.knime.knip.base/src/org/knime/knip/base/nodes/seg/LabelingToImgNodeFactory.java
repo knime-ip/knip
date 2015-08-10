@@ -164,7 +164,8 @@ public class LabelingToImgNodeFactory<L extends Comparable<L>, V extends Integer
                 out.setSource(cellValue.getLabelingMetadata().getSource());
                 out.setName(cellValue.getLabelingMetadata().getName());
 
-                return m_imgCellFactory.createCell(out);
+                ImgPlusCell cell = m_imgCellFactory.createCell(out);
+                return cell;
             }
 
             /**
