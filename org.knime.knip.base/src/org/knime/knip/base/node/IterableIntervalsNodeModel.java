@@ -49,6 +49,42 @@
  */
 package org.knime.knip.base.node;
 
+import org.knime.core.data.DataRow;
+import org.knime.core.data.DataRow;
+import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DataTableSpec;
+import org.knime.core.node.BufferedDataTable;
+import org.knime.core.node.BufferedDataTable;
+import org.knime.core.node.ExecutionContext;
+import org.knime.core.node.ExecutionContext;
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeLogger;
+import org.knime.core.node.NodeLogger;
+import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
+import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
+import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.node.port.PortObject;
+import org.knime.core.node.port.PortObject;
+import org.knime.core.node.port.PortObjectSpec;
+import org.knime.core.node.port.PortObjectSpec;
+import org.knime.knip.base.data.img.ImgPlusCell;
+import org.knime.knip.base.data.img.ImgPlusCell;
+import org.knime.knip.base.data.img.ImgPlusCellFactory;
+import org.knime.knip.base.data.img.ImgPlusCellFactory;
+import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.base.data.labeling.LabelingValue;
+import org.knime.knip.base.data.labeling.LabelingValue;
+import org.knime.knip.base.exceptions.KNIPException;
+import org.knime.knip.base.exceptions.KNIPException;
+import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
+import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
+import org.knime.knip.core.util.EnumUtils;
+import org.knime.knip.core.util.EnumUtils;
+import org.knime.knip.core.util.ImgUtils;
+
 import net.imagej.ImgPlus;
 import net.imglib2.Cursor;
 import net.imglib2.IterableInterval;
@@ -60,25 +96,6 @@ import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.roi.IterableRegionOfInterest;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
-
-import org.knime.core.data.DataRow;
-import org.knime.core.data.DataTableSpec;
-import org.knime.core.node.BufferedDataTable;
-import org.knime.core.node.ExecutionContext;
-import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeLogger;
-import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
-import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.knime.core.node.port.PortObject;
-import org.knime.core.node.port.PortObjectSpec;
-import org.knime.knip.base.data.img.ImgPlusCell;
-import org.knime.knip.base.data.img.ImgPlusCellFactory;
-import org.knime.knip.base.data.img.ImgPlusValue;
-import org.knime.knip.base.data.labeling.LabelingValue;
-import org.knime.knip.base.exceptions.KNIPException;
-import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
-import org.knime.knip.core.util.EnumUtils;
-import org.knime.knip.core.util.ImgUtils;
 
 /**
  * Remark: Note this class has some redundant implementations to {@link ImgPlusToImgPlusNodeModel}. Anyway, the
