@@ -158,7 +158,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
     public static void addViewDescriptionTo(final Views views) {
         final View view = views.addNewView();
         view.setIndex(new BigInteger("0"));
-        view.setName("Table Cell View");
+        view.setName("Image Viewer");
 
         final Map<Class<? extends DataValue>, List<String>> descs =
                 TableCellViewsManager.getInstance().getTableCellViewDescriptions();

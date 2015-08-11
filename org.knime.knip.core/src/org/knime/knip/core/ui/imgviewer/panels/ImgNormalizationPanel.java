@@ -159,9 +159,10 @@ public class ImgNormalizationPanel<T extends RealType<T>, I extends Img<T>> exte
         m_saturationSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(final ChangeEvent e) {
+
                 if (!m_saturationSlider.getValueIsAdjusting()) {
-                    m_eventService.publish(new NormalizationParametersChgEvent(m_saturationSlider.getValue()
-                            / SATURATION_SLIDER_FACTOR, m_normalize.isSelected()));
+                    m_eventService.publish(new NormalizationParametersChgEvent(
+                            m_saturationSlider.getValue() / SATURATION_SLIDER_FACTOR, m_normalize.isSelected()));
                 }
                 m_eventService.publish(new ImgRedrawEvent());
                 final float percent = m_saturationSlider.getValue() / SATURATION_SLIDER_FACTOR;
@@ -190,8 +191,8 @@ public class ImgNormalizationPanel<T extends RealType<T>, I extends Img<T>> exte
         eventService.subscribe(this);
 
         // inform everybody about our settings.
-        eventService.publish(new NormalizationParametersChgEvent(m_saturationSlider.getValue(), m_normalize
-                .isSelected()));
+        eventService
+                .publish(new NormalizationParametersChgEvent(m_saturationSlider.getValue(), m_normalize.isSelected()));
     }
 
     @Override
