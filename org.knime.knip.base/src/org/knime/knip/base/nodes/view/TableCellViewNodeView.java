@@ -285,8 +285,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         cellSelectionChanged(row, col);
     }
 
-    private boolean cellExists(final int row, final int col)
-    {
+    private boolean cellExists(final int row, final int col) {
         return (col >= 0 && col < m_tableModel.getColumnCount() && row >= 0 && row < m_tableModel.getRowCount());
     }
 
@@ -314,12 +313,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         final int selection = m_cellView.getSelectedIndex();
         List<TableCellView> cellView;
 
-
         final String currentDataCellClass = m_currentCell.getClass().getCanonicalName();
-        boolean isLabeling = false;
-        if(m_tableModel.getValueAt(row, col) instanceof LabelingCell) {
-            isLabeling = true;
-        }
 
         // cache cell view
         if ((cellView = m_cellViews.get(currentDataCellClass)) == null) {
@@ -407,7 +401,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         for (final TableCellView v : cellView) {
             try {
                 m_cellView.addTab(v.getName(), m_viewComponents.get(currentDataCellClass + ":" + v.getName()));
-                updateToolTips(row, col, isLabeling, v);
+                updateToolTips(row, col, v);
             } catch (final Exception ex) {
                 LOGGER.error("Could not add Tab " + v.getName(), ex);
             }
@@ -422,13 +416,17 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     }
 
+    private boolean isLabeling(final DataCell d) {
+        return d instanceof LabelingCell;
+    }
+
     /**
      * @param row
      * @param col
      * @param isLabeling
      * @param v
      */
-    private void updateToolTips(final int row, final int col, final boolean isLabeling, final TableCellView v) {
+    private void updateToolTips(final int row, final int col, final TableCellView v) {
         if (v.getViewComponent() instanceof ImgViewer) {
             // Register buttons
             ImgViewer vc = (ImgViewer)v.getViewComponent();
@@ -436,41 +434,45 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
             for (int i = 0; i < 4; ++i) {
                 ImageToolTipButton b = (ImageToolTipButton)((ControlPanel)ctrls[i]).getButton();
                 if (i == 0) {
-                    if(cellExists(m_row+1, col)) {
-                        if(!isLabeling) {
-                            b.setToolTipImage(((ImgPlusCell)m_tableModel.getValueAt(m_row+1, col)).getThumbnail(null));
+                    if (cellExists(m_row + 1, col)) {
+                        DataCell d = m_tableModel.getValueAt(m_row + 1, col);
+                        if (!isLabeling(d)) {
+                            b.setToolTipImage(((ImgPlusCell)d).getThumbnail(null));
                         } else {
-                            b.setToolTipImage(((LabelingCell)m_tableModel.getValueAt(m_row+1, col)).getThumbnail(null));
+                            b.setToolTipImage(((LabelingCell)d).getThumbnail(null));
                         }
                     }
                 }
                 if (i == 1) {
 
-                    if(cellExists(row, col-1)) {
-                        if(!isLabeling) {
-                            b.setToolTipImage(((ImgPlusCell)m_tableModel.getValueAt(row, col-1)).getThumbnail(null));
+                    if (cellExists(row, col - 1)) {
+                        DataCell d = m_tableModel.getValueAt(row, col - 1);
+                        if (!isLabeling(d)) {
+                            b.setToolTipImage(((ImgPlusCell)d).getThumbnail(null));
                         } else {
-                            b.setToolTipImage(((LabelingCell)m_tableModel.getValueAt(row, col-1)).getThumbnail(null));
+                            b.setToolTipImage(((LabelingCell)d).getThumbnail(null));
                         }
                     }
                 }
                 if (i == 2) {
 
-                    if(cellExists(row, col+1)) {
-                        if(!isLabeling) {
-                            b.setToolTipImage(((ImgPlusCell)m_tableModel.getValueAt(row, col+1)).getThumbnail(null));
+                    if (cellExists(row, col + 1)) {
+                        DataCell d = m_tableModel.getValueAt(row, col + 1);
+                        if (!isLabeling(d)) {
+                            b.setToolTipImage(((ImgPlusCell)d).getThumbnail(null));
                         } else {
-                            b.setToolTipImage(((LabelingCell)m_tableModel.getValueAt(row, col+1)).getThumbnail(null));
+                            b.setToolTipImage(((LabelingCell)d).getThumbnail(null));
                         }
                     }
                 }
                 if (i == 3) {
 
-                    if(cellExists(m_row-1, col)) {
-                        if(!isLabeling) {
-                            b.setToolTipImage(((ImgPlusCell)m_tableModel.getValueAt(m_row-1, col)).getThumbnail(null));
+                    if (cellExists(m_row - 1, col)) {
+                        DataCell d = m_tableModel.getValueAt(m_row - 1, col);
+                        if (!isLabeling(d)) {
+                            b.setToolTipImage(((ImgPlusCell)d).getThumbnail(null));
                         } else {
-                            b.setToolTipImage(((LabelingCell)m_tableModel.getValueAt(m_row-1, col)).getThumbnail(null));
+                            b.setToolTipImage(((LabelingCell)d).getThumbnail(null));
                         }
                     }
                 }
@@ -556,7 +558,6 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
                 cellSelectionChanged();
             }
         };
-
 
         m_tableContentView.getColumnModel().getSelectionModel().addListSelectionListener(m_listSelectionListenerB);
         m_tableView = new TableView(m_tableContentView);
