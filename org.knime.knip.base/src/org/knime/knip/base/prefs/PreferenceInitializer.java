@@ -54,7 +54,7 @@ import org.knime.knip.base.KNIMEKNIPPlugin;
 
 /**
  * Class used to initialize default preference values.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -74,7 +74,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
         //Each cell needs to be associated with  one filestore as KNIME can't handle n cells to one filestore since now. Needs to be discussed for 1.1.0 (dietzc)
         store.setDefault(PreferenceConstants.P_MAX_FILE_SIZE, "0");
-
         store.setDefault(PreferenceConstants.P_COMPRESS_FILES, false);
         store.setDefault(PreferenceConstants.P_DIM_LABELS, "X,Y,Z,Channel,Time");
         store.setDefault(PreferenceConstants.P_IMAGE_CELL_HEIGHT, "200");

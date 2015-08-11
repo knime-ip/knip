@@ -189,7 +189,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
     public static void addViewDescriptionTo(final org.knime.node2012.ViewsDocument.Views views) {
         final org.knime.node2012.ViewDocument.View view = views.addNewView();
         view.setIndex(0);
-        view.setName("Table Cell View");
+        view.setName("Image Viewer");
 
         final Map<Class<? extends DataValue>, List<String>> descs =
                 TableCellViewsManager.getInstance().getTableCellViewDescriptions();

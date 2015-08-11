@@ -243,11 +243,9 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
         } else {
             lab2d = Views.addDimension(m_lab, 0, 0);
         }
-
         // set the labeling mapping
         final ColorLabelingRenderer<L> rend = new ColorLabelingRenderer<L>();
         rend.setLabelMapping(lab2d.randomAccess().get().getMapping());
-
         int i = 0;
         final long[] max = new long[lab2d.numDimensions()];
         max[0] = lab2d.max(0);

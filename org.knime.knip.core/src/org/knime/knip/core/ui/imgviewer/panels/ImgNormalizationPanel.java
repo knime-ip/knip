@@ -62,13 +62,13 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.imglib2.img.Img;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.ViewerComponent;
 import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
 import org.knime.knip.core.ui.imgviewer.events.NormalizationParametersChgEvent;
+
+import net.imglib2.img.Img;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * Settings to enhance the contrast of an image.
@@ -121,7 +121,7 @@ public class ImgNormalizationPanel<T extends RealType<T>, I extends Img<T>> exte
      */
     public ImgNormalizationPanel(final double sat, final boolean normalize) {
         super("", true);
-//        super("Normalize", false);
+        //        super("Normalize", false);
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
@@ -159,8 +159,10 @@ public class ImgNormalizationPanel<T extends RealType<T>, I extends Img<T>> exte
         m_saturationSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(final ChangeEvent e) {
-                m_eventService.publish(new NormalizationParametersChgEvent(m_saturationSlider.getValue()
-                        / SATURATION_SLIDER_FACTOR, m_normalize.isSelected()));
+                if (!m_saturationSlider.getValueIsAdjusting()) {
+                    m_eventService.publish(new NormalizationParametersChgEvent(m_saturationSlider.getValue()
+                            / SATURATION_SLIDER_FACTOR, m_normalize.isSelected()));
+                }
                 m_eventService.publish(new ImgRedrawEvent());
                 final float percent = m_saturationSlider.getValue() / SATURATION_SLIDER_FACTOR;
                 m_sat.setText(percent + "%");
@@ -186,6 +188,7 @@ public class ImgNormalizationPanel<T extends RealType<T>, I extends Img<T>> exte
     public void setEventService(final EventService eventService) {
         m_eventService = eventService;
         eventService.subscribe(this);
+
         // inform everybody about our settings.
         eventService.publish(new NormalizationParametersChgEvent(m_saturationSlider.getValue(), m_normalize
                 .isSelected()));
