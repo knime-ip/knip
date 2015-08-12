@@ -54,7 +54,6 @@ import net.imglib2.display.screenimage.awt.ARGBScreenImage;
 import net.imglib2.display.screenimage.awt.AWTScreenImage;
 import net.imglib2.type.Type;
 import net.imglib2.type.numeric.ARGBType;
-import net.imglib2.view.Views;
 
 /**
  * TODO Auto-generated
@@ -81,15 +80,6 @@ public abstract class ProjectingRenderer<T extends Type<T>> implements ImageRend
         final ARGBScreenImage target = new ARGBScreenImage(width, height);
 
         RandomAccessibleInterval<ARGBType> raiARGBType = target;
-
-        final long[] min = new long[source.numDimensions()];
-        source.min(min);
-
-        for (int d = 0; d < min.length; d++) {
-            if (min[d] != 0) {
-                raiARGBType = Views.translate(target, min);
-            }
-        }
 
         final AbstractProjector2D projector = getProjector(dimX, dimY, source, raiARGBType);
 
