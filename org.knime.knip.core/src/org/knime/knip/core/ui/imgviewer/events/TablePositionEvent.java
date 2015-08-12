@@ -46,29 +46,85 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.base.prefs;
+package org.knime.knip.core.ui.imgviewer.events;
+
+import org.knime.knip.core.ui.event.KNIPEvent;
 
 /**
- * Constant definitions for plug-in preferences
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class PreferenceConstants {
+public class TablePositionEvent implements KNIPEvent {
 
-    public static final String P_BUFFEREDIMAGES_CACHE_SIZE = "bufferedImagesCacheSizePreference";
+    private final int m_width;
 
-    public static final String P_COMPRESS_FILES = "compressFiles";
+    private final int m_height;
 
-    public static final String P_DIM_LABELS = "dimLabelsPreference";
+    private final int m_x;
 
-    public static final String P_IMAGE_CELL_HEIGHT = "imageCellHeightPreference";
+    private final int m_y;
 
-    public static final String P_MAX_FILE_SIZE = "fileSize";
 
-    public static final String P_THUMBNAIL_IMAGE_RATIO = "thumbnailImageRatio";
+    public TablePositionEvent(final int width, final int height, final int x, final int y) {
 
-    public static final String P_ALWAYS_NORMALIZE = "alwaysNormalizeImages";
+        m_width = width;
+        m_height = height;
+        m_x = x;
+        m_y = y;
+    }
+
+
+    /**
+     * @return the m_width
+     */
+    public int getwidth() {
+        return m_width;
+    }
+
+
+    /**
+     * @return the m_height
+     */
+    public int getheight() {
+        return m_height;
+    }
+
+
+    /**
+     * @return the m_x
+     */
+    public int getx() {
+        return m_x;
+    }
+
+
+    /**
+     * @return the m_y
+     */
+    public int gety() {
+        return m_y;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ExecutionPriority getExecutionOrder() {
+        // TODO Auto-generated method stub
+        return ExecutionPriority.LOW;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <E extends KNIPEvent> boolean isRedundant(final E thatEvent) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
 }

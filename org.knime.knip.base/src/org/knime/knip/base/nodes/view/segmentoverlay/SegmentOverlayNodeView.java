@@ -48,6 +48,8 @@
  */
 package org.knime.knip.base.nodes.view.segmentoverlay;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -55,11 +57,41 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.swing.JPanel;
-import javax.swing.JSplitPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
+import org.knime.core.data.DataCell;
+import org.knime.core.node.NodeLogger;
+import org.knime.core.node.NodeView;
+import org.knime.core.node.property.hilite.HiLiteHandler;
+import org.knime.core.node.tableview.TableContentView;
+import org.knime.core.node.tableview.TableView;
+import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.base.data.labeling.LabelingValue;
+import org.knime.knip.base.nodes.view.PlainCellView;
+import org.knime.knip.base.nodes.view.segmentoverlay.SegmentOverlayNodeModel.LabelTransformVariables;
+import org.knime.knip.core.data.img.DefaultLabelingMetadata;
+import org.knime.knip.core.data.img.LabelingMetadata;
+import org.knime.knip.core.ui.imgviewer.ExpandingPanel;
+import org.knime.knip.core.ui.imgviewer.ImgCanvas;
+import org.knime.knip.core.ui.imgviewer.ImgViewer;
+import org.knime.knip.core.ui.imgviewer.ViewerComponent.Position;
+import org.knime.knip.core.ui.imgviewer.ViewerComponents;
+import org.knime.knip.core.ui.imgviewer.events.ImgAndLabelingChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
+import org.knime.knip.core.ui.imgviewer.events.LabelingWithMetadataChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
+import org.knime.knip.core.ui.imgviewer.panels.ControlPanel;
+import org.knime.knip.core.ui.imgviewer.panels.LabelFilterPanel;
+import org.knime.knip.core.ui.imgviewer.panels.RendererSelectionPanel;
+import org.knime.knip.core.ui.imgviewer.panels.TransparencyColorSelectionPanel;
+import org.knime.knip.core.ui.imgviewer.panels.infobars.ImgLabelingViewInfoPanel;
+import org.knime.knip.core.ui.imgviewer.panels.providers.AWTImageProvider;
+import org.knime.knip.core.ui.imgviewer.panels.providers.CombinedRU;
+import org.knime.knip.core.ui.imgviewer.panels.providers.ImageRU;
+import org.knime.knip.core.ui.imgviewer.panels.providers.LabelingRU;
+import org.knime.knip.core.util.MiscViews;
 
 import net.imagej.ImgPlus;
 import net.imglib2.FinalInterval;
@@ -74,34 +106,6 @@ import net.imglib2.type.numeric.integer.ByteType;
 import net.imglib2.util.ConstantUtils;
 import net.imglib2.util.Intervals;
 import net.imglib2.util.Util;
-
-import org.knime.core.data.DataCell;
-import org.knime.core.node.NodeLogger;
-import org.knime.core.node.NodeView;
-import org.knime.core.node.property.hilite.HiLiteHandler;
-import org.knime.core.node.tableview.TableContentView;
-import org.knime.core.node.tableview.TableView;
-import org.knime.knip.base.data.img.ImgPlusValue;
-import org.knime.knip.base.data.labeling.LabelingValue;
-import org.knime.knip.base.nodes.view.segmentoverlay.SegmentOverlayNodeModel.LabelTransformVariables;
-import org.knime.knip.core.data.img.DefaultLabelingMetadata;
-import org.knime.knip.core.data.img.LabelingMetadata;
-import org.knime.knip.core.ui.imgviewer.ImgCanvas;
-import org.knime.knip.core.ui.imgviewer.ImgViewer;
-import org.knime.knip.core.ui.imgviewer.ViewerComponents;
-import org.knime.knip.core.ui.imgviewer.events.ImgAndLabelingChgEvent;
-import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
-import org.knime.knip.core.ui.imgviewer.events.LabelingWithMetadataChgEvent;
-import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
-import org.knime.knip.core.ui.imgviewer.panels.LabelFilterPanel;
-import org.knime.knip.core.ui.imgviewer.panels.RendererSelectionPanel;
-import org.knime.knip.core.ui.imgviewer.panels.TransparencyColorSelectionPanel;
-import org.knime.knip.core.ui.imgviewer.panels.infobars.ImgLabelingViewInfoPanel;
-import org.knime.knip.core.ui.imgviewer.panels.providers.AWTImageProvider;
-import org.knime.knip.core.ui.imgviewer.panels.providers.CombinedRU;
-import org.knime.knip.core.ui.imgviewer.panels.providers.ImageRU;
-import org.knime.knip.core.ui.imgviewer.panels.providers.LabelingRU;
-import org.knime.knip.core.util.MiscViews;
 
 /**
  *
@@ -123,9 +127,6 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
     /* Current row */
     private int m_row;
 
-    /* The split pane for the view */
-    private JSplitPane m_sp;
-
     /* Table for the images */
     private TableContentView m_tableContentView;
 
@@ -143,6 +144,18 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
         }
     });
 
+    private ActionListener m_leftQuickViewListener;
+
+    private ActionListener m_bottomQuickViewListener;
+
+    private ActionListener m_OverviewListener;
+
+    private PlainCellView m_cellView;
+
+    private ActionListener m_prevRowListener;
+
+    private ActionListener m_nextRowListener;
+
     /**
      * Constructor
      *
@@ -150,16 +163,12 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
      */
     public SegmentOverlayNodeView(final SegmentOverlayNodeModel<T, L> model) {
         super(model);
-        m_sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         m_row = -1;
 
         initTableView();
-        m_sp.setLeftComponent(m_tableView);
-        m_sp.setRightComponent(new JPanel());
 
-        setComponent(m_sp);
+        setComponent(m_tableView);
 
-        m_sp.setDividerLocation(300);
         loadPortContent();
 
     }
@@ -187,21 +196,35 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
         m_imgView = new ImgViewer();
         m_imgView
                 .addViewerComponent(new AWTImageProvider(20, new CombinedRU(new ImageRU<T>(true), new LabelingRU<L>())));
+
+        ControlPanel t = new ControlPanel(Position.NORTH);
+        t.getButton().addActionListener(m_prevRowListener);
+
+        ControlPanel b = new ControlPanel(Position.SOUTH);
+        b.getButton().addActionListener(m_nextRowListener);
+
+        m_imgView.getOverViewButton().addActionListener(m_OverviewListener);
+
+        m_imgView.addViewerComponent(t);
+
+        m_imgView.addViewerComponent(b);
+
         m_imgView.addViewerComponent(new ImgLabelingViewInfoPanel<T, L>());
         m_imgView.addViewerComponent(new ImgCanvas<T, Img<T>>());
-        m_imgView.addViewerComponent(ViewerComponents.MINIMAP.createInstance());
-        m_imgView.addViewerComponent(ViewerComponents.PLANE_SELECTION.createInstance());
-        m_imgView.addViewerComponent(ViewerComponents.IMAGE_ENHANCE.createInstance());
-        m_imgView.addViewerComponent(new RendererSelectionPanel<T>());
+        m_imgView.addViewerComponent(ViewerComponents.MINIMAP_PLANE_SELECTION.createInstance());
+        m_imgView.addViewerComponent(new ExpandingPanel("Image Enhancement", ViewerComponents.IMAGE_ENHANCE
+                .createInstance(), true));
+        m_imgView.addViewerComponent(new ExpandingPanel("Renderer Selection", new RendererSelectionPanel<T>(), true));
 
-        m_imgView.addViewerComponent(new TransparencyColorSelectionPanel());
-        m_imgView.addViewerComponent(new LabelFilterPanel<L>(
-                getNodeModel().getInternalTables().length > SegmentOverlayNodeModel.PORT_SEG));
+        m_imgView.addViewerComponent(new ExpandingPanel("Transparency", new TransparencyColorSelectionPanel()));
+        m_imgView.addViewerComponent(new ExpandingPanel("Label Filter", new LabelFilterPanel<L>(getNodeModel()
+                .getInternalTables().length > SegmentOverlayNodeModel.PORT_SEG)));
 
         if (getNodeModel().getInternalTables().length > SegmentOverlayNodeModel.PORT_SEG) {
             m_hiliteProvider = new LabelHiliteProvider<L, T>();
             m_imgView.addViewerComponent(m_hiliteProvider);
-            final HiLiteHandler handler = getNodeModel().getInHiLiteHandler(getNodeModel().PORT_SEG);
+            getNodeModel();
+            final HiLiteHandler handler = getNodeModel().getInHiLiteHandler(SegmentOverlayNodeModel.PORT_SEG);
             m_hiliteProvider.updateInHandler(handler);
 
         } else {
@@ -217,9 +240,11 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
     protected void modelChanged() {
         m_tableContentView.setModel(getNodeModel().getTableContentModel());
         m_imgView = null;
-        m_sp.setRightComponent(new JPanel());
+        //TODO
+        //    m_sp.setRightComponent(new JPanel());
         if (m_hiliteProvider != null) {
-            final HiLiteHandler handler = getNodeModel().getInHiLiteHandler(getNodeModel().PORT_SEG);
+            getNodeModel();
+            final HiLiteHandler handler = getNodeModel().getInHiLiteHandler(SegmentOverlayNodeModel.PORT_SEG);
             m_hiliteProvider.updateInHandler(handler);
         }
         m_row = -1;
@@ -246,7 +271,6 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
         m_imgView = null;
         m_tableContentView = null;
         m_tableView = null;
-        m_sp = null;
         m_row = -1;
     }
 
@@ -259,30 +283,17 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
         // Scale to thumbnail size
         m_tableView.validate();
         m_tableView.repaint();
+        initializeListeners();
     }
 
-    /**
-     * Updates the ViewPane with the selected image and labeling
-     *
-     *
-     * {@inheritDoc}
-     */
-    @SuppressWarnings("unchecked")
-    @Override
-    public void valueChanged(final ListSelectionEvent e) {
+    private void rowChanged(final int row) {
 
-        final int row = m_tableContentView.getSelectionModel().getLeadSelectionIndex();
 
-        if ((row == m_row) || e.getValueIsAdjusting()) {
-            return;
-        }
 
         //if the imgView isn't visible yet, add it to the spit pane -> happens when a cell is selected the first time
         if (m_imgView == null) {
             initImgView();
-            int tmp = m_sp.getDividerLocation();
-            m_sp.setRightComponent(m_imgView);
-            m_sp.setDividerLocation(tmp);
+            m_cellView = new PlainCellView(m_tableView, m_imgView);
         }
 
         m_row = row;
@@ -367,9 +378,80 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
                                                         labelingMetadata, labelingMetadata, labelingMetadata));
 
             m_imgView.getEventService().publish(new ImgRedrawEvent());
+
+            m_imgView.getOverViewButton().addActionListener(m_OverviewListener);
+
+            if (getComponent() == m_tableView) {
+
+                setComponent(m_cellView);
+            }
+
         } catch (final IndexOutOfBoundsException e2) {
             return;
         }
+    }
 
+    /**
+     * Updates the ViewPane with the selected image and labeling
+     *
+     *
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public void valueChanged(final ListSelectionEvent e) {
+
+        final int row = m_tableContentView.getSelectionModel().getLeadSelectionIndex();
+
+        if ((row == m_row) || e.getValueIsAdjusting()) {
+            return;
+        }
+
+        rowChanged(row);
+
+    }
+
+    /**
+     * Creates the Listeners used in the displayed views.
+     */
+    private void initializeListeners() {
+        m_prevRowListener = new ActionListener() {
+
+            @Override
+            public void actionPerformed(final ActionEvent arg0) {
+                int r = m_row - 1;
+                rowChanged(r);
+
+            }
+
+        };
+
+        m_nextRowListener = new ActionListener() {
+
+            @Override
+            public void actionPerformed(final ActionEvent arg0) {
+                int r = m_row + 1;
+                rowChanged(r);
+
+            }
+
+        };
+
+        m_OverviewListener = new ActionListener() {
+
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                if (getComponent() == m_cellView) {
+                    if (m_cellView.isTableViewVisible()) {
+                        m_cellView.hideTableViews();
+                    }
+                    m_tableContentView.clearSelection();
+                    setComponent(m_tableView);
+                } else {
+                    // Should not happen.
+                }
+
+            }
+        };
     }
 }

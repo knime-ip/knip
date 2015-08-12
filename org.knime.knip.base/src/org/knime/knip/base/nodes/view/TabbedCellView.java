@@ -49,61 +49,31 @@
  */
 package org.knime.knip.base.nodes.view;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 
-import javax.swing.JPanel;
-import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeListener;
 
 import org.knime.core.node.tableview.TableView;
+import org.knime.knip.core.ui.event.KNIPEvent;
+import org.knime.knip.core.ui.imgviewer.ImgViewer;
 
+//TODO: Update Doc
 /**
  * This Class represents the Cell-side part of the TableCellViewer - plus some additional convenience features.
  *
- * @author Andreas Burger, University of Constance
+ * @author Andreas Burger, University of Konstance
  */
-public class CellView extends JPanel {
+public class TabbedCellView extends AbstractCellView {
 
-    // The TabbedPane holding all the views of the cell
-    private JTabbedPane m_cellView;
+    protected JTabbedPane m_cellView;
 
-    // A reference to the TableView stored in the TableCellViewer
-    private final TableView m_tableView;
+    public TabbedCellView(final TableView tableView) {
+        super(tableView);
 
-    private JPanel m_tablePanel;
-
-    private boolean m_isVisible = false;
-
-    // JSplitPane to allow displaying of both the TabbedPane and the TableView
-    private JSplitPane m_background;
-
-    public CellView(final TableView tableView) {
-        m_tableView = tableView;
         m_cellView = new JTabbedPane();
+        m_verticalSplit.setTopComponent(m_cellView);
 
-        m_background = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-
-        setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.weightx = 1;
-        gbc.weighty = 1;
-        gbc.gridheight = GridBagConstraints.REMAINDER;
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbc.fill = GridBagConstraints.BOTH;
-
-        m_background.setTopComponent(m_cellView);
-
-        // Initialize the panel used for the bottom component here, but don't set it.
-        m_tablePanel = new JPanel(new BorderLayout());
-
-        add(m_background, gbc);
 
     }
 
@@ -168,6 +138,7 @@ public class CellView extends JPanel {
 
     /**
      * Get the number of tabs currently available in the tabbed pane of this view
+     *
      * @return an integer specifying the number of tabbed pages
      * @see JTabbedPane#getTabCount()
      */
@@ -175,29 +146,16 @@ public class CellView extends JPanel {
         return m_cellView.getTabCount();
     }
 
-    /**
-     * Sets the visibility of the TableView referenced by this View.
-     * @param isVisible - boolean specifying the desired visibility state
-     */
-    public void setTableViewVisible(final boolean isVisible) {
-        m_isVisible = isVisible;
-        if (isVisible) {
-            m_tablePanel.add(m_tableView, BorderLayout.CENTER);
-            m_background.setBottomComponent(m_tablePanel);
-            m_background.setDividerLocation(0.9);
-        } else {
-            m_tablePanel.removeAll();
-            m_background.remove(2);
+    @Override
+    public void broadcastEvent(final KNIPEvent e){
+        for(int i = 0; i < getTabCount(); ++i)
+        {
+            if(m_cellView.getComponentAt(i) instanceof ImgViewer)
+            {
+                ImgViewer v = (ImgViewer)m_cellView.getComponentAt(i);
+                v.getEventService().publish(e);
+            }
         }
-        validate();
-    }
-
-    /**
-     * @return whether the TableView is currently visible or not
-     */
-    public boolean isTableViewVisible() {
-        // TODO Auto-generated method stub
-        return m_isVisible;
     }
 
 }

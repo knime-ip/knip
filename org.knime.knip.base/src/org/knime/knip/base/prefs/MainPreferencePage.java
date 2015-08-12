@@ -48,6 +48,7 @@
  */
 package org.knime.knip.base.prefs;
 
+import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
@@ -68,7 +69,7 @@ import org.knime.knip.base.KNIMEKNIPPlugin;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -166,6 +167,11 @@ public class MainPreferencePage extends FieldEditorPreferencePage implements IWo
                 + "\nthe thumbnail will be generated and stored with the image data."
                 + "\nIf 0, the thumbnail will never be stored, if 1 everytime."));
         addField(new DoubleFieldEditor(PreferenceConstants.P_THUMBNAIL_IMAGE_RATIO, "The Thumbnail-Image Ratio",
+                getFieldEditorParent()));
+
+        addField(new HorizontalLineField(parent));
+        addField(new LabelField(parent, "Specify the default normalization behaviour."));
+        addField(new BooleanFieldEditor(PreferenceConstants.P_ALWAYS_NORMALIZE, "Normalize Images?",
                 getFieldEditorParent()));
 
     }

@@ -49,7 +49,9 @@
 package org.knime.knip.base.nodes.view;
 
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.math.BigInteger;
@@ -78,8 +80,10 @@ import org.knime.core.node.tableview.TableContentView;
 import org.knime.core.node.tableview.TableView;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.labeling.LabelingCell;
+import org.knime.knip.base.nodes.view.AbstractCellView.TableDir;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.ui.imgviewer.ViewerComponent;
+import org.knime.knip.core.ui.imgviewer.events.TablePositionEvent;
 import org.knime.knip.core.ui.imgviewer.panels.ControlPanel;
 import org.knime.knip.core.ui.imgviewer.panels.ImageToolTipButton;
 import org.knime.knip.core.util.waitingindicator.WaitingIndicatorUtils;
@@ -215,9 +219,11 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     protected ChangeListener m_changeListener;
 
-    protected ActionListener m_quickViewListener;
+    protected ActionListener m_bottomQuickViewListener;
 
-    protected ActionListener m_overviewListener;
+    protected ActionListener m_leftQuickViewListener;
+
+    protected ActionListener m_OverviewListener;
 
     protected int m_col = -1;
 
@@ -252,7 +258,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     protected TableView m_tableView;
 
-    protected CellView m_cellView;
+    protected TabbedCellView m_cellView;
 
     protected Map<String, Component> m_viewComponents;
 
@@ -285,8 +291,11 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         cellSelectionChanged(row, col);
     }
 
-    private boolean cellExists(final int row, final int col)
-    {
+    /**
+     * Helper function to check if a call to getValueAt(row, col) would return an IOOBEx
+     **/
+
+    private boolean cellExists(final int row, final int col) {
         return (col >= 0 && col < m_tableModel.getColumnCount() && row >= 0 && row < m_tableModel.getRowCount());
     }
 
@@ -314,10 +323,11 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         final int selection = m_cellView.getSelectedIndex();
         List<TableCellView> cellView;
 
+        m_cellView.removeAllTabs();
 
         final String currentDataCellClass = m_currentCell.getClass().getCanonicalName();
         boolean isLabeling = false;
-        if(m_tableModel.getValueAt(row, col) instanceof LabelingCell) {
+        if (m_tableModel.getValueAt(row, col) instanceof LabelingCell) {
             isLabeling = true;
         }
 
@@ -336,68 +346,10 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
             }
             m_cellViews.put(currentDataCellClass, cellView);
             for (final TableCellView v : cellView) {
+                // Link all the listeners to the correct buttons
+                registerButtons(v);
                 // cache the view component
                 final Component comp = v.getViewComponent();
-                if (v.getViewComponent() instanceof ImgViewer) {
-                    // Register buttons
-                    ImgViewer vc = (ImgViewer)v.getViewComponent();
-                    ViewerComponent[] ctrls = vc.getControls();
-                    for (int i = 0; i < 4; ++i) {
-                        ImageToolTipButton b = (ImageToolTipButton)((ControlPanel)ctrls[i]).getButton();
-                        if (i == 0) {
-                            b.addActionListener(new ActionListener() {
-
-                                @Override
-                                public void actionPerformed(final ActionEvent arg0) {
-                                    int r = m_row + 1;
-                                    cellSelectionChanged(r, m_col);
-
-                                }
-
-                            });
-                        }
-                        if (i == 1) {
-                            b.addActionListener(new ActionListener() {
-
-                                @Override
-                                public void actionPerformed(final ActionEvent arg0) {
-                                    int c = m_col - 1;
-                                    cellSelectionChanged(m_row, c);
-
-                                }
-
-                            });
-
-                        }
-                        if (i == 2) {
-                            b.addActionListener(new ActionListener() {
-
-                                @Override
-                                public void actionPerformed(final ActionEvent arg0) {
-                                    int c = m_col + 1;
-                                    cellSelectionChanged(m_row, c);
-
-                                }
-
-                            });
-                        }
-                        if (i == 3) {
-                            b.addActionListener(new ActionListener() {
-
-                                @Override
-                                public void actionPerformed(final ActionEvent arg0) {
-                                    int r = m_row - 1;
-                                    cellSelectionChanged(r, m_col);
-
-                                }
-
-                            });
-                        }
-
-                    }
-                    vc.getQuickViewButton().addActionListener(m_quickViewListener);
-                    vc.getOverViewButton().addActionListener(m_overviewListener);
-                }
                 m_viewComponents.put(currentDataCellClass + ":" + v.getName(), comp);
 
             }
@@ -407,14 +359,15 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         for (final TableCellView v : cellView) {
             try {
                 m_cellView.addTab(v.getName(), m_viewComponents.get(currentDataCellClass + ":" + v.getName()));
-                updateToolTips(row, col, isLabeling, v);
+                updateToolTips(row, col, v);
+                m_cellView.broadcastEvent(new TablePositionEvent(m_tableModel.getColumnCount(), m_tableModel.getRowCount(), col, row));
             } catch (final Exception ex) {
                 LOGGER.error("Could not add Tab " + v.getName(), ex);
             }
         }
 
         m_cellView.setSelectedIndex(Math.max(0, Math.min(selection, m_cellView.getTabCount() - 1)));
-
+        m_cellView.scrollTablesToIndex(row, col);
         if (getComponent() != m_cellView) {
             setComponent(m_cellView);
             m_tableContentView.clearSelection();
@@ -423,54 +376,175 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
     }
 
     /**
-     * @param row
-     * @param col
-     * @param isLabeling
-     * @param v
+     * This method is used to set up the listeners of all the buttons used in the TableCellView.
+     *
+     * @param v The TableCellView to set up.
      */
-    private void updateToolTips(final int row, final int col, final boolean isLabeling, final TableCellView v) {
+    private void registerButtons(final TableCellView v) {
+
         if (v.getViewComponent() instanceof ImgViewer) {
-            // Register buttons
+            // Get the buttons
             ImgViewer vc = (ImgViewer)v.getViewComponent();
             ViewerComponent[] ctrls = vc.getControls();
+
+            // Create and add the anonymous listeners pointing to the correct fields
             for (int i = 0; i < 4; ++i) {
                 ImageToolTipButton b = (ImageToolTipButton)((ControlPanel)ctrls[i]).getButton();
                 if (i == 0) {
-                    if(cellExists(m_row+1, col)) {
-                        if(!isLabeling) {
-                            b.setToolTipImage(((ImgPlusCell)m_tableModel.getValueAt(m_row+1, col)).getThumbnail(null));
+                    b.addActionListener(new ActionListener() {
+
+                        @Override
+                        public void actionPerformed(final ActionEvent arg0) {
+                            int r = m_row + 1;
+                            cellSelectionChanged(r, m_col);
+
+                        }
+
+                    });
+                }
+                if (i == 1) {
+                    b.addActionListener(new ActionListener() {
+
+                        @Override
+                        public void actionPerformed(final ActionEvent arg0) {
+                            int c = m_col - 1;
+                            if(!cellExists(m_row, c)) {
+                                if(cellExists(m_row-1, m_tableModel.getColumnCount()-1)) {
+                                    cellSelectionChanged(m_row-1, m_tableModel.getColumnCount()-1);
+                                }
+                            } else {
+                            cellSelectionChanged(m_row, c);
+                            }
+                        }
+
+                    });
+
+                }
+                if (i == 2) {
+                    b.addActionListener(new ActionListener() {
+
+                        @Override
+                        public void actionPerformed(final ActionEvent arg0) {
+                            int c = m_col + 1;
+                            if(!cellExists(m_row, c)) {
+                                if(cellExists(m_row+1, 0)) {
+                                    cellSelectionChanged(m_row+1, 0);
+                                }
+                            } else {
+                            cellSelectionChanged(m_row, c);
+                            }
+                        }
+
+                    });
+                }
+                if (i == 3) {
+                    b.addActionListener(new ActionListener() {
+
+                        @Override
+                        public void actionPerformed(final ActionEvent arg0) {
+                            int r = m_row - 1;
+                            cellSelectionChanged(r, m_col);
+
+                        }
+
+                    });
+                }
+
+            }
+            // Link the quickview and the return button to the prepared listeners.
+            vc.getBottomQuickViewButton().addActionListener(m_bottomQuickViewListener);
+            vc.getLeftQuickViewButton().addActionListener(m_leftQuickViewListener);
+            vc.getOverViewButton().addActionListener(m_OverviewListener);
+        }
+    }
+
+    /**
+     * Update the tooltip images associated with the navigation buttons.
+     *
+     * @param row current row
+     * @param col current column
+     * @param isLabeling is the displayed image a labeling?
+     * @param v the TableCellView to update
+     */
+    private void updateToolTips(final int row, final int col, final TableCellView v) {
+
+        //TODO: improve logic
+
+        if (v.getViewComponent() instanceof ImgViewer) {
+            // Get buttons
+            ImgViewer vc = (ImgViewer)v.getViewComponent();
+            ViewerComponent[] ctrls = vc.getControls();
+
+
+
+            for (int i = 0; i < 4; ++i) {
+                ImageToolTipButton b = (ImageToolTipButton)((ControlPanel)ctrls[i]).getButton();
+                boolean isLabeling = false;
+                if (i == 0) {
+                    if (cellExists(m_row + 1, col)) {
+
+                        if (m_tableModel.getValueAt(row+1, col) instanceof LabelingCell) {
+                            isLabeling = true;
+                        }
+
+                        if (!isLabeling) {
+                            b.setToolTipImage(((ImgPlusCell<?>)m_tableModel.getValueAt(m_row + 1, col))
+                                    .getThumbnail(null));
                         } else {
-                            b.setToolTipImage(((LabelingCell)m_tableModel.getValueAt(m_row+1, col)).getThumbnail(null));
+                            b.setToolTipImage(((LabelingCell<?>)m_tableModel.getValueAt(m_row + 1, col))
+                                    .getThumbnail(null));
                         }
                     }
                 }
                 if (i == 1) {
 
-                    if(cellExists(row, col-1)) {
-                        if(!isLabeling) {
-                            b.setToolTipImage(((ImgPlusCell)m_tableModel.getValueAt(row, col-1)).getThumbnail(null));
+                    if (cellExists(row, col - 1)) {
+
+                        if (m_tableModel.getValueAt(row, col - 1) instanceof LabelingCell) {
+                            isLabeling = true;
+                        }
+
+                        if (!isLabeling) {
+                            b.setToolTipImage(((ImgPlusCell<?>)m_tableModel.getValueAt(row, col - 1))
+                                    .getThumbnail(null));
                         } else {
-                            b.setToolTipImage(((LabelingCell)m_tableModel.getValueAt(row, col-1)).getThumbnail(null));
+                            b.setToolTipImage(((LabelingCell<?>)m_tableModel.getValueAt(row, col - 1))
+                                    .getThumbnail(null));
                         }
                     }
                 }
                 if (i == 2) {
 
-                    if(cellExists(row, col+1)) {
-                        if(!isLabeling) {
-                            b.setToolTipImage(((ImgPlusCell)m_tableModel.getValueAt(row, col+1)).getThumbnail(null));
+
+                    if (cellExists(row, col + 1)) {
+
+
+                        if (m_tableModel.getValueAt(row, col + 1) instanceof LabelingCell) {
+                            isLabeling = true;
+                        }
+
+                        if (!isLabeling) {
+                            b.setToolTipImage(((ImgPlusCell<?>)m_tableModel.getValueAt(row, col + 1))
+                                    .getThumbnail(null));
                         } else {
-                            b.setToolTipImage(((LabelingCell)m_tableModel.getValueAt(row, col+1)).getThumbnail(null));
+                            b.setToolTipImage(((LabelingCell<?>)m_tableModel.getValueAt(row, col + 1))
+                                    .getThumbnail(null));
                         }
                     }
                 }
                 if (i == 3) {
 
-                    if(cellExists(m_row-1, col)) {
-                        if(!isLabeling) {
-                            b.setToolTipImage(((ImgPlusCell)m_tableModel.getValueAt(m_row-1, col)).getThumbnail(null));
+                    if (cellExists(m_row - 1, col)) {
+
+                        if (m_tableModel.getValueAt(row - 1, col) instanceof LabelingCell) {
+                            isLabeling = true;
+                        }
+                        if (!isLabeling) {
+                            b.setToolTipImage(((ImgPlusCell<?>)m_tableModel.getValueAt(m_row - 1, col))
+                                    .getThumbnail(null));
                         } else {
-                            b.setToolTipImage(((LabelingCell)m_tableModel.getValueAt(m_row-1, col)).getThumbnail(null));
+                            b.setToolTipImage(((LabelingCell<?>)m_tableModel.getValueAt(m_row - 1, col))
+                                    .getThumbnail(null));
                         }
                     }
                 }
@@ -520,12 +594,27 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         initializeListeners();
 
         // Initialize CellView
-        m_cellView = new CellView(m_tableView);
+        m_cellView = new TabbedCellView(m_tableView);
 
         m_cellView.addTabChangeListener(m_changeListener);
 
+
         //        Temporarily add loadpanel as component, so that the ui stays responsive.
         setComponent(loadpanel);
+
+    }
+
+    protected Frame getFrame() {
+        Frame f = null;
+        Container c = getComponent().getParent();
+        while (c != null) {
+            if (c instanceof Frame) {
+                f = (Frame)c;
+                break;
+            }
+            c = c.getParent();
+        }
+        return f;
     }
 
     /**
@@ -557,7 +646,6 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
             }
         };
 
-
         m_tableContentView.getColumnModel().getSelectionModel().addListSelectionListener(m_listSelectionListenerB);
         m_tableView = new TableView(m_tableContentView);
 
@@ -576,22 +664,31 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
      * Creates the Listeners used in the displayed views.
      */
     private void initializeListeners() {
-        m_quickViewListener = new ActionListener() {
+        m_bottomQuickViewListener = new ActionListener() {
 
             @Override
             public void actionPerformed(final ActionEvent e) {
-                m_cellView.setTableViewVisible(!m_cellView.isTableViewVisible());
+                m_cellView.setTableViewVisible(!m_cellView.isTableViewVisible(TableDir.BOTTOM), TableDir.BOTTOM);
 
             }
         };
 
-        m_overviewListener = new ActionListener() {
+        m_leftQuickViewListener = new ActionListener() {
+
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                m_cellView.setTableViewVisible(!m_cellView.isTableViewVisible(TableDir.LEFT), TableDir.LEFT);
+
+            }
+        };
+
+        m_OverviewListener = new ActionListener() {
 
             @Override
             public void actionPerformed(final ActionEvent e) {
                 if (getComponent() == m_cellView) {
                     if (m_cellView.isTableViewVisible()) {
-                        m_cellView.setTableViewVisible(false);
+                        m_cellView.hideTableViews();
                     }
                     m_tableContentView.clearSelection();
                     setComponent(m_tableView);
@@ -687,8 +784,14 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
             return;
         }
 
-        m_cellViews.get(m_currentCell.getClass().getCanonicalName()).get(m_cellView.getSelectedIndex())
-                .updateComponent(m_currentCell);
+        TableCellView cv =
+                m_cellViews.get(m_currentCell.getClass().getCanonicalName()).get(m_cellView.getSelectedIndex());
+        if (cv.getViewComponent() instanceof ImgViewer) {
+            ImgViewer v = ((ImgViewer)cv.getViewComponent());
+            v.getLeftQuickViewButton().setSelected(m_cellView.isTableViewVisible(TableDir.LEFT));
+            v.getBottomQuickViewButton().setSelected(m_cellView.isTableViewVisible(TableDir.BOTTOM));
+        }
+        cv.updateComponent(m_currentCell);
 
     }
 }

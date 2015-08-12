@@ -55,6 +55,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 
+import org.knime.knip.base.nodes.io.kernel.structuring.SphereSetting;
+import org.knime.knip.base.nodes.proc.maxfinder.MaximumFinderOp;
+import org.knime.knip.core.KNIPGateway;
+import org.knime.knip.core.data.algebra.ExtendedPolygon;
+import org.knime.knip.core.ops.labeling.WatershedWithSheds;
+import org.knime.knip.core.util.Triple;
+
 import net.imglib2.Cursor;
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccess;
@@ -90,13 +97,6 @@ import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.util.Util;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
-
-import org.knime.knip.base.nodes.io.kernel.structuring.SphereSetting;
-import org.knime.knip.base.nodes.proc.maxfinder.MaximumFinderOp;
-import org.knime.knip.core.KNIPGateway;
-import org.knime.knip.core.data.algebra.ExtendedPolygon;
-import org.knime.knip.core.ops.labeling.WatershedWithSheds;
-import org.knime.knip.core.util.Triple;
 
 /**
  * WaehlbySplitterOp
@@ -257,7 +257,6 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>>
 
         //                 Get some more information about the objects. Contour, bounding box etc
         for (final String label : labels) {
-            System.out.println(label);
 
             IterableInterval<LabelingType<String>> intervalOverSrc =
                     Regions.sample(regions.getLabelRegion(label), watershedResult);

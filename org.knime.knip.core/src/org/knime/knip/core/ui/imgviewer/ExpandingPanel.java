@@ -24,7 +24,7 @@ import org.knime.knip.core.ui.event.EventService;
  * This Class represents a special kind of ViewerComponent intended for the 'toolbar' at the right side of the Viewer.
  * Its main feature is the ability to show/hide another ViewerComponent.
  *
- * @author Andreas Burger, University of Konstance
+ * @author Andreas Burger, University of Konstanz
  */
 public class ExpandingPanel extends ViewerComponent {
 
@@ -70,7 +70,6 @@ public class ExpandingPanel extends ViewerComponent {
 
         m_header = Box.createHorizontalBox();
 
-        //TODO Still necessary?
         final BasicArrowButton arrow = new BasicArrowButton(direction) {
 
             /**
@@ -92,9 +91,7 @@ public class ExpandingPanel extends ViewerComponent {
         m_header.add(Box.createHorizontalStrut(2));
         m_header.add(getDividerPanel());
 
-        //m_header.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
         m_header.setMaximumSize(new Dimension(Integer.MAX_VALUE, 15));
-        //		m_header.setMinimumSize(new Dimension(100, 15));
         add(m_header, gbc);
         MouseListener ml = new MouseListener() {
 
@@ -181,7 +178,6 @@ public class ExpandingPanel extends ViewerComponent {
      */
     @Override
     public Position getPosition() {
-        // TODO Auto-generated method stub
         return Position.ADDITIONAL;
     }
 

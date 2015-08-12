@@ -8,6 +8,11 @@ import javax.swing.JComponent;
 import javax.swing.JToolTip;
 import javax.swing.plaf.metal.MetalToolTipUI;
 
+/**
+ * This class represents a Tooltip able to show images.
+ *
+ * @author Andreas Burger, University of Konstanz
+ */
 class ImageToolTip extends JToolTip {
 
     public ImageToolTip(final Image img) {

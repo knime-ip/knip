@@ -235,7 +235,6 @@ public class LabelFilterPanel<L> extends ViewerComponent {
         });
 
         m_scrollPane = new JScrollPane(m_jLabelList);
-      //  m_scrollPane.setPreferredSize(new Dimension(150, 1));
 
         final JPanel confirmationPanel = new JPanel();
         confirmationPanel.setLayout(new BoxLayout(confirmationPanel, BoxLayout.X_AXIS));
@@ -264,7 +263,6 @@ public class LabelFilterPanel<L> extends ViewerComponent {
 
         m_operatorBox = new JComboBox(RulebasedLabelFilter.Operator.values());
         m_operatorBox.setSize(new Dimension(40, 22));
-        //m_operatorBox.setMaximumSize(new Dimension(40, 22));
 
         confirmationPanel.add(addButton);
         confirmationPanel.add(m_operatorBox);
@@ -274,7 +272,7 @@ public class LabelFilterPanel<L> extends ViewerComponent {
         add(m_filterTabbs, gbc);
         m_filterTabbs.add("Labels", m_scrollPane);
         m_filterTabbs.add("Filter Rules", m_filters);
-
+        m_filters.setPreferredSize(new Dimension(200,200));
         gbc.gridheight = GridBagConstraints.REMAINDER;
         add(confirmationPanel, gbc);
 

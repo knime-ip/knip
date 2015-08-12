@@ -28,7 +28,7 @@ import org.eclipse.swt.widgets.Label;
 
 /**
  * Preference page field showing text.
- * 
+ *
  * @author Peter Ohl, KNIME.com AG, Zurich, Switzerland
  */
 public class LabelField extends FieldEditor {
