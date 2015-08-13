@@ -61,17 +61,14 @@ import org.knime.knip.core.ui.imgviewer.ViewerComponent;
 import org.knime.knip.core.ui.imgviewer.ViewerComponents;
 
 /**
+ * This class wraps the old minimap and plane selection components and turns them into a single component.
  *
- * @author mdm210958
+ * @author Andreas Burger, University of Konstanz
  */
 public class MinimapAndPlaneSelectionPanel extends ViewerComponent {
 
-    /**
-     * @param title
-     * @param isBorderHidden
-     */
-
     private ViewerComponent m_Minimap;
+
     private ViewerComponent m_PlaneSelection;
 
     public MinimapAndPlaneSelectionPanel() {

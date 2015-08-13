@@ -110,7 +110,7 @@ public class ImagePropertiesPanel<T extends Type<T>, I extends IterableInterval<
     public void onImgUpdated(final IntervalWithMetadataChgEvent<?, ?> e) {
         final String[][] properties = new String[2 + e.getRandomAccessibleInterval().numDimensions()][2];
         properties[0][0] = "Type";
-        properties[0][1] = e.getIterableInterval().firstElement().createVariable().getClass().getCanonicalName();
+        properties[0][1] = e.getIterableInterval().firstElement().createVariable().getClass().getSimpleName();
         properties[1][0] = "Image type";
         if (e.getRandomAccessibleInterval() instanceof ImgPlus) {
             properties[1][1] = ((ImgPlus<T>)e.getRandomAccessibleInterval()).getImg().getClass().getCanonicalName();

@@ -28,7 +28,7 @@ import org.eclipse.swt.widgets.Label;
 
 /**
  * Preference page field creating a horizontal separator.
- * 
+ *
  * @author Peter Ohl, KNIME.com AG, Zurich, Switzerland
  */
 public class HorizontalLineField extends FieldEditor {

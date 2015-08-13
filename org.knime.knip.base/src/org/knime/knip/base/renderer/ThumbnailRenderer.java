@@ -48,11 +48,18 @@
  */
 package org.knime.knip.base.renderer;
 
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.RenderingHints.Key;
+
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+import javax.swing.JTable;
 
 import net.imglib2.type.numeric.RealType;
 
@@ -62,7 +69,7 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
 
 /**
- * 
+ *
  * @param <T> image type
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -140,6 +147,22 @@ public class ThumbnailRenderer<T extends RealType<T>> extends AbstractPainterDat
         } else {
             g.drawString(m_text, 10, 10);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus,
+                                                   final int row, final int column) {
+        Component result =  super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        JPanel test = new JPanel();
+        test.setLayout(new GridLayout(0,1));
+        test.add(result);
+        if(isSelected) {
+            test.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 3));
+        }
+        return test;
     }
 
     /**

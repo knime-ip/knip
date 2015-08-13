@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2013
+ *  Copyright (C) 2003 - 2015
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -43,60 +43,28 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
+ * Created on Jun 16, 2015 by pop210958
  */
-package org.knime.knip.core.awt;
+package org.knime.knip.base.nodes.view;
 
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.display.projector.AbstractProjector2D;
-import net.imglib2.display.screenimage.awt.ARGBScreenImage;
-import net.imglib2.display.screenimage.awt.AWTScreenImage;
-import net.imglib2.type.Type;
-import net.imglib2.type.numeric.ARGBType;
+import org.knime.core.node.tableview.TableContentView;
 
 /**
- * TODO Auto-generated
  *
- * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author Andreas Burger
  */
-public abstract class ProjectingRenderer<T extends Type<T>> implements ImageRenderer<T> {
+public class KNIPTableContentView extends TableContentView {
 
-    @Override
-    public AWTScreenImage render(final RandomAccessibleInterval<T> source, final int dimX, final int dimY,
-                                 final long[] planePos) {
+//    @Override
+//    public Component prepareRenderer(final TableCellRenderer renderer,
+//            final int row, final int column) {
+//       Component res = super.prepareRenderer(renderer, row, column);
+//
+//
+//
+//
+//    }
 
-        return project2D(source, dimX, dimY, planePos);
-    }
-
-    private AWTScreenImage project2D(final RandomAccessibleInterval<T> source, final int dimX, final int dimY,
-                                     final long[] planePos) {
-
-        final int width = (int)source.dimension(dimX);
-        final int height = (int)source.dimension(dimY);
-
-        final ARGBScreenImage target = new ARGBScreenImage(width, height);
-
-        RandomAccessibleInterval<ARGBType> raiARGBType = target;
-
-        final AbstractProjector2D projector = getProjector(dimX, dimY, source, raiARGBType);
-
-        projector.setPosition(planePos);
-        projector.map();
-
-        return target;
-    }
-
-    /**
-     * @param dimX
-     * @param dimY
-     * @param source
-     * @param target
-     * @return
-     */
-    protected abstract AbstractProjector2D getProjector(final int dimX, final int dimY,
-                                                        final RandomAccessibleInterval<T> source,
-                                                        final RandomAccessibleInterval<ARGBType> target);
 }

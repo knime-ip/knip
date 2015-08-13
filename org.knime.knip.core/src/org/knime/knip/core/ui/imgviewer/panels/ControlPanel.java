@@ -48,7 +48,6 @@
  */
 package org.knime.knip.core.ui.imgviewer.panels;
 
-import java.awt.Component;
 import java.awt.Dimension;
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -62,66 +61,54 @@ import javax.swing.plaf.basic.BasicArrowButton;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.ViewerComponent;
 
+/**
+ * This class represents a panel with an ArrowButton to click.
+ *
+ * @author Andreas Burger, University of Konstanz
+ */
 public class ControlPanel extends ViewerComponent {
-
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
 
     private final Position m_Position;
 
     private final BasicArrowButton m_button;
 
+    /**
+     * Create a new ControlPanel. The position given determines the arrow direction.
+     *
+     * @param pos The position this panel will be located in.
+     */
     public ControlPanel(final Position pos) {
         super("", false);
 
         m_Position = pos;
         m_button = new ImageToolTipButton(SwingConstants.SOUTH);
+        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
-        if(pos == Position.WEST)
-        {
-            // Y
-            setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+        if (pos == Position.WEST) {
             m_button.setDirection(SwingConstants.WEST);
-            add(m_button);
-            setAlignmentY(Component.CENTER_ALIGNMENT);
-        }
-        else if(pos == Position.EAST)
-        {
-         // X
-            setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+        } else if (pos == Position.EAST) {
             m_button.setDirection(SwingConstants.EAST);
-            add(m_button);
-        }
-        else if(pos == Position.NORTH)
-        {
-         // X
-            setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+        } else if (pos == Position.NORTH) {
             m_button.setDirection(SwingConstants.NORTH);
-            add(m_button);
-        }
-        else if(pos == Position.SOUTH)
-        {
-         // X
-            setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+        } else if (pos == Position.SOUTH) {
             m_button.setDirection(SwingConstants.SOUTH);
-            add(m_button);
+
         }
+        add(m_button);
         setPreferredSize(new Dimension(20, 20));
         setMinimumSize(getPreferredSize());
 
     }
-
-
 
     @Override
     public Position getPosition() {
         return m_Position;
     }
 
-    public JButton getButton()
-    {
+    /** Method used to get the underlying JButton
+     * @return The button displayed in this component.
+     */
+    public JButton getButton() {
         return m_button;
     }
 

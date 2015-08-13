@@ -71,4 +71,5 @@ public class PreferenceConstants {
 
     public static final String P_ALWAYS_NORMALIZE = "alwaysNormalize";
 
+
 }

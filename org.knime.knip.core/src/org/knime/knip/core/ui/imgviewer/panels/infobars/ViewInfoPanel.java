@@ -50,6 +50,7 @@ package org.knime.knip.core.ui.imgviewer.panels.infobars;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
+import java.awt.Rectangle;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -68,6 +69,7 @@ import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.ViewerComponent;
 import org.knime.knip.core.ui.imgviewer.events.ImgViewerMouseEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgViewerMouseMovedEvent;
+import org.knime.knip.core.ui.imgviewer.events.ImgViewerRectChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.IntervalWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
@@ -90,6 +92,10 @@ public abstract class ViewInfoPanel<T extends Type<T>> extends ViewerComponent {
 
     private JLabel m_imageInfoLabel;
 
+    private JLabel m_rectLabel;
+
+    private JLabel m_typeLabel;
+
     private TypedSpace<? extends TypedAxis> m_imgAxes;
 
     private long[] m_pos;
@@ -102,6 +108,10 @@ public abstract class ViewInfoPanel<T extends Type<T>> extends ViewerComponent {
 
     private final JPanel m_imageInfoPanel;
 
+    private final JPanel m_rectInfoPanel;
+
+    private final JPanel m_typeInfoPanel;
+
     private IterableInterval<T> m_iterable;
 
     protected RandomAccessibleInterval<T> m_randomAccessible;
@@ -110,21 +120,32 @@ public abstract class ViewInfoPanel<T extends Type<T>> extends ViewerComponent {
 
     protected PlaneSelectionEvent m_sel;
 
+    protected Rectangle m_visibleRect;
+
     public ViewInfoPanel() {
         super("Image Info", false);
         m_infoBuffer = new StringBuffer();
 
         m_mouseInfoLabel = new JLabel();
         m_imageInfoLabel = new JLabel();
+        m_rectLabel = new JLabel();
+        m_typeLabel = new JLabel();
 
         m_mouseInfoPanel = new JPanel(new BorderLayout());
         m_imageInfoPanel = new JPanel(new BorderLayout());
-        m_mouseInfoPanel.add(m_mouseInfoLabel, BorderLayout.LINE_START);
-        m_imageInfoPanel.add(m_imageInfoLabel, BorderLayout.LINE_END);
+        m_rectInfoPanel = new JPanel(new BorderLayout());
+        m_typeInfoPanel = new JPanel(new BorderLayout());
 
-        setLayout(new GridLayout(2, 1));
-        add(m_mouseInfoPanel);
-        add(m_imageInfoPanel);
+        m_mouseInfoPanel.add(m_mouseInfoLabel, BorderLayout.LINE_START);
+        m_imageInfoPanel.add(m_imageInfoLabel, BorderLayout.LINE_START);
+        m_rectInfoPanel.add(m_rectLabel, BorderLayout.LINE_START);
+        m_typeInfoPanel.add(m_typeLabel, BorderLayout.LINE_START);
+
+        setLayout(new GridLayout(2, 2));
+        add(m_mouseInfoLabel);
+        add(m_imageInfoLabel);
+        add(m_rectLabel);
+        add(m_typeInfoPanel);
     }
 
     /**
@@ -183,13 +204,14 @@ public abstract class ViewInfoPanel<T extends Type<T>> extends ViewerComponent {
                     .numDimensions()]));
         }
 
-
         //TODO instead of testing for null to indicate that something went wrong make sure the method is never
         //called with wrong parameters
         String text = updateImageLabel(m_infoBuffer, m_randomAccessible, m_rndAccess, e.getName().getName());
         if (text != null) {
             m_imageInfoLabel.setText(text);
         }
+        m_typeLabel.setText("Type: " + m_rndAccess.get().getClass().getSimpleName());
+
     }
 
     @EventListener
@@ -211,7 +233,6 @@ public abstract class ViewInfoPanel<T extends Type<T>> extends ViewerComponent {
             m_mouseInfoLabel.setText(text);
         }
 
-
         m_infoBuffer.setLength(0);
     }
 
@@ -230,6 +251,38 @@ public abstract class ViewInfoPanel<T extends Type<T>> extends ViewerComponent {
 
             m_infoBuffer.setLength(0);
         }
+    }
+
+    @EventListener
+    public void onRectChanged(final ImgViewerRectChgEvent e) {
+        m_visibleRect = e.getRectangle();
+        m_rectLabel.setText(updateZoomLabel());
+    }
+
+    protected String updateZoomLabel() {
+        if(m_visibleRect == null || m_pos == null) {
+            return "";
+        }
+        if(m_visibleRect.getWidth() <= 0) {
+            return "";
+        }
+        String res = "";
+        String dims = "";
+        long[] maxSize = new long[2];
+        res += "Visible Rectangle[";
+
+        int index = m_sel.getPlaneDimIndex1();
+        dims += (m_imgAxes != null ? m_imgAxes.axis(index).type().getLabel() : "");
+        maxSize[0] = m_randomAccessible.dimension(index);
+        index = m_sel.getPlaneDimIndex2();
+        dims += (m_imgAxes != null ? m_imgAxes.axis(index).type().getLabel() : "");
+        maxSize[1] = m_randomAccessible.dimension(index);
+
+        res = res + dims + "]: ";
+        res +=
+                "(" + (m_visibleRect.x+1) + "," + (m_visibleRect.y+1) + ") - (" + (int)(Math.min((m_visibleRect.x +1 + m_visibleRect.getWidth()), maxSize[0]))
+                        + ", " + (int)(Math.min((m_visibleRect.y +1 + m_visibleRect.getHeight()), maxSize[1])) + ")";
+        return res;
     }
 
     @Override

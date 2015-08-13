@@ -46,57 +46,85 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.core.awt;
+package org.knime.knip.core.ui.imgviewer.events;
 
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.display.projector.AbstractProjector2D;
-import net.imglib2.display.screenimage.awt.ARGBScreenImage;
-import net.imglib2.display.screenimage.awt.AWTScreenImage;
-import net.imglib2.type.Type;
-import net.imglib2.type.numeric.ARGBType;
+import org.knime.knip.core.ui.event.KNIPEvent;
 
 /**
- * TODO Auto-generated
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public abstract class ProjectingRenderer<T extends Type<T>> implements ImageRenderer<T> {
+public class TablePositionEvent implements KNIPEvent {
 
-    @Override
-    public AWTScreenImage render(final RandomAccessibleInterval<T> source, final int dimX, final int dimY,
-                                 final long[] planePos) {
+    private final int m_width;
 
-        return project2D(source, dimX, dimY, planePos);
+    private final int m_height;
+
+    private final int m_x;
+
+    private final int m_y;
+
+
+    public TablePositionEvent(final int width, final int height, final int x, final int y) {
+
+        m_width = width;
+        m_height = height;
+        m_x = x;
+        m_y = y;
     }
 
-    private AWTScreenImage project2D(final RandomAccessibleInterval<T> source, final int dimX, final int dimY,
-                                     final long[] planePos) {
-
-        final int width = (int)source.dimension(dimX);
-        final int height = (int)source.dimension(dimY);
-
-        final ARGBScreenImage target = new ARGBScreenImage(width, height);
-
-        RandomAccessibleInterval<ARGBType> raiARGBType = target;
-
-        final AbstractProjector2D projector = getProjector(dimX, dimY, source, raiARGBType);
-
-        projector.setPosition(planePos);
-        projector.map();
-
-        return target;
-    }
 
     /**
-     * @param dimX
-     * @param dimY
-     * @param source
-     * @param target
-     * @return
+     * @return the m_width
      */
-    protected abstract AbstractProjector2D getProjector(final int dimX, final int dimY,
-                                                        final RandomAccessibleInterval<T> source,
-                                                        final RandomAccessibleInterval<ARGBType> target);
+    public int getwidth() {
+        return m_width;
+    }
+
+
+    /**
+     * @return the m_height
+     */
+    public int getheight() {
+        return m_height;
+    }
+
+
+    /**
+     * @return the m_x
+     */
+    public int getx() {
+        return m_x;
+    }
+
+
+    /**
+     * @return the m_y
+     */
+    public int gety() {
+        return m_y;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ExecutionPriority getExecutionOrder() {
+        // TODO Auto-generated method stub
+        return ExecutionPriority.LOW;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <E extends KNIPEvent> boolean isRedundant(final E thatEvent) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
 }

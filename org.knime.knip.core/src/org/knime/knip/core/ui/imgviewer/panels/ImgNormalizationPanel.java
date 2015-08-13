@@ -212,6 +212,7 @@ public class ImgNormalizationPanel<T extends RealType<T>, I extends Img<T>> exte
     public void loadComponentConfiguration(final ObjectInput in) throws IOException {
         m_saturationSlider.setValue(in.readInt());
         m_normalize.setSelected(in.readBoolean());
+
     }
 
 }

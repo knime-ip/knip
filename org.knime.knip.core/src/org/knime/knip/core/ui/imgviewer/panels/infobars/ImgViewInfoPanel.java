@@ -84,7 +84,6 @@ public class ImgViewInfoPanel<T extends Type<T>> extends ViewInfoPanel<T> {
         }
 
         buffer.setLength(0);
-
         for (int i = 0; i < coords.length; i++) {
             buffer.append(" ");
             if (i < interval.numDimensions()) {
@@ -126,11 +125,8 @@ public class ImgViewInfoPanel<T extends Type<T>> extends ViewInfoPanel<T> {
         buffer.setLength(0);
 
         if ((imgName != null) && (imgName.length() > 0)) {
-            buffer.append(imgName + "; ");
+            buffer.append("Name: " +imgName);
         }
-
-        buffer.append("type=");
-        buffer.append(rndAccess.get().getClass().getSimpleName());
 
         return buffer.toString();
 
