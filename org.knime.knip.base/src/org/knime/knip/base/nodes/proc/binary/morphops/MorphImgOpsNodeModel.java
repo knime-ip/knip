@@ -55,29 +55,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import net.imagej.ImgPlus;
-import net.imagej.ops.MetadataUtil;
-import net.imglib2.Cursor;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.exception.IncompatibleTypeException;
-import net.imglib2.img.Img;
-import net.imglib2.img.ImgView;
-import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.ops.img.UnaryObjectFactory;
-import net.imglib2.ops.operation.Operations;
-import net.imglib2.ops.operation.SubsetOperations;
-import net.imglib2.ops.operation.UnaryOperation;
-import net.imglib2.ops.operation.UnaryOutputOperation;
-import net.imglib2.ops.operation.randomaccessibleinterval.unary.morph.Dilate;
-import net.imglib2.ops.operation.randomaccessibleinterval.unary.morph.DilateGray;
-import net.imglib2.ops.operation.randomaccessibleinterval.unary.morph.Erode;
-import net.imglib2.ops.operation.randomaccessibleinterval.unary.morph.ErodeGray;
-import net.imglib2.ops.operation.randomaccessibleinterval.unary.morph.StructuringElementCursor;
-import net.imglib2.outofbounds.OutOfBoundsFactory;
-import net.imglib2.type.logic.BitType;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.view.Views;
-
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataTable;
@@ -100,6 +77,30 @@ import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
 import org.knime.knip.core.types.OutOfBoundsStrategyFactory;
+
+import net.imagej.ImgPlus;
+import net.imagej.ops.MetadataUtil;
+import net.imagej.ops.create.img.CreateImgFromImg;
+import net.imglib2.Cursor;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.exception.IncompatibleTypeException;
+import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
+import net.imglib2.img.array.ArrayImgFactory;
+import net.imglib2.ops.img.UnaryObjectFactory;
+import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.ops.operation.UnaryOperation;
+import net.imglib2.ops.operation.UnaryOutputOperation;
+import net.imglib2.ops.operation.randomaccessibleinterval.unary.morph.Dilate;
+import net.imglib2.ops.operation.randomaccessibleinterval.unary.morph.DilateGray;
+import net.imglib2.ops.operation.randomaccessibleinterval.unary.morph.Erode;
+import net.imglib2.ops.operation.randomaccessibleinterval.unary.morph.ErodeGray;
+import net.imglib2.ops.operation.randomaccessibleinterval.unary.morph.StructuringElementCursor;
+import net.imglib2.outofbounds.OutOfBoundsFactory;
+import net.imglib2.type.logic.BitType;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
 
 /**
  * NodeModel for Morphological Image Operations
@@ -237,8 +238,8 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
         //Active structuring element on configure
         if (((DataTableSpec)inSpecs[1]) != null) {
             m_smConnectionType.setStringValue(ConnectedType.STRUCTURING_ELEMENT.toString());
-            NodeUtils
-                    .autoColumnSelection((DataTableSpec)inSpecs[0], m_smStructurColumn, ImgPlusValue.class, getClass());
+            NodeUtils.autoColumnSelection((DataTableSpec)inSpecs[0], m_smStructurColumn, ImgPlusValue.class,
+                                          getClass());
         } else {
             m_smConnectionType.setStringValue(ConnectedType.FOUR_CONNECTED.toString());
         }
@@ -267,9 +268,8 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
     protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws KNIPException, IOException {
         final ImgPlus<T> in = cellValue.getImgPlus();
 
-        if ((m_structElement != null)
-                && ((m_smDimensions.getSelectedDimIndices(in).length != m_structElement[0].length) || (m_smDimensions
-                        .getSelectedDimIndices(in).length != m_structElement[0].length))) {
+        if ((m_structElement != null) && ((m_smDimensions.getSelectedDimIndices(in).length != m_structElement[0].length)
+                || (m_smDimensions.getSelectedDimIndices(in).length != m_structElement[0].length))) {
             throw new KNIPException("Structuring element must have the same dimensionality as the chosen dims");
         }
 
@@ -295,12 +295,12 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
                 Img<BitType> inAsBitType = (Img<BitType>)in;
 
                 final UnaryOperation<RandomAccessibleInterval<BitType>, RandomAccessibleInterval<BitType>> op =
-                        createOperationBit(m_structElement,
-                                           OutOfBoundsStrategyFactory.getStrategy(m_smOutOfBoundsStrategy
-                                                   .getStringValue(), inAsBitType.firstElement()));
+                        createOperationBit(m_structElement, OutOfBoundsStrategyFactory
+                                .getStrategy(m_smOutOfBoundsStrategy.getStringValue(), inAsBitType.firstElement()));
 
-                SubsetOperations.iterate(op, m_smDimensions.getSelectedDimIndices(in), new ImgView<BitType>(
-                        inAsBitType, inAsBitType.factory()), out, getExecutorService());
+                SubsetOperations.iterate(op, m_smDimensions.getSelectedDimIndices(in),
+                                         new ImgView<BitType>(inAsBitType, inAsBitType.factory()), out,
+                                         getExecutorService());
 
                 final ImgPlus res = new ImgPlus(out, in);
                 MetadataUtil.copySource(in, res);
@@ -324,14 +324,16 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
                     }
                 };
 
-                final Img<T> out = (Img<T>)KNIPGateway.ops().create().img(in);
+                final Img<T> out = (Img<T>)KNIPGateway.ops().run(CreateImgFromImg.class, in.getImg());
                 final UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> op =
                         createOperationGray(m_structElement, m_smDimensions.getSelectedDimIndices(in).length,
-                                            OutOfBoundsStrategyFactory.getStrategy(m_smOutOfBoundsStrategy
-                                                    .getStringValue(), in.firstElement()));
+                                            OutOfBoundsStrategyFactory.getStrategy(
+                                                                                   m_smOutOfBoundsStrategy
+                                                                                           .getStringValue(),
+                                                                                   in.firstElement()));
 
-                SubsetOperations.iterate(op, m_smDimensions.getSelectedDimIndices(in),
-                                         new ImgView<T>(in, in.factory()), out, getExecutorService());
+                SubsetOperations.iterate(op, m_smDimensions.getSelectedDimIndices(in), new ImgView<T>(in, in.factory()),
+                                         out, getExecutorService());
                 final ImgPlus res = new ImgPlus(out, in);
                 MetadataUtil.copySource(in, res);
                 return m_imgCellFactory.createCell(res);
@@ -351,8 +353,8 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
         if (inSpecs[1].getNumColumns() > 0) {
             m_structurColumnIndex = inSpecs[1].findColumnIndex(m_smStructurColumn.getStringValue());
             if (m_structurColumnIndex == -1) {
-                if ((m_structurColumnIndex =
-                        NodeUtils.autoOptionalColumnSelection(inSpecs[1], m_smStructurColumn, ImgPlusValue.class)) >= 0) {
+                if ((m_structurColumnIndex = NodeUtils.autoOptionalColumnSelection(inSpecs[1], m_smStructurColumn,
+                                                                                   ImgPlusValue.class)) >= 0) {
                     setWarningMessage("Auto-configure Column: " + m_smStructurColumn.getStringValue());
                 } else {
                     throw new InvalidSettingsException("No column selected!");
@@ -420,27 +422,26 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
 
                 }
 
-                simpleErode =
-                        Operations.iterate(Operations
-                                .wrap(new ErodeGray<BitType>(structuringElement, oobFac), m_bitFac), m_smIterations
-                                .getIntValue());
+                simpleErode = Operations
+                        .iterate(Operations.wrap(new ErodeGray<BitType>(structuringElement, oobFac), m_bitFac),
+                                 m_smIterations.getIntValue());
 
-                simpleDilate =
-                        Operations.iterate(Operations.wrap(new DilateGray<BitType>(structuringElement, oobFac),
-                                                           m_bitFac), m_smIterations.getIntValue());
+                simpleDilate = Operations
+                        .iterate(Operations.wrap(new DilateGray<BitType>(structuringElement, oobFac), m_bitFac),
+                                 m_smIterations.getIntValue());
                 break;
             case FOUR_CONNECTED:
                 c = net.imglib2.ops.types.ConnectedType.FOUR_CONNECTED;
             case EIGHT_CONNECTED:
             default:
 
-                simpleErode =
-                        Operations.iterate(Operations.wrap(new Erode(c, oobFac, m_smNeighborhood.getIntValue()),
-                                                           m_bitFac), m_smIterations.getIntValue());
+                simpleErode = Operations
+                        .iterate(Operations.wrap(new Erode(c, oobFac, m_smNeighborhood.getIntValue()), m_bitFac),
+                                 m_smIterations.getIntValue());
 
-                simpleDilate =
-                        Operations.iterate(Operations.wrap(new Dilate(c, oobFac, m_smNeighborhood.getIntValue()),
-                                                           m_bitFac), m_smIterations.getIntValue());
+                simpleDilate = Operations
+                        .iterate(Operations.wrap(new Dilate(c, oobFac, m_smNeighborhood.getIntValue()), m_bitFac),
+                                 m_smIterations.getIntValue());
         }
 
         switch (MorphOp.value(m_smOperation.getStringValue())) {
@@ -480,13 +481,11 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
                 throw new IllegalArgumentException("Can't find strucutring element");
         }
 
-        simpleErode =
-                Operations.iterate(Operations.wrap(new ErodeGray<T>(structuringElement, oobFac), m_fac),
-                                   m_smIterations.getIntValue());
+        simpleErode = Operations.iterate(Operations.wrap(new ErodeGray<T>(structuringElement, oobFac), m_fac),
+                                         m_smIterations.getIntValue());
 
-        simpleDilate =
-                Operations.iterate(Operations.wrap(new DilateGray<T>(structuringElement, oobFac), m_fac),
-                                   m_smIterations.getIntValue());
+        simpleDilate = Operations.iterate(Operations.wrap(new DilateGray<T>(structuringElement, oobFac), m_fac),
+                                          m_smIterations.getIntValue());
 
         switch (MorphOp.value(m_smOperation.getStringValue())) {
             case OPEN:
