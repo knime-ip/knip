@@ -50,7 +50,7 @@ package org.knime.knip.base.prefs;
 
 /**
  * Constant definitions for plug-in preferences
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -68,5 +68,7 @@ public class PreferenceConstants {
     public static final String P_MAX_FILE_SIZE = "fileSize";
 
     public static final String P_THUMBNAIL_IMAGE_RATIO = "thumbnailImageRatio";
+
+    public static final String P_ALWAYS_NORMALIZE = "alwaysNormalize";
 
 }

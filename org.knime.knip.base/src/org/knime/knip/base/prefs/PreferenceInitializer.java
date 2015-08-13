@@ -79,6 +79,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
         store.setDefault(PreferenceConstants.P_IMAGE_CELL_HEIGHT, "200");
         store.setDefault(PreferenceConstants.P_BUFFEREDIMAGES_CACHE_SIZE, "200");
         store.setDefault(PreferenceConstants.P_THUMBNAIL_IMAGE_RATIO, ".01");
+        store.setDefault(PreferenceConstants.P_ALWAYS_NORMALIZE, true);
     }
 
 }
