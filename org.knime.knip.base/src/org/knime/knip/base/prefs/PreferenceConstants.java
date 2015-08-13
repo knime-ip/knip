@@ -69,6 +69,7 @@ public class PreferenceConstants {
 
     public static final String P_THUMBNAIL_IMAGE_RATIO = "thumbnailImageRatio";
 
-    public static final String P_ALWAYS_NORMALIZE = "alwaysNormalizeImages";
+    public static final String P_ALWAYS_NORMALIZE = "alwaysNormalize";
+
 
 }

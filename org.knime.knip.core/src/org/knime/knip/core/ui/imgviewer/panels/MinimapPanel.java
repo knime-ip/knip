@@ -161,15 +161,17 @@ public class MinimapPanel extends ViewerComponent {
                     final int h = (int)(m_img.getHeight() * m_scaleFactor);
                     g.drawImage(m_img, 0, 0, w, h, null);
                     g.setColor(BOUNDING_BOX_COLOR);
-                    g.fillRect((int)Math.min(Math.max((m_offset[0] * m_scaleFactor) + m_visibleRect.x, 0), w
-                                       - m_visibleRect.width),
-                               (int)Math.min(Math.max((m_offset[1] * m_scaleFactor) + m_visibleRect.y, 0), h
-                                       - m_visibleRect.height), (m_visibleRect.width), (m_visibleRect.height));
+                    g.fillRect((int)Math.min(Math.max((m_offset[0] * m_scaleFactor) + m_visibleRect.x, 0),
+                                             w - m_visibleRect.width),
+                               (int)Math.min(Math.max((m_offset[1] * m_scaleFactor) + m_visibleRect.y, 0),
+                                             h - m_visibleRect.height),
+                               (m_visibleRect.width), (m_visibleRect.height));
                     g.setColor(BOUNDING_BOX_BORDER_COLOR);
-                    g.drawRect((int)Math.min(Math.max((m_offset[0] * m_scaleFactor) + m_visibleRect.x, 0), w
-                                       - m_visibleRect.width),
-                               (int)Math.min(Math.max((m_offset[1] * m_scaleFactor) + m_visibleRect.y, 0), h
-                                       - m_visibleRect.height), (m_visibleRect.width), (m_visibleRect.height));
+                    g.drawRect((int)Math.min(Math.max((m_offset[0] * m_scaleFactor) + m_visibleRect.x, 0),
+                                             w - m_visibleRect.width),
+                               (int)Math.min(Math.max((m_offset[1] * m_scaleFactor) + m_visibleRect.y, 0),
+                                             h - m_visibleRect.height),
+                               (m_visibleRect.width), (m_visibleRect.height));
                 }
 
             }
@@ -281,8 +283,8 @@ public class MinimapPanel extends ViewerComponent {
                     return;
                 }
 
-                m_eventService.publish(new ViewZoomfactorChgEvent(((Integer)m_zoomComboBox.getSelectedItem())
-                        .doubleValue() / 100));
+                m_eventService.publish(new ViewZoomfactorChgEvent(
+                        ((Integer)m_zoomComboBox.getSelectedItem()).doubleValue() / 100));
             }
         });
         setMaximumSize(new Dimension(300, 300));

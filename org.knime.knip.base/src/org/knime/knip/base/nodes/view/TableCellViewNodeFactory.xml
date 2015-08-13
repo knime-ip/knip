@@ -7,7 +7,7 @@
 
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="tablecellviewer.png" type="Visualizer">
-	<name>Table Cell Viewer</name>
+	<name>Image Viewer</name>
 	<shortDescription>
 		Let one have another view on single table cells. 
 	</shortDescription>

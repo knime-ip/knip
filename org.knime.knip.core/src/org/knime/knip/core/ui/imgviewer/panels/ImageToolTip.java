@@ -4,8 +4,10 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JToolTip;
+import javax.swing.border.EtchedBorder;
 import javax.swing.plaf.metal.MetalToolTipUI;
 
 /**
@@ -32,6 +34,7 @@ class ImageToolTipUI extends MetalToolTipUI {
 
     @Override
     public void paint(final Graphics g, final JComponent c) {
+        c.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
         g.drawImage(m_img, 1, 1, c);
     }
 

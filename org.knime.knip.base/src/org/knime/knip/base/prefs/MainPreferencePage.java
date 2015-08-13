@@ -170,8 +170,9 @@ public class MainPreferencePage extends FieldEditorPreferencePage implements IWo
                 getFieldEditorParent()));
 
         addField(new HorizontalLineField(parent));
-        addField(new LabelField(parent, "Specify the default normalization behaviour."));
-        addField(new BooleanFieldEditor(PreferenceConstants.P_ALWAYS_NORMALIZE, "Normalize Images?",
+
+        addField(new LabelField(parent, "The default behaviour when displaying normalizable images."));
+        addField(new BooleanFieldEditor(PreferenceConstants.P_ALWAYS_NORMALIZE, "Always normalize images? ",
                 getFieldEditorParent()));
 
     }

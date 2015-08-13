@@ -74,13 +74,13 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
         //Each cell needs to be associated with  one filestore as KNIME can't handle n cells to one filestore since now. Needs to be discussed for 1.1.0 (dietzc)
         store.setDefault(PreferenceConstants.P_MAX_FILE_SIZE, "0");
-
         store.setDefault(PreferenceConstants.P_COMPRESS_FILES, false);
         store.setDefault(PreferenceConstants.P_DIM_LABELS, "X,Y,Z,Channel,Time");
         store.setDefault(PreferenceConstants.P_IMAGE_CELL_HEIGHT, "200");
         store.setDefault(PreferenceConstants.P_BUFFEREDIMAGES_CACHE_SIZE, "200");
         store.setDefault(PreferenceConstants.P_THUMBNAIL_IMAGE_RATIO, ".01");
-        store.setDefault(PreferenceConstants.P_ALWAYS_NORMALIZE, "false");
+        store.setDefault(PreferenceConstants.P_ALWAYS_NORMALIZE, true);
+
     }
 
 }
