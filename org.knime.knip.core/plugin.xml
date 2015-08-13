@@ -2,19 +2,4 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension-point id="Externalizer" name="Externalizer" schema="schema/Externalizer.exsd"/>
-   <extension
-         point="org.eclipse.equinox.preferences.preferences">
-      <initializer
-            class="org.knime.knip.core.prefs.PreferenceInitializer">
-      </initializer>
-   </extension>
-   <extension
-         point="org.eclipse.ui.preferencePages">
-      <page
-            category="org.knime.workbench.ui.preferences"
-            class="org.knime.knip.core.prefs.CorePreferencePage"
-            id="org.knime.knip.core.prefs.CorePreferencePage"
-            name="KNIP Core Preferences">
-      </page>
-   </extension>
 </plugin>
