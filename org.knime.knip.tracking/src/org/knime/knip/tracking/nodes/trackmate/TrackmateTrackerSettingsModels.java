@@ -3,10 +3,11 @@ package org.knime.knip.tracking.nodes.trackmate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.knime.core.data.DoubleValue;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
+import org.knime.core.node.defaultnodesettings.SettingsModelColumnFilter2;
 import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
-import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
 import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.tracking.data.TrackedNode;
@@ -137,8 +138,10 @@ final class TrackmateTrackerSettingsModels {
     /**
      * @return settings model for the column selection
      */
-    public static SettingsModelFilterString createColumnSelectionModel() {
-        return new SettingsModelFilterString("column_selection");
+    @SuppressWarnings("unchecked")
+    public static SettingsModelColumnFilter2 createColumnFilterModel() {
+        return new SettingsModelColumnFilter2("column_selection",
+                DoubleValue.class);
     }
 
     /**
