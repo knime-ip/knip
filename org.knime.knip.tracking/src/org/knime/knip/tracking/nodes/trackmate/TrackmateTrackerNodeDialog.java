@@ -3,22 +3,19 @@ package org.knime.knip.tracking.nodes.trackmate;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.knime.core.data.DataColumnSpec;
-import org.knime.core.data.DoubleValue;
 import org.knime.core.data.StringValue;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
-import org.knime.core.node.defaultnodesettings.DialogComponentColumnFilter;
+import org.knime.core.node.defaultnodesettings.DialogComponentColumnFilter2;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentString;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
+import org.knime.core.node.defaultnodesettings.SettingsModelColumnFilter2;
 import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
-import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
 import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.knime.core.node.util.ColumnFilter;
 import org.knime.knip.base.KNIMEKNIPPlugin;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
@@ -67,8 +64,8 @@ public class TrackmateTrackerNodeDialog extends DefaultNodeSettingsPane {
     private final SettingsModelString m_sourceLabelingColumn =
             TrackmateTrackerSettingsModels.createSourceLabelingSettingsModel();
 
-    private final SettingsModelFilterString m_columns =
-            TrackmateTrackerSettingsModels.createColumnSelectionModel();
+    private final SettingsModelColumnFilter2 m_columnFilterModel =
+            TrackmateTrackerSettingsModels.createColumnFilterModel();
 
     private final SettingsModelString m_timeAxisModel =
             TrackmateTrackerSettingsModels.createTimeAxisModel();
@@ -129,20 +126,8 @@ public class TrackmateTrackerNodeDialog extends DefaultNodeSettingsPane {
     private void addKNIMEColumnSettings() {
 
         createNewGroup("Feature Column Selection");
-        addDialogComponent(new DialogComponentColumnFilter(m_columns, 0, true,
-                new ColumnFilter() {
-
-                    @Override
-                    public boolean includeColumn(final DataColumnSpec colSpec) {
-                        return colSpec.getType()
-                                .isCompatible(DoubleValue.class);
-                    }
-
-                    @Override
-                    public String allFilteredMsg() {
-                        return "No Double columns found! No feature added!";
-                    }
-                }));
+        addDialogComponent(
+                new DialogComponentColumnFilter2(m_columnFilterModel, 0));
         closeCurrentGroup();
 
         createNewGroup("Other Column Selection");
