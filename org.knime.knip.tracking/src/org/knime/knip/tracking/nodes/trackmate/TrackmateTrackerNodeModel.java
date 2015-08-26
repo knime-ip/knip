@@ -34,7 +34,6 @@ import org.knime.core.data.DataValue;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.RowKey;
 import org.knime.core.data.StringValue;
-import org.knime.core.data.container.CloseableRowIterator;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.StringCell;
@@ -50,8 +49,8 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
+import org.knime.core.node.defaultnodesettings.SettingsModelColumnFilter2;
 import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
-import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.data.img.ImgPlusCell;
@@ -66,6 +65,7 @@ import org.knime.knip.core.data.img.DefaultImgMetadata;
 import org.knime.knip.core.data.img.LabelingMetadata;
 import org.knime.knip.tracking.data.TrackedNode;
 import org.knime.knip.tracking.nodes.trackmate.TrackmateTrackerSettingsModels.TrackMateTrackFeature;
+import org.knime.knip.tracking.util.NodeTools;
 
 import fiji.plugin.trackmate.FeatureModel;
 import fiji.plugin.trackmate.Model;
@@ -111,8 +111,8 @@ public class TrackmateTrackerNodeModel extends NodeModel
     private final SettingsModelString m_sourceLabelingColumn =
             TrackmateTrackerSettingsModels.createSourceLabelingSettingsModel();
 
-    private final SettingsModelFilterString m_columns =
-            TrackmateTrackerSettingsModels.createColumnSelectionModel();
+    private final SettingsModelColumnFilter2 m_columnFilterModel =
+            TrackmateTrackerSettingsModels.createColumnFilterModel();
 
     private final SettingsModelString m_timeAxisModel =
             TrackmateTrackerSettingsModels.createTimeAxisModel();
@@ -200,7 +200,8 @@ public class TrackmateTrackerNodeModel extends NodeModel
             throws InvalidSettingsException {
 
         // simply to check whether the input changed
-        getSelectedColumnIndices(inSpecs[0]);
+        NodeTools.getIndicesFromFilter(inSpecs[0], m_columnFilterModel,
+                DoubleValue.class, this.getClass());
         getColIndices(m_labelColumnModel, StringValue.class, inSpecs[0],
                 getColIndices(m_bitMaskColumnModel, ImgPlusValue.class,
                         inSpecs[0]),
@@ -339,7 +340,9 @@ public class TrackmateTrackerNodeModel extends NodeModel
         final DataTableSpec spec = inData[0].getSpec();
         final String[] columnNames = spec.getColumnNames();
 
-        final int[] featureIndices = getSelectedColumnIndices(spec);
+        // get the feature indices
+        final List<Integer> featureIndices = NodeTools.getIndicesFromFilter(
+                spec, m_columnFilterModel, DoubleValue.class, this.getClass());
 
         // get bitmask index
         final int sourceLabelingIdx = getColIndices(m_sourceLabelingColumn,
@@ -359,9 +362,7 @@ public class TrackmateTrackerNodeModel extends NodeModel
         final TrackableObjectCollection<TrackedNode<String>> trackedNodes =
                 new DefaultTOCollection<>();
 
-        final CloseableRowIterator iter = inData[0].iterator();
-        while (iter.hasNext()) {
-            final DataRow row = iter.next();
+        for (final DataRow row : inData[0]) {
             exec.checkCanceled();
 
             // get the spot
@@ -401,6 +402,7 @@ public class TrackmateTrackerNodeModel extends NodeModel
 
             final Map<String, Double> featureMap =
                     new HashMap<String, Double>();
+
             for (final int idx : featureIndices) {
                 try {
                     featureMap.put(columnNames[idx],
@@ -772,85 +774,6 @@ public class TrackmateTrackerNodeModel extends NodeModel
      *******************************************/
 
     /**
-     * Retrieves the selected column indices from the given DataTableSpec and
-     * the column selection. If the selection turned out to be invalid, all
-     * columns are selected.
-     *
-     * @param inSpec
-     *            the data table spec of the input table
-     * @return the column indices of selected columns
-     */
-    private int[] getSelectedColumnIndices(final DataTableSpec inSpec) {
-        final List<String> colNames;
-        if ((m_columns.getIncludeList().isEmpty())
-                || m_columns.isKeepAllSelected()) {
-            colNames = new ArrayList<String>();
-            collectAllDoubleTypeColumns(colNames, inSpec);
-            m_columns.setIncludeList(colNames);
-
-        } else {
-            colNames = new ArrayList<String>();
-            colNames.addAll(m_columns.getIncludeList());
-            if (!validateColumnSelection(colNames, inSpec)) {
-                setWarningMessage("Invalid column selection. "
-                        + "All columns are selected!");
-                collectAllDoubleTypeColumns(colNames, inSpec);
-            }
-        }
-
-        // get column indices
-        final List<Integer> colIndices =
-                new ArrayList<Integer>(colNames.size());
-        for (int i = 0; i < colNames.size(); i++) {
-            final int colIdx = inSpec.findColumnIndex(colNames.get(i));
-            if (colIdx == -1) {
-                // can not occur, actually
-                throw new IllegalStateException("this should not happen");
-            } else {
-                colIndices.add(colIdx);
-            }
-        }
-
-        // Can't use List.toArray() because of int.
-        final int[] colIdx = new int[colIndices.size()];
-        for (int i = 0; i < colIdx.length; i++) {
-            colIdx[i] = colIndices.get(i);
-        }
-
-        return colIdx;
-    }
-
-    /**
-     * Helper to collect all columns of DoubleType.
-     */
-    private void collectAllDoubleTypeColumns(final List<String> colNames,
-            final DataTableSpec spec) {
-        colNames.clear();
-        for (final DataColumnSpec c : spec) {
-            if (c.getType().isCompatible(DoubleValue.class)) {
-                colNames.add(c.getName());
-            }
-        }
-        if (colNames.isEmpty()) {
-            return;
-        }
-    }
-
-    /**
-     * Checks if a column is not present in the DataTableSpec.
-     */
-    private boolean validateColumnSelection(final List<String> colNames,
-            final DataTableSpec spec) {
-        for (int i = 0; i < colNames.size(); i++) {
-            final int colIdx = spec.findColumnIndex(colNames.get(i));
-            if (colIdx == -1) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
      * Gets the column index associated with a given settings model and class.
      */
     private int getColIndices(final SettingsModelString model,
@@ -878,7 +801,7 @@ public class TrackmateTrackerNodeModel extends NodeModel
             m_settingsModels = new ArrayList<SettingsModel>();
 
             m_settingsModels.add(m_bitMaskColumnModel);
-            m_settingsModels.add(m_columns);
+            m_settingsModels.add(m_columnFilterModel);
             m_settingsModels.add(m_labelColumnModel);
             m_settingsModels.add(m_timeAxisModel);
             m_settingsModels.add(m_allowGapClosingModel);
