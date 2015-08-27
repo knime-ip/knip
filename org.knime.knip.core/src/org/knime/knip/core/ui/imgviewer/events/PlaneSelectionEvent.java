@@ -53,13 +53,13 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import org.knime.knip.core.ui.event.KNIPEvent;
+
 import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
 
-import org.knime.knip.core.ui.event.KNIPEvent;
-
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -164,17 +164,15 @@ public class PlaneSelectionEvent implements Externalizable, KNIPEvent {
      * @return
      */
     public FinalInterval getInterval(final Interval i) {
-        final long[] dims = new long[i.numDimensions()];
-        i.dimensions(dims);
 
         final long[] min = m_pos.clone();
         final long[] max = m_pos.clone();
 
-        min[m_indices[0]] = 0;
-        min[m_indices[1]] = 0;
+        min[m_indices[0]] = i.min(m_indices[0]);
+        min[m_indices[1]] = i.min(m_indices[1]);
 
-        max[m_indices[0]] = dims[m_indices[0]] - 1;
-        max[m_indices[1]] = dims[m_indices[1]] - 1;
+        max[m_indices[0]] = i.max(m_indices[0]);
+        max[m_indices[1]] = i.max(m_indices[1]);
 
         return new FinalInterval(min, max);
     }

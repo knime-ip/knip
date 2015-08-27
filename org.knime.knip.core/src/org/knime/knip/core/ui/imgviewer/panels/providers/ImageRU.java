@@ -52,12 +52,6 @@ package org.knime.knip.core.ui.imgviewer.panels.providers;
 import java.awt.Image;
 import java.util.Arrays;
 
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.display.ColorTable;
-import net.imglib2.display.screenimage.awt.AWTScreenImage;
-import net.imglib2.type.numeric.ARGBType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.knip.core.awt.AWTImageTools;
 import org.knime.knip.core.awt.Real2GreyRenderer;
 import org.knime.knip.core.awt.lookup.LookupTable;
@@ -71,6 +65,13 @@ import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.NormalizationParametersChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 import org.knime.knip.core.ui.imgviewer.panels.transfunc.LookupTableChgEvent;
+
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.display.ColorTable;
+import net.imglib2.display.screenimage.awt.AWTScreenImage;
+import net.imglib2.type.numeric.ARGBType;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
 
 /*
  * This class could be split into three following the one class one responsibility paradigm. However its not a complex
@@ -175,14 +176,12 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
 
         final AWTScreenImage ret;
         if (!m_enforceGreyScale) {
-            ret =
-                    m_renderer.render(convertedSrc, m_planeSelection.getPlaneDimIndex1(),
-                                      m_planeSelection.getPlaneDimIndex2(), m_planeSelection.getPlanePos());
+            ret = m_renderer.render(Views.zeroMin(convertedSrc), m_planeSelection.getPlaneDimIndex1(),
+                                    m_planeSelection.getPlaneDimIndex2(), m_planeSelection.getPlanePos());
         } else {
             m_greyRenderer.setNormalizationParameters(normParams[0], normParams[1]);
-            ret =
-                    m_greyRenderer.render(convertedSrc, m_planeSelection.getPlaneDimIndex1(),
-                                          m_planeSelection.getPlaneDimIndex2(), m_planeSelection.getPlanePos());
+            ret = m_greyRenderer.render(Views.zeroMin(convertedSrc), m_planeSelection.getPlaneDimIndex1(),
+                                        m_planeSelection.getPlaneDimIndex2(), m_planeSelection.getPlanePos());
         }
 
         m_lastImage = ret.image();
@@ -276,7 +275,6 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
         m_normalizationParameters = new NormalizationParametersChgEvent(0, false);
         m_colorTables = new ColorTable[]{};
     }
-
 
     /**
      * @param event onClose2()
