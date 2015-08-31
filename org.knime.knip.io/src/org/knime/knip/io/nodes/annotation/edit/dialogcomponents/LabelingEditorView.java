@@ -219,6 +219,7 @@
 //
 //		Collections.sort(labels);
 //		m_labelPanel.addLabels(labels);
+
 //
 //		// Broadcast labeling to all components
 //		final LabelingMetadata meta = new DefaultLabelingMetadata(

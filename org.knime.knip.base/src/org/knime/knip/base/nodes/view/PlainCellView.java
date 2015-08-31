@@ -26,22 +26,10 @@ public class PlainCellView extends AbstractCellView {
 
             @Override
             public void actionPerformed(final ActionEvent e) {
-                setTableViewVisible(!isTableViewVisible(TableDir.BOTTOM), TableDir.BOTTOM);
+                setTableViewVisible(!isTableViewVisible());
 
             }
         });
-
-        m_cellView.getLeftQuickViewButton().addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                setTableViewVisible(!isTableViewVisible(TableDir.LEFT), TableDir.LEFT);
-
-            }
-        });
-
-
-
     }
 
     /**

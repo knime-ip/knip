@@ -78,7 +78,6 @@ import org.knime.core.node.tableview.TableContentView;
 import org.knime.core.node.tableview.TableView;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.labeling.LabelingCell;
-import org.knime.knip.base.nodes.view.AbstractCellView.TableDir;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.ui.imgviewer.ViewerComponent;
 import org.knime.knip.core.ui.imgviewer.events.TablePositionEvent;
@@ -179,6 +178,8 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         }
 
     }
+
+
 
     /**
      * Add the description of the view.
@@ -295,6 +296,8 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
     private boolean cellExists(final int row, final int col) {
         return (col >= 0 && col < m_tableModel.getColumnCount() && row >= 0 && row < m_tableModel.getRowCount());
     }
+
+
 
     /*
      * called if the selected cell changes
@@ -447,7 +450,6 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
             }
             // Link the quickview and the return button to the prepared listeners.
             vc.getBottomQuickViewButton().addActionListener(m_bottomQuickViewListener);
-            vc.getLeftQuickViewButton().addActionListener(m_leftQuickViewListener);
             vc.getOverViewButton().addActionListener(m_OverviewListener);
         }
     }
@@ -627,16 +629,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
             @Override
             public void actionPerformed(final ActionEvent e) {
-                m_cellView.setTableViewVisible(!m_cellView.isTableViewVisible(TableDir.BOTTOM), TableDir.BOTTOM);
-
-            }
-        };
-
-        m_leftQuickViewListener = new ActionListener() {
-
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                m_cellView.setTableViewVisible(!m_cellView.isTableViewVisible(TableDir.LEFT), TableDir.LEFT);
+                m_cellView.setTableViewVisible(!m_cellView.isTableViewVisible());
 
             }
         };
@@ -647,7 +640,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
             public void actionPerformed(final ActionEvent e) {
                 if (getComponent() == m_cellView) {
                     if (m_cellView.isTableViewVisible()) {
-                        m_cellView.hideTableViews();
+                        m_cellView.hideTableView();
                     }
                     m_tableContentView.clearSelection();
                     setComponent(m_tableView);
@@ -745,11 +738,6 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
         TableCellView cv =
                 m_cellViews.get(m_currentCell.getClass().getCanonicalName()).get(m_cellView.getSelectedIndex());
-        if (cv instanceof ImgViewer) {
-            ImgViewer v = ((ImgViewer)cv.getViewComponent());
-            v.getLeftQuickViewButton().setSelected(m_cellView.isTableViewVisible(TableDir.LEFT));
-            v.getBottomQuickViewButton().setSelected(m_cellView.isTableViewVisible(TableDir.BOTTOM));
-        }
         cv.updateComponent(m_currentCell);
     }
 }

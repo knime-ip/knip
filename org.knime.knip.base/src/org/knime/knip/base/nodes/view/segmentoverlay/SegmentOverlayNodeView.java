@@ -443,7 +443,7 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
             public void actionPerformed(final ActionEvent e) {
                 if (getComponent() == m_cellView) {
                     if (m_cellView.isTableViewVisible()) {
-                        m_cellView.hideTableViews();
+                        m_cellView.hideTableView();
                     }
                     m_tableContentView.clearSelection();
                     setComponent(m_tableView);
