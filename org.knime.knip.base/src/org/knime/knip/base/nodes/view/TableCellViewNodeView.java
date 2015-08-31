@@ -49,9 +49,7 @@
 package org.knime.knip.base.nodes.view;
 
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.math.BigInteger;
@@ -578,19 +576,6 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     }
 
-    protected Frame getFrame() {
-        Frame f = null;
-        Container c = getComponent().getParent();
-        while (c != null) {
-            if (c instanceof Frame) {
-                f = (Frame)c;
-                break;
-            }
-            c = c.getParent();
-        }
-        return f;
-    }
-
     /**
      * Creates the underlying TableView and registers it to this dialog.
      */
@@ -760,13 +745,12 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
         TableCellView cv =
                 m_cellViews.get(m_currentCell.getClass().getCanonicalName()).get(m_cellView.getSelectedIndex());
-        if (cv.getViewComponent() instanceof ImgViewer) {
+        if (cv instanceof ImgViewer) {
             ImgViewer v = ((ImgViewer)cv.getViewComponent());
             v.getLeftQuickViewButton().setSelected(m_cellView.isTableViewVisible(TableDir.LEFT));
             v.getBottomQuickViewButton().setSelected(m_cellView.isTableViewVisible(TableDir.BOTTOM));
         }
         cv.updateComponent(m_currentCell);
-
     }
 }
 
