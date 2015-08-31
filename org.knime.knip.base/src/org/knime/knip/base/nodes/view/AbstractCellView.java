@@ -50,21 +50,28 @@
 package org.knime.knip.base.nodes.view;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Rectangle;
 
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
 import org.knime.core.node.tableview.TableView;
+import org.knime.knip.core.ui.event.EventListener;
+import org.knime.knip.core.ui.event.EventService;
+import org.knime.knip.core.ui.event.EventServiceClient;
 import org.knime.knip.core.ui.event.KNIPEvent;
+import org.knime.knip.core.ui.imgviewer.ImgViewer;
+import org.knime.knip.core.ui.imgviewer.panels.ViewerControlEvent;
+import org.knime.knip.core.ui.imgviewer.panels.ViewerScrollEvent;
+import org.knime.knip.core.ui.imgviewer.panels.ViewerToggleEvent;
 
 /**
  *
  * @author pop210958
  */
-public abstract class AbstractCellView extends JPanel {
+public abstract class AbstractCellView extends JPanel implements EventServiceClient {
 
     protected JPanel m_tablePanel;
 
@@ -75,6 +82,8 @@ public abstract class AbstractCellView extends JPanel {
     private boolean m_isLeftVisible = false;
 
     protected JSplitPane m_verticalSplit;
+
+    protected EventService m_eventService;
 
     public AbstractCellView(final TableView tableView) {
 
@@ -96,8 +105,6 @@ public abstract class AbstractCellView extends JPanel {
         m_tablePanel = new JPanel(new BorderLayout());
 
         add(m_verticalSplit, gbc);
-
-
 
     }
 
@@ -131,7 +138,7 @@ public abstract class AbstractCellView extends JPanel {
     private void showTableView() {
         m_verticalSplit.setBottomComponent(m_tablePanel);
         m_verticalSplit.setDividerLocation(this.getHeight() - (m_tableView.getColumnHeaderViewHeight()
-                + m_tableView.getRowHeight() + m_verticalSplit.getDividerSize()));
+                + m_tableView.getRowHeight() + m_verticalSplit.getDividerSize() + 4));
     }
 
     /**
@@ -148,8 +155,6 @@ public abstract class AbstractCellView extends JPanel {
     }
 
     public void scrollTablesToIndex(final int i, final int j) {
-        m_tableView.getContentTable()
-                .scrollRectToVisible(new Rectangle(m_tableView.getContentTable().getCellRect(i, j, true)));
         m_tableView.getContentTable().changeSelection(i, j, false, false);
 
     }
@@ -159,5 +164,37 @@ public abstract class AbstractCellView extends JPanel {
     }
 
     public abstract void broadcastEvent(final KNIPEvent e);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setEventService(final EventService eventService) {
+        m_eventService = eventService;
+
+    }
+
+    public void subscribeTo(final Component c) {
+        if (c instanceof ImgViewer) {
+            ((ImgViewer)c).getEventService().subscribe(this);
+        }
+    }
+
+    //TODO: Inheritance
+
+    @EventListener
+    public void onViewerImgChange(final ViewerScrollEvent e) {
+        m_eventService.publish(new ViewerScrollEvent(e));
+    }
+
+    @EventListener
+    public void onViewerOverviewToggle(final ViewerControlEvent e) {
+        m_eventService.publish(e);
+    }
+
+    @EventListener
+    public void onViewerQuickviewToggle(final ViewerToggleEvent e){
+        setTableViewVisible(!isTableViewVisible());
+    }
 
 }

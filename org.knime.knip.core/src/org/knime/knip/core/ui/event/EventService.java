@@ -225,7 +225,8 @@ public class EventService {
             } catch (final Exception e) {
                 throw new RuntimeException(
                         "InvocationTargetException when invoking annotated method from EventService publication. Eata: "
-                                + event + ", subscriber:" + m_subscriber, e);
+                                + event + ", subscriber:" + m_subscriber,
+                        e);
             }
         }
     }
