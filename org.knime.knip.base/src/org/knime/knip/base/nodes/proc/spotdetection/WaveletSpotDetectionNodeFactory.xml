@@ -4,33 +4,65 @@
 	<name>Spot Detection</name>
 
 	<shortDescription>
-		Based on "Extraction of spots in biological images using multiscale products".
+		Based on "Extraction of spots in biological images
+		using multiscale products".
 	</shortDescription>
 
 	<fullDescription>
-		<intro>Based on <b>Extraction of spots in biological images using multiscale products</b> 			,
+		<intro>
+			Based on
+			<b>Extraction of spots in biological images using multiscale products</b>
+			,
 			Jean-Christophe Olivo-Marin
-			<i>Pattern Recognition 35</i>. This plugin
-		uses currently some GPL code form Icy.</intro>
+			<i>Pattern Recognition 35</i>
+			. This plugin
+			uses currently some GPL code form Icy.
 
+			To change the
+			threshold factors using flow variables, you have to
+			change the (2 * (n
+			+ 1) - 1)th value of the scaleConfig array.
 
-		<option name="avg method">The calculated value is used to generate the auto threshold with the formula (3 * value / 0.67) * threshold factor</option>
-		<option name="configure levels">add or remove wavelet levels to determine the number of used levels<br></br>
-		<ul>
-			<li>enable: enable the wavelet levels that should be used in the spot detection (at least one)</li>
-			<li>threshold factor: use this for fine tuning. The background auto threshold is multiplied by the factor.</li>
-		</ul>
+			For example if you want to
+			change threshold factor 0, you have to change
+			value (2 * (0 +
+			1) - 1) =
+			1 of the scaleConfig, or if you want to change threshold
+			factor
+			2 you
+			have to change the (2 * (2 + 1) - 1) = 5th value in the
+			scaleConfig
+			array.
+		</intro>
+
+		<option name="avg method">The calculated value is used to generate the auto
+			threshold with the formula (3 * value / 0.67) * threshold factor
+		</option>
+		<option name="configure levels">
+			add or remove wavelet levels to determine the number of used levels
+			<br></br>
+			<ul>
+				<li>enable: enable the wavelet levels that should be used in the
+					spot detection (at least one)
+				</li>
+				<li>threshold factor: use this for fine tuning. The background auto
+					threshold is multiplied by the factor. See node description, if the
+					values should be changed using flow variables.
+				</li>
+			</ul>
 		</option>
 		<option name="select dimensions">select a 2d slice for processing</option>
 
 	</fullDescription>
 
 	<ports>
-		<inPort index="0" name="Input images">input image with bright spots over dark background (use the inverter node if necessary)
+		<inPort index="0" name="Input images">input image with bright spots over dark
+			background (use the inverter node if necessary)
 		</inPort>
-		<outPort index="0" name="Output images">bitmask of the detected spots</outPort>
+		<outPort index="0" name="Output images">bitmask of the detected spots
+		</outPort>
 	</ports>
-	
+
 	<views>
 		<view name="Table Cell View" index="0"></view>
 	</views>
