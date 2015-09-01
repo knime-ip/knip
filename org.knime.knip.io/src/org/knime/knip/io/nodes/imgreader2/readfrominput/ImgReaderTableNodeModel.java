@@ -53,6 +53,7 @@ import java.util.stream.StreamSupport;
 
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
+import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.StringValue;
 import org.knime.core.data.xml.XMLCell;
@@ -63,10 +64,12 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.port.PortObjectSpec;
+import org.knime.core.node.streamable.InputPortRole;
+import org.knime.core.node.streamable.OutputPortRole;
 import org.knime.core.node.streamable.PartitionInfo;
 import org.knime.core.node.streamable.PortInput;
-import org.knime.core.node.streamable.PortObjectInput;
 import org.knime.core.node.streamable.PortOutput;
+import org.knime.core.node.streamable.RowInput;
 import org.knime.core.node.streamable.RowOutput;
 import org.knime.core.node.streamable.StreamableOperator;
 import org.knime.knip.base.data.img.ImgPlusCell;
@@ -138,42 +141,14 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 	@Override
 	protected BufferedDataTable[] execute(BufferedDataTable[] inData, ExecutionContext exec) throws Exception {
 
-		int imgIdx = getPathColIdx(inData[0].getDataTableSpec());
-
-		MetadataMode metadataMode = EnumUtils.valueForName(m_metadataModeModel.getStringValue(), MetadataMode.values());
-		boolean readImage = (metadataMode == MetadataMode.NO_METADATA || metadataMode == MetadataMode.APPEND_METADATA)
-				? true : false;
-		boolean readMetadata = (metadataMode == MetadataMode.APPEND_METADATA
-				|| metadataMode == MetadataMode.METADATA_ONLY) ? true : false;
-
-		// create ImgFactory
-		ImgFactory<T> imgFac;
-		if (m_imgFactory.getStringValue().equals(IMG_FACTORIES[1])) {
-			imgFac = new PlanarImgFactory<T>();
-		} else if (m_imgFactory.getStringValue().equals(IMG_FACTORIES[2])) {
-			imgFac = new CellImgFactory<T>();
-		} else {
-			imgFac = new ArrayImgFactory<T>();
-		}
-
-		// series selection
-		int seriesSelection;
-		if (m_readAllSeries.getBooleanValue()) {
-			seriesSelection = -1;
-		} else {
-			seriesSelection = m_seriesSelection.getIntValue();
-		}
-
-		// create image function
-		ReadImgTableFunction<T> rifp = new ReadImgTableFunction<T>(exec, inData[0].getRowCount(), m_planeSelect,
-				readImage, readMetadata, m_readAllMetaDataModel.getBooleanValue(), m_checkFileFormat.getBooleanValue(),
-				m_isGroupFiles.getBooleanValue(), seriesSelection, imgFac, m_colCreationMode.getStringValue(), imgIdx);
-
 		// boolean for exceptions and file format
 		final AtomicBoolean encounteredExceptions = new AtomicBoolean(false);
 
-		BufferedDataContainer bdc = exec.createDataContainer(getOutspec(inData[0].getDataTableSpec(), imgIdx));
+		int imgIdx = getPathColIdx(inData[0].getDataTableSpec());
+		ReadImgTableFunction<T> rifp = createImgTableFunction(exec, inData[0].getDataTableSpec(),
+				inData[0].getRowCount());
 
+		BufferedDataContainer bdc = exec.createDataContainer(getOutspec(inData[0].getDataTableSpec(), imgIdx));
 		StreamSupport.stream(inData[0].spliterator(), false).flatMap(rifp).forEachOrdered(dataRow -> {
 
 			if (dataRow.getSecond().isPresent()) {
@@ -185,7 +160,6 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 
 			bdc.addRowToTable(dataRow.getFirst());
 		});
-
 		bdc.close();
 
 		// data table for the table cell viewer
@@ -200,11 +174,42 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 		return new StreamableOperator() {
 			@Override
 			public void runFinal(PortInput[] inputs, PortOutput[] outputs, ExecutionContext exec) throws Exception {
-				((RowOutput) outputs[0]).setFully(execute(
-						new BufferedDataTable[] { (BufferedDataTable) ((PortObjectInput) inputs[0]).getPortObject() },
-						exec)[0]);
+				RowInput in = (RowInput) inputs[0];
+				RowOutput out = (RowOutput) outputs[0];
+
+				ReadImgTableFunction<T> readImgFunction = createImgTableFunction(exec, in.getDataTableSpec(), 1);
+
+				DataRow row;
+				while ((row = in.poll()) != null) {
+					readImgFunction.apply(row).forEachOrdered(result -> {
+						if (result.getSecond().isPresent()) {
+							LOGGER.warn("Encountered exception while reading image " + result.getFirst().getKey()
+									+ "! Caught Exception: " + result.getSecond().get().getMessage());
+							LOGGER.debug(result.getSecond().get());
+						}
+
+						try {
+							out.push(result.getFirst());
+						} catch (Exception exc) {
+							LOGGER.warn("Couldn't push result for row " + result.getFirst().getKey());
+						}
+					});
+				}
+
+				in.close();
+				out.close();
 			}
 		};
+	}
+
+	@Override
+	public InputPortRole[] getInputPortRoles() {
+		return new InputPortRole[] { InputPortRole.DISTRIBUTED_STREAMABLE };
+	}
+
+	@Override
+	public OutputPortRole[] getOutputPortRoles() {
+		return new OutputPortRole[] { OutputPortRole.DISTRIBUTED };
 	}
 
 	private DataTableSpec getOutspec(DataTableSpec spec, int imgIdx) {
@@ -302,5 +307,42 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 		}
 
 		return imgColIndex;
+	}
+
+	private ReadImgTableFunction<T> createImgTableFunction(ExecutionContext exec, DataTableSpec inSpec, int rowCount)
+			throws InvalidSettingsException {
+
+		int imgIdx = getPathColIdx(inSpec);
+
+		MetadataMode metadataMode = EnumUtils.valueForName(m_metadataModeModel.getStringValue(), MetadataMode.values());
+		boolean readImage = (metadataMode == MetadataMode.NO_METADATA || metadataMode == MetadataMode.APPEND_METADATA)
+				? true : false;
+		boolean readMetadata = (metadataMode == MetadataMode.APPEND_METADATA
+				|| metadataMode == MetadataMode.METADATA_ONLY) ? true : false;
+
+		// create ImgFactory
+		ImgFactory<T> imgFac;
+		if (m_imgFactory.getStringValue().equals(IMG_FACTORIES[1])) {
+			imgFac = new PlanarImgFactory<T>();
+		} else if (m_imgFactory.getStringValue().equals(IMG_FACTORIES[2])) {
+			imgFac = new CellImgFactory<T>();
+		} else {
+			imgFac = new ArrayImgFactory<T>();
+		}
+
+		// series selection
+		int seriesSelection;
+		if (m_readAllSeries.getBooleanValue()) {
+			seriesSelection = -1;
+		} else {
+			seriesSelection = m_seriesSelection.getIntValue();
+		}
+
+		// create image function
+		ReadImgTableFunction<T> rifp = new ReadImgTableFunction<T>(exec, rowCount, m_planeSelect, readImage,
+				readMetadata, m_readAllMetaDataModel.getBooleanValue(), m_checkFileFormat.getBooleanValue(),
+				m_isGroupFiles.getBooleanValue(), seriesSelection, imgFac, m_colCreationMode.getStringValue(), imgIdx);
+
+		return rifp;
 	}
 }
