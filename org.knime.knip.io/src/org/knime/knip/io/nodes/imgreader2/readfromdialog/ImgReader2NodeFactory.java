@@ -66,32 +66,32 @@ import org.knime.knip.base.nodes.view.TableCellViewNodeView;
  * @author <a href="mailto:danielseebacher@t-online.de">Daniel Seebacher, University of
  *         Konstanz.</a>
  */
-public class ImgReaderWithoutInputNodeFactory<T extends NativeType<T> & RealType<T>>
-		extends NodeFactory<ImgReaderWithoutInputNodeModel<T>> {
+public class ImgReader2NodeFactory<T extends NativeType<T> & RealType<T>>
+		extends NodeFactory<ImgReader2NodeModel<T>> {
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public NodeDialogPane createNodeDialogPane() {
-		return new ImgReaderWithoutInputNodeDialog();
+		return new ImgReader2NodeDialog();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ImgReaderWithoutInputNodeModel<T> createNodeModel() {
-		return new ImgReaderWithoutInputNodeModel<T>();
+	public ImgReader2NodeModel<T> createNodeModel() {
+		return new ImgReader2NodeModel<T>();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView<ImgReaderWithoutInputNodeModel<T>> createNodeView(final int i,
-			final ImgReaderWithoutInputNodeModel<T> nodeModel) {
-		return new TableCellViewNodeView<ImgReaderWithoutInputNodeModel<T>>(nodeModel);
+	public NodeView<ImgReader2NodeModel<T>> createNodeView(final int i,
+			final ImgReader2NodeModel<T> nodeModel) {
+		return new TableCellViewNodeView<ImgReader2NodeModel<T>>(nodeModel);
 	}
 
 	/**

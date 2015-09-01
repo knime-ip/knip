@@ -33,12 +33,12 @@ import net.imglib2.type.numeric.RealType;
  * @author <a href="mailto:danielseebacher@t-online.de">Daniel Seebacher, University of
  *         Konstanz.</a>
  */
-class ReadImgWithInputFunction<T extends RealType<T>> extends AbstractReadImgFunction<T, DataRow> {
+class ReadImgTableFunction<T extends RealType<T>> extends AbstractReadImgFunction<T, DataRow> {
 
 	private String columnCreationMode;
 	private int stringIndex;
 
-	public ReadImgWithInputFunction(ExecutionContext exec, int numberOfFiles, SettingsModelSubsetSelection sel,
+	public ReadImgTableFunction(ExecutionContext exec, int numberOfFiles, SettingsModelSubsetSelection sel,
 			boolean readImage, boolean readMetadata, boolean readAllMetaData, boolean checkFileFormat,
 			boolean isGroupFiles, int selectedSeries, ImgFactory<T> imgFactory, String columnCreationMode,
 			int stringIndex) {
@@ -102,7 +102,7 @@ class ReadImgWithInputFunction<T extends RealType<T>> extends AbstractReadImgFun
 	 *            {@link Exception}s.
 	 * @param columnSelectionMode
 	 *            the column selection mode see
-	 *            {@link ImgReaderWithInputNodeModel#COL_CREATION_MODES}
+	 *            {@link ImgReaderTableNodeModel#COL_CREATION_MODES}
 	 * @param inputColumnIndex
 	 *            the column index of the path.
 	 * @return a {@link Stream} with the output {@link DataRow}s.
@@ -111,9 +111,9 @@ class ReadImgWithInputFunction<T extends RealType<T>> extends AbstractReadImgFun
 			List<Pair<DataRow, Optional<Exception>>> readFiles, String columnSelectionMode, int inputColumnIndex) {
 
 		List<Pair<DataRow, Optional<Exception>>> outputResults = new ArrayList<>();
-		if (columnCreationMode.equalsIgnoreCase(ImgReaderWithInputNodeModel.COL_CREATION_MODES[0])) {
+		if (columnCreationMode.equalsIgnoreCase(ImgReaderTableNodeModel.COL_CREATION_MODES[0])) {
 			return readFiles.stream();
-		} else if (columnCreationMode.equalsIgnoreCase(ImgReaderWithInputNodeModel.COL_CREATION_MODES[1])) {
+		} else if (columnCreationMode.equalsIgnoreCase(ImgReaderTableNodeModel.COL_CREATION_MODES[1])) {
 			for (Pair<DataRow, Optional<Exception>> result : readFiles) {
 
 				List<DataCell> cells = new ArrayList<>();

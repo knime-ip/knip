@@ -32,9 +32,9 @@ import net.imglib2.type.numeric.RealType;
  *         Konstanz.</a>
  *
  */
-class ReadImgWithoutInputFunction<T extends RealType<T>> extends AbstractReadImgFunction<T, String> {
+class ReadImg2Function<T extends RealType<T>> extends AbstractReadImgFunction<T, String> {
 
-	public ReadImgWithoutInputFunction(ExecutionContext exec, int numberOfFiles, SettingsModelSubsetSelection sel,
+	public ReadImg2Function(ExecutionContext exec, int numberOfFiles, SettingsModelSubsetSelection sel,
 			boolean readImage, boolean readMetadata, boolean readAllMetaData, boolean checkFileFormat,
 			boolean completePathRowKey, boolean isGroupFiles, int selectedSeries, ImgFactory<T> imgFactory) {
 		super(exec, numberOfFiles, sel, readImage, readMetadata, readAllMetaData, checkFileFormat, completePathRowKey,

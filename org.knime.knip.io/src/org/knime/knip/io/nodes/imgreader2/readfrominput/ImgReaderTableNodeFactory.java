@@ -66,32 +66,32 @@ import net.imglib2.type.numeric.RealType;
  * @author <a href="mailto:danielseebacher@t-online.de">Daniel Seebacher,
  *         University of Konstanz.</a>
  */
-public class ImgReaderWithInputNodeFactory<T extends NativeType<T> & RealType<T>>
-		extends NodeFactory<ImgReaderWithInputNodeModel<T>> {
+public class ImgReaderTableNodeFactory<T extends NativeType<T> & RealType<T>>
+		extends NodeFactory<ImgReaderTableNodeModel<T>> {
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public NodeDialogPane createNodeDialogPane() {
-		return new ImgReaderWithInputNodeDialog();
+		return new ImgReaderTableNodeDialog();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ImgReaderWithInputNodeModel<T> createNodeModel() {
-		return new ImgReaderWithInputNodeModel<T>();
+	public ImgReaderTableNodeModel<T> createNodeModel() {
+		return new ImgReaderTableNodeModel<T>();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView<ImgReaderWithInputNodeModel<T>> createNodeView(final int i,
-			final ImgReaderWithInputNodeModel<T> nodeModel) {
-		return new TableCellViewNodeView<ImgReaderWithInputNodeModel<T>>(nodeModel);
+	public NodeView<ImgReaderTableNodeModel<T>> createNodeView(final int i,
+			final ImgReaderTableNodeModel<T> nodeModel) {
+		return new TableCellViewNodeView<ImgReaderTableNodeModel<T>>(nodeModel);
 	}
 
 	/**

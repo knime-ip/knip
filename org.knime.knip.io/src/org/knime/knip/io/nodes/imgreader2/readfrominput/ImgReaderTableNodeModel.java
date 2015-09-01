@@ -44,29 +44,33 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.io.nodes.imgreader2.readfromdialog;
+package org.knime.knip.io.nodes.imgreader2.readfrominput;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.StreamSupport;
 
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.StringValue;
 import org.knime.core.data.xml.XMLCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeLogger;
-import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
-import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
+import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.streamable.PartitionInfo;
 import org.knime.core.node.streamable.PortInput;
+import org.knime.core.node.streamable.PortObjectInput;
 import org.knime.core.node.streamable.PortOutput;
 import org.knime.core.node.streamable.RowOutput;
 import org.knime.core.node.streamable.StreamableOperator;
 import org.knime.knip.base.data.img.ImgPlusCell;
+import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.io.nodes.imgreader2.AbstractImgReaderNodeModel;
 import org.knime.knip.io.nodes.imgreader2.MetadataMode;
@@ -89,61 +93,52 @@ import net.imglib2.type.numeric.RealType;
  * @author <a href="mailto:danielseebacher@t-online.de">Daniel Seebacher,
  *         University of Konstanz.</a>
  */
-public class ImgReaderWithoutInputNodeModel<T extends RealType<T> & NativeType<T>>
-		extends AbstractImgReaderNodeModel<T> {
+public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> extends AbstractImgReaderNodeModel<T> {
 
-	private static final NodeLogger LOGGER = NodeLogger.getLogger(ImgReaderWithoutInputNodeModel.class);
+	private static final NodeLogger LOGGER = NodeLogger.getLogger(ImgReaderTableNodeModel.class);
+
+	public static final String[] COL_CREATION_MODES = new String[] { "New Table", "Append", "Replace" };
 
 	/**
-	 * @return Model to store if the complete path should be used as row key
+	 * @return Model to store the selected column in the optional input table
 	 */
-	public static final SettingsModelBoolean createCompletePathRowKeyModel() {
-		return new SettingsModelBoolean("complete_path_rowkey", false);
+	public static SettingsModelString createFilenameColumnModel() {
+		return new SettingsModelString("filename_column", "");
 	}
 
-	/**
-	 * @return Model for the settings holding the file list.
-	 */
-	public static SettingsModelStringArray createFileListModel() {
-		return new SettingsModelStringArray("file_list", new String[] {});
-
+	public static SettingsModelString createColCreationModeModel() {
+		return new SettingsModelString("m_colCreationMode", "New Table");
 	}
 
-	private final SettingsModelStringArray m_files = createFileListModel();
-	protected final SettingsModelBoolean m_completePathRowKey = createCompletePathRowKeyModel();
-
-	/**
-	 * Initializes the ImageReader
-	 */
-	public ImgReaderWithoutInputNodeModel() {
-		super(0, 1);
-
-		addSettingsModels(m_files, m_completePathRowKey);
+	public static SettingsModelString createColSuffixNodeModel() {
+		return new SettingsModelString("m_colSuffix", "");
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	private final SettingsModelString m_filenameColumn = createFilenameColumnModel();
+	private final SettingsModelString m_colCreationMode = createColCreationModeModel();
+	private final SettingsModelString m_colSuffix = createColSuffixNodeModel();
+
+	public ImgReaderTableNodeModel() {
+		super(1, 1);
+
+		addSettingsModels(m_filenameColumn, m_colCreationMode, m_colSuffix);
+	}
+
 	@Override
-	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
-		// check if some files are selected
-		if (m_files == null || m_files.getStringArrayValue() == null || m_files.getStringArrayValue().length == 0) {
-			throw new InvalidSettingsException("No files selected!");
+	protected DataTableSpec[] configure(DataTableSpec[] inSpecs) throws InvalidSettingsException {
+
+		int imgIdx = getPathColIdx(inSpecs[0]);
+		if (-1 == imgIdx) {
+			throw new InvalidSettingsException("A string column must be selected!");
 		}
 
-		return new DataTableSpec[] { getOutspec() };
+		return new DataTableSpec[] { getOutspec(inSpecs[0], imgIdx) };
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
-			throws Exception {
+	protected BufferedDataTable[] execute(BufferedDataTable[] inData, ExecutionContext exec) throws Exception {
 
-		if (m_files == null || m_files.getStringArrayValue() == null || m_files.getStringArrayValue().length == 0) {
-			throw new InvalidSettingsException("No files selected!");
-		}
+		int imgIdx = getPathColIdx(inData[0].getDataTableSpec());
 
 		MetadataMode metadataMode = EnumUtils.valueForName(m_metadataModeModel.getStringValue(), MetadataMode.values());
 		boolean readImage = (metadataMode == MetadataMode.NO_METADATA || metadataMode == MetadataMode.APPEND_METADATA)
@@ -170,16 +165,16 @@ public class ImgReaderWithoutInputNodeModel<T extends RealType<T> & NativeType<T
 		}
 
 		// create image function
-		ReadImgWithoutInputFunction<T> rifp = new ReadImgWithoutInputFunction<T>(exec,
-				m_files.getStringArrayValue().length, m_planeSelect, readImage, readMetadata,
-				m_readAllMetaDataModel.getBooleanValue(), m_checkFileFormat.getBooleanValue(),
-				m_completePathRowKey.getBooleanValue(), m_isGroupFiles.getBooleanValue(), seriesSelection, imgFac);
+		ReadImgTableFunction<T> rifp = new ReadImgTableFunction<T>(exec, inData[0].getRowCount(), m_planeSelect,
+				readImage, readMetadata, m_readAllMetaDataModel.getBooleanValue(), m_checkFileFormat.getBooleanValue(),
+				m_isGroupFiles.getBooleanValue(), seriesSelection, imgFac, m_colCreationMode.getStringValue(), imgIdx);
 
 		// boolean for exceptions and file format
 		final AtomicBoolean encounteredExceptions = new AtomicBoolean(false);
 
-		BufferedDataContainer bdc = exec.createDataContainer(getOutspec());
-		Arrays.asList(m_files.getStringArrayValue()).stream().flatMap(rifp).forEachOrdered(dataRow -> {
+		BufferedDataContainer bdc = exec.createDataContainer(getOutspec(inData[0].getDataTableSpec(), imgIdx));
+
+		StreamSupport.stream(inData[0].spliterator(), false).flatMap(rifp).forEachOrdered(dataRow -> {
 
 			if (dataRow.getSecond().isPresent()) {
 				encounteredExceptions.set(true);
@@ -190,6 +185,7 @@ public class ImgReaderWithoutInputNodeModel<T extends RealType<T> & NativeType<T
 
 			bdc.addRowToTable(dataRow.getFirst());
 		});
+
 		bdc.close();
 
 		// data table for the table cell viewer
@@ -204,12 +200,14 @@ public class ImgReaderWithoutInputNodeModel<T extends RealType<T> & NativeType<T
 		return new StreamableOperator() {
 			@Override
 			public void runFinal(PortInput[] inputs, PortOutput[] outputs, ExecutionContext exec) throws Exception {
-				((RowOutput) outputs[0]).setFully(execute(new BufferedDataTable[] { null }, exec)[0]);
+				((RowOutput) outputs[0]).setFully(execute(
+						new BufferedDataTable[] { (BufferedDataTable) ((PortObjectInput) inputs[0]).getPortObject() },
+						exec)[0]);
 			}
 		};
 	}
 
-	protected DataTableSpec getOutspec() {
+	private DataTableSpec getOutspec(DataTableSpec spec, int imgIdx) {
 		MetadataMode metadataMode = EnumUtils.valueForName(m_metadataModeModel.getStringValue(), MetadataMode.values());
 
 		boolean readImage = (metadataMode == MetadataMode.NO_METADATA || metadataMode == MetadataMode.APPEND_METADATA)
@@ -217,19 +215,92 @@ public class ImgReaderWithoutInputNodeModel<T extends RealType<T> & NativeType<T
 		boolean readMetadata = (metadataMode == MetadataMode.APPEND_METADATA
 				|| metadataMode == MetadataMode.METADATA_ONLY) ? true : false;
 
-		DataColumnSpecCreator creator;
-		// size of spec from on the reader settings.
-		final DataColumnSpec[] cspecs = new DataColumnSpec[(readImage ? 1 : 0) + (readMetadata ? 1 : 0)];
-		if (readImage) {
-			creator = new DataColumnSpecCreator("Image", ImgPlusCell.TYPE);
-			cspecs[0] = creator.createSpec();
+		DataTableSpec outSpec;
+		// new table
+		if (m_colCreationMode.getStringValue().equalsIgnoreCase(COL_CREATION_MODES[0])) {
+
+			DataColumnSpec imgSpec = new DataColumnSpecCreator("Image", ImgPlusCell.TYPE).createSpec();
+			DataColumnSpec omeSpec = new DataColumnSpecCreator("OME-XML Metadata", XMLCell.TYPE).createSpec();
+
+			if (readImage && readMetadata) {
+				outSpec = new DataTableSpec(imgSpec, omeSpec);
+			} else if (readImage) {
+				outSpec = new DataTableSpec(imgSpec);
+			} else {
+				outSpec = new DataTableSpec(omeSpec);
+			}
+
 		}
-		if (readMetadata) {
-			creator = new DataColumnSpecCreator("OME-XML Metadata", XMLCell.TYPE);
-			cspecs[cspecs.length - 1] = creator.createSpec();
+		// append
+		else if (m_colCreationMode.getStringValue().equalsIgnoreCase(COL_CREATION_MODES[1])) {
+
+			DataColumnSpec imgSpec = new DataColumnSpecCreator(
+					DataTableSpec.getUniqueColumnName(spec, "Image" + m_colSuffix.getStringValue()), ImgPlusCell.TYPE)
+							.createSpec();
+			DataColumnSpec omeSpec = new DataColumnSpecCreator(
+					DataTableSpec.getUniqueColumnName(spec, "OME-XML Metadata" + m_colSuffix.getStringValue()),
+					XMLCell.TYPE).createSpec();
+
+			List<DataColumnSpec> list = new ArrayList<>();
+			for (int i = 0; i < spec.getNumColumns(); i++) {
+				list.add(spec.getColumnSpec(i));
+			}
+
+			if (readImage && readMetadata) {
+				list.add(imgSpec);
+				list.add(omeSpec);
+			} else if (readImage) {
+				list.add(imgSpec);
+			} else {
+				list.add(omeSpec);
+			}
+
+			outSpec = new DataTableSpec(list.toArray(new DataColumnSpec[list.size()]));
+		}
+		// replace
+		else {
+			DataColumnSpec imgSpec = new DataColumnSpecCreator(
+					DataTableSpec.getUniqueColumnName(spec, "Image" + m_colSuffix.getStringValue()), ImgPlusCell.TYPE)
+							.createSpec();
+			DataColumnSpec omeSpec = new DataColumnSpecCreator(
+					DataTableSpec.getUniqueColumnName(spec, "OME-XML Metadata" + m_colSuffix.getStringValue()),
+					XMLCell.TYPE).createSpec();
+
+			List<DataColumnSpec> list = new ArrayList<>();
+			for (int i = 0; i < spec.getNumColumns(); i++) {
+				list.add(spec.getColumnSpec(i));
+			}
+
+			if (readImage && readMetadata) {
+				list.set(imgIdx, imgSpec);
+				list.add(imgIdx + 1, omeSpec);
+			} else if (readImage) {
+				list.set(imgIdx, imgSpec);
+			} else {
+				list.set(imgIdx, omeSpec);
+			}
+
+			outSpec = new DataTableSpec(list.toArray(new DataColumnSpec[list.size()]));
 		}
 
-		return new DataTableSpec(cspecs);
+		return outSpec;
 	}
 
+	private int getPathColIdx(final DataTableSpec inSpec) throws InvalidSettingsException {
+		int imgColIndex = -1;
+		if (null == this.m_filenameColumn.getStringValue()) {
+			return imgColIndex;
+		}
+		imgColIndex = inSpec.findColumnIndex(this.m_filenameColumn.getStringValue());
+		if (-1 == imgColIndex) {
+			if ((imgColIndex = NodeUtils.autoOptionalColumnSelection(inSpec, this.m_filenameColumn,
+					StringValue.class)) >= 0) {
+				setWarningMessage("Auto-configure Image Column: " + this.m_filenameColumn.getStringValue());
+			} else {
+				throw new InvalidSettingsException("No column selected!");
+			}
+		}
+
+		return imgColIndex;
+	}
 }

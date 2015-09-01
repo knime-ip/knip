@@ -68,16 +68,16 @@ import org.knime.knip.io.nodes.imgreader2.AbstractImgReaderNodeDialog;
  * @author <a href="mailto:danielseebacher@t-online.de">Daniel
  *         Seebacher, University of Konstanz.</a>
  */
-public class ImgReaderWithInputNodeDialog extends AbstractImgReaderNodeDialog {
+public class ImgReaderTableNodeDialog extends AbstractImgReaderNodeDialog {
 
 	private final SettingsModelString m_fileNamesColumn;
 
 	@SuppressWarnings("unchecked")
-	public ImgReaderWithInputNodeDialog() {
+	public ImgReaderTableNodeDialog() {
 		super();
 
 		createNewGroup("File Input Column");
-		m_fileNamesColumn = ImgReaderWithInputNodeModel.createFilenameColumnModel();
+		m_fileNamesColumn = ImgReaderTableNodeModel.createFilenameColumnModel();
 		addDialogComponent(new DialogComponentColumnNameSelection(m_fileNamesColumn,
 				"File name column in optional table", 0, true, false, StringValue.class));
 		closeCurrentGroup();
@@ -85,11 +85,11 @@ public class ImgReaderWithInputNodeDialog extends AbstractImgReaderNodeDialog {
 		super.buildRemainingGUI();
 
 		createNewTab("Column Settings");
-		SettingsModelString m_smColCreationMode = ImgReaderWithInputNodeModel.createColCreationModeModel();
+		SettingsModelString m_smColCreationMode = ImgReaderTableNodeModel.createColCreationModeModel();
 		addDialogComponent(new DialogComponentStringSelection(m_smColCreationMode, "Column Creation Mode",
 				ValueToCellNodeModel.COL_CREATION_MODES));
 
-		SettingsModelString m_smColumnSuffix = ImgReaderWithInputNodeModel.createColSuffixNodeModel();
+		SettingsModelString m_smColumnSuffix = ImgReaderTableNodeModel.createColSuffixNodeModel();
 		addDialogComponent(new DialogComponentString(m_smColumnSuffix, "Column Suffix"));
 	}
 

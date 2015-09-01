@@ -10,8 +10,10 @@
 	<shortDescription>
 		This image reader is deprecated! We splitted the
 		functionality into two new image reader nodes, one which only reads
-		files which are selected from a dialog and a second one which only
-		reads files from an input table. 
+		files which are selected from a dialog called 'Image Reader' and a
+		second one which only
+		reads files from an input table called 'Image
+		Reader (Table)'.
 
 
 		Reads images from possibly different directories and
@@ -23,12 +25,15 @@
 		first two dimensions. To convert them to another image
 		format (ArrayImg
 		if you want to process the whole image at once)
-		please make use of
+		please
+		make use of
 		the
 		converter node.
 
-		Image can also be downloaded and read from URLs (e.g.
-		http://...). The URLs have to be provided via the input table (as
+		Image can also be downloaded and read
+		from URLs (e.g.
+		http://...). The URLs have to be provided via the input
+		table (as
 		strings).
 	</shortDescription>
 
@@ -122,21 +127,26 @@
 				image metadata.
 
 				<p>Alternatively, selecting subsets can be done in three ways using
-					the text field below each selection list:</p>
+					the text field below each selection list:
+				</p>
 
 				<p>
 					<b>Discrete Element Selection</b>
 					Every element that shall be selected can
-					be entered on it's own, separated by commas.
+					be entered on it's own,
+					separated by commas.
 					e.g. "1, 5, 8, 9"
 				</p>
 				<p>
 					<b>Cohesive Element Selection</b>
 					Selecting a complete region "from" a given
-					value "to" another can be done by putting a
+					value "to" another can be
+					done by putting a
 					hyphen between two values, marking the first
-					as the region start and the second as the end.
-					Comma-separation still holds and can separate
+					as the
+					region start and the second as the end.
+					Comma-separation still holds
+					and can separate
 					either complete regions, or regions and discrete
 					selections.
 					e.g. 1-5, 8-10, 11
@@ -144,23 +154,29 @@
 				<p>
 					<b>Function Based Selection</b>
 					Selection values based on a given function
-					can be done by marking the function with a
+					can be done by marking
+					the function with a
 					leading "f=" and entering the desired
 					functionality thereafter. Any single variable
-					function or constant contained within the
+					function or constant
+					contained within the
 					javascript math package can be used with
 					standard javascript syntax.
-					(e.g. math.pow(2, i) for selecting 2, 4, 8,...)
+					(e.g. math.pow(2, i) for selecting 2, 4,
+					8,...)
 				</p>
 				<p>
 					<b>Combining</b>
 					The above mentioned functionalities can be
-					arbitrarily intermingled as every comma separated
+					arbitrarily intermingled
+					as every comma separated
 					entry is read and interpreted on it's own.
 					e.g. Selecting all Values from 1-10, every eleventh
-					entry and the twentieth entry for some reason can
+					entry and the
+					twentieth entry for some reason can
 					be done by entering:
-					"1-10, 20, f=11*i"
+					"1-10, 20,
+					f=11*i"
 				</p>
 			</option>
 		</tab>

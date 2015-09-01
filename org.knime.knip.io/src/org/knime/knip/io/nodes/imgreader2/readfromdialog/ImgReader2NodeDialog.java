@@ -73,7 +73,7 @@ import org.knime.knip.io.nodes.imgreader2.AbstractImgReaderNodeDialog;
  * @author <a href="mailto:danielseebacher@t-online.de">Daniel Seebacher, University of
  *         Konstanz.</a>
  */
-public class ImgReaderWithoutInputNodeDialog extends AbstractImgReaderNodeDialog {
+public class ImgReader2NodeDialog extends AbstractImgReaderNodeDialog {
 
 	/**
 	 * Key to store the directory history.
@@ -88,9 +88,9 @@ public class ImgReaderWithoutInputNodeDialog extends AbstractImgReaderNodeDialog
 
 	private final DialogComponentMultiFileChooser m_filechooser;
 
-	ImgReaderWithoutInputNodeDialog() {
+	ImgReader2NodeDialog() {
 		createNewGroup("");
-		m_filechooser = new DialogComponentMultiFileChooser(ImgReaderWithoutInputNodeModel.createFileListModel(),
+		m_filechooser = new DialogComponentMultiFileChooser(ImgReader2NodeModel.createFileListModel(),
 				FILEFILTER, CFG_DIR_HISTORY);
 		addDialogComponent(m_filechooser);
 		closeCurrentGroup();
@@ -98,7 +98,7 @@ public class ImgReaderWithoutInputNodeDialog extends AbstractImgReaderNodeDialog
 		createNewTab("Additional Options");
 
 		createNewGroup("Keys");
-		addDialogComponent(new DialogComponentBoolean(ImgReaderWithoutInputNodeModel.createCompletePathRowKeyModel(),
+		addDialogComponent(new DialogComponentBoolean(ImgReader2NodeModel.createCompletePathRowKeyModel(),
 				"Use complete file path as row key"));
 		closeCurrentGroup();
 		
