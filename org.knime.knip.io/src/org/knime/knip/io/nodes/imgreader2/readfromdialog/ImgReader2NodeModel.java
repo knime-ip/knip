@@ -235,8 +235,7 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 		return new DataTableSpec(cspecs);
 	}
 
-	private ReadImg2Function<T> createImgTableFunction(ExecutionContext exec, int rowCount)
-			throws InvalidSettingsException {
+	private ReadImg2Function<T> createImgTableFunction(ExecutionContext exec, int rowCount) {
 
 		MetadataMode metadataMode = EnumUtils.valueForName(m_metadataModeModel.getStringValue(), MetadataMode.values());
 		boolean readImage = (metadataMode == MetadataMode.NO_METADATA || metadataMode == MetadataMode.APPEND_METADATA)
@@ -263,8 +262,8 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 		}
 
 		// create image function
-		ReadImg2Function<T> rifp = new ReadImg2Function<T>(exec, m_files.getStringArrayValue().length, m_planeSelect,
-				readImage, readMetadata, m_readAllMetaDataModel.getBooleanValue(), m_checkFileFormat.getBooleanValue(),
+		ReadImg2Function<T> rifp = new ReadImg2Function<T>(exec, rowCount, m_planeSelect, readImage, readMetadata,
+				m_readAllMetaDataModel.getBooleanValue(), m_checkFileFormat.getBooleanValue(),
 				m_completePathRowKey.getBooleanValue(), m_isGroupFiles.getBooleanValue(), seriesSelection, imgFac);
 
 		return rifp;
