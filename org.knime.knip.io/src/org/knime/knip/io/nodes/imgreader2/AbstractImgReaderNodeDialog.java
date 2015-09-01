@@ -74,6 +74,8 @@ import org.knime.knip.core.util.EnumUtils;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
  * @author <a href="mailto:gabriel.einsdorf@uni.kn"> Gabriel Einsdorf</a>
+ * @author <a href="mailto:danielseebacher@t-online.de">Daniel Seebacher, University of
+ *         Konstanz.</a>
  */
 public abstract class AbstractImgReaderNodeDialog extends DefaultNodeSettingsPane {
 		

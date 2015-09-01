@@ -70,7 +70,8 @@ import org.knime.knip.io.nodes.imgreader2.AbstractImgReaderNodeDialog;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
  * @author <a href="mailto:gabriel.einsdorf@uni.kn"> Gabriel Einsdorf</a>
- * @author Daniel Seebacher, University of Konstanz.
+ * @author <a href="mailto:danielseebacher@t-online.de">Daniel Seebacher, University of
+ *         Konstanz.</a>
  */
 public class ImgReaderWithoutInputNodeDialog extends AbstractImgReaderNodeDialog {
 

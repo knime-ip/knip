@@ -30,8 +30,9 @@ import net.imglib2.type.numeric.RealType;
  * {@link Function} to read an {@link Img}, OME-XML Metadata or both from
  * somewhere.
  * 
- * @author Daniel Seebacher, University of Konstanz.
- *
+ * @author <a href="mailto:danielseebacher@t-online.de">Daniel Seebacher,
+ *         University of Konstanz.</a>
+ * 
  * @param <T>
  *            They Type of the Image
  * @param <I>

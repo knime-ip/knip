@@ -63,49 +63,51 @@ import net.imglib2.type.numeric.RealType;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
+ * @author <a href="mailto:danielseebacher@t-online.de">Daniel Seebacher,
+ *         University of Konstanz.</a>
  */
 public class ImgReaderWithInputNodeFactory<T extends NativeType<T> & RealType<T>>
-        extends NodeFactory<ImgReaderWithInputNodeModel<T>> {
+		extends NodeFactory<ImgReaderWithInputNodeModel<T>> {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeDialogPane createNodeDialogPane() {
-        return new ImgReaderWithInputNodeDialog();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeDialogPane createNodeDialogPane() {
+		return new ImgReaderWithInputNodeDialog();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ImgReaderWithInputNodeModel<T> createNodeModel() {
-        return new ImgReaderWithInputNodeModel<T>();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ImgReaderWithInputNodeModel<T> createNodeModel() {
+		return new ImgReaderWithInputNodeModel<T>();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeView<ImgReaderWithInputNodeModel<T>> createNodeView(final int i,
-            final ImgReaderWithInputNodeModel<T> nodeModel) {
-        return new TableCellViewNodeView<ImgReaderWithInputNodeModel<T>>(nodeModel);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeView<ImgReaderWithInputNodeModel<T>> createNodeView(final int i,
+			final ImgReaderWithInputNodeModel<T> nodeModel) {
+		return new TableCellViewNodeView<ImgReaderWithInputNodeModel<T>>(nodeModel);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getNrNodeViews() {
-        return 1;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getNrNodeViews() {
+		return 1;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean hasDialog() {
-        return true;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean hasDialog() {
+		return true;
+	}
 
 }

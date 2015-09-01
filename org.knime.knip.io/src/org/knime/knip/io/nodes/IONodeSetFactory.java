@@ -59,7 +59,6 @@ import org.knime.core.node.config.ConfigRO;
 import org.knime.knip.io.nodes.annotation.create.OverlayAnnotatorNodeFactory;
 import org.knime.knip.io.nodes.fileref.ImageFileRefNodeFactory;
 import org.knime.knip.io.nodes.imgimporter.ImgImporterNodeFactory;
-import org.knime.knip.io.nodes.imgreader.ImgReaderNodeFactory;
 import org.knime.knip.io.nodes.imgreader2.readfromdialog.ImgReaderWithoutInputNodeFactory;
 import org.knime.knip.io.nodes.imgreader2.readfrominput.ImgReaderWithInputNodeFactory;
 import org.knime.knip.io.nodes.imgwriter2.ImgWriter2NodeFactory;
@@ -70,6 +69,8 @@ import org.knime.knip.io.nodes.imgwriter2.ImgWriter2NodeFactory;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
+ * @author <a href="mailto:danielseebacher@t-online.de">Daniel Seebacher,
+ *         University of Konstanz.</a>
  */
 public class IONodeSetFactory implements NodeSetFactory {
 

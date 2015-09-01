@@ -62,6 +62,13 @@ import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.node.port.PortObjectSpec;
+import org.knime.core.node.streamable.PartitionInfo;
+import org.knime.core.node.streamable.PortInput;
+import org.knime.core.node.streamable.PortObjectInput;
+import org.knime.core.node.streamable.PortOutput;
+import org.knime.core.node.streamable.RowOutput;
+import org.knime.core.node.streamable.StreamableOperator;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.core.util.EnumUtils;
@@ -83,6 +90,8 @@ import net.imglib2.type.numeric.RealType;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
  * @author <a href="mailto:gabriel.einsdorf@uni.kn"> Gabriel Einsdorf</a>
+ * @author <a href="mailto:danielseebacher@t-online.de">Daniel Seebacher,
+ *         University of Konstanz.</a>
  */
 public class ImgReaderWithInputNodeModel<T extends RealType<T> & NativeType<T>> extends AbstractImgReaderNodeModel<T> {
 
@@ -178,11 +187,24 @@ public class ImgReaderWithInputNodeModel<T extends RealType<T> & NativeType<T>> 
 		});
 
 		bdc.close();
-		
+
 		// data table for the table cell viewer
 		m_data = bdc.getTable();
 
 		return new BufferedDataTable[] { bdc.getTable() };
+	}
+
+	@Override
+	public StreamableOperator createStreamableOperator(final PartitionInfo partitionInfo,
+			final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
+		return new StreamableOperator() {
+			@Override
+			public void runFinal(PortInput[] inputs, PortOutput[] outputs, ExecutionContext exec) throws Exception {
+				((RowOutput) outputs[0]).setFully(execute(
+						new BufferedDataTable[] { (BufferedDataTable) ((PortObjectInput) inputs[0]).getPortObject() },
+						exec)[0]);
+			}
+		};
 	}
 
 	private DataTableSpec getOutspec(DataTableSpec spec, int imgIdx) {

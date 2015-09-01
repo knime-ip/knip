@@ -63,7 +63,8 @@ import org.knime.knip.base.nodes.view.TableCellViewNodeView;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
- * @author Daniel Seebacher, University of Konstanz.
+ * @author <a href="mailto:danielseebacher@t-online.de">Daniel Seebacher, University of
+ *         Konstanz.</a>
  */
 public class ImgReaderWithoutInputNodeFactory<T extends NativeType<T> & RealType<T>>
 		extends NodeFactory<ImgReaderWithoutInputNodeModel<T>> {

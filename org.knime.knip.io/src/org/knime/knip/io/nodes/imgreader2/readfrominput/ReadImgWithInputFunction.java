@@ -30,8 +30,8 @@ import net.imglib2.type.numeric.RealType;
  * {@link Function} to read an {@link Img}, OME-XML Metadata or both from a file
  * path.
  * 
- * @author Daniel Seebacher, University of Konstanz.
- *
+ * @author <a href="mailto:danielseebacher@t-online.de">Daniel Seebacher, University of
+ *         Konstanz.</a>
  */
 class ReadImgWithInputFunction<T extends RealType<T>> extends AbstractReadImgFunction<T, DataRow> {
 

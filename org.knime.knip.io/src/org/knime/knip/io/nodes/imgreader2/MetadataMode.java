@@ -1,10 +1,13 @@
 package org.knime.knip.io.nodes.imgreader2;
+
 /**
  * Enum that stores the metadata modes.
+ * 
+ * @author <a href="mailto:danielseebacher@t-online.de">Daniel Seebacher,
+ *         University of Konstanz.</a>
  */
 public enum MetadataMode {
-	NO_METADATA("No metadata"), APPEND_METADATA("Append a metadata column"), METADATA_ONLY(
-			"Only metadata");
+	NO_METADATA("No metadata"), APPEND_METADATA("Append a metadata column"), METADATA_ONLY("Only metadata");
 
 	private final String name;
 
