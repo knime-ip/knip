@@ -96,12 +96,12 @@ public class ImgReaderWithoutInputNodeDialog extends AbstractImgReaderNodeDialog
 
 		createNewTab("Additional Options");
 
-		super.buildRemainingGUI();
 		createNewGroup("Keys");
 		addDialogComponent(new DialogComponentBoolean(ImgReaderWithoutInputNodeModel.createCompletePathRowKeyModel(),
 				"Use complete file path as row key"));
 		closeCurrentGroup();
-
+		
+		super.buildRemainingGUI();
 	}
 
 	@Override
