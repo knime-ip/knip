@@ -706,6 +706,13 @@ public class FileChooserPanel extends JPanel {
             m_fileChooser.setFileFilter(m_fileChooser.getAcceptAllFileFilter());
             return;
         }
+        
+		// if a path to a directory was entered, jump to directory
+		File f = new File(text);
+		if (f.exists() && f.isDirectory()) {
+			m_fileChooser.setCurrentDirectory(f);
+			return;
+		}
 
         final File[] dirFiles = m_fileChooser.getCurrentDirectory().listFiles();
         final ArrayList<String> textFiles = new ArrayList<String>();
