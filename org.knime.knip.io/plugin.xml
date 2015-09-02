@@ -17,4 +17,19 @@
               TableCellViewFactory="org.knime.knip.io.view.XMLCellViewFactory">
         </TableCellView>
      </extension>
+     <extension
+           point="org.knime.workbench.repository.registeredFileExtensions">
+        <FileExtensionMapping
+              NodeFactory="org.knime.knip.io.nodes.imgreader2.readfromdialog.ImgReader2NodeFactory">
+           <FileExtension
+                 extension="png">
+           </FileExtension>
+           <FileExtension
+                 extension="jpg">
+           </FileExtension>
+           <FileExtension
+                 extension="tiff">
+           </FileExtension>
+        </FileExtensionMapping>
+     </extension>
 </plugin>

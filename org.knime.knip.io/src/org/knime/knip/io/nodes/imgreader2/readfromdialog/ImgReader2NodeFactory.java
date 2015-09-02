@@ -48,13 +48,14 @@
  */
 package org.knime.knip.io.nodes.imgreader2.readfromdialog;
 
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-
+import org.knime.core.node.ContextAwareNodeFactory;
+import org.knime.core.node.NodeCreationContext;
 import org.knime.core.node.NodeDialogPane;
-import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 import org.knime.knip.base.nodes.view.TableCellViewNodeView;
+
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * The Factory class for the Image Reader.
@@ -63,11 +64,11 @@ import org.knime.knip.base.nodes.view.TableCellViewNodeView;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
- * @author <a href="mailto:danielseebacher@t-online.de">Daniel Seebacher, University of
- *         Konstanz.</a>
+ * @author <a href="mailto:danielseebacher@t-online.de">Daniel Seebacher,
+ *         University of Konstanz.</a>
  */
 public class ImgReader2NodeFactory<T extends NativeType<T> & RealType<T>>
-		extends NodeFactory<ImgReader2NodeModel<T>> {
+		extends ContextAwareNodeFactory<ImgReader2NodeModel<T>> {
 
 	/**
 	 * {@inheritDoc}
@@ -89,8 +90,7 @@ public class ImgReader2NodeFactory<T extends NativeType<T> & RealType<T>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView<ImgReader2NodeModel<T>> createNodeView(final int i,
-			final ImgReader2NodeModel<T> nodeModel) {
+	public NodeView<ImgReader2NodeModel<T>> createNodeView(final int i, final ImgReader2NodeModel<T> nodeModel) {
 		return new TableCellViewNodeView<ImgReader2NodeModel<T>>(nodeModel);
 	}
 
@@ -108,6 +108,11 @@ public class ImgReader2NodeFactory<T extends NativeType<T> & RealType<T>>
 	@Override
 	public boolean hasDialog() {
 		return true;
+	}
+
+	@Override
+	public ImgReader2NodeModel<T> createNodeModel(NodeCreationContext context) {
+		return new ImgReader2NodeModel<T>(context);
 	}
 
 }

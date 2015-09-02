@@ -58,6 +58,7 @@ import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeCreationContext;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
@@ -123,6 +124,12 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 		addSettingsModels(m_files, m_completePathRowKey);
 	}
 
+	public ImgReader2NodeModel(NodeCreationContext context) {
+		super(0, 1);
+		m_files.setStringArrayValue(new String[] { context.getUrl().getPath().toString() });
+		addSettingsModels(m_files, m_completePathRowKey);
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -148,7 +155,7 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 		}
 
 		// create image function
-		ReadImg2Function<T> rifp = createImgTableFunction(exec, inData[0].getRowCount());
+		ReadImg2Function<T> rifp = createImgFunction(exec, m_files.getStringArrayValue().length);
 
 		// boolean for exceptions and file format
 		final AtomicBoolean encounteredExceptions = new AtomicBoolean(false);
@@ -180,7 +187,7 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 			@Override
 			public void runFinal(PortInput[] inputs, PortOutput[] outputs, ExecutionContext exec) throws Exception {
 
-				ReadImg2Function<T> rifp = createImgTableFunction(exec, m_files.getStringArrayValue().length);
+				ReadImg2Function<T> rifp = createImgFunction(exec, m_files.getStringArrayValue().length);
 
 				RowOutput out = (RowOutput) outputs[0];
 				Stream.of(m_files.getStringArrayValue()).flatMap(rifp).forEachOrdered(result -> {
@@ -235,7 +242,7 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 		return new DataTableSpec(cspecs);
 	}
 
-	private ReadImg2Function<T> createImgTableFunction(ExecutionContext exec, int rowCount) {
+	private ReadImg2Function<T> createImgFunction(ExecutionContext exec, int rowCount) {
 
 		MetadataMode metadataMode = EnumUtils.valueForName(m_metadataModeModel.getStringValue(), MetadataMode.values());
 		boolean readImage = (metadataMode == MetadataMode.NO_METADATA || metadataMode == MetadataMode.APPEND_METADATA)
