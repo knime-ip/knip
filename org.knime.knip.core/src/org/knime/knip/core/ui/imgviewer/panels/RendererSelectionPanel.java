@@ -49,17 +49,14 @@
 package org.knime.knip.core.ui.imgviewer.panels;
 
 import java.awt.BorderLayout;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import javax.swing.JList;
+import javax.swing.JComboBox;
 import javax.swing.JScrollPane;
-import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-
-import net.imglib2.type.Type;
 
 import org.knime.knip.core.awt.ImageRenderer;
 import org.knime.knip.core.awt.RendererFactory;
@@ -70,6 +67,8 @@ import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.IntervalWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.RendererSelectionChgEvent;
+
+import net.imglib2.type.Type;
 
 /**
  * Allows the user to select a certain renderer.
@@ -84,7 +83,7 @@ public class RendererSelectionPanel<T extends Type<T>> extends ViewerComponent {
 
     private static final long serialVersionUID = 1L;
 
-    private JList m_rendList;
+    private JComboBox m_rendList;
 
     private EventService m_eventService;
 
@@ -98,24 +97,41 @@ public class RendererSelectionPanel<T extends Type<T>> extends ViewerComponent {
 
         setLayout(new BorderLayout());
 
-        m_rendList = new JList();
-        m_rendList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        m_rendList = new JComboBox();
+        //m_rendList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        m_rendList.setSelectedIndex(0);
 
-        m_rendList.addListSelectionListener(new ListSelectionListener() {
+
+//        m_rendList.addaddSelectionListener(new ListSelectionListener() {
+//
+//            @Override
+//            public void valueChanged(final ListSelectionEvent e) {
+//                if (e.getValueIsAdjusting() || m_blockEvent) {
+//                    return;
+//                } else {
+//                    m_eventService.publish(new RendererSelectionChgEvent((ImageRenderer)m_rendList.getSelectedValue()));
+//                    m_eventService.publish(new ImgRedrawEvent());
+//                }
+//
+//            }
+//        });
+
+
+        m_rendList.addItemListener(new ItemListener() {
 
             @Override
-            public void valueChanged(final ListSelectionEvent e) {
-                if (e.getValueIsAdjusting() || m_blockEvent) {
-                    return;
-                } else {
-                    m_eventService.publish(new RendererSelectionChgEvent((ImageRenderer)m_rendList.getSelectedValue()));
-                    m_eventService.publish(new ImgRedrawEvent());
-                }
+            public void itemStateChanged(final ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.DESELECTED || m_blockEvent) {
+                  return;
+              } else {
+                  m_eventService.publish(new RendererSelectionChgEvent((ImageRenderer)m_rendList.getSelectedItem()));
+                  m_eventService.publish(new ImgRedrawEvent());
+              }
 
             }
         });
+
+   //     m_rendList.setSelectedIndex(0);
 
         add(new JScrollPane(m_rendList), BorderLayout.CENTER);
 //        setPreferredSize(new Dimension(getPreferredSize().width, 200));
@@ -137,7 +153,11 @@ public class RendererSelectionPanel<T extends Type<T>> extends ViewerComponent {
         final ImageRenderer<T>[] tmp = RendererFactory.createSuitableRenderer(e.getRandomAccessibleInterval());
 
         m_blockEvent = true;
-        m_rendList.setListData(tmp);
+        m_rendList.removeAllItems();
+        for(ImageRenderer<T> rend : tmp)
+        {
+            m_rendList.addItem(rend);
+        }
         m_rendList.repaint();
         m_blockEvent = false;
 
@@ -149,7 +169,11 @@ public class RendererSelectionPanel<T extends Type<T>> extends ViewerComponent {
                 RendererFactory.createSuitableRenderer(e.getRandomAccessibleInterval(), e.getImgMetaData());
 
         m_blockEvent = true;
-        m_rendList.setListData(tmp);
+        m_rendList.removeAllItems();
+        for(ImageRenderer<T> rend : tmp)
+        {
+            m_rendList.addItem(rend);
+        }
         m_rendList.repaint();
         m_blockEvent = false;
     }

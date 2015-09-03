@@ -21,26 +21,18 @@ public class PlainCellView extends AbstractCellView {
 
         m_cellView = cellView;
         m_verticalSplit.setTopComponent(m_cellView);
+        m_cellView.getEventService().subscribe(this);
 
-        m_cellView.getBottomQuickViewButton().addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                setTableViewVisible(!isTableViewVisible(TableDir.BOTTOM), TableDir.BOTTOM);
-
-            }
-        });
-
-        m_cellView.getLeftQuickViewButton().addActionListener(new ActionListener() {
+        ActionListener viewListener = new ActionListener() {
 
             @Override
             public void actionPerformed(final ActionEvent e) {
-                setTableViewVisible(!isTableViewVisible(TableDir.LEFT), TableDir.LEFT);
+                setTableViewVisible(!isTableViewVisible());
 
             }
-        });
+        };
 
-
+        m_cellView.getBottomQuickViewButton().addActionListener(viewListener);
 
     }
 
@@ -51,5 +43,7 @@ public class PlainCellView extends AbstractCellView {
     public void broadcastEvent(final KNIPEvent e) {
         m_cellView.getEventService().publish(e);
     }
+
+
 
 }

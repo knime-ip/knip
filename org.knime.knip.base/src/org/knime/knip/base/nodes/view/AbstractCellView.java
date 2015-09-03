@@ -50,25 +50,28 @@
 package org.knime.knip.base.nodes.view;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Rectangle;
 
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
 import org.knime.core.node.tableview.TableView;
+import org.knime.knip.core.ui.event.EventListener;
+import org.knime.knip.core.ui.event.EventService;
+import org.knime.knip.core.ui.event.EventServiceClient;
 import org.knime.knip.core.ui.event.KNIPEvent;
+import org.knime.knip.core.ui.imgviewer.ImgViewer;
+import org.knime.knip.core.ui.imgviewer.panels.ViewerControlEvent;
+import org.knime.knip.core.ui.imgviewer.panels.ViewerScrollEvent;
+import org.knime.knip.core.ui.imgviewer.panels.ViewerToggleEvent;
 
 /**
  *
  * @author pop210958
  */
-public abstract class AbstractCellView extends JPanel {
-
-    public static enum TableDir {
-        BOTTOM, LEFT
-    }
+public abstract class AbstractCellView extends JPanel implements EventServiceClient {
 
     protected JPanel m_tablePanel;
 
@@ -80,14 +83,13 @@ public abstract class AbstractCellView extends JPanel {
 
     protected JSplitPane m_verticalSplit;
 
-    protected JSplitPane m_horizontalSplit;
+    protected EventService m_eventService;
 
     public AbstractCellView(final TableView tableView) {
 
         m_tableView = tableView;
 
         m_verticalSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        m_horizontalSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -100,12 +102,9 @@ public abstract class AbstractCellView extends JPanel {
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.fill = GridBagConstraints.BOTH;
 
-
-        m_horizontalSplit.setRightComponent(m_verticalSplit);
-
         m_tablePanel = new JPanel(new BorderLayout());
 
-        add(m_horizontalSplit, gbc);
+        add(m_verticalSplit, gbc);
 
     }
 
@@ -115,58 +114,31 @@ public abstract class AbstractCellView extends JPanel {
      * @param isVisible - boolean specifying the desired visibility state
      * @param d The location of the table whose visibility will be set
      */
-    public void setTableViewVisible(final boolean isVisible, final TableDir d) {
+    public void setTableViewVisible(final boolean isVisible) {
         m_tablePanel.add(m_tableView);
-        if (d == TableDir.BOTTOM) {
-            if (isVisible) {
-                closeTableView(TableDir.LEFT);
-                m_isLeftVisible = !isVisible;
-                showTableView(d);
-            } else {
-                closeTableView(d);
-            }
-            m_isBottomVisible = isVisible;
+        if (isVisible) {
+            m_isLeftVisible = !isVisible;
+            showTableView();
         } else {
-
-            if (isVisible) {
-                closeTableView(TableDir.BOTTOM);
-                m_isBottomVisible = !isVisible;
-                showTableView(d);
-            } else {
-                closeTableView(d);
-            }
-            m_isLeftVisible = isVisible;
+            closeTableView();
         }
+        m_isBottomVisible = isVisible;
+
         validate();
     }
 
-    private void closeTableView(final TableDir d) {
-        if (d == TableDir.BOTTOM) {
-            if (m_isBottomVisible) {
-                m_verticalSplit.remove(2);
-            }
-        } else {
-            if (m_isLeftVisible) {
-                m_horizontalSplit.remove(2);
-            }
+    private void closeTableView() {
+
+        if (m_isBottomVisible) {
+            m_verticalSplit.remove(2);
         }
+
     }
 
-    private void showTableView(final TableDir d) {
-
-        if (d == TableDir.BOTTOM) {
-
-            m_verticalSplit.setBottomComponent(m_tablePanel);
-            m_verticalSplit.setDividerLocation(this.getHeight()
-                    - (m_tableView.getColumnHeaderViewHeight() + m_tableView.getRowHeight() + m_verticalSplit
-                            .getDividerSize()));
-
-        } else {
-
-            m_horizontalSplit.setLeftComponent(m_tablePanel);
-            m_horizontalSplit.setDividerLocation(m_tableView.getRowHeader().getWidth() + m_tableView.getColumnWidth()
-                    + m_verticalSplit.getDividerSize());
-        }
+    private void showTableView() {
+        m_verticalSplit.setBottomComponent(m_tablePanel);
+        m_verticalSplit.setDividerLocation(this.getHeight() - (m_tableView.getColumnHeaderViewHeight()
+                + m_tableView.getRowHeight() + m_verticalSplit.getDividerSize() + 4));
     }
 
     /**
@@ -175,37 +147,54 @@ public abstract class AbstractCellView extends JPanel {
      * @param isVisible - boolean specifying the desired visibility state
      * @param d The location of the table whose visibility will be set
      */
-    public void hideTableViews() {
-        closeTableView(TableDir.LEFT);
-        closeTableView(TableDir.BOTTOM);
+    public void hideTableView() {
+        closeTableView();
         m_isBottomVisible = false;
-        m_isLeftVisible = false;
 
         validate();
     }
 
-    public void scrollTablesToIndex(final int i, final int j){
-        m_tableView.getContentTable().scrollRectToVisible(new Rectangle(m_tableView.getContentTable().getCellRect(i, j, true)));
+    public void scrollTablesToIndex(final int i, final int j) {
         m_tableView.getContentTable().changeSelection(i, j, false, false);
 
     }
 
     public boolean isTableViewVisible() {
-        return m_isLeftVisible || m_isBottomVisible;
-    }
-
-    /**
-     * @param d The direction of the table whose visibility shall be checked
-     * @return whether the TableView is currently visible or not
-     */
-    public boolean isTableViewVisible(final TableDir d) {
-        if (d == TableDir.LEFT) {
-            return m_isLeftVisible;
-        } else {
-            return m_isBottomVisible;
-        }
+        return m_isBottomVisible;
     }
 
     public abstract void broadcastEvent(final KNIPEvent e);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setEventService(final EventService eventService) {
+        m_eventService = eventService;
+
+    }
+
+    public void subscribeTo(final Component c) {
+        if (c instanceof ImgViewer) {
+            ((ImgViewer)c).getEventService().subscribe(this);
+        }
+    }
+
+    //TODO: Inheritance
+
+    @EventListener
+    public void onViewerImgChange(final ViewerScrollEvent e) {
+        m_eventService.publish(new ViewerScrollEvent(e));
+    }
+
+    @EventListener
+    public void onViewerOverviewToggle(final ViewerControlEvent e) {
+        m_eventService.publish(e);
+    }
+
+    @EventListener
+    public void onViewerQuickviewToggle(final ViewerToggleEvent e){
+        setTableViewVisible(!isTableViewVisible());
+    }
 
 }

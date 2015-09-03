@@ -49,9 +49,7 @@
 package org.knime.knip.base.nodes.view;
 
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.math.BigInteger;
@@ -80,12 +78,17 @@ import org.knime.core.node.tableview.TableContentView;
 import org.knime.core.node.tableview.TableView;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.labeling.LabelingCell;
-import org.knime.knip.base.nodes.view.AbstractCellView.TableDir;
+import org.knime.knip.core.ui.event.EventListener;
+import org.knime.knip.core.ui.event.EventService;
+import org.knime.knip.core.ui.event.EventServiceClient;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
+import org.knime.knip.core.ui.imgviewer.MissingImgViewer;
 import org.knime.knip.core.ui.imgviewer.ViewerComponent;
-import org.knime.knip.core.ui.imgviewer.events.TablePositionEvent;
 import org.knime.knip.core.ui.imgviewer.panels.ControlPanel;
 import org.knime.knip.core.ui.imgviewer.panels.ImageToolTipButton;
+import org.knime.knip.core.ui.imgviewer.panels.ViewerControlEvent;
+import org.knime.knip.core.ui.imgviewer.panels.ViewerScrollEvent;
+import org.knime.knip.core.ui.imgviewer.panels.ViewerScrollEvent.Direction;
 import org.knime.knip.core.util.waitingindicator.WaitingIndicatorUtils;
 import org.knime.node.v210.ViewDocument.View;
 import org.knime.node.v210.ViewsDocument.Views;
@@ -150,7 +153,8 @@ import org.knime.node.v210.ViewsDocument.Views;
  *
  * @param <T> {@link NodeModel} subclass this {@link TableCellViewNodeView} belongs to.
  */
-public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder> extends NodeView<T> {
+public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder> extends NodeView<T>
+        implements EventServiceClient {
 
     private static final NodeLogger LOGGER = NodeLogger.getLogger(TableCellViewNodeView.class);
 
@@ -235,6 +239,8 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     protected final int m_portIdx;
 
+    protected boolean m_adjusting;
+
     // private static final ExecutorService UPDATE_EXECUTOR = Executors
     // .newCachedThreadPool(new ThreadFactory() {
     // private final AtomicInteger m_counter = new AtomicInteger();
@@ -264,6 +270,8 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     protected boolean m_hiliteAdded = false;
 
+    protected final EventService m_eventService;
+
     public TableCellViewNodeView(final T nodeModel) {
         this(nodeModel, 0);
     }
@@ -274,6 +282,8 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
     public TableCellViewNodeView(final T nodeModel, final int portIdx) {
         super(nodeModel);
         m_portIdx = portIdx;
+        m_eventService = new EventService();
+        m_eventService.subscribe(this);
         final JLabel load = new JLabel("Loading port content ...");
         load.setPreferredSize(new Dimension(500, 500));
         setComponent(load);
@@ -284,6 +294,10 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
      * called if the selected cell changes
      */
     private void cellSelectionChanged() {
+
+        if (m_adjusting) {
+            return;
+        }
 
         final int row = m_tableContentView.getSelectionModel().getLeadSelectionIndex();
         final int col = m_tableContentView.getColumnModel().getSelectionModel().getLeadSelectionIndex();
@@ -334,16 +348,26 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
             // if no cell view exists for the selected cell
             if (cellView.size() == 0) {
                 m_currentCell = null;
-                m_cellView.addTab("Viewer", new JLabel("This cell type doesn't provide a Table Cell Viewer!"));
+                ImgViewer miv =  new MissingImgViewer();
+                m_cellView.addTab("Missing Value",miv);
+                m_cellView.subscribeTo(miv);
+
+                m_cellView.setSelectedIndex(Math.max(0, Math.min(selection, m_cellView.getTabCount() - 1)));
+                m_adjusting = true;
+                m_cellView.scrollTablesToIndex(row, col);
+                m_adjusting = false;
+
                 return;
             }
             m_cellViews.put(currentDataCellClass, cellView);
+
             for (final TableCellView v : cellView) {
-                // Link all the listeners to the correct buttons
-                registerButtons(v);
+
                 // cache the view component
                 final Component comp = v.getViewComponent();
+                m_cellView.subscribeTo(comp);
                 m_viewComponents.put(currentDataCellClass + ":" + v.getName(), comp);
+
 
             }
         }
@@ -352,106 +376,21 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         for (final TableCellView v : cellView) {
             try {
                 m_cellView.addTab(v.getName(), m_viewComponents.get(currentDataCellClass + ":" + v.getName()));
-                updateToolTips(row, col, v);
-                m_cellView.broadcastEvent(new TablePositionEvent(m_tableModel.getColumnCount(),
-                        m_tableModel.getRowCount(), col, row));
+              //  updateToolTips(row, col, v);
             } catch (final Exception ex) {
                 LOGGER.error("Could not add Tab " + v.getName(), ex);
             }
         }
 
         m_cellView.setSelectedIndex(Math.max(0, Math.min(selection, m_cellView.getTabCount() - 1)));
+        m_adjusting = true;
         m_cellView.scrollTablesToIndex(row, col);
+        m_adjusting = false;
         if (getComponent() != m_cellView) {
             setComponent(m_cellView);
             m_tableContentView.clearSelection();
         }
 
-    }
-
-    /**
-     * This method is used to set up the listeners of all the buttons used in the TableCellView.
-     *
-     * @param v The TableCellView to set up.
-     */
-    private void registerButtons(final TableCellView v) {
-
-        if (v.getViewComponent() instanceof ImgViewer) {
-            // Get the buttons
-            ImgViewer vc = (ImgViewer)v.getViewComponent();
-            ViewerComponent[] ctrls = vc.getControls();
-
-            // Create and add the anonymous listeners pointing to the correct fields
-            for (int i = 0; i < 4; ++i) {
-                ImageToolTipButton b = (ImageToolTipButton)((ControlPanel)ctrls[i]).getButton();
-                if (i == 0) {
-                    b.addActionListener(new ActionListener() {
-
-                        @Override
-                        public void actionPerformed(final ActionEvent arg0) {
-                            int r = m_row + 1;
-                            cellSelectionChanged(r, m_col);
-
-                        }
-
-                    });
-                }
-                if (i == 1) {
-                    b.addActionListener(new ActionListener() {
-
-                        @Override
-                        public void actionPerformed(final ActionEvent arg0) {
-                            int c = m_col - 1;
-                            if (!cellExists(m_row, c)) {
-                                if (cellExists(m_row - 1, m_tableModel.getColumnCount() - 1)) {
-                                    cellSelectionChanged(m_row - 1, m_tableModel.getColumnCount() - 1);
-                                }
-                            } else {
-                                cellSelectionChanged(m_row, c);
-                            }
-                        }
-
-                    });
-
-                }
-                if (i == 2) {
-                    b.addActionListener(new ActionListener() {
-
-                        @Override
-                        public void actionPerformed(final ActionEvent arg0) {
-                            int c = m_col + 1;
-                            if (!cellExists(m_row, c)) {
-                                if (cellExists(m_row + 1, 0)) {
-                                    cellSelectionChanged(m_row + 1, 0);
-                                }
-                            } else {
-                                cellSelectionChanged(m_row, c);
-                            }
-                        }
-
-                    });
-                }
-                if (i == 3)
-
-                {
-                    b.addActionListener(new ActionListener() {
-
-                        @Override
-                        public void actionPerformed(final ActionEvent arg0) {
-                            int r = m_row - 1;
-                            cellSelectionChanged(r, m_col);
-
-                        }
-
-                    });
-                }
-
-            }
-            // Link the quickview and the return button to the prepared listeners.
-            vc.getBottomQuickViewButton().addActionListener(m_bottomQuickViewListener);
-            vc.getLeftQuickViewButton().addActionListener(m_leftQuickViewListener);
-            vc.getOverViewButton().addActionListener(m_OverviewListener);
-        }
     }
 
     private boolean isLabeling(final DataCell d) {
@@ -570,25 +509,13 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
         // Initialize CellView
         m_cellView = new TabbedCellView(m_tableView);
+        m_cellView.setEventService(m_eventService);
 
         m_cellView.addTabChangeListener(m_changeListener);
 
         //        Temporarily add loadpanel as component, so that the ui stays responsive.
         setComponent(loadpanel);
 
-    }
-
-    protected Frame getFrame() {
-        Frame f = null;
-        Container c = getComponent().getParent();
-        while (c != null) {
-            if (c instanceof Frame) {
-                f = (Frame)c;
-                break;
-            }
-            c = c.getParent();
-        }
-        return f;
     }
 
     /**
@@ -642,16 +569,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
             @Override
             public void actionPerformed(final ActionEvent e) {
-                m_cellView.setTableViewVisible(!m_cellView.isTableViewVisible(TableDir.BOTTOM), TableDir.BOTTOM);
-
-            }
-        };
-
-        m_leftQuickViewListener = new ActionListener() {
-
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                m_cellView.setTableViewVisible(!m_cellView.isTableViewVisible(TableDir.LEFT), TableDir.LEFT);
+                m_cellView.setTableViewVisible(!m_cellView.isTableViewVisible());
 
             }
         };
@@ -660,15 +578,6 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
             @Override
             public void actionPerformed(final ActionEvent e) {
-                if (getComponent() == m_cellView) {
-                    if (m_cellView.isTableViewVisible()) {
-                        m_cellView.hideTableViews();
-                    }
-                    m_tableContentView.clearSelection();
-                    setComponent(m_tableView);
-                } else {
-                    // Should not happen.
-                }
 
             }
         };
@@ -760,14 +669,48 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
         TableCellView cv =
                 m_cellViews.get(m_currentCell.getClass().getCanonicalName()).get(m_cellView.getSelectedIndex());
-        if (cv.getViewComponent() instanceof ImgViewer) {
-            ImgViewer v = ((ImgViewer)cv.getViewComponent());
-            v.getLeftQuickViewButton().setSelected(m_cellView.isTableViewVisible(TableDir.LEFT));
-            v.getBottomQuickViewButton().setSelected(m_cellView.isTableViewVisible(TableDir.BOTTOM));
-        }
         cv.updateComponent(m_currentCell);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setEventService(final EventService eventService) {
 
     }
+
+    @EventListener
+    public void onViewerImgChanged(final ViewerScrollEvent e) {
+
+        if (e.getDirection() == Direction.NORTH) {
+            cellSelectionChanged(m_row - 1, m_col);
+        }
+        if (e.getDirection() == Direction.EAST) {
+            cellSelectionChanged(m_row, m_col + 1);
+        }
+        if (e.getDirection() == Direction.WEST) {
+            cellSelectionChanged(m_row, m_col - 1);
+        }
+        if (e.getDirection() == Direction.SOUTH) {
+            cellSelectionChanged(m_row + 1, m_col);
+        }
+
+    }
+
+    @EventListener
+    public void onOverviewToggle(final ViewerControlEvent e) {
+        if (getComponent() == m_cellView) {
+            if (m_cellView.isTableViewVisible()) {
+                m_cellView.hideTableView();
+            }
+            m_tableContentView.clearSelection();
+            setComponent(m_tableView);
+        }
+
+    }
+
+
 }
 
 //}

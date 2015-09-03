@@ -61,12 +61,12 @@ import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.data.DataCell;
 import org.knime.core.data.renderer.AbstractPainterDataValueRenderer;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
+
+import net.imglib2.type.numeric.RealType;
 
 /**
  *
@@ -156,13 +156,14 @@ public class ThumbnailRenderer<T extends RealType<T>> extends AbstractPainterDat
     public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus,
                                                    final int row, final int column) {
         Component result =  super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-        JPanel test = new JPanel();
-        test.setLayout(new GridLayout(0,1));
-        test.add(result);
+        JPanel cellPanel = new JPanel();
+        cellPanel.setLayout(new GridLayout(0,1));
+        cellPanel.add(result);
         if(isSelected) {
-            test.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 3));
+
+            cellPanel.setBorder(BorderFactory.createLineBorder(Color.blue));
         }
-        return test;
+        return cellPanel;
     }
 
     /**

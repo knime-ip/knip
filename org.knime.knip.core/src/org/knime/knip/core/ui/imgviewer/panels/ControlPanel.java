@@ -49,6 +49,8 @@
 package org.knime.knip.core.ui.imgviewer.panels;
 
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -60,6 +62,7 @@ import javax.swing.plaf.basic.BasicArrowButton;
 
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.ViewerComponent;
+import org.knime.knip.core.ui.imgviewer.panels.ViewerScrollEvent.Direction;
 
 /**
  * This class represents a panel with an ArrowButton to click.
@@ -72,6 +75,8 @@ public class ControlPanel extends ViewerComponent {
 
     private final BasicArrowButton m_button;
 
+    private EventService m_eventService;
+
     /**
      * Create a new ControlPanel. The position given determines the arrow direction.
      *
@@ -80,21 +85,61 @@ public class ControlPanel extends ViewerComponent {
     public ControlPanel(final Position pos) {
         super("", false);
 
+        //TODO: Move back to img viewer.
+        //TODO: Keep tooltip?
+
         m_Position = pos;
         m_button = new ImageToolTipButton(SwingConstants.SOUTH);
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
         if (pos == Position.WEST) {
             m_button.setDirection(SwingConstants.WEST);
+            m_button.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(final ActionEvent e) {
+                    m_eventService.publish(new ViewerScrollEvent(Direction.WEST));
+
+                }
+
+            });
         } else if (pos == Position.EAST) {
             m_button.setDirection(SwingConstants.EAST);
+            m_button.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(final ActionEvent e) {
+                    m_eventService.publish(new ViewerScrollEvent(Direction.EAST));
+
+                }
+
+            });
         } else if (pos == Position.NORTH) {
             m_button.setDirection(SwingConstants.NORTH);
+            m_button.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(final ActionEvent e) {
+                    m_eventService.publish(new ViewerScrollEvent(Direction.NORTH));
+
+                }
+
+            });
         } else if (pos == Position.SOUTH) {
             m_button.setDirection(SwingConstants.SOUTH);
+            m_button.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(final ActionEvent e) {
+                    m_eventService.publish(new ViewerScrollEvent(Direction.SOUTH));
+
+                }
+
+            });
 
         }
         add(m_button);
+
         setPreferredSize(new Dimension(20, 20));
         setMinimumSize(getPreferredSize());
 
@@ -105,7 +150,9 @@ public class ControlPanel extends ViewerComponent {
         return m_Position;
     }
 
-    /** Method used to get the underlying JButton
+    /**
+     * Method used to get the underlying JButton
+     *
      * @return The button displayed in this component.
      */
     public JButton getButton() {
@@ -117,6 +164,7 @@ public class ControlPanel extends ViewerComponent {
      */
     @Override
     public void setEventService(final EventService eventService) {
+        m_eventService = eventService;
         eventService.subscribe(this);
 
     }
