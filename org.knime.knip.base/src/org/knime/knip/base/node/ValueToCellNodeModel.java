@@ -90,11 +90,9 @@ import org.knime.core.node.port.PortType;
 import org.knime.core.node.streamable.InputPortRole;
 import org.knime.core.node.streamable.OutputPortRole;
 import org.knime.core.node.streamable.PartitionInfo;
-import org.knime.core.node.streamable.PortInput;
-import org.knime.core.node.streamable.PortOutput;
-import org.knime.core.node.streamable.RowInput;
-import org.knime.core.node.streamable.RowOutput;
+import org.knime.core.node.streamable.StreamableFunction;
 import org.knime.core.node.streamable.StreamableOperator;
+import org.knime.core.node.streamable.StreamableOperatorInternals;
 import org.knime.knip.base.KNIPConstants;
 import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.exceptions.KNIPRuntimeException;
@@ -113,8 +111,8 @@ import org.knime.knip.core.ThreadPoolExecutorService;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends DataCell> extends NodeModel implements
-        BufferedDataTableHolder {
+public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends DataCell> extends NodeModel
+        implements BufferedDataTableHolder {
 
     /**
      * column creation modes
@@ -301,7 +299,8 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
     protected abstract COUT compute(VIN cellValue) throws Exception;
 
     /**
-     * Will be called if a new row is about to be processed. Can be overwritten optionally. It is called before compute();
+     * Will be called if a new row is about to be processed. Can be overwritten optionally. It is called before
+     * compute();
      *
      * @param row
      */
@@ -423,9 +422,8 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
     }
 
     @Override
-    public StreamableOperator
-            createStreamableOperator(final PartitionInfo partitionInfo, final PortObjectSpec[] inSpecs)
-                    throws InvalidSettingsException {
+    public StreamableOperator createStreamableOperator(final PartitionInfo partitionInfo,
+                                                       final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
 
         final DataTableSpec inSpec = (DataTableSpec)inSpecs[IN_TABLE_PORT_INDEX];
 
@@ -433,35 +431,67 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
         final CellFactory cellFac = createCellFactory(inSpec, selectedColIndices);
 
         if (m_colCreationMode.getStringValue().equals(COL_CREATION_MODES[0])) {
-            return new StreamableOperator() {
-                boolean first = true;
+            return new StreamableFunction() {
+                /**
+                 * {@inheritDoc}
+                 */
+                @Override
+                public void init(final ExecutionContext ctx) throws Exception {
+                    prepareExecute(ctx);
+                }
 
                 @Override
-                public void runFinal(final PortInput[] inputs, final PortOutput[] outputs, final ExecutionContext exec)
-                        throws Exception {
-                    if (first) {
-                        prepareExecute(exec);
-                        first = false;
-                    }
-                    final RowInput input = (RowInput)inputs[IN_TABLE_PORT_INDEX];
-                    final RowOutput output = (RowOutput)outputs[0];
-                    final DataRow row = input.poll();
-                    output.push(new DefaultRow(row.getKey(), cellFac.getCells(row)));
-
+                public DataRow compute(final DataRow input) throws Exception {
+                    return new DefaultRow(input.getKey(), cellFac.getCells(input));
                 }
             };
+
         } else {
 
+            // create column rearranger
             final ColumnRearranger colRearranger = new ColumnRearranger(inSpec);
             if (m_colCreationMode.getStringValue().equals(COL_CREATION_MODES[1])) {
                 colRearranger.append(cellFac);
-                return colRearranger.createStreamableFunction();
-
             } else {
                 colRearranger.replace(cellFac, selectedColIndices);
-                return colRearranger.createStreamableFunction();
             }
 
+            // get column rearranger function
+            StreamableFunction columnRearrangerFunction = colRearranger.createStreamableFunction();
+
+            // create new streamablefunction, do everything columnrearranger function does but call prepareexceute in init().
+            return new StreamableFunction() {
+
+                /** {@inheritDoc} */
+                @Override
+                public void init(final ExecutionContext ctx) throws Exception {
+                    prepareExecute(ctx);
+                    columnRearrangerFunction.init(ctx);
+                }
+
+                /** {@inheritDoc} */
+                @Override
+                public DataRow compute(final DataRow inputRow) {
+                    try {
+                        return columnRearrangerFunction.compute(inputRow);
+                    } catch (Exception e) {
+                        throw new IllegalArgumentException("Exception caught while reading row " + inputRow.getKey()
+                                + "! Caught exception " + e.getMessage());
+                    }
+                }
+
+                /** {@inheritDoc} */
+                @Override
+                public void finish() {
+                    columnRearrangerFunction.finish();
+                }
+
+                /** {@inheritDoc} */
+                @Override
+                public StreamableOperatorInternals saveInternals() {
+                    return columnRearrangerFunction.saveInternals();
+                }
+            };
         }
     }
 
@@ -633,8 +663,8 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
      * {@inheritDoc}
      */
     @Override
-    protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
+    protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec)
+            throws IOException, CanceledExecutionException {
         //
     }
 
@@ -677,8 +707,8 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
      * {@inheritDoc}
      */
     @Override
-    protected void saveInternals(final File nodeInternDir, final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
+    protected void saveInternals(final File nodeInternDir, final ExecutionMonitor exec)
+            throws IOException, CanceledExecutionException {
         //
     }
 
@@ -734,5 +764,4 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
         }
 
     }
-
 }
