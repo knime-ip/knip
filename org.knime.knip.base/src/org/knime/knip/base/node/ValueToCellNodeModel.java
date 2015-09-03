@@ -434,10 +434,15 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
 
         if (m_colCreationMode.getStringValue().equals(COL_CREATION_MODES[0])) {
             return new StreamableOperator() {
+                boolean first = true;
 
                 @Override
                 public void runFinal(final PortInput[] inputs, final PortOutput[] outputs, final ExecutionContext exec)
                         throws Exception {
+                    if (first) {
+                        prepareExecute(exec);
+                        first = false;
+                    }
                     final RowInput input = (RowInput)inputs[IN_TABLE_PORT_INDEX];
                     final RowOutput output = (RowOutput)outputs[0];
                     final DataRow row = input.poll();

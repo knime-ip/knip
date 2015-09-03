@@ -51,7 +51,6 @@ package org.knime.knip.base.node;
 
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeLogger;
@@ -223,7 +222,6 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
      */
     @Override
     protected PortObject[] execute(final PortObject[] inObjects, final ExecutionContext exec) throws Exception {
-        m_optionalColIdx = getOptionalColumnIdx(((BufferedDataTable)inObjects[0]).getDataTableSpec());
         return super.execute(inObjects, exec);
     }
 
@@ -248,6 +246,8 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
             }
             m_fillNonROIPixels.setEnabled(true);
         }
+
+        m_optionalColIdx = getOptionalColumnIdx((DataTableSpec)inSpecs[0]);
 
         return super.configure(inSpecs);
     }
