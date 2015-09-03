@@ -83,6 +83,12 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
+import org.knime.core.node.streamable.InputPortRole;
+import org.knime.core.node.streamable.OutputPortRole;
+import org.knime.core.node.streamable.PartitionInfo;
+import org.knime.core.node.streamable.StreamableFunction;
+import org.knime.core.node.streamable.StreamableOperator;
+import org.knime.core.node.streamable.StreamableOperatorInternals;
 import org.knime.core.util.Pair;
 import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.exceptions.KNIPRuntimeException;
@@ -97,7 +103,8 @@ import org.knime.knip.base.exceptions.LoggerHelper;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public abstract class ValueToCellsNodeModel<VIN extends DataValue> extends NodeModel implements BufferedDataTableHolder {
+public abstract class ValueToCellsNodeModel<VIN extends DataValue> extends NodeModel
+        implements BufferedDataTableHolder {
 
     /**
      * column creation modes
@@ -424,8 +431,8 @@ public abstract class ValueToCellsNodeModel<VIN extends DataValue> extends NodeM
      * {@inheritDoc}
      */
     @Override
-    protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
+    protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec)
+            throws IOException, CanceledExecutionException {
         //
     }
 
@@ -463,8 +470,8 @@ public abstract class ValueToCellsNodeModel<VIN extends DataValue> extends NodeM
      * {@inheritDoc}
      */
     @Override
-    protected void saveInternals(final File nodeInternDir, final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
+    protected void saveInternals(final File nodeInternDir, final ExecutionMonitor exec)
+            throws IOException, CanceledExecutionException {
         //
     }
 
@@ -507,7 +514,88 @@ public abstract class ValueToCellsNodeModel<VIN extends DataValue> extends NodeM
                 setWarningMessage("Problems occurred while validating settings.");
             }
         }
-
     }
 
+    /*
+     *  STREAMING
+     */
+    @Override
+    public InputPortRole[] getInputPortRoles() {
+        return new InputPortRole[]{InputPortRole.DISTRIBUTED_STREAMABLE};
+    }
+
+    @Override
+    public OutputPortRole[] getOutputPortRoles() {
+        return new OutputPortRole[]{OutputPortRole.DISTRIBUTED};
+    }
+
+    @Override
+    public StreamableOperator createStreamableOperator(final PartitionInfo partitionInfo,
+                                                       final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
+
+        final DataTableSpec inSpec = (DataTableSpec)inSpecs[IN_TABLE_PORT_INDEX];
+
+        final int colIndex = NodeUtils.getColumnIndex(m_column, inSpec, m_inValueClass, this.getClass());
+
+        final CellFactory cellFac = createCellFactory(colIndex);
+
+        if (m_colCreationMode.getStringValue().equals(COL_CREATION_MODES[0])) {
+            return new StreamableFunction() {
+                /**
+                 * {@inheritDoc}
+                 */
+                @Override
+                public void init(final ExecutionContext ctx) throws Exception {
+                    prepareExecute(ctx);
+                }
+
+                @Override
+                public DataRow compute(final DataRow input) throws Exception {
+                    return new DefaultRow(input.getKey(), cellFac.getCells(input));
+                }
+            };
+        }
+
+        // create column rearranger
+        final ColumnRearranger colRearranger = new ColumnRearranger(inSpec);
+        if (m_colCreationMode.getStringValue().equals(COL_CREATION_MODES[1])) {
+            colRearranger.append(cellFac);
+        }
+        // get column rearranger function
+        StreamableFunction columnRearrangerFunction = colRearranger.createStreamableFunction();
+
+        // create new streamablefunction, do everything columnrearranger function does but call prepareexceute in init().
+        return new StreamableFunction() {
+
+            /** {@inheritDoc} */
+            @Override
+            public void init(final ExecutionContext ctx) throws Exception {
+                prepareExecute(ctx);
+                columnRearrangerFunction.init(ctx);
+            }
+
+            /** {@inheritDoc} */
+            @Override
+            public DataRow compute(final DataRow inputRow) {
+                try {
+                    return columnRearrangerFunction.compute(inputRow);
+                } catch (Exception e) {
+                    throw new IllegalArgumentException("Exception caught while reading row " + inputRow.getKey()
+                            + "! Caught exception " + e.getMessage());
+                }
+            }
+
+            /** {@inheritDoc} */
+            @Override
+            public void finish() {
+                columnRearrangerFunction.finish();
+            }
+
+            /** {@inheritDoc} */
+            @Override
+            public StreamableOperatorInternals saveInternals() {
+                return columnRearrangerFunction.saveInternals();
+            }
+        };
+    }
 }

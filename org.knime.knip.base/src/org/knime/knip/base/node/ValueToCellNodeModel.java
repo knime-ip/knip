@@ -562,11 +562,6 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
         return m_executor;
     }
 
-    @Override
-    public InputPortRole[] getInputPortRoles() {
-        return new InputPortRole[]{InputPortRole.DISTRIBUTED_STREAMABLE};
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -582,6 +577,11 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
      */
     protected DataType getOutDataCellListCellType() {
         return null;
+    }
+
+    @Override
+    public InputPortRole[] getInputPortRoles() {
+        return new InputPortRole[]{InputPortRole.DISTRIBUTED_STREAMABLE};
     }
 
     @Override

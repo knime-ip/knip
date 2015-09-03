@@ -86,6 +86,12 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
+import org.knime.core.node.streamable.InputPortRole;
+import org.knime.core.node.streamable.OutputPortRole;
+import org.knime.core.node.streamable.PartitionInfo;
+import org.knime.core.node.streamable.StreamableFunction;
+import org.knime.core.node.streamable.StreamableOperator;
+import org.knime.core.node.streamable.StreamableOperatorInternals;
 import org.knime.knip.base.KNIPConstants;
 import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.exceptions.KNIPRuntimeException;
@@ -109,8 +115,8 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
     /**
      * Column creation modes
      */
-    public static final String[] COL_CREATION_MODES = new String[]{"New Table", "Append", "Replace first",
-            "Replace second"};
+    public static final String[] COL_CREATION_MODES =
+            new String[]{"New Table", "Append", "Replace first", "Replace second"};
 
     /*
      * Inport of the table to be processed
@@ -134,14 +140,13 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
         return new SettingsModelString("first_column_selection", "");
     }
 
-    public  static SettingsModelString createSecondColModel() {
+    public static SettingsModelString createSecondColModel() {
         return new SettingsModelString("CFG_SECOND_COLUMN_SELECTION", "");
     }
 
-
     private static PortType[] createPortTypes(final PortType[] additionalPorts) {
-        if( additionalPorts == null ){
-            return new PortType[]{ BufferedDataTable.TYPE };
+        if (additionalPorts == null) {
+            return new PortType[]{BufferedDataTable.TYPE};
         }
         final PortType[] inPTypes = new PortType[additionalPorts.length + 1];
         inPTypes[0] = BufferedDataTable.TYPE;
@@ -284,16 +289,15 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
      */
     protected abstract COUT compute(VIN1 cellValue1, VIN2 cellValue2) throws Exception;
 
-
     /**
-    * Will be called if a new row is about to be processed. Can be overwritten optionally. It is called before compute();
-    *
-    * @param row
-    */
+     * Will be called if a new row is about to be processed. Can be overwritten optionally. It is called before
+     * compute();
+     *
+     * @param row
+     */
     protected void computeDataRow(final DataRow row) {
         //
     }
-
 
     /**
      * {@inheritDoc}
@@ -358,9 +362,8 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
             cs2Name = cs2.getName();
         }
 
-        final DataColumnSpec csRes =
-                new DataColumnSpecCreator((cs1Name != null ? cs1Name : "") + (cs2Name != null ? "_" + cs2Name : "")
-                        + m_colSuffix.getStringValue(), dt).createSpec();
+        final DataColumnSpec csRes = new DataColumnSpecCreator((cs1Name != null ? cs1Name : "")
+                + (cs2Name != null ? "_" + cs2Name : "") + m_colSuffix.getStringValue(), dt).createSpec();
 
         return new CellFactory() {
             @Override
@@ -369,16 +372,16 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
                 DataCell[] cells;
                 try {
 
-                    if ((((firstColumnIdx > -1) && (row.getCell(firstColumnIdx).isMissing())) || ((secondColumnIdx > -1) && row
-                            .getCell(secondColumnIdx).isMissing()))) {
+                    if ((((firstColumnIdx > -1) && (row.getCell(firstColumnIdx).isMissing()))
+                            || ((secondColumnIdx > -1) && row.getCell(secondColumnIdx).isMissing()))) {
                         LOGGER.warn("Missing cell was ignored at row " + row.getKey());
                         cells = new DataCell[]{DataType.getMissingCell()};
                     } else {
-                        DataCell c =
-                                compute(firstColumnIdx > -1 ? m_firstInValClass.cast(row.getCell(firstColumnIdx))
-                                                : null,
-                                        secondColumnIdx > -1 ? m_secondInValClass.cast(row.getCell(secondColumnIdx))
-                                                : null);
+                        DataCell c = compute(
+                                             firstColumnIdx > -1 ? m_firstInValClass.cast(row.getCell(firstColumnIdx))
+                                                     : null,
+                                             secondColumnIdx > -1
+                                                     ? m_secondInValClass.cast(row.getCell(secondColumnIdx)) : null);
                         if (c == null) {
                             LOGGER.warn("Node didn't provide an output at row " + row.getKey()
                                     + ". Missing cell has been inserted.");
@@ -546,8 +549,8 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
      * {@inheritDoc}
      */
     @Override
-    protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
+    protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec)
+            throws IOException, CanceledExecutionException {
         //
     }
 
@@ -590,8 +593,8 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
      * {@inheritDoc}
      */
     @Override
-    protected void saveInternals(final File nodeInternDir, final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
+    protected void saveInternals(final File nodeInternDir, final ExecutionMonitor exec)
+            throws IOException, CanceledExecutionException {
         //
     }
 
@@ -652,8 +655,97 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
      * @return first column idx
      * @throws InvalidSettingsException
      */
-    protected int getSecondColumnIdx(final DataTableSpec spec, final Integer... except) throws InvalidSettingsException {
+    protected int getSecondColumnIdx(final DataTableSpec spec, final Integer... except)
+            throws InvalidSettingsException {
         return NodeUtils.getColumnIndex(m_secondColumn, spec, m_secondInValClass, this.getClass(), except);
     }
 
+    /*
+     *  STREAMING
+     */
+    @Override
+    public InputPortRole[] getInputPortRoles() {
+        return new InputPortRole[]{InputPortRole.DISTRIBUTED_STREAMABLE};
+    }
+
+    @Override
+    public OutputPortRole[] getOutputPortRoles() {
+        return new OutputPortRole[]{OutputPortRole.DISTRIBUTED};
+    }
+
+    @Override
+    public StreamableOperator createStreamableOperator(final PartitionInfo partitionInfo,
+                                                       final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
+
+        final DataTableSpec inSpec = (DataTableSpec)inSpecs[IN_TABLE_PORT_INDEX];
+
+        int firstColIdx = getFirstColumnIdx(inSpec);
+        int secondColIdx = getSecondColumnIdx(inSpec, firstColIdx);
+
+        final CellFactory cellFac = createCellFactory(inSpec, firstColIdx, secondColIdx);
+
+        if (m_colCreationMode.getStringValue().equals(COL_CREATION_MODES[0])) {
+            return new StreamableFunction() {
+                /**
+                 * {@inheritDoc}
+                 */
+                @Override
+                public void init(final ExecutionContext ctx) throws Exception {
+                    prepareExecute(ctx);
+                }
+
+                @Override
+                public DataRow compute(final DataRow input) throws Exception {
+                    return new DefaultRow(input.getKey(), cellFac.getCells(input));
+                }
+            };
+        }
+
+        // create column rearranger
+        final ColumnRearranger colRearranger = new ColumnRearranger(inSpec);
+        if (m_colCreationMode.getStringValue().equals(COL_CREATION_MODES[1])) {
+            colRearranger.append(cellFac);
+        } else if (m_colCreationMode.getStringValue().equals(COL_CREATION_MODES[2])) {
+            colRearranger.replace(cellFac, firstColIdx);
+        } else {
+            colRearranger.replace(cellFac, secondColIdx);
+        }
+
+        // get column rearranger function
+        StreamableFunction columnRearrangerFunction = colRearranger.createStreamableFunction();
+
+        // create new streamablefunction, do everything columnrearranger function does but call prepareexceute in init().
+        return new StreamableFunction() {
+
+            /** {@inheritDoc} */
+            @Override
+            public void init(final ExecutionContext ctx) throws Exception {
+                prepareExecute(ctx);
+                columnRearrangerFunction.init(ctx);
+            }
+
+            /** {@inheritDoc} */
+            @Override
+            public DataRow compute(final DataRow inputRow) {
+                try {
+                    return columnRearrangerFunction.compute(inputRow);
+                } catch (Exception e) {
+                    throw new IllegalArgumentException("Exception caught while reading row " + inputRow.getKey()
+                            + "! Caught exception " + e.getMessage());
+                }
+            }
+
+            /** {@inheritDoc} */
+            @Override
+            public void finish() {
+                columnRearrangerFunction.finish();
+            }
+
+            /** {@inheritDoc} */
+            @Override
+            public StreamableOperatorInternals saveInternals() {
+                return columnRearrangerFunction.saveInternals();
+            }
+        };
+    }
 }
