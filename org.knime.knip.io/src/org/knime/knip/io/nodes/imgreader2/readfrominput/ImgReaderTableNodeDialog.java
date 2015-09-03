@@ -46,89 +46,63 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.io.nodes;
+package org.knime.knip.io.nodes.imgreader2.readfrominput;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.knime.core.node.NodeFactory;
-import org.knime.core.node.NodeModel;
-import org.knime.core.node.NodeSetFactory;
-import org.knime.core.node.config.ConfigRO;
-import org.knime.knip.io.nodes.annotation.create.OverlayAnnotatorNodeFactory;
-import org.knime.knip.io.nodes.fileref.ImageFileRefNodeFactory;
-import org.knime.knip.io.nodes.imgimporter.ImgImporterNodeFactory;
-import org.knime.knip.io.nodes.imgreader2.readfromdialog.ImgReader2NodeFactory;
-import org.knime.knip.io.nodes.imgreader2.readfrominput.ImgReaderTableNodeFactory;
-import org.knime.knip.io.nodes.imgwriter2.ImgWriter2NodeFactory;
+import org.knime.core.data.StringValue;
+import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
+import org.knime.core.node.defaultnodesettings.DialogComponentString;
+import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
+import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.knip.base.node.ValueToCellNodeModel;
+import org.knime.knip.io.nodes.imgreader2.AbstractImgReaderNodeDialog;
 
 /**
+ * Dialog for the ImageReader to select the files and choose some additional
+ * options.
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
- * @author <a href="mailto:danielseebacher@t-online.de">Daniel Seebacher,
- *         University of Konstanz.</a>
+ * @author <a href="mailto:gabriel.einsdorf@uni.kn"> Gabriel Einsdorf</a>
+ * @author <a href="mailto:danielseebacher@t-online.de">Daniel
+ *         Seebacher, University of Konstanz.</a>
  */
-public class IONodeSetFactory implements NodeSetFactory {
+public class ImgReaderTableNodeDialog extends AbstractImgReaderNodeDialog {
 
-	private final Map<String, String> m_nodeFactories = new HashMap<String, String>();
+	private final SettingsModelString m_fileNamesColumn;
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ConfigRO getAdditionalSettings(final String id) {
-		return null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getAfterID(final String id) {
-		return "";
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getCategoryPath(final String id) {
-		return m_nodeFactories.get(id);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	@SuppressWarnings("unchecked")
-	@Override
-	public Class<? extends NodeFactory<? extends NodeModel>> getNodeFactory(final String id) {
-		try {
-			return (Class<? extends NodeFactory<? extends NodeModel>>) Class.forName(id);
-		} catch (final ClassNotFoundException e) {
-		}
-		return null;
+	public ImgReaderTableNodeDialog() {
+		super();
+
+		createNewGroup("File Input Column");
+		m_fileNamesColumn = ImgReaderTableNodeModel.createFilenameColumnModel();
+		addDialogComponent(new DialogComponentColumnNameSelection(m_fileNamesColumn,
+				"File name column in optional table", 0, true, false, StringValue.class));
+		closeCurrentGroup();
+
+		super.buildRemainingGUI();
+
+		createNewTab("Column Settings");
+		SettingsModelString m_smColCreationMode = ImgReaderTableNodeModel.createColCreationModeModel();
+		addDialogComponent(new DialogComponentStringSelection(m_smColCreationMode, "Column Creation Mode",
+				ValueToCellNodeModel.COL_CREATION_MODES));
+
+		SettingsModelString m_smColumnSuffix = ImgReaderTableNodeModel.createColSuffixNodeModel();
+		addDialogComponent(new DialogComponentString(m_smColumnSuffix, "Column Suffix"));
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Collection<String> getNodeFactoryIds() {
-		// m_nodeFactories.put(ImgReaderNodeFactory.class.getCanonicalName(),
-		// "/community/knip/io");
-		m_nodeFactories.put(ImgWriter2NodeFactory.class.getCanonicalName(), "/community/knip/io");
-		m_nodeFactories.put(ImageFileRefNodeFactory.class.getCanonicalName(), "/community/knip/io/other");
-		m_nodeFactories.put(ImgImporterNodeFactory.class.getCanonicalName(), "/community/knip/io/other");
-		m_nodeFactories.put(OverlayAnnotatorNodeFactory.class.getCanonicalName(), "/community/knip/labeling");
-		m_nodeFactories.put(ImgReader2NodeFactory.class.getCanonicalName(), "/community/knip/labeling");
-		m_nodeFactories.put(ImgReaderTableNodeFactory.class.getCanonicalName(), "/community/knip/labeling");
-		// m_nodeFactories.put(LabelingEditorNodeFactory.class.getCanonicalName(),
-		// "/community/knip/labeling");
-		return m_nodeFactories.keySet();
-	}
-
+	// @Override
+	// public void loadAdditionalSettingsFrom(final NodeSettingsRO settings,
+	// final PortObjectSpec[] specs)
+	// throws NotConfigurableException {
+	// super.loadAdditionalSettingsFrom(settings, specs);
+	// }
+	//
+	// @Override
+	// public void saveAdditionalSettingsTo(final NodeSettingsWO settings)
+	// throws InvalidSettingsException {
+	// super.saveAdditionalSettingsTo(settings);
+	// }
 }
