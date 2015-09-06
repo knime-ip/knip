@@ -51,6 +51,7 @@ package org.knime.knip.base.data;
 import java.io.IOException;
 import java.util.UUID;
 
+import org.knime.core.data.DataCellFactory;
 import org.knime.core.data.filestore.FileStore;
 import org.knime.core.data.filestore.FileStoreFactory;
 import org.knime.core.node.ExecutionContext;
@@ -68,7 +69,7 @@ import org.knime.knip.base.data.img.ImgPlusCellFactory;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public abstract class KNIPCellFactory {
+public abstract class KNIPCellFactory implements DataCellFactory {
 
     private static final NodeLogger LOGGER = NodeLogger.getLogger(ImgPlusCellFactory.class);
 

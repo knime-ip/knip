@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2013
+ *  Copyright (C) 2003 - 2015
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -43,68 +43,39 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
+ * Created on Sep 6, 2015 by dietzc
  */
-package org.knime.knip.base.data.img;
+package org.knime.knip.base.data.labeling;
 
 import java.io.IOException;
 
-import org.knime.core.data.DataType;
-import org.knime.core.data.filestore.FileStoreFactory;
-import org.knime.core.node.ExecutionContext;
-import org.knime.knip.base.data.KNIPCellFactory;
-
-import net.imagej.ImgPlus;
-import net.imglib2.img.Img;
-import net.imglib2.type.numeric.RealType;
+import org.knime.core.data.DataCellDataInput;
+import org.knime.core.data.DataCellDataOutput;
+import org.knime.core.data.DataCellSerializer;
 
 /**
- *
- * Factory to create ImgPlus cells.
- *
- * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author Christian Dietz
  */
-public final class ImgPlusCellFactory extends KNIPCellFactory {
+public class LabelingCellSerializer<L extends Comparable<L>> implements DataCellSerializer<LabelingCell<L>> {
 
     /**
-     * @param exec
+     * {@inheritDoc}
      */
-    public ImgPlusCellFactory(final ExecutionContext exec) {
-        super(exec);
-    }
-
-    /**
-     * @param fsFactory
-     */
-    public ImgPlusCellFactory(final FileStoreFactory fsFactory) {
-        super(fsFactory);
-    }
-
-    /**
-     * @param <T>
-     * @param imgPlus
-     *
-     * @return {@link ImgPlusCell}
-     * @throws IOException
-     */
-    public final <T extends RealType<T>> ImgPlusCell<T> createCell(final ImgPlus<T> imgPlus) throws IOException {
-        return new ImgPlusCell<T>(imgPlus, getFileStore(getImgSize(imgPlus.getImg())));
-    }
-
-    private final <T extends RealType<T>> double getImgSize(final Img<T> img) {
-        // calculate the approx. size of the current image
-        return (img.firstElement().getBitsPerPixel() / 8) * img.size();
+    @Override
+    public void serialize(final LabelingCell<L> cell, final DataCellDataOutput output) throws IOException {
+        cell.save(output);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public DataType getDataType() {
-        return ImgPlusCell.TYPE;
+    public LabelingCell<L> deserialize(final DataCellDataInput input) throws IOException {
+        final LabelingCell<L> cell = new LabelingCell<>();
+        cell.load(input);
+        return cell;
     }
 
 }

@@ -24,7 +24,8 @@ Require-Bundle: org.knime.base;bundle-version="[3.0.0,4.0.0)",
  slf4j-log4j12;bundle-version="1.7.10",
  slf4j-api;bundle-version="1.7.10",
  imglib2-roi;bundle-version="0.3.2",
- imagej-ops;bundle-version="0.16.0"
+ imagej-ops;bundle-version="0.16.0",
+ org.knime.core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: knip-base.jar
 Bundle-ActivationPolicy: lazy

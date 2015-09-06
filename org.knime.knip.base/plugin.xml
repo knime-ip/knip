@@ -252,4 +252,23 @@
               id="org.knime.knip.base.nodes.util.dontsave.DontSaveEndNodeFactory">
         </node>
      </extension>
+     <extension
+           point="org.knime.core.DataType">
+        <DataType
+              cellClass="org.knime.knip.base.data.img.ImgPlusCell"
+              factoryClass="org.knime.knip.base.data.img.ImgPlusCellFactory">
+           <serializer
+                 cellClass="org.knime.knip.base.data.img.ImgPlusCell"
+                 serializerClass="org.knime.knip.base.data.img.ImgPlusCellSerializer">
+           </serializer>
+        </DataType>
+        <DataType
+              cellClass="org.knime.knip.base.data.labeling.LabelingCell"
+              factoryClass="org.knime.knip.base.data.labeling.LabelingCellFactory">
+           <serializer
+                 cellClass="org.knime.knip.base.data.labeling.LabelingCell"
+                 serializerClass="org.knime.knip.base.data.labeling.LabelingCellSerializer">
+           </serializer>
+        </DataType>
+     </extension>
 </plugin>
