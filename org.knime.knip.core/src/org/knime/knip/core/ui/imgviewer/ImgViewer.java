@@ -361,6 +361,11 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
         m_background.setResizeWeight(1);
         m_background.setDividerSize(5);
 
+        m_bottomControl.add(Box.createRigidArea(new Dimension(16,16)));
+        m_leftControl.add(Box.createRigidArea(new Dimension(16,16)));
+        m_topControl.add(Box.createRigidArea(new Dimension(16,16)));
+        m_rightControl.add(Box.createRigidArea(new Dimension(16,16)));
+
         add(m_background);
 
     }

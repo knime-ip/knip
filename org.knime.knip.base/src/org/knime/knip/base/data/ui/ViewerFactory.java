@@ -51,15 +51,14 @@ package org.knime.knip.base.data.ui;
 import org.knime.knip.core.ui.imgviewer.ExpandingPanel;
 import org.knime.knip.core.ui.imgviewer.ImgCanvas;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
-import org.knime.knip.core.ui.imgviewer.ViewerComponent.Position;
 import org.knime.knip.core.ui.imgviewer.ViewerComponents;
-import org.knime.knip.core.ui.imgviewer.panels.ControlPanel;
 import org.knime.knip.core.ui.imgviewer.panels.LabelOptionPanel;
 import org.knime.knip.core.ui.imgviewer.panels.TableOverviewPanel;
 import org.knime.knip.core.ui.imgviewer.panels.infobars.HistogramViewInfoPanel;
 import org.knime.knip.core.ui.imgviewer.panels.infobars.ImgViewInfoPanel;
 import org.knime.knip.core.ui.imgviewer.panels.infobars.LabelingViewInfoPanel;
 import org.knime.knip.core.ui.imgviewer.panels.providers.AWTImageProvider;
+import org.knime.knip.core.ui.imgviewer.panels.providers.CombinedRU;
 import org.knime.knip.core.ui.imgviewer.panels.providers.HistogramRU;
 import org.knime.knip.core.ui.imgviewer.panels.providers.ImageRU;
 import org.knime.knip.core.ui.imgviewer.panels.providers.LabelingRU;
@@ -98,10 +97,10 @@ public class ViewerFactory {
         viewer.addViewerComponent(new HistogramViewInfoPanel<T, Img<T>>());
         viewer.addViewerComponent(new ImgCanvas<T, Img<T>>());
 
-        viewer.addViewerComponent(new ControlPanel(Position.NORTH));
-        viewer.addViewerComponent(new ControlPanel(Position.EAST));
-        viewer.addViewerComponent(new ControlPanel(Position.WEST));
-        viewer.addViewerComponent(new ControlPanel(Position.SOUTH));
+//        viewer.addViewerComponent(new ControlPanel(Position.NORTH));
+//        viewer.addViewerComponent(new ControlPanel(Position.EAST));
+//        viewer.addViewerComponent(new ControlPanel(Position.WEST));
+//        viewer.addViewerComponent(new ControlPanel(Position.SOUTH));
 
         viewer.addViewerComponent(ViewerComponents.MINIMAP_PLANE_SELECTION.createInstance());
         viewer.addViewerComponent(new ExpandingPanel("Image Properties",ViewerComponents.IMAGE_PROPERTIES.createInstance()));
@@ -123,16 +122,16 @@ public class ViewerFactory {
 
         final ImgViewer viewer = new ImgViewer();
 
-        final AWTImageProvider realProvider = new AWTImageProvider(cacheSize, new ImageRU<T>(false));
+        final AWTImageProvider realProvider = new AWTImageProvider(cacheSize, new CombinedRU(new ImageRU<T>(false)));
         realProvider.setEventService(viewer.getEventService());
 
         viewer.addViewerComponent(new ImgViewInfoPanel<T>());
         viewer.addViewerComponent(new ImgCanvas<T, Img<T>>());
 
-        viewer.addViewerComponent(new ControlPanel(Position.NORTH));
-        viewer.addViewerComponent(new ControlPanel(Position.EAST));
-        viewer.addViewerComponent(new ControlPanel(Position.WEST));
-        viewer.addViewerComponent(new ControlPanel(Position.SOUTH));
+//        viewer.addViewerComponent(new ControlPanel(Position.NORTH));
+//        viewer.addViewerComponent(new ControlPanel(Position.EAST));
+//        viewer.addViewerComponent(new ControlPanel(Position.WEST));
+//        viewer.addViewerComponent(new ControlPanel(Position.SOUTH));
 
         viewer.addViewerComponent(ViewerComponents.MINIMAP_PLANE_SELECTION.createInstance());
         viewer.addViewerComponent(new ExpandingPanel("Image Enhancement",ViewerComponents.IMAGE_ENHANCE.createInstance(), true));
@@ -160,10 +159,10 @@ public class ViewerFactory {
         viewer.addViewerComponent(new ImgCanvas<LabelingType<L>, RandomAccessibleInterval<LabelingType<L>>>());
 
 
-        viewer.addViewerComponent(new ControlPanel(Position.NORTH));
-        viewer.addViewerComponent(new ControlPanel(Position.EAST));
-        viewer.addViewerComponent(new ControlPanel(Position.WEST));
-        viewer.addViewerComponent(new ControlPanel(Position.SOUTH));
+//        viewer.addViewerComponent(new ControlPanel(Position.NORTH));
+//        viewer.addViewerComponent(new ControlPanel(Position.EAST));
+//        viewer.addViewerComponent(new ControlPanel(Position.WEST));
+//        viewer.addViewerComponent(new ControlPanel(Position.SOUTH));
 
         viewer.addViewerComponent(ViewerComponents.MINIMAP_PLANE_SELECTION.createInstance());
 
