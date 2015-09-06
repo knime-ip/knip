@@ -48,12 +48,6 @@
  */
 package org.knime.knip.base.data.ui;
 
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.Img;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.knip.core.ui.imgviewer.ExpandingPanel;
 import org.knime.knip.core.ui.imgviewer.ImgCanvas;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
@@ -69,6 +63,12 @@ import org.knime.knip.core.ui.imgviewer.panels.providers.AWTImageProvider;
 import org.knime.knip.core.ui.imgviewer.panels.providers.HistogramRU;
 import org.knime.knip.core.ui.imgviewer.panels.providers.ImageRU;
 import org.knime.knip.core.ui.imgviewer.panels.providers.LabelingRU;
+
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.Img;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * TODO Auto-generated
@@ -105,7 +105,7 @@ public class ViewerFactory {
 
         viewer.addViewerComponent(ViewerComponents.MINIMAP_PLANE_SELECTION.createInstance());
         viewer.addViewerComponent(new ExpandingPanel("Image Properties",ViewerComponents.IMAGE_PROPERTIES.createInstance()));
-        viewer.addViewerComponent(new ExpandingPanel("Test", new TableOverviewPanel()));
+        viewer.addViewerComponent(new ExpandingPanel("Navigation", new TableOverviewPanel(), true));
         viewer.doneAdding();
 
         return viewer;
@@ -138,6 +138,7 @@ public class ViewerFactory {
         viewer.addViewerComponent(new ExpandingPanel("Image Enhancement",ViewerComponents.IMAGE_ENHANCE.createInstance(), true));
         viewer.addViewerComponent(new ExpandingPanel("Renderer Selection",ViewerComponents.RENDERER_SELECTION.createInstance()));
         viewer.addViewerComponent(new ExpandingPanel("Image Properties",ViewerComponents.IMAGE_PROPERTIES.createInstance()));
+        viewer.addViewerComponent(new ExpandingPanel("Navigation", new TableOverviewPanel(), true));
 
         viewer.doneAdding();
 
@@ -173,6 +174,7 @@ public class ViewerFactory {
         viewer.addViewerComponent(new ExpandingPanel("Renderer Selection",ViewerComponents.RENDERER_SELECTION.createInstance()));
 
         viewer.addViewerComponent(new ExpandingPanel("Image Properties",ViewerComponents.IMAGE_PROPERTIES.createInstance()));
+        viewer.addViewerComponent(new ExpandingPanel("Navigation", new TableOverviewPanel(), true));
 
 
 

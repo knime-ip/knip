@@ -55,7 +55,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeListener;
 
 import org.knime.core.node.tableview.TableView;
-import org.knime.knip.core.ui.event.KNIPEvent;
 
 //TODO: Update Doc
 /**
@@ -143,18 +142,6 @@ public class TabbedCellView extends AbstractCellView {
      */
     public int getTabCount() {
         return m_cellView.getTabCount();
-    }
-
-    @Override
-    public void broadcastEvent(final KNIPEvent e){
-//        for(int i = 0; i < getTabCount(); ++i)
-//        {
-//            if(m_cellView.getComponentAt(i) instanceof ImgViewer)
-//            {
-//                ImgViewer v = (ImgViewer)m_cellView.getComponentAt(i);
-//                v.getEventService().publish(e);
-//            }
-//        }
     }
 
 }

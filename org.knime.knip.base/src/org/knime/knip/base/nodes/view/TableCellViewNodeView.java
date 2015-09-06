@@ -84,6 +84,7 @@ import org.knime.knip.core.ui.event.EventServiceClient;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.ui.imgviewer.MissingImgViewer;
 import org.knime.knip.core.ui.imgviewer.ViewerComponent;
+import org.knime.knip.core.ui.imgviewer.events.TablePositionEvent;
 import org.knime.knip.core.ui.imgviewer.panels.ControlPanel;
 import org.knime.knip.core.ui.imgviewer.panels.ImageToolTipButton;
 import org.knime.knip.core.ui.imgviewer.panels.ViewerControlEvent;
@@ -295,9 +296,9 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
      */
     private void cellSelectionChanged() {
 
-        if (m_adjusting) {
-            return;
-        }
+//        if (m_adjusting) {
+//            return;
+//        }
 
         final int row = m_tableContentView.getSelectionModel().getLeadSelectionIndex();
         final int col = m_tableContentView.getColumnModel().getSelectionModel().getLeadSelectionIndex();
@@ -332,6 +333,8 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
         m_row = row;
         m_col = col;
+
+
 
         final int selection = m_cellView.getSelectedIndex();
         List<TableCellView> cellView;
@@ -381,11 +384,13 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
                 LOGGER.error("Could not add Tab " + v.getName(), ex);
             }
         }
-
-        m_cellView.setSelectedIndex(Math.max(0, Math.min(selection, m_cellView.getTabCount() - 1)));
         m_adjusting = true;
+        m_cellView.setSelectedIndex(Math.max(0, Math.min(selection, m_cellView.getTabCount() - 1)));
         m_cellView.scrollTablesToIndex(row, col);
         m_adjusting = false;
+
+        m_cellView.broadcastEvent(new TablePositionEvent(m_tableModel.getColumnCount(), m_tableModel.getRowCount(), col+1, row+1));
+
         if (getComponent() != m_cellView) {
             setComponent(m_cellView);
             m_tableContentView.clearSelection();
