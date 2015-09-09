@@ -278,7 +278,7 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 		if (!folderFile.exists()) { // create nonexistent folders must be set to
 									// reach this point!.
 			try {
-				LOGGER.warn("Creating directory: "
+				LOGGER.info("Creating directory: "
 						+ m_directory.getStringValue());
 				FileUtils.forceMkdir(folderFile);
 			} catch (final IOException e1) {
@@ -339,6 +339,7 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 			}
 			outfile += "." + writer.getSuffix(format);
 
+			// handle file location
 			final File f = new File(outfile);
 			if (f.exists()) {
 				if (overwrite) {
@@ -350,6 +351,10 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 					throw new InvalidSettingsException("The file " + outfile
 							+ " exits and must not be overwritten due to user settings.");
 				}
+			} else if (!f.getParentFile().exists()) {
+				LOGGER.info("Creating directory: "
+						+ f.getParentFile().getAbsolutePath());
+				FileUtils.forceMkdir(f.getParentFile());
 			}
 
 			try {
