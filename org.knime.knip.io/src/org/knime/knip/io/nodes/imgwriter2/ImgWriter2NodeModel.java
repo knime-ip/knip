@@ -184,7 +184,6 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
         m_settingsCollection.add(m_forceMkdir);
         m_settingsCollection.add(m_customNameOption);
         m_settingsCollection.add(m_customFileName);
-        m_settingsCollection.add(m_useAbsolutePaths);
     }
 
     /**
@@ -477,16 +476,7 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
         //
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-            throws InvalidSettingsException {
-        for (final SettingsModel sm : m_settingsCollection) {
-            sm.loadSettingsFrom(settings);
-        }
-    }
+
 
     /**
      * {@inheritDoc}
@@ -514,6 +504,12 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
         for (final SettingsModel sm : m_settingsCollection) {
             sm.saveSettingsTo(settings);
         }
+        try {
+            // new in 1.4.0
+            m_useAbsolutePaths.saveSettingsTo(settings);
+        } catch (Exception e) {
+            //
+        }
     }
 
     /**
@@ -524,6 +520,29 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
             throws InvalidSettingsException {
         for (final SettingsModel sm : m_settingsCollection) {
             sm.validateSettings(settings);
+        }
+        try {
+            // new in 1.4.0
+            m_useAbsolutePaths.validateSettings(settings);
+        } catch (Exception e) {
+            //
+        }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
+            throws InvalidSettingsException {
+        for (final SettingsModel sm : m_settingsCollection) {
+            sm.loadSettingsFrom(settings);
+        }
+        try {
+            // new in 1.4.0
+            m_useAbsolutePaths.loadSettingsFrom(settings);
+        } catch (Exception e) {
+            //
         }
     }
 
