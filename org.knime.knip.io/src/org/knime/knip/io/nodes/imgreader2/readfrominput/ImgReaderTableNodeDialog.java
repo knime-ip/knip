@@ -79,7 +79,7 @@ public class ImgReaderTableNodeDialog extends AbstractImgReaderNodeDialog {
 		createNewGroup("File Input Column");
 		m_fileNamesColumn = ImgReaderTableNodeModel.createFilenameColumnModel();
 		addDialogComponent(new DialogComponentColumnNameSelection(m_fileNamesColumn,
-				"File name column in optional table", 0, true, false, StringValue.class));
+				"File name column in input table", 0, true, false, StringValue.class));
 		closeCurrentGroup();
 
 		super.buildRemainingGUI();
