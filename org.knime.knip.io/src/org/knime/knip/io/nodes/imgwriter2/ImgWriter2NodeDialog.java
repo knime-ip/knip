@@ -145,7 +145,7 @@ public class ImgWriter2NodeDialog extends DefaultNodeSettingsPane {
         final SettingsModelBoolean absolutePathsModel = ImgWriter2SettingsModels
                 .createAbsolutePathsModel();
         addDialogComponent(new DialogComponentBoolean(absolutePathsModel,
-                "Absolute Paths in the filename collumn"));
+                "Absolute paths in the filename column"));
 
         useCustomFileNameModel.addChangeListener(new ChangeListener() {
             @Override
