@@ -1,46 +1,60 @@
-<!--
-    Copyright (c) 2010 IBM Corporation and others.
-    All rights reserved. This program and the accompanying materials
-    are made available under the terms of the Eclipse Public License v1.0
-    which accompanies this distribution, and is available at
-    http://www.eclipse.org/legal/epl-v10.html
-
-    Contributors:
-        IBM Corporation - initial API and implementation
- -->
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="imgwriter2.png" type="Sink">
 	<name>Image Writer</name>
 	<shortDescription>
-		  Writes images to files.
+		Writes images to files.
 	</shortDescription>
 
 	<fullDescription>
-        <intro>
-            Writes image to various formats supported by the scifio library.
-            A list of the supported formats can be found here: <a href="http://loci.wisc.edu/bio-formats/formats">http://loci.wisc.edu/bio-formats/formats</a>
-        </intro>
-        <option name="Image column to save">
-            Select the column holding the images.
-        </option>
-        <option name="Selected Directory">
-            The directory where the images will be stored.
-        </option>
-        <option name="Filenames">
-            Select the column which provides the names for the files to save.
-            Make sure, that there are no duplicated file names
-            (they will be overwritten or ignored, depending on the "Writer options"). <br/>
-            Alternatively you can select <b> &lt;RowID&gt; </b> to use the Row ID as the file name.
-	</option>
+		<intro>
+			Writes image to various formats supported by the scifio library.
+			A
+			list of the supported formats can be found here:
+			<a href="http://loci.wisc.edu/bio-formats/formats">http://loci.wisc.edu/bio-formats/formats</a>
+		</intro>
+		<option name="Image column to save">
+			Select the column holding the images.
+		</option>
+		<option name="Selected Directory">
+			The directory where the images will be stored.
+		</option>
+		<option name="Filenames">
+			Select the column which provides the names for the files to save.
+			Make sure, that there are no duplicated file names
+			(they will be
+			overwritten or ignored, depending on the "Writer options").
+			<br />
+			Alternatively you can select
+			<b> &lt;RowID&gt; </b>
+			to use the Row ID as the file name.
+		</option>
 
-         <option name="Custom Filename">
-    		You can specify a custome prefix for the filenames. The filenames will follow the following schema:
-    		prefix01, prefix02 etc.
-        </option>
-        <option name="Format selection">To determine the format of the files. Note that some formats need specific pixel types (e.g. avi needs unsigned byte). Use the Converter-Node to provide the right type.</option>
-    </fullDescription>
+		<option name="Custom Filename">
+			You can specify a custom prefix for the filenames.
+			The filenames will
+			follow the following schema:
+			prefix01, prefix02 etc.
+		</option>
+
+		<option name="Absolute Paths in the filename column">
+			Treat the filenames provided by filename column as
+			absolute paths, and write the images to them.
+			Will disable the other
+			output options.
+		</option>
+
+		<option name="Format selection">To determine the format of the files. Note that
+			some formats need specific pixel types (e.g. avi needs unsigned
+			byte). Use the Converter-Node to provide the right type.
+		</option>
+	</fullDescription>
 
 	<ports>
-		<inPort index="0" name = "Images">Images</inPort>
+		<inPort index="0" name="Images">Images</inPort>
 	</ports>
 </knimeNode>
