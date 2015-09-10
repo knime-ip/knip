@@ -67,6 +67,7 @@ import net.imglib2.img.Img;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.type.numeric.RealType;
 
+import org.knime.core.node.NodeLogger;
 import org.knime.knip.io.ScifioGateway;
 import org.scijava.Context;
 import org.slf4j.Logger;
@@ -82,8 +83,8 @@ import org.slf4j.LoggerFactory;
  */
 public class ImgWriter2 {
 
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(ImgWriter2.class);
+    private static final NodeLogger LOGGER = NodeLogger
+            .getLogger(ImgWriter2.class);
 
 	private static final boolean DEBUG = true; // switch for debug output
 
