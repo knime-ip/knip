@@ -122,7 +122,11 @@ final class ImgWriter2SettingsModels {
     /**
      * @return Model to store the if the writers should write sequentially.
      */
-	static SettingsModelBoolean createWriteSequentiallyModel() {
-		return new SettingsModelBoolean("write_sequential_key", true);
-	}
+    static SettingsModelBoolean createWriteSequentiallyModel() {
+        return new SettingsModelBoolean("write_sequential_key", true);
+    }
+
+    public static SettingsModelBoolean createAbsolutePathsModel() {
+        return new SettingsModelBoolean("absolutePathsInFilename", false);
+    }
 }

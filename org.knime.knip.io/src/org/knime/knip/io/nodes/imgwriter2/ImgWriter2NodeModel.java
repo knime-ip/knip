@@ -52,6 +52,8 @@ import io.scif.FormatException;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -179,6 +181,7 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 		m_settingsCollection.add(m_forceMkdir);
 		m_settingsCollection.add(m_customNameOption);
 		m_settingsCollection.add(m_customFileName);
+        m_settingsCollection.add(m_useAbsolutePaths);
 	}
 
 	/**
@@ -250,48 +253,21 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 
 		checkDimensionMapping();
 
-		// check and locate target folder
-		try {
-			CheckUtils.checkDestinationDirectory(m_directory.getStringValue());
-		} catch (InvalidSettingsException e) {
-			// allow creation of nonexistent directories if set in the options.
-			if (e.getMessage().endsWith("does not exist")) {
-				if (!m_forceMkdir.getBooleanValue()) { // option not set
-					throw new InvalidSettingsException(
-							"Output directory doesn't exist, you can force the creation in the node settings.");
+        String directory = null;
+        // only initialize output directory when needed
+        if (!m_useAbsolutePaths.getBooleanValue()) {
+            Path folderPath = createOutputPath();
+            directory = folderPath.toString();
+            if (!directory.endsWith("/")) { // fix directory path
+                directory += "/";
 				}
-			} else {
-				// don't hide other exceptions
-				throw e;
-			}
-		}
-		Path folderPath = FileUtil.resolveToPath(FileUtil.toURL(m_directory
-				.getStringValue()));
-		if (folderPath == null) {
-			throw new InvalidSettingsException("Could not locate:"
-					+ m_directory.getStringValue()
-					+ ", are you trying to write to an non local directory?");
-		}
-
-		// handle target folder
-		final File folderFile = folderPath.toFile();
-		if (!folderFile.exists()) { // create nonexistent folders must be set to
-									// reach this point!.
-			try {
-				LOGGER.info("Creating directory: "
-						+ m_directory.getStringValue());
-				FileUtils.forceMkdir(folderFile);
-			} catch (final IOException e1) {
-				LOGGER.error("Selected Path " + folderPath
-						+ " is not a directory");
-				throw new IOException(
-						"Directory unreachable or file exists with the same name");
-			}
 		}
 
 		// loop constants
 		final boolean overwrite = m_overwrite.getBooleanValue();
 		final boolean useCustomName = m_customNameOption.getBooleanValue();
+        final boolean useAbsolutPaths = m_useAbsolutePaths.getBooleanValue();
+        final boolean forceMkdir = m_forceMkdir.getBooleanValue();
 		final String customName = m_customFileName.getStringValue();
 		final int nameColIndex = inData[0].getDataTableSpec().findColumnIndex(
 				m_filenameColumn.getStringValue());
@@ -299,13 +275,8 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 				m_imgColumn.getStringValue());
 		final String format = m_format.getStringValue();
 		final String compression = m_compression.getStringValue();
-		String directory = folderPath.toString();
-		if (!directory.endsWith("/")) { // fix directory path
-			directory += "/";
-		}
 
 		/* File name number magic */
-
 		// get number of digits needed for padding
 		final int digits = (int) Math.log10(inData[0].getRowCount()) + 1;
 		final String digitStringFormat = "%0" + digits + "d";
@@ -321,7 +292,12 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 				m_frameRate.getIntValue());
 
 		for (DataRow row : inData[0]) {
-			if (useCustomName) {
+
+            // set the filename
+            if (useAbsolutPaths) {
+                outfile = ((StringValue) row.getCell(nameColIndex))
+                        .getStringValue();
+            } else if (useCustomName) {
 				outfile = directory + customName
 						+ String.format(digitStringFormat, imgCount);
 			} else if (nameColIndex == -1) {
@@ -331,7 +307,7 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 					outfile = directory
 							+ ((StringValue) row.getCell(nameColIndex))
 									.getStringValue();
-				} catch (ClassCastException e) {
+                } catch (ClassCastException e1) {
 					throw new IllegalArgumentException(
 							"Missing value in the filename column in row: "
 									+ row.getKey());
@@ -340,7 +316,9 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 			outfile += "." + writer.getSuffix(format);
 
 			// handle file location
-			final File f = new File(outfile);
+            final File f = FileUtil.resolveToPath(FileUtil.toURL(outfile))
+                    .toFile();
+
 			if (f.exists()) {
 				if (overwrite) {
 					LOGGER.warn("The file " + outfile
@@ -351,10 +329,18 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 					throw new InvalidSettingsException("The file " + outfile
 							+ " exits and must not be overwritten due to user settings.");
 				}
+                // filename contained path to non existent directory
 			} else if (!f.getParentFile().exists()) {
+                if (forceMkdir) {
 				LOGGER.info("Creating directory: "
-						+ f.getParentFile().getAbsolutePath());
+                            + f.getParentFile().getPath());
 				FileUtils.forceMkdir(f.getParentFile());
+                } else {
+                    throw new InvalidSettingsException(
+                            "Output directory " + f.getParentFile().getPath()
+                                    + " doesn't exist, you can force the creation"
+                                    + " in the node settings.");
+                }
 			}
 
 			try {
@@ -366,38 +352,19 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 			}
 
 			// create dimensions mapping
-			final int[] map = new int[] { -1, -1, -1 };
-			for (int d = 2; d < img.numDimensions(); d++) {
-				if (img.axis(d).type().getLabel()
-						.equals(m_zMapping.getStringValue())) {
-					map[0] = d - 2;
-				}
-				if (img.axis(d).type().getLabel()
-						.equals(m_cMapping.getStringValue())) {
-					map[1] = d - 2;
-				}
-				if (img.axis(d).type().getLabel()
-						.equals(m_tMapping.getStringValue())) {
-					map[2] = d - 2;
-				}
-			}
+            final int[] map = createDimMapping(img);
 
 			try {
-				writer.writeImage(img, outfile, format, compression, map);
+                writer.writeImage(img, FileUtil
+                        .resolveToPath(FileUtil.toURL(outfile)).toString(),
+                        format, compression, map);
 
-			} catch (final FormatException e) {
-				LOGGER.error(
-						"Error while writing image " + outfile + " : "
-								+ e.getMessage(), e);
-				error = true;
-			} catch (final IOException e) {
-				LOGGER.error(
-						"Error while writing image " + outfile + " : "
+            } catch (final FormatException | IOException e) {
+                LOGGER.error("Error while writing image " + outfile + " : "
 								+ e.getMessage(), e);
 				error = true;
 			} catch (final UnsupportedOperationException e) {
-				LOGGER.error(
-						"Error while writing image " + outfile + " : "
+                LOGGER.error("Error while writing image " + outfile + " : "
 								+ "Check the filename for illegal characters! "
 								+ e.getMessage(), e);
 				error = true;
@@ -409,7 +376,8 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 		}
 
 		if (error) {
-			setWarningMessage("Some errors occured during the writing process!");
+            setWarningMessage(
+                    "Some errors occured during the writing process!");
 		}
 
 		return null;
@@ -417,6 +385,86 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 	}
 
 	/**
+     * Creates and checks the output folder.
+     * 
+     * @return the Path of the output folder.
+     * @throws InvalidSettingsException
+     * @throws IOException
+     * @throws URISyntaxException
+     * @throws MalformedURLException
+     */
+    private Path createOutputPath() throws InvalidSettingsException,
+            IOException, URISyntaxException, MalformedURLException {
+        // check and locate target folder
+        try {
+            CheckUtils.checkDestinationDirectory(m_directory.getStringValue());
+        } catch (InvalidSettingsException e) {
+            // allow creation of nonexistent directories if set in the options.
+            if (e.getMessage().endsWith("does not exist")) {
+                if (!m_forceMkdir.getBooleanValue()) { // option not set
+                    throw new InvalidSettingsException(
+                            "Output directory doesn't exist, "
+                                    + "you can force the creation in the"
+                                    + " node settings.");
+                }
+            } else {
+                // don't hide other exceptions
+                throw e;
+            }
+        }
+        Path folderPath = FileUtil
+                .resolveToPath(FileUtil.toURL(m_directory.getStringValue()));
+        if (folderPath == null) {
+            throw new InvalidSettingsException("Could not locate:"
+                    + m_directory.getStringValue()
+                    + ", are you trying to write to an non local directory?");
+        }
+
+        // handle target folder
+        final File folderFile = folderPath.toFile();
+        if (!folderFile.exists()) { // create nonexistent folders must be set to
+                                    // reach this point!.
+            try {
+                LOGGER.info(
+                        "Creating directory: " + m_directory.getStringValue());
+                FileUtils.forceMkdir(folderFile);
+            } catch (final IOException e1) {
+                LOGGER.error(
+                        "Selected Path " + folderPath + " is not a directory");
+                throw new IOException(
+                        "Directory unreachable or file exists with the same name");
+            }
+        }
+        return folderPath;
+    }
+
+    /**
+     * Creates the dimension mapping for the given Img.
+     * 
+     * @param img
+     *            the image
+     * @return the dimension mapping
+     */
+    private int[] createDimMapping(ImgPlus<T> img) {
+        final int[] map = new int[] { -1, -1, -1 };
+        for (int d = 2; d < img.numDimensions(); d++) {
+            if (img.axis(d).type().getLabel()
+                    .equals(m_zMapping.getStringValue())) {
+                map[0] = d - 2;
+            }
+            if (img.axis(d).type().getLabel()
+                    .equals(m_cMapping.getStringValue())) {
+                map[1] = d - 2;
+            }
+            if (img.axis(d).type().getLabel()
+                    .equals(m_tMapping.getStringValue())) {
+                map[2] = d - 2;
+            }
+        }
+        return map;
+    }
+
+    /**
 	 * {@inheritDoc}
 	 */
 	@Override
