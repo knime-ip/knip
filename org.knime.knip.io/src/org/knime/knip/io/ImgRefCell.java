@@ -60,6 +60,20 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
+import org.knime.core.data.DataCell;
+import org.knime.core.data.DataCellDataInput;
+import org.knime.core.data.DataCellDataOutput;
+import org.knime.core.data.DataCellSerializer;
+import org.knime.core.data.DataType;
+import org.knime.core.data.DataValue;
+import org.knime.core.data.StringValue;
+import org.knime.core.data.container.BlobDataCell;
+import org.knime.core.node.NodeLogger;
+import org.knime.knip.base.KNIMEKNIPPlugin;
+import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.core.KNIPGateway;
+import org.scijava.cache.CacheService;
+
 import net.imagej.ImgPlus;
 import net.imagej.ImgPlusMetadata;
 import net.imagej.axis.Axes;
@@ -72,18 +86,6 @@ import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.ByteType;
-
-import org.knime.core.data.DataCell;
-import org.knime.core.data.DataCellDataInput;
-import org.knime.core.data.DataCellDataOutput;
-import org.knime.core.data.DataCellSerializer;
-import org.knime.core.data.DataType;
-import org.knime.core.data.DataValue;
-import org.knime.core.data.StringValue;
-import org.knime.core.data.container.BlobDataCell;
-import org.knime.core.node.NodeLogger;
-import org.knime.knip.base.KNIMEKNIPPlugin;
-import org.knime.knip.base.data.img.ImgPlusValue;
 
 /**
  * This cell only holds references (file, db, ...) to a specific image file and
@@ -103,20 +105,18 @@ import org.knime.knip.base.data.img.ImgPlusValue;
  *         Zinsmaier</a>
  */
 @SuppressWarnings("serial")
-public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
-		BlobDataCell implements ImgRefValue, ImgPlusValue<T>, StringValue {
+public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends BlobDataCell
+		implements ImgRefValue, ImgPlusValue<T>, StringValue {
 
 	/** Factory for (de-)serializing a ImageRefCell. */
 	@SuppressWarnings("rawtypes")
-	private static class ImageRefSerializer implements
-			DataCellSerializer<ImgRefCell> {
+	private static class ImageRefSerializer implements DataCellSerializer<ImgRefCell> {
 		/**
 		 * {@inheritDoc}
 		 */
 		@SuppressWarnings("unchecked")
 		@Override
-		public ImgRefCell deserialize(final DataCellDataInput input)
-				throws IOException {
+		public ImgRefCell deserialize(final DataCellDataInput input) throws IOException {
 			final String sourceID = input.readUTF();
 			final String imgRef = input.readUTF();
 
@@ -141,8 +141,7 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
 		 * {@inheritDoc}
 		 */
 		@Override
-		public void serialize(final ImgRefCell cell,
-				final DataCellDataOutput output) throws IOException {
+		public void serialize(final ImgRefCell cell, final DataCellDataOutput output) throws IOException {
 			output.writeUTF(cell.m_sourceID);
 			output.writeUTF(cell.m_imgRef);
 
@@ -175,6 +174,8 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
 	private static NodeLogger LOGGER = NodeLogger.getLogger(ImgRefCell.class);
 
 	private static final ImageRefSerializer SERIALIZER = new ImageRefSerializer();
+
+	private final CacheService CACHE = KNIPGateway.cache();
 
 	/**
 	 * Convenience access member for
@@ -238,8 +239,7 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
 	 *            if true a thumbnail will be generated on the creation of the
 	 *            ImgRefCell, hence, the according source must be available
 	 */
-	public ImgRefCell(final String sourceID, final String imgRef,
-			final boolean generateThumbnail) {
+	public ImgRefCell(final String sourceID, final String imgRef, final boolean generateThumbnail) {
 		m_sourceID = sourceID;
 		m_imgRef = imgRef;
 		if (generateThumbnail) {
@@ -264,12 +264,10 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
 			return m_originalDims;
 		}
 		try {
-			long[] dim = (long[]) ObjectCache.getCachedObject(m_sourceID,
-					m_imgRef + DIM_SUFFIX);
+			long[] dim = (long[]) CACHE.get(m_imgRef + DIM_SUFFIX);
 			if (dim == null) {
-				dim = ImgSourcePool.getImgSource(m_sourceID).getDimensions(
-						m_imgRef, 0);
-				ObjectCache.addObject(m_sourceID, m_imgRef + DIM_SUFFIX, dim);
+				dim = ImgSourcePool.getImgSource(m_sourceID).getDimensions(m_imgRef, 0);
+				CACHE.put(m_imgRef + DIM_SUFFIX, dim);
 			}
 			return dim;
 		} catch (final Exception e) {
@@ -293,18 +291,15 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
 	private Img<T> getImg() {
 		final long[] dims = getDimensions();
 		try {
-			Img<T> img = (Img<T>) ObjectCache.getCachedObject(m_sourceID,
-					m_imgRef + IMG_SUFFIX);
+			Img<T> img = (Img<T>) CACHE.get(m_imgRef + IMG_SUFFIX);
 			if (img == null) {
-				img = (Img<T>) ImgSourcePool.getImgSource(m_sourceID).getImg(
-						m_imgRef, 0);
-				ObjectCache.addObject(m_sourceID, m_imgRef + IMG_SUFFIX, img);
+				img = (Img<T>) ImgSourcePool.getImgSource(m_sourceID).getImg(m_imgRef, 0);
+				CACHE.put(m_imgRef + IMG_SUFFIX, img);
 			}
 			return img;
 		} catch (final Exception e) {
 			noAccessWarning(e);
-			return (Img<T>) new ArrayImgFactory<ByteType>().create(dims,
-					new ByteType());
+			return (Img<T>) new ArrayImgFactory<ByteType>().create(dims, new ByteType());
 		}
 	}
 
@@ -317,8 +312,7 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
 		} catch (final Exception e) {
 			noAccessWarning(e);
 			final long[] dims = getDimensions();
-			return (Img<T>) new ArrayImgFactory<ByteType>().create(dims,
-					new ByteType());
+			return (Img<T>) new ArrayImgFactory<ByteType>().create(dims, new ByteType());
 		}
 	}
 
@@ -348,13 +342,10 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
 
 		List<CalibratedAxis> tmpAxes;
 		try {
-			tmpAxes = (List<CalibratedAxis>) ObjectCache.getCachedObject(
-					m_sourceID, m_imgRef + AXES_SUFFIX);
+			tmpAxes = (List<CalibratedAxis>) CACHE.get(m_imgRef + AXES_SUFFIX);
 			if (tmpAxes == null) {
-				tmpAxes = ImgSourcePool.getImgSource(m_sourceID).getAxes(
-						m_imgRef, 0);
-				ObjectCache.addObject(m_sourceID, m_imgRef + AXES_SUFFIX,
-						tmpAxes);
+				tmpAxes = ImgSourcePool.getImgSource(m_sourceID).getAxes(m_imgRef, 0);
+				CACHE.put(m_imgRef + AXES_SUFFIX, tmpAxes);
 			}
 		} catch (final Exception e) {
 			noAccessWarning(e);
@@ -385,8 +376,7 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
 			@Override
 			public int dimensionIndex(final AxisType axisType) {
 				for (int i = 0; i < axes.size(); i++) {
-					if (axisType.getLabel().equals(
-							axes.get(i).type().getLabel())) {
+					if (axisType.getLabel().equals(axes.get(i).type().getLabel())) {
 						return i;
 					}
 				}
@@ -507,8 +497,7 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
 	@Override
 	public Class<T> getPixelType() {
 		try {
-			return (Class<T>) ImgSourcePool.getImgSource(m_sourceID)
-					.getPixelType(m_imgRef, 0).getClass();
+			return (Class<T>) ImgSourcePool.getImgSource(m_sourceID).getPixelType(m_imgRef, 0).getClass();
 		} catch (final Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -527,8 +516,7 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
 	 */
 	@Override
 	public String getStringValue() {
-		final ImgSource fac = (ImgSource) ObjectCache.getCachedObject(
-				m_sourceID, m_sourceID);
+		final ImgSource fac = (ImgSource) CACHE.get(m_sourceID);
 		String facDesc = "unknown source";
 		if (fac != null) {
 			try {
@@ -550,8 +538,8 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends
 			if (m_thumb != null) {
 				return m_thumb;
 			}
-			m_thumb = ImgSourcePool.getImgSource(m_sourceID).getThumbnail(
-					m_imgRef, KNIMEKNIPPlugin.getMaximumImageCellHeight());
+			m_thumb = ImgSourcePool.getImgSource(m_sourceID).getThumbnail(m_imgRef,
+					KNIMEKNIPPlugin.getMaximumImageCellHeight());
 			m_originalDims = getDimensions();
 			return m_thumb;
 		} catch (final Exception e) {

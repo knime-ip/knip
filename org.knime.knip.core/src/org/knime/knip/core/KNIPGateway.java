@@ -1,5 +1,12 @@
 package org.knime.knip.core;
 
+import org.knime.knip.scijava.core.ResourceAwareClassLoader;
+import org.scijava.Context;
+import org.scijava.cache.CacheService;
+import org.scijava.plugin.DefaultPluginFinder;
+import org.scijava.plugin.PluginIndex;
+import org.scijava.thread.ThreadService;
+
 /*
  * ------------------------------------------------------------------------
  *
@@ -51,12 +58,6 @@ package org.knime.knip.core;
 
 import net.imagej.ops.OpService;
 
-import org.knime.knip.scijava.core.ResourceAwareClassLoader;
-import org.scijava.Context;
-import org.scijava.plugin.DefaultPluginFinder;
-import org.scijava.plugin.PluginIndex;
-import org.scijava.thread.ThreadService;
-
 /**
  * Encapsulates the SciJava instance as singleton.
  *
@@ -72,15 +73,16 @@ public class KNIPGateway {
 
     private static LabelingService m_ls;
 
+    private static CacheService m_cs;
+
     private final Context m_context;
 
     private KNIPGateway() {
         // set log level
         System.setProperty("scijava.log.level", "error");
 
-        m_context =
-                new Context(new PluginIndex(new DefaultPluginFinder(new ResourceAwareClassLoader(getClass()
-                        .getClassLoader(), getClass()))));
+        m_context = new Context(new PluginIndex(
+                new DefaultPluginFinder(new ResourceAwareClassLoader(getClass().getClassLoader(), getClass()))));
     }
 
     public static synchronized KNIPGateway getInstance() {
@@ -109,6 +111,13 @@ public class KNIPGateway {
             m_ls = getInstance().m_context.getService(LabelingService.class);
         }
         return m_ls;
+    }
+
+    public static CacheService cache() {
+        if (m_cs == null) {
+            m_cs = getInstance().m_context.getService(CacheService.class);
+        }
+        return m_cs;
     }
 
 }

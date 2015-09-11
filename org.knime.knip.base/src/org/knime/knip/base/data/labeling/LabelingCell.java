@@ -72,8 +72,8 @@ import org.knime.knip.base.KNIMEKNIPPlugin;
 import org.knime.knip.base.KNIPConstants;
 import org.knime.knip.base.data.FileStoreCellMetadata;
 import org.knime.knip.base.data.IntervalValue;
-import org.knime.knip.base.data.ObjectRepository;
 import org.knime.knip.base.renderer.ThumbnailRenderer;
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.awt.AWTImageTools;
 import org.knime.knip.core.awt.ColorLabelingRenderer;
 import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableUtils;
@@ -83,6 +83,7 @@ import org.knime.knip.core.io.externalization.BufferedDataInputStream;
 import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
 import org.knime.knip.core.io.externalization.ExternalizerManager;
 import org.scijava.Named;
+import org.scijava.cache.CacheService;
 
 import net.imagej.Sourced;
 import net.imagej.axis.CalibratedAxis;
@@ -104,13 +105,12 @@ import net.imglib2.view.Views;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, StringValue,
-        IntervalValue {
+public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, StringValue, IntervalValue {
 
     /**
      * ObjectRepository
      */
-    private static final ObjectRepository m_objectRepository = ObjectRepository.getInstance();
+    private static final CacheService m_objectRepository = KNIPGateway.cache();
 
     /**
      * NodeLogger
@@ -159,7 +159,8 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
      * @param metadata {@link LabelingMetadata} of the {@link Labeling} stored in this cell
      * @param fileStore {@link FileStore} used to serialize/deserialize this cell
      */
-    protected LabelingCell(final RandomAccessibleInterval<LabelingType<L>> labeling, final LabelingMetadata metadata, final FileStore fileStore) {
+    protected LabelingCell(final RandomAccessibleInterval<LabelingType<L>> labeling, final LabelingMetadata metadata,
+                           final FileStore fileStore) {
         super(fileStore);
         final long[] dimensions = new long[labeling.numDimensions()];
         labeling.dimensions(dimensions);
@@ -224,8 +225,9 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
         } else {
             toRender = lab2d;
         }
-        rend.setLabelingColorTable(LabelingColorTableUtils.extendLabelingColorTable(m_labelingMetadata
-                .getLabelingMetadata().getLabelingColorTable(), new RandomMissingColorHandler()));
+        rend.setLabelingColorTable(LabelingColorTableUtils
+                .extendLabelingColorTable(m_labelingMetadata.getLabelingMetadata().getLabelingColorTable(),
+                                          new RandomMissingColorHandler()));
         return AWTImageTools.renderScaledStandardColorImg(toRender, rend, factor, new long[max.length]);
     }
 
@@ -393,11 +395,10 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
                     || (m_labelingMetadata.getThumbnail().getHeight() != height)) {
                 readLabelingData(m_fileMetadata.getOffset(), false);
                 m_labelingMetadata =
-                        new LabelingCellMetadata(m_labelingMetadata.getLabelingMetadata(),
-                                m_labelingMetadata.getSize(), m_labelingMetadata.getDimensions(),
-                                createThumbnail(height / fullHeight));
+                        new LabelingCellMetadata(m_labelingMetadata.getLabelingMetadata(), m_labelingMetadata.getSize(),
+                                m_labelingMetadata.getDimensions(), createThumbnail(height / fullHeight));
                 // update cached object
-                m_objectRepository.cacheObject(this);
+                m_objectRepository.put(this, this);
             }
             return m_labelingMetadata.getThumbnail();
         }
@@ -472,7 +473,7 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
         }
 
         try {
-            final Object tmp = m_objectRepository.getCachedObject(this);
+            final Object tmp = m_objectRepository.get(this);
             if ((tmp == null) || (!metadataOnly && (((LabelingCell<L>)tmp).m_lab == null))) {
                 if (!metadataOnly) {
                     final File f = getFileStore().getFile();
@@ -491,7 +492,7 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
                     m_labelingMetadata = ExternalizerManager.read(stream);
                     stream.close();
                 }
-                m_objectRepository.cacheObject(this);
+                m_objectRepository.put(this, this);
 
             } else {
 
