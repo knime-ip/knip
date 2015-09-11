@@ -52,7 +52,6 @@ import java.awt.Image;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.lang.ref.SoftReference;
 
 import org.knime.core.util.LRUCache;
 import org.knime.knip.core.KNIPGateway;
@@ -105,7 +104,7 @@ public class AWTImageProvider extends HiddenViewerComponent {
      */
     @SuppressWarnings("unchecked")
     public static RandomAccessibleInterval<? extends RealType<?>>
-            convertIfDouble(final RandomAccessibleInterval<? extends RealType<?>> src) {
+           convertIfDouble(final RandomAccessibleInterval<? extends RealType<?>> src) {
         final IterableInterval<?> iterable = Views.iterable(src);
 
         if (iterable.firstElement() instanceof DoubleType) {
@@ -161,12 +160,12 @@ public class AWTImageProvider extends HiddenViewerComponent {
         if (m_isCachingActive) {
 
             final int hash = (31 + m_renderUnit.generateHashCode());
-            awtImage =  (Image)KNIPGateway.cache().get(hash);
+            awtImage = (Image)KNIPGateway.cache().get(hash);
 
             if (awtImage == null) {
                 awtImage = m_renderUnit.createImage();
 
-                KNIPGateway.cache().put(hash, new SoftReference<Image>(awtImage));
+                KNIPGateway.cache().put(hash, awtImage);
                 LOGGER.info("Caching Image ...");
             } else {
                 LOGGER.info("Image from Cache ...");
@@ -187,14 +186,14 @@ public class AWTImageProvider extends HiddenViewerComponent {
      *
      * @param e new selected Interval (Image, Labeling)
      */
-    private void checkRendererAndPlaneSelection(final IntervalWithMetadataChgEvent<?,?> e) {
+    private void checkRendererAndPlaneSelection(final IntervalWithMetadataChgEvent<?, ?> e) {
         final long[] dims = new long[e.getRandomAccessibleInterval().numDimensions()];
         e.getRandomAccessibleInterval().dimensions(dims);
 
         if ((m_planeSelection == null) || !isInsideDims(m_planeSelection.getPlanePos(), dims)) {
             //publish if necessary
-            m_eventService.publish(new PlaneSelectionEvent(0, 1, new long[e.getRandomAccessibleInterval()
-                    .numDimensions()]));
+            m_eventService
+                    .publish(new PlaneSelectionEvent(0, 1, new long[e.getRandomAccessibleInterval().numDimensions()]));
         }
 
         final ImageRenderer<?>[] renderers = RendererFactory.createSuitableRenderer(e.getRandomAccessibleInterval());
@@ -261,7 +260,7 @@ public class AWTImageProvider extends HiddenViewerComponent {
      * @param e new selected Interval (Image, Labeling)
      */
     @EventListener
-    public void onUpdated(final IntervalWithMetadataChgEvent<?,?> e) {
+    public void onUpdated(final IntervalWithMetadataChgEvent<?, ?> e) {
         checkRendererAndPlaneSelection(e);
     }
 
