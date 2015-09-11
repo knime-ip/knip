@@ -57,7 +57,7 @@ public class KNIPGuavaCacheService extends AbstractService implements CacheServi
 
     @Override
     public void initialize() {
-        cache = CacheBuilder.newBuilder().maximumSize(ms.limit()).build();
+        cache = CacheBuilder.newBuilder().maximumSize(ms.limit()).softValues().build();
         ms.register(new MemoryAlertable() {
 
             @Override
