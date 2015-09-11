@@ -50,6 +50,12 @@ package org.knime.knip.base.data.labeling;
 
 import java.io.IOException;
 
+import org.knime.core.data.DataType;
+import org.knime.core.data.filestore.FileStoreFactory;
+import org.knime.core.node.ExecutionContext;
+import org.knime.knip.base.data.KNIPCellFactory;
+import org.knime.knip.core.data.img.LabelingMetadata;
+
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.roi.labeling.LabelingType;
@@ -57,11 +63,6 @@ import net.imglib2.type.Type;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Util;
 import net.imglib2.view.Views;
-
-import org.knime.core.data.filestore.FileStoreFactory;
-import org.knime.core.node.ExecutionContext;
-import org.knime.knip.base.data.KNIPCellFactory;
-import org.knime.knip.core.data.img.LabelingMetadata;
 
 /**
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
@@ -109,6 +110,14 @@ public class LabelingCellFactory extends KNIPCellFactory {
         //defensive estimation of the size of the mapping (number of lists * 4 bytes per list)
         long mapSize = Util.getTypeFromInterval(lab).getMapping().numSets() * 4;
         return (bitsPerPixel / 8) * Views.iterable(lab).size() + mapSize;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DataType getDataType() {
+        return LabelingCell.TYPE;
     }
 
 }

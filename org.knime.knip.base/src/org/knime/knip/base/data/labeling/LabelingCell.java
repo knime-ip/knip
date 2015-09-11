@@ -61,22 +61,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import net.imagej.Sourced;
-import net.imagej.axis.CalibratedAxis;
-import net.imagej.space.CalibratedSpace;
-import net.imglib2.FinalInterval;
-import net.imglib2.Interval;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.ops.operation.SubsetOperations;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.view.Views;
-
 import org.knime.core.data.DataCell;
-import org.knime.core.data.DataCellDataInput;
-import org.knime.core.data.DataCellDataOutput;
-import org.knime.core.data.DataCellSerializer;
 import org.knime.core.data.DataType;
-import org.knime.core.data.DataValue;
 import org.knime.core.data.StringValue;
 import org.knime.core.data.container.BlobDataCell;
 import org.knime.core.data.filestore.FileStore;
@@ -97,6 +83,17 @@ import org.knime.knip.core.io.externalization.BufferedDataInputStream;
 import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
 import org.knime.knip.core.io.externalization.ExternalizerManager;
 import org.scijava.Named;
+
+import net.imagej.Sourced;
+import net.imagej.axis.CalibratedAxis;
+import net.imagej.space.CalibratedSpace;
+import net.imglib2.FinalInterval;
+import net.imglib2.Interval;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.labeling.Labeling;
+import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.view.Views;
 
 /**
  *
@@ -136,41 +133,6 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
      * @see BlobDataCell#USE_COMPRESSION
      */
     public static final boolean USE_COMPRESSION = false;
-
-    /**
-     * Returns the factory to read/write DataCells of this class from/to a DataInput/DataOutput. This method is called
-     * via reflection.
-     *
-     * @return A serializer for reading/writing cells of this kind.
-     * @see DataCell
-     */
-    @SuppressWarnings("rawtypes")
-    public static <L extends Number & Comparable<L>> DataCellSerializer<LabelingCell> getCellSerializer() {
-        return new DataCellSerializer<LabelingCell>() {
-
-            @Override
-            public LabelingCell<L> deserialize(final DataCellDataInput input) throws IOException {
-                final LabelingCell<L> res = new LabelingCell<L>();
-                res.load(input);
-                return res;
-
-            }
-
-            @Override
-            public void serialize(final LabelingCell cell, final DataCellDataOutput output) throws IOException {
-                cell.save(output);
-            }
-        };
-    }
-
-    /**
-     * Preferred value class of this cell implementation is ImageValue.class.
-     *
-     * @return ImageValue.class
-     */
-    public static Class<? extends DataValue> getPreferredValueClass() {
-        return LabelingValue.class;
-    }
 
     /* information needed to store the data into a file */
     private FileStoreCellMetadata m_fileMetadata;

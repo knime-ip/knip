@@ -62,26 +62,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import net.imagej.ImgPlus;
-import net.imagej.ImgPlusMetadata;
-import net.imagej.Sourced;
-import net.imagej.axis.CalibratedAxis;
-import net.imagej.space.CalibratedSpace;
-import net.imglib2.FinalInterval;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.Img;
-import net.imglib2.img.ImgView;
-import net.imglib2.ops.operation.SubsetOperations;
-import net.imglib2.ops.util.MetadataUtil;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.view.Views;
-
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataCellDataInput;
 import org.knime.core.data.DataCellDataOutput;
 import org.knime.core.data.DataCellSerializer;
 import org.knime.core.data.DataType;
-import org.knime.core.data.DataValue;
 import org.knime.core.data.StringValue;
 import org.knime.core.data.filestore.FileStore;
 import org.knime.core.data.filestore.FileStoreCell;
@@ -100,6 +85,20 @@ import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
 import org.knime.knip.core.io.externalization.ExternalizerManager;
 import org.scijava.Named;
 
+import net.imagej.ImgPlus;
+import net.imagej.ImgPlusMetadata;
+import net.imagej.Sourced;
+import net.imagej.axis.CalibratedAxis;
+import net.imagej.space.CalibratedSpace;
+import net.imglib2.FinalInterval;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
+import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.ops.util.MetadataUtil;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
+
 /**
  *
  * File cell keeping {@link ImgPlus}.
@@ -109,8 +108,15 @@ import org.scijava.Named;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements ImgPlusValue<T>, StringValue,
-        IntervalValue {
+public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
+        implements ImgPlusValue<T>, StringValue, IntervalValue {
+
+    /**
+     * Type
+     *
+     * FIXME: Replace
+     */
+    public static DataType TYPE = DataType.getType(ImgPlusCell.class);
 
     /**
      * ObjectRepository
@@ -126,11 +132,6 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
      * UID
      */
     private static final long serialVersionUID = 1L;
-
-    /**
-     * Convenience access method for DataType.getType(ImageCell.class).
-     */
-    public static final DataType TYPE = DataType.getType(ImgPlusCell.class);
 
     /**
      * @return serializer
@@ -151,18 +152,8 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
             @Override
             public void serialize(final ImgPlusCell cell, final DataCellDataOutput output) throws IOException {
                 cell.save(output);
-
             }
         };
-    }
-
-    /**
-     * Preferred value class of this cell implementation is ImageValue.class.
-     *
-     * @return ImageValue.class
-     */
-    public static Class<? extends DataValue> getPreferredValueClass() {
-        return ImgPlusValue.class;
     }
 
     private FileStoreCellMetadata m_fileMetadata;
@@ -220,10 +211,9 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
 
         m_fileMetadata = new FileStoreCellMetadata(-1, false, null);
 
-        m_imgMetadata =
-                new ImgPlusCellMetadata(MetadataUtil.copyImgPlusMetadata(metadata, new DefaultImgMetadata(
-                        dimensions.length)), img.size(), getMinFromImg(img), dimensions, img.firstElement().getClass(),
-                        null);
+        m_imgMetadata = new ImgPlusCellMetadata(
+                MetadataUtil.copyImgPlusMetadata(metadata, new DefaultImgMetadata(dimensions.length)), img.size(),
+                getMinFromImg(img), dimensions, img.firstElement().getClass(), null);
     }
 
     /**
@@ -359,7 +349,6 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
         Img<T> tmp = m_img;
 
         if (!Arrays.equals(minimum, localMin)) {
-
 
             for (int d = 0; d < minimum.length; d++) {
                 if (minimum[d] != 0) {
@@ -530,10 +519,9 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell implements
 
             if ((m_imgMetadata.getThumbnail() == null) || (m_imgMetadata.getThumbnail().getHeight() != height)) {
                 readImgData(m_fileMetadata.getOffset(), false);
-                m_imgMetadata =
-                        new ImgPlusCellMetadata(m_imgMetadata.getMetadata(), m_imgMetadata.getSize(),
-                                m_imgMetadata.getMinimum(), m_imgMetadata.getDimensions(),
-                                m_imgMetadata.getPixelType(), createThumbnail(height / fullHeight));
+                m_imgMetadata = new ImgPlusCellMetadata(m_imgMetadata.getMetadata(), m_imgMetadata.getSize(),
+                        m_imgMetadata.getMinimum(), m_imgMetadata.getDimensions(), m_imgMetadata.getPixelType(),
+                        createThumbnail(height / fullHeight));
                 // update cached object
                 m_objectRepository.cacheObject(this);
             }
