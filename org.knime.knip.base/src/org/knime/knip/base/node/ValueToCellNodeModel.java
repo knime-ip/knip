@@ -457,7 +457,7 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
             }
 
             // get column rearranger function
-            StreamableFunction columnRearrangerFunction = colRearranger.createStreamableFunction();
+            final StreamableFunction columnRearrangerFunction = colRearranger.createStreamableFunction();
 
             // create new streamablefunction, do everything columnrearranger function does but call prepareexceute in init().
             return new StreamableFunction() {
