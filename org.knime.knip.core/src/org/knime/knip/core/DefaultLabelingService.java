@@ -49,20 +49,27 @@
  */
 package org.knime.knip.core;
 
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.roi.labeling.LabelRegions;
-import net.imglib2.roi.labeling.LabelingType;
-
 import org.scijava.Priority;
+import org.scijava.cache.CacheService;
+import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 import org.scijava.service.AbstractService;
 import org.scijava.service.Service;
 
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.roi.labeling.LabelRegions;
+import net.imglib2.roi.labeling.LabelingType;
+
 /**
+ * Default implementation of {@link LabelingService}. Caches {@link LabelRegions}.
+ *
  * @author Christian Dietz, University of Konstanz
  */
 @Plugin(type = Service.class, priority = Priority.NORMAL_PRIORITY)
 public class DefaultLabelingService extends AbstractService implements LabelingService {
+
+    @Parameter
+    private CacheService cache;
 
     /**
      * {@inheritDoc}
@@ -75,11 +82,17 @@ public class DefaultLabelingService extends AbstractService implements LabelingS
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("unchecked")
     @Override
     public <L> LabelRegions<L> regions(final RandomAccessibleInterval<LabelingType<L>> labeling,
                                        final boolean forceUpdate) {
-        // TODO
-        return new LabelRegions<L>(labeling);
+        final LabelRegions<L> regions;
+        if (forceUpdate || cache.get(labeling) == null) {
+            cache.put(labeling, regions = new LabelRegions<L>(labeling));
+        } else {
+            regions = (LabelRegions<L>)cache.get(labeling);
+        }
+        return regions;
     }
 
 }
