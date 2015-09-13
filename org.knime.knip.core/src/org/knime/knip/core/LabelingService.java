@@ -45,17 +45,18 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ---------------------------------------------------------------------
  *
- * Created on Feb 4, 2015 by dietzc
  */
 package org.knime.knip.core;
+
+import org.scijava.service.Service;
 
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.roi.labeling.LabelRegions;
 import net.imglib2.roi.labeling.LabelingType;
 
-import org.scijava.service.Service;
-
 /**
+ * {@link LabelingService} provides utility methods for labelings.
+ *
  * @author Christian Dietz, University of Konstanz
  */
 public interface LabelingService extends Service {

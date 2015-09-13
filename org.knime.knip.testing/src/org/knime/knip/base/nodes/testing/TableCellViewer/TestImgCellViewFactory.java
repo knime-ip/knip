@@ -51,9 +51,6 @@ package org.knime.knip.base.nodes.testing.TableCellViewer;
 
 import java.awt.Component;
 
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.data.DataValue;
 import org.knime.core.node.config.ConfigRO;
 import org.knime.core.node.config.ConfigWO;
@@ -71,15 +68,19 @@ import org.knime.knip.core.ui.imgviewer.events.MinimapOffsetChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.NormalizationParametersChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
 import org.knime.knip.core.ui.imgviewer.events.RendererSelectionChgEvent;
-import org.knime.knip.core.ui.imgviewer.events.ResetCacheEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewZoomfactorChgEvent;
 import org.knime.knip.core.ui.imgviewer.panels.MinimapPanel;
 
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
+
 /**
- * This Class is an implementation of the {@link TableCellViewFactory} interface providing additional Methods for testing.
+ * This Class is an implementation of the {@link TableCellViewFactory} interface providing additional Methods for
+ * testing.
  *
  * <b>NOTE:</b> Currently, no testing of the transfer function view is done.
+ *
  * @author Andreas Burger, University of Konstanz
  */
 public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> implements TableCellViewFactory {
@@ -128,7 +129,7 @@ public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> imple
 
             @Override
             public void onReset() {
-                m_view.getEventService().publish(new ResetCacheEvent());
+                // Nothing to do here
             }
 
             @Override
@@ -145,9 +146,9 @@ public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> imple
                 testComponent(imgPlusValue);
             }
 
-
             /**
              * This method handles the actual testing.
+             *
              * @param imgPlusValue The Image to be displayed, used in tests.
              */
             private void testComponent(final ImgPlusValue<T> imgPlusValue) {
@@ -192,10 +193,10 @@ public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> imple
                 service.publish(new ImgRedrawEvent());
                 service.publish(new TestCompleteEvent());
 
-                service.publish(new MinimapOffsetChgEvent(new int[]{0,10}));
+                service.publish(new MinimapOffsetChgEvent(new int[]{0, 10}));
                 service.publish(new ImgRedrawEvent());
                 service.publish(new TestCompleteEvent());
-                service.publish(new MinimapOffsetChgEvent(new int[]{0,0}));
+                service.publish(new MinimapOffsetChgEvent(new int[]{0, 0}));
 
                 // PlaneSelection
 
@@ -259,7 +260,7 @@ public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> imple
 
             @Override
             public void onReset() {
-                m_view.getEventService().publish(new ResetCacheEvent());
+                // Nothing to do here
             }
 
             @Override
@@ -277,28 +278,28 @@ public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> imple
 
             /**
              * This method handles the actual testing.
+             *
              * @param imgPlusValue The Image to be displayed, used in tests.
              */
             private void testComponent(final ImgPlusValue<T> imgPlusValue) {
                 EventService service = m_view.getEventService();
 
-//              HistogramRU reacts only to PlaneSelectionEvents
+                //              HistogramRU reacts only to PlaneSelectionEvents
 
-//              PlaneSelection
+                //              PlaneSelection
 
-              if (imgPlusValue.getMetadata().numDimensions() > 1) {
+                if (imgPlusValue.getMetadata().numDimensions() > 1) {
 
-
-                  for (int i = 1; i < imgPlusValue.getMetadata().numDimensions(); ++i) {
-                      if (imgPlusValue.getDimensions()[i] > 1) {
-                          long[] tempcords = new long[imgPlusValue.getMetadata().numDimensions()];
-                          tempcords[i] = 1;
-                          service.publish(new PlaneSelectionEvent(0, i, tempcords));
-                          service.publish(new ImgRedrawEvent());
-                          service.publish(new TestCompleteEvent());
-                      }
-                  }
-              }
+                    for (int i = 1; i < imgPlusValue.getMetadata().numDimensions(); ++i) {
+                        if (imgPlusValue.getDimensions()[i] > 1) {
+                            long[] tempcords = new long[imgPlusValue.getMetadata().numDimensions()];
+                            tempcords[i] = 1;
+                            service.publish(new PlaneSelectionEvent(0, i, tempcords));
+                            service.publish(new ImgRedrawEvent());
+                            service.publish(new TestCompleteEvent());
+                        }
+                    }
+                }
             }
 
         }};

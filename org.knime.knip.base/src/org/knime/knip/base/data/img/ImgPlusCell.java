@@ -75,8 +75,8 @@ import org.knime.knip.base.KNIMEKNIPPlugin;
 import org.knime.knip.base.KNIPConstants;
 import org.knime.knip.base.data.FileStoreCellMetadata;
 import org.knime.knip.base.data.IntervalValue;
-import org.knime.knip.base.data.ObjectRepository;
 import org.knime.knip.base.renderer.ThumbnailRenderer;
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.awt.AWTImageTools;
 import org.knime.knip.core.awt.Real2GreyColorRenderer;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
@@ -84,6 +84,7 @@ import org.knime.knip.core.io.externalization.BufferedDataInputStream;
 import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
 import org.knime.knip.core.io.externalization.ExternalizerManager;
 import org.scijava.Named;
+import org.scijava.cache.CacheService;
 
 import net.imagej.ImgPlus;
 import net.imagej.ImgPlusMetadata;
@@ -121,7 +122,7 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
     /**
      * ObjectRepository
      */
-    private static final ObjectRepository m_objectRepository = ObjectRepository.getInstance();
+    private static final CacheService m_objectRepository =  KNIPGateway.cache();
 
     /**
      * Node Logger
@@ -523,7 +524,7 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
                         m_imgMetadata.getMinimum(), m_imgMetadata.getDimensions(), m_imgMetadata.getPixelType(),
                         createThumbnail(height / fullHeight));
                 // update cached object
-                m_objectRepository.cacheObject(this);
+                m_objectRepository.put(this, this);
             }
             return m_imgMetadata.getThumbnail();
         }
@@ -595,7 +596,7 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
         }
 
         try {
-            final Object tmp = m_objectRepository.getCachedObject(this);
+            final Object tmp = m_objectRepository.get(this);
             if ((tmp == null) || (!metadataOnly && (((ImgPlusCell<T>)tmp).m_img == null))) {
                 if (!metadataOnly) {
                     // if (m_imgRef != null &&
@@ -618,7 +619,7 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
                     m_imgMetadata = ExternalizerManager.read(stream);
                     stream.close();
                 }
-                m_objectRepository.cacheObject(this);
+                m_objectRepository.put(this, this);
 
             } else {
                 final ImgPlusCell<T> cell = (ImgPlusCell<T>)tmp;

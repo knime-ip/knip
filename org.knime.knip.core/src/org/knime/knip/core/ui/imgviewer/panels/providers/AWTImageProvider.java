@@ -52,7 +52,23 @@ import java.awt.Image;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.lang.ref.SoftReference;
+
+import org.knime.core.util.LRUCache;
+import org.knime.knip.core.KNIPGateway;
+import org.knime.knip.core.awt.ImageRenderer;
+import org.knime.knip.core.awt.Real2ColorByLookupTableRenderer;
+import org.knime.knip.core.awt.RendererFactory;
+import org.knime.knip.core.ui.event.EventListener;
+import org.knime.knip.core.ui.event.EventService;
+import org.knime.knip.core.ui.imgviewer.events.AWTImageChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
+import org.knime.knip.core.ui.imgviewer.events.IntervalWithMetadataChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
+import org.knime.knip.core.ui.imgviewer.events.RendererSelectionChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.SetCachingEvent;
+import org.knime.knip.core.ui.imgviewer.panels.HiddenViewerComponent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
@@ -63,23 +79,6 @@ import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.view.Views;
-
-import org.knime.knip.core.awt.ImageRenderer;
-import org.knime.knip.core.awt.Real2ColorByLookupTableRenderer;
-import org.knime.knip.core.awt.RendererFactory;
-import org.knime.knip.core.data.LRUCache;
-import org.knime.knip.core.ui.event.EventListener;
-import org.knime.knip.core.ui.event.EventService;
-import org.knime.knip.core.ui.imgviewer.events.AWTImageChgEvent;
-import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
-import org.knime.knip.core.ui.imgviewer.events.IntervalWithMetadataChgEvent;
-import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
-import org.knime.knip.core.ui.imgviewer.events.RendererSelectionChgEvent;
-import org.knime.knip.core.ui.imgviewer.events.ResetCacheEvent;
-import org.knime.knip.core.ui.imgviewer.events.SetCachingEvent;
-import org.knime.knip.core.ui.imgviewer.panels.HiddenViewerComponent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Handles the creation and caching of images for views. Publishes {@link AWTImageChgEvent} if the image changes.
@@ -105,7 +104,7 @@ public class AWTImageProvider extends HiddenViewerComponent {
      */
     @SuppressWarnings("unchecked")
     public static RandomAccessibleInterval<? extends RealType<?>>
-            convertIfDouble(final RandomAccessibleInterval<? extends RealType<?>> src) {
+           convertIfDouble(final RandomAccessibleInterval<? extends RealType<?>> src) {
         final IterableInterval<?> iterable = Views.iterable(src);
 
         if (iterable.firstElement() instanceof DoubleType) {
@@ -129,9 +128,6 @@ public class AWTImageProvider extends HiddenViewerComponent {
 
     //
 
-    /** {@link LRUCache} managing the cache of the rendered {@link Image}s. */
-    private LRUCache<Integer, SoftReference<Image>> m_awtImageCache;
-
     /** Indicates whether caching is active or not. */
     private boolean m_isCachingActive = false;
 
@@ -150,9 +146,6 @@ public class AWTImageProvider extends HiddenViewerComponent {
      *            indicates, that caching is inactive
      */
     public AWTImageProvider(final int cacheSize, final RenderUnit ru) {
-        if (cacheSize > 1) {
-            m_awtImageCache = new LRUCache<Integer, SoftReference<Image>>(cacheSize);
-        }
         m_cacheSize = cacheSize;
         m_isCachingActive = cacheSize > 1;
         m_renderUnit = ru;
@@ -167,18 +160,15 @@ public class AWTImageProvider extends HiddenViewerComponent {
         if (m_isCachingActive) {
 
             final int hash = (31 + m_renderUnit.generateHashCode());
-            final SoftReference<Image> ref = m_awtImageCache.get(hash);
-            if (ref != null) {
-                awtImage = ref.get();
-            }
+            awtImage = (Image)KNIPGateway.cache().get(hash);
 
             if (awtImage == null) {
                 awtImage = m_renderUnit.createImage();
 
-                m_awtImageCache.put(hash, new SoftReference<Image>(awtImage));
-                LOGGER.info("Caching Image ... (" + m_awtImageCache.usedEntries() + ")");
+                KNIPGateway.cache().put(hash, awtImage);
+                LOGGER.info("Caching Image ...");
             } else {
-                LOGGER.info("Image from Cache ... (" + m_awtImageCache.usedEntries() + ")");
+                LOGGER.info("Image from Cache ...");
             }
 
         } else {
@@ -196,14 +186,14 @@ public class AWTImageProvider extends HiddenViewerComponent {
      *
      * @param e new selected Interval (Image, Labeling)
      */
-    private void checkRendererAndPlaneSelection(final IntervalWithMetadataChgEvent<?,?> e) {
+    private void checkRendererAndPlaneSelection(final IntervalWithMetadataChgEvent<?, ?> e) {
         final long[] dims = new long[e.getRandomAccessibleInterval().numDimensions()];
         e.getRandomAccessibleInterval().dimensions(dims);
 
         if ((m_planeSelection == null) || !isInsideDims(m_planeSelection.getPlanePos(), dims)) {
             //publish if necessary
-            m_eventService.publish(new PlaneSelectionEvent(0, 1, new long[e.getRandomAccessibleInterval()
-                    .numDimensions()]));
+            m_eventService
+                    .publish(new PlaneSelectionEvent(0, 1, new long[e.getRandomAccessibleInterval().numDimensions()]));
         }
 
         final ImageRenderer<?>[] renderers = RendererFactory.createSuitableRenderer(e.getRandomAccessibleInterval());
@@ -270,21 +260,8 @@ public class AWTImageProvider extends HiddenViewerComponent {
      * @param e new selected Interval (Image, Labeling)
      */
     @EventListener
-    public void onUpdated(final IntervalWithMetadataChgEvent<?,?> e) {
+    public void onUpdated(final IntervalWithMetadataChgEvent<?, ?> e) {
         checkRendererAndPlaneSelection(e);
-    }
-
-    /**
-     * Resets the image cache.
-     *
-     * @param e marker event
-     */
-    @EventListener
-    public void onResetCache(final ResetCacheEvent e) {
-        if (m_isCachingActive) {
-            m_awtImageCache.clear();
-            LOGGER.debug("Image cache cleared.");
-        }
     }
 
     /**

@@ -48,9 +48,6 @@
  */
 package org.knime.knip.base.nodes.testing.TableCellViewer;
 
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.type.numeric.IntegerType;
-
 import org.knime.core.data.DataValue;
 import org.knime.core.node.config.ConfigRO;
 import org.knime.core.node.config.ConfigWO;
@@ -68,8 +65,10 @@ import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelColoringChangeEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelOptionsChangeEvent;
 import org.knime.knip.core.ui.imgviewer.events.RendererSelectionChgEvent;
-import org.knime.knip.core.ui.imgviewer.events.ResetCacheEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
+
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.numeric.IntegerType;
 
 /**
  * This Class is an implementation of the {@link TableCellViewFactory} interface providing additional Methods for
@@ -121,7 +120,7 @@ public class TestLabelingCellViewFactory<L extends Comparable<L>, II extends Int
 
             @Override
             public void onReset() {
-                getViewComponent().getEventService().publish(new ResetCacheEvent());
+                // Nothing to do here
             }
 
             @Override

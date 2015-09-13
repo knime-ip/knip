@@ -52,9 +52,6 @@ import java.awt.Component;
 
 import javax.swing.SwingWorker;
 
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.data.DataValue;
 import org.knime.core.node.config.ConfigRO;
 import org.knime.core.node.config.ConfigWO;
@@ -62,9 +59,11 @@ import org.knime.knip.base.KNIMEKNIPPlugin;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.ui.ViewerFactory;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
-import org.knime.knip.core.ui.imgviewer.events.ResetCacheEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 import org.knime.knip.core.util.waitingindicator.WaitingIndicatorUtils;
+
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * TODO Auto-generated
@@ -117,7 +116,7 @@ public class ImgCellViewFactory<T extends RealType<T> & NativeType<T>> implement
 
             @Override
             public void onReset() {
-                m_view.getEventService().publish(new ResetCacheEvent());
+                // Nothing to do here
             }
 
             @Override
@@ -183,7 +182,7 @@ public class ImgCellViewFactory<T extends RealType<T> & NativeType<T>> implement
 
             @Override
             public void onReset() {
-                m_view.getEventService().publish(new ResetCacheEvent());
+                // Nothing to do here
             }
 
             @Override

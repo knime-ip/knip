@@ -45,9 +45,14 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ---------------------------------------------------------------------
  *
- * Created on Feb 4, 2015 by dietzc
  */
+
 package org.knime.knip.core;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import org.scijava.Priority;
 import org.scijava.cache.CacheService;
@@ -56,43 +61,54 @@ import org.scijava.plugin.Plugin;
 import org.scijava.service.AbstractService;
 import org.scijava.service.Service;
 
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.roi.labeling.LabelRegions;
-import net.imglib2.roi.labeling.LabelingType;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 /**
- * Default implementation of {@link LabelingService}. Caches {@link LabelRegions}.
- *
- * @author Christian Dietz, University of Konstanz
+ * {@link CacheService} implementation wrapping a guava {@link Cache}.
  */
-@Plugin(type = Service.class, priority = Priority.NORMAL_PRIORITY)
-public class DefaultLabelingService extends AbstractService implements LabelingService {
+@Plugin(type = Service.class, priority = Priority.HIGH_PRIORITY)
+public class KNIPGuavaCacheService extends AbstractService implements CacheService {
 
     @Parameter
-    private CacheService cache;
+    private MemoryService ms;
 
-    /**
-     * {@inheritDoc}
-     */
+    private Cache<Object, Object> cache;
+
+    private final Semaphore gate = new Semaphore(1);
+
     @Override
-    public <L> LabelRegions<L> regions(final RandomAccessibleInterval<LabelingType<L>> labeling) {
-        return regions(labeling, false);
+    public void initialize() {
+        //FIXME: Make parameters accessible via image processing config at some point
+        cache = CacheBuilder.newBuilder().expireAfterAccess(20, TimeUnit.SECONDS).maximumSize((long)(ms.limit() * 0.8))
+                .weakKeys().softValues().build();
+
+        ms.register(new MemoryAlertable() {
+
+            @Override
+            public void memoryLow() {
+                if (gate.tryAcquire()) {
+                    cache.cleanUp();
+                    gate.release();
+                }
+
+            }
+        });
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
+    public void put(final Object key, final Object value) {
+        cache.put(key, value);
+    }
+
+    @Override
+    public Object get(final Object key) {
+        return cache.getIfPresent(key);
+    }
+
     @SuppressWarnings("unchecked")
     @Override
-    public <L> LabelRegions<L> regions(final RandomAccessibleInterval<LabelingType<L>> labeling,
-                                       final boolean forceUpdate) {
-        final LabelRegions<L> regions;
-        if (forceUpdate || cache.get(labeling) == null) {
-            cache.put(labeling, regions = new LabelRegions<L>(labeling));
-        } else {
-            regions = (LabelRegions<L>)cache.get(labeling);
-        }
-        return regions;
+    public <V> V get(final Object key, final Callable<V> valueLoader) throws ExecutionException {
+        return (V)cache.get(key, valueLoader);
     }
-
 }

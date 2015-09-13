@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2013
+ *  Copyright (C) 2003 - 2015
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -43,32 +43,30 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
  */
-package org.knime.knip.core.ui.imgviewer.events;
 
-import org.knime.knip.core.ui.event.KNIPEvent;
+package org.knime.knip.core;
+
+import org.scijava.service.Service;
 
 /**
- * 
- * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * Interface for {@link MemoryService} which can notify {@link MemoryAlertable}s.
+ *
+ * @author Christian Dietz, University of Konstanz
  */
-public class ResetCacheEvent implements KNIPEvent {
-
-    @Override
-    public ExecutionPriority getExecutionOrder() {
-        return ExecutionPriority.NORMAL;
-    }
+public interface MemoryService extends
+        Service {
 
     /**
-     * implements object equality {@inheritDoc}
+     * @param alertable altered on memoryLow
      */
-    @Override
-    public <E extends KNIPEvent> boolean isRedundant(final E thatEvent) {
-        return this.equals(thatEvent);
-    }
+         void register(final MemoryAlertable alertable);
+
+    /**
+     * @return maximum available RAM
+     */
+         long limit();
 
 }

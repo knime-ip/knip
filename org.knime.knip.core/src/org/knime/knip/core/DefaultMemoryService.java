@@ -45,54 +45,62 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ---------------------------------------------------------------------
  *
- * Created on Feb 4, 2015 by dietzc
  */
+
 package org.knime.knip.core;
 
-import org.scijava.Priority;
-import org.scijava.cache.CacheService;
+import java.util.WeakHashMap;
+
+import org.knime.core.data.util.memory.MemoryAlert;
+import org.knime.core.data.util.memory.MemoryAlertListener;
+import org.knime.core.data.util.memory.MemoryAlertSystem;
+import org.scijava.log.LogService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 import org.scijava.service.AbstractService;
-import org.scijava.service.Service;
-
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.roi.labeling.LabelRegions;
-import net.imglib2.roi.labeling.LabelingType;
 
 /**
- * Default implementation of {@link LabelingService}. Caches {@link LabelRegions}.
+ * Default implementation of {@link MemoryService} wrapping {@link MemoryAlertSystem}
  *
  * @author Christian Dietz, University of Konstanz
  */
-@Plugin(type = Service.class, priority = Priority.NORMAL_PRIORITY)
-public class DefaultLabelingService extends AbstractService implements LabelingService {
+@Plugin(type = MemoryService.class)
+public class DefaultMemoryService extends AbstractService implements MemoryService {
 
     @Parameter
-    private CacheService cache;
+    private LogService log;
+
+    private WeakHashMap<MemoryAlertable, MemoryAlertable> registered;
 
     /**
-     * {@inheritDoc}
+     * Default Constructor
      */
+    public DefaultMemoryService() {
+        MemoryAlertSystem.getInstance().addListener(new MemoryAlertListener() {
+
+            @Override
+            protected boolean memoryAlert(final MemoryAlert alert) {
+                log.info(getClass().getName() + " released memory for " + registered.size() + " objects");
+                for (final MemoryAlertable alertable : registered.values()) {
+                    alertable.memoryLow();
+                }
+                return false;
+            }
+
+        });
+        registered = new WeakHashMap<MemoryAlertable, MemoryAlertable>();
+    }
+
     @Override
-    public <L> LabelRegions<L> regions(final RandomAccessibleInterval<LabelingType<L>> labeling) {
-        return regions(labeling, false);
+    public void register(final MemoryAlertable alertable) {
+        registered.put(alertable, alertable);
     }
 
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     @Override
-    public <L> LabelRegions<L> regions(final RandomAccessibleInterval<LabelingType<L>> labeling,
-                                       final boolean forceUpdate) {
-        final LabelRegions<L> regions;
-        if (forceUpdate || cache.get(labeling) == null) {
-            cache.put(labeling, regions = new LabelRegions<L>(labeling));
-        } else {
-            regions = (LabelRegions<L>)cache.get(labeling);
-        }
-        return regions;
+    public long limit() {
+        return MemoryAlertSystem.getMaximumMemory();
     }
-
 }

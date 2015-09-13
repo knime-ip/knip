@@ -48,8 +48,6 @@
  */
 package org.knime.knip.base.nodes.view;
 
-import net.imglib2.type.numeric.IntegerType;
-
 import org.knime.core.data.DataValue;
 import org.knime.core.node.config.ConfigRO;
 import org.knime.core.node.config.ConfigWO;
@@ -57,12 +55,13 @@ import org.knime.knip.base.KNIMEKNIPPlugin;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.data.ui.ViewerFactory;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
-import org.knime.knip.core.ui.imgviewer.events.ResetCacheEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
+
+import net.imglib2.type.numeric.IntegerType;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -111,7 +110,7 @@ public class LabelingCellViewFactory<L extends Comparable<L>, II extends Integer
 
             @Override
             public void onReset() {
-                getViewComponent().getEventService().publish(new ResetCacheEvent());
+                // Nothing to do here
             }
 
             @Override

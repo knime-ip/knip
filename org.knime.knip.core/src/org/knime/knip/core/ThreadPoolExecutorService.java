@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2013
+ *  Copyright (C) 2003 - 2015
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -43,7 +43,7 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
  */
 package org.knime.knip.core;
@@ -131,8 +131,8 @@ public class ThreadPoolExecutorService implements ExecutorService {
     }
 
     @Override
-    public <T> T invokeAny(final Collection<? extends Callable<T>> tasks) throws InterruptedException,
-            ExecutionException {
+    public <T> T invokeAny(final Collection<? extends Callable<T>> tasks)
+            throws InterruptedException, ExecutionException {
         throw new UnsupportedOperationException("Operation not supported");
     }
 
@@ -154,13 +154,13 @@ public class ThreadPoolExecutorService implements ExecutorService {
 
     @Override
     public void shutdown() {
-//        m_pool.shutdown();
+        //        m_pool.shutdown();
     }
 
     @Override
     public List<Runnable> shutdownNow() {
-//        m_pool.interruptAll();
-//        m_pool.shutdown();
+        //        m_pool.interruptAll();
+        //        m_pool.shutdown();
         return new ArrayList<Runnable>();
     }
 
