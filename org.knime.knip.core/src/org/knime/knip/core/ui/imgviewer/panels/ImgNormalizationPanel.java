@@ -191,15 +191,16 @@ public class ImgNormalizationPanel<T extends RealType<T>, I extends Img<T>> exte
         m_eventService = eventService;
         eventService.subscribe(this);
 
-        boolean defNormalize = Platform.getPreferencesService().
-                getBoolean("org.knime.knip.base", "alwaysNormalize", true, null);
-
+        boolean defNormalize =
+                Platform.getPreferencesService().getBoolean("org.knime.knip.base", "alwaysNormalize", true, null);
         m_normalize.setSelected(defNormalize);
-
+        m_sat.setEnabled(defNormalize);
+        m_saturationSlider.setEnabled(defNormalize);
 
         // inform everybody about our settings.
         eventService
                 .publish(new NormalizationParametersChgEvent(m_saturationSlider.getValue(), m_normalize.isSelected()));
+
     }
 
     @Override

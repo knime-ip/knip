@@ -74,9 +74,6 @@ import java.util.Arrays;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.type.Type;
-
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.events.AWTImageChgEvent;
@@ -91,6 +88,9 @@ import org.knime.knip.core.ui.imgviewer.events.MinimapOffsetChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewZoomfactorChgEvent;
 import org.knime.knip.core.ui.imgviewer.panels.MinimapPanel;
+
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.type.Type;
 
 
 /**
@@ -184,12 +184,16 @@ public class ImgCanvas<T extends Type<T>, I extends RandomAccessibleInterval<T>>
                 if (m_image == null) {
                     return;
                 }
-                g.drawImage(m_image, 0, 0, (int)(m_image.getWidth(null) * m_factors[0]),
-                            (int)(m_image.getHeight(null) * m_factors[1]), null);
+                int w = this.getWidth();
+                int h = this.getHeight();
+                int imgw = (int)(m_image.getWidth(null) * m_factors[0]);
+                int imgh = (int)(m_image.getHeight(null) * m_factors[1]);
+                g.drawImage(m_image, (w-imgw)/2, (h-imgh)/2, imgw ,
+                            imgh, null);
             }
         };
 
-        m_imageCanvas.setBackground(Color.DARK_GRAY);
+        m_imageCanvas.setBackground(Color.BLACK);
         // TODO discuss global key listener
 
         m_imageCanvas.addMouseListener(new MouseAdapter() {

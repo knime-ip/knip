@@ -76,17 +76,14 @@ import org.knime.core.node.NodeView;
 import org.knime.core.node.tableview.TableContentModel;
 import org.knime.core.node.tableview.TableContentView;
 import org.knime.core.node.tableview.TableView;
-import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.event.EventServiceClient;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.ui.imgviewer.MissingImgViewer;
-import org.knime.knip.core.ui.imgviewer.ViewerComponent;
 import org.knime.knip.core.ui.imgviewer.events.TablePositionEvent;
-import org.knime.knip.core.ui.imgviewer.panels.ControlPanel;
-import org.knime.knip.core.ui.imgviewer.panels.ImageToolTipButton;
+import org.knime.knip.core.ui.imgviewer.panels.TableOverviewPanel;
 import org.knime.knip.core.ui.imgviewer.panels.ViewerControlEvent;
 import org.knime.knip.core.ui.imgviewer.panels.ViewerScrollEvent;
 import org.knime.knip.core.ui.imgviewer.panels.ViewerScrollEvent.Direction;
@@ -230,6 +227,8 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     protected ActionListener m_OverviewListener;
 
+    protected ImgViewer m_emptyImgViewer = new MissingImgViewer();
+
     protected int m_col = -1;
 
     protected DataCell m_currentCell;
@@ -351,9 +350,8 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
             // if no cell view exists for the selected cell
             if (cellView.size() == 0) {
                 m_currentCell = null;
-                ImgViewer miv =  new MissingImgViewer();
-                m_cellView.addTab("Missing Value",miv);
-                m_cellView.subscribeTo(miv);
+
+                m_cellView.addTab("Missing Value",m_emptyImgViewer);
 
                 m_cellView.setSelectedIndex(Math.max(0, Math.min(selection, m_cellView.getTabCount() - 1)));
                 m_adjusting = true;
@@ -402,75 +400,75 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         return d instanceof LabelingCell;
     }
 
-    /**
-     * Update the tooltip images associated with the navigation buttons.
-     *
-     * @param row current row
-     * @param col current column
-     * @param isLabeling is the displayed image a labeling?
-     * @param v the TableCellView to update
-     */
-    private void updateToolTips(final int row, final int col, final TableCellView v) {
-
-        if (v.getViewComponent() instanceof ImgViewer) {
-            // Get buttons
-            ImgViewer vc = (ImgViewer)v.getViewComponent();
-            ViewerComponent[] ctrls = vc.getControls();
-
-            for (int i = 0; i < 4; ++i) {
-                ImageToolTipButton b = (ImageToolTipButton)((ControlPanel)ctrls[i]).getButton();
-                boolean isLabeling = false;
-                if (i == 0) {
-                    if (cellExists(m_row + 1, col)) {
-                        DataCell d = m_tableModel.getValueAt(m_row + 1, col);
-                        if (!isLabeling(d)) {
-                            b.setToolTipImage(((ImgPlusCell)d).getThumbnail(null));
-                        } else {
-                            b.setToolTipImage(((LabelingCell)d).getThumbnail(null));
-
-                        }
-                    }
-                }
-                if (i == 1) {
-
-                    if (cellExists(row, col - 1)) {
-                        DataCell d = m_tableModel.getValueAt(row, col - 1);
-                        if (!isLabeling(d)) {
-                            b.setToolTipImage(((ImgPlusCell)d).getThumbnail(null));
-                        } else {
-                            b.setToolTipImage(((LabelingCell)d).getThumbnail(null));
-
-                        }
-                    }
-                }
-                if (i == 2) {
-
-                    if (cellExists(row, col + 1)) {
-                        DataCell d = m_tableModel.getValueAt(row, col + 1);
-                        if (!isLabeling(d)) {
-                            b.setToolTipImage(((ImgPlusCell)d).getThumbnail(null));
-                        } else {
-                            b.setToolTipImage(((LabelingCell)d).getThumbnail(null));
-
-                        }
-                    }
-                }
-                if (i == 3) {
-
-                    if (cellExists(m_row - 1, col)) {
-                        DataCell d = m_tableModel.getValueAt(m_row - 1, col);
-                        if (!isLabeling(d)) {
-                            b.setToolTipImage(((ImgPlusCell)d).getThumbnail(null));
-                        } else {
-                            b.setToolTipImage(((LabelingCell)d).getThumbnail(null));
-
-                        }
-                    }
-                }
-
-            }
-        }
-    }
+//    /**
+//     * Update the tooltip images associated with the navigation buttons.
+//     *
+//     * @param row current row
+//     * @param col current column
+//     * @param isLabeling is the displayed image a labeling?
+//     * @param v the TableCellView to update
+//     */
+//    private void updateToolTips(final int row, final int col, final TableCellView v) {
+//
+//        if (v.getViewComponent() instanceof ImgViewer) {
+//            // Get buttons
+//            ImgViewer vc = (ImgViewer)v.getViewComponent();
+//            ViewerComponent[] ctrls = vc.getControls();
+//
+//            for (int i = 0; i < 4; ++i) {
+//                ImageToolTipButton b = (ImageToolTipButton)((ControlPanel)ctrls[i]).getButton();
+//                boolean isLabeling = false;
+//                if (i == 0) {
+//                    if (cellExists(m_row + 1, col)) {
+//                        DataCell d = m_tableModel.getValueAt(m_row + 1, col);
+//                        if (!isLabeling(d)) {
+//                            b.setToolTipImage(((ImgPlusCell)d).getThumbnail(null));
+//                        } else {
+//                            b.setToolTipImage(((LabelingCell)d).getThumbnail(null));
+//
+//                        }
+//                    }
+//                }
+//                if (i == 1) {
+//
+//                    if (cellExists(row, col - 1)) {
+//                        DataCell d = m_tableModel.getValueAt(row, col - 1);
+//                        if (!isLabeling(d)) {
+//                            b.setToolTipImage(((ImgPlusCell)d).getThumbnail(null));
+//                        } else {
+//                            b.setToolTipImage(((LabelingCell)d).getThumbnail(null));
+//
+//                        }
+//                    }
+//                }
+//                if (i == 2) {
+//
+//                    if (cellExists(row, col + 1)) {
+//                        DataCell d = m_tableModel.getValueAt(row, col + 1);
+//                        if (!isLabeling(d)) {
+//                            b.setToolTipImage(((ImgPlusCell)d).getThumbnail(null));
+//                        } else {
+//                            b.setToolTipImage(((LabelingCell)d).getThumbnail(null));
+//
+//                        }
+//                    }
+//                }
+//                if (i == 3) {
+//
+//                    if (cellExists(m_row - 1, col)) {
+//                        DataCell d = m_tableModel.getValueAt(m_row - 1, col);
+//                        if (!isLabeling(d)) {
+//                            b.setToolTipImage(((ImgPlusCell)d).getThumbnail(null));
+//                        } else {
+//                            b.setToolTipImage(((LabelingCell)d).getThumbnail(null));
+//
+//                        }
+//                    }
+//                }
+//
+//            }
+//        }
+//    }
 
     protected void initViewComponents() {
 
@@ -510,6 +508,9 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
             }
         };
 
+        m_emptyImgViewer.addViewerComponent(new TableOverviewPanel());
+        m_emptyImgViewer.doneAdding();
+
         initializeListeners();
 
         // Initialize CellView
@@ -517,6 +518,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         m_cellView.setEventService(m_eventService);
 
         m_cellView.addTabChangeListener(m_changeListener);
+        m_cellView.subscribeTo(m_emptyImgViewer);
 
         //        Temporarily add loadpanel as component, so that the ui stays responsive.
         setComponent(loadpanel);
@@ -537,7 +539,9 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
                 if (e.getValueIsAdjusting()) {
                     return;
                 }
-                cellSelectionChanged();
+                if(!m_adjusting) {
+                    cellSelectionChanged();
+                }
             }
         };
 
@@ -548,7 +552,9 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
                 if (e.getValueIsAdjusting()) {
                     return;
                 }
-                cellSelectionChanged();
+                if(!m_adjusting) {
+                    cellSelectionChanged();
+                }
             }
         };
 
@@ -563,6 +569,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         }
 
         m_cellViews = new HashMap<String, List<TableCellView>>();
+
         m_viewComponents = new HashMap<String, Component>();
     }
 
