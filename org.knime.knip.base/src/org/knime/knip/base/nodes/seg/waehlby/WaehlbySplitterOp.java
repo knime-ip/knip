@@ -392,7 +392,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>>
 
         RandomAccess<LabelingType<String>> raOut = outLab.randomAccess();
 
-        regions = KNIPGateway.regions().regions(watershedResult, true);
+        regions = KNIPGateway.regions().regions(watershedResult);
         // Decide on circularity and size whether to actually merge the found objects
         for (Triple<LabeledObject, LabeledObject, String> triple : mergedList) {
             final String label = triple.getThird();

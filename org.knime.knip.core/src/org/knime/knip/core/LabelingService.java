@@ -63,6 +63,4 @@ public interface LabelingService extends Service {
 
     <L> LabelRegions<L> regions(final RandomAccessibleInterval<LabelingType<L>> labeling);
 
-    <L> LabelRegions<L> regions(RandomAccessibleInterval<LabelingType<L>> res, boolean forceUpdate);
-
 }

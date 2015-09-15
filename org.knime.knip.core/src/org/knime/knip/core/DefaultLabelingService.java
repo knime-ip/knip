@@ -74,20 +74,11 @@ public class DefaultLabelingService extends AbstractService implements LabelingS
     /**
      * {@inheritDoc}
      */
-    @Override
-    public <L> LabelRegions<L> regions(final RandomAccessibleInterval<LabelingType<L>> labeling) {
-        return regions(labeling, false);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @SuppressWarnings("unchecked")
     @Override
-    public <L> LabelRegions<L> regions(final RandomAccessibleInterval<LabelingType<L>> labeling,
-                                       final boolean forceUpdate) {
+    public <L> LabelRegions<L> regions(final RandomAccessibleInterval<LabelingType<L>> labeling) {
         final LabelRegions<L> regions;
-        if (forceUpdate || cache.get(labeling) == null) {
+        if (cache.get(labeling) == null) {
             cache.put(labeling, regions = new LabelRegions<L>(labeling));
         } else {
             regions = (LabelRegions<L>)cache.get(labeling);
