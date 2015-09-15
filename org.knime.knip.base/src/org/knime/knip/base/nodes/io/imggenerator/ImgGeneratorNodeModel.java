@@ -52,10 +52,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import net.imagej.ImgPlus;
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataTableSpec;
@@ -78,11 +74,23 @@ import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
 import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.node.port.PortObjectSpec;
+import org.knime.core.node.streamable.InputPortRole;
+import org.knime.core.node.streamable.OutputPortRole;
+import org.knime.core.node.streamable.PartitionInfo;
+import org.knime.core.node.streamable.PortInput;
+import org.knime.core.node.streamable.PortOutput;
+import org.knime.core.node.streamable.RowOutput;
+import org.knime.core.node.streamable.StreamableOperator;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.core.io.ImgGenerator;
 import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.types.NativeTypes;
+
+import net.imagej.ImgPlus;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * Generates images.
@@ -91,8 +99,8 @@ import org.knime.knip.core.types.NativeTypes;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class ImgGeneratorNodeModel<T extends NativeType<T> & RealType<T>> extends NodeModel implements
-        BufferedDataTableHolder {
+public class ImgGeneratorNodeModel<T extends NativeType<T> & RealType<T>> extends NodeModel
+        implements BufferedDataTableHolder {
 
     static SettingsModelBoolean createCFGFillRandom() {
         return new SettingsModelBoolean("cfg_fill_random", false);
@@ -168,9 +176,9 @@ public class ImgGeneratorNodeModel<T extends NativeType<T> & RealType<T>> extend
 
     public static String[] SUPPORTED_TYPES = {NativeTypes.BITTYPE.toString(), NativeTypes.BYTETYPE.toString(),
             NativeTypes.DOUBLETYPE.toString(), NativeTypes.FLOATTYPE.toString(), NativeTypes.INTTYPE.toString(),
-            NativeTypes.LONGTYPE.toString(), NativeTypes.SHORTTYPE.toString(),
-            NativeTypes.UNSIGNEDSHORTTYPE.toString(), NativeTypes.UNSIGNED12BITTYPE.toString(),
-            NativeTypes.UNSIGNEDINTTYPE.toString(), NativeTypes.UNSIGNEDBYTETYPE.toString(), "Random"};
+            NativeTypes.LONGTYPE.toString(), NativeTypes.SHORTTYPE.toString(), NativeTypes.UNSIGNEDSHORTTYPE.toString(),
+            NativeTypes.UNSIGNED12BITTYPE.toString(), NativeTypes.UNSIGNEDINTTYPE.toString(),
+            NativeTypes.UNSIGNEDBYTETYPE.toString(), "Random"};
 
     private BufferedDataTable m_data;
 
@@ -283,7 +291,42 @@ public class ImgGeneratorNodeModel<T extends NativeType<T> & RealType<T>> extend
             throws Exception {
 
         final ImgPlusCellFactory imgCellFactory = new ImgPlusCellFactory(exec);
+        prepareExection();
 
+        final BufferedDataContainer con = exec.createDataContainer(m_outspec);
+        for (int k = 0; k < m_numImgs.getIntValue(); k++) {
+            String fac = "?";
+            String type = "?";
+            try {
+                final ImgPlus<T> img = m_gen.nextImage();
+
+                fac = img.factory().toString();
+                type = NativeTypes.getPixelType(img.firstElement()).toString();
+                RowKey rowKey = new RowKey("img_" + type + "_" + fac + "_" + k);
+                img.setName(rowKey.toString());
+                img.setSource(rowKey.toString() + "_source");
+                con.addRowToTable(new DefaultRow(rowKey, imgCellFactory.createCell(img)));
+
+            } catch (final Exception e) {
+                // catch exception, if some combinations of
+                // types are not supported yet
+                LOGGER.warn("Image can't be generated.", e);
+                setWarningMessage("Some erros occured!");
+
+                con.addRowToTable(new DefaultRow(new RowKey("img_missing_" + type + "_" + fac + "_" + k),
+                        DataType.getMissingCell()));
+            }
+
+            exec.setProgress((double)k / m_numImgs.getIntValue());
+            exec.checkCanceled();
+
+        }
+        con.close();
+        m_data = con.getTable();
+        return new BufferedDataTable[]{m_data};
+    }
+
+    private void prepareExection() {
         // set all values for the creation
         m_gen.setRandomSize(m_smRandomSize.getBooleanValue());
         m_gen.setRandomFill(m_smRandomFill.getBooleanValue());
@@ -313,37 +356,6 @@ public class ImgGeneratorNodeModel<T extends NativeType<T> & RealType<T>> extend
             m_gen.setRandomFactory(false);
         }
 
-        final BufferedDataContainer con = exec.createDataContainer(m_outspec);
-        for (int k = 0; k < m_numImgs.getIntValue(); k++) {
-            String fac = "?";
-            String type = "?";
-            try {
-                final ImgPlus<T> img = m_gen.nextImage();
-
-                fac = img.factory().toString();
-                type = NativeTypes.getPixelType(img.firstElement()).toString();
-                RowKey rowKey = new RowKey("img_" + type + "_" + fac + "_" + k);
-                img.setName(rowKey.toString());
-                img.setSource(rowKey.toString() + "_source");
-                con.addRowToTable(new DefaultRow(rowKey, imgCellFactory.createCell(img)));
-
-            } catch (final Exception e) {
-                // catch exception, if some combinations of
-                // types are not supported yet
-                LOGGER.warn("Image can't be generated.", e);
-                setWarningMessage("Some erros occured!");
-
-                con.addRowToTable(new DefaultRow(new RowKey("img_missing_" + type + "_" + fac + "_" + k), DataType
-                        .getMissingCell()));
-            }
-
-            exec.setProgress((double)k / m_numImgs.getIntValue());
-            exec.checkCanceled();
-
-        }
-        con.close();
-        m_data = con.getTable();
-        return new BufferedDataTable[]{m_data};
     }
 
     @Override
@@ -355,8 +367,8 @@ public class ImgGeneratorNodeModel<T extends NativeType<T> & RealType<T>> extend
      * {@inheritDoc}
      */
     @Override
-    protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
+    protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec)
+            throws IOException, CanceledExecutionException {
         //
     }
 
@@ -382,8 +394,8 @@ public class ImgGeneratorNodeModel<T extends NativeType<T> & RealType<T>> extend
      * {@inheritDoc}
      */
     @Override
-    protected void saveInternals(final File nodeInternDir, final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
+    protected void saveInternals(final File nodeInternDir, final ExecutionMonitor exec)
+            throws IOException, CanceledExecutionException {
         //
     }
 
@@ -413,5 +425,64 @@ public class ImgGeneratorNodeModel<T extends NativeType<T> & RealType<T>> extend
 
             sm.validateSettings(settings);
         }
+    }
+
+    /*
+     * STREAMING
+     */
+    @Override
+    public InputPortRole[] getInputPortRoles() {
+        return new InputPortRole[]{InputPortRole.DISTRIBUTED_STREAMABLE};
+    }
+
+    @Override
+    public OutputPortRole[] getOutputPortRoles() {
+        return new OutputPortRole[]{OutputPortRole.DISTRIBUTED};
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public StreamableOperator createStreamableOperator(final PartitionInfo partitionInfo,
+                                                       final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
+
+        return new StreamableOperator() {
+
+            @Override
+            public void runFinal(final PortInput[] inputs, final PortOutput[] outputs, final ExecutionContext exec)
+                    throws Exception {
+                final ImgPlusCellFactory imgCellFactory = new ImgPlusCellFactory(exec);
+                RowOutput out = (RowOutput)outputs[0];
+
+                prepareExection();
+
+                for (int i = 0; i < m_numImgs.getIntValue(); i++) {
+                    String fac = "?";
+                    String type = "?";
+                    try {
+                        final ImgPlus<T> img = m_gen.nextImage();
+
+                        fac = img.factory().toString();
+                        type = NativeTypes.getPixelType(img.firstElement()).toString();
+                        RowKey rowKey = new RowKey("img_" + type + "_" + fac + "_" + i);
+                        img.setName(rowKey.toString());
+                        img.setSource(rowKey.toString() + "_source");
+
+                        out.push(new DefaultRow(rowKey, imgCellFactory.createCell(img)));
+                    } catch (final Throwable e) {
+                        // catch exception, if some combinations of
+                        // types are not supported yet
+                        LOGGER.warn("Image can't be generated.", e);
+                        setWarningMessage("Some erros occured!");
+
+                        out.push(new DefaultRow(new RowKey("img_missing_" + type + "_" + fac + "_" + i),
+                                DataType.getMissingCell()));
+                    }
+                }
+
+                out.close();
+            }
+        };
     }
 }
