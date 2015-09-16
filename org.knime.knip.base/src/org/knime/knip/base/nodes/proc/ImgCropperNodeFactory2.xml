@@ -1,6 +1,5 @@
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
-<knimeNode icon="icons/orthocropper.png" type="Manipulator"
-	deprecated="true">
+<knimeNode icon="icons/orthocropper.png" type="Manipulator">
 	<name>Image Cropper</name>
 	<shortDescription>
 		Crops orthogonal selections from an image and puts

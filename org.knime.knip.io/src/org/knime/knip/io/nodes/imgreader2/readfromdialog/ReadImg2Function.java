@@ -17,7 +17,7 @@ import org.knime.core.data.RowKey;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.util.FileUtil;
 import org.knime.core.util.Pair;
-import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
+import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection2;
 import org.knime.knip.io.nodes.imgreader2.AbstractReadImgFunction;
 
 import net.imglib2.img.Img;
@@ -34,7 +34,7 @@ import net.imglib2.type.numeric.RealType;
  */
 class ReadImg2Function<T extends RealType<T>> extends AbstractReadImgFunction<T, String> {
 
-	public ReadImg2Function(ExecutionContext exec, int numberOfFiles, SettingsModelSubsetSelection sel,
+	public ReadImg2Function(ExecutionContext exec, int numberOfFiles, SettingsModelSubsetSelection2 sel,
 			boolean readImage, boolean readMetadata, boolean readAllMetaData, boolean checkFileFormat,
 			boolean completePathRowKey, boolean isGroupFiles, int selectedSeries, ImgFactory<T> imgFactory) {
 		super(exec, numberOfFiles, sel, readImage, readMetadata, readAllMetaData, checkFileFormat, completePathRowKey,
