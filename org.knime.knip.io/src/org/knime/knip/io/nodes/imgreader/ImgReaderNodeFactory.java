@@ -58,7 +58,7 @@ import org.knime.knip.base.nodes.view.TableCellViewNodeView;
 
 /**
  * The Factory class for the Image Reader.
- *
+ * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
