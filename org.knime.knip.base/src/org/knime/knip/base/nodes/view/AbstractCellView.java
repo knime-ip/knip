@@ -53,6 +53,8 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
@@ -85,9 +87,13 @@ public abstract class AbstractCellView extends JPanel implements EventServiceCli
 
     protected EventService m_eventService;
 
+    protected List<EventService> m_contentServices;
+
     public AbstractCellView(final TableView tableView) {
 
         m_tableView = tableView;
+
+        m_contentServices = new LinkedList<EventService>();
 
         m_verticalSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 
@@ -163,8 +169,6 @@ public abstract class AbstractCellView extends JPanel implements EventServiceCli
         return m_isBottomVisible;
     }
 
-    public abstract void broadcastEvent(final KNIPEvent e);
-
     /**
      * {@inheritDoc}
      */
@@ -176,7 +180,16 @@ public abstract class AbstractCellView extends JPanel implements EventServiceCli
 
     public void subscribeTo(final Component c) {
         if (c instanceof ImgViewer) {
-            ((ImgViewer)c).getEventService().subscribe(this);
+            EventService es = ((ImgViewer)c).getEventService();
+            es.subscribe(this);
+            m_contentServices.add(es);
+        }
+    }
+
+    public void broadcastEvent(final KNIPEvent e){
+        for(EventService es : m_contentServices)
+        {
+          es.publish(e);
         }
     }
 

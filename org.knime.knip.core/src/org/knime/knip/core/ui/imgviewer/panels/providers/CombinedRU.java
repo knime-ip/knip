@@ -54,6 +54,8 @@ import java.awt.Graphics;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.knime.knip.core.awt.Transparency;
 import org.knime.knip.core.ui.event.EventListener;
@@ -63,7 +65,7 @@ import org.knime.knip.core.ui.imgviewer.events.TransparencyPanelValueChgEvent;
 /**
  * Combines multiple {@link RenderUnit}s by blending their result images together. The color WHITE is treated as
  * transparent color.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -74,7 +76,7 @@ public class CombinedRU implements RenderUnit {
      * each rendering unit produces a {@link Image} and all {@link Image}s get blended for together to produce the final
      * outcome.
      */
-    private RenderUnit[] m_renderUnits;
+    private List<RenderUnit> m_renderUnits;
 
     /** a graphic context that fits the current environment (OS ...) and can be used to create images. */
     private GraphicsConfiguration m_graphicsConfig;
@@ -94,12 +96,17 @@ public class CombinedRU implements RenderUnit {
     /**
      * Uses different parameters from the {@link EventService} to create images using its associated {@link RenderUnit}
      * s. The images are blended together and put in a cache for efficient image management.
-     * 
+     *
      * @param renderUnits the created images of the renderUnits are blended together to create the result {@link Image}
      *            of the provider.
      */
     public CombinedRU(final RenderUnit... renderUnits) {
-        m_renderUnits = renderUnits;
+        m_renderUnits = new ArrayList<RenderUnit>();
+        for(RenderUnit ru : renderUnits)
+        {
+         m_renderUnits.add(ru);
+        }
+//        m_renderUnits = renderUnits;
         m_graphicsConfig =
                 GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
     }
@@ -107,7 +114,7 @@ public class CombinedRU implements RenderUnit {
     /**
      * Creates a blended image, that consists of the result {@link Image}s of the active {@link RenderUnit}s. The parts
      * are joined using the transparency value from the last {@link TransparencyPanelValueChgEvent}.
-     * 
+     *
      * @return blended {@link Image}
      */
     @Override
@@ -120,16 +127,16 @@ public class CombinedRU implements RenderUnit {
         int i = 0;
 
         //forward to the first active image
-        while (i < m_renderUnits.length) {
-            if (m_renderUnits[i].isActive()) {
+        while (i < m_renderUnits.size()) {
+            if (m_renderUnits.get(i).isActive()) {
                 break;
             }
             i++;
         }
 
-        if (i < m_renderUnits.length) {
+        if (i < m_renderUnits.size()) {
             //at least one active image
-            Image img = m_renderUnits[i].createImage();
+            Image img = m_renderUnits.get(i).createImage();
             Image joinedImg =
                     m_graphicsConfig.createCompatibleImage(img.getWidth(null), img.getHeight(null),
                                                            java.awt.Transparency.TRANSLUCENT);
@@ -138,9 +145,9 @@ public class CombinedRU implements RenderUnit {
             i++;
 
             //blend in the other active images
-            while (i < m_renderUnits.length) {
-                if (m_renderUnits[i].isActive()) {
-                    g.drawImage(Transparency.makeColorTransparent(m_renderUnits[i].createImage(), Color.WHITE,
+            while (i < m_renderUnits.size()) {
+                if (m_renderUnits.get(i).isActive()) {
+                    g.drawImage(Transparency.makeColorTransparent(m_renderUnits.get(i).createImage(), Color.WHITE,
                                                                   m_transparency), 0, 0, null);
                 }
                 i++;
@@ -187,11 +194,16 @@ public class CombinedRU implements RenderUnit {
         return isActive;
     }
 
+    public void addRenderUnit(final RenderUnit ru)
+    {
+        m_renderUnits.add(ru);
+    }
+
     // event handling
 
     /**
      * The transparency value determines how the {@link Image}s of multiple {@link RenderUnit}s get blended together.
-     * 
+     *
      * @param e transparency value used for blending
      */
     @EventListener

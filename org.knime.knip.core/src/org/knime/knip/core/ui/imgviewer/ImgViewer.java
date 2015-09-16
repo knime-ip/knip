@@ -183,8 +183,6 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
     private JButton m_overviewButton;
 
-    private ViewerComponent[] m_controls = new ViewerComponent[4];
-
     /** keep the option panel-references to load and save configurations */
     protected List<ViewerComponent> m_viewerComponents;
 
@@ -206,13 +204,38 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
         m_background = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         setLayout(new BorderLayout());
-        JPanel leftPanel = new JPanel();
 
         // Left side - the actual view
 
+        JPanel view = createViewPanel();
+
+        // Right panel, i.e. the menus
+
+        m_rightPanel = new JPanel();
+        JScrollPane sp = new JScrollPane(m_rightPanel);
+        sp.setMinimumSize(new Dimension(300, sp.getMinimumSize().height));
+        sp.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        m_rightPanel.setLayout(new GridBagLayout());
+        m_rightPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+
+        m_background.setLeftComponent(view);
+        m_background.setRightComponent(sp);
+        m_background.setResizeWeight(1);
+        m_background.setDividerSize(5);
+
+        add(m_background);
+
+    }
+
+    /**
+     * @param leftPanel
+     */
+    protected JPanel createViewPanel() {
+
+        JPanel viewPanel = new JPanel();
         GridBagConstraints gbc = new GridBagConstraints();
         GridBagLayout gbl = new GridBagLayout();
-        leftPanel.setLayout(gbl);
+        viewPanel.setLayout(gbl);
 
         // Infopanel
         gbc.anchor = GridBagConstraints.CENTER;
@@ -227,7 +250,7 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
         m_infoPanel = new JPanel();
         m_infoPanel.setLayout(new BorderLayout());
-        leftPanel.add(m_infoPanel, gbc);
+        viewPanel.add(m_infoPanel, gbc);
 
         // The imageview
 
@@ -243,7 +266,7 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
         m_centerPanel = new JPanel();
         m_centerPanel.setLayout(new BorderLayout());
-        leftPanel.add(m_centerPanel, gbc);
+        viewPanel.add(m_centerPanel, gbc);
 
         // Left & right control panel
 
@@ -262,14 +285,14 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
         m_leftControl = new JPanel();
         m_leftControl.setLayout(new BorderLayout());
-        leftPanel.add(m_leftControl, gbc);
+        viewPanel.add(m_leftControl, gbc);
 
         gbc.gridx = 6;
         gbc.gridy = 4;
 
         m_rightControl = new JPanel();
         m_rightControl.setLayout(new BorderLayout());
-        leftPanel.add(m_rightControl, gbc);
+        viewPanel.add(m_rightControl, gbc);
 
         // Top & botton control panel
 
@@ -281,14 +304,14 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
         m_bottomControl = new JPanel();
         m_bottomControl.setLayout(new BorderLayout());
-        leftPanel.add(m_bottomControl, gbc);
+        viewPanel.add(m_bottomControl, gbc);
 
         gbc.gridx = 3;
         gbc.gridy = 0;
 
         m_topControl = new JPanel();
         m_topControl.setLayout(new BorderLayout());
-        leftPanel.add(m_topControl, gbc);
+        viewPanel.add(m_topControl, gbc);
 
         // Overview and quickview panel
 
@@ -303,11 +326,11 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
         m_bottomQuickViewButton =
                 new JToggleButton(new ImageIcon(i.getImage().getScaledInstance(32, 16, java.awt.Image.SCALE_SMOOTH)));
-        m_bottomQuickViewButton.setSelectedIcon(new ImageIcon(i2.getImage()
-                .getScaledInstance(32, 16, java.awt.Image.SCALE_SMOOTH)));
+        m_bottomQuickViewButton
+                .setSelectedIcon(new ImageIcon(i2.getImage().getScaledInstance(32, 16, java.awt.Image.SCALE_SMOOTH)));
         m_bottomQuickViewButton.setMnemonic(KeyEvent.VK_Q);
 
-        leftPanel.add(m_bottomQuickViewButton, gbc);
+        viewPanel.add(m_bottomQuickViewButton, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -328,41 +351,29 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
                 new JButton(new ImageIcon(i.getImage().getScaledInstance(32, 16, java.awt.Image.SCALE_SMOOTH)));
         m_overviewButton.setMnemonic(KeyEvent.VK_B);
         overviewButtonPanel.add(m_overviewButton, BorderLayout.CENTER);
-        leftPanel.add(overviewButtonPanel, gbc);
+        viewPanel.add(overviewButtonPanel, gbc);
 
+        new JButton(new ImageIcon(i.getImage().getScaledInstance(32, 16, java.awt.Image.SCALE_SMOOTH)));
+        m_overviewButton.setMnemonic(KeyEvent.VK_B);
+        overviewButtonPanel.add(m_overviewButton, BorderLayout.CENTER);
+        viewPanel.add(overviewButtonPanel, gbc);
 
-            new JButton(new ImageIcon(i.getImage().getScaledInstance(32, 16, java.awt.Image.SCALE_SMOOTH)));
-            m_overviewButton.setMnemonic(KeyEvent.VK_B);
-            overviewButtonPanel.add(m_overviewButton, BorderLayout.CENTER);
-            leftPanel.add(overviewButtonPanel, gbc);
+        m_overviewButton.addActionListener(new ActionListener() {
 
-            m_overviewButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                m_eventService.publish(new ViewerControlEvent());
 
-                @Override
-                public void actionPerformed(final ActionEvent e) {
-                    m_eventService.publish(new ViewerControlEvent());
+            }
 
-                }
+        });
 
-            });
+        m_bottomControl.add(Box.createRigidArea(new Dimension(16, 16)));
+        m_leftControl.add(Box.createRigidArea(new Dimension(16, 16)));
+        m_topControl.add(Box.createRigidArea(new Dimension(16, 16)));
+        m_rightControl.add(Box.createRigidArea(new Dimension(16, 16)));
 
-
-        // Right panel, i.e. the menus
-
-        m_rightPanel = new JPanel();
-        JScrollPane sp = new JScrollPane(m_rightPanel);
-        sp.setMinimumSize(new Dimension(300, sp.getMinimumSize().height));
-        sp.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        m_rightPanel.setLayout(new GridBagLayout());
-        m_rightPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
-
-        m_background.setLeftComponent(leftPanel);
-        m_background.setRightComponent(sp);
-        m_background.setResizeWeight(1);
-        m_background.setDividerSize(5);
-
-        add(m_background);
-
+        return viewPanel;
     }
 
     /**
@@ -397,19 +408,19 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
                 break;
             case SOUTH: // BTMCONTROL
                 m_bottomControl.add(panel);
-                m_controls[0] = panel;
+
                 break;
             case WEST: // LFTCONTROL
                 m_leftControl.add(panel);
-                m_controls[1] = panel;
+
                 break;
             case EAST:
                 m_rightControl.add(panel);
-                m_controls[2] = panel;
+
                 break;
             case NORTH:
                 m_topControl.add(panel);
-                m_controls[3] = panel;
+
                 break;
             case INFO: // CONTROL
                 m_infoPanel.add(panel);
@@ -451,19 +462,6 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
         m_rightPanel.add(panel, gbc);
     }
 
-    private void addControls(){
-
-    }
-
-    /**
-     * Returns the four buttons used to navigate the Table in the order bottom, left, right, top.
-     *
-     * @return An array containing the navigation buttons
-     */
-    public ViewerComponent[] getControls() {
-        return m_controls;
-    }
-
     /**
      * Returns the button used to show the quick view of the table in the viewer
      *
@@ -495,15 +493,15 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
      * @param labeling
      * @param metadata
      */
-    public <L> void setLabeling(final RandomAccessibleInterval<LabelingType<L>> labeling, final LabelingMetadata metadata) {
+    public <L> void setLabeling(final RandomAccessibleInterval<LabelingType<L>> labeling,
+                                final LabelingMetadata metadata) {
         // make sure that at least two dimensions exist
         RandomAccessibleInterval<LabelingType<L>> labeling2d = labeling;
         LabelingMetadata resMetadata = metadata;
         if (labeling2d.numDimensions() <= 1) {
             labeling2d = Views.addDimension(labeling2d, 0, 0);
-            resMetadata =
-                    new DefaultLabelingMetadata(new DefaultCalibratedSpace(2), resMetadata, resMetadata,
-                            resMetadata.getLabelingColorTable());
+            resMetadata = new DefaultLabelingMetadata(new DefaultCalibratedSpace(2), resMetadata, resMetadata,
+                    resMetadata.getLabelingColorTable());
         }
 
         m_eventService.publish(new LabelingWithMetadataChgEvent(labeling2d, resMetadata));
