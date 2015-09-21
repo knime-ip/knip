@@ -75,22 +75,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.imagej.ImgPlus;
-import net.imglib2.Cursor;
-import net.imglib2.FinalInterval;
-import net.imglib2.Interval;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.Img;
-import net.imglib2.img.ImgView;
-import net.imglib2.ops.operation.SubsetOperations;
-import net.imglib2.ops.operation.iterableinterval.unary.Centroid;
-import net.imglib2.roi.Regions;
-import net.imglib2.roi.labeling.LabelRegion;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.type.logic.BitType;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.view.Views;
-
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
@@ -131,6 +115,21 @@ import org.knime.knip.core.ops.filters.DirectionalGradient.GradientDirection;
 import org.knime.knip.core.ops.labeling.ContourDetector;
 import org.knime.knip.core.ops.labeling.PartialProjectionNodeTools;
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter;
+
+import net.imagej.ImgPlus;
+import net.imglib2.Cursor;
+import net.imglib2.FinalInterval;
+import net.imglib2.Interval;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
+import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.ops.operation.iterableinterval.unary.Centroid;
+import net.imglib2.roi.labeling.LabelRegion;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.logic.BitType;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
 
 /**
  *
@@ -199,7 +198,8 @@ public class ContourDetectorNodeModel<T extends RealType<T>, L extends Comparabl
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
         m_imgColIdx = inSpecs[0].findColumnIndex(m_smImgColumn.getStringValue());
         if (m_imgColIdx == -1) {
-            if ((m_imgColIdx = NodeUtils.autoOptionalColumnSelection(inSpecs[0], m_smImgColumn, ImgPlusValue.class)) >= 0) {
+            if ((m_imgColIdx =
+                    NodeUtils.autoOptionalColumnSelection(inSpecs[0], m_smImgColumn, ImgPlusValue.class)) >= 0) {
                 setWarningMessage("Auto-configure Column: " + m_smImgColumn.getStringValue());
             } else {
                 throw new InvalidSettingsException("No img column selected!");
@@ -208,16 +208,16 @@ public class ContourDetectorNodeModel<T extends RealType<T>, L extends Comparabl
 
         m_seedColIdx = inSpecs[0].findColumnIndex(m_smSeedColumn.getStringValue());
         if (m_seedColIdx == -1) {
-            if ((m_seedColIdx = NodeUtils.autoOptionalColumnSelection(inSpecs[0], m_smSeedColumn, ImgPlusValue.class)) >= 0) {
+            if ((m_seedColIdx =
+                    NodeUtils.autoOptionalColumnSelection(inSpecs[0], m_smSeedColumn, ImgPlusValue.class)) >= 0) {
                 setWarningMessage("Auto-configure Column: " + m_smSeedColumn.getStringValue());
             } else {
                 throw new InvalidSettingsException("No seed column selected!");
             }
         }
 
-        m_outSpec =
-                new DataTableSpec(new String[]{"BitMasks", "Seeding Labeling", "Score", "Label"}, new DataType[]{
-                        ImgPlusCell.TYPE, LabelingCell.TYPE, DoubleCell.TYPE, StringCell.TYPE});
+        m_outSpec = new DataTableSpec(new String[]{"BitMasks", "Seeding Labeling", "Score", "Label"},
+                new DataType[]{ImgPlusCell.TYPE, LabelingCell.TYPE, DoubleCell.TYPE, StringCell.TYPE});
         return new DataTableSpec[]{m_outSpec};
     }
 
@@ -272,9 +272,8 @@ public class ContourDetectorNodeModel<T extends RealType<T>, L extends Comparabl
             final RandomAccessibleInterval<LabelingType<L>> seeds =
                     ((LabelingValue<L>)currentRow.getCell(m_seedColIdx)).getLabeling();
 
-            final Interval[] resIntervals =
-                    m_smImgDimensions.getIntervals((((LabelingValue<L>)currentRow.getCell(m_seedColIdx))
-                            .getLabelingMetadata()), seeds);
+            final Interval[] resIntervals = m_smImgDimensions
+                    .getIntervals((((LabelingValue<L>)currentRow.getCell(m_seedColIdx)).getLabelingMetadata()), seeds);
 
             // Creating intervals plane selection + angular
             final Interval[] imgWithPotentiallyAnglularDimIntervals = smAngularDimensions.getIntervals(img, img);
@@ -309,34 +308,29 @@ public class ContourDetectorNodeModel<T extends RealType<T>, L extends Comparabl
 
                 PolarImageFactory<T> polarFac;
                 if (angularDim == -1) {
-                    polarFac =
-                            new PolarImageFactory<T>(
-                                    Views.extend(iterableSubsetView,
-                                                 org.knime.knip.core.types.OutOfBoundsStrategyFactory
-                                                         .<T, RandomAccessibleInterval<T>> getStrategy(m_outOfBoundsSelection
-                                                                                                               .getStringValue(),
-                                                                                                       img.firstElement()))
+                    polarFac = new PolarImageFactory<T>(
+                            Views.extend(iterableSubsetView,
+                                         org.knime.knip.core.types.OutOfBoundsStrategyFactory
+                                                 .<T, RandomAccessibleInterval<T>> getStrategy(m_outOfBoundsSelection
+                                                         .getStringValue(), img.firstElement()))
 
-                            );
+                    );
                 } else {
-                    polarFac =
-                            new PolarImageFactory<T>(
-                                    Views.extend(iterableSubsetView,
-                                                 org.knime.knip.core.types.OutOfBoundsStrategyFactory
-                                                         .<T, RandomAccessibleInterval<T>> getStrategy(m_outOfBoundsSelection
-                                                                                                               .getStringValue(),
-                                                                                                       img.firstElement())),
+                    polarFac = new PolarImageFactory<T>(
+                            Views.extend(iterableSubsetView,
+                                         org.knime.knip.core.types.OutOfBoundsStrategyFactory
+                                                 .<T, RandomAccessibleInterval<T>> getStrategy(m_outOfBoundsSelection
+                                                         .getStringValue(), img.firstElement())),
 
-                                    angularDim, img.dimension(angularDim));
+                    angularDim, img.dimension(angularDim));
                 }
 
                 // Create Directional Gradient transformed
                 // source img
                 DirectionalGradient<T, Img<T>> preProc = null;
                 if (m_smCalcGradient.getBooleanValue()) {
-                    preProc =
-                            new DirectionalGradient<T, Img<T>>(GradientDirection.HORIZONTAL, m_smGradientDirection
-                                    .getStringValue().equals(GRADIENT_DIRECTIONS[1]));
+                    preProc = new DirectionalGradient<T, Img<T>>(GradientDirection.HORIZONTAL,
+                            m_smGradientDirection.getStringValue().equals(GRADIENT_DIRECTIONS[1]));
                 }
 
                 // Initializing seeding points
@@ -370,11 +364,10 @@ public class ContourDetectorNodeModel<T extends RealType<T>, L extends Comparabl
                 }
                 seedingPoints = seedsVector.toArray(new Vector[seedsVector.size()]);
 
-                final ContourDetector<T> cd =
-                        new ContourDetector<T>(new PolarImageFactory[]{polarFac}, preProc, m_smRadius.getIntValue(),
-                                m_smNumAngles.getIntValue(), seedingPoints, m_smLineVariance.getIntValue(),
-                                m_smOverlap.getDoubleValue(), m_smMinScore.getDoubleValue(), m_smMinArea.getIntValue(),
-                                m_smSmoothGradient.getBooleanValue());
+                final ContourDetector<T> cd = new ContourDetector<T>(new PolarImageFactory[]{polarFac}, preProc,
+                        m_smRadius.getIntValue(), m_smNumAngles.getIntValue(), seedingPoints,
+                        m_smLineVariance.getIntValue(), m_smOverlap.getDoubleValue(), m_smMinScore.getDoubleValue(),
+                        m_smMinArea.getIntValue(), m_smSmoothGradient.getBooleanValue());
                 cd.detectContours();
                 for (int c = 0; c < cd.getNumDetectedContours(); c++) {
                     final ExtendedPolygon polygon = cd.getContour(c);
@@ -424,9 +417,8 @@ public class ContourDetectorNodeModel<T extends RealType<T>, L extends Comparabl
                     dims[selected[1]] = bitMask.dimension(1);
                     final Img<BitType> resBitMask = img.factory().imgFactory(new BitType()).create(dims, new BitType());
 
-                    final Cursor<BitType> resCursor =
-                            Views.flatIterable(SubsetOperations.subsetview(resBitMask, new FinalInterval(dims)))
-                                    .cursor();
+                    final Cursor<BitType> resCursor = Views
+                            .flatIterable(SubsetOperations.subsetview(resBitMask, new FinalInterval(dims))).cursor();
                     final Cursor<BitType> srcCursor = Views.flatIterable(bitMask).cursor();
 
                     while (resCursor.hasNext()) {
@@ -437,9 +429,14 @@ public class ContourDetectorNodeModel<T extends RealType<T>, L extends Comparabl
                     resMin[selected[0]] = (long)r.getMinX();
                     resMin[selected[1]] = (long)r.getMinY();
 
-                    con.addRowToTable(new DefaultRow(new RowKey(rowKey), cellFactory.createCell(new ImgPlus<BitType>(
-                            ImgView.wrap(Views.translate(resBitMask, resMin), img.factory().imgFactory(new BitType())),
-                            img)), currentRow.getCell(m_seedColIdx), new DoubleCell(cd.getContourScore(c)),
+                    con.addRowToTable(new DefaultRow(new RowKey(
+                            rowKey), cellFactory.createCell(
+                                                            new ImgPlus<BitType>(
+                                                                    ImgView.wrap(Views.translate(resBitMask, resMin),
+                                                                                 img.factory()
+                                                                                         .imgFactory(new BitType())),
+                                                           img)),
+                            currentRow.getCell(m_seedColIdx), new DoubleCell(cd.getContourScore(c)),
                             new StringCell(label.toString())));
                 }
                 exec.checkCanceled();
@@ -455,8 +452,8 @@ public class ContourDetectorNodeModel<T extends RealType<T>, L extends Comparabl
     }
 
     @Override
-    protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
+    protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec)
+            throws IOException, CanceledExecutionException {
         //
     }
 
@@ -500,8 +497,8 @@ public class ContourDetectorNodeModel<T extends RealType<T>, L extends Comparabl
     }
 
     @Override
-    protected void saveInternals(final File nodeInternDir, final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
+    protected void saveInternals(final File nodeInternDir, final ExecutionMonitor exec)
+            throws IOException, CanceledExecutionException {
         //
     }
 
@@ -532,8 +529,8 @@ public class ContourDetectorNodeModel<T extends RealType<T>, L extends Comparabl
         int numAngles = m_smNumAngles.getIntValue();
         if (m_smSmoothGradient.getBooleanValue() && (Integer.highestOneBit(numAngles) != numAngles)) {
             numAngles = nextPow2(numAngles);
-            NodeLogger.getLogger(this.getClass()).warn("Number of angles is not a power of 2 and was replaced by "
-                                                               + numAngles + ".");
+            NodeLogger.getLogger(this.getClass())
+                    .warn("Number of angles is not a power of 2 and was replaced by " + numAngles + ".");
         }
         m_smSeedColumn.validateSettings(settings);
         m_outOfBoundsSelection.validateSettings(settings);

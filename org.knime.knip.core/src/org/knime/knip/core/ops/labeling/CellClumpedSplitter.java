@@ -60,6 +60,13 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.FutureTask;
 
+import org.knime.knip.core.KNIPGateway;
+import org.knime.knip.core.algorithm.extendedem.AttributeTmp;
+import org.knime.knip.core.algorithm.extendedem.ExtendedEM;
+import org.knime.knip.core.algorithm.extendedem.InstanceTmp;
+import org.knime.knip.core.algorithm.extendedem.InstancesTmp;
+import org.knime.knip.core.ops.bittype.PositionsToBitTypeImage;
+
 import net.imagej.ImgPlus;
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccess;
@@ -70,7 +77,6 @@ import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.img.sparse.NtreeImgFactory;
 import net.imglib2.ops.operation.UnaryOperation;
-import net.imglib2.ops.operation.iterableinterval.unary.Centroid;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.DistanceMap;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.LocalMaximaForDistanceMap;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.LocalMaximaForDistanceMap.NeighborhoodType;
@@ -84,13 +90,6 @@ import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.integer.IntType;
 import net.imglib2.type.numeric.real.FloatType;
-
-import org.knime.knip.core.KNIPGateway;
-import org.knime.knip.core.algorithm.extendedem.AttributeTmp;
-import org.knime.knip.core.algorithm.extendedem.ExtendedEM;
-import org.knime.knip.core.algorithm.extendedem.InstanceTmp;
-import org.knime.knip.core.algorithm.extendedem.InstancesTmp;
-import org.knime.knip.core.ops.bittype.PositionsToBitTypeImage;
 
 /**
  * <code> code m_executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());<br>
@@ -177,8 +176,8 @@ public class CellClumpedSplitter<L> implements
 
     @Override
     public RandomAccessibleInterval<LabelingType<Integer>>
-            compute(final RandomAccessibleInterval<LabelingType<L>> cellLabeling,
-                    final RandomAccessibleInterval<LabelingType<Integer>> res) {
+           compute(final RandomAccessibleInterval<LabelingType<L>> cellLabeling,
+                   final RandomAccessibleInterval<LabelingType<Integer>> res) {
 
         /*
          * dim test
@@ -209,10 +208,9 @@ public class CellClumpedSplitter<L> implements
          */
         final List<long[]> posses = m_localMaximaOp.compute(distanceMap, new ArrayList<long[]>());
 
-        final Img<BitType> maxima =
-                new PositionsToBitTypeImage().compute(posses,
-                                                      new ImgPlus<BitType>(new NtreeImgFactory<BitType>()
-                                                              .create(cellLabeling, new BitType())));
+        final Img<BitType> maxima = new PositionsToBitTypeImage()
+                .compute(posses,
+                         new ImgPlus<BitType>(new NtreeImgFactory<BitType>().create(cellLabeling, new BitType())));
 
         final RandomAccessibleInterval<LabelingType<Integer>> lab =
                 new ImgLabeling<Integer, IntType>(new NtreeImgFactory<IntType>().create(cellLabeling, new IntType()));
@@ -238,9 +236,9 @@ public class CellClumpedSplitter<L> implements
         /*
          * computed centroids and saved into localMaxima BitType Img
          */
-        final ImgPlus<BitType> localMaxima =
-                new PositionsToBitTypeImage().compute(centroidsList, new ImgPlus<BitType>(
-                        new NtreeImgFactory<BitType>().create(cellLabeling, new BitType())));
+        final ImgPlus<BitType> localMaxima = new PositionsToBitTypeImage()
+                .compute(centroidsList,
+                         new ImgPlus<BitType>(new NtreeImgFactory<BitType>().create(cellLabeling, new BitType())));
 
         /*
          * set boundaries. needed for internal cca
@@ -847,7 +845,7 @@ public class CellClumpedSplitter<L> implements
 
     @Override
     public UnaryOperation<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<Integer>>>
-            copy() {
+           copy() {
         return new CellClumpedSplitter<L>(m_neighborhood, m_executor, m_minMaximaSize, m_ignoreValueBelowAvgPrecent,
                 m_maxInterations);
     }
