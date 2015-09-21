@@ -54,22 +54,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import net.imagej.ImgPlus;
-import net.imagej.ImgPlusMetadata;
-import net.imagej.axis.CalibratedAxis;
-import net.imagej.axis.DefaultLinearAxis;
-import net.imagej.axis.TypedAxis;
-import net.imagej.space.CalibratedSpace;
-import net.imagej.space.DefaultCalibratedSpace;
-import net.imglib2.FinalInterval;
-import net.imglib2.Interval;
-import net.imglib2.img.Img;
-import net.imglib2.img.ImgView;
-import net.imglib2.ops.operation.Operations;
-import net.imglib2.ops.operation.SubsetOperations;
-import net.imglib2.ops.operation.interval.binary.IntervalsFromDimSelection;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -100,6 +84,22 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
+
+import net.imagej.ImgPlus;
+import net.imagej.ImgPlusMetadata;
+import net.imagej.axis.CalibratedAxis;
+import net.imagej.axis.DefaultLinearAxis;
+import net.imagej.axis.TypedAxis;
+import net.imagej.space.CalibratedSpace;
+import net.imagej.space.DefaultCalibratedSpace;
+import net.imglib2.FinalInterval;
+import net.imglib2.Interval;
+import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
+import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.ops.operation.interval.binary.IntervalsFromDimSelection;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * Splits an image.
@@ -448,7 +448,7 @@ public class SplitterNodeModel<T extends RealType<T>> extends NodeModel implemen
      */
     @Override
     protected void reset() {
-        //
+        m_data = null;
     }
 
     /**
