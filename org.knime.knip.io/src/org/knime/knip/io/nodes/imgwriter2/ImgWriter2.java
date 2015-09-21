@@ -48,30 +48,29 @@
  */
 package org.knime.knip.io.nodes.imgwriter2;
 
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+
+import org.knime.core.node.NodeLogger;
+import org.knime.knip.io.ScifioGateway;
+import org.scijava.Context;
+
+import io.scif.DependencyException;
 import io.scif.Format;
 import io.scif.FormatException;
+import io.scif.MissingLibraryException;
 import io.scif.SCIFIO;
 import io.scif.Writer;
 import io.scif.common.DataTools;
 import io.scif.config.SCIFIOConfig;
 import io.scif.img.ImgIOException;
 import io.scif.img.ImgSaver;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-
+import io.scif.services.ServiceException;
+import net.imagej.ImgPlus;
 import net.imglib2.exception.IncompatibleTypeException;
 import net.imglib2.img.Img;
-import net.imglib2.meta.ImgPlus;
 import net.imglib2.type.numeric.RealType;
-
-import org.knime.core.node.NodeLogger;
-import org.knime.knip.io.ScifioGateway;
-import org.scijava.Context;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Provides the functionality to write {@link Img}s using the
