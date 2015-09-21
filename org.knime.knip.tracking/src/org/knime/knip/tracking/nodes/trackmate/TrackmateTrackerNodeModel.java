@@ -93,7 +93,6 @@ import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.roi.labeling.LabelRegions;
 import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.logic.BitType;
-import net.imglib2.type.logic.BoolType;
 
 /**
  * Node Model for the Trackmate Tracker Node.
@@ -712,7 +711,7 @@ public class TrackmateTrackerNodeModel extends NodeModel
     private Img<BitType> createBinaryMask(LabelRegions<String> regions,
             String trackName) {
 
-        final IterableInterval<BoolType> labelII =
+        final IterableInterval<Void> labelII =
                 Regions.iterable(regions.getLabelRegion(trackName));
 
         final long[] dimensions = new long[labelII.numDimensions()];
@@ -721,7 +720,7 @@ public class TrackmateTrackerNodeModel extends NodeModel
         final Img<BitType> mask =
                 new ArrayImgFactory<BitType>().create(labelII, new BitType());
         final RandomAccess<BitType> maskRA = mask.randomAccess();
-        final Cursor<BoolType> cur = labelII.localizingCursor();
+        final Cursor<Void> cur = labelII.localizingCursor();
 
         while (cur.hasNext()) {
             cur.fwd();

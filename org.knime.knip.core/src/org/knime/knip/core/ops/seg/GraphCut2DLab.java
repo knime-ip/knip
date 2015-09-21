@@ -53,6 +53,9 @@ import java.util.Comparator;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.knime.knip.core.KNIPGateway;
+import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter;
+
 import net.imglib2.Cursor;
 import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
@@ -61,6 +64,7 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.exception.IncompatibleTypeException;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgView;
+import net.imglib2.labeling.Labeling;
 import net.imglib2.ops.operation.BinaryObjectFactory;
 import net.imglib2.ops.operation.BinaryOutputOperation;
 import net.imglib2.ops.operation.SubsetOperations;
@@ -68,12 +72,8 @@ import net.imglib2.ops.operation.iterableinterval.unary.MakeHistogram;
 import net.imglib2.roi.labeling.LabelRegions;
 import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.logic.BitType;
-import net.imglib2.type.logic.BoolType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.IntervalIndexer;
-
-import org.knime.knip.core.KNIPGateway;
-import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter;
 
 /**
  * GraphCut where the average value for the sink and source are retrieved from a labeling.
@@ -168,7 +168,7 @@ public class GraphCut2DLab<T extends RealType<T>, L extends Comparable<L>> imple
                 continue;
             }
 
-            final Cursor<BoolType> roiCursor = regions.getLabelRegion(label).cursor();
+            final Cursor<Void> roiCursor = regions.getLabelRegion(label).cursor();
             final RandomAccess<T> srcRA = src.randomAccess();
 
             while (roiCursor.hasNext()) {
