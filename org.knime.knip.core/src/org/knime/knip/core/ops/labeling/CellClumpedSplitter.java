@@ -222,13 +222,17 @@ public class CellClumpedSplitter<L> implements
         final LabelRegions<Integer> intRegions = KNIPGateway.regions().regions(lab);
         final ArrayList<long[]> centroidsList = new ArrayList<long[]>();
         for (final LabelRegion<Integer> region : intRegions) {
-            final double[] centroidD = new Centroid().compute(region, new double[region.numDimensions()]);
 
-            final long[] centroidL = new long[numDim];
-            for (int d = 0; d < numDim; ++d) {
-                centroidL[d] = (long)centroidD[d];
+            final float[] centroid = new float[numDim];
+            region.getCenterOfMass().localize(centroid);
+
+            final long[] asLong = new long[numDim];
+
+            for (int d = 0; d < centroid.length; d++) {
+                asLong[d] = (long)centroid[d];
             }
-            centroidsList.add(centroidL);
+
+            centroidsList.add(asLong);
 
         }
         /*

@@ -356,16 +356,17 @@ public class ContourDetectorNodeModel<T extends RealType<T>, L extends Comparabl
                     if (!filter.isValid(region.getLabel())) {
                         continue;
                     }
-                    final double[] centroidAsDouble =
-                            centroidOp.compute(Regions.iterable(region), new double[subLabeling.numDimensions()]);
-                    final long[] centroid = new long[centroidAsDouble.length];
-                    int a = 0;
-                    for (final double d : centroidAsDouble) {
-                        centroid[a++] = Math.round(d);
+                    final float[] centroid = new float[region.numDimensions()];
+                    region.getCenterOfMass().localize(centroid);
+
+                    final long[] asLong = new long[region.numDimensions()];
+
+                    for (int d = 0; d < centroid.length; d++) {
+                        asLong[d] = (long)centroid[d];
                     }
 
                     usedLabels.add(region.getLabel());
-                    seedsVector.add(new Vector(centroid));
+                    seedsVector.add(new Vector(asLong));
                 }
                 seedingPoints = seedsVector.toArray(new Vector[seedsVector.size()]);
 
