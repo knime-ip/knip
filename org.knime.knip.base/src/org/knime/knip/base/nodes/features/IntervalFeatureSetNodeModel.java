@@ -367,7 +367,7 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
                 mdata.setSource(labVal.getLabelingMetadata().getName());
 
                 if (img == null) {
-                    ii = (IterableInterval<T>)labelRoi;
+                    ii = (IterableInterval)labelRoi;
                 } else {
                     ii = Regions.sample(labelRoi, img);
                 }
