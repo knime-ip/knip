@@ -62,9 +62,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import net.imagej.ImgPlus;
 import net.imglib2.exception.IncompatibleTypeException;
 import net.imglib2.img.Img;
-import net.imglib2.meta.ImgPlus;
 import net.imglib2.type.numeric.RealType;
 
 import org.knime.knip.io.ScifioGateway;
