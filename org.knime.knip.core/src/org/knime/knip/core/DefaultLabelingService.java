@@ -78,11 +78,11 @@ public class DefaultLabelingService extends AbstractService implements LabelingS
     @Override
     public <L> LabelRegions<L> regions(final RandomAccessibleInterval<LabelingType<L>> labeling) {
         final LabelRegions<L> regions;
-        if (cache.get(labeling) == null) {
+//        if (cache.get(labeling) == null) {
             cache.put(labeling, regions = new LabelRegions<L>(labeling));
-        } else {
-            regions = (LabelRegions<L>)cache.get(labeling);
-        }
+//        } else {
+//            regions = (LabelRegions<L>)cache.get(labeling);
+//        }
         return regions;
     }
 
