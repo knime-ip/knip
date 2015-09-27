@@ -97,7 +97,7 @@ public class ScifioGateway {
 		// create a scifio context with required Scifio and Scijava Services
 		m_scifio = new SCIFIO(new Context(classes, new PluginIndex(
 				new DefaultPluginFinder(new ResourceAwareClassLoader(getClass()
-						.getClassLoader())))));
+						.getClassLoader(), getClass())))));
 	}
 
 	private static synchronized ScifioGateway getInstance() {
