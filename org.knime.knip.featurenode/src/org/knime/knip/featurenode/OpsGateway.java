@@ -63,6 +63,7 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
 import org.scijava.Context;
 import org.scijava.command.CommandService;
+import org.scijava.module.ModuleService;
 import org.scijava.plugin.DefaultPluginFinder;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.PluginIndex;
@@ -93,6 +94,9 @@ public final class OpsGateway {
 
 	@Parameter
 	private CommandService cs;
+	
+	@Parameter
+	private ModuleService ms;
 
 	/* Sets up a SciJava context with {@link OpService}. */
 	private OpsGateway() {
@@ -102,7 +106,7 @@ public final class OpsGateway {
 		// required classes
 		final List<Class<? extends Service>> classes = Arrays.asList(
 				OpService.class, OpMatchingService.class, WidgetService.class,
-				UIService.class);
+				UIService.class, ModuleService.class, CommandService.class);
 
 		this.context = new Context(classes,
 				new PluginIndex(
@@ -134,6 +138,10 @@ public final class OpsGateway {
 
 	public static CommandService getCommandService() {
 		return getInstance().cs;
+	}
+	
+	public static ModuleService getModuleService() {
+		return getInstance().ms;
 	}
 
 	class ResourceAwareClassLoader extends ClassLoader {

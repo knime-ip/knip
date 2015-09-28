@@ -7,10 +7,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.featurenode.OpsGateway;
 import org.scijava.command.CommandInfo;
 import org.scijava.module.Module;
+import org.scijava.plugin.Plugin;
 
+import net.imagej.ops.Ops;
 import net.imagej.ops.featuresets.FeatureSet;
 import net.imagej.ops.featuresets.NamedFeature;
 import net.imagej.ops.slicewise.Hyperslice;
@@ -58,21 +61,24 @@ public class FeatureComputationTask<T extends Type<T>, L extends Comparable<L>>
 
 		// for each feature set info
 		for (final FeatureSetInfo fsi : inputFeatureSets) {
-			
-			// create a module of the feature set
-			
-			Object[] args = fsi.getFieldNameAndValues().values().toArray(new Object[fsi.getFieldNameAndValues().size()]);
 
-			final Module module = OpsGateway.getOpService()
-					.module(fsi.getFeatureSetClass(),featureTaskInput.getImage(), null, ((Integer)args[0]).intValue());
-//			OpsGateway.getCommandService()
-//					.getModuleService()
+			// create a module of the feature set
+
+			// TODO: hier
+			
+			Module module = OpsGateway.getModuleService().createModule(new CommandInfo(fsi.getFeatureSetClass()));
+
+
+//			Module module = OpsGateway.getCommandService().getModuleService()
 //					.createModule(new CommandInfo(fsi.getFeatureSetClass()));
 
+			
+			
 			final Map<String, Object> fieldNameAndValues = fsi
 					.getFieldNameAndValues();
 
 			// set the parameters
+
 			module.setInputs(fieldNameAndValues);
 
 			// get the feature set
