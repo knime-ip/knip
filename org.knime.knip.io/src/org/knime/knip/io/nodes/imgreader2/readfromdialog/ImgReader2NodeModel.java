@@ -48,7 +48,6 @@ package org.knime.knip.io.nodes.imgreader2.readfromdialog;
 
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
 
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -178,7 +177,7 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 		m_data = bdc.getTable();
 
 		if (encounteredExceptions.get()) {
-			setWarningMessage("Encountered errors while reading images!");
+			setWarningMessage("Encountered errors during execution!");
 		}
 
 		return new BufferedDataTable[] { bdc.getTable() };
@@ -191,22 +190,34 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 			@Override
 			public void runFinal(PortInput[] inputs, PortOutput[] outputs, ExecutionContext exec) throws Exception {
 
+				RowOutput out = (RowOutput) outputs[0];
+
+				// create image function
 				ReadImg2Function<T> rifp = createImgFunction(exec, m_files.getStringArrayValue().length);
 
-				RowOutput out = (RowOutput) outputs[0];
-				Stream.of(m_files.getStringArrayValue()).flatMap(rifp).forEachOrdered(result -> {
-					if (result.getSecond().isPresent()) {
-						LOGGER.warn("Encountered exception while reading image " + result.getFirst().getKey()
-								+ "! Caught Exception: " + result.getSecond().get().getMessage());
-						LOGGER.debug(result.getSecond().get());
+				// boolean for exceptions and file format
+				final AtomicBoolean encounteredExceptions = new AtomicBoolean(false);
+
+				Arrays.asList(m_files.getStringArrayValue()).stream().flatMap(rifp).forEachOrdered(dataRow -> {
+
+					if (dataRow.getSecond().isPresent()) {
+						encounteredExceptions.set(true);
+						LOGGER.warn("Encountered exception while reading image " + dataRow.getFirst().getKey()
+								+ "! Caught Exception: " + dataRow.getSecond().get().getMessage());
+						LOGGER.debug(dataRow.getSecond().get());
 					}
 
 					try {
-						out.push(result.getFirst());
+						out.push(dataRow.getFirst());
 					} catch (Exception exc) {
-						LOGGER.warn("Couldn't push result for row " + result.getFirst().getKey());
+						encounteredExceptions.set(true);
+						LOGGER.warn("Couldn't push row " + dataRow.getFirst().getKey() + " into output stream.");
 					}
 				});
+
+				if (encounteredExceptions.get()) {
+					setWarningMessage("Encountered errors during execution!");
+				}
 
 				out.close();
 			}
