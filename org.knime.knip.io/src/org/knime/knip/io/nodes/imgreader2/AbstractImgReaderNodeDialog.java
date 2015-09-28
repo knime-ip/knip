@@ -57,11 +57,14 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
+import org.knime.core.node.defaultnodesettings.DialogComponentDoubleRange;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
+import org.knime.core.node.defaultnodesettings.SettingsModelDoubleRange;
 import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.port.PortObjectSpec;
+import org.knime.knip.base.node.dialog.DialogComponentSpanSelection;
 import org.knime.knip.base.node.dialog.DialogComponentSubsetSelection;
 import org.knime.knip.core.util.EnumUtils;
 
@@ -74,11 +77,11 @@ import org.knime.knip.core.util.EnumUtils;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
  * @author <a href="mailto:gabriel.einsdorf@uni.kn"> Gabriel Einsdorf</a>
- * @author <a href="mailto:danielseebacher@t-online.de">Daniel Seebacher, University of
- *         Konstanz.</a>
+ * @author <a href="mailto:danielseebacher@t-online.de">Daniel Seebacher,
+ *         University of Konstanz.</a>
  */
 public abstract class AbstractImgReaderNodeDialog extends DefaultNodeSettingsPane {
-		
+
 	@Override
 	public void loadAdditionalSettingsFrom(final NodeSettingsRO settings, final PortObjectSpec[] specs)
 			throws NotConfigurableException {
@@ -106,7 +109,6 @@ public abstract class AbstractImgReaderNodeDialog extends DefaultNodeSettingsPan
 				"Image factory", AbstractImgReaderNodeModel.IMG_FACTORIES));
 		closeCurrentGroup();
 
-
 		createNewGroup("File");
 		addDialogComponent(new DialogComponentBoolean(AbstractImgReaderNodeModel.createCheckFileFormatModel(),
 				"Check file format for each file (may be slower)"));
@@ -122,9 +124,14 @@ public abstract class AbstractImgReaderNodeDialog extends DefaultNodeSettingsPan
 
 		createNewGroup("Series & Groups");
 		final SettingsModelBoolean smReadAll = AbstractImgReaderNodeModel.createReadAllSeriesModel();
-		final SettingsModelIntegerBounded smSeriesIdx = AbstractImgReaderNodeModel.createSeriesSelectionModel();
+		// final SettingsModelIntegerBounded smSeriesIdx =
+		// AbstractImgReaderNodeModel.createSeriesSelectionModel();
+		final SettingsModelDoubleRange smSeriesIdx = AbstractImgReaderNodeModel.createSeriesSelectionRangeModel();
 		addDialogComponent(new DialogComponentBoolean(smReadAll, "Read all series"));
-		addDialogComponent(new DialogComponentNumber(smSeriesIdx, "Series index", 1));
+		// addDialogComponent(new DialogComponentNumber(smSeriesIdx, "Series
+		// index", 1));
+		addDialogComponent(new DialogComponentDoubleRange(smSeriesIdx, 0, Integer.MAX_VALUE, 1, "Series index"));
+
 		smReadAll.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(final ChangeEvent e) {
@@ -132,14 +139,16 @@ public abstract class AbstractImgReaderNodeDialog extends DefaultNodeSettingsPan
 			}
 		});
 		smSeriesIdx.setEnabled(!smReadAll.getBooleanValue());
+
 		addDialogComponent(
 				new DialogComponentBoolean(AbstractImgReaderNodeModel.createIsGroupFilesModel(), "Load group files?"));
 		closeCurrentGroup();
 
 		createNewTab("Subset Selection");
 		createNewGroup("Image Subset Selection");
-		addDialogComponent(new DialogComponentSubsetSelection(AbstractImgReaderNodeModel.createPlaneSelectionModel(), true, true,
-				new int[] { 0, 1 }));
+		addDialogComponent(new DialogComponentSubsetSelection(AbstractImgReaderNodeModel.createPlaneSelectionModel(),
+				true, true, new int[] { 0, 1 }));
+
 		closeCurrentGroup();
 	}
 }

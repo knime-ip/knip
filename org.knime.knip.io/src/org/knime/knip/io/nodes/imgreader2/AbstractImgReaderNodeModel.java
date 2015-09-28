@@ -61,7 +61,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
-import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
+import org.knime.core.node.defaultnodesettings.SettingsModelDoubleRange;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
 
@@ -128,11 +128,16 @@ public abstract class AbstractImgReaderNodeModel<T extends RealType<T> & NativeT
 		return new SettingsModelBoolean("read_all_series", true);
 	}
 
-	/**
-	 * @return Key to store the selected series
-	 */
-	public static final SettingsModelIntegerBounded createSeriesSelectionModel() {
-		return new SettingsModelIntegerBounded("series_selection", 0, 0, 1000);
+	// /**
+	// * @return Key to store the selected series
+	// */
+	// public static final SettingsModelIntegerBounded
+	// createSeriesSelectionModel() {
+	// return new SettingsModelIntegerBounded("series_selection", 0, 0, 1000);
+	// }
+
+	public static SettingsModelDoubleRange createSeriesSelectionRangeModel() {
+		return new SettingsModelDoubleRange("series_range_selection", 0, Integer.MAX_VALUE);
 	}
 
 	/**
@@ -169,7 +174,9 @@ public abstract class AbstractImgReaderNodeModel<T extends RealType<T> & NativeT
 	// new in 1.1
 	protected final SettingsModelString m_imgFactory = createImgFactoryModel();
 	protected final SettingsModelBoolean m_readAllSeries = createReadAllSeriesModel();
-	protected final SettingsModelIntegerBounded m_seriesSelection = createSeriesSelectionModel();
+	// protected final SettingsModelIntegerBounded m_seriesSelection =
+	// createSeriesSelectionModel();
+	protected final SettingsModelDoubleRange m_seriesRangeSelection = createSeriesSelectionRangeModel();
 
 	// new in 1.3
 	protected final SettingsModelString m_metadataModeModel = createMetaDataModeModel();
@@ -188,11 +195,13 @@ public abstract class AbstractImgReaderNodeModel<T extends RealType<T> & NativeT
 		m_settingsCollection.add(m_planeSelect);
 		m_settingsCollection.add(m_imgFactory);
 		m_settingsCollection.add(m_readAllSeries);
-		m_settingsCollection.add(m_seriesSelection);
+		// m_settingsCollection.add(m_seriesSelection);
+		m_settingsCollection.add(m_seriesRangeSelection);
 		m_settingsCollection.add(m_metadataModeModel);
 		m_settingsCollection.add(m_readAllMetaDataModel);
 
-		m_seriesSelection.setEnabled(false);
+		// m_seriesSelection.setEnabled(false);
+		m_seriesRangeSelection.setEnabled(false);
 	}
 
 	protected void addSettingsModels(SettingsModel... additionalSettingModels) {

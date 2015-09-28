@@ -183,7 +183,7 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 
 				// boolean for exceptions and file format
 				final AtomicBoolean encounteredExceptions = new AtomicBoolean(false);
-				
+
 				ReadImgTableFunction<T> readImgFunction = createImgTableFunction(exec, in.getDataTableSpec(), 1);
 
 				DataRow row;
@@ -204,7 +204,7 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 						}
 					});
 				}
-				
+
 				if (encounteredExceptions.get()) {
 					setWarningMessage("Encountered errors during execution!");
 				}
@@ -344,17 +344,22 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 		}
 
 		// series selection
-		int seriesSelection;
+		int seriesSelectionFrom;
+		int seriesSelectionTo;
+
 		if (m_readAllSeries.getBooleanValue()) {
-			seriesSelection = -1;
+			seriesSelectionFrom = -1;
+			seriesSelectionTo = -1;
 		} else {
-			seriesSelection = m_seriesSelection.getIntValue();
+			seriesSelectionFrom = Double.valueOf(m_seriesRangeSelection.getMinRange()).intValue();
+			seriesSelectionTo = Double.valueOf(m_seriesRangeSelection.getMaxRange()).intValue();
 		}
 
 		// create image function
 		ReadImgTableFunction<T> rifp = new ReadImgTableFunction<T>(exec, rowCount, m_planeSelect, readImage,
 				readMetadata, m_readAllMetaDataModel.getBooleanValue(), m_checkFileFormat.getBooleanValue(),
-				m_isGroupFiles.getBooleanValue(), seriesSelection, imgFac, m_colCreationMode.getStringValue(), imgIdx);
+				m_isGroupFiles.getBooleanValue(), seriesSelectionFrom, seriesSelectionTo, imgFac,
+				m_colCreationMode.getStringValue(), imgIdx);
 
 		return rifp;
 	}

@@ -31,8 +31,8 @@ import net.imglib2.type.numeric.RealType;
  * {@link Function} to read an {@link Img}, OME-XML Metadata or both from a file
  * path.
  * 
- * @author <a href="mailto:danielseebacher@t-online.de">Daniel Seebacher, University of
- *         Konstanz.</a>
+ * @author <a href="mailto:danielseebacher@t-online.de">Daniel Seebacher,
+ *         University of Konstanz.</a>
  */
 class ReadImgTableFunction<T extends RealType<T>> extends AbstractReadImgFunction<T, DataRow> {
 
@@ -41,18 +41,18 @@ class ReadImgTableFunction<T extends RealType<T>> extends AbstractReadImgFunctio
 
 	public ReadImgTableFunction(ExecutionContext exec, int numberOfFiles, SettingsModelSubsetSelection sel,
 			boolean readImage, boolean readMetadata, boolean readAllMetaData, boolean checkFileFormat,
-			boolean isGroupFiles, int selectedSeries, ImgFactory<T> imgFactory, String columnCreationMode,
-			int stringIndex) {
+			boolean isGroupFiles, int seriesSelectionFrom, int seriesSelectionTo, ImgFactory<T> imgFactory,
+			String columnCreationMode, int stringIndex) {
 		super(exec, numberOfFiles, sel, readImage, readMetadata, readAllMetaData, checkFileFormat, false, isGroupFiles,
-				selectedSeries, imgFactory);
+				seriesSelectionFrom, seriesSelectionTo, imgFactory);
 
 		this.columnCreationMode = columnCreationMode;
 		this.stringIndex = stringIndex;
 	}
 
 	@Override
-	public Stream<Pair<DataRow, Optional<Exception>>> apply(DataRow input) {
-		List<Pair<DataRow, Optional<Exception>>> tempResults = new ArrayList<>();
+	public Stream<Pair<DataRow, Optional<Throwable>>> apply(DataRow input) {
+		List<Pair<DataRow, Optional<Throwable>>> tempResults = new ArrayList<>();
 
 		if (input.getCell(stringIndex).isMissing()) {
 			m_exec.setProgress(Double.valueOf(m_currentFile.incrementAndGet()) / m_numberOfFiles);
@@ -82,8 +82,8 @@ class ReadImgTableFunction<T extends RealType<T>> extends AbstractReadImgFunctio
 			return Arrays.asList(createResultFromException(t, input.getKey().getString(), exc)).stream();
 		}
 
-		int seriesStart = m_selectedSeries == -1 ? 0 : m_selectedSeries;
-		int seriesEnd = m_selectedSeries == -1 ? numSeries : m_selectedSeries + 1;
+		int seriesStart = m_selectedSeriesFrom == -1 ? 0 : m_selectedSeriesFrom;
+		int seriesEnd = m_selectedSeriesTo == -1 ? numSeries : Math.min(m_selectedSeriesTo + 1, numSeries);
 
 		// load image and metadata for each series index
 		IntStream.range(seriesStart, seriesEnd).forEachOrdered(currentSeries -> {
@@ -116,14 +116,14 @@ class ReadImgTableFunction<T extends RealType<T>> extends AbstractReadImgFunctio
 	 *            the column index of the path.
 	 * @return a {@link Stream} with the output {@link DataRow}s.
 	 */
-	private Stream<Pair<DataRow, Optional<Exception>>> createOutput(DataRow inputRow,
-			List<Pair<DataRow, Optional<Exception>>> readFiles, String columnSelectionMode, int inputColumnIndex) {
+	private Stream<Pair<DataRow, Optional<Throwable>>> createOutput(DataRow inputRow,
+			List<Pair<DataRow, Optional<Throwable>>> readFiles, String columnSelectionMode, int inputColumnIndex) {
 
-		List<Pair<DataRow, Optional<Exception>>> outputResults = new ArrayList<>();
+		List<Pair<DataRow, Optional<Throwable>>> outputResults = new ArrayList<>();
 		if (columnCreationMode.equalsIgnoreCase(ImgReaderTableNodeModel.COL_CREATION_MODES[0])) {
 			return readFiles.stream();
 		} else if (columnCreationMode.equalsIgnoreCase(ImgReaderTableNodeModel.COL_CREATION_MODES[1])) {
-			for (Pair<DataRow, Optional<Exception>> result : readFiles) {
+			for (Pair<DataRow, Optional<Throwable>> result : readFiles) {
 
 				List<DataCell> cells = new ArrayList<>();
 				for (int i = 0; i < inputRow.getNumCells(); i++) {
@@ -139,7 +139,7 @@ class ReadImgTableFunction<T extends RealType<T>> extends AbstractReadImgFunctio
 						result.getSecond()));
 			}
 		} else {
-			for (Pair<DataRow, Optional<Exception>> result : readFiles) {
+			for (Pair<DataRow, Optional<Throwable>> result : readFiles) {
 
 				List<DataCell> cells = new ArrayList<>();
 				for (int i = 0; i < inputRow.getNumCells(); i++) {

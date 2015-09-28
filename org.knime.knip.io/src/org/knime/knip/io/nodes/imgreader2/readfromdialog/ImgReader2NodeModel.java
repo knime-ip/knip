@@ -276,17 +276,21 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 		}
 
 		// series selection
-		int seriesSelection;
-		if (m_readAllSeries.getBooleanValue()) {
-			seriesSelection = -1;
-		} else {
-			seriesSelection = m_seriesSelection.getIntValue();
-		}
+		int seriesSelectionFrom;
+		int seriesSelectionTo;
 
+		if (m_readAllSeries.getBooleanValue()) {
+			seriesSelectionFrom = -1;
+			seriesSelectionTo = -1;
+		} else {
+			seriesSelectionFrom = Double.valueOf(m_seriesRangeSelection.getMinRange()).intValue();
+			seriesSelectionTo = Double.valueOf(m_seriesRangeSelection.getMaxRange()).intValue();
+		}
 		// create image function
 		ReadImg2Function<T> rifp = new ReadImg2Function<T>(exec, rowCount, m_planeSelect, readImage, readMetadata,
 				m_readAllMetaDataModel.getBooleanValue(), m_checkFileFormat.getBooleanValue(),
-				m_completePathRowKey.getBooleanValue(), m_isGroupFiles.getBooleanValue(), seriesSelection, imgFac);
+				m_completePathRowKey.getBooleanValue(), m_isGroupFiles.getBooleanValue(), seriesSelectionFrom,
+				seriesSelectionTo, imgFac);
 
 		return rifp;
 	}

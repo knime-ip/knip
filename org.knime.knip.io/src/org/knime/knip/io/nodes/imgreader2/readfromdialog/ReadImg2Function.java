@@ -28,22 +28,23 @@ import net.imglib2.type.numeric.RealType;
  * {@link Function} to read an {@link Img}, OME-XML Metadata or both from a file
  * path.
  * 
- * @author <a href="mailto:danielseebacher@t-online.de">Daniel Seebacher, University of
- *         Konstanz.</a>
+ * @author <a href="mailto:danielseebacher@t-online.de">Daniel Seebacher,
+ *         University of Konstanz.</a>
  *
  */
 class ReadImg2Function<T extends RealType<T>> extends AbstractReadImgFunction<T, String> {
 
 	public ReadImg2Function(ExecutionContext exec, int numberOfFiles, SettingsModelSubsetSelection sel,
 			boolean readImage, boolean readMetadata, boolean readAllMetaData, boolean checkFileFormat,
-			boolean completePathRowKey, boolean isGroupFiles, int selectedSeries, ImgFactory<T> imgFactory) {
+			boolean completePathRowKey, boolean isGroupFiles, int seriesSelectionFrom, int seriesSelectionTo,
+			ImgFactory<T> imgFactory) {
 		super(exec, numberOfFiles, sel, readImage, readMetadata, readAllMetaData, checkFileFormat, completePathRowKey,
-				isGroupFiles, selectedSeries, imgFactory);
+				isGroupFiles, seriesSelectionFrom, seriesSelectionTo, imgFactory);
 	}
 
 	@Override
-	public Stream<Pair<DataRow, Optional<Exception>>> apply(String t) {
-		List<Pair<DataRow, Optional<Exception>>> results = new ArrayList<>();
+	public Stream<Pair<DataRow, Optional<Throwable>>> apply(String t) {
+		List<Pair<DataRow, Optional<Throwable>>> results = new ArrayList<>();
 
 		String path;
 		int numSeries;
@@ -59,8 +60,8 @@ class ReadImg2Function<T extends RealType<T>> extends AbstractReadImgFunction<T,
 		}
 
 		// get start and end of the series
-		int seriesStart = m_selectedSeries == -1 ? 0 : m_selectedSeries;
-		int seriesEnd = m_selectedSeries == -1 ? numSeries : m_selectedSeries + 1;
+		int seriesStart = m_selectedSeriesFrom == -1 ? 0 : m_selectedSeriesFrom;
+		int seriesEnd = m_selectedSeriesTo == -1 ? numSeries : Math.min(m_selectedSeriesTo + 1, numSeries);
 
 		// load image and metadata for each series index
 		IntStream.range(seriesStart, seriesEnd).forEachOrdered(currentSeries -> {

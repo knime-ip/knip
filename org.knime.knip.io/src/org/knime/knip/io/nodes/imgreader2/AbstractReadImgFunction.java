@@ -38,9 +38,8 @@ import net.imglib2.type.numeric.RealType;
  * @param <I>
  *            The input for the ReadImgFunction
  */
-@SuppressWarnings("deprecation")
 public abstract class AbstractReadImgFunction<T extends RealType<T>, I>
-		implements Function<I, Stream<Pair<DataRow, Optional<Exception>>>> {
+		implements Function<I, Stream<Pair<DataRow, Optional<Throwable>>>> {
 
 	protected final AtomicInteger m_currentFile;
 	protected final double m_numberOfFiles;
@@ -49,7 +48,9 @@ public abstract class AbstractReadImgFunction<T extends RealType<T>, I>
 	protected final SettingsModelSubsetSelection m_sel;
 	protected final ExecutionContext m_exec;
 	protected final boolean m_readAllMetadata;
-	protected final int m_selectedSeries;
+	protected final int m_selectedSeriesFrom;
+	protected final int m_selectedSeriesTo;
+
 	protected final SCIFIOConfig m_scifioConfig;
 	protected final ScifioImgSource m_imgSource;
 	protected final boolean m_readImage;
@@ -59,7 +60,7 @@ public abstract class AbstractReadImgFunction<T extends RealType<T>, I>
 	public AbstractReadImgFunction(final ExecutionContext exec, final int numberOfFiles,
 			final SettingsModelSubsetSelection sel, final boolean readImage, final boolean readMetadata,
 			final boolean readAllMetaData, final boolean checkFileFormat, final boolean completePathRowKey,
-			final boolean isGroupFiles, final int selectedSeries, final ImgFactory<T> imgFactory) {
+			final boolean isGroupFiles, final int seriesSelectionFrom, int seriesSelectionTo, final ImgFactory<T> imgFactory) {
 
 		m_currentFile = new AtomicInteger();
 		m_numberOfFiles = numberOfFiles;
@@ -76,13 +77,15 @@ public abstract class AbstractReadImgFunction<T extends RealType<T>, I>
 		m_readMetadata = readMetadata;
 
 		m_readAllMetadata = readAllMetaData;
-		m_selectedSeries = selectedSeries;
+		m_selectedSeriesFrom = seriesSelectionFrom;
+		m_selectedSeriesTo = seriesSelectionTo;
+
 		m_scifioConfig = new SCIFIOConfig().groupableSetGroupFiles(isGroupFiles)
 				.parserSetSaveOriginalMetadata(m_readAllMetadata);
 		m_imgSource = new ScifioImgSource(imgFactory, checkFileFormat, m_scifioConfig);
 	}
 
-	protected Pair<DataRow, Optional<Exception>> createResultFromException(String pathToImage, String rowKey,
+	protected Pair<DataRow, Optional<Throwable>> createResultFromException(String pathToImage, String rowKey,
 			Exception exc) {
 		DataCell[] cells = new DataCell[((m_readImage) ? 1 : 0) + ((m_readMetadata) ? 1 : 0)];
 
@@ -96,7 +99,7 @@ public abstract class AbstractReadImgFunction<T extends RealType<T>, I>
 					+ "!\nCaught Exception" + exc.getMessage() + "\n" + exc.getStackTrace());
 		}
 
-		return new Pair<DataRow, Optional<Exception>>(new DefaultRow(rowKey, cells), Optional.of(exc));
+		return new Pair<DataRow, Optional<Throwable>>(new DefaultRow(rowKey, cells), Optional.of(exc));
 	}
 
 	/**
@@ -112,7 +115,7 @@ public abstract class AbstractReadImgFunction<T extends RealType<T>, I>
 	 * @return a pair of a datarow and an optional exception
 	 */
 	@SuppressWarnings({ "unchecked" })
-	protected Pair<DataRow, Optional<Exception>> readImageAndMetadata(String pathToImage, RowKey rowKey,
+	protected Pair<DataRow, Optional<Throwable>> readImageAndMetadata(String pathToImage, RowKey rowKey,
 			int currentSeries) {
 
 		DataCell[] cells = new DataCell[((m_readImage) ? 1 : 0) + ((m_readMetadata) ? 1 : 0)];
@@ -135,6 +138,6 @@ public abstract class AbstractReadImgFunction<T extends RealType<T>, I>
 			return createResultFromException(pathToImage, rowKey.getString(), exc);
 		}
 
-		return new Pair<DataRow, Optional<Exception>>(new DefaultRow(rowKey, cells), Optional.empty());
+		return new Pair<DataRow, Optional<Throwable>>(new DefaultRow(rowKey, cells), Optional.empty());
 	}
 }
