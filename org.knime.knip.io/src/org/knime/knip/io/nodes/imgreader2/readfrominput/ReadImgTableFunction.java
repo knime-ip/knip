@@ -2,6 +2,7 @@ package org.knime.knip.io.nodes.imgreader2.readfrominput;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.InvalidPathException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,7 +64,15 @@ class ReadImgTableFunction<T extends RealType<T>> extends AbstractReadImgFunctio
 		String path;
 		int numSeries;
 		try {
-			path = FileUtil.resolveToPath(FileUtil.toURL(t)).toString();
+			URL url = FileUtil.toURL(t);
+
+			// check if its a internet address;
+			if (url.getProtocol().equalsIgnoreCase("HTTP") || url.getProtocol().equalsIgnoreCase("FTP")) {
+				path = url.toURI().toString();
+			} else {
+				path = FileUtil.resolveToPath(url).toString();
+			}
+
 			numSeries = m_imgSource.getSeriesCount(path);
 		} catch (InvalidPathException | IOException | URISyntaxException exc) {
 			m_exec.setProgress(Double.valueOf(m_currentFile.incrementAndGet()) / m_numberOfFiles);
