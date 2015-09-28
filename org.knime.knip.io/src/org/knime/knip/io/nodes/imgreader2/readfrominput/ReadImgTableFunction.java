@@ -20,7 +20,7 @@ import org.knime.core.data.def.DefaultRow;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.util.FileUtil;
 import org.knime.core.util.Pair;
-import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
+import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection2;
 import org.knime.knip.io.nodes.imgreader2.AbstractReadImgFunction;
 
 import net.imglib2.img.Img;
@@ -39,7 +39,7 @@ class ReadImgTableFunction<T extends RealType<T>> extends AbstractReadImgFunctio
 	private String columnCreationMode;
 	private int stringIndex;
 
-	public ReadImgTableFunction(ExecutionContext exec, int numberOfFiles, SettingsModelSubsetSelection sel,
+	public ReadImgTableFunction(ExecutionContext exec, int numberOfFiles, SettingsModelSubsetSelection2 sel,
 			boolean readImage, boolean readMetadata, boolean readAllMetaData, boolean checkFileFormat,
 			boolean isGroupFiles, int seriesSelectionFrom, int seriesSelectionTo, ImgFactory<T> imgFactory,
 			String columnCreationMode, int stringIndex) {

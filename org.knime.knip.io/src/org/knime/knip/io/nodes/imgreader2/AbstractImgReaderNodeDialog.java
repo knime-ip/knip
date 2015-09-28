@@ -58,14 +58,11 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentDoubleRange;
-import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelDoubleRange;
-import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.port.PortObjectSpec;
-import org.knime.knip.base.node.dialog.DialogComponentSpanSelection;
-import org.knime.knip.base.node.dialog.DialogComponentSubsetSelection;
+import org.knime.knip.base.node.dialog.DialogComponentSubsetSelection2;
 import org.knime.knip.core.util.EnumUtils;
 
 /**
@@ -146,9 +143,8 @@ public abstract class AbstractImgReaderNodeDialog extends DefaultNodeSettingsPan
 
 		createNewTab("Subset Selection");
 		createNewGroup("Image Subset Selection");
-		addDialogComponent(new DialogComponentSubsetSelection(AbstractImgReaderNodeModel.createPlaneSelectionModel(),
+		addDialogComponent(new DialogComponentSubsetSelection2(AbstractImgReaderNodeModel.createPlaneSelectionModel(),
 				true, true, new int[] { 0, 1 }));
-
 		closeCurrentGroup();
 	}
 }

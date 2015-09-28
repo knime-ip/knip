@@ -63,7 +63,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelDoubleRange;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
+import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection2;
 
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
@@ -117,8 +117,8 @@ public abstract class AbstractImgReaderNodeModel<T extends RealType<T> & NativeT
 	/**
 	 * @return Model for the settings holding selected image planes.
 	 */
-	public static final SettingsModelSubsetSelection createPlaneSelectionModel() {
-		return new SettingsModelSubsetSelection("plane_selection");
+	public static final SettingsModelSubsetSelection2 createPlaneSelectionModel() {
+		return new SettingsModelSubsetSelection2("plane_selection");
 	}
 
 	/**
@@ -169,7 +169,7 @@ public abstract class AbstractImgReaderNodeModel<T extends RealType<T> & NativeT
 
 	// New in 1.0.2
 	protected final SettingsModelBoolean m_isGroupFiles = createIsGroupFilesModel();
-	protected final SettingsModelSubsetSelection m_planeSelect = createPlaneSelectionModel();
+	protected final SettingsModelSubsetSelection2 m_planeSelect = createPlaneSelectionModel();
 
 	// new in 1.1
 	protected final SettingsModelString m_imgFactory = createImgFactoryModel();
