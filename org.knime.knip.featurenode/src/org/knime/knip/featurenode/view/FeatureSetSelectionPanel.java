@@ -8,11 +8,12 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
-import net.imagej.ops.features.FeatureSet;
-import net.miginfocom.swing.MigLayout;
-
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.featurenode.OpsGateway;
 import org.scijava.plugin.PluginInfo;
+
+import net.imagej.ops.featuresets.FeatureSet;
+import net.miginfocom.swing.MigLayout;
 
 @SuppressWarnings("rawtypes")
 public class FeatureSetSelectionPanel extends JPanel {
@@ -37,14 +38,14 @@ public class FeatureSetSelectionPanel extends JPanel {
 
 		// create combobox and add button
 		this.featureSetComboxBox = new JComboBox<PluginInfoComboboxItem>(
-				featureSetComboBoxItems
-						.toArray(new PluginInfoComboboxItem[featureSetComboBoxItems
+				featureSetComboBoxItems.toArray(
+						new PluginInfoComboboxItem[featureSetComboBoxItems
 								.size()]));
 		this.addButton = new JButton("Add");
 
 		// set sizes
-		this.featureSetComboxBox.setMaximumSize(this.featureSetComboxBox
-				.getPreferredSize());
+		this.featureSetComboxBox
+				.setMaximumSize(this.featureSetComboxBox.getPreferredSize());
 		this.addButton.setMaximumSize(this.addButton.getPreferredSize());
 
 		// add everything to this jpanel
@@ -59,8 +60,9 @@ public class FeatureSetSelectionPanel extends JPanel {
 	}
 
 	public PluginInfo<FeatureSet> getCurrentlySelectedFeatureSet() {
-		return this.featureSetComboxBox.getItemAt(
-				this.featureSetComboxBox.getSelectedIndex()).getPluginInfo();
+		return this.featureSetComboxBox
+				.getItemAt(this.featureSetComboxBox.getSelectedIndex())
+				.getPluginInfo();
 	}
 
 	/**

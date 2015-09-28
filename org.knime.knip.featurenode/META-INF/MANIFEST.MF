@@ -8,27 +8,23 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.workbench.core;bundle-version="3.0.0",
  org.knime.workbench.repository;bundle-version="3.0.0",
  org.knime.base;bundle-version="3.0.0",
- imagej-common;bundle-version="0.12.0",
- imglib2-roi;bundle-version="0.2.1",
  imglib2;bundle-version="2.2.0",
  imglib2-algorithm;bundle-version="0.2.0",
  imglib2-algorithm-fft;bundle-version="0.1.1",
  imglib2-algorithm-gpl;bundle-version="0.1.2",
  imglib2-ij;bundle-version="2.0.0",
- imglib2-realtransform;bundle-version="2.0.0",
- imagej-plugins-commands;bundle-version="0.4.0",
  scijava-log-slf4j;bundle-version="1.0.2",
- scijava-plugins-commands;bundle-version="0.1.8",
- scijava-ui-awt;bundle-version="0.1.3",
  scijava-ui-swing;bundle-version="0.3.0",
  org.knime.knip.base;bundle-version="1.4.0",
  org.knime.knip.core;bundle-version="1.4.0",
  org.knime.knip.io;bundle-version="1.4.0",
  miglayout-swing;bundle-version="4.2.0",
  scijava-common;bundle-version="2.42.2",
- org.apache.commons.math3;bundle-version="3.2.0"
+ imagej-common;bundle-version="0.18.0",
+ imglib2-roi,
+ org.knime.knip.scijava.core
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
- lib/imagej-ops-0.14.0-SNAPSHOT.jar
+ lib/imagej-ops-0.20.1-SNAPSHOT.jar
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 

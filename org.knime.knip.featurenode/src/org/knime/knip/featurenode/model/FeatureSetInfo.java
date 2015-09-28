@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.imagej.ops.features.FeatureSet;
+import net.imagej.ops.featuresets.FeatureSet;
 import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
 
@@ -22,7 +22,7 @@ public class FeatureSetInfo {
 	private final Class<? extends FeatureSet> featureSetClass;
 	private final String[] parameterNames;
 	private final Object[] parameterValues;
-	private final Class<?>[] featureClasses;
+	private final String[] featureClasses;
 	private final boolean[] isFeatureSelected;
 
 	/**
@@ -38,7 +38,7 @@ public class FeatureSetInfo {
 	 */
 	public FeatureSetInfo(final Class<? extends FeatureSet> featureSet,
 			final Map<String, Object> fieldNamesAndValues,
-			final Map<Class<?>, Boolean> selectedFeatures) {
+			final Map<String, Boolean> selectedFeatures) {
 
 		this.featureSetClass = featureSet;
 
@@ -60,17 +60,11 @@ public class FeatureSetInfo {
 		}
 
 		if ((selectedFeatures != null) && !selectedFeatures.isEmpty()) {
-			this.featureClasses = new ArrayList<Class<?>>(
+			this.featureClasses = new ArrayList<String>(
 					selectedFeatures.keySet())
-					.toArray(new Class<?>[selectedFeatures.keySet().size()]);
+					.toArray(new String[selectedFeatures.keySet().size()]);
 
-			Arrays.sort(this.featureClasses, new Comparator<Class<?>>() {
-				@Override
-				public int compare(final Class<?> o1, final Class<?> o2) {
-					return o1.getCanonicalName().compareTo(
-							o2.getCanonicalName());
-				}
-			});
+			Arrays.sort(this.featureClasses);
 
 			this.isFeatureSelected = new boolean[this.featureClasses.length];
 			for (int i = 0; i < this.featureClasses.length; i++) {
@@ -78,7 +72,7 @@ public class FeatureSetInfo {
 						.get(this.featureClasses[i]);
 			}
 		} else {
-			this.featureClasses = new Class<?>[0];
+			this.featureClasses = new String[0];
 			this.isFeatureSelected = new boolean[0];
 		}
 	}
@@ -108,8 +102,8 @@ public class FeatureSetInfo {
 		return fieldNameAndValues;
 	}
 
-	public Map<Class<?>, Boolean> getSelectedFeatures() {
-		final Map<Class<?>, Boolean> selectedFeatures = new HashMap<Class<?>, Boolean>();
+	public Map<String, Boolean> getSelectedFeatures() {
+		final Map<String, Boolean> selectedFeatures = new HashMap<String, Boolean>();
 		for (int i = 0; i < this.featureClasses.length; i++) {
 			selectedFeatures.put(this.featureClasses[i],
 					this.isFeatureSelected[i]);
@@ -118,11 +112,11 @@ public class FeatureSetInfo {
 		return selectedFeatures;
 	}
 
-	public List<Pair<Class<?>, Boolean>> getSortedSelectedFeatures() {
-		final List<Pair<Class<?>, Boolean>> selectedFeatures = new ArrayList<Pair<Class<?>, Boolean>>();
+	public List<Pair<String, Boolean>> getSortedSelectedFeatures() {
+		final List<Pair<String, Boolean>> selectedFeatures = new ArrayList<Pair<String, Boolean>>();
 
 		for (int i = 0; i < this.featureClasses.length; i++) {
-			selectedFeatures.add(new ValuePair<Class<?>, Boolean>(
+			selectedFeatures.add(new ValuePair<String, Boolean>(
 					this.featureClasses[i], this.isFeatureSelected[i]));
 		}
 

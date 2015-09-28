@@ -9,7 +9,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import net.imagej.ops.features.FeatureSet;
+import net.imagej.ops.featuresets.FeatureSet;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.miginfocom.layout.AC;
@@ -38,7 +38,8 @@ import org.scijava.module.ModuleException;
 import org.scijava.plugin.PluginInfo;
 
 public class FeatureNodeDialogPane<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
-		extends NodeDialogPane {
+		extends
+			NodeDialogPane {
 
 	/**
 	 * The logger instance.
@@ -81,7 +82,7 @@ public class FeatureNodeDialogPane<T extends RealType<T> & NativeType<T>, L exte
 	private FeatureSetCollectionPanel featureSetCollectionPanel;
 	private SettingsModelFeatureSet smfs;
 
-	@SuppressWarnings({ "rawtypes" })
+	@SuppressWarnings({"rawtypes"})
 	public FeatureNodeDialogPane() {
 
 		// initialize dialog components
@@ -89,8 +90,7 @@ public class FeatureNodeDialogPane<T extends RealType<T> & NativeType<T>, L exte
 
 		// create the col selection panel
 		this.columnSelectionPanel = new ColumnSelectionPanel(
-				this.m_imgSelectionComponent,
-				this.m_labelingSelectionComponent,
+				this.m_imgSelectionComponent, this.m_labelingSelectionComponent,
 				this.m_columnCreationModeComponent);
 
 		// create the dim selection panel
@@ -106,12 +106,13 @@ public class FeatureNodeDialogPane<T extends RealType<T> & NativeType<T>, L exte
 				appendSegmentInformationComponent, includeLabelsComponent);
 
 		// add action listeners
-		this.featureSetSelectionPanel.getAddButton().addActionListener(
-				new ActionListener() {
+		this.featureSetSelectionPanel.getAddButton()
+				.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(final ActionEvent e) {
 						final PluginInfo<FeatureSet> currentlySelectedFeatureSet = FeatureNodeDialogPane.this.featureSetSelectionPanel
 								.getCurrentlySelectedFeatureSet();
+						
 						try {
 							FeatureNodeDialogPane.this.featureSetCollectionPanel
 									.addFeatureSetPanel(new FeatureSetPanel(
@@ -125,26 +126,26 @@ public class FeatureNodeDialogPane<T extends RealType<T> & NativeType<T>, L exte
 					}
 				});
 
-		final JPanel featureSetConfigPanel = new JPanel(new MigLayout(
-				new LC().wrapAfter(1), new AC().grow().fill()));
+		final JPanel featureSetConfigPanel = new JPanel(
+				new MigLayout(new LC().wrapAfter(1), new AC().grow().fill()));
 		featureSetConfigPanel.add(this.featureSetSelectionPanel);
 
 		JScrollPane selectedFeatureSetsScrollPane = new JScrollPane();
-		selectedFeatureSetsScrollPane.getVerticalScrollBar().setUnitIncrement(
-				20);
+		selectedFeatureSetsScrollPane.getVerticalScrollBar()
+				.setUnitIncrement(20);
 		selectedFeatureSetsScrollPane
 				.setViewportView(this.featureSetCollectionPanel);
 
-		selectedFeatureSetsScrollPane.setBorder(BorderFactory
-				.createTitledBorder("Selected Feature Sets:"));
+		selectedFeatureSetsScrollPane.setBorder(
+				BorderFactory.createTitledBorder("Selected Feature Sets:"));
 
 		featureSetConfigPanel.add(selectedFeatureSetsScrollPane);
 
 		featureSetConfigPanel.setPreferredSize(new Dimension(792, 500));
 		this.addTab("Feature Set Configuration", featureSetConfigPanel);
 
-		final JPanel colDimSelectionConfigPanel = new JPanel(new MigLayout(
-				new LC().wrapAfter(1), new AC().grow().fill()));
+		final JPanel colDimSelectionConfigPanel = new JPanel(
+				new MigLayout(new LC().wrapAfter(1), new AC().grow().fill()));
 		colDimSelectionConfigPanel.add(this.columnSelectionPanel);
 		colDimSelectionConfigPanel.add(this.dimensionSelectionPanel);
 
@@ -165,7 +166,7 @@ public class FeatureNodeDialogPane<T extends RealType<T> & NativeType<T>, L exte
 		// column creation model
 		this.m_columnCreationModeComponent = new DialogComponentStringSelection(
 				FeatureNodeModel.createColumnCreationModeModel(),
-				"Column Creation Mode", new String[] { "Append", "New Table" });
+				"Column Creation Mode", new String[]{"Append", "New Table"});
 
 		// dimension selection
 		this.m_dimSelectionModelComponent = new DialogComponentDimSelection(
@@ -234,8 +235,8 @@ public class FeatureNodeDialogPane<T extends RealType<T> & NativeType<T>, L exte
 		this.appendLabelSegmentsComponent.loadSettingsFrom(settings, specs);
 		this.intersectionModeComponent.loadSettingsFrom(settings, specs);
 		this.includeLabelsComponent.loadSettingsFrom(settings, specs);
-		this.appendSegmentInformationComponent
-				.loadSettingsFrom(settings, specs);
+		this.appendSegmentInformationComponent.loadSettingsFrom(settings,
+				specs);
 
 		try {
 			this.smfs.loadSettingsFrom(settings);

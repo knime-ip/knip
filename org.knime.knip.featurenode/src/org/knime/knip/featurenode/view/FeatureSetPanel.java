@@ -5,8 +5,8 @@ import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -36,9 +36,9 @@ import org.scijava.plugin.PluginInfo;
 import org.scijava.ui.swing.widget.SwingInputHarvester;
 import org.scijava.ui.swing.widget.SwingInputPanel;
 
-import net.imagej.ops.OpRef;
-import net.imagej.ops.features.AbstractAutoResolvingFeatureSet;
-import net.imagej.ops.features.FeatureSet;
+import net.imagej.ops.featuresets.ConfigurableFeatureSet;
+import net.imagej.ops.featuresets.FeatureSet;
+import net.imagej.ops.featuresets.NamedFeature;
 import net.miginfocom.swing.MigLayout;
 
 @SuppressWarnings("rawtypes")
@@ -59,11 +59,12 @@ public class FeatureSetPanel extends JPanel {
 	 ******************************************************************/
 	private final ImageIcon maximizeIcon = new ImageIcon(
 			getClass().getClassLoader().getResource("resources/Down16.gif"));
-	private final ImageIcon minimizeIcon = new ImageIcon(getClass().getClassLoader().getResource("resources/Up16.gif"));
-	private final JButton btnHelp = new JButton(
-			new ImageIcon(getClass().getClassLoader().getResource("resources/info_small.gif")));
-	private final JButton btnClose = new JButton(
-			new ImageIcon(getClass().getClassLoader().getResource("resources/trash_small.gif")));
+	private final ImageIcon minimizeIcon = new ImageIcon(
+			getClass().getClassLoader().getResource("resources/Up16.gif"));
+	private final JButton btnHelp = new JButton(new ImageIcon(getClass()
+			.getClassLoader().getResource("resources/info_small.gif")));
+	private final JButton btnClose = new JButton(new ImageIcon(getClass()
+			.getClassLoader().getResource("resources/trash_small.gif")));
 	private final JLabel numSelectedFeaturesLabel = new JLabel();
 
 	/*****************************************************************
@@ -87,10 +88,11 @@ public class FeatureSetPanel extends JPanel {
 	 * @throws ModuleException
 	 *             if no inputpanel can be built from the module
 	 */
-	public FeatureSetPanel(final FeatureSetInfo fsi) throws InstantiableException, ModuleException {
+	public FeatureSetPanel(final FeatureSetInfo fsi)
+			throws InstantiableException, ModuleException {
 		// create plugininfo from the class of the feature set
-		final PluginInfo<FeatureSet> plugin = OpsGateway.getPluginService().getPlugin(fsi.getFeatureSetClass(),
-				FeatureSet.class);
+		final PluginInfo<FeatureSet> plugin = OpsGateway.getPluginService()
+				.getPlugin(fsi.getFeatureSetClass(), FeatureSet.class);
 
 		this.pluginInfo = plugin;
 
@@ -99,12 +101,14 @@ public class FeatureSetPanel extends JPanel {
 		try {
 			op = this.pluginInfo.createInstance();
 		} catch (final InstantiableException e) {
-			throw new InstantiableException("Couldn't instantiate feature set", e);
+			throw new InstantiableException("Couldn't instantiate feature set",
+					e);
 		}
 
 		// create a module
 		this.module = OpsGateway.getCommandService().getModuleService()
-				.createModule(new CommandInfo(op.getClass(), op.getClass().getAnnotation(Plugin.class)));
+				.createModule(new CommandInfo(op.getClass(),
+						op.getClass().getAnnotation(Plugin.class)));
 
 		validateAndInitialize(this.module, fsi.getFieldNameAndValues());
 
@@ -115,7 +119,7 @@ public class FeatureSetPanel extends JPanel {
 
 		// if this feature set consists of a set of features
 		this.fsp = null;
-		if (AbstractAutoResolvingFeatureSet.class.isAssignableFrom(op.getClass())) {
+		if (ConfigurableFeatureSet.class.isAssignableFrom(op.getClass())) {
 			this.fsp = new FeatureSelectionPanel(fsi.getSelectedFeatures());
 		}
 
@@ -141,18 +145,21 @@ public class FeatureSetPanel extends JPanel {
 	 * @throws ModuleException
 	 *             if no inputpanel can be built from the module
 	 */
-	public FeatureSetPanel(final PluginInfo<FeatureSet> pluginInfo) throws InstantiableException, ModuleException {
+	public FeatureSetPanel(final PluginInfo<FeatureSet> pluginInfo)
+			throws InstantiableException, ModuleException {
 		this.pluginInfo = pluginInfo;
 
 		FeatureSet<?, ?> op;
 		try {
 			op = pluginInfo.createInstance();
 		} catch (final InstantiableException e) {
-			throw new InstantiableException("Couldn't instantiate feature set", e);
+			throw new InstantiableException("Couldn't instantiate feature set",
+					e);
 		}
 
 		this.module = OpsGateway.getCommandService().getModuleService()
-				.createModule(new CommandInfo(op.getClass(), op.getClass().getAnnotation(Plugin.class)));
+				.createModule(new CommandInfo(op.getClass(),
+						op.getClass().getAnnotation(Plugin.class)));
 
 		// validate and initialize module
 		validateAndInitialize(this.module, null);
@@ -164,10 +171,10 @@ public class FeatureSetPanel extends JPanel {
 
 		// if this feature set consists of a set of features
 		this.fsp = null;
-		if (AbstractAutoResolvingFeatureSet.class.isAssignableFrom(op.getClass())) {
-			final AbstractAutoResolvingFeatureSet<?, ?> autoOp = (AbstractAutoResolvingFeatureSet<?, ?>) op;
+		if (ConfigurableFeatureSet.class.isAssignableFrom(op.getClass())) {
+			final ConfigurableFeatureSet<?, ?> autoOp = (ConfigurableFeatureSet<?, ?>) op;
 
-			final Set<OpRef<?>> outputOps = autoOp.getOutputOps();
+			final Collection<NamedFeature> outputOps = autoOp.getFeatures();
 			if ((outputOps != null) && !outputOps.isEmpty()) {
 				this.fsp = new FeatureSelectionPanel(outputOps);
 			}
@@ -184,14 +191,18 @@ public class FeatureSetPanel extends JPanel {
 		build();
 	}
 
-	private void validateAndInitialize(final Module someModule, final Map<String, Object> fieldNamesAndValues) {
+	private void validateAndInitialize(final Module someModule,
+			final Map<String, Object> fieldNamesAndValues) {
 		// resolve default input and output
-		someModule.setResolved("input", true);
-		someModule.setResolved("output", true);
+		someModule.setResolved("in", true);
+		someModule.setResolved("out", true);
+		someModule.setResolved("outType", true);
+		someModule.setResolved("prioritizedOps", true);
 
 		// set parameters, if available
 		if (fieldNamesAndValues != null) {
-			for (final Entry<String, Object> entry : fieldNamesAndValues.entrySet()) {
+			for (final Entry<String, Object> entry : fieldNamesAndValues
+					.entrySet()) {
 				someModule.setInput(entry.getKey(), entry.getValue());
 			}
 		}
@@ -201,7 +212,8 @@ public class FeatureSetPanel extends JPanel {
 		validater.process(someModule);
 		if (validater.isCanceled()) {
 			final String cancelReason = validater.getCancelReason();
-			throw new IllegalArgumentException("Couldn't validate given module. " + cancelReason);
+			throw new IllegalArgumentException(
+					"Couldn't validate given module. " + cancelReason);
 		}
 
 		// run the module initializers
@@ -211,7 +223,8 @@ public class FeatureSetPanel extends JPanel {
 	private void build() {
 		// set jpanel settings
 		this.setLayout(new BorderLayout());
-		this.setBorder(BorderFactory.createLineBorder(new Color(189, 189, 189), 5));
+		this.setBorder(
+				BorderFactory.createLineBorder(new Color(189, 189, 189), 5));
 
 		// checkbox background
 		this.chkbSelectAll.setBackground(new Color(189, 189, 189));
@@ -219,7 +232,8 @@ public class FeatureSetPanel extends JPanel {
 		// title box
 		final JPanel menuPanel = new JPanel();
 		menuPanel.setBackground(new Color(189, 189, 189));
-		menuPanel.setLayout(new MigLayout("", "[]push[]push[][][][]", "[26px]"));
+		menuPanel
+				.setLayout(new MigLayout("", "[]push[]push[][][][]", "[26px]"));
 
 		final JLabel lblFeatureSetName = new JLabel(this.pluginInfo.getLabel());
 		menuPanel.add(lblFeatureSetName, "cell 0 0");
@@ -236,14 +250,16 @@ public class FeatureSetPanel extends JPanel {
 
 			int num = 0;
 			int numSelected = 0;
-			for (final Entry<Class<?>, Boolean> selectedOps : this.fsp.getSelectedOps().entrySet()) {
+			for (final Entry<String, Boolean> selectedOps : this.fsp
+					.getSelectedOps().entrySet()) {
 				++num;
 				if (selectedOps.getValue()) {
 					++numSelected;
 				}
 			}
 
-			this.numSelectedFeaturesLabel.setText(numSelected + "/" + num + " Features");
+			this.numSelectedFeaturesLabel
+					.setText(numSelected + "/" + num + " Features");
 		} else {
 			this.chkbSelectAll.setVisible(false);
 		}
@@ -307,7 +323,7 @@ public class FeatureSetPanel extends JPanel {
 	public void toggleSelectDeselectAll() {
 		this.selectAll = !this.selectAll;
 
-		for (final Class<?> key : this.fsp.getSelectedOps().keySet()) {
+		for (final String key : this.fsp.getSelectedOps().keySet()) {
 			this.fsp.getSelectedOps().put(key, this.selectAll);
 		}
 
@@ -315,14 +331,16 @@ public class FeatureSetPanel extends JPanel {
 
 		int num = 0;
 		int numSelected = 0;
-		for (final Entry<Class<?>, Boolean> entry : this.fsp.getSelectedOps().entrySet()) {
+		for (final Entry<String, Boolean> entry : this.fsp.getSelectedOps()
+				.entrySet()) {
 			++num;
 			if (entry.getValue()) {
 				++numSelected;
 			}
 		}
 
-		this.numSelectedFeaturesLabel.setText(numSelected + "/" + num + " Features");
+		this.numSelectedFeaturesLabel
+				.setText(numSelected + "/" + num + " Features");
 	}
 
 	/**
@@ -348,19 +366,22 @@ public class FeatureSetPanel extends JPanel {
 	 */
 	public FeatureSetInfo getSerializableInfos() {
 
-		final Class<? extends FeatureSet> featuresetClass = this.pluginInfo.getPluginClass();
+		final Class<? extends FeatureSet> featuresetClass = this.pluginInfo
+				.getPluginClass();
 
 		final Map<String, Object> parameterValues = new HashMap<String, Object>();
 		for (final String parameterName : getUnresolvedParameterNames()) {
-			parameterValues.put(parameterName, this.inputpanel.getValue(parameterName));
+			parameterValues.put(parameterName,
+					this.inputpanel.getValue(parameterName));
 		}
 
-		Map<Class<?>, Boolean> selectedFeatures = new HashMap<Class<?>, Boolean>();
+		Map<String, Boolean> selectedFeatures = new HashMap<String, Boolean>();
 		if (this.fsp != null) {
 			selectedFeatures = this.fsp.getSelectedOps();
 		}
 
-		return new FeatureSetInfo(featuresetClass, parameterValues, selectedFeatures);
+		return new FeatureSetInfo(featuresetClass, parameterValues,
+				selectedFeatures);
 	}
 
 	/**
@@ -374,86 +395,91 @@ public class FeatureSetPanel extends JPanel {
 		 * serialVersionUID.
 		 */
 		private static final long serialVersionUID = 706108386333175144L;
-		private final Map<Class<?>, Boolean> selectedOps;
-		private final Map<Class<?>, JCheckBox> addedCheckboxes;
+		private final Map<String, Boolean> selectedOps;
+		private final Map<String, JCheckBox> addedCheckboxes;
 
-		public FeatureSelectionPanel(final Set<OpRef<?>> ops) {
-			this.selectedOps = new HashMap<Class<?>, Boolean>();
-			this.addedCheckboxes = new HashMap<Class<?>, JCheckBox>();
+		public FeatureSelectionPanel(final Collection<NamedFeature> outputOps) {
+			this.selectedOps = new HashMap<String, Boolean>();
+			this.addedCheckboxes = new HashMap<String, JCheckBox>();
 			this.setLayout(new GridLayout(0, 3));
 
-			final List<OpRef<?>> sortedOps = new ArrayList<OpRef<?>>(ops);
-			Collections.sort(sortedOps, new Comparator<OpRef<?>>() {
+			final List<NamedFeature> sortedOps = new ArrayList<NamedFeature>(
+					outputOps);
+			Collections.sort(sortedOps, new Comparator<NamedFeature>() {
 				@Override
-				public int compare(final OpRef<?> o1, final OpRef<?> o2) {
-					return o1.getType().getSimpleName().compareTo(o2.getType().getSimpleName());
+				public int compare(final NamedFeature o1,
+						final NamedFeature o2) {
+					return o1.getName().compareTo(o2.getName());
 				}
 			});
 
-			for (final OpRef<?> opRef : sortedOps) {
-				this.selectedOps.put(opRef.getType(), true);
+			for (final NamedFeature opRef : sortedOps) {
+				this.selectedOps.put(opRef.getName(), true);
 
-				final JCheckBox checkBox = new JCheckBox(getFeatureLabel(opRef.getType()));
+				final JCheckBox checkBox = new JCheckBox(opRef.getName());
 				checkBox.setSelected(true);
 				checkBox.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(final ActionEvent e) {
 
-						FeatureSelectionPanel.this.selectedOps.put(opRef.getType(), checkBox.isSelected());
+						FeatureSelectionPanel.this.selectedOps
+								.put(opRef.getName(), checkBox.isSelected());
 
 						int num = 0;
 						int numSelected = 0;
-						for (final Entry<Class<?>, Boolean> entry : getSelectedOps().entrySet()) {
+						for (final Entry<String, Boolean> entry : getSelectedOps()
+								.entrySet()) {
 							++num;
 							if (entry.getValue()) {
 								++numSelected;
 							}
 						}
 
-						FeatureSetPanel.this.numSelectedFeaturesLabel.setText(numSelected + "/" + num + " Features");
+						FeatureSetPanel.this.numSelectedFeaturesLabel
+								.setText(numSelected + "/" + num + " Features");
 					}
 				});
 
 				this.add(checkBox);
-				this.addedCheckboxes.put(opRef.getType(), checkBox);
+				this.addedCheckboxes.put(opRef.getName(), checkBox);
 			}
 		}
 
-		public FeatureSelectionPanel(final Map<Class<?>, Boolean> input) {
-			this.selectedOps = new HashMap<Class<?>, Boolean>();
-			this.addedCheckboxes = new HashMap<Class<?>, JCheckBox>();
+		public FeatureSelectionPanel(final Map<String, Boolean> input) {
+			this.selectedOps = new HashMap<String, Boolean>();
+			this.addedCheckboxes = new HashMap<String, JCheckBox>();
 
 			this.setLayout(new GridLayout(0, 3));
 
-			final List<Class<?>> sortedOps = new ArrayList<Class<?>>(input.keySet());
-			Collections.sort(sortedOps, new Comparator<Class<?>>() {
-				@Override
-				public int compare(final Class<?> o1, final Class<?> o2) {
-					return o1.getSimpleName().compareTo(o2.getSimpleName());
-				}
-			});
+			final List<String> sortedOps = new ArrayList<String>(
+					input.keySet());
+			Collections.sort(sortedOps);
 
-			for (final Class<?> op : sortedOps) {
+			for (final String op : sortedOps) {
 				final boolean isSelected = input.get(op);
 				this.selectedOps.put(op, isSelected);
 
-				final JCheckBox checkBox = new JCheckBox(getFeatureLabel(op));
+				final JCheckBox checkBox = new JCheckBox(op);
 				checkBox.setSelected(isSelected);
 				checkBox.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(final ActionEvent e) {
-						FeatureSelectionPanel.this.selectedOps.put(op, !FeatureSelectionPanel.this.selectedOps.get(op));
+						FeatureSelectionPanel.this.selectedOps.put(op,
+								!FeatureSelectionPanel.this.selectedOps
+										.get(op));
 
 						int num = 0;
 						int numSelected = 0;
-						for (final Entry<Class<?>, Boolean> entry : getSelectedOps().entrySet()) {
+						for (final Entry<String, Boolean> entry : getSelectedOps()
+								.entrySet()) {
 							++num;
 							if (entry.getValue()) {
 								++numSelected;
 							}
 						}
 
-						FeatureSetPanel.this.numSelectedFeaturesLabel.setText(numSelected + "/" + num + " Features");
+						FeatureSetPanel.this.numSelectedFeaturesLabel
+								.setText(numSelected + "/" + num + " Features");
 					}
 				});
 
@@ -463,38 +489,14 @@ public class FeatureSetPanel extends JPanel {
 		}
 
 		public void updateCheckboxes() {
-			for (final Entry<Class<?>, Boolean> entry : this.selectedOps.entrySet()) {
-				this.addedCheckboxes.get(entry.getKey()).setSelected(entry.getValue());
+			for (final Entry<String, Boolean> entry : this.selectedOps
+					.entrySet()) {
+				this.addedCheckboxes.get(entry.getKey())
+						.setSelected(entry.getValue());
 			}
 		}
 
-		/**
-		 * Pretty dirty hack to get the LABEL name of a feature, quietly fail
-		 * and use the class name if we can't read it.
-		 *
-		 * @param feature
-		 *            the class of a feature
-		 * @return the feature label or the simple class name if the feature has
-		 *         no label or we can't read it
-		 */
-		private String getFeatureLabel(final Class<?> feature) {
-
-			try {
-				final Class<?> class1 = feature.getInterfaces()[1];
-				final Field field = class1.getDeclaredField("LABEL");
-
-				final String[] token = ((String) field.get(class1)).split("\\.");
-
-				return token[token.length - 1];
-
-			} catch (final Exception ex) {
-				// ignore
-			}
-
-			return feature.getSimpleName();
-		}
-
-		public Map<Class<?>, Boolean> getSelectedOps() {
+		public Map<String, Boolean> getSelectedOps() {
 			return this.selectedOps;
 		}
 	}

@@ -14,7 +14,7 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.port.PortObjectSpec;
 
-import net.imagej.ops.features.FeatureSet;
+import net.imagej.ops.featuresets.FeatureSet;
 import net.imglib2.util.Pair;
 
 public class SettingsModelFeatureSet extends SettingsModel {
@@ -152,16 +152,10 @@ public class SettingsModelFeatureSet extends SettingsModel {
 			// load number of features
 			final int numFeatures = featureSetSettings.getInt(NUM_FEATURES);
 
-			final Map<Class<?>, Boolean> selectedFeatures = new HashMap<Class<?>, Boolean>();
+			final Map<String, Boolean> selectedFeatures = new HashMap<String, Boolean>();
 			// load each feature
 			for (int j = 0; j < numFeatures; j++) {
-
-				Class<?> featureClass;
-				try {
-					featureClass = Class.forName(featureSetSettings.getString(FEATURE_CLASS_NAME + j));
-				} catch (final ClassNotFoundException e) {
-					throw new InvalidSettingsException("Couldn't load feature  class", e);
-				}
+				String featureClass = featureSetSettings.getString(FEATURE_CLASS_NAME + j);
 
 				final boolean featureSelected = featureSetSettings.getBoolean(FEATURE_CLASS_IS_SELECTED + j);
 
@@ -217,17 +211,11 @@ public class SettingsModelFeatureSet extends SettingsModel {
 			// load number of features
 			final int numFeatures = featureSetSettings.getInt(NUM_FEATURES);
 
-			final Map<Class<?>, Boolean> selectedFeatures = new HashMap<Class<?>, Boolean>();
+			final Map<String, Boolean> selectedFeatures = new HashMap<String, Boolean>();
 			// load each feature
 			for (int j = 0; j < numFeatures; j++) {
-
-				Class<?> featureClass;
-				try {
-					featureClass = Class.forName(featureSetSettings.getString(FEATURE_CLASS_NAME + j));
-				} catch (final ClassNotFoundException e) {
-					throw new InvalidSettingsException("Couldn't load feature  class", e);
-				}
-
+				String featureClass = featureSetSettings.getString(FEATURE_CLASS_NAME + j);
+				
 				final boolean featureSelected = featureSetSettings.getBoolean(FEATURE_CLASS_IS_SELECTED + j);
 
 				selectedFeatures.put(featureClass, featureSelected);
@@ -271,14 +259,14 @@ public class SettingsModelFeatureSet extends SettingsModel {
 			}
 
 			// save number of selected features
-			final List<Pair<Class<?>, Boolean>> sortedSelectedFeatures = featureSetInfo.getSortedSelectedFeatures();
+			final List<Pair<String, Boolean>> sortedSelectedFeatures = featureSetInfo.getSortedSelectedFeatures();
 			final int numFeatures = sortedSelectedFeatures.size();
 			featureSetSettings.addInt(NUM_FEATURES, numFeatures);
 
 			// save each feature
 			for (int j = 0; j < numFeatures; j++) {
 
-				featureSetSettings.addString(FEATURE_CLASS_NAME + j, sortedSelectedFeatures.get(j).getA().getName());
+				featureSetSettings.addString(FEATURE_CLASS_NAME + j, sortedSelectedFeatures.get(j).getA());
 
 				featureSetSettings.addBoolean(FEATURE_CLASS_IS_SELECTED + j, sortedSelectedFeatures.get(j).getB());
 			}

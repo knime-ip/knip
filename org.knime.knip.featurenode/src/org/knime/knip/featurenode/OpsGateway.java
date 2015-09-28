@@ -73,7 +73,6 @@ import org.scijava.widget.WidgetService;
 
 import net.imagej.ops.OpMatchingService;
 import net.imagej.ops.OpService;
-import net.imagej.ops.features.OpResolverService;
 
 /**
  * Encapsulates the {@link OpService} instance as singleton.
@@ -95,20 +94,20 @@ public final class OpsGateway {
 	@Parameter
 	private CommandService cs;
 
-	@Parameter
-	private OpResolverService ors;
-
 	/* Sets up a SciJava context with {@link OpService}. */
 	private OpsGateway() {
 		// set log level
 		System.setProperty("scijava.log.level", "error");
 
 		// required classes
-		final List<Class<? extends Service>> classes = Arrays.asList(OpService.class, OpMatchingService.class,
-				WidgetService.class, UIService.class, OpResolverService.class);
+		final List<Class<? extends Service>> classes = Arrays.asList(
+				OpService.class, OpMatchingService.class, WidgetService.class,
+				UIService.class);
 
 		this.context = new Context(classes,
-				new PluginIndex(new DefaultPluginFinder(new ResourceAwareClassLoader(getClass().getClassLoader()))));
+				new PluginIndex(
+						new DefaultPluginFinder(new ResourceAwareClassLoader(
+								getClass().getClassLoader()))));
 
 		this.context.inject(this);
 	}
@@ -137,10 +136,6 @@ public final class OpsGateway {
 		return getInstance().cs;
 	}
 
-	public static OpResolverService getOpResolverService() {
-		return getInstance().ors;
-	}
-
 	class ResourceAwareClassLoader extends ClassLoader {
 
 		final ArrayList<URL> urls = new ArrayList<URL>();
@@ -148,16 +143,19 @@ public final class OpsGateway {
 		public ResourceAwareClassLoader(final ClassLoader cl) {
 			super(cl);
 
-			final String requireBundle = FrameworkUtil.getBundle(getClass()).getHeaders().get(Constants.REQUIRE_BUNDLE);
+			final String requireBundle = FrameworkUtil.getBundle(getClass())
+					.getHeaders().get(Constants.REQUIRE_BUNDLE);
 			try {
-				final ManifestElement[] elements = ManifestElement.parseHeader(Constants.BUNDLE_CLASSPATH,
-						requireBundle);
+				final ManifestElement[] elements = ManifestElement
+						.parseHeader(Constants.BUNDLE_CLASSPATH, requireBundle);
 				for (final ManifestElement manifestElement : elements) {
-					final Bundle bundle = org.eclipse.core.runtime.Platform.getBundle(manifestElement.getValue());
+					final Bundle bundle = org.eclipse.core.runtime.Platform
+							.getBundle(manifestElement.getValue());
 
 					Enumeration<URL> resources;
 					try {
-						resources = bundle.getResources("META-INF/json/org.scijava.plugin.Plugin");
+						resources = bundle.getResources(
+								"META-INF/json/org.scijava.plugin.Plugin");
 					} catch (final IOException e) {
 						continue;
 					}
@@ -170,7 +168,8 @@ public final class OpsGateway {
 						final URL resource = resources.nextElement();
 						// we want to avoid transitive resolving of dependencies
 						final String host = resource.getHost();
-						if (bundle.getBundleId() == Long.valueOf(host.substring(0, host.indexOf(".")))) {
+						if (bundle.getBundleId() == Long.valueOf(
+								host.substring(0, host.indexOf(".")))) {
 							this.urls.add(resource);
 						}
 					}
@@ -183,7 +182,8 @@ public final class OpsGateway {
 		}
 
 		@Override
-		public Enumeration<URL> getResources(final String name) throws IOException {
+		public Enumeration<URL> getResources(final String name)
+				throws IOException {
 			if (!name.startsWith("META-INF/json")) {
 				return Collections.emptyEnumeration();
 			}

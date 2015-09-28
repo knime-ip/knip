@@ -37,11 +37,11 @@ import org.knime.knip.featurenode.model.LabelSettings;
 import org.knime.knip.featurenode.model.SettingsModelFeatureSet;
 import org.knime.knip.featurenode.util.CountingCompletionService;
 
-import net.imagej.ops.features.sets.FirstOrderStatFeatureSet;
-import net.imagej.ops.features.sets.Geometric2DFeatureSet;
-import net.imagej.ops.features.sets.Geometric3DFeatureSet;
-import net.imagej.ops.features.sets.Haralick2DFeatureSet;
-import net.imagej.ops.features.sets.Haralick3DFeatureSet;
+import net.imagej.ops.featuresets.StatsFeatureSet;
+//import net.imagej.ops.features.sets.Geometric2DFeatureSet;
+//import net.imagej.ops.features.sets.Geometric3DFeatureSet;
+//import net.imagej.ops.features.sets.Haralick2DFeatureSet;
+//import net.imagej.ops.features.sets.Haralick3DFeatureSet;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
@@ -246,30 +246,30 @@ public class FeatureNodeModel<T extends RealType<T> & NativeType<T>, L extends C
 		final List<FeatureSetInfo> inputFeatureSets = new ArrayList<FeatureSetInfo>();
 
 		for (final FeatureSetInfo fsi : featureSets) {
-			if (Geometric2DFeatureSet.class.isAssignableFrom(fsi.getFeatureSetClass()) && labelingColumnIndex == -1) {
-				LOGGER.warn("Geometric 2D Feature Set will be ignored, since no Labeling Column is selected.");
-			} else if (Geometric3DFeatureSet.class.isAssignableFrom(fsi.getFeatureSetClass())
-					&& labelingColumnIndex == -1) {
-				LOGGER.warn("Geometric 3D Feature Set will be ignored, since no Labeling Column is selected.");
-			} else
-				if (FirstOrderStatFeatureSet.class.isAssignableFrom(fsi.getFeatureSetClass()) && imgColumnIndex == -1) {
+//			if (Geometric2DFeatureSet.class.isAssignableFrom(fsi.getFeatureSetClass()) && labelingColumnIndex == -1) {
+//				LOGGER.warn("Geometric 2D Feature Set will be ignored, since no Labeling Column is selected.");
+//			} else if (Geometric3DFeatureSet.class.isAssignableFrom(fsi.getFeatureSetClass())
+//					&& labelingColumnIndex == -1) {
+//				LOGGER.warn("Geometric 3D Feature Set will be ignored, since no Labeling Column is selected.");
+//			} else
+				if (StatsFeatureSet.class.isAssignableFrom(fsi.getFeatureSetClass()) && imgColumnIndex == -1) {
 				LOGGER.warn("First Order Statistics Feature Set will be ignored, since no Image Column is selected.");
-			} else if (Haralick3DFeatureSet.class.isAssignableFrom(fsi.getFeatureSetClass())
-					&& this.m_dimselectionModel.getNumSelectedDimLabels() != 3) {
-				LOGGER.warn("Haralick 3D Feature Set will be ignored, since "
-						+ this.m_dimselectionModel.getNumSelectedDimLabels() + " dimensions are selected and not 3.");
-			} else if (Haralick2DFeatureSet.class.isAssignableFrom(fsi.getFeatureSetClass())
-					&& this.m_dimselectionModel.getNumSelectedDimLabels() != 2) {
-				LOGGER.warn("Haralick 2D Feature Set will be ignored, since "
-						+ this.m_dimselectionModel.getNumSelectedDimLabels() + " dimensions are selected and not 2.");
-			} else if (Geometric2DFeatureSet.class.isAssignableFrom(fsi.getFeatureSetClass())
-					&& this.m_dimselectionModel.getNumSelectedDimLabels() != 2) {
-				LOGGER.warn("Geometric 2D Feature Set will be ignored, since "
-						+ this.m_dimselectionModel.getNumSelectedDimLabels() + " dimensions are selected and not 2.");
-			} else if (Geometric3DFeatureSet.class.isAssignableFrom(fsi.getFeatureSetClass())
-					&& this.m_dimselectionModel.getNumSelectedDimLabels() != 3) {
-				LOGGER.warn("Geometric 3D Feature Set will be ignored, since "
-						+ this.m_dimselectionModel.getNumSelectedDimLabels() + " dimensions are selected and not 3.");
+//			} else if (Haralick3DFeatureSet.class.isAssignableFrom(fsi.getFeatureSetClass())
+//					&& this.m_dimselectionModel.getNumSelectedDimLabels() != 3) {
+//				LOGGER.warn("Haralick 3D Feature Set will be ignored, since "
+//						+ this.m_dimselectionModel.getNumSelectedDimLabels() + " dimensions are selected and not 3.");
+//			} else if (Haralick2DFeatureSet.class.isAssignableFrom(fsi.getFeatureSetClass())
+//					&& this.m_dimselectionModel.getNumSelectedDimLabels() != 2) {
+//				LOGGER.warn("Haralick 2D Feature Set will be ignored, since "
+//						+ this.m_dimselectionModel.getNumSelectedDimLabels() + " dimensions are selected and not 2.");
+//			} else if (Geometric2DFeatureSet.class.isAssignableFrom(fsi.getFeatureSetClass())
+//					&& this.m_dimselectionModel.getNumSelectedDimLabels() != 2) {
+//				LOGGER.warn("Geometric 2D Feature Set will be ignored, since "
+//						+ this.m_dimselectionModel.getNumSelectedDimLabels() + " dimensions are selected and not 2.");
+//			} else if (Geometric3DFeatureSet.class.isAssignableFrom(fsi.getFeatureSetClass())
+//					&& this.m_dimselectionModel.getNumSelectedDimLabels() != 3) {
+//				LOGGER.warn("Geometric 3D Feature Set will be ignored, since "
+//						+ this.m_dimselectionModel.getNumSelectedDimLabels() + " dimensions are selected and not 3.");
 			} else {
 				inputFeatureSets.add(fsi);
 			}
