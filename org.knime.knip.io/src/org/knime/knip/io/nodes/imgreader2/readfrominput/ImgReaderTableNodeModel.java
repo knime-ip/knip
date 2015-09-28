@@ -47,9 +47,9 @@
 package org.knime.knip.io.nodes.imgreader2.readfrominput;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.StreamSupport;
 
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -146,22 +146,29 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 
 		int imgIdx = getPathColIdx(inData[0].getDataTableSpec());
 		ReadImgTableFunction<T> rifp = createImgTableFunction(exec, inData[0].getDataTableSpec(),
-				inData[0].getRowCount());
+				Long.valueOf(inData[0].size()).intValue());
 
 		BufferedDataContainer bdc = exec.createDataContainer(getOutspec(inData[0].getDataTableSpec(), imgIdx));
-		StreamSupport.stream(inData[0].spliterator(), false).flatMap(rifp).forEachOrdered(dataRow -> {
 
-			if (dataRow.getSecond().isPresent()) {
-				encounteredExceptions.set(true);
-				LOGGER.error("Encountered exception while reading image " + dataRow.getFirst().getKey()
-						+ "! Caught Exception: " + dataRow.getSecond().get().getMessage());
-				LOGGER.debug(dataRow.getSecond().get());
-			}
+		Iterator<DataRow> iterator = inData[0].iterator();
+		while (iterator.hasNext()) {
+			rifp.apply(iterator.next()).forEachOrdered(dataRow -> {
 
-			bdc.addRowToTable(dataRow.getFirst());
-		});
+				if (dataRow.getSecond().isPresent()) {
+					encounteredExceptions.set(true);
+					LOGGER.error("Encountered exception while reading image " + dataRow.getFirst().getKey()
+							+ "! Caught Exception: " + dataRow.getSecond().get().getMessage());
+					LOGGER.debug(dataRow.getSecond().get());
+				}
+
+				bdc.addRowToTable(dataRow.getFirst());
+
+			});
+
+			exec.checkCanceled();
+		}
+
 		bdc.close();
-
 		// data table for the table cell viewer
 		m_data = bdc.getTable();
 

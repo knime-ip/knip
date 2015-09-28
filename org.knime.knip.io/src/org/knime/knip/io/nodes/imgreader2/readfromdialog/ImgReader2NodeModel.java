@@ -47,6 +47,7 @@
 package org.knime.knip.io.nodes.imgreader2.readfromdialog;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.knime.core.data.DataColumnSpec;
@@ -160,19 +161,28 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 		final AtomicBoolean encounteredExceptions = new AtomicBoolean(false);
 
 		BufferedDataContainer bdc = exec.createDataContainer(getOutspec());
-		Arrays.asList(m_files.getStringArrayValue()).stream().flatMap(rifp).forEachOrdered(dataRow -> {
 
-			if (dataRow.getSecond().isPresent()) {
-				encounteredExceptions.set(true);
-				LOGGER.error("Encountered exception while reading image " + dataRow.getFirst().getKey()
-						+ "! Caught Exception: " + dataRow.getSecond().get().getMessage());
-				LOGGER.debug(dataRow.getSecond().get());
-			}
+		Iterator<String> iterator = Arrays.asList(m_files.getStringArrayValue()).iterator();
+		while (iterator.hasNext()) {
+			rifp.apply(iterator.next()).forEachOrdered(dataRow -> {
 
-			bdc.addRowToTable(dataRow.getFirst());
-		});
+				if (dataRow.getSecond().isPresent()) {
+					encounteredExceptions.set(true);
+					LOGGER.error("Encountered exception while reading image " + dataRow.getFirst().getKey()
+							+ "! Caught Exception: " + dataRow.getSecond().get().getMessage());
+					LOGGER.debug(dataRow.getSecond().get());
+				}
+
+				bdc.addRowToTable(dataRow.getFirst());
+
+			});
+
+			exec.checkCanceled();
+
+		}
+
 		bdc.close();
-
+		
 		// data table for the table cell viewer
 		m_data = bdc.getTable();
 
