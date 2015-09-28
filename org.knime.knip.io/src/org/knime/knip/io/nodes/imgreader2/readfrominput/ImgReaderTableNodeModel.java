@@ -181,12 +181,16 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 				RowInput in = (RowInput) inputs[0];
 				RowOutput out = (RowOutput) outputs[0];
 
+				// boolean for exceptions and file format
+				final AtomicBoolean encounteredExceptions = new AtomicBoolean(false);
+				
 				ReadImgTableFunction<T> readImgFunction = createImgTableFunction(exec, in.getDataTableSpec(), 1);
 
 				DataRow row;
 				while ((row = in.poll()) != null) {
 					readImgFunction.apply(row).forEachOrdered(result -> {
 						if (result.getSecond().isPresent()) {
+							encounteredExceptions.set(true);
 							LOGGER.warn("Encountered exception while reading image " + result.getFirst().getKey()
 									+ "! Caught Exception: " + result.getSecond().get().getMessage());
 							LOGGER.debug(result.getSecond().get());
@@ -195,9 +199,14 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 						try {
 							out.push(result.getFirst());
 						} catch (Exception exc) {
+							encounteredExceptions.set(true);
 							LOGGER.warn("Couldn't push result for row " + result.getFirst().getKey());
 						}
 					});
+				}
+				
+				if (encounteredExceptions.get()) {
+					setWarningMessage("Encountered errors during execution!");
 				}
 
 				in.close();
