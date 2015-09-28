@@ -125,7 +125,7 @@ public class ProcNodeSetFactory implements NodeSetFactory {
     public Collection<String> getNodeFactoryIds() {
         m_nodeFactories.put(LocalThresholderNodeFactory2.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(MultilevelThresholderNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
-        m_nodeFactories.put(AlignerNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
+        //        m_nodeFactories.put(AlignerNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(ThinningNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(ImgJEPNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(ConvertImgNodeFactory.class.getCanonicalName(), "/community/knip/image");
@@ -139,7 +139,7 @@ public class ProcNodeSetFactory implements NodeSetFactory {
         m_nodeFactories.put(DimensionSwapperNodeFactory.class.getCanonicalName(), "/community/knip/image");
         m_nodeFactories.put(SplitterNodeFactory.class.getCanonicalName(), "/community/knip/image");
         m_nodeFactories.put(MergerNodeFactory.class.getCanonicalName(), "/community/knip/image");
-        m_nodeFactories.put(ImgCropperNodeFactory.class.getCanonicalName(), "/community/knip/image");
+        //        m_nodeFactories.put(ImgCropperNodeFactory.class.getCanonicalName(), "/community/knip/image");
         m_nodeFactories.put(AutoCropNodeFactory.class.getCanonicalName(), "/community/knip/image");
 
         m_nodeFactories.put(GrayscaleReconstructionNodeFactory.class.getCanonicalName(),
@@ -163,6 +163,10 @@ public class ProcNodeSetFactory implements NodeSetFactory {
 
         // DoG Detection
         m_nodeFactories.put(DoGDetectorNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
+
+        // new version
+        m_nodeFactories.put(ImgCropperNodeFactory2.class.getCanonicalName(), "/community/knip/image/process");
+        m_nodeFactories.put(AlignerNodeFactory2.class.getCanonicalName(), "/community/knip/image/process");
 
         return m_nodeFactories.keySet();
     }

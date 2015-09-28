@@ -129,7 +129,7 @@ public class LabNodeSetFactory implements NodeSetFactory {
         m_nodeFactories.put(ConvertLabelingNodeFactory.class.getCanonicalName(), "/community/knip/labeling");
         //        m_nodeFactories.put(EdgeObjectsExcluderNodeFactory.class.getCanonicalName(), "/community/knip/labeling");
         m_nodeFactories.put(ExtractOutlineLabelingNodeFactory.class.getCanonicalName(), "/community/knip/labeling");
-        m_nodeFactories.put(LabelingOrthoCropperNodeFactory.class.getCanonicalName(), "/community/knip/labeling");
+        //        m_nodeFactories.put(LabelingOrthoCropperNodeFactory.class.getCanonicalName(), "/community/knip/labeling");
         m_nodeFactories.put(VoronoiSegNodeFactory.class.getCanonicalName(), "/community/knip/labeling");
         m_nodeFactories.put(GraphCutNodeFactory.class.getCanonicalName(), "/community/knip/labeling");
         m_nodeFactories.put(SegmentCropperNodeFactory.class.getCanonicalName(), "/community/knip/labeling");
@@ -147,6 +147,7 @@ public class LabNodeSetFactory implements NodeSetFactory {
         m_nodeFactories.put(ApplyColorSettingsToLabelsNodeFactory.class.getCanonicalName(), "/community/knip/labeling");
         m_nodeFactories.put(CompareSegmentsNodeFactory.class.getCanonicalName(), "/community/knip/image/misc");
         m_nodeFactories.put(WaehlbySplitterNodeFactory.class.getCanonicalName(), "/community/knip/labeling");
+        m_nodeFactories.put(LabelingOrthoCropperNodeFactory2.class.getCanonicalName(), "/community/knip/labeling");
 
         return m_nodeFactories.keySet();
     }

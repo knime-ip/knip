@@ -62,7 +62,7 @@ import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.port.PortObjectSpec;
-import org.knime.knip.base.node.dialog.DialogComponentSubsetSelection;
+import org.knime.knip.base.node.dialog.DialogComponentSubsetSelection2;
 import org.knime.knip.core.util.EnumUtils;
 
 /**
@@ -74,11 +74,11 @@ import org.knime.knip.core.util.EnumUtils;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
  * @author <a href="mailto:gabriel.einsdorf@uni.kn"> Gabriel Einsdorf</a>
- * @author <a href="mailto:danielseebacher@t-online.de">Daniel Seebacher, University of
- *         Konstanz.</a>
+ * @author <a href="mailto:danielseebacher@t-online.de">Daniel Seebacher,
+ *         University of Konstanz.</a>
  */
 public abstract class AbstractImgReaderNodeDialog extends DefaultNodeSettingsPane {
-		
+
 	@Override
 	public void loadAdditionalSettingsFrom(final NodeSettingsRO settings, final PortObjectSpec[] specs)
 			throws NotConfigurableException {
@@ -105,7 +105,6 @@ public abstract class AbstractImgReaderNodeDialog extends DefaultNodeSettingsPan
 		addDialogComponent(new DialogComponentStringSelection(AbstractImgReaderNodeModel.createImgFactoryModel(),
 				"Image factory", AbstractImgReaderNodeModel.IMG_FACTORIES));
 		closeCurrentGroup();
-
 
 		createNewGroup("File");
 		addDialogComponent(new DialogComponentBoolean(AbstractImgReaderNodeModel.createCheckFileFormatModel(),
@@ -138,8 +137,8 @@ public abstract class AbstractImgReaderNodeDialog extends DefaultNodeSettingsPan
 
 		createNewTab("Subset Selection");
 		createNewGroup("Image Subset Selection");
-		addDialogComponent(new DialogComponentSubsetSelection(AbstractImgReaderNodeModel.createPlaneSelectionModel(), true, true,
-				new int[] { 0, 1 }));
+		addDialogComponent(new DialogComponentSubsetSelection2(AbstractImgReaderNodeModel.createPlaneSelectionModel(),
+				true, true, new int[] { 0, 1 }));
 		closeCurrentGroup();
 	}
 }

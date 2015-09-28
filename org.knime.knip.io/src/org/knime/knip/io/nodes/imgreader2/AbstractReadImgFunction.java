@@ -15,7 +15,7 @@ import org.knime.core.data.xml.XMLCellFactory;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.util.Pair;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
-import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
+import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection2;
 import org.knime.knip.io.ScifioImgSource;
 
 import io.scif.config.SCIFIOConfig;
@@ -46,7 +46,7 @@ public abstract class AbstractReadImgFunction<T extends RealType<T>, I>
 	protected final double m_numberOfFiles;
 
 	protected final boolean m_completePathRowKey;
-	protected final SettingsModelSubsetSelection m_sel;
+	protected final SettingsModelSubsetSelection2 m_sel;
 	protected final ExecutionContext m_exec;
 	protected final boolean m_readAllMetadata;
 	protected final int m_selectedSeries;
@@ -57,7 +57,7 @@ public abstract class AbstractReadImgFunction<T extends RealType<T>, I>
 	protected final ImgPlusCellFactory m_cellFactory;
 
 	public AbstractReadImgFunction(final ExecutionContext exec, final int numberOfFiles,
-			final SettingsModelSubsetSelection sel, final boolean readImage, final boolean readMetadata,
+			final SettingsModelSubsetSelection2 sel, final boolean readImage, final boolean readMetadata,
 			final boolean readAllMetaData, final boolean checkFileFormat, final boolean completePathRowKey,
 			final boolean isGroupFiles, final int selectedSeries, final ImgFactory<T> imgFactory) {
 
