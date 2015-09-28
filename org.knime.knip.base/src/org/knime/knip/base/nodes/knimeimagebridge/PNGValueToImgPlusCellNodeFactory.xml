@@ -3,11 +3,26 @@
 	<name>PNG Image to ImgPlus</name>
 
 	<shortDescription>
-		Converts a PNG Image (PNGImageValue) to an ImgPlus (ImgPlusCell of KNIME Image Processing).
-    </shortDescription>
+		Converts a PNG Image (PNGImageValue) to an ImgPlus
+		(ImgPlusCell of KNIME Image Processing).
+	</shortDescription>
 
 	<fullDescription>
-		<intro> Converts a PNG Image (PNGImageValue) to an ImgPlus (ImgPlusCell of KNIME Image Processing).</intro>
+		<intro> Converts a PNG Image (PNGImageValue) to an ImgPlus
+			(ImgPlusCell of KNIME Image Processing).
+		</intro>
+
+		<tab name="Settings">
+			<option name="Factory Type">The Factory Type of the resulting ImgPlus.
+			</option>
+			<option name="Replace Transparent Alpha Values With Constant?">If this option is checked transparent alpha
+				values will be replaced by the constant defined in the 'Constant
+				Alpha Replacement Value' Number Selection.
+			</option>
+			<option name="Constant Alpha Replacement Value">The replacement value for transparent alpha
+				values.
+			</option>
+		</tab>
 	</fullDescription>
 
 	<ports>
