@@ -254,7 +254,8 @@ public class SplitterNodeModel<T extends RealType<T>> extends NodeModel implemen
                     }
                 }
                 if (!equalAxes) {
-                    throw new IllegalStateException("Image dimensions and axes labels must be the same for all images!");
+                    throw new IllegalStateException(
+                            "Image dimensions and axes labels must be the same for all images!");
                 }
             }
         }
@@ -311,8 +312,9 @@ public class SplitterNodeModel<T extends RealType<T>> extends NodeModel implemen
             tmpCompletelySel[completelySelectedDims[i]] = true;
         }
         for (int j = 0; j < splitIntervals.length; j++) {
-            columnSpecs.add(new DataColumnSpecCreator("Img [" + intervalToString(splitIntervals[j], tmpCompletelySel)
-                    + "]", ImgPlusCell.TYPE).createSpec());
+            columnSpecs.add(new DataColumnSpecCreator(
+                    "Img [" + intervalToString(splitIntervals[j], tmpCompletelySel) + "]", ImgPlusCell.TYPE)
+                            .createSpec());
 
         }
 
@@ -356,7 +358,8 @@ public class SplitterNodeModel<T extends RealType<T>> extends NodeModel implemen
                 //TODO: What about other CalibratedSpaces (not LinearSpace)?
                 for (int d0 = 0; d0 < axes.length; d0++) {
                     if (interval.dimension(d0) != 1) {
-                        typedSpace.setAxis(new DefaultLinearAxis(axes[d0].type()), d++);
+                        typedSpace.setAxis(new DefaultLinearAxis(axes[d0].type(), img.axis(d0).averageScale(0, 1)),
+                                           d++);
                     }
                 }
 
@@ -424,8 +427,8 @@ public class SplitterNodeModel<T extends RealType<T>> extends NodeModel implemen
      * {@inheritDoc}
      */
     @Override
-    protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
+    protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec)
+            throws IOException, CanceledExecutionException {
         //
     }
 
@@ -455,8 +458,8 @@ public class SplitterNodeModel<T extends RealType<T>> extends NodeModel implemen
      * {@inheritDoc}
      */
     @Override
-    protected void saveInternals(final File nodeInternDir, final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
+    protected void saveInternals(final File nodeInternDir, final ExecutionMonitor exec)
+            throws IOException, CanceledExecutionException {
         //
     }
 
