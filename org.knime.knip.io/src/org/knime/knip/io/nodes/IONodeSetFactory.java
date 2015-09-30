@@ -124,8 +124,8 @@ public class IONodeSetFactory implements NodeSetFactory {
 		m_nodeFactories.put(ImageFileRefNodeFactory.class.getCanonicalName(), "/community/knip/io/other");
 		m_nodeFactories.put(ImgImporterNodeFactory.class.getCanonicalName(), "/community/knip/io/other");
 		m_nodeFactories.put(OverlayAnnotatorNodeFactory.class.getCanonicalName(), "/community/knip/labeling");
-		m_nodeFactories.put(ImgReader2NodeFactory.class.getCanonicalName(), "/community/knip/labeling");
-		m_nodeFactories.put(ImgReaderTableNodeFactory.class.getCanonicalName(), "/community/knip/labeling");
+		m_nodeFactories.put(ImgReader2NodeFactory.class.getCanonicalName(), "/community/knip/io");
+		m_nodeFactories.put(ImgReaderTableNodeFactory.class.getCanonicalName(), "/community/knip/io");
 		// m_nodeFactories.put(LabelingEditorNodeFactory.class.getCanonicalName(),
 		// "/community/knip/labeling");
 		return m_nodeFactories.keySet();
