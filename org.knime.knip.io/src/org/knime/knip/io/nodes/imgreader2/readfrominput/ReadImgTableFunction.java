@@ -88,7 +88,7 @@ class ReadImgTableFunction<T extends RealType<T>> extends AbstractReadImgFunctio
 		// load image and metadata for each series index
 		IntStream.range(seriesStart, seriesEnd).forEachOrdered(currentSeries -> {
 			RowKey rowKey = input.getKey();
-			if (currentSeries > 1) {
+			if (currentSeries > 0) {
 				rowKey = new RowKey(rowKey.getString() + "_" + currentSeries);
 			}
 

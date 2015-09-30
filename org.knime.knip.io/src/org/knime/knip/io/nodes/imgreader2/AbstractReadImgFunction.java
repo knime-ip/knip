@@ -1,5 +1,6 @@
 package org.knime.knip.io.nodes.imgreader2;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -25,6 +26,7 @@ import net.imagej.axis.TypedAxis;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.Intervals;
 
 /**
  * {@link Function} to read an {@link Img}, OME-XML Metadata or both from
@@ -60,7 +62,8 @@ public abstract class AbstractReadImgFunction<T extends RealType<T>, I>
 	public AbstractReadImgFunction(final ExecutionContext exec, final int numberOfFiles,
 			final SettingsModelSubsetSelection2 sel, final boolean readImage, final boolean readMetadata,
 			final boolean readAllMetaData, final boolean checkFileFormat, final boolean completePathRowKey,
-			final boolean isGroupFiles, final int seriesSelectionFrom, int seriesSelectionTo, final ImgFactory<T> imgFactory) {
+			final boolean isGroupFiles, final int seriesSelectionFrom, int seriesSelectionTo,
+			final ImgFactory<T> imgFactory) {
 
 		m_currentFile = new AtomicInteger();
 		m_numberOfFiles = numberOfFiles;
@@ -128,6 +131,7 @@ public abstract class AbstractReadImgFunction<T extends RealType<T>, I>
 						calibAxes.toArray(new CalibratedAxis[calibAxes.size()]));
 				ImgPlus<T> resImgPlus = (ImgPlus<T>) m_imgSource.getImg(pathToImage, currentSeries,
 						axisSelectionConstraints);
+
 				cells[0] = m_cellFactory.createCell(resImgPlus);
 			}
 

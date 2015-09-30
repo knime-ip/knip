@@ -76,8 +76,8 @@
 				file paths, can be selected.</option>
 			<option name="Read all series">Some image file formats might contain multiple
 				images (called series). One can either read all available series
-				(each appended as own table row) or just one series with the specified
-				index ("Series index").
+				(each appended as own table row) or one can specify with a range
+				which indices from the series should be read.
 			</option>
 			<option name="Load group files">If selected, related group files will be read as
 				well.</option>

@@ -137,7 +137,7 @@ public abstract class AbstractImgReaderNodeModel<T extends RealType<T> & NativeT
 	// }
 
 	public static SettingsModelDoubleRange createSeriesSelectionRangeModel() {
-		return new SettingsModelDoubleRange("series_range_selection", 0, Integer.MAX_VALUE);
+		return new SettingsModelDoubleRange("series_range_selection", 0, Short.MAX_VALUE);
 	}
 
 	/**

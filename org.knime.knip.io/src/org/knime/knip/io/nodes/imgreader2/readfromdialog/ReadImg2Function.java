@@ -62,12 +62,13 @@ class ReadImg2Function<T extends RealType<T>> extends AbstractReadImgFunction<T,
 		// get start and end of the series
 		int seriesStart = m_selectedSeriesFrom == -1 ? 0 : m_selectedSeriesFrom;
 		int seriesEnd = m_selectedSeriesTo == -1 ? numSeries : Math.min(m_selectedSeriesTo + 1, numSeries);
-
+		
 		// load image and metadata for each series index
 		IntStream.range(seriesStart, seriesEnd).forEachOrdered(currentSeries -> {
 			String rowKey = (m_completePathRowKey) ? path : path.substring(path.lastIndexOf(File.separatorChar) + 1);
 			RowKey rk;
-			if (currentSeries > 1) {
+			
+			if (currentSeries > 0) {
 				rk = new RowKey(rowKey + "_" + currentSeries);
 			} else {
 				rk = new RowKey(rowKey);

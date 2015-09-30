@@ -127,7 +127,7 @@ public abstract class AbstractImgReaderNodeDialog extends DefaultNodeSettingsPan
 		addDialogComponent(new DialogComponentBoolean(smReadAll, "Read all series"));
 		// addDialogComponent(new DialogComponentNumber(smSeriesIdx, "Series
 		// index", 1));
-		addDialogComponent(new DialogComponentDoubleRange(smSeriesIdx, 0, Integer.MAX_VALUE, 1, "Series index"));
+		addDialogComponent(new DialogComponentDoubleRange(smSeriesIdx, 0, Short.MAX_VALUE, 1, "Series index"));
 
 		smReadAll.addChangeListener(new ChangeListener() {
 			@Override
