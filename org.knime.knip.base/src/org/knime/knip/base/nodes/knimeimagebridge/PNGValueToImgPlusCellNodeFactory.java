@@ -226,11 +226,10 @@ public class PNGValueToImgPlusCellNodeFactory extends ValueToCellNodeFactory<PNG
                 // if the image has NO alpha values, we can remove the alpha channel
                 else {
                     imgPlus =
-                            new ImgPlus<UnsignedByteType>(
-                                    new ImgView<UnsignedByteType>(
-                                            Views.interval(img, new long[]{0, 0, 0},
-                                                           new long[]{image.getWidth(), image.getHeight(), 2}),
-                                            imgFactory));
+                            new ImgPlus<UnsignedByteType>(new ImgView<UnsignedByteType>(
+                                    Views.interval(img, new long[]{0, 0, 0},
+                                                   new long[]{image.getWidth() - 1, image.getHeight() - 1, 2}),
+                                    imgFactory));
                 }
 
                 imgPlus.setAxis(new DefaultLinearAxis(Axes.get("X")), 0);
