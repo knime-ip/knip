@@ -67,7 +67,7 @@ class ReadImgTableFunction<T extends RealType<T>> extends AbstractReadImgFunctio
 			URL url = FileUtil.toURL(t);
 
 			// check if its a internet address;
-			if (url.getProtocol().equalsIgnoreCase("HTTP") || url.getProtocol().equalsIgnoreCase("FTP")) {
+			if (url.getProtocol().equalsIgnoreCase("HTTP") || url.getProtocol().equalsIgnoreCase("FTP") || url.getProtocol().equalsIgnoreCase("HTTPS")) {
 				path = url.toURI().toString();
 			} else {
 				path = FileUtil.resolveToPath(url).toString();
