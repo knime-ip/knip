@@ -4,7 +4,7 @@
 	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
 	IBM Corporation - initial API and implementation -->
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
-<knimeNode icon="icons/gaussian.png" type="Manipulator" deprecated="true">
+<knimeNode icon="icons/gaussian.png" type="Manipulator">
 	<name>Gaussian Convolution</name>
 	<shortDescription>
 		A Gaussian blur (also known as Gaussian smoothing) is
@@ -26,9 +26,12 @@
 			http://en.wikipedia.org/wiki/Gaussian_blur).
 		</intro>
 		<tab name="Options">
-			<option name="Sigma">
+			<option name="Sigmas">
 				Standard deviation used to create the Gaussian in
-				each dimension.
+				each dimension. A sigma can be specified for each dimension (simple
+				seperate the values with commas). If only a single value is given,
+				it will be used for each dimension. If multiple sigmas are given,
+				the number of sigmas must match the number of selected dimensions.
 			</option>
 		</tab>
 	</fullDescription>
