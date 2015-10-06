@@ -300,7 +300,7 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 		ReadImg2Function<T> rifp = new ReadImg2Function<T>(exec, rowCount, m_planeSelect, readImage, readMetadata,
 				m_readAllMetaDataModel.getBooleanValue(), m_checkFileFormat.getBooleanValue(),
 				m_completePathRowKey.getBooleanValue(), m_isGroupFiles.getBooleanValue(), seriesSelectionFrom,
-				seriesSelectionTo, imgFac);
+				seriesSelectionTo, imgFac, m_pixelType.getStringValue());
 
 		return rifp;
 	}

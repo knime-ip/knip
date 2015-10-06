@@ -104,6 +104,9 @@ public abstract class AbstractImgReaderNodeDialog extends DefaultNodeSettingsPan
 
 		addDialogComponent(new DialogComponentStringSelection(AbstractImgReaderNodeModel.createImgFactoryModel(),
 				"Image factory", AbstractImgReaderNodeModel.IMG_FACTORIES));
+
+		addDialogComponent(new DialogComponentStringSelection(AbstractImgReaderNodeModel.createPixelTypeModel(),
+				"Pixel type", AbstractImgReaderNodeModel.PIXEL_TYPES));
 		closeCurrentGroup();
 
 		createNewGroup("File");

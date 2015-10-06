@@ -25,6 +25,7 @@ import org.knime.knip.io.nodes.imgreader2.AbstractReadImgFunction;
 
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
+import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
 /**
@@ -34,7 +35,7 @@ import net.imglib2.type.numeric.RealType;
  * @author <a href="mailto:danielseebacher@t-online.de">Daniel Seebacher,
  *         University of Konstanz.</a>
  */
-class ReadImgTableFunction<T extends RealType<T>> extends AbstractReadImgFunction<T, DataRow> {
+class ReadImgTableFunction<T extends RealType<T> & NativeType<T>> extends AbstractReadImgFunction<T, DataRow> {
 
 	private String columnCreationMode;
 	private int stringIndex;
@@ -42,9 +43,9 @@ class ReadImgTableFunction<T extends RealType<T>> extends AbstractReadImgFunctio
 	public ReadImgTableFunction(ExecutionContext exec, int numberOfFiles, SettingsModelSubsetSelection2 sel,
 			boolean readImage, boolean readMetadata, boolean readAllMetaData, boolean checkFileFormat,
 			boolean isGroupFiles, int seriesSelectionFrom, int seriesSelectionTo, ImgFactory<T> imgFactory,
-			String columnCreationMode, int stringIndex) {
+			String columnCreationMode, int stringIndex, final String pixelType) {
 		super(exec, numberOfFiles, sel, readImage, readMetadata, readAllMetaData, checkFileFormat, false, isGroupFiles,
-				seriesSelectionFrom, seriesSelectionTo, imgFactory);
+				seriesSelectionFrom, seriesSelectionTo, imgFactory, pixelType);
 
 		this.columnCreationMode = columnCreationMode;
 		this.stringIndex = stringIndex;

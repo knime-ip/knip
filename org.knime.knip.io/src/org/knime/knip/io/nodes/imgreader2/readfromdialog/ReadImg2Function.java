@@ -22,6 +22,7 @@ import org.knime.knip.io.nodes.imgreader2.AbstractReadImgFunction;
 
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
+import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
 /**
@@ -32,14 +33,14 @@ import net.imglib2.type.numeric.RealType;
  *         University of Konstanz.</a>
  *
  */
-class ReadImg2Function<T extends RealType<T>> extends AbstractReadImgFunction<T, String> {
+class ReadImg2Function<T extends RealType<T> & NativeType<T>> extends AbstractReadImgFunction<T, String> {
 
 	public ReadImg2Function(ExecutionContext exec, int numberOfFiles, SettingsModelSubsetSelection2 sel,
 			boolean readImage, boolean readMetadata, boolean readAllMetaData, boolean checkFileFormat,
 			boolean completePathRowKey, boolean isGroupFiles, int seriesSelectionFrom, int seriesSelectionTo,
-			ImgFactory<T> imgFactory) {
+			ImgFactory<T> imgFactory, final String pixelType) {
 		super(exec, numberOfFiles, sel, readImage, readMetadata, readAllMetaData, checkFileFormat, completePathRowKey,
-				isGroupFiles, seriesSelectionFrom, seriesSelectionTo, imgFactory);
+				isGroupFiles, seriesSelectionFrom, seriesSelectionTo, imgFactory, pixelType);
 	}
 
 	@Override
@@ -62,12 +63,12 @@ class ReadImg2Function<T extends RealType<T>> extends AbstractReadImgFunction<T,
 		// get start and end of the series
 		int seriesStart = m_selectedSeriesFrom == -1 ? 0 : m_selectedSeriesFrom;
 		int seriesEnd = m_selectedSeriesTo == -1 ? numSeries : Math.min(m_selectedSeriesTo + 1, numSeries);
-		
+
 		// load image and metadata for each series index
 		IntStream.range(seriesStart, seriesEnd).forEachOrdered(currentSeries -> {
 			String rowKey = (m_completePathRowKey) ? path : path.substring(path.lastIndexOf(File.separatorChar) + 1);
 			RowKey rk;
-			
+
 			if (currentSeries > 0) {
 				rk = new RowKey(rowKey + "_" + currentSeries);
 			} else {
