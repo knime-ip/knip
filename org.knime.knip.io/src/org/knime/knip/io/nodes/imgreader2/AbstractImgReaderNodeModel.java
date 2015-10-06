@@ -64,6 +64,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelDoubleRange;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection2;
+import org.knime.knip.core.types.NativeTypes;
 
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
@@ -87,6 +88,12 @@ public abstract class AbstractImgReaderNodeModel<T extends RealType<T> & NativeT
 	 */
 	public static final String[] IMG_FACTORIES = new String[] { "Array Image Factory", "Planar Image Factory",
 			"Cell Image Factory" };
+
+	public static final String[] PIXEL_TYPES = { NativeTypes.BITTYPE.toString(), NativeTypes.BYTETYPE.toString(),
+			NativeTypes.DOUBLETYPE.toString(), NativeTypes.FLOATTYPE.toString(), NativeTypes.INTTYPE.toString(),
+			NativeTypes.LONGTYPE.toString(), NativeTypes.SHORTTYPE.toString(), NativeTypes.UNSIGNEDSHORTTYPE.toString(),
+			NativeTypes.UNSIGNED12BITTYPE.toString(), NativeTypes.UNSIGNEDINTTYPE.toString(),
+			NativeTypes.UNSIGNEDBYTETYPE.toString(), "< Automatic >" };
 
 	/* data table for the table cell viewer */
 	protected BufferedDataTable m_data;
@@ -161,6 +168,10 @@ public abstract class AbstractImgReaderNodeModel<T extends RealType<T> & NativeT
 		return new SettingsModelBoolean("read_all_metadata", false);
 	}
 
+	public static SettingsModelString createPixelTypeModel() {
+		return new SettingsModelString("m_pixeltype", "< Automatic >");
+	}
+
 	/*
 	 * **********************************************************************
 	 * ************** SETTINGS MODELS
@@ -182,6 +193,8 @@ public abstract class AbstractImgReaderNodeModel<T extends RealType<T> & NativeT
 	protected final SettingsModelString m_metadataModeModel = createMetaDataModeModel();
 	protected final SettingsModelBoolean m_readAllMetaDataModel = createReadAllMetaDataModel();
 
+	protected final SettingsModelString m_pixelType = createPixelTypeModel();
+
 	protected final List<SettingsModel> m_settingsCollection = new ArrayList<>();
 
 	/**
@@ -199,6 +212,7 @@ public abstract class AbstractImgReaderNodeModel<T extends RealType<T> & NativeT
 		m_settingsCollection.add(m_seriesRangeSelection);
 		m_settingsCollection.add(m_metadataModeModel);
 		m_settingsCollection.add(m_readAllMetaDataModel);
+		m_settingsCollection.add(m_pixelType);
 
 		// m_seriesSelection.setEnabled(false);
 		m_seriesRangeSelection.setEnabled(false);

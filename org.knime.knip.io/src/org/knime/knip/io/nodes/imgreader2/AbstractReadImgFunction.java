@@ -1,5 +1,6 @@
 package org.knime.knip.io.nodes.imgreader2;
 
+import java.lang.annotation.Native;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +18,7 @@ import org.knime.core.node.ExecutionContext;
 import org.knime.core.util.Pair;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection2;
+import org.knime.knip.core.types.NativeTypes;
 import org.knime.knip.io.ScifioImgSource;
 
 import io.scif.config.SCIFIOConfig;
@@ -25,8 +27,8 @@ import net.imagej.axis.CalibratedAxis;
 import net.imagej.axis.TypedAxis;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
+import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.util.Intervals;
 
 /**
  * {@link Function} to read an {@link Img}, OME-XML Metadata or both from
@@ -40,7 +42,7 @@ import net.imglib2.util.Intervals;
  * @param <I>
  *            The input for the ReadImgFunction
  */
-public abstract class AbstractReadImgFunction<T extends RealType<T>, I>
+public abstract class AbstractReadImgFunction<T extends RealType<T> & NativeType<T>, I>
 		implements Function<I, Stream<Pair<DataRow, Optional<Throwable>>>> {
 
 	protected final AtomicInteger m_currentFile;
@@ -58,12 +60,13 @@ public abstract class AbstractReadImgFunction<T extends RealType<T>, I>
 	protected final boolean m_readImage;
 	protected final boolean m_readMetadata;
 	protected final ImgPlusCellFactory m_cellFactory;
+	private String m_pixelType;
 
 	public AbstractReadImgFunction(final ExecutionContext exec, final int numberOfFiles,
 			final SettingsModelSubsetSelection2 sel, final boolean readImage, final boolean readMetadata,
 			final boolean readAllMetaData, final boolean checkFileFormat, final boolean completePathRowKey,
 			final boolean isGroupFiles, final int seriesSelectionFrom, int seriesSelectionTo,
-			final ImgFactory<T> imgFactory) {
+			final ImgFactory<T> imgFactory, final String pixelType) {
 
 		m_currentFile = new AtomicInteger();
 		m_numberOfFiles = numberOfFiles;
@@ -86,6 +89,8 @@ public abstract class AbstractReadImgFunction<T extends RealType<T>, I>
 		m_scifioConfig = new SCIFIOConfig().groupableSetGroupFiles(isGroupFiles)
 				.parserSetSaveOriginalMetadata(m_readAllMetadata);
 		m_imgSource = new ScifioImgSource(imgFactory, checkFileFormat, m_scifioConfig);
+
+		m_pixelType = pixelType;
 	}
 
 	protected Pair<DataRow, Optional<Throwable>> createResultFromException(String pathToImage, String rowKey,
@@ -129,10 +134,19 @@ public abstract class AbstractReadImgFunction<T extends RealType<T>, I>
 				net.imglib2.util.Pair<TypedAxis, long[]>[] axisSelectionConstraints = m_sel.createSelectionConstraints(
 						m_imgSource.getDimensions(pathToImage, currentSeries),
 						calibAxes.toArray(new CalibratedAxis[calibAxes.size()]));
-				ImgPlus<T> resImgPlus = (ImgPlus<T>) m_imgSource.getImg(pathToImage, currentSeries,
-						axisSelectionConstraints);
 
-				cells[0] = m_cellFactory.createCell(resImgPlus);
+				if (m_pixelType.equalsIgnoreCase(
+						AbstractImgReaderNodeModel.PIXEL_TYPES[AbstractImgReaderNodeModel.PIXEL_TYPES.length - 1])) {
+					ImgPlus<T> resImgPlus = (ImgPlus<T>) m_imgSource.getImg(pathToImage, currentSeries,
+							axisSelectionConstraints);
+					cells[0] = m_cellFactory.createCell(resImgPlus);
+				} else {
+					ImgPlus<T> resImgPlus = (ImgPlus<T>) m_imgSource.getTypedImg(pathToImage, currentSeries,
+							axisSelectionConstraints,
+							(T) NativeTypes.valueOf(m_pixelType.toUpperCase()).getTypeInstance());
+					cells[0] = m_cellFactory.createCell(resImgPlus);
+				}
+
 			}
 
 			if (m_readMetadata) {

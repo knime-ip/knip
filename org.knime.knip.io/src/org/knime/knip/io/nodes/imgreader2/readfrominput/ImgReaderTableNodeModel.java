@@ -366,7 +366,7 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 		ReadImgTableFunction<T> rifp = new ReadImgTableFunction<T>(exec, rowCount, m_planeSelect, readImage,
 				readMetadata, m_readAllMetaDataModel.getBooleanValue(), m_checkFileFormat.getBooleanValue(),
 				m_isGroupFiles.getBooleanValue(), seriesSelectionFrom, seriesSelectionTo, imgFac,
-				m_colCreationMode.getStringValue(), imgIdx);
+				m_colCreationMode.getStringValue(), imgIdx, m_pixelType.getStringValue());
 
 		return rifp;
 	}

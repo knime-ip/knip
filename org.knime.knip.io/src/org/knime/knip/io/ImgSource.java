@@ -58,10 +58,9 @@ import net.imagej.ImgPlus;
 import net.imagej.axis.CalibratedAxis;
 import net.imagej.axis.TypedAxis;
 import net.imglib2.img.Img;
+import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Pair;
-
-
 
 /**
  * Provides methods to get the actual data (image, metadata) from a specific
@@ -92,8 +91,7 @@ public interface ImgSource {
 	 * @return list of Axis
 	 * @throws Exception
 	 */
-	public List<CalibratedAxis> getAxes(String imgRef, int currentSeries)
-			throws Exception;
+	public List<CalibratedAxis> getAxes(String imgRef, int currentSeries) throws Exception;
 
 	/**
 	 * 
@@ -106,8 +104,7 @@ public interface ImgSource {
 	 * @throws Exception
 	 * 
 	 */
-	public long[] getDimensions(String imgRef, int currentSeries)
-			throws Exception;
+	public long[] getDimensions(String imgRef, int currentSeries) throws Exception;
 
 	/**
 	 * @param imgRef
@@ -119,8 +116,7 @@ public interface ImgSource {
 	 * @throws Exception
 	 */
 	@SuppressWarnings("rawtypes")
-	public ImgPlus<RealType> getImg(String imgRef, int currentSeries)
-			throws Exception;
+	public ImgPlus<RealType> getImg(String imgRef, int currentSeries) throws Exception;
 
 	/**
 	 * Retrieves the sub image at the given interval. In case of slower image
@@ -141,8 +137,39 @@ public interface ImgSource {
 	 */
 	@SuppressWarnings("rawtypes")
 	public ImgPlus<RealType> getImg(String imgRef, final int currentSeries,
-			final Pair<TypedAxis, long[]>[] axisSelectionConstraints)
+			final Pair<TypedAxis, long[]>[] axisSelectionConstraints) throws Exception;
+
+	/**
+	 * @param imgRef
+	 *            description of the exact {@link Img} source (URL, ...)
+	 * @param currentSeries
+	 *            image number in a dataset with multiple images
+	 * @return the complete image
+	 * 
+	 * @throws Exception
+	 */
+	public <T extends RealType<T> & NativeType<T>>  ImgPlus<T> getTypedImg(final String imgRef, final int currentSeries, T type)
 			throws Exception;
+
+	/**
+	 * Retrieves the sub image at the given interval. In case of slower image
+	 * sources, the image planes should be created when needed.
+	 * 
+	 * @param imgRef
+	 *            description of the exact image source (URL, ...)
+	 * @param axisSelectionConstraints
+	 *            allows to specify selected indices for the axes. Per default
+	 *            all indices are considered to be selected <br>
+	 *            axisSelectionConstraints can be <code>null</code>
+	 * @param currentSeries
+	 *            image number in a dataset with multiple images
+	 * 
+	 * @return the image plane
+	 * @throws Exception
+	 *             the appropriate exception, if the image can't be retrieved
+	 */
+	public <T extends RealType<T> & NativeType<T>>  ImgPlus<T> getTypedImg(final String imgRef, final int currentSeries,
+			final Pair<TypedAxis, long[]>[] axisSelectionConstraints, T type) throws Exception;
 
 	/**
 	 * 
@@ -155,8 +182,7 @@ public interface ImgSource {
 	 * @throws IOException
 	 */
 	@SuppressWarnings("rawtypes")
-	public RealType getPixelType(final String imgRef, final int currentSeries)
-			throws FormatException, IOException;
+	public RealType getPixelType(final String imgRef, final int currentSeries) throws FormatException, IOException;
 
 	/**
 	 * The name of the img
@@ -186,7 +212,6 @@ public interface ImgSource {
 	 *            number of the plane to be opened as thumbnail
 	 * @throws Exception
 	 */
-	public BufferedImage getThumbnail(String imgRef, int planeNo)
-			throws Exception;
+	public BufferedImage getThumbnail(String imgRef, int planeNo) throws Exception;
 
 }
