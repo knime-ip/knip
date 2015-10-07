@@ -116,7 +116,7 @@ public class ImgReaderNodeDialog extends DefaultNodeSettingsPane {
     private final SettingsModelString m_fileNamesColumn;
 
     @SuppressWarnings("unchecked")
-    ImgReaderNodeDialog() {
+    public ImgReaderNodeDialog() {
 
         super();
 
