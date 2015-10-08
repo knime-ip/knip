@@ -1,7 +1,5 @@
 package org.knime.knip.io.nodes.imgreader2;
 
-import java.lang.annotation.Native;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;

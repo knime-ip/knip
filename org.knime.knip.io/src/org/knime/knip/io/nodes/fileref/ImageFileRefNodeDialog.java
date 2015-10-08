@@ -57,7 +57,6 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.knime.knip.io.node.dialog.DialogComponentMultiFileChooser;
 import org.knime.knip.io.nodes.imgreader.ImgReaderNodeDialog;
-import org.knime.knip.io.nodes.imgreader.ImgReaderNodeModel;
 
 /**
  * Dialog for the ImageReader to select the files and choose some additional

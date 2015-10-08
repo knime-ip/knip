@@ -8,7 +8,6 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
-import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.featurenode.OpsGateway;
 import org.scijava.plugin.PluginInfo;
 

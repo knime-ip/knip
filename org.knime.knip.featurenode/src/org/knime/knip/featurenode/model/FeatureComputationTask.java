@@ -7,13 +7,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 
-import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.featurenode.OpsGateway;
 import org.scijava.command.CommandInfo;
 import org.scijava.module.Module;
-import org.scijava.plugin.Plugin;
 
-import net.imagej.ops.Ops;
 import net.imagej.ops.featuresets.FeatureSet;
 import net.imagej.ops.featuresets.NamedFeature;
 import net.imagej.ops.slicewise.Hyperslice;
