@@ -619,21 +619,10 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
      */
     protected synchronized void save(final DataOutput output) throws IOException {
         long offset = m_fileMetadata.getOffset();
-        final boolean isPersistent = m_fileMetadata.isPersistent();
-
-        // if the image data wasn't made persitent yet ...
-        if (!isPersistent) {
-            final File file = getFileStore().getFile();
-            LOGGER.debug("Save in file " + file.getName() + " ...");
-            offset = file.length();
-
-            // write image data
-            writeImgData(file);
-        }
 
         try {
-
-            m_fileMetadata = new FileStoreCellMetadata(offset, true, null);
+            // if the image data wasn't made persitent yet ...
+            flushToFileStore();
             // ExternalizerManager.write(stream,
             // m_fileMetadata);
             // work-around for bug #3578: if the output is
@@ -659,7 +648,7 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
      * {@inheritDoc}
      */
     @Override
-    protected void flushToFileStore() throws IOException {
+    protected synchronized void flushToFileStore() throws IOException {
         long offset = m_fileMetadata.getOffset();
         final boolean isPersistent = m_fileMetadata.isPersistent();
 

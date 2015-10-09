@@ -91,7 +91,6 @@ import net.imagej.space.CalibratedSpace;
 import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.labeling.Labeling;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.view.Views;
@@ -155,8 +154,8 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
     /**
      * Default Constructor
      *
-     * @param labeling the {@link Labeling} stored in this cell
-     * @param metadata {@link LabelingMetadata} of the {@link Labeling} stored in this cell
+     * @param labeling the {@link RandomAccessibleInterval} stored in this cell
+     * @param metadata {@link LabelingMetadata} of the {@link RandomAccessibleInterval} stored in this cell
      * @param fileStore {@link FileStore} used to serialize/deserialize this cell
      */
     protected LabelingCell(final RandomAccessibleInterval<LabelingType<L>> labeling, final LabelingMetadata metadata,
@@ -515,24 +514,10 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
      */
     protected synchronized void save(final DataOutput output) throws IOException {
         long offset = m_fileMetadata.getOffset();
-        final boolean isPersistent = m_fileMetadata.isPersistent();
 
-        // if the labeling data wasn't made persitent yet ...
-        if (!isPersistent) {
-            final File file = getFileStore().getFile();
-            LOGGER.debug("Save in file " + file.getName() + " ...");
-            offset = file.length();
-            // write labeling data
-            writeLabelingData(file);
-
-        }
-
-        // write file metadata
-        // BufferedDataOutputStream stream = new
-        // BufferedDataOutputStream(
-        // (OutputStream) output);
         try {
-            m_fileMetadata = new FileStoreCellMetadata(offset, true, null);
+            flushToFileStore();
+
             // work-around for bug #3578:
             output.writeInt(0); // to be
             // backwards-compatible
@@ -557,7 +542,8 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
      * {@inheritDoc}
      */
     @Override
-    protected void flushToFileStore() throws IOException {
+    protected synchronized void flushToFileStore() throws IOException {
+        System.out.println("Flush called on ... " + this.toString());
         long offset = m_fileMetadata.getOffset();
         final boolean isPersistent = m_fileMetadata.isPersistent();
 
