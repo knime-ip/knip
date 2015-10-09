@@ -337,6 +337,10 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
      */
     @Override
     public synchronized String getStringValue() {
+        if (m_labelingMetadata == null) {
+            return "Labeling could not be loaded. Possibly the underlying file has already been removed. Please contact a developer.";
+        }
+
         readLabelingData(m_fileMetadata.getOffset(), true);
         final StringBuffer sb = new StringBuffer();
         sb.append("Labeling[\nname=");

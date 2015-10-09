@@ -433,6 +433,10 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
     @Override
     public synchronized String getStringValue() {
         readImgData(m_fileMetadata.getOffset(), true);
+        if (m_imgMetadata == null) {
+            return "Image could not be loaded. Possibly the underlying file has already been removed. Please contact a developer.";
+        }
+
         final StringBuffer sb = new StringBuffer();
         sb.append("Image[\nname=");
         sb.append(m_imgMetadata.getMetadata().getName());
