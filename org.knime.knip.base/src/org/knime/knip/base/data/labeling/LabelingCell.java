@@ -543,7 +543,6 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
      */
     @Override
     protected synchronized void flushToFileStore() throws IOException {
-        System.out.println("Flush called on ... " + this.toString());
         long offset = m_fileMetadata.getOffset();
         final boolean isPersistent = m_fileMetadata.isPersistent();
 
