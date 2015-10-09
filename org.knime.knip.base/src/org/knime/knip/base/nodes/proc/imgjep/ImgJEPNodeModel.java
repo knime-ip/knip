@@ -53,18 +53,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-import net.imagej.ImgPlus;
-import net.imagej.ImgPlusMetadata;
-import net.imglib2.FinalInterval;
-import net.imglib2.Interval;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.exception.IncompatibleTypeException;
-import net.imglib2.img.Img;
-import net.imglib2.img.ImgFactory;
-import net.imglib2.img.ImgView;
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -92,6 +80,13 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.node.port.PortObjectSpec;
+import org.knime.core.node.streamable.InputPortRole;
+import org.knime.core.node.streamable.OutputPortRole;
+import org.knime.core.node.streamable.PartitionInfo;
+import org.knime.core.node.streamable.StreamableFunction;
+import org.knime.core.node.streamable.StreamableOperator;
+import org.knime.core.node.streamable.StreamableOperatorInternals;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
@@ -99,6 +94,18 @@ import org.knime.knip.core.data.img.DefaultImgMetadata;
 import org.knime.knip.core.types.NativeTypes;
 import org.knime.knip.core.util.MiscViews;
 import org.nfunk.jep.Variable;
+
+import net.imagej.ImgPlus;
+import net.imagej.ImgPlusMetadata;
+import net.imglib2.FinalInterval;
+import net.imglib2.Interval;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.exception.IncompatibleTypeException;
+import net.imglib2.img.Img;
+import net.imglib2.img.ImgFactory;
+import net.imglib2.img.ImgView;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * This is the model implementation of JEP. Math expression parser using JEP (http://www.singularsys.com/jep/)
@@ -157,8 +164,8 @@ public class ImgJEPNodeModel extends NodeModel implements BufferedDataTableHolde
 
     private final SettingsModelString m_referenceColumn = new SettingsModelString(CFG_REF_COLUMN, "");
 
-    private final SettingsModelString m_resultType = new SettingsModelString(CFG_RESULT_TYPE,
-            NativeTypes.UNSIGNEDBYTETYPE.toString());
+    private final SettingsModelString m_resultType =
+            new SettingsModelString(CFG_RESULT_TYPE, NativeTypes.UNSIGNEDBYTETYPE.toString());
 
     private int m_tableCreationMode;
 
@@ -274,9 +281,8 @@ public class ImgJEPNodeModel extends NodeModel implements BufferedDataTableHolde
                                         MiscViews.synchronizeDimensionality(img.getImg(), img, referenceInterval,
                                                                             referenceMetadata);
 
-                                img =
-                                        new ImgPlus(new ImgView(res, img.factory()), new DefaultImgMetadata(
-                                                referenceMetadata));
+                                img = new ImgPlus(new ImgView(res, img.factory()),
+                                        new DefaultImgMetadata(referenceMetadata));
                             }
 
                             // image exists no error occurred
@@ -422,8 +428,8 @@ public class ImgJEPNodeModel extends NodeModel implements BufferedDataTableHolde
 
     /** {@inheritDoc} */
     @Override
-    protected void loadInternals(final File internDir, final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
+    protected void loadInternals(final File internDir, final ExecutionMonitor exec)
+            throws IOException, CanceledExecutionException {
 
     }
 
@@ -453,8 +459,8 @@ public class ImgJEPNodeModel extends NodeModel implements BufferedDataTableHolde
 
     /** {@inheritDoc} */
     @Override
-    protected void saveInternals(final File internDir, final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
+    protected void saveInternals(final File internDir, final ExecutionMonitor exec)
+            throws IOException, CanceledExecutionException {
     }
 
     /** {@inheritDoc} */
@@ -498,6 +504,98 @@ public class ImgJEPNodeModel extends NodeModel implements BufferedDataTableHolde
             m_referenceColumn.validateSettings(settings);
         } catch (final Exception e) {
             // Do nothing
+        }
+    }
+
+    /*
+     * STREAMING
+     */
+
+    @Override
+    public InputPortRole[] getInputPortRoles() {
+        return new InputPortRole[]{InputPortRole.DISTRIBUTED_STREAMABLE};
+    }
+
+    @Override
+    public OutputPortRole[] getOutputPortRoles() {
+        return new OutputPortRole[]{OutputPortRole.DISTRIBUTED};
+    }
+
+    private void prepareExecute(final ExecutionContext ctx) {
+        if (m_imgCellFactory == null) {
+            m_imgCellFactory = new ImgPlusCellFactory(ctx);
+        }
+    }
+
+    @Override
+    public StreamableOperator createStreamableOperator(final PartitionInfo partitionInfo,
+                                                       final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
+
+        final DataTableSpec inSpec = (DataTableSpec)inSpecs[0];
+        final ImgExpressionParser p = new ImgExpressionParser(m_expression, inSpec, -1);
+        final CellFactory cellFac = createCellFactory(p, inSpec);
+
+        if (m_tableCreationMode == NEW_TABLE) {
+            return new StreamableFunction() {
+
+                /**
+                 * {@inheritDoc}
+                 */
+                @Override
+                public void init(final ExecutionContext ctx) throws Exception {
+                    prepareExecute(ctx);
+                }
+
+                @Override
+                public DataRow compute(final DataRow input) throws Exception {
+                    return new DefaultRow(input.getKey(), cellFac.getCells(input));
+                }
+            };
+        } else {
+            // create column rearranger
+            final ColumnRearranger colRearranger = new ColumnRearranger(inSpec);
+            if (m_tableCreationMode == APPEND_COLUMN) {
+                colRearranger.append(cellFac);
+            } else {
+                colRearranger.replace(cellFac, inSpec.findColumnIndex(m_colName));
+            }
+
+            // get column rearranger function
+            final StreamableFunction columnRearrangerFunction = colRearranger.createStreamableFunction();
+
+            // create new streamablefunction, do everything columnrearranger function does but call prepareexceute in init().
+            return new StreamableFunction() {
+
+                /** {@inheritDoc} */
+                @Override
+                public void init(final ExecutionContext ctx) throws Exception {
+                    prepareExecute(ctx);
+                    columnRearrangerFunction.init(ctx);
+                }
+
+                /** {@inheritDoc} */
+                @Override
+                public DataRow compute(final DataRow inputRow) {
+                    try {
+                        return columnRearrangerFunction.compute(inputRow);
+                    } catch (Exception e) {
+                        throw new IllegalArgumentException("Exception caught while reading row " + inputRow.getKey()
+                                + "! Caught exception " + e.getMessage());
+                    }
+                }
+
+                /** {@inheritDoc} */
+                @Override
+                public void finish() {
+                    columnRearrangerFunction.finish();
+                }
+
+                /** {@inheritDoc} */
+                @Override
+                public StreamableOperatorInternals saveInternals() {
+                    return columnRearrangerFunction.saveInternals();
+                }
+            };
         }
     }
 }
