@@ -48,11 +48,19 @@
  */
 package org.knime.knip.core.io.externalization.externalizers;
 
+import org.knime.knip.core.io.externalization.BufferedDataInputStream;
+import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
+import org.knime.knip.core.io.externalization.Externalizer;
+import org.knime.knip.core.io.externalization.ExternalizerManager;
+import org.knime.knip.core.types.NativeTypes;
+
 import net.imglib2.Cursor;
 import net.imglib2.img.AbstractImg;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.img.ImgView;
+import net.imglib2.img.array.ArrayImgFactory;
+import net.imglib2.img.sparse.NtreeImgFactory;
 import net.imglib2.type.Type;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.integer.ByteType;
@@ -66,12 +74,6 @@ import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.view.Views;
-
-import org.knime.knip.core.io.externalization.BufferedDataInputStream;
-import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
-import org.knime.knip.core.io.externalization.Externalizer;
-import org.knime.knip.core.io.externalization.ExternalizerManager;
-import org.knime.knip.core.types.NativeTypes;
 
 /**
  * Naive img externalization.
@@ -116,7 +118,12 @@ public class ImgExt2 implements Externalizer<Img> {
 
         final Type<?> type = (Type<?>)ExternalizerManager.<Class> read(in).newInstance();
 
-        final ImgFactory factory = (ImgFactory)ExternalizerManager.<Class> read(in).newInstance();
+        ImgFactory factory = (ImgFactory)ExternalizerManager.<Class> read(in).newInstance();
+
+        // avoid invalid state
+        if(factory instanceof NtreeImgFactory && type instanceof BitType){
+            factory = new ArrayImgFactory<>();
+        }
 
         final long[] dims = new long[in.readInt()];
         in.read(dims);
