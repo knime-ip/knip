@@ -101,6 +101,7 @@ public class LabelingCellFactory extends KNIPCellFactory {
     private final <L> double getLabelingSize(final RandomAccessibleInterval<LabelingType<L>> lab) {
         long bitsPerPixel = 8;
         if (lab instanceof ImgLabeling) {
+            @SuppressWarnings("unchecked")
             final Type t = Util.getTypeFromInterval(((ImgLabeling)lab).getIndexImg());
             if (t instanceof RealType) {
                 bitsPerPixel = ((RealType)t).getBitsPerPixel();
