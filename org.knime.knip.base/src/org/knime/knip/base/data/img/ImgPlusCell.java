@@ -134,29 +134,6 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
      */
     private static final long serialVersionUID = 1L;
 
-    /**
-     * @return serializer
-     */
-    @SuppressWarnings("rawtypes")
-    public static final DataCellSerializer<ImgPlusCell> getCellSerializer() {
-        return new DataCellSerializer<ImgPlusCell>() {
-
-            /** {@inheritDoc} */
-            @Override
-            public ImgPlusCell deserialize(final DataCellDataInput input) throws IOException {
-                final ImgPlusCell res = new ImgPlusCell();
-                res.load(input);
-                return res;
-            }
-
-            /** {@inheritDoc} */
-            @Override
-            public void serialize(final ImgPlusCell cell, final DataCellDataOutput output) throws IOException {
-                cell.save(output);
-            }
-        };
-    }
-
     private FileStoreCellMetadata m_fileMetadata;
 
     private Img<T> m_img;
