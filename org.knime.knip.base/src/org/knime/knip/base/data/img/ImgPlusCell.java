@@ -64,8 +64,6 @@ import java.util.zip.ZipOutputStream;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataCellDataInput;
-import org.knime.core.data.DataCellDataOutput;
-import org.knime.core.data.DataCellSerializer;
 import org.knime.core.data.DataType;
 import org.knime.core.data.StringValue;
 import org.knime.core.data.filestore.FileStore;
