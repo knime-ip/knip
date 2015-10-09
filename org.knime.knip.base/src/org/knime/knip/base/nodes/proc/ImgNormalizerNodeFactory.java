@@ -53,12 +53,6 @@ import java.util.List;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.imglib2.IterableInterval;
-import net.imglib2.ops.operation.UnaryOperation;
-import net.imglib2.ops.operation.iterableinterval.unary.EqualizeHistogram;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.util.ValuePair;
-
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
@@ -72,6 +66,12 @@ import org.knime.knip.base.node.IterableIntervalsNodeFactory;
 import org.knime.knip.base.node.IterableIntervalsNodeModel;
 import org.knime.knip.core.ops.img.IterableIntervalNormalize;
 import org.knime.knip.core.util.EnumUtils;
+
+import net.imglib2.IterableInterval;
+import net.imglib2.ops.operation.UnaryOperation;
+import net.imglib2.ops.operation.iterableinterval.unary.EqualizeHistogram;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.ValuePair;
 
 /**
  * Factory class to produce an contrast enhancer node.
@@ -296,6 +296,14 @@ public class ImgNormalizerNodeFactory<T extends RealType<T>, L extends Comparabl
             @Override
             public void prepareOperation(final T firstElement) {
                 m_currentVal = firstElement.createVariable();
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected void postExecute() {
+                m_currentVal = null;
             }
 
         };

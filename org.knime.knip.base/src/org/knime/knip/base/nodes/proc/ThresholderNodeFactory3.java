@@ -53,14 +53,6 @@ import java.util.List;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.imagej.ImgPlus;
-import net.imglib2.IterableInterval;
-import net.imglib2.ops.img.UnaryRelationAssigment;
-import net.imglib2.ops.operation.UnaryOperation;
-import net.imglib2.ops.relation.real.unary.RealGreaterThanConstant;
-import net.imglib2.type.logic.BitType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
@@ -75,6 +67,14 @@ import org.knime.knip.base.node.IterableIntervalsNodeModel;
 import org.knime.knip.core.algorithm.types.ThresholdingType;
 import org.knime.knip.core.ops.interval.AutoThreshold;
 import org.knime.knip.core.util.EnumUtils;
+
+import net.imagej.ImgPlus;
+import net.imglib2.IterableInterval;
+import net.imglib2.ops.img.UnaryRelationAssigment;
+import net.imglib2.ops.operation.UnaryOperation;
+import net.imglib2.ops.relation.real.unary.RealGreaterThanConstant;
+import net.imglib2.type.logic.BitType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * New global thresholder which supports ROI calculation
@@ -218,6 +218,14 @@ public class ThresholderNodeFactory3<T extends RealType<T>, L extends Comparable
             @Override
             protected BitType getOutType(final T inType) {
                 return new BitType();
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected void postExecute() {
+                m_currentElement = null;
             }
 
         };
