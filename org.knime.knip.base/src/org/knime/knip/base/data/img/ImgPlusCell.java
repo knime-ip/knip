@@ -55,9 +55,11 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -93,6 +95,7 @@ import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgView;
+import net.imglib2.img.WrappedImg;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.util.MetadataUtil;
 import net.imglib2.type.numeric.RealType;
@@ -120,7 +123,7 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
     /**
      * ObjectRepository
      */
-    private static final CacheService m_objectRepository =  KNIPGateway.cache();
+    private static final CacheService CACHE = KNIPGateway.cache();
 
     /**
      * Node Logger
@@ -134,25 +137,9 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
 
     private FileStoreCellMetadata m_fileMetadata;
 
-    private Img<T> m_img;
+    private CachedObjectAccess<Img<T>> m_imgAccess;
 
-    private ImgPlusCellMetadata m_imgMetadata;
-
-    /**
-     * @throws IOException
-     */
-    protected ImgPlusCell() throws IOException {
-        super();
-
-    }
-
-    /**
-     * @param fileStore
-     */
-    protected ImgPlusCell(final FileStore fileStore) {
-        super(fileStore);
-
-    }
+    private CachedObjectAccess<ImgPlusCellMetadata> m_metadataAccess;
 
     /**
      * @param img
@@ -170,75 +157,57 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
      *
      * @param img
      * @param metadata
-     * @param min
      *
      * @param fileStore
      */
+    @SuppressWarnings("unchecked")
     protected ImgPlusCell(final Img<T> img, final ImgPlusMetadata metadata, final FileStore fileStore) {
         super(fileStore);
-        m_img = img;
 
-        while (m_img instanceof ImgPlus) {
-            m_img = ((ImgPlus<T>)img).getImg();
+        Img<T> tmpImg = img;
+        while (tmpImg instanceof WrappedImg) {
+            tmpImg = ((WrappedImg<T>)tmpImg).getImg();
         }
+
+        m_imgAccess = new CachedObjectAccess<Img<T>>(fileStore, tmpImg);
 
         final long[] dimensions = new long[img.numDimensions()];
         img.dimensions(dimensions);
 
-        m_fileMetadata = new FileStoreCellMetadata(-1, false, null);
+        m_metadataAccess = new CachedObjectAccess<ImgPlusCellMetadata>(fileStore,
+                new ImgPlusCellMetadata(
+                        MetadataUtil.copyImgPlusMetadata(metadata, new DefaultImgMetadata(dimensions.length)),
+                        img.size(), getMinFromImg(img), dimensions, img.firstElement().getClass(), null));
 
-        m_imgMetadata = new ImgPlusCellMetadata(
-                MetadataUtil.copyImgPlusMetadata(metadata, new DefaultImgMetadata(dimensions.length)), img.size(),
-                getMinFromImg(img), dimensions, img.firstElement().getClass(), null);
+        m_fileMetadata = new FileStoreCellMetadata(-1, false, null);
     }
 
     /**
-     * Creates a new img plus cell using the given file store, i.e. writes the image data into the file provided by the
-     * file store.
-     *
-     * @param imgPlus
-     *
-     * @param fileStore
+     * @throws IOException
      */
-    protected ImgPlusCell(final ImgPlus<T> imgPlus, final FileStore fileStore) {
-        this(imgPlus.getImg(), imgPlus, fileStore);
+    protected ImgPlusCell() throws IOException {
+        super();
+
     }
 
-    /*
-     * Helper to create the respective input stream (e.g. if zip file or
-     * not)
+    /**
+     * @param fileStore
      */
-    private BufferedDataInputStream createInputStream(final File f, final long offset) throws IOException {
-        BufferedDataInputStream stream = null;
-        try {
-            if (f.getName().endsWith(KNIPConstants.ZIP_SUFFIX)) {
-                final FileInputStream fileInput = new FileInputStream(f);
-                fileInput.skip(offset);
-                final ZipInputStream zip = new ZipInputStream(fileInput);
-                zip.getNextEntry();
-                stream = new BufferedDataInputStream(zip);
-            } else {
-                stream = new BufferedDataInputStream(new FileInputStream(f));
-                stream.skip(offset);
-            }
-        } catch (IOException e) {
-            if (stream != null) {
-                stream.close();
-            }
-            throw e;
-        }
-        return stream;
+    protected ImgPlusCell(final FileStore fileStore) {
+        super(fileStore);
     }
 
     private BufferedImage createThumbnail(final double factor) {
         LOGGER.debug("Create thumbnail ...");
 
+        final Img<T> tmpImg = m_imgAccess.get();
+
         // make sure that at least two dimensions exist
         RandomAccessibleInterval<T> img2d;
-        if (m_img.numDimensions() > 1) {
-            img2d = m_img;
+        if (tmpImg.numDimensions() > 1) {
+            img2d = tmpImg;
         } else {
-            img2d = Views.addDimension(m_img, 0, 0);
+            img2d = Views.addDimension(tmpImg, 0, 0);
         }
 
         int i = 0;
@@ -260,8 +229,8 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
         }
 
         final RandomAccessibleInterval<T> toRender;
-        if (img2d == m_img) {
-            toRender = SubsetOperations.subsetview(m_img, new FinalInterval(min, max));
+        if (img2d == tmpImg) {
+            toRender = SubsetOperations.subsetview(tmpImg, new FinalInterval(min, max));
         } else {
             toRender = img2d;
         }
@@ -283,8 +252,7 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
      */
     @Override
     public synchronized CalibratedSpace<CalibratedAxis> getCalibratedSpace() {
-        readImgData(m_fileMetadata.getOffset(), true);
-        return m_imgMetadata.getMetadata();
+        return m_metadataAccess.get().getMetadata();
     }
 
     /**
@@ -292,24 +260,24 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
      */
     @Override
     public synchronized long[] getDimensions() {
-        readImgData(m_fileMetadata.getOffset(), true);
-        return m_imgMetadata.getDimensions().clone();
+        return m_metadataAccess.get().getDimensions().clone();
     }
 
     private ImgPlusCellMetadata getImgMetadataToWrite() {
+
+        final ImgPlusCellMetadata tmpImgMetadata = m_metadataAccess.get();
         int height = KNIMEKNIPPlugin.getMaximumImageCellHeight();
         if (height == 0) {
-            height = (int)m_imgMetadata.getDimensions()[1];
+            height = (int)tmpImgMetadata.getDimensions()[1];
         }
         final int width = getThumbnailWidth(height);
-        if (((height * width) / (double)m_imgMetadata.getSize()) < KNIMEKNIPPlugin.getThumbnailImageRatio()) {
+        if (((height * width) / (double)tmpImgMetadata.getSize()) < KNIMEKNIPPlugin.getThumbnailImageRatio()) {
             getThumbnail(null);
-            return m_imgMetadata;
+            return tmpImgMetadata;
         } else {
-            return new ImgPlusCellMetadata(m_imgMetadata.getMetadata(), m_imgMetadata.getSize(),
-                    m_imgMetadata.getMinimum(), m_imgMetadata.getDimensions(), m_imgMetadata.getPixelType(), null);
+            return new ImgPlusCellMetadata(tmpImgMetadata.getMetadata(), tmpImgMetadata.getSize(),
+                    tmpImgMetadata.getMinimum(), tmpImgMetadata.getDimensions(), tmpImgMetadata.getPixelType(), null);
         }
-
     }
 
     /**
@@ -317,24 +285,22 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
      */
     @Override
     public synchronized ImgPlus<T> getImgPlus() {
-        readImgData(m_fileMetadata.getOffset(), false);
+        Img<T> tmpImg = m_imgAccess.get();
 
         final long[] minimum = getMinimum();
         final long[] localMin = new long[minimum.length];
-        m_img.min(localMin);
-        Img<T> tmp = m_img;
+        tmpImg.min(localMin);
 
         if (!Arrays.equals(minimum, localMin)) {
-
             for (int d = 0; d < minimum.length; d++) {
                 if (minimum[d] != 0) {
-                    tmp = ImgView.wrap(Views.translate(tmp, minimum), m_img.factory());
+                    tmpImg = ImgView.wrap(Views.translate(tmpImg, minimum), tmpImg.factory());
                     break;
                 }
             }
         }
-        final ImgPlus<T> imgPlus = new ImgPlus<T>(tmp, m_imgMetadata.getMetadata());
-        imgPlus.setSource(m_imgMetadata.getMetadata().getSource());
+        final ImgPlus<T> imgPlus = new ImgPlus<T>(tmpImg, m_metadataAccess.get().getMetadata());
+        imgPlus.setSource(m_metadataAccess.get().getMetadata().getSource());
 
         return imgPlus;
     }
@@ -344,8 +310,6 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
      */
     @Override
     public synchronized ImgPlus<T> getImgPlusCopy() {
-        readImgData(m_fileMetadata.getOffset(), false);
-
         final ImgPlus<T> source = getImgPlus();
         final ImgPlus<T> dest = new ImgPlus<T>(source.copy());
 
@@ -359,15 +323,15 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
      */
     @Override
     public synchronized long[] getMaximum() {
-        readImgData(m_fileMetadata.getOffset(), true);
-        final long[] max = new long[m_imgMetadata.getDimensions().length];
-        if (m_imgMetadata.getMinimum() == null) {
+        final ImgPlusCellMetadata imgPlusMetadta = m_metadataAccess.get();
+        final long[] max = new long[imgPlusMetadta.getDimensions().length];
+        if (imgPlusMetadta.getMinimum() == null) {
             for (int i = 0; i < max.length; i++) {
-                max[i] = m_imgMetadata.getDimensions()[i] - 1;
+                max[i] = imgPlusMetadta.getDimensions()[i] - 1;
             }
         } else {
             for (int i = 0; i < max.length; i++) {
-                max[i] = m_imgMetadata.getMinimum()[i] + m_imgMetadata.getDimensions()[i] - 1;
+                max[i] = imgPlusMetadta.getMinimum()[i] + imgPlusMetadta.getDimensions()[i] - 1;
             }
         }
         return max;
@@ -378,23 +342,26 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
      */
     @Override
     public synchronized ImgPlusMetadata getMetadata() {
-        readImgData(m_fileMetadata.getOffset(), true);
-        final ImgPlusMetadata res = new DefaultImgMetadata(m_imgMetadata.getDimensions().length);
-        MetadataUtil.copyImgPlusMetadata(m_imgMetadata.getMetadata(), res);
+        final ImgPlusMetadata res = new DefaultImgMetadata(m_metadataAccess.get().getDimensions().length);
+        MetadataUtil.copyImgPlusMetadata(m_metadataAccess.get().getMetadata(), res);
         return res;
     }
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated
      */
+    @Deprecated
     @Override
     public synchronized long[] getMinimum() {
-        readImgData(m_fileMetadata.getOffset(), true);
+
+        final ImgPlusCellMetadata tmp = m_metadataAccess.get();
         long[] min;
-        if (m_imgMetadata.getMinimum() == null) {
-            min = new long[m_imgMetadata.getDimensions().length];
+        if (tmp.getMinimum() == null) {
+            min = new long[tmp.getDimensions().length];
         } else {
-            min = m_imgMetadata.getMinimum().clone();
+            min = tmp.getMinimum().clone();
         }
         return min;
     }
@@ -404,8 +371,8 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
      */
     @Override
     public synchronized Named getName() {
-        readImgData(m_fileMetadata.getOffset(), true);
-        return m_imgMetadata.getMetadata();
+        final ImgPlusCellMetadata tmp = m_metadataAccess.get();
+        return tmp.getMetadata();
     }
 
     /**
@@ -414,8 +381,8 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
     @Override
     @SuppressWarnings("unchecked")
     public synchronized Class<T> getPixelType() {
-        readImgData(m_fileMetadata.getOffset(), true);
-        return (Class<T>)m_imgMetadata.getPixelType();
+        final ImgPlusCellMetadata tmp = m_metadataAccess.get();
+        return (Class<T>)tmp.getPixelType();
     }
 
     /**
@@ -423,8 +390,8 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
      */
     @Override
     public synchronized Sourced getSource() {
-        readImgData(m_fileMetadata.getOffset(), true);
-        return m_imgMetadata.getMetadata();
+        final ImgPlusCellMetadata tmp = m_metadataAccess.get();
+        return tmp.getMetadata();
     }
 
     /**
@@ -432,35 +399,35 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
      */
     @Override
     public synchronized String getStringValue() {
-        readImgData(m_fileMetadata.getOffset(), true);
+        final ImgPlusCellMetadata tmp = m_metadataAccess.get();
         final StringBuffer sb = new StringBuffer();
         sb.append("Image[\nname=");
-        sb.append(m_imgMetadata.getMetadata().getName());
+        sb.append(tmp.getMetadata().getName());
         sb.append(";\nsource=");
-        sb.append(m_imgMetadata.getMetadata().getSource());
+        sb.append(tmp.getMetadata().getSource());
         sb.append(";\ndimensions=");
-        final int numDims = m_imgMetadata.getDimensions().length;
+        final int numDims = tmp.getDimensions().length;
         for (int i = 0; i < (numDims - 1); i++) {
-            sb.append(m_imgMetadata.getDimensions()[i]);
+            sb.append(tmp.getDimensions()[i]);
             sb.append(",");
         }
-        sb.append(m_imgMetadata.getDimensions()[numDims - 1]);
+        sb.append(tmp.getDimensions()[numDims - 1]);
         sb.append(" (");
         for (int i = 0; i < (numDims - 1); i++) {
-            sb.append(m_imgMetadata.getMetadata().axis(i).type().getLabel());
+            sb.append(tmp.getMetadata().axis(i).type().getLabel());
             sb.append(",");
         }
-        sb.append(m_imgMetadata.getMetadata().axis(numDims - 1).type().getLabel());
+        sb.append(tmp.getMetadata().axis(numDims - 1).type().getLabel());
         sb.append(")");
         sb.append(";\nmin=");
-        final long[] min = m_imgMetadata.getMinimum() == null ? new long[numDims] : m_imgMetadata.getMinimum();
+        final long[] min = tmp.getMinimum() == null ? new long[numDims] : tmp.getMinimum();
         for (int i = 0; i < (numDims - 1); i++) {
             sb.append(min[i]);
             sb.append(",");
         }
         sb.append(min[numDims - 1]);
         sb.append(";\npixel type=");
-        sb.append(m_imgMetadata.getPixelType().getSimpleName());
+        sb.append(tmp.getPixelType().getSimpleName());
         sb.append(")]");
         return sb.toString();
     }
@@ -479,38 +446,36 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
 
         } else {
 
-            readImgData(m_fileMetadata.getOffset(), true);
-
             double height = 1; // default for 1d images
             double fullHeight = 1;
 
-            if (m_imgMetadata.getDimensions().length > 1) {
-                height = Math.min(m_imgMetadata.getDimensions()[1], KNIMEKNIPPlugin.getMaximumImageCellHeight());
+            ImgPlusCellMetadata tmp = m_metadataAccess.get();
+            if (tmp.getDimensions().length > 1) {
+                height = Math.min(tmp.getDimensions()[1], KNIMEKNIPPlugin.getMaximumImageCellHeight());
                 if (height == 0) {
-                    height = m_imgMetadata.getDimensions()[1];
+                    height = tmp.getDimensions()[1];
                 }
 
-                fullHeight = m_imgMetadata.getDimensions()[1];
+                fullHeight = tmp.getDimensions()[1];
             }
 
-            if ((m_imgMetadata.getThumbnail() == null) || (m_imgMetadata.getThumbnail().getHeight() != height)) {
-                readImgData(m_fileMetadata.getOffset(), false);
-                m_imgMetadata = new ImgPlusCellMetadata(m_imgMetadata.getMetadata(), m_imgMetadata.getSize(),
-                        m_imgMetadata.getMinimum(), m_imgMetadata.getDimensions(), m_imgMetadata.getPixelType(),
-                        createThumbnail(height / fullHeight));
+            if ((tmp.getThumbnail() == null) || (tmp.getThumbnail().getHeight() != height)) {
+                tmp = new ImgPlusCellMetadata(tmp.getMetadata(), tmp.getSize(), tmp.getMinimum(), tmp.getDimensions(),
+                        tmp.getPixelType(), createThumbnail(height / fullHeight));
                 // update cached object
-                m_objectRepository.put(this, this);
+                CACHE.put(this, this);
             }
-            return m_imgMetadata.getThumbnail();
+            return tmp.getThumbnail();
         }
 
     }
 
     private int getThumbnailWidth(final int height) {
-        if (m_img.numDimensions() == 1) {
-            return (int)m_img.dimension(0);
+        final Img<T> tmp = m_imgAccess.get();
+        if (tmp.numDimensions() == 1) {
+            return (int)tmp.dimension(0);
         } else {
-            return (int)(((double)m_img.dimension(0) / m_img.dimension(1)) * height);
+            return (int)(((double)tmp.dimension(0) / tmp.dimension(1)) * height);
         }
 
     }
@@ -542,14 +507,13 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
             for (int i = 0; i < length; i++) {
                 input.readChar();
             }
-            m_fileMetadata = new FileStoreCellMetadata(input.readLong(), input.readBoolean(), null);
         } catch (final Exception e) {
             if (e instanceof IOException) {
                 throw (IOException)e;
             }
             LOGGER.error("Exception while reading the ImgPlusCellMetadata", e);
         }
-
+        m_fileMetadata = new FileStoreCellMetadata(input.readLong(), input.readBoolean(), null);
     }
 
     /**
@@ -557,56 +521,22 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
      */
     @Override
     protected void postConstruct() {
-        // use this line of code if lazily loading the image is not
-        // desired
-        // readImgData(m_fileMetadata.getOffset(), false);
-    }
-
-    /* reads the image data including metadata, dimensions, thumbnail etc. */
-    @SuppressWarnings("unchecked")
-    private synchronized void readImgData(final long offset, final boolean metadataOnly) {
-        // read image if not a file store img
-        if ((metadataOnly && (m_imgMetadata != null)) || (!metadataOnly && (m_img != null))) {
-            return;
-        }
-
-        try {
-            final Object tmp = m_objectRepository.get(this);
-            if ((tmp == null) || (!metadataOnly && (((ImgPlusCell<T>)tmp).m_img == null))) {
-                if (!metadataOnly) {
-                    // if (m_imgRef != null &&
-                    // m_imgRef.get() !=
-                    // null) {
-                    // m_img = m_imgRef.get();
-                    // return;
-                    // }
-                    final File f = getFileStore().getFile();
-                    final BufferedDataInputStream stream = createInputStream(f, offset);
-
-                    LOGGER.debug("Load image data...");
-                    m_imgMetadata = ExternalizerManager.read(stream);
-                    m_img = ExternalizerManager.read(stream);
-                    stream.close();
-                } else {
-                    final File f = getFileStore().getFile();
-                    final BufferedDataInputStream stream = createInputStream(f, offset);
-                    LOGGER.debug("Load image metadata...");
-                    m_imgMetadata = ExternalizerManager.read(stream);
-                    stream.close();
-                }
-                m_objectRepository.put(this, this);
-
-            } else {
-                final ImgPlusCell<T> cell = (ImgPlusCell<T>)tmp;
-                m_imgMetadata = cell.m_imgMetadata;
-                m_img = cell.m_img;
-            }
-
-        } catch (final Exception e) {
-            e.printStackTrace();
-            LOGGER.error("Cannot read image.", e);
-        }
-
+        m_metadataAccess =
+                new CachedObjectAccess<ImgPlusCellMetadata>(getFileStore(), null, m_fileMetadata.getOffset(), null);
+        m_imgAccess =
+                new CachedObjectAccess<Img<T>>(getFileStore(), null, m_fileMetadata.getOffset(), new StreamSkipper() {
+                    /**
+                     * {@inheritDoc}
+                     */
+                    @Override
+                    public void skip(final BufferedDataInputStream in) {
+                        try {
+                            ExternalizerManager.read(in);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                });
     }
 
     /**
@@ -621,6 +551,7 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
         try {
             // if the image data wasn't made persitent yet ...
             flushToFileStore();
+
             // ExternalizerManager.write(stream,
             // m_fileMetadata);
             // work-around for bug #3578: if the output is
@@ -657,7 +588,9 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
             offset = file.length();
 
             // write image data
-            writeImgData(file);
+            m_metadataAccess.m_obj = getImgMetadataToWrite();
+            m_metadataAccess.serialize();
+            m_imgAccess.serialize();
         }
 
         m_fileMetadata = new FileStoreCellMetadata(offset, true, null);
@@ -671,9 +604,114 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
         return getStringValue();
     }
 
-    /* writes the image including metadata to the file */
-    private void writeImgData(final File file) throws IOException {
+    static class CachedObjectAccess<O> {
 
+        private final UUID ID = UUID.randomUUID();
+
+        private O m_obj;
+
+        private long m_offset;
+
+        private FileStore m_store;
+
+        // NB: This hack is required due to backwards compatibility.
+        private StreamSkipper m_skipper;
+
+        public CachedObjectAccess(final FileStore store, final O obj) {
+            this(store, obj, -1, null);
+        }
+
+        public CachedObjectAccess(final FileStore store, final O obj, final long offset, final StreamSkipper skipper) {
+            m_obj = obj;
+            m_store = store;
+            m_offset = offset;
+            m_skipper = skipper;
+        }
+
+        public void serialize() {
+            try {
+                //  Object can only be null if it was written
+                if (m_obj != null) {
+                    LOGGER.debug("Writing object to stream ...");
+                    m_offset = m_store.getFile().length();
+                    final BufferedDataOutputStream stream = createOutStream(m_store.getFile());
+                    ExternalizerManager.write(stream, m_obj);
+                    stream.flush();
+                    stream.close();
+                    CACHE.put(ID, m_obj);
+                    m_obj = null;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        public O get() {
+            try {
+                //NB: this logic could be part of the cache
+                if (m_obj != null) {
+                    LOGGER.debug("Reading persistent object ...");
+                    return m_obj;
+                } else {
+                    @SuppressWarnings("unchecked")
+                    O object = (O)CACHE.get(ID);
+                    if (object != null) {
+                        LOGGER.debug("Reading object from cache ...");
+                        return object;
+                    } else {
+                        LOGGER.debug("Reading object from stream ...");
+                        final BufferedDataInputStream stream = createInputStream(m_store.getFile(), m_offset);
+                        if (m_skipper != null) {
+                            m_skipper.skip(stream);
+                        }
+
+                        // FIXME: This hack is required to be backwards compatible.
+                        // NB: It's not slower than before. However, in the future we may want to avoid this.
+                        if (m_obj instanceof Img) {
+                            ExternalizerManager.read(stream);
+                        }
+
+                        final O obj = ExternalizerManager.read(stream);
+                        CACHE.put(ID, obj);
+                        return obj;
+                    }
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    static interface StreamSkipper {
+        void skip(final BufferedDataInputStream in);
+    }
+
+    /*
+     * Helper to create the respective input stream (e.g. if zip file or not)
+     */
+    private static BufferedDataInputStream createInputStream(final File f, final long offset) throws IOException {
+        BufferedDataInputStream stream = null;
+        try {
+            if (f.getName().endsWith(KNIPConstants.ZIP_SUFFIX)) {
+                final FileInputStream fileInput = new FileInputStream(f);
+                fileInput.skip(offset);
+                final ZipInputStream zip = new ZipInputStream(fileInput);
+                zip.getNextEntry();
+                stream = new BufferedDataInputStream(zip);
+            } else {
+                stream = new BufferedDataInputStream(new FileInputStream(f));
+                stream.skip(offset);
+            }
+        } catch (IOException e) {
+            if (stream != null) {
+                stream.close();
+            }
+            throw e;
+        }
+        return stream;
+    }
+
+    private static BufferedDataOutputStream createOutStream(final File file) throws FileNotFoundException, IOException {
         BufferedDataOutputStream stream;
         if (file.getName().endsWith(KNIPConstants.ZIP_SUFFIX)) {
             final ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(file, true));
@@ -682,19 +720,7 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
         } else {
             stream = new BufferedDataOutputStream(new FileOutputStream(file, true));
         }
-
-        try {
-            ExternalizerManager.write(stream, getImgMetadataToWrite());
-            ExternalizerManager.write(stream, m_img);
-        } catch (final Exception e) {
-            if (e instanceof IOException) {
-                throw (IOException)e;
-            }
-            LOGGER.error("Error in saving image data.", e);
-        } finally {
-            stream.flush();
-            stream.close();
-        }
+        return stream;
     }
 
 }

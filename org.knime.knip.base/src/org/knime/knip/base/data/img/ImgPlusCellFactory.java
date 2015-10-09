@@ -91,7 +91,7 @@ public final class ImgPlusCellFactory extends KNIPCellFactory {
      * @throws IOException
      */
     public final <T extends RealType<T>> ImgPlusCell<T> createCell(final ImgPlus<T> imgPlus) throws IOException {
-        return new ImgPlusCell<T>(imgPlus, getFileStore(getImgSize(imgPlus.getImg())));
+        return new ImgPlusCell<T>(imgPlus.getImg(), imgPlus, getFileStore(getImgSize(imgPlus.getImg())));
     }
 
     private final <T extends RealType<T>> double getImgSize(final Img<T> img) {
