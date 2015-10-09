@@ -51,15 +51,6 @@ package org.knime.knip.base.nodes.metadata.setimgmetadata;
 import java.io.File;
 import java.io.IOException;
 
-import net.imagej.ImgPlus;
-import net.imagej.ImgPlusMetadata;
-import net.imagej.axis.Axes;
-import net.imagej.axis.DefaultLinearAxis;
-import net.imagej.space.DefaultCalibratedSpace;
-import net.imglib2.img.ImgView;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.view.Views;
-
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -83,6 +74,13 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.node.port.PortObjectSpec;
+import org.knime.core.node.streamable.InputPortRole;
+import org.knime.core.node.streamable.OutputPortRole;
+import org.knime.core.node.streamable.PartitionInfo;
+import org.knime.core.node.streamable.StreamableFunction;
+import org.knime.core.node.streamable.StreamableOperator;
+import org.knime.core.node.streamable.StreamableOperatorInternals;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
@@ -90,6 +88,15 @@ import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.core.data.DefaultNamed;
 import org.knime.knip.core.data.DefaultSourced;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
+
+import net.imagej.ImgPlus;
+import net.imagej.ImgPlusMetadata;
+import net.imagej.axis.Axes;
+import net.imagej.axis.DefaultLinearAxis;
+import net.imagej.space.DefaultCalibratedSpace;
+import net.imglib2.img.ImgView;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
 
 /**
  *
@@ -249,13 +256,13 @@ public class SetImgMetadataNodeModel<T extends RealType<T>> extends NodeModel im
 
                 }
 
-                final ImgPlusMetadata metadata =
-                        new DefaultImgMetadata(defaultCalibratedSpace, new DefaultNamed(name), new DefaultSourced(
-                                source), imgPlus);
+                final ImgPlusMetadata metadata = new DefaultImgMetadata(defaultCalibratedSpace, new DefaultNamed(name),
+                        new DefaultSourced(source), imgPlus);
 
                 try {
-                    return new DataCell[]{imgFactory.createCell(new ImgPlus<>(ImgView.wrap(Views.translate(imgPlus
-                            .getImg(), min), imgPlus.getImg().factory()), metadata))};
+                    return new DataCell[]{imgFactory.createCell(new ImgPlus<>(
+                            ImgView.wrap(Views.translate(imgPlus.getImg(), min), imgPlus.getImg().factory()),
+                            metadata))};
                 } catch (final IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -263,8 +270,8 @@ public class SetImgMetadataNodeModel<T extends RealType<T>> extends NodeModel im
 
             @Override
             public DataColumnSpec[] getColumnSpecs() {
-                return new DataColumnSpec[]{new DataColumnSpecCreator(m_imgCol.getStringValue(), ImgPlusCell.TYPE)
-                        .createSpec()};
+                return new DataColumnSpec[]{
+                        new DataColumnSpecCreator(m_imgCol.getStringValue(), ImgPlusCell.TYPE).createSpec()};
             }
 
             @Override
@@ -283,12 +290,12 @@ public class SetImgMetadataNodeModel<T extends RealType<T>> extends NodeModel im
     protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
             throws Exception {
         final ColumnRearranger rearranger = new ColumnRearranger(inData[0].getDataTableSpec());
-        final int idx =
-                NodeUtils.autoColumnSelection(inData[0].getDataTableSpec(), m_imgCol, ImgPlusValue.class,
-                                              this.getClass());
+        final int idx = NodeUtils.autoColumnSelection(inData[0].getDataTableSpec(), m_imgCol, ImgPlusValue.class,
+                                                      this.getClass());
         rearranger.replace(createCellFactory(inData[0].getDataTableSpec(), new ImgPlusCellFactory(exec),
 
-        idx), m_imgCol.getStringValue());
+                                             idx),
+                           m_imgCol.getStringValue());
 
         // data for the table cell view
         m_data = exec.createColumnRearrangeTable(inData[0], rearranger, exec);
@@ -308,8 +315,8 @@ public class SetImgMetadataNodeModel<T extends RealType<T>> extends NodeModel im
      * {@inheritDoc}
      */
     @Override
-    protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
+    protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec)
+            throws IOException, CanceledExecutionException {
         // TODO Auto-generated method stub
 
     }
@@ -352,8 +359,8 @@ public class SetImgMetadataNodeModel<T extends RealType<T>> extends NodeModel im
      * {@inheritDoc}
      */
     @Override
-    protected void saveInternals(final File nodeInternDir, final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
+    protected void saveInternals(final File nodeInternDir, final ExecutionMonitor exec)
+            throws IOException, CanceledExecutionException {
         // TODO Auto-generated method stub
 
     }
@@ -417,4 +424,65 @@ public class SetImgMetadataNodeModel<T extends RealType<T>> extends NodeModel im
 
     }
 
+    /*
+     * STREAMING
+     */
+
+    @Override
+    public InputPortRole[] getInputPortRoles() {
+        return new InputPortRole[]{InputPortRole.DISTRIBUTED_STREAMABLE};
+    }
+
+    @Override
+    public OutputPortRole[] getOutputPortRoles() {
+        return new OutputPortRole[]{OutputPortRole.DISTRIBUTED};
+    }
+
+    @Override
+    public StreamableOperator createStreamableOperator(final PartitionInfo partitionInfo,
+                                                       final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
+
+        final DataTableSpec inSpec = (DataTableSpec)inSpecs[0];
+        final int imgidx = NodeUtils.autoColumnSelection(inSpec, m_imgCol, ImgPlusValue.class, this.getClass());
+
+        // create new streamablefunction, do everything columnrearranger function does but call prepareexceute in init().
+        return new StreamableFunction() {
+
+            private StreamableFunction columnRearrangerFunction;
+
+            /** {@inheritDoc} */
+            @Override
+            public void init(final ExecutionContext ctx) throws Exception {
+                final ColumnRearranger rearranger = new ColumnRearranger(inSpec);
+                rearranger.replace(createCellFactory(inSpec, new ImgPlusCellFactory(ctx), imgidx),
+                                   m_imgCol.getStringValue());
+
+                columnRearrangerFunction = rearranger.createStreamableFunction();
+                columnRearrangerFunction.init(ctx);
+            }
+
+            /** {@inheritDoc} */
+            @Override
+            public DataRow compute(final DataRow inputRow) {
+                try {
+                    return columnRearrangerFunction.compute(inputRow);
+                } catch (Exception e) {
+                    throw new IllegalArgumentException("Exception caught while reading row " + inputRow.getKey()
+                            + "! Caught exception " + e.getMessage());
+                }
+            }
+
+            /** {@inheritDoc} */
+            @Override
+            public void finish() {
+                columnRearrangerFunction.finish();
+            }
+
+            /** {@inheritDoc} */
+            @Override
+            public StreamableOperatorInternals saveInternals() {
+                return columnRearrangerFunction.saveInternals();
+            }
+        };
+    }
 }
