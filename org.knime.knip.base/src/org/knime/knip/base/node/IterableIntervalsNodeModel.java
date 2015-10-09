@@ -392,14 +392,15 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
         }
 
         postExecute();
+        m_currentLabeling = null;
         return m_cellFactory.createCell(res);
     }
 
     /**
-     *
+     * Can be overriden by implementors
      */
     protected void postExecute() {
-        // NB Nothing to do
+       // can be overriden by implemnetors
     }
 
     // fills the res with val if labeling contains no labels at a certain position
