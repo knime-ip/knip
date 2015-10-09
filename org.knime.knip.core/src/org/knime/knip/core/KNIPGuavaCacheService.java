@@ -88,6 +88,7 @@ public class KNIPGuavaCacheService extends AbstractService implements CacheServi
             @Override
             public void memoryLow() {
                 if (gate.tryAcquire()) {
+                    cache.invalidateAll();
                     cache.cleanUp();
                     gate.release();
                 }
