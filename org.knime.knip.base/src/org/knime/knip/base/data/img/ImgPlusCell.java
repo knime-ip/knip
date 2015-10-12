@@ -63,7 +63,6 @@ import org.knime.core.data.DataType;
 import org.knime.core.data.StringValue;
 import org.knime.core.data.filestore.FileStore;
 import org.knime.core.data.filestore.FileStoreCell;
-import org.knime.core.node.NodeLogger;
 import org.knime.knip.base.KNIMEKNIPPlugin;
 import org.knime.knip.base.data.CachedObjectAccess;
 import org.knime.knip.base.data.CachedObjectAccess.StreamSkipper;
@@ -117,11 +116,6 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
      * ObjectRepository
      */
     private static final CacheService CACHE = KNIPGateway.cache();
-
-    /**
-     * Node Logger
-     */
-    private static final NodeLogger LOGGER = NodeLogger.getLogger(ImgPlusCell.class);
 
     /**
      * UID
@@ -193,8 +187,6 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
     }
 
     private BufferedImage createThumbnail(final double factor) {
-        LOGGER.debug("Create thumbnail ...");
-
         final Img<T> tmpImg = m_imgAccess.get();
 
         // make sure that at least two dimensions exist
@@ -491,8 +483,6 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
      */
     @SuppressWarnings("javadoc")
     protected synchronized void load(final DataInput input) throws IOException {
-        LOGGER.debug("Load file metadata...");
-
         try {
             // m_fileMetadata =
             // ExternalizerManager.read(stream);
@@ -506,7 +496,6 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
             if (e instanceof IOException) {
                 throw (IOException)e;
             }
-            LOGGER.error("Exception while reading the ImgPlusCellMetadata", e);
         }
         m_fileMetadata = new FileStoreCellMetadata(input.readLong(), input.readBoolean(), null);
     }
@@ -532,7 +521,7 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
                         @Override
                         public void skip(final BufferedDataInputStream in) {
                             try {
-                                ExternalizerManager.read(in);
+                                m_metadataAccess.setObject(ExternalizerManager.read(in));
                             } catch (Exception e) {
                                 throw new RuntimeException(e);
                             }
@@ -575,8 +564,6 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
             if (e instanceof IOException) {
                 throw (IOException)e;
             }
-            LOGGER.error("Exception while writing the ImgPlusCellMetadata", e);
-
         }
     }
 
@@ -591,7 +578,6 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
         // if the image data wasn't made persitent yet ...
         if (!isPersistent) {
             final File file = getFileStore().getFile();
-            LOGGER.debug("Save in file " + file.getName() + " ...");
             offset = file.length();
 
             // write image data

@@ -52,8 +52,6 @@ package org.knime.knip.base.data;
 import java.util.UUID;
 
 import org.knime.core.data.filestore.FileStore;
-import org.knime.core.node.NodeLogger;
-import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.io.externalization.BufferedDataInputStream;
 import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
@@ -67,8 +65,6 @@ import org.scijava.cache.CacheService;
 public class CachedObjectAccess<O> {
 
     private final CacheService CACHE = KNIPGateway.cache();
-
-    private final NodeLogger LOGGER = NodeLogger.getLogger(ImgPlusCell.class);
 
     private final UUID ID = UUID.randomUUID();
 
@@ -112,9 +108,7 @@ public class CachedObjectAccess<O> {
     public synchronized void serialize() {
         try {
             assert (m_obj != null);
-
             //  Object can only be null if it was written
-            LOGGER.debug("Writing object to stream ...");
             m_offset = m_fileStore.getFile().length();
             final BufferedDataOutputStream stream = StreamUtil.createOutStream(m_fileStore.getFile());
             ExternalizerManager.write(stream, m_obj);
@@ -134,16 +128,13 @@ public class CachedObjectAccess<O> {
         try {
             //NB: this logic could be part of the cache
             if (m_obj != null) {
-                LOGGER.debug("Using object from memory...");
                 return m_obj;
             } else {
                 @SuppressWarnings("unchecked")
                 final O object = (O)CACHE.get(ID);
                 if (object != null) {
-                    LOGGER.debug("Reading object from cache ...");
                     return object;
                 } else {
-                    LOGGER.debug("Reading object from stream ...");
                     final BufferedDataInputStream stream =
                             StreamUtil.createInputStream(m_fileStore.getFile(), m_offset);
 
@@ -168,6 +159,7 @@ public class CachedObjectAccess<O> {
      */
     public void setObject(final O obj) {
         if (m_obj == null) {
+            CACHE.put(ID, obj);
             return;
         }
         m_obj = obj;

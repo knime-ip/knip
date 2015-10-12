@@ -62,7 +62,6 @@ import org.knime.core.data.StringValue;
 import org.knime.core.data.container.BlobDataCell;
 import org.knime.core.data.filestore.FileStore;
 import org.knime.core.data.filestore.FileStoreCell;
-import org.knime.core.node.NodeLogger;
 import org.knime.knip.base.KNIMEKNIPPlugin;
 import org.knime.knip.base.data.CachedObjectAccess;
 import org.knime.knip.base.data.CachedObjectAccess.StreamSkipper;
@@ -105,11 +104,6 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
      * ObjectRepository
      */
     private static final CacheService CACHE = KNIPGateway.cache();
-
-    /**
-     * NodeLogger
-     */
-    private static final NodeLogger LOGGER = NodeLogger.getLogger(LabelingCell.class);
 
     /**
      * UID
@@ -168,8 +162,6 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
     }
 
     private BufferedImage createThumbnail(final double factor) {
-        LOGGER.debug("Create thumbnail of labeling ...");
-
         // make sure that at least two dimensions exist
         RandomAccessibleInterval<LabelingType<L>> lab2d;
         if (m_labelingAccess.get().numDimensions() > 1) {
@@ -392,12 +384,6 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
      */
     protected synchronized void load(final DataInput input) throws IOException {
 
-        LOGGER.debug("Load file metadata...");
-
-        // BufferedDataInputStream stream = new
-        // BufferedDataInputStream(
-        // (InputStream) input);
-
         try {
             // work-around for bug#3578
             // m_fileMetadata =
@@ -411,7 +397,6 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
             if (e instanceof IOException) {
                 throw (IOException)e;
             }
-            LOGGER.error("Exception while reading the LabelingCellMetadata", e);
         }
     }
 
@@ -435,7 +420,7 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
                         @Override
                         public void skip(final BufferedDataInputStream in) {
                             try {
-                                ExternalizerManager.read(in);
+                                m_metadataAccess.setObject(ExternalizerManager.read(in));
                             } catch (Exception e) {
                                 throw new RuntimeException(e);
                             }
@@ -473,7 +458,6 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
             if (e instanceof IOException) {
                 throw (IOException)e;
             }
-            LOGGER.error("Exception while writing the LabelingCell metadata", e);
         }
 
     }
@@ -489,7 +473,6 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
         // if the image data wasn't made persitent yet ...
         if (!isPersistent) {
             final File file = getFileStore().getFile();
-            LOGGER.debug("Save in file " + file.getName() + " ...");
             offset = file.length();
 
             m_metadataAccess.setObject(getLabelingMetadataToWrite());
