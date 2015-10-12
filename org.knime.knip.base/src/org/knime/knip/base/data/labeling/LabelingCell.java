@@ -169,6 +169,7 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
         } else {
             lab2d = Views.addDimension(m_labelingAccess.get(), 0, 0);
         }
+
         // set the labeling mapping
         final ColorLabelingRenderer<L> rend = new ColorLabelingRenderer<L>();
         rend.setLabelMapping(lab2d.randomAccess().get().getMapping());
@@ -183,7 +184,7 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
             }
         }
         final RandomAccessibleInterval<LabelingType<L>> toRender;
-        if (m_labelingAccess == lab2d) {
+        if (m_labelingAccess.get() == lab2d) {
             toRender = getSubInterval(new FinalInterval(new long[lab2d.numDimensions()], max));
         } else {
             toRender = lab2d;
