@@ -516,25 +516,34 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
      */
     @Override
     protected void postConstruct() {
-        // Creates empty CachedObjectAccesses which know how to reconstruct the managed objects.
-        m_metadataAccess =
-                new CachedObjectAccess<ImgPlusCellMetadata>(getFileStore(), null, m_fileMetadata.getOffset(), null);
-        m_imgAccess =
-                new CachedObjectAccess<Img<T>>(getFileStore(), null, m_fileMetadata.getOffset(), new StreamSkipper() {
-                    /**
-                     * {@inheritDoc}
-                     */
-                    @Override
-                    public void skip(final BufferedDataInputStream in) {
-                        try {
-                            ExternalizerManager.read(in);
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                });
 
-        CACHE.put(this, this);
+        @SuppressWarnings("unchecked")
+        final ImgPlusCell<T> tmp = (ImgPlusCell<T>)CACHE.get(this);
+
+        if (tmp == null) {
+            m_metadataAccess =
+                    new CachedObjectAccess<ImgPlusCellMetadata>(getFileStore(), null, m_fileMetadata.getOffset(), null);
+
+            m_imgAccess = new CachedObjectAccess<Img<T>>(getFileStore(), null, m_fileMetadata.getOffset(),
+                    new StreamSkipper() {
+                        /**
+                         * {@inheritDoc}
+                         */
+                        @Override
+                        public void skip(final BufferedDataInputStream in) {
+                            try {
+                                ExternalizerManager.read(in);
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    });
+
+            CACHE.put(this, this);
+        } else {
+            m_metadataAccess = tmp.m_metadataAccess;
+            m_imgAccess = tmp.m_imgAccess;
+        }
     }
 
     /**

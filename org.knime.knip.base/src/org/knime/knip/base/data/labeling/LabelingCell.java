@@ -420,24 +420,34 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
      */
     @Override
     protected void postConstruct() {
-        // Creates empty CachedObjectAccesses which know how to reconstruct the managed objects.
-        m_metadataAccess = new CachedObjectAccess<>(getFileStore(), null, m_fileMetadata.getOffset(), null);
-        m_labelingAccess =
-                new CachedObjectAccess<>(getFileStore(), null, m_fileMetadata.getOffset(), new StreamSkipper() {
-                    /**
-                     * {@inheritDoc}
-                     */
-                    @Override
-                    public void skip(final BufferedDataInputStream in) {
-                        try {
-                            ExternalizerManager.read(in);
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                });
 
-        CACHE.put(this, this);
+        @SuppressWarnings("unchecked")
+        final LabelingCell<L> tmp = (LabelingCell<L>)CACHE.get(this);
+
+        if (tmp == null) {
+            // Creates empty CachedObjectAccesses which know how to reconstruct the managed objects.
+            m_metadataAccess = new CachedObjectAccess<>(getFileStore(), null, m_fileMetadata.getOffset(), null);
+            m_labelingAccess =
+                    new CachedObjectAccess<>(getFileStore(), null, m_fileMetadata.getOffset(), new StreamSkipper() {
+                        /**
+                         * {@inheritDoc}
+                         */
+                        @Override
+                        public void skip(final BufferedDataInputStream in) {
+                            try {
+                                ExternalizerManager.read(in);
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    });
+
+            CACHE.put(this, this);
+        } else {
+            m_labelingAccess = tmp.m_labelingAccess;
+            m_metadataAccess = tmp.m_metadataAccess;
+        }
+
     }
 
     /**
