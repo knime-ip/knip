@@ -63,12 +63,13 @@ import org.knime.knip.core.io.externalization.BufferedDataInputStream;
 import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
 
 /**
+ * Util class for handling streams used by cell implementations.
  *
- * @author dietzc
+ * @author Christian Dietz, University of Konstanz
  */
 public class StreamUtil {
 
-    /*
+    /**
      * Helper to create the respective input stream (e.g. if zip file or not)
      */
     public static BufferedDataInputStream createInputStream(final File f, final long offset) throws IOException {
@@ -93,6 +94,9 @@ public class StreamUtil {
         return stream;
     }
 
+    /**
+     * Helper to create the respective output stream (e.g. if zip file or not)
+     */
     public static BufferedDataOutputStream createOutStream(final File file) throws FileNotFoundException, IOException {
         BufferedDataOutputStream stream;
         if (file.getName().endsWith(KNIPConstants.ZIP_SUFFIX)) {
