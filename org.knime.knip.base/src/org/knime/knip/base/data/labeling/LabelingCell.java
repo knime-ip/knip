@@ -54,12 +54,7 @@ import java.awt.image.BufferedImage;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataType;
@@ -67,9 +62,9 @@ import org.knime.core.data.StringValue;
 import org.knime.core.data.container.BlobDataCell;
 import org.knime.core.data.filestore.FileStore;
 import org.knime.core.data.filestore.FileStoreCell;
-import org.knime.core.node.NodeLogger;
 import org.knime.knip.base.KNIMEKNIPPlugin;
-import org.knime.knip.base.KNIPConstants;
+import org.knime.knip.base.data.CachedObjectAccess;
+import org.knime.knip.base.data.CachedObjectAccess.StreamSkipper;
 import org.knime.knip.base.data.FileStoreCellMetadata;
 import org.knime.knip.base.data.IntervalValue;
 import org.knime.knip.base.renderer.ThumbnailRenderer;
@@ -80,7 +75,6 @@ import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableUtils;
 import org.knime.knip.core.awt.labelingcolortable.RandomMissingColorHandler;
 import org.knime.knip.core.data.img.LabelingMetadata;
 import org.knime.knip.core.io.externalization.BufferedDataInputStream;
-import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
 import org.knime.knip.core.io.externalization.ExternalizerManager;
 import org.scijava.Named;
 import org.scijava.cache.CacheService;
@@ -109,12 +103,7 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
     /**
      * ObjectRepository
      */
-    private static final CacheService m_objectRepository = KNIPGateway.cache();
-
-    /**
-     * NodeLogger
-     */
-    private static final NodeLogger LOGGER = NodeLogger.getLogger(LabelingCell.class);
+    private static final CacheService CACHE = KNIPGateway.cache();
 
     /**
      * UID
@@ -137,10 +126,10 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
     private FileStoreCellMetadata m_fileMetadata;
 
     /* the labeling object */
-    private RandomAccessibleInterval<LabelingType<L>> m_lab;
+    private CachedObjectAccess<RandomAccessibleInterval<LabelingType<L>>> m_labelingAccess;
 
     /* metadata of the labeling */
-    private LabelingCellMetadata m_labelingMetadata;
+    private CachedObjectAccess<LabelingCellMetadata> m_metadataAccess;
 
     /**
      * Constructor for Serialization
@@ -163,47 +152,22 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
         super(fileStore);
         final long[] dimensions = new long[labeling.numDimensions()];
         labeling.dimensions(dimensions);
-        m_lab = labeling;
-        m_labelingMetadata = new LabelingCellMetadata(metadata, Views.iterable(labeling).size(), dimensions, null);
+        m_metadataAccess = new CachedObjectAccess<LabelingCellMetadata>(fileStore,
+                new LabelingCellMetadata(metadata, Views.iterable(labeling).size(), dimensions, null));
+        m_labelingAccess = new CachedObjectAccess<>(fileStore, labeling);
         m_fileMetadata = new FileStoreCellMetadata(-1, false, null);
 
-    }
+        CACHE.put(this, this);
 
-    /*
-     * Helper to create the respective input stream (e.g. if zip file or
-     * not)
-     */
-    private BufferedDataInputStream createInputStream(final File f, final long offset) throws IOException {
-        BufferedDataInputStream stream = null;
-        try {
-            if (f.getName().endsWith(KNIPConstants.ZIP_SUFFIX)) {
-                final FileInputStream fileInput = new FileInputStream(f);
-                fileInput.skip(offset);
-                final ZipInputStream zip = new ZipInputStream(fileInput);
-                zip.getNextEntry();
-                stream = new BufferedDataInputStream(zip);
-            } else {
-                stream = new BufferedDataInputStream(new FileInputStream(f));
-                stream.skip(offset);
-            }
-        } catch (IOException e) {
-            if (stream != null) {
-                stream.close();
-            }
-            throw e;
-        }
-        return stream;
     }
 
     private BufferedImage createThumbnail(final double factor) {
-        LOGGER.debug("Create thumbnail of labeling ...");
-
         // make sure that at least two dimensions exist
         RandomAccessibleInterval<LabelingType<L>> lab2d;
-        if (m_lab.numDimensions() > 1) {
-            lab2d = m_lab;
+        if (m_labelingAccess.get().numDimensions() > 1) {
+            lab2d = m_labelingAccess.get();
         } else {
-            lab2d = Views.addDimension(m_lab, 0, 0);
+            lab2d = Views.addDimension(m_labelingAccess.get(), 0, 0);
         }
         // set the labeling mapping
         final ColorLabelingRenderer<L> rend = new ColorLabelingRenderer<L>();
@@ -219,13 +183,13 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
             }
         }
         final RandomAccessibleInterval<LabelingType<L>> toRender;
-        if (m_lab == lab2d) {
+        if (m_labelingAccess == lab2d) {
             toRender = getSubInterval(new FinalInterval(new long[lab2d.numDimensions()], max));
         } else {
             toRender = lab2d;
         }
         rend.setLabelingColorTable(LabelingColorTableUtils
-                .extendLabelingColorTable(m_labelingMetadata.getLabelingMetadata().getLabelingColorTable(),
+                .extendLabelingColorTable(m_metadataAccess.get().getLabelingMetadata().getLabelingColorTable(),
                                           new RandomMissingColorHandler()));
         return AWTImageTools.renderScaledStandardColorImg(toRender, rend, factor, new long[max.length]);
     }
@@ -243,8 +207,7 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
      */
     @Override
     public synchronized CalibratedSpace<CalibratedAxis> getCalibratedSpace() {
-        readLabelingData(m_fileMetadata.getOffset(), true);
-        return m_labelingMetadata.getLabelingMetadata();
+        return m_metadataAccess.get().getLabelingMetadata();
     }
 
     /**
@@ -252,8 +215,7 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
      */
     @Override
     public synchronized long[] getDimensions() {
-        readLabelingData(m_fileMetadata.getOffset(), true);
-        return m_labelingMetadata.getDimensions();
+        return m_metadataAccess.get().getDimensions();
     }
 
     /**
@@ -261,9 +223,7 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
      */
     @Override
     public synchronized RandomAccessibleInterval<LabelingType<L>> getLabeling() {
-        // lazily load the labeling data only on demand
-        readLabelingData(m_fileMetadata.getOffset(), false);
-        return m_lab;
+        return m_labelingAccess.get();
     }
 
     /**
@@ -271,22 +231,21 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
      */
     @Override
     public synchronized LabelingMetadata getLabelingMetadata() {
-        readLabelingData(m_fileMetadata.getOffset(), true);
-        return m_labelingMetadata.getLabelingMetadata();
+        return m_metadataAccess.get().getLabelingMetadata();
     }
 
     private LabelingCellMetadata getLabelingMetadataToWrite() {
+        final LabelingCellMetadata tmp = m_metadataAccess.get();
         int height = KNIMEKNIPPlugin.getMaximumImageCellHeight();
         if (height == 0) {
-            height = (int)m_labelingMetadata.getDimensions()[1];
+            height = (int)tmp.getDimensions()[1];
         }
         final int width = getThumbnailWidth(height);
-        if (((height * width) / (double)m_labelingMetadata.getSize()) < KNIMEKNIPPlugin.getThumbnailImageRatio()) {
+        if (((height * width) / (double)tmp.getSize()) < KNIMEKNIPPlugin.getThumbnailImageRatio()) {
             getThumbnail(null);
-            return m_labelingMetadata;
+            return tmp;
         } else {
-            return new LabelingCellMetadata(m_labelingMetadata.getLabelingMetadata(), m_labelingMetadata.getSize(),
-                    m_labelingMetadata.getDimensions(), null);
+            return new LabelingCellMetadata(tmp.getLabelingMetadata(), tmp.getSize(), tmp.getDimensions(), null);
         }
 
     }
@@ -296,10 +255,10 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
      */
     @Override
     public synchronized long[] getMaximum() {
-        readLabelingData(m_fileMetadata.getOffset(), true);
-        final long[] max = new long[m_labelingMetadata.getDimensions().length];
+        final LabelingCellMetadata labelingCellMetadata = m_metadataAccess.get();
+        final long[] max = new long[labelingCellMetadata.getDimensions().length];
         for (int i = 0; i < max.length; i++) {
-            max[i] = m_labelingMetadata.getDimensions()[i] - 1;
+            max[i] = labelingCellMetadata.getDimensions()[i] - 1;
         }
         return max;
     }
@@ -309,8 +268,8 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
      */
     @Override
     public synchronized long[] getMinimum() {
-        readLabelingData(m_fileMetadata.getOffset(), true);
-        final long[] min = new long[m_labelingMetadata.getDimensions().length];
+        final LabelingCellMetadata labelingCellMetadata = m_metadataAccess.get();
+        final long[] min = new long[labelingCellMetadata.getDimensions().length];
         return min;
     }
 
@@ -319,8 +278,7 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
      */
     @Override
     public synchronized Named getName() {
-        readLabelingData(m_fileMetadata.getOffset(), true);
-        return m_labelingMetadata.getLabelingMetadata();
+        return m_metadataAccess.get().getLabelingMetadata();
     }
 
     /**
@@ -328,8 +286,7 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
      */
     @Override
     public synchronized Sourced getSource() {
-        readLabelingData(m_fileMetadata.getOffset(), true);
-        return m_labelingMetadata.getLabelingMetadata();
+        return m_metadataAccess.get().getLabelingMetadata();
     }
 
     /**
@@ -337,35 +294,31 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
      */
     @Override
     public synchronized String getStringValue() {
-        if (m_labelingMetadata == null) {
-            return "Labeling could not be loaded. Possibly the underlying file has already been removed. Please contact a developer.";
-        }
-
-        readLabelingData(m_fileMetadata.getOffset(), true);
+        final LabelingCellMetadata tmp = m_metadataAccess.get();
         final StringBuffer sb = new StringBuffer();
         sb.append("Labeling[\nname=");
-        sb.append(m_labelingMetadata.getLabelingMetadata().getName());
+        sb.append(tmp.getLabelingMetadata().getName());
         sb.append(";\nsource=");
-        sb.append(m_labelingMetadata.getLabelingMetadata().getSource());
+        sb.append(tmp.getLabelingMetadata().getSource());
         sb.append(";\ndimensions=");
-        final int numDims = m_labelingMetadata.getDimensions().length;
+        final int numDims = tmp.getDimensions().length;
         for (int i = 0; i < (numDims - 1); i++) {
-            sb.append(m_labelingMetadata.getDimensions()[i]);
+            sb.append(tmp.getDimensions()[i]);
             sb.append(",");
         }
-        sb.append(m_labelingMetadata.getDimensions()[numDims - 1]);
+        sb.append(tmp.getDimensions()[numDims - 1]);
         sb.append(" (");
         for (int i = 0; i < (numDims - 1); i++) {
-            sb.append(m_labelingMetadata.getLabelingMetadata().axis(i).type().getLabel());
+            sb.append(tmp.getLabelingMetadata().axis(i).type().getLabel());
             sb.append(",");
         }
-        sb.append(m_labelingMetadata.getLabelingMetadata().axis(numDims - 1).type().getLabel());
+        sb.append(tmp.getLabelingMetadata().axis(numDims - 1).type().getLabel());
         sb.append(")]");
         return sb.toString();
     }
 
     private RandomAccessibleInterval<LabelingType<L>> getSubInterval(final Interval interval) {
-        return SubsetOperations.subsetview(m_lab, interval);
+        return SubsetOperations.subsetview(m_labelingAccess.get(), interval);
     }
 
     /**
@@ -381,38 +334,37 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
             final int height = 200;
             return AWTImageTools.makeTextBufferedImage(getStringValue(), height * 3, height, "\n");
         } else {
-            readLabelingData(m_fileMetadata.getOffset(), true);
 
             double height = 1; // default for 1d images
             double fullHeight = 1;
 
-            if (m_labelingMetadata.getDimensions().length > 1) {
-                height = Math.min(m_labelingMetadata.getDimensions()[1], KNIMEKNIPPlugin.getMaximumImageCellHeight());
+            LabelingCellMetadata tmp = m_metadataAccess.get();
+            if (tmp.getDimensions().length > 1) {
+                height = Math.min(tmp.getDimensions()[1], KNIMEKNIPPlugin.getMaximumImageCellHeight());
                 if (height == 0) {
-                    height = m_labelingMetadata.getDimensions()[1];
+                    height = tmp.getDimensions()[1];
                 }
 
-                fullHeight = m_labelingMetadata.getDimensions()[1];
+                fullHeight = tmp.getDimensions()[1];
             }
-            if ((m_labelingMetadata.getThumbnail() == null)
-                    || (m_labelingMetadata.getThumbnail().getHeight() != height)) {
-                readLabelingData(m_fileMetadata.getOffset(), false);
-                m_labelingMetadata =
-                        new LabelingCellMetadata(m_labelingMetadata.getLabelingMetadata(), m_labelingMetadata.getSize(),
-                                m_labelingMetadata.getDimensions(), createThumbnail(height / fullHeight));
+            if ((tmp.getThumbnail() == null) || (tmp.getThumbnail().getHeight() != height)) {
+                m_metadataAccess = new CachedObjectAccess<LabelingCellMetadata>(getFileStore(),
+                        tmp = new LabelingCellMetadata(tmp.getLabelingMetadata(), tmp.getSize(), tmp.getDimensions(),
+                                createThumbnail(height / fullHeight)));
                 // update cached object
-                m_objectRepository.put(this, this);
+                CACHE.put(this, this);
             }
-            return m_labelingMetadata.getThumbnail();
+            return tmp.getThumbnail();
         }
 
     }
 
     private int getThumbnailWidth(final int height) {
-        if (m_lab.numDimensions() == 1) {
-            return (int)m_lab.dimension(0);
+        final LabelingCellMetadata tmp = m_metadataAccess.get();
+        if (tmp.getDimensions().length == 1) {
+            return (int)tmp.getDimensions()[0];
         } else {
-            return (int)(((double)m_lab.dimension(0) / m_lab.dimension(1)) * height);
+            return (int)(((double)tmp.getDimensions()[0] / tmp.getDimensions()[1]) * height);
         }
     }
 
@@ -432,12 +384,6 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
      */
     protected synchronized void load(final DataInput input) throws IOException {
 
-        LOGGER.debug("Load file metadata...");
-
-        // BufferedDataInputStream stream = new
-        // BufferedDataInputStream(
-        // (InputStream) input);
-
         try {
             // work-around for bug#3578
             // m_fileMetadata =
@@ -451,7 +397,6 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
             if (e instanceof IOException) {
                 throw (IOException)e;
             }
-            LOGGER.error("Exception while reading the labeling cell  metadata", e);
         }
     }
 
@@ -460,52 +405,32 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
      */
     @Override
     protected void postConstruct() {
-        // use this, if lazy loading is not wanted
-        // readLabelingData(m_fileMetadata.getOffset());
-    }
 
-    /*
-     * reads the labeling data including metadata, dimensions, thumbnail
-     * etc.
-     */
-    @SuppressWarnings("unchecked")
-    private synchronized void readLabelingData(final long offset, final boolean metadataOnly) {
+        @SuppressWarnings("unchecked")
+        final LabelingCell<L> tmp = (LabelingCell<L>)CACHE.get(this);
 
-        if ((metadataOnly && (m_labelingMetadata != null)) || (!metadataOnly && (m_lab != null))) {
-            return;
-        }
+        if (tmp == null) {
+            // Creates empty CachedObjectAccesses which know how to reconstruct the managed objects.
+            m_metadataAccess = new CachedObjectAccess<>(getFileStore(), null, m_fileMetadata.getOffset(), null);
+            m_labelingAccess =
+                    new CachedObjectAccess<>(getFileStore(), null, m_fileMetadata.getOffset(), new StreamSkipper() {
+                        /**
+                         * {@inheritDoc}
+                         */
+                        @Override
+                        public void skip(final BufferedDataInputStream in) {
+                            try {
+                                m_metadataAccess.setObject(ExternalizerManager.read(in));
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    });
 
-        try {
-            final Object tmp = m_objectRepository.get(this);
-            if ((tmp == null) || (!metadataOnly && (((LabelingCell<L>)tmp).m_lab == null))) {
-                if (!metadataOnly) {
-                    final File f = getFileStore().getFile();
-                    final BufferedDataInputStream stream = createInputStream(f, offset);
-
-                    // read labeling if not a file store img
-                    LOGGER.debug("Load labeling data...");
-                    m_labelingMetadata = ExternalizerManager.read(stream);
-                    m_lab = ExternalizerManager.read(stream);
-                    stream.close();
-                } else {
-                    final File f = getFileStore().getFile();
-                    final BufferedDataInputStream stream = createInputStream(f, offset);
-
-                    LOGGER.debug("Load labeling metadata...");
-                    m_labelingMetadata = ExternalizerManager.read(stream);
-                    stream.close();
-                }
-                m_objectRepository.put(this, this);
-
-            } else {
-
-                final LabelingCell<L> cell = (LabelingCell<L>)tmp;
-                m_labelingMetadata = cell.m_labelingMetadata;
-                m_lab = cell.m_lab;
-            }
-
-        } catch (final Exception e) {
-            LOGGER.error("Cannot read labeling.", e);
+            CACHE.put(this, this);
+        } else {
+            m_labelingAccess = tmp.m_labelingAccess;
+            m_metadataAccess = tmp.m_metadataAccess;
         }
 
     }
@@ -533,11 +458,6 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
             if (e instanceof IOException) {
                 throw (IOException)e;
             }
-            LOGGER.error("Exception while writing the LabelingCell metadata", e);
-            // } finally {
-            // stream.flush();
-            // stream.close();
-
         }
 
     }
@@ -553,11 +473,11 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
         // if the image data wasn't made persitent yet ...
         if (!isPersistent) {
             final File file = getFileStore().getFile();
-            LOGGER.debug("Save in file " + file.getName() + " ...");
             offset = file.length();
 
-            // write image data
-            writeLabelingData(file);
+            m_metadataAccess.setObject(getLabelingMetadataToWrite());
+            m_metadataAccess.serialize();
+            m_labelingAccess.serialize();
         }
 
         m_fileMetadata = new FileStoreCellMetadata(offset, true, null);
@@ -569,32 +489,6 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
     @Override
     public String toString() {
         return getStringValue();
-    }
-
-    /* writes the labeling data including the metadata */
-    private void writeLabelingData(final File file) throws IOException {
-        // write image data if not a FileStoreImg
-        BufferedDataOutputStream stream;
-        if (file.getName().endsWith(KNIPConstants.ZIP_SUFFIX)) {
-            final ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(file, true));
-            zip.putNextEntry(new ZipEntry("labeling"));
-            stream = new BufferedDataOutputStream(zip);
-        } else {
-            stream = new BufferedDataOutputStream(new FileOutputStream(file, true));
-        }
-        try {
-            ExternalizerManager.write(stream, getLabelingMetadataToWrite());
-            ExternalizerManager.write(stream, m_lab);
-        } catch (final Exception e) {
-            if (e instanceof IOException) {
-                throw (IOException)e;
-            }
-            LOGGER.error("Error in saving labeling data.", e);
-        } finally {
-            stream.flush();
-            stream.close();
-        }
-
     }
 
 }
