@@ -145,6 +145,7 @@ public class CachedObjectAccess<O> {
                     }
 
                     final O obj = ExternalizerManager.read(stream);
+                    stream.close();
                     CACHE.put(ID, obj);
                     return obj;
                 }
