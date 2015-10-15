@@ -326,34 +326,42 @@ public class ImgCanvas<T extends Type<T>, I extends RandomAccessibleInterval<T>>
 
     private void fireImageCoordMousePressed(final MouseEvent e) {
         if (!isMouseEventBlocked()) {
+            int w = m_imageCanvas.getWidth() - (int)(m_image.getWidth(null) * m_factors[0]);
+            int h = m_imageCanvas.getHeight() - (int)(m_image.getHeight(null) * m_factors[1]);
             m_eventService
-                    .publish(new ImgViewerMousePressedEvent(e, m_factors, m_image.getWidth(), m_image.getHeight()));
+                    .publish(new ImgViewerMousePressedEvent(e, m_factors, m_image.getWidth(), m_image.getHeight(), w/2, h/2));
         }
 
     }
 
     private void fireImageCoordMouseReleased(final MouseEvent e) {
         if (!isMouseEventBlocked()) {
+            int w = m_imageCanvas.getWidth() - (int)(m_image.getWidth(null) * m_factors[0]);
+            int h = m_imageCanvas.getHeight() - (int)(m_image.getHeight(null) * m_factors[1]);
             m_eventService.publish(
             // TODO CHANGE HERE TO FACTORS
-                    new ImgViewerMouseReleasedEvent(e, m_factors, m_image.getWidth(), m_image.getHeight()));
+                    new ImgViewerMouseReleasedEvent(e, m_factors, m_image.getWidth(), m_image.getHeight(), w/2, h/2));
         }
 
     }
 
     private void fireImageCoordMouseDragged(final MouseEvent e) {
         if (!isMouseEventBlocked()) {
+            int w = m_imageCanvas.getWidth() - (int)(m_image.getWidth(null) * m_factors[0]);
+            int h = m_imageCanvas.getHeight() - (int)(m_image.getHeight(null) * m_factors[1]);
             m_eventService.publish(
             // TODO CHANGE HERE TO FACTORS
-                    new ImgViewerMouseDraggedEvent(e, m_factors, m_image.getWidth(), m_image.getHeight()));
+                    new ImgViewerMouseDraggedEvent(e, m_factors, m_image.getWidth(), m_image.getHeight(), w/2, h/2));
         }
 
     }
 
     private void fireImageCoordMouseMoved(final MouseEvent e) {
         if (!isMouseEventBlocked()) {
+            int w = m_imageCanvas.getWidth() - (int)(m_image.getWidth(null) * m_factors[0]);
+            int h = m_imageCanvas.getHeight() - (int)(m_image.getHeight(null) * m_factors[1]);
             // TODO CHANGE HERE TO FACTORS
-            m_eventService.publish(new ImgViewerMouseMovedEvent(e, m_factors, m_image.getWidth(), m_image.getHeight()));
+            m_eventService.publish(new ImgViewerMouseMovedEvent(e, m_factors, m_image.getWidth(), m_image.getHeight(), w/2, h/2));
         }
 
     }

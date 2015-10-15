@@ -48,7 +48,7 @@
  */
 package org.knime.knip.io.nodes.annotation.edit.tools;
 
-import java.util.Collection;
+import java.util.Set;
 
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.event.EventServiceClient;
@@ -86,18 +86,21 @@ public abstract class AbstractLabelingEditorTool implements EventServiceClient {
 		m_eventService = e;
 	}
 
-	public abstract void onLeftClick(Collection<String> labels,
-			String[] selectedLabels);
+	public abstract void onLeftClick(Set<String> labels, String[] selectedLabels);
 
-	public abstract void onRightClick(Collection<String> labels,
-			String[] selectedLabels);
+	public abstract void onRightClick(Set<String> labels, String[] selectedLabels);
 
-	public void onMousePressed(final ImgViewerMouseEvent e,
-			final Collection<String> labels, String[] selectedLabels) {
+	public abstract void onCtrlRightClick(Set<String> labels, String[] selectedLabels);
+
+	public void onMousePressed(final ImgViewerMouseEvent e, Set<String> labels, String[] selectedLabels,
+			boolean control) {
 		if (e.isLeftDown())
 			onLeftClick(labels, selectedLabels);
 		else if (e.isRightDown())
-			onRightClick(labels, selectedLabels);
+			if (e.isControlDown())
+				onCtrlRightClick(labels, selectedLabels);
+			else
+				onRightClick(labels, selectedLabels);
 
 	}
 

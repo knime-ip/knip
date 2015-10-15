@@ -53,11 +53,6 @@ import java.awt.Color;
 import java.awt.Image;
 import java.util.Set;
 
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.display.screenimage.awt.AWTScreenImage;
-import net.imglib2.roi.labeling.LabelingMapping;
-import net.imglib2.roi.labeling.LabelingType;
-
 import org.knime.knip.core.awt.AWTImageTools;
 import org.knime.knip.core.awt.labelingcolortable.LabelingColorTable;
 import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableRenderer;
@@ -67,6 +62,7 @@ import org.knime.knip.core.awt.parametersupport.RendererWithHilite;
 import org.knime.knip.core.awt.parametersupport.RendererWithLabels;
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorResetEvent;
+import org.knime.knip.core.ui.imgviewer.events.ForcedImgRedrawEvent;
 import org.knime.knip.core.ui.imgviewer.events.HilitedLabelsChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelColoringChangeEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelOptionsChangeEvent;
@@ -75,6 +71,10 @@ import org.knime.knip.core.ui.imgviewer.events.LabelPanelVisibleLabelsChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelingWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter.Operator;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
+
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.display.screenimage.awt.AWTScreenImage;
+import net.imglib2.roi.labeling.LabelingType;
 
 /*
  * This class could be likely split into multiple following the one class one responsibility paradigm. However
@@ -105,8 +105,6 @@ public class LabelingRU<L> extends AbstractDefaultRU<LabelingType<L>> {
 
     private LabelingColorTable m_labelingColorMapping;
 
-    private LabelingMapping<L> m_labelMapping;
-
     private Set<String> m_activeLabels;
 
     private Operator m_operator;
@@ -116,6 +114,8 @@ public class LabelingRU<L> extends AbstractDefaultRU<LabelingType<L>> {
     private Color m_boundingBoxColor = LabelingColorTableUtils.getBoundingBoxColor();
 
     private boolean m_withLabelStrings = false;
+
+    private int m_forceupdate = 0;
 
     /* hilite */
 
@@ -134,8 +134,8 @@ public class LabelingRU<L> extends AbstractDefaultRU<LabelingType<L>> {
             final RendererWithLabels<L> r = (RendererWithLabels<L>)m_renderer;
             r.setActiveLabels(m_activeLabels);
             r.setOperator(m_operator);
-            r.setLabelMapping(m_labelMapping);
             r.setRenderingWithLabelStrings(m_withLabelStrings);
+
         }
 
         if ((m_renderer instanceof RendererWithHilite) && (m_hilitedLabels != null)) {
@@ -168,7 +168,7 @@ public class LabelingRU<L> extends AbstractDefaultRU<LabelingType<L>> {
             hash *= 31;
             hash += m_labelingColorMapping.hashCode();
             hash *= 31;
-            hash += m_labelMapping.hashCode();
+            hash += m_src.randomAccess().get().hashCode();
             hash *= 31;
             ////////
             if (m_activeLabels != null) {
@@ -198,7 +198,7 @@ public class LabelingRU<L> extends AbstractDefaultRU<LabelingType<L>> {
             }
             /////////
         }
-        return hash;
+        return hash + m_forceupdate;
     }
 
     @Override
@@ -215,10 +215,15 @@ public class LabelingRU<L> extends AbstractDefaultRU<LabelingType<L>> {
     @EventListener
     public void onUpdated(final LabelingWithMetadataChgEvent<L> e) {
         m_src = e.getRandomAccessibleInterval();
-        m_labelMapping = e.getIterableInterval().firstElement().getMapping();
         m_labelingColorMapping =
                 LabelingColorTableUtils.extendLabelingColorTable(e.getLabelingMetaData().getLabelingColorTable(),
                                                                  new RandomMissingColorHandler());
+    }
+
+    @EventListener
+    public void onForcedUpdate(final ForcedImgRedrawEvent e){
+        m_forceupdate++;
+
     }
 
     /**
@@ -274,7 +279,6 @@ public class LabelingRU<L> extends AbstractDefaultRU<LabelingType<L>> {
         m_lastImage = null;
         m_src = null;
         m_labelingColorMapping = null;
-        m_labelMapping = null;
         m_activeLabels = null;
         m_operator = null;
         m_colorMapGeneration = RandomMissingColorHandler.getGeneration();

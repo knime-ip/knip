@@ -53,30 +53,20 @@ import java.util.Collection;
 import org.knime.knip.core.ui.event.KNIPEvent;
 
 /**
- * Event used by Tools of the InteractiveLabelingEditor to notify the manager of
- * desired removals from labels.
+ * TBD.
  * 
  * @author Andreas Burger, University of Konstanz
  */
 public class LabelingEditorDeleteEvent implements KNIPEvent {
 
-	private final Collection<String> m_labels;
+	private Collection<String> m_labelsToDelete;
 
-	private final Collection<String> m_delete;
-
-	public LabelingEditorDeleteEvent(final Collection<String> labels,
-			final Collection<String> deletedLabels) {
-		m_labels = labels;
-		m_delete = deletedLabels;
-
+	public Collection<String> getDeletedLabels() {
+		return m_labelsToDelete;
 	}
 
-	public Collection<String> getModifiedLabels() {
-		return m_labels;
-	}
-
-	public Collection<String> getDeletedLabel() {
-		return m_delete;
+	public LabelingEditorDeleteEvent(Collection<String> labelsToDelete) {
+		m_labelsToDelete = labelsToDelete;
 	}
 
 	@Override
@@ -84,11 +74,8 @@ public class LabelingEditorDeleteEvent implements KNIPEvent {
 		return ExecutionPriority.NORMAL;
 	}
 
-	/**
-	 * implements object equality {@inheritDoc}
-	 */
 	@Override
-	public <E extends KNIPEvent> boolean isRedundant(final E thatEvent) {
-		return this.equals(thatEvent);
+	public <E extends KNIPEvent> boolean isRedundant(E thatEvent) {
+		return false;
 	}
 }

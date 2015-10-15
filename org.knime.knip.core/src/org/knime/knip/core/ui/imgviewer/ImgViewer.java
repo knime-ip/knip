@@ -394,7 +394,7 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
      *            {@link ViewerComponent}
      *
      */
-    public void addViewerComponent(final ViewerComponent panel, final boolean setEventService) {
+    public void addViewerComponent(final ViewerComponent panel, final boolean setEventService, final boolean dynamicSize) {
 
         if (setEventService) {
             panel.setEventService(m_eventService);
@@ -429,11 +429,17 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
                 GridBagConstraints gbc = new GridBagConstraints();
                 gbc.insets = new Insets(5, 0, 5, 0);
                 gbc.weightx = 1;
-                gbc.weighty = 0;
+                if(dynamicSize) {
+                    gbc.weighty = 1;
+                    gbc.fill = GridBagConstraints.BOTH;
+                } else {
+                    gbc.weighty = 0;
+                    gbc.fill = GridBagConstraints.HORIZONTAL;
+                }
                 gbc.anchor = GridBagConstraints.CENTER;
                 gbc.gridx = 0;
                 gbc.gridy = m_currentSlot++;
-                gbc.fill = GridBagConstraints.HORIZONTAL;
+
                 gbc.gridheight = 1;
                 gbc.gridwidth = GridBagConstraints.REMAINDER;
                 m_rightPanel.add(panel, gbc);
@@ -443,6 +449,11 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
         }
 
+    }
+
+    public void addViewerComponent(final ViewerComponent panel, final boolean setEventService)
+    {
+        addViewerComponent(panel, setEventService, false);
     }
 
     /**

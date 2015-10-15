@@ -54,7 +54,7 @@ import java.awt.event.MouseEvent;
 import org.knime.knip.core.ui.event.KNIPEvent;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -92,22 +92,31 @@ public abstract class ImgViewerMouseEvent implements KNIPEvent {
 
     private final double m_factorB;
 
+    private final int m_xOffset;
+
+    private final int m_yOffset;
+
     /**
      * @param e
      * @param factors
      * @param imgWidth
      * @param imgHeight
      */
-    public ImgViewerMouseEvent(final MouseEvent e, final double[] factors, final int imgWidth, final int imgHeight) {
+    public ImgViewerMouseEvent(final MouseEvent e, final double[] factors, final int imgWidth, final int imgHeight,
+                               final int xoffset, final int yoffset) {
 
         m_factorA = factors[0];
         m_factorB = factors[1];
 
-        m_e = e;
-        setInside(isInsideImgView(imgWidth, imgHeight));
+        m_xOffset = xoffset;
+        m_yOffset = yoffset;
 
-        m_posX = (int)Math.min(e.getX() / m_factorA, imgWidth);
-        m_posY = (int)Math.min(e.getY() / m_factorB, imgHeight);
+        m_e = e;
+
+        m_posX = (int)(Math.max(Math.min((e.getX() - xoffset) / m_factorA, imgWidth), -1));
+        m_posY = (int)Math.max(Math.min((e.getY() - yoffset) / m_factorB, imgHeight), -1);
+
+        setInside(isInsideImgView(imgWidth, imgHeight));
 
         m_id = e.getID();
         m_consumed = false;
@@ -117,6 +126,7 @@ public abstract class ImgViewerMouseEvent implements KNIPEvent {
         m_clickCount = e.getClickCount();
         m_isPopupTrigger = e.isPopupTrigger();
         m_isControlDown = e.isControlDown();
+
     }
 
     /*
@@ -125,8 +135,7 @@ public abstract class ImgViewerMouseEvent implements KNIPEvent {
      */
     public boolean isInsideImgView(final long dimA, final long dimB) {
 
-        return !(((m_e.getX() / m_factorA) >= dimA) || ((m_e.getX() / m_factorA) < 0)
-                || ((m_e.getY() / m_factorB) >= dimB) || ((m_e.getY() / m_factorB) < 0));
+        return !((m_posX >= dimA) || (m_posX < 0) || (m_posY >= dimB) || (m_posY < 0));
     }
 
     /**

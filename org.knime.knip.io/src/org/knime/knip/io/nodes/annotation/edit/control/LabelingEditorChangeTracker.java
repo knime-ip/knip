@@ -1,361 +1,276 @@
-//package org.knime.knip.io.nodes.annotation.edit.control;
-//
-//import java.util.ArrayList;
-//import java.util.Arrays;
-//import java.util.Collection;
-//import java.util.Collections;
-//import java.util.HashMap;
-//import java.util.Iterator;
-//import java.util.LinkedList;
-//import java.util.List;
-//import java.util.Map;
-//import java.util.Set;
-//
-//import net.imglib2.converter.Converter;
-//import net.imglib2.roi.labeling.LabelingType;
-//
-//import org.knime.core.node.InvalidSettingsException;
-//import org.knime.core.node.NodeSettingsRO;
-//import org.knime.core.node.NodeSettingsWO;
-//import org.knime.knip.core.ui.event.EventService;
-//import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorListChangedEvent;
-//
-///**
-// * This Class is an implementation of the @Converter interface, used to convert
-// * labels into modified versions of themselves on the fly.
-// * 
-// * @author Andreas Burger, University of Konstanz
-// * 
-// */
-//public class LabelingEditorChangeTracker implements
-//		Converter<LabelingType<String>, LabelingType<String>> {
-//
-//	/**
-//	 * This class maps the original list to its current representation and
-//	 * provides additional services such as renaming and filtering.
-//	 */
-//
-//	// Maps the original labels to the current changed version. Uses Lists of
-//	// Strings for easy access.
-//	private Map<List<String>, List<String>> m_changedLabels = new HashMap<List<String>, List<String>>();
-//
-//	private int m_generation = 0;
-//
-//	private boolean m_filter = false;
-//
-//	private List<String> m_entriesToKeep;
-//
-//	private EventService m_EventService;
-//
-//	/**
-//	 * Remove an entry from the modified list associated with a given list
-//	 * 
-//	 * @param list
-//	 *            The list from which to delete entries
-//	 * @param deletedEntries
-//	 *            The entries to delete
-//	 */
-//	public void remove(final List<String> list,
-//			final List<String> deletedEntries) {
-//
-//		List<String> mappedEntry = m_changedLabels.get(list);
-//
-//		if (mappedEntry != null) {
-//			boolean changed = mappedEntry.removeAll(deletedEntries);
-//			if (changed) {
-//				intern(mappedEntry);
-//				if (m_filter)
-//					checkForFiltered(mappedEntry);
-//				++m_generation;
-//			}
-//		} else {
-//			m_changedLabels.put(list, new LinkedList<String>(list));
-//			remove(list, deletedEntries);
-//		}
-//
-//	}
-//
-//	/**
-//	 * Insert an entry into the modified list associated with a given list
-//	 * 
-//	 * @param list
-//	 *            The list in which to insert entries
-//	 * @param addedEntries
-//	 *            The entries to add
-//	 */
-//	public void insert(final List<String> list, final List<String> addedEntries) {
-//
-//		List<String> mappedEntry = m_changedLabels.get(list);
-//
-//		if (mappedEntry != null) {
-//			boolean changed = false;
-//			for (String s : addedEntries)
-//				if (!mappedEntry.contains(s)) {
-//					mappedEntry.add(s);
-//					changed = true;
-//				}
-//			Collections.sort(mappedEntry);
-//			if (changed) {
-//				intern(mappedEntry);
-//				if (m_filter)
-//					checkForFiltered(mappedEntry);
-//
-//				++m_generation;
-//			}
-//		} else {
-//			m_changedLabels.put(list, new LinkedList<String>(list));
-//			insert(list, addedEntries);
-//		}
-//
-//	}
-//
-//	private void intern(final List<String> listToIntern) {
-//		m_EventService
-//				.publish(new LabelingEditorListChangedEvent(listToIntern));
-//	}
-//
-//	public void saveSettingsTo(final NodeSettingsWO settings, final int index) {
-//
-//		final String prefix = "ANNOTATOR_TRACKER_" + index;
-//
-//		saveMap(settings, prefix + "_MODIFICATIONS_", m_changedLabels);
-//
-//	}
-//
-//	/**
-//	 * Load the trackers settings.
-//	 * 
-//	 * @param settings
-//	 *            Settings to load from
-//	 * @param index
-//	 *            The index of the tracker, used do differentiate between
-//	 *            several trackers
-//	 * @throws InvalidSettingsException
-//	 */
-//	public void loadSettingsFrom(final NodeSettingsRO settings, final int index)
-//			throws InvalidSettingsException {
-//		final String prefix = "ANNOTATOR_TRACKER_" + index;
-//
-//		loadLabelMaps(settings, prefix);
-//
-//	}
-//
-//	/**
-//	 * Saves the labeling-map
-//	 * 
-//	 * @param settings
-//	 *            Settings to save to
-//	 * @param prefix
-//	 *            Unique prefix, used to determine the right map of the right
-//	 *            tracker
-//	 * @param map
-//	 *            The map to save
-//	 */
-//	private void saveMap(final NodeSettingsWO settings, final String prefix,
-//			final Map<List<String>, List<String>> map) {
-//
-//		final int internedLists = map.keySet().size();
-//		int i = 0;
-//		settings.addInt(prefix + "NUMSETS_INSERT", internedLists);
-//		final Iterator<List<String>> it = map.keySet().iterator();
-//		while (it.hasNext()) {
-//			final List<String> l = it.next();
-//			settings.addStringArray(prefix + "INSERT_KEY_" + i,
-//					l.toArray(new String[0]));
-//			final List<String> s = map.get(l);
-//			settings.addStringArray(prefix + "INSERT_VAL_" + i,
-//					s.toArray(new String[0]));
-//			++i;
-//		}
-//	}
-//
-//	/**
-//	 * Loads the maps containing the label changes.
-//	 * 
-//	 * @param settings
-//	 *            Settings to load from
-//	 * @param prefix
-//	 *            Unique prefix, used to determine the right map of the right
-//	 *            tracker
-//	 * @throws InvalidSettingsException
-//	 */
-//	private void loadLabelMaps(final NodeSettingsRO settings,
-//			final String prefix) throws InvalidSettingsException {
-//
-//		final String labelPrefix = prefix + "_MODIFICATIONS_";
-//
-//		final Map<List<String>, List<String>> changedLabels = new HashMap<List<String>, List<String>>();
-//
-//		final int internedLists = settings.getInt(labelPrefix
-//				+ "NUMSETS_INSERT");
-//		for (int i = 0; i < internedLists; ++i) {
-//			final String[] key = settings.getStringArray(labelPrefix
-//					+ "INSERT_KEY_" + i);
-//			final List<String> keyList = new LinkedList<String>();
-//			for (final String s : key)
-//				keyList.add(s);
-//			Collections.sort(keyList);
-//
-//			final String[] val = settings.getStringArray(labelPrefix
-//					+ "INSERT_VAL_" + i);
-//			final List<String> valSet = new LinkedList<String>();
-//			for (final String s : val)
-//				valSet.add(s);
-//
-//			changedLabels.put(keyList, valSet);
-//		}
-//		m_changedLabels = changedLabels;
-//	}
-//
-//	/**
-//	 * Enables the filtering of all values except those passed.
-//	 * 
-//	 * @param entriesToKeep
-//	 *            A List of labels to keep
-//	 */
-//	public void enableFiltering(List<String> entriesToKeep) {
-//		m_entriesToKeep = entriesToKeep;
-//		intern(new LinkedList<String>(Arrays.asList("#")));
-//		for (List<String> l : m_changedLabels.values()) {
-//			List<String> copy = new LinkedList<>(l);
-//			copy.retainAll(entriesToKeep);
-//			intern(copy);
-//		}
-//		++m_generation;
-//
-//		m_filter = true;
-//	}
-//
-//	/**
-//	 * After calling this method, the tracker will no longer filter out values
-//	 * not contained in its filter list.
-//	 */
-//	public void disableFiltering() {
-//		// If it was previously enabled, something might have changed.
-//		if (m_filter)
-//			++m_generation;
-//		m_filter = false;
-//		m_entriesToKeep = null;
-//
-//	}
-//
-//	@Override
-//	public int hashCode() {
-//
-//		return 31 * super.hashCode() + m_generation;
-//	}
-//
-//	/**
-//	 * Sets the event service of this tracker
-//	 * 
-//	 * @param e
-//	 *            Event Service to listen on
-//	 */
-//	public void setEventService(final EventService e) {
-//		m_EventService = e;
-//	}
-//
-//	@Override
-//	public void convert(final LabelingType<String> input,
-//			final LabelingType<String> output) {
-//
-//		final Set<String> old = input;
-//		List<String> modified = m_changedLabels.get(old);
-//
-//		boolean wasEmpty = false;
-//		if (old.isEmpty())
-//			wasEmpty = true;
-//
-//		if (modified == null) {
-//			modified = new ArrayList<String>(input);
-//
-//		}
-//
-//		if (m_filter) {
-//			modified = new ArrayList<>(modified);
-//			modified.retainAll(m_entriesToKeep);
-//			if (!wasEmpty && modified.isEmpty())
-//				modified.add("#");
-//		}
-//
-//		output.addAll(modified);
-//	}
-//
-//	/**
-//	 * Resets the tracker to an empty state.
-//	 */
-//	public void reset() {
-//		for (List<String> l : m_changedLabels.keySet())
-//			intern(l);
-//
-//		m_changedLabels.clear();
-//		m_generation++;
-//
-//	}
-//
-//	/**
-//	 * Returns the number of modifications known to this tracker.
-//	 * 
-//	 * @return The number of modified labelings
-//	 */
-//	public int getNumberOfModifiedLabels() {
-//		return m_changedLabels.keySet().size();
-//	}
-//
-//	/*
-//	 * Checks the passed list for values filtered out and interns the resulting
-//	 * list.
-//	 */
-//	private void checkForFiltered(Collection<String> list) {
-//		List<String> copy = new LinkedList<>(list);
-//		if (m_entriesToKeep != null)
-//			copy.retainAll(m_entriesToKeep);
-//		intern(copy);
-//	}
-//
-//	/**
-//	 * Forces the node to reset the current selection back to input by returning
-//	 * to initial values.
-//	 */
-//	public void restore() {
-//		for (final List<String> l : m_changedLabels.keySet())
-//			m_EventService.publish(new LabelingEditorListChangedEvent(l));
-//
-//		reset();
-//	}
-//
-//	/**
-//	 * Deletes the given Strings from all lists managed by this tracker.
-//	 * 
-//	 * @param deletedLabels
-//	 *            A List of labels to delete
-//	 */
-//	public void delete(Collection<String> deletedLabels) {
-//		for (List<String> l : m_changedLabels.values()) {
-//			l.removeAll(deletedLabels);
-//			intern(l);
-//		}
-//		++m_generation;
-//	}
-//
-//	/**
-//	 * Renames a label stored in this tracker.
-//	 * 
-//	 * @param oldName
-//	 *            The old name of the label
-//	 * @param newName
-//	 *            The designated new name
-//	 */
-//	public void rename(String oldName, String newName) {
-//		for (List<String> l : m_changedLabels.values()) {
-//			if (l.contains(oldName)) {
-//				l.remove(oldName);
-//				l.add(newName);
-//				checkForFiltered(l);
-//				intern(l);
-//			}
-//		}
-//		++m_generation;
-//	}
-//
-//}
+package org.knime.knip.io.nodes.annotation.edit.control;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.NodeSettingsWO;
+
+/**
+ * This Class is an implementation of the @Converter interface, used to convert
+ * labels into modified versions of themselves on the fly.
+ * 
+ * @author Andreas Burger, University of Konstanz
+ * 
+ */
+public class LabelingEditorChangeTracker {
+
+	/**
+	 * This class maps the original list to its current representation and
+	 * provides additional services such as renaming and filtering.
+	 */
+
+	// Maps the original labels to the current changed version. Uses Lists of
+	// Strings for easy access.
+	private final Map<Set<String>, Set<String>> m_map;
+
+	private final Map<String, Integer> m_occurrence;
+
+	private int m_generation = 1;
+
+	private boolean isFiltered;
+
+	private Set<String> m_filteredLabels;
+
+	public LabelingEditorChangeTracker() {
+		m_map = new HashMap<Set<String>, Set<String>>();
+		m_occurrence = new HashMap<String, Integer>();
+		m_filteredLabels = new HashSet<String>();
+	}
+
+	public boolean insert(Set<String> existingLabels, String newLabel) {
+		boolean changed = false;
+		Set<String> knownSet = m_map.get(existingLabels);
+		if (knownSet == null) {
+			changed = true;
+			Set<String> newEntry = new HashSet<String>(existingLabels);
+			newEntry.add(newLabel);
+			m_map.put(existingLabels, newEntry);
+		} else {
+			changed = knownSet.add(newLabel);
+			m_map.put(existingLabels, knownSet);
+		}
+		if (changed) {
+			m_generation++;
+			increaseCounter(newLabel);
+		}
+		return changed;
+	}
+
+	public boolean insert(Set<String> existingLabels, Set<String> newLabels) {
+		boolean changed = false;
+		Set<String> knownSet = m_map.get(existingLabels);
+		if (knownSet == null) {
+			changed = true;
+			Set<String> newEntry = new HashSet<String>(newLabels);
+			m_map.put(existingLabels, newEntry);
+		} else {
+			changed = knownSet.addAll(newLabels);
+			m_map.put(existingLabels, knownSet);
+		}
+		if (changed)
+			m_generation++;
+		return changed;
+	}
+
+	public boolean remove(Set<String> existingLabels, String labelToRemove) {
+		boolean changed = false;
+		Set<String> knownSet = m_map.get(existingLabels);
+		if (knownSet == null) {
+			changed = true;
+			Set<String> newSet = new HashSet<String>(existingLabels);
+			newSet.remove(labelToRemove);
+			m_map.put(existingLabels, newSet);
+		} else {
+			changed = knownSet.remove(labelToRemove);
+			m_map.put(existingLabels, knownSet);
+		}
+		if (changed) {
+			decreaseCounter(labelToRemove);
+			m_generation++;
+		}
+		return changed;
+	}
+
+	public void rename(String oldName, String newName) {
+		int count = 0;
+		for (Set<String> set : m_map.values()) {
+			if (set.remove(oldName)){
+				set.add(newName);
+				++count;
+			}
+		}
+		if (m_occurrence.containsKey(newName)) {
+			int newval = m_occurrence.get(newName);
+			newval += count;
+			m_occurrence.put(newName, newval);
+		} else
+			m_occurrence.put(newName, count);
+		
+		m_occurrence.remove(oldName);
+		m_generation++;
+
+	}
+
+	public void delete(String label) {
+		for (Set<String> set : m_map.values()) {
+			set.remove(label);
+		}
+		m_occurrence.remove(label);
+		m_generation++;
+	}
+
+	public Set<String> get(Set<String> key) {
+		Set<String> knownSet = m_map.get(key);
+		if (knownSet == null) {
+			knownSet = new HashSet<String>(key);
+			m_map.put(key, knownSet);
+		}
+
+		return new HashSet<String>(knownSet);
+	}
+
+	private void increaseCounter(String label) {
+		if (m_occurrence.containsKey(label)) {
+			Integer val = m_occurrence.get(label);
+			val = val + 1;
+			m_occurrence.put(label, val);
+		} else {
+			m_occurrence.put(label, 1);
+		}
+	}
+
+	private void decreaseCounter(String label) {
+		if (m_occurrence.containsKey(label)) {
+			Integer val = m_occurrence.get(label);
+			val = val - 1;
+			if (val != 0)
+				m_occurrence.put(label, val);
+			else
+				m_occurrence.remove(label);
+		}
+	}
+
+	public Set<String> getNewLabels() {
+		return m_occurrence.keySet();
+	}
+
+	public void clear() {
+		m_map.clear();
+		m_occurrence.clear();
+		m_generation++;
+	}
+
+	public Map<Set<String>, Set<String>> getMap() {
+		return m_map;
+	}
+
+	public void setFiltered(boolean filter) {
+		isFiltered = filter;
+	}
+
+	public boolean isFilteringEnabled() {
+		return isFiltered;
+	}
+
+	public void setFilteredLabels(Set<String> labels) {
+		m_filteredLabels = labels;
+		m_generation++;
+	}
+
+	public Set<String> getFilteredLabels() {
+		return m_filteredLabels;
+	}
+	
+	public Set<String> getCurrentLabels(List<Set<?>> originalLabels) {
+		Set<String> result = new HashSet<String>();
+		final Set<String> cache = new HashSet<String>();
+		for(Set<? extends Object> set: originalLabels)
+		{
+			cache.clear();
+			for(Object t : set)
+			{
+				cache.add(t.toString());
+			}
+			Set<String> newLabels = get(cache);
+			if(newLabels != null)
+				result.addAll(newLabels);
+		}
+		
+		
+		
+		
+		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+
+		return m_generation;
+	}
+
+	public void saveSettingsTo(NodeSettingsWO settings, int prefix) {
+		saveChangeMap(settings, "CHANGETRACKER_" + prefix);
+		saveCountMap(settings, "CHANGETRACKER_C_" + prefix);
+
+	}
+
+	private void saveChangeMap(NodeSettingsWO settings, String prefix) {
+		final int mappings = m_map.keySet().size();
+		int j = 0;
+		settings.addInt(prefix + "_NUMKEYS", mappings);
+		for (Set<String> key : m_map.keySet()) {
+			Set<String> val = m_map.get(key);
+			settings.addStringArray(prefix + "_KEY_" + j, key.toArray(new String[0]));
+			settings.addStringArray(prefix + "_VAL_" + j, val.toArray(new String[0]));
+			++j;
+		}
+	}
+
+	private void saveCountMap(NodeSettingsWO settings, String prefix) {
+		final int mappings = m_occurrence.keySet().size();
+		int j = 0;
+		settings.addInt(prefix + "_NUMKEYS", mappings);
+		for (String key : m_occurrence.keySet()) {
+			Integer val = m_occurrence.get(key);
+			settings.addString(prefix + "_KEY_" + j, key);
+			settings.addInt(prefix + "_VAL_" + j, val);
+			++j;
+		}
+	}
+
+	public void loadSettingsFrom(NodeSettingsRO settings, int prefix) throws InvalidSettingsException {
+		loadChangeMap(settings, "CHANGETRACKER_" + prefix);
+		loadCountMap(settings, "CHANGETRACKER_C_" + prefix);
+
+	}
+
+	private void loadChangeMap(NodeSettingsRO settings, String prefix) throws InvalidSettingsException {
+		final int mappings = settings.getInt(prefix + "_NUMKEYS");
+		for (int i = 0; i < mappings; ++i) {
+			String[] key = settings.getStringArray(prefix + "_KEY_" + i);
+			String[] val = settings.getStringArray(prefix + "_VAL_" + i);
+			m_map.put(new HashSet<String>(Arrays.asList(key)), new HashSet<String>(Arrays.asList(val)));
+		}
+	}
+
+	private void loadCountMap(NodeSettingsRO settings, String prefix) throws InvalidSettingsException {
+		final int mappings = settings.getInt(prefix + "_NUMKEYS");
+		for (int i = 0; i < mappings; ++i) {
+			String key = settings.getString(prefix + "_KEY_" + i);
+			Integer val = settings.getInt(prefix + "_VAL_" + i);
+			m_occurrence.put(key, val);
+		}
+	}
+
+}

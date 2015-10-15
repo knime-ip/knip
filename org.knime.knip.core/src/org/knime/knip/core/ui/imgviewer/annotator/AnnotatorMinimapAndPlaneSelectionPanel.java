@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2013
+ *  Copyright (C) 2003 - 2015
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -45,95 +45,83 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ---------------------------------------------------------------------
  *
+ * Created on Apr 17, 2015 by mdm210958
  */
-package org.knime.knip.core.awt.labelingcolortable;
+package org.knime.knip.core.ui.imgviewer.annotator;
 
-import gnu.trove.map.hash.TIntIntHashMap;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
-import java.util.Random;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+
+import org.knime.knip.core.ui.event.EventService;
+import org.knime.knip.core.ui.imgviewer.ViewerComponent;
+import org.knime.knip.core.ui.imgviewer.ViewerComponents;
 
 /**
- * TODO Auto-generated
+ * This class wraps the old minimap and plane selection components and turns them into a single component.
  *
- * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author Andreas Burger, University of Konstanz
  */
-public class RandomMissingColorHandler implements MissingColorHandler {
+public class AnnotatorMinimapAndPlaneSelectionPanel extends ViewerComponent {
 
-    // Fast HashMap implementation
-    private static TIntIntHashMap m_colorTable = new TIntIntHashMap(4096);
+    private ViewerComponent m_minimap;
 
-    private static int m_generation;
+    private ViewerComponent m_planeSelection;
 
-    private static long m_seed;
+    public AnnotatorMinimapAndPlaneSelectionPanel() {
+        super("", true);
 
-    private static int randomColor() {
-        final Random rand = new Random();
-        if(m_seed != -1) {
-            rand.setSeed(m_seed++);
-        }
-        int col = rand.nextInt(255);
-        col = col << 8;
-        col |= rand.nextInt(255);
-        col = col << 8;
-        col |= rand.nextInt(255);
+        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-        if (col == 0) {
-            col = randomColor();
-        }
+        m_minimap = new AnnotatorMinimapPanel();
+        m_planeSelection = ViewerComponents.PLANE_SELECTION.createInstance();
 
-        return col;
-    }
+        this.add(m_minimap);
+        this.add(Box.createVerticalStrut(3));
+        this.add(m_planeSelection);
+        this.add(Box.createVerticalGlue());
 
-    public static <L> void setColor(final L o, final int color) {
-        m_colorTable.put(o.hashCode(), color);
-        m_generation++;
-    }
-
-    public static <L> void resetColor(final L o) {
-        m_colorTable.put(o.hashCode(), randomColor());
-        m_generation++;
-    }
-
-    /**
-     * resets the color table such that the label colors can be assigned again. Increases the ColorMapNr to indicate the
-     * change.
-     */
-    public static void resetColorMap() {
-        m_colorTable.clear();
-        m_generation++;
-    }
-
-    /**
-     * @return current generation (e.g. needed for caching)
-     */
-    public static int getGeneration() {
-        return m_generation;
-    }
-
-    public static void setSeed(final long s) {
-        m_seed = s;
-    }
-
-    public static <L> int getLabelColor(final L label) {
-
-        final int hashCode = label.toString().hashCode();
-        int res = m_colorTable.get(hashCode);
-        if (res == 0) {
-            res = LabelingColorTableUtils.getTransparentRGBA(randomColor(), 255);
-            m_colorTable.put(hashCode, res);
-        }
-
-        return res;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public final <L> int getColor(final L label) {
-        return RandomMissingColorHandler.getLabelColor(label);
+    public void setEventService(final EventService eventService) {
+        m_minimap.setEventService(eventService);
+        m_planeSelection.setEventService(eventService);
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Position getPosition() {
+        return Position.ADDITIONAL;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveComponentConfiguration(final ObjectOutput out) throws IOException {
+        m_minimap.saveComponentConfiguration(out);
+        m_planeSelection.saveComponentConfiguration(out);
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadComponentConfiguration(final ObjectInput in) throws IOException, ClassNotFoundException {
+        m_minimap.loadComponentConfiguration(in);
+        m_planeSelection.loadComponentConfiguration(in);
+
     }
 
 }

@@ -43,97 +43,52 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * ---------------------------------------------------------------------
+ * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.core.awt.labelingcolortable;
+package org.knime.knip.io.nodes.annotation.edit.events;
 
-import gnu.trove.map.hash.TIntIntHashMap;
+import java.util.Collection;
+import java.util.Set;
 
-import java.util.Random;
+import org.knime.knip.core.ui.event.KNIPEvent;
 
 /**
- * TODO Auto-generated
- *
- * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * Event used by Tools of the InteractiveLabelingEditor to notify the manager of
+ * desired removals from labels.
+ * 
+ * @author Andreas Burger, University of Konstanz
  */
-public class RandomMissingColorHandler implements MissingColorHandler {
+public class LabelingEditorRemoveEvent implements KNIPEvent {
 
-    // Fast HashMap implementation
-    private static TIntIntHashMap m_colorTable = new TIntIntHashMap(4096);
+	private final Set<String> m_oldLabels;
 
-    private static int m_generation;
+	private final Collection<String> m_delete;
 
-    private static long m_seed;
+	public LabelingEditorRemoveEvent(final Set<String> oldLabels, final Collection<String> deletedLabels) {
+		m_oldLabels = oldLabels;
+		m_delete = deletedLabels;
 
-    private static int randomColor() {
-        final Random rand = new Random();
-        if(m_seed != -1) {
-            rand.setSeed(m_seed++);
-        }
-        int col = rand.nextInt(255);
-        col = col << 8;
-        col |= rand.nextInt(255);
-        col = col << 8;
-        col |= rand.nextInt(255);
+	}
 
-        if (col == 0) {
-            col = randomColor();
-        }
+	public Set<String> getOldLabels() {
+		return m_oldLabels;
+	}
 
-        return col;
-    }
+	public Collection<String> getDeletedLabel() {
+		return m_delete;
+	}
 
-    public static <L> void setColor(final L o, final int color) {
-        m_colorTable.put(o.hashCode(), color);
-        m_generation++;
-    }
+	@Override
+	public ExecutionPriority getExecutionOrder() {
+		return ExecutionPriority.NORMAL;
+	}
 
-    public static <L> void resetColor(final L o) {
-        m_colorTable.put(o.hashCode(), randomColor());
-        m_generation++;
-    }
-
-    /**
-     * resets the color table such that the label colors can be assigned again. Increases the ColorMapNr to indicate the
-     * change.
-     */
-    public static void resetColorMap() {
-        m_colorTable.clear();
-        m_generation++;
-    }
-
-    /**
-     * @return current generation (e.g. needed for caching)
-     */
-    public static int getGeneration() {
-        return m_generation;
-    }
-
-    public static void setSeed(final long s) {
-        m_seed = s;
-    }
-
-    public static <L> int getLabelColor(final L label) {
-
-        final int hashCode = label.toString().hashCode();
-        int res = m_colorTable.get(hashCode);
-        if (res == 0) {
-            res = LabelingColorTableUtils.getTransparentRGBA(randomColor(), 255);
-            m_colorTable.put(hashCode, res);
-        }
-
-        return res;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final <L> int getColor(final L label) {
-        return RandomMissingColorHandler.getLabelColor(label);
-    }
-
+	/**
+	 * implements object equality {@inheritDoc}
+	 */
+	@Override
+	public <E extends KNIPEvent> boolean isRedundant(final E thatEvent) {
+		return this.equals(thatEvent);
+	}
 }

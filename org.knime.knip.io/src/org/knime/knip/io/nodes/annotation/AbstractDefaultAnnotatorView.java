@@ -15,16 +15,19 @@ import org.knime.core.data.DataTable;
 import org.knime.core.node.tableview.TableContentModel;
 import org.knime.core.node.tableview.TableContentView;
 import org.knime.core.node.tableview.TableView;
+import org.knime.knip.base.nodes.view.PlainCellView;
+import org.knime.knip.base.nodes.view.TabbedCellView;
 import org.knime.knip.core.ui.event.EventService;
+import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorResetEvent;
 
 public abstract class AbstractDefaultAnnotatorView<A> implements
 		AnnotatorView<A>, ListSelectionListener {
 
-	private final JPanel m_mainPanel = new JPanel();
+	protected final JPanel m_mainPanel = new JPanel();
 
-	private TableContentView m_tableContentView;
+	protected TableContentView m_tableContentView;
 
 	private TableContentModel m_tableModel;
 	
@@ -66,20 +69,21 @@ public abstract class AbstractDefaultAnnotatorView<A> implements
 		m_tableContentView.getColumnModel().getSelectionModel()
 				.addListSelectionListener(this);
 		TableView tableView = new TableView(m_tableContentView);
+		PlainCellView p = new PlainCellView(tableView, (ImgViewer) createAnnotatorComponent());
 
 		// split pane
-		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-		splitPane.add(tableView);
-		splitPane.add(createAnnotatorComponent());
-		splitPane.setDividerLocation(300);
-
+//		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+//		splitPane.add(tableView);
+//		splitPane.add(createAnnotatorComponent());
+//		splitPane.setDividerLocation(300);
+//
 		m_mainPanel.setLayout(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.weightx = 1.0;
 		gbc.weighty = 1.0;
 		gbc.fill = GridBagConstraints.BOTH;
 
-		m_mainPanel.add(splitPane, gbc);
+		m_mainPanel.add(p, gbc);
 	}
 
 	@Override

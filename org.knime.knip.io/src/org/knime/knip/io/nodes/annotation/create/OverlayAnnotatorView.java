@@ -62,7 +62,9 @@ import net.imglib2.type.numeric.RealType;
 import org.knime.core.data.DataCell;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.core.ui.event.EventService;
+import org.knime.knip.core.ui.imgviewer.ExpandingPanel;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
+import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorMinimapAndPlaneSelectionPanel;
 import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorMinimapPanel;
 import org.knime.knip.core.ui.imgviewer.annotator.AnnotatorToolbar;
 import org.knime.knip.core.ui.imgviewer.annotator.OverlayAnnotatorManager;
@@ -163,15 +165,16 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
 		annotator.addViewerComponent(new AWTImageProvider(0,
 				new OverlayRU<String>(new ImageRU<T>())));
 		annotator.addViewerComponent(m_manager);
+
+		annotator.addViewerComponent(new AnnotatorMinimapAndPlaneSelectionPanel());
 		annotator
-				.addViewerComponent(m_annotatorLabelPanel = new AnnotatorLabelPanel());
+		.addViewerComponent(new ExpandingPanel("Labels",m_annotatorLabelPanel = new AnnotatorLabelPanel(), true));
 		annotator.addViewerComponent(AnnotatorToolbar.createStandardToolbar());
-		annotator.addViewerComponent(new AnnotatorMinimapPanel());
-		annotator.addViewerComponent(new ImgNormalizationPanel<T, Img<T>>());
-		annotator.addViewerComponent(new PlaneSelectionPanel<T, Img<T>>());
-		annotator.addViewerComponent(new RendererSelectionPanel<T>());
-		annotator.addViewerComponent(new TransparencyPanel());
-		annotator.addViewerComponent(new ImgViewInfoPanel<T>());
+		annotator.addViewerComponent(new ExpandingPanel("Normalization", new ImgNormalizationPanel<T, Img<T>>()));
+//		annotator.addViewerComponent(new PlaneSelectionPanel<T, Img<T>>());
+		annotator.addViewerComponent(new ExpandingPanel("Renderer Selection", new RendererSelectionPanel<T>()));
+		annotator.addViewerComponent(new ExpandingPanel("Transparency", new TransparencyPanel()));
+		annotator.addViewerComponent(new ExpandingPanel("Info", new ImgViewInfoPanel()));
 		annotator.addViewerComponent(new AnnotatorImgCanvas<T>());
 
 		m_eventService = annotator.getEventService();
