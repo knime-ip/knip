@@ -51,16 +51,15 @@ package org.knime.knip.core.awt;
 import java.awt.Graphics;
 import java.util.Set;
 
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.display.screenimage.awt.ARGBScreenImage;
-import net.imglib2.display.screenimage.awt.AWTScreenImage;
-import net.imglib2.roi.labeling.LabelingMapping;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.type.Type;
-
 import org.knime.knip.core.awt.labelingcolortable.LabelingColorTable;
 import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableRenderer;
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter.Operator;
+
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.display.screenimage.awt.ARGBScreenImage;
+import net.imglib2.display.screenimage.awt.AWTScreenImage;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.Type;
 
 /**
  * TODO Auto-generated
@@ -140,11 +139,6 @@ public class BoundingBoxRandomColorLabelRenderer<L extends Comparable<L> & Type<
         m_labelRenderer.setHiliteMode(isHiliteMode);
     }
 
-    @Override
-    public void setLabelMapping(final LabelingMapping<L> labelMapping) {
-        super.setLabelMapping(labelMapping);
-        m_labelRenderer.setLabelMapping(labelMapping);
-    }
 
     @Override
     public void setOperator(final Operator operator) {
@@ -159,4 +153,5 @@ public class BoundingBoxRandomColorLabelRenderer<L extends Comparable<L> & Type<
     public void setLabelingColorTable(final LabelingColorTable mapping) {
         m_mapping = mapping;
     }
+
 }

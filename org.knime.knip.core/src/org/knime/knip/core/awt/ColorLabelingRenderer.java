@@ -48,11 +48,17 @@
  */
 package org.knime.knip.core.awt;
 
-import gnu.trove.map.hash.TIntIntHashMap;
-
-import java.awt.Color;
-import java.util.HashSet;
 import java.util.Set;
+
+import org.knime.knip.core.awt.converter.LabelingTypeARGBConverter;
+import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
+import org.knime.knip.core.awt.labelingcolortable.ExtendedLabelingColorTable;
+import org.knime.knip.core.awt.labelingcolortable.LabelingColorTable;
+import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableRenderer;
+import org.knime.knip.core.awt.labelingcolortable.RandomMissingColorHandler;
+import org.knime.knip.core.awt.parametersupport.RendererWithHilite;
+import org.knime.knip.core.awt.parametersupport.RendererWithLabels;
+import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter.Operator;
 
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.display.projector.IterableIntervalProjector2D;
@@ -61,17 +67,6 @@ import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.view.Views;
 
-import org.knime.knip.core.awt.converter.LabelingTypeARGBConverter;
-import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
-import org.knime.knip.core.awt.labelingcolortable.ExtendedLabelingColorTable;
-import org.knime.knip.core.awt.labelingcolortable.LabelingColorTable;
-import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableRenderer;
-import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableUtils;
-import org.knime.knip.core.awt.labelingcolortable.RandomMissingColorHandler;
-import org.knime.knip.core.awt.parametersupport.RendererWithHilite;
-import org.knime.knip.core.awt.parametersupport.RendererWithLabels;
-import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter.Operator;
-
 /**
  * TODO Auto-generated
  *
@@ -79,27 +74,17 @@ import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter.Operator;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class ColorLabelingRenderer<L> extends ProjectingRenderer<LabelingType<L>> implements RendererWithLabels<L>,
-        RendererWithHilite, LabelingColorTableRenderer {
+public class ColorLabelingRenderer<L> extends ProjectingRenderer<LabelingType<L>>
+        implements RendererWithLabels<L>, RendererWithHilite, LabelingColorTableRenderer {
 
     /**
      * RENDERER_NAME.
      */
     public static final String RENDERER_NAME = "Random Color Labeling Renderer";
 
-    private static int WHITE_RGB = Color.WHITE.getRGB();
-
     private LabelingTypeARGBConverter<L> m_converter;
 
-    private Operator m_operator;
-
-    private Set<String> m_activeLabels;
-
-    private LabelingMapping<L> m_labelMapping;
-
-    private Set<String> m_hilitedLabels;
-
-    private boolean m_isHiliteMode;
+    //    private LabelingMapping<L> m_labelMapping;
 
     private boolean m_rebuildRequired;
 
@@ -109,33 +94,30 @@ public class ColorLabelingRenderer<L> extends ProjectingRenderer<LabelingType<L>
         m_rebuildRequired = true;
     }
 
-    @Override
-    public void setOperator(final Operator operator) {
-        m_operator = operator;
+    @Override public void setOperator(final Operator operator) {
+        rebuildLabelConverter();
+        m_converter.setOperator(operator);
         m_rebuildRequired = true;
     }
 
     @Override
     public void setActiveLabels(final Set<String> activeLabels) {
-        m_activeLabels = activeLabels;
-        m_rebuildRequired = true;
-    }
-
-    @Override
-    public void setLabelMapping(final LabelingMapping<L> labelMapping) {
-        m_labelMapping = labelMapping;
+        rebuildLabelConverter();
+        m_converter.setActiveLabels(activeLabels);
         m_rebuildRequired = true;
     }
 
     @Override
     public void setHilitedLabels(final Set<String> hilitedLabels) {
-        m_hilitedLabels = hilitedLabels;
+        rebuildLabelConverter();
+        m_converter.setHilitedLabels(hilitedLabels);
         m_rebuildRequired = true;
     }
 
     @Override
     public void setHiliteMode(final boolean isHiliteMode) {
-        m_isHiliteMode = isHiliteMode;
+        rebuildLabelConverter();
+        m_converter.setHiliteMode(isHiliteMode);
         m_rebuildRequired = true;
     }
 
@@ -146,118 +128,27 @@ public class ColorLabelingRenderer<L> extends ProjectingRenderer<LabelingType<L>
 
     @Override
     protected IterableIntervalProjector2D<LabelingType<L>, ARGBType>
-            getProjector(final int dimX, final int dimY, final RandomAccessibleInterval<LabelingType<L>> source,
-                         final RandomAccessibleInterval<ARGBType> target) {
+              getProjector(final int dimX, final int dimY, final RandomAccessibleInterval<LabelingType<L>> source,
+                           final RandomAccessibleInterval<ARGBType> target) {
 
-        if (m_rebuildRequired) {
-            m_rebuildRequired = false;
-            //check whether all necessary fields are set, if not, use the default values
-            if (m_labelMapping == null) {
-                m_labelMapping = source.randomAccess().get().getMapping();
-            }
-            if (m_colorMapping == null) {
-                m_colorMapping =
-                        new ExtendedLabelingColorTable(new DefaultLabelingColorTable(), new RandomMissingColorHandler());
-            }
-            rebuildLabelConverter();
-        }
+        rebuildLabelConverter();
 
-        return new IterableIntervalProjector2D<LabelingType<L>, ARGBType>(dimX, dimY, source, Views.iterable(target), m_converter);
+        return new IterableIntervalProjector2D<LabelingType<L>, ARGBType>(dimX, dimY, source, Views.iterable(target),
+                m_converter);
     }
 
     // create the converter
 
     private void rebuildLabelConverter() {
-        m_rebuildRequired = false;
-        final int labelListIndexSize = m_labelMapping.numSets();
-        final TIntIntHashMap colorTable = new TIntIntHashMap();
-
-        for (int i = 0; i < labelListIndexSize; i++) {
-
-            final int color =
-                    getColorForLabeling(m_activeLabels, m_operator, m_hilitedLabels, m_isHiliteMode,
-                                        m_labelMapping.labelsAtIndex(i));
-            colorTable.put(i, color);
-        }
-
-        m_converter = new LabelingTypeARGBConverter<L>(colorTable);
-    }
-
-    private int getColorForLabeling(final Set<String> activeLabels, final Operator op, final Set<String> hilitedLabels,
-                                    final boolean isHiliteMode, final Set<L> labeling) {
-
-        if (labeling.size() == 0) {
-            return WHITE_RGB;
-        }
-
-        // standard case no filtering / highlighting
-        if ((activeLabels == null) && (hilitedLabels == null) && !isHiliteMode) {
-            return LabelingColorTableUtils.<L> getAverageColor(m_colorMapping, labeling);
-        }
-
-        Set<L> filteredLabels;
-        if (activeLabels != null) {
-            filteredLabels = intersection(activeLabels, op, labeling);
-        } else {
-            filteredLabels = labeling; // do not filter
-        }
-
-        if (filteredLabels.size() == 0) {
-            return WHITE_RGB;
-        } else {
-            // highlight if necessary
-            if (checkHilite(filteredLabels, hilitedLabels)) {
-                return LabelingColorTableUtils.HILITED_RGB;
-            } else {
-                return isHiliteMode ? LabelingColorTableUtils.NOTSELECTED_RGB : LabelingColorTableUtils
-                        .<L> getAverageColor(m_colorMapping, labeling);
+        if (m_rebuildRequired) {
+            m_rebuildRequired = false;
+            //check whether all necessary fields are set, if not, use the default values
+            if (m_colorMapping == null) {
+                m_colorMapping = new ExtendedLabelingColorTable(new DefaultLabelingColorTable(),
+                        new RandomMissingColorHandler());
             }
+            m_converter = new LabelingTypeARGBConverter<L>(m_colorMapping);
         }
-    }
-
-    private boolean checkHilite(final Set<L> labeling, final Set<String> hilitedLabels) {
-        if ((hilitedLabels != null) && (hilitedLabels.size() > 0)) {
-            for (final L label : labeling) {
-                if (hilitedLabels.contains(label.toString())) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private Set<L> intersection(final Set<String> activeLabels, final Operator op, final Set<L> labeling) {
-        final Set<L> intersected = new HashSet<L>(4);
-
-        if (op == Operator.OR) {
-            for (final L label : labeling) {
-                if (activeLabels.contains(labeling.toString())) {
-                    intersected.add(label);
-                }
-            }
-        } else if (op == Operator.AND) {
-            if (labeling.containsAll(activeLabels)) {
-                intersected.addAll(labeling);
-            }
-        } else if (op == Operator.XOR) {
-            boolean addedOne = false;
-            for (L label : labeling) {
-                if (activeLabels.contains(label.toString())) {
-
-                    if (!addedOne) {
-                        intersected.add(label);
-                        addedOne = true;
-                    } else {
-                        // only 0,1 or 1,0 should result
-                        // in a XOR labeling
-                        intersected.clear();
-                        break;
-                    }
-                }
-            }
-        }
-
-        return intersected;
     }
 
     @Override
@@ -271,7 +162,15 @@ public class ColorLabelingRenderer<L> extends ProjectingRenderer<LabelingType<L>
     @Override
     public void setLabelingColorTable(final LabelingColorTable mapping) {
         m_rebuildRequired = true;
-        m_colorMapping = mapping;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setLabelMapping(final LabelingMapping<L> labelMapping) {
+        // TODO Auto-generated method stub
+
     }
 
 }

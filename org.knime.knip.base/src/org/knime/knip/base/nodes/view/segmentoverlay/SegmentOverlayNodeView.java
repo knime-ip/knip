@@ -76,15 +76,14 @@ import org.knime.knip.core.data.img.LabelingMetadata;
 import org.knime.knip.core.ui.imgviewer.ExpandingPanel;
 import org.knime.knip.core.ui.imgviewer.ImgCanvas;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
-import org.knime.knip.core.ui.imgviewer.ViewerComponent.Position;
 import org.knime.knip.core.ui.imgviewer.ViewerComponents;
 import org.knime.knip.core.ui.imgviewer.events.ImgAndLabelingChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelingWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
-import org.knime.knip.core.ui.imgviewer.panels.ControlPanel;
 import org.knime.knip.core.ui.imgviewer.panels.LabelFilterPanel;
 import org.knime.knip.core.ui.imgviewer.panels.RendererSelectionPanel;
+import org.knime.knip.core.ui.imgviewer.panels.TableOverviewPanel;
 import org.knime.knip.core.ui.imgviewer.panels.TransparencyColorSelectionPanel;
 import org.knime.knip.core.ui.imgviewer.panels.infobars.ImgLabelingViewInfoPanel;
 import org.knime.knip.core.ui.imgviewer.panels.providers.AWTImageProvider;
@@ -197,17 +196,7 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
         m_imgView
                 .addViewerComponent(new AWTImageProvider(20, new CombinedRU(new ImageRU<T>(true), new LabelingRU<L>())));
 
-        ControlPanel t = new ControlPanel(Position.NORTH);
-        t.getButton().addActionListener(m_prevRowListener);
-
-        ControlPanel b = new ControlPanel(Position.SOUTH);
-        b.getButton().addActionListener(m_nextRowListener);
-
         m_imgView.getOverViewButton().addActionListener(m_OverviewListener);
-
-        m_imgView.addViewerComponent(t);
-
-        m_imgView.addViewerComponent(b);
 
         m_imgView.addViewerComponent(new ImgLabelingViewInfoPanel<T, L>());
         m_imgView.addViewerComponent(new ImgCanvas<T, Img<T>>());
@@ -219,6 +208,9 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
         m_imgView.addViewerComponent(new ExpandingPanel("Transparency", new TransparencyColorSelectionPanel()));
         m_imgView.addViewerComponent(new ExpandingPanel("Label Filter", new LabelFilterPanel<L>(getNodeModel()
                 .getInternalTables().length > SegmentOverlayNodeModel.PORT_SEG)));
+
+        m_imgView.addViewerComponent(new ExpandingPanel("Navigation", new TableOverviewPanel(), true));
+        m_imgView.doneAdding();
 
         if (getNodeModel().getInternalTables().length > SegmentOverlayNodeModel.PORT_SEG) {
             m_hiliteProvider = new LabelHiliteProvider<L, T>();

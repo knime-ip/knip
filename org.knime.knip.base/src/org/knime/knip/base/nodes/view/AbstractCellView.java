@@ -197,17 +197,23 @@ public abstract class AbstractCellView extends JPanel implements EventServiceCli
 
     @EventListener
     public void onViewerImgChange(final ViewerScrollEvent e) {
-        m_eventService.publish(new ViewerScrollEvent(e));
+        if(m_eventService != null) {
+            m_eventService.publish(new ViewerScrollEvent(e));
+        }
     }
 
     @EventListener
     public void onViewerOverviewToggle(final ViewerControlEvent e) {
-        m_eventService.publish(e);
+        if(m_eventService != null) {
+            m_eventService.publish(e);
+        }
     }
 
     @EventListener
     public void onViewerQuickviewToggle(final ViewerToggleEvent e){
-        setTableViewVisible(!isTableViewVisible());
+        if(m_eventService != null) {
+            setTableViewVisible(!isTableViewVisible());
+        }
     }
 
 }

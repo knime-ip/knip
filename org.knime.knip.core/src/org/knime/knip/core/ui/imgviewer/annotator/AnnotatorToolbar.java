@@ -140,7 +140,7 @@ public class AnnotatorToolbar extends ViewerComponent {
 
     @Override
     public Position getPosition() {
-        return Position.EAST;
+        return Position.ADDITIONAL;
     }
 
     @Override

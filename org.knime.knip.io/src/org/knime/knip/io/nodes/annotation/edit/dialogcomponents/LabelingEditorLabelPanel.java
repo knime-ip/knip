@@ -48,15 +48,19 @@
  */
 package org.knime.knip.io.nodes.annotation.edit.dialogcomponents;
 
-import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
 
@@ -64,6 +68,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -71,19 +76,21 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.knime.knip.core.awt.labelingcolortable.RandomMissingColorHandler;
 import org.knime.knip.core.ui.event.EventListener;
-import org.knime.knip.core.ui.imgviewer.annotator.create.AnnotatorLabelPanel;
+import org.knime.knip.core.ui.event.EventService;
+import org.knime.knip.core.ui.imgviewer.ViewerComponent;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorLabelsColResetEvent;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorLabelsSelChgEvent;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorResetEvent;
-import org.knime.knip.core.ui.imgviewer.events.HilitedLabelsChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
-import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorDeleteAddedEvent;
+import org.knime.knip.io.nodes.annotation.edit.control.LabelingEditorChangeTracker;
+import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorAddEvent;
+import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorDeleteAllEvent;
+import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorDeleteEvent;
 import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorHighlightEvent;
 import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorRenameAddedEvent;
 import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorResetRowEvent;
@@ -94,257 +101,109 @@ import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorResetRowEven
  * @author Andreas Burger, University of Konstanz
  * 
  */
-public class LabelingEditorLabelPanel extends AnnotatorLabelPanel {
-
-	private static final int PANEL_WIDTH = 150;
-
-	private static final int BUTTON_HEIGHT = 25;
+public class LabelingEditorLabelPanel extends ViewerComponent {
 
 	private static final long serialVersionUID = 1L;
 
-	private Vector<String> m_newLabels;
+	private EventService m_eventService;
+
+	private Vector<String> m_newLabels = new Vector<String>();
+
+	private final Vector<String> m_labels = new Vector<String>();
 
 	private JList<String> m_newLabelList;
+
+	private JList<String> m_labelList;
 
 	private boolean m_highlight = false;
 
 	private JToggleButton m_highlightButton;
 
-	public LabelingEditorLabelPanel(final Vector<String> newLabels,
-			final String... defaultLabels) {
+	private final Container m_parent;
 
-		add(Box.createVerticalStrut(10));
-		m_newLabels = newLabels;
-		setPreferredSize(new Dimension(PANEL_WIDTH, 200));
+	public LabelingEditorLabelPanel(Vector<String> initialLabels) {
+		super("", true);
 
-		final JPanel buttonPanel = new JPanel();
-		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		final JCheckBox highlight = new JCheckBox("Highlight new?");
-		JPanel highlightPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		highlightPanel
-				.setMaximumSize(new Dimension(PANEL_WIDTH, BUTTON_HEIGHT));
-		highlight.setAlignmentX(Component.LEFT_ALIGNMENT);
-		highlight.setHorizontalTextPosition(SwingConstants.RIGHT);
-		highlightPanel.add(highlight);
-		add(highlightPanel);
+		m_parent = this;
+		m_newLabels = initialLabels;
 
-		highlight.addItemListener(new ItemListener() {
+		this.setLayout(new GridBagLayout());
 
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				if (e.getStateChange() == ItemEvent.SELECTED) {
-					m_highlight = true;
+		this.setPreferredSize(new Dimension(250, 500));
 
-					m_eventService.publish(new LabelingEditorHighlightEvent(
-							m_newLabels, true));
+		GridBagConstraints gbc = new GridBagConstraints();
 
-				} else {
-					m_highlight = false;
-					m_eventService.publish(new LabelingEditorHighlightEvent(
-							null, false));
-				}
-				m_eventService.publish(new ImgRedrawEvent());
-			}
-		});
+		gbc.gridx = 0;
+		gbc.gridwidth = 1;
+		gbc.gridheight = 1;
+		gbc.weightx = 1;
+		gbc.weighty = 0;
+		gbc.fill = GridBagConstraints.BOTH;
 
-		final JLabel newLabel = new JLabel("New Labels");
-		m_labels = new Vector<String>();
-		if (defaultLabels != null) {
-			for (final String s : defaultLabels) {
-				m_labels.add(s);
-			}
-		}
+		JLabel newLabelsLabel = new JLabel("New Labels");
+		Box newLabelsLabelBox = new Box(BoxLayout.X_AXIS);
+		newLabelsLabelBox.add(newLabelsLabel);
+		newLabelsLabelBox.add(Box.createHorizontalGlue());
+		add(newLabelsLabelBox, gbc);
 
-		m_newLabelList = new JList<String>(m_newLabels);
-		m_newLabelList.setSelectedIndex(0);
+		gbc.weighty = 0.5;
+		add(createNewLabelPanel(), gbc);
+		gbc.weighty = 0;
 
-		m_newLabelList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		JLabel currentLabelsLabel = new JLabel("Current Labels");
+		Box currentLabelsLabelBox = new Box(BoxLayout.X_AXIS);
+		currentLabelsLabelBox.add(currentLabelsLabel);
+		currentLabelsLabelBox.add(Box.createHorizontalGlue());
+		add(currentLabelsLabelBox, gbc);
 
-		m_newLabelList.addListSelectionListener(new ListSelectionListener() {
+		gbc.weighty = 1;
+		add(createCurrentLabelPanel(), gbc);
+		gbc.weighty = 0;
 
-			@Override
-			public void valueChanged(final ListSelectionEvent e) {
+		Box buttonBox = new Box(BoxLayout.X_AXIS);
+		buttonBox.add(Box.createHorizontalGlue());
+		JButton labelRecolorButton = new JButton("Recolor");
+		buttonBox.add(labelRecolorButton);
+		buttonBox.add(Box.createHorizontalStrut(10));
+		JButton resetButton = new JButton("Reset Labels");
 
-				if (m_isAdjusting || e.getValueIsAdjusting()) {
-					m_jLabelList.clearSelection();
-					return;
-				}
-
-				m_eventService.publish(new AnnotatorLabelsSelChgEvent(
-						m_newLabelList.getSelectedValuesList().toArray(
-								new String[0])));
-				if (m_highlight) {
-					m_eventService.publish(new LabelingEditorHighlightEvent(
-							m_newLabels, true));
-				}
-			}
-		});
-		newLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-		add(newLabel);
-
-		add(new JScrollPane(m_newLabelList));
-
-		JButton jb;
-
-		jb = new JButton("Create Label");
-		setButtonIcon(jb, "icons/tool-class.png");
-		jb.setMinimumSize(new Dimension(140, 30));
-		jb.addActionListener(new ActionListener() {
-
+		labelRecolorButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				final String name = JOptionPane.showInputDialog(m_parent,
-						"Class name:");
-				if ((name != null) && (name.length() > 0)) {
-					m_newLabels.add(name);
-					Collections.sort(m_newLabels);
-					m_newLabelList.setListData(m_newLabels);
-					m_newLabelList.setSelectedIndex(m_newLabelList
-							.getNextMatch(name, 0,
-									javax.swing.text.Position.Bias.Forward));
-				}
-			}
-		});
-		jb.setMaximumSize(new Dimension(PANEL_WIDTH, BUTTON_HEIGHT));
-		jb.setAlignmentX(Component.CENTER_ALIGNMENT);
-		buttonPanel.add(jb);
-
-		jb = new JButton("Delete label");
-		setButtonIcon(jb, "icons/tool-clean.png");
-		jb.setMinimumSize(new Dimension(140, 30));
-
-		jb.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (m_newLabelList.getSelectedValue() != null) {
-
-					// m_newLabelList.updateUI();
-					m_eventService.publish(new LabelingEditorDeleteAddedEvent(
-							m_newLabelList.getSelectedValuesList()));
-					m_newLabels.remove(m_newLabelList.getSelectedValue());
-					m_newLabelList.setListData(m_newLabels);
-					m_eventService.publish(new ImgRedrawEvent());
-				}
-
-			}
-		});
-
-		jb.setMaximumSize(new Dimension(PANEL_WIDTH, BUTTON_HEIGHT));
-		jb.setAlignmentX(Component.CENTER_ALIGNMENT);
-		buttonPanel.add(jb);
-
-		jb = new JButton("Rename label");
-		setButtonIcon(jb, "icons/tool-clean.png");
-		jb.setMinimumSize(new Dimension(140, 30));
-
-		jb.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (m_newLabelList.getSelectedValue() != null) {
-					final String oldName = m_newLabelList.getSelectedValue();
-					final String newName = JOptionPane.showInputDialog(
-							m_parent, "New class name:");
-					if ((newName != null) && (newName.length() > 0)) {
-						m_newLabels.remove(oldName);
-						m_newLabels.add(newName);
-						m_eventService
-								.publish(new LabelingEditorRenameAddedEvent(
-										oldName, newName));
-						Collections.sort(m_newLabels);
-						m_newLabelList.setListData(m_newLabels);
-						m_newLabelList.setSelectedIndex(m_newLabelList
-								.getNextMatch(newName, 0,
-										javax.swing.text.Position.Bias.Forward));
-						m_eventService.publish(new ImgRedrawEvent());
-					}
-				}
-
-			}
-		});
-
-		jb.setMaximumSize(new Dimension(PANEL_WIDTH, BUTTON_HEIGHT));
-		jb.setAlignmentX(Component.CENTER_ALIGNMENT);
-		buttonPanel.add(jb);
-
-		buttonPanel.add(Box.createVerticalStrut(10));
-
-		jb = new JButton("Reset to Input");
-		setButtonIcon(jb, "icons/tool-setlabels.png");
-		jb.setMinimumSize(new Dimension(140, 30));
-		jb.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				m_eventService.publish(new LabelingEditorResetRowEvent());
-			}
-		});
-		jb.setMaximumSize(new Dimension(PANEL_WIDTH, BUTTON_HEIGHT));
-		jb.setAlignmentX(Component.CENTER_ALIGNMENT);
-		buttonPanel.add(jb);
-
-		jb = new JButton("Recolor Label");
-		setButtonIcon(jb, "icons/tool-colorreset.png");
-		jb.setMinimumSize(new Dimension(140, 30));
-		jb.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				m_jLabelList.updateUI();
-				for (final String s : m_jLabelList.getSelectedValuesList()) {
+				for (final String s : m_labelList.getSelectedValuesList()) {
 					RandomMissingColorHandler.resetColor(s);
 				}
 				for (final String s : m_newLabelList.getSelectedValuesList()) {
 					RandomMissingColorHandler.resetColor(s);
 				}
 
-				m_eventService.publish(new AnnotatorLabelsColResetEvent(
-						m_jLabelList.getSelectedValuesList().toArray(
-								new String[0])));
+				m_eventService.publish(
+						new AnnotatorLabelsColResetEvent(m_labelList.getSelectedValuesList().toArray(new String[0])));
 				m_eventService.publish(new ImgRedrawEvent());
 
 			}
 		});
-		jb.setMaximumSize(new Dimension(PANEL_WIDTH, BUTTON_HEIGHT));
-		jb.setAlignmentX(Component.CENTER_ALIGNMENT);
-		buttonPanel.add(jb);
 
-		add(buttonPanel);
-		add(Box.createVerticalStrut(10));
-
-		final JLabel oldLabels = new JLabel("Old Labels");
-		oldLabels.setAlignmentX(Component.CENTER_ALIGNMENT);
-		add(oldLabels);
-
-		m_jLabelList = new JList<String>(m_labels);
-		m_jLabelList.setSelectedIndex(0);
-
-		m_jLabelList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-		m_jLabelList.addListSelectionListener(new ListSelectionListener() {
+		resetButton.addActionListener(new ActionListener() {
 
 			@Override
-			public void valueChanged(final ListSelectionEvent e) {
-
-				if (m_isAdjusting || e.getValueIsAdjusting()) {
-					m_newLabelList.clearSelection();
-					return;
-				}
-				m_eventService.publish(new AnnotatorLabelsSelChgEvent(
-						m_jLabelList.getSelectedValuesList().toArray(
-								new String[0])));
-				if (m_highlight) {
-					m_eventService.publish(new HilitedLabelsChgEvent(
-							new HashSet<String>(m_jLabelList
-									.getSelectedValuesList())));
-					m_eventService.publish(new ImgRedrawEvent());
-				}
+			public void actionPerformed(final ActionEvent e) {
+				m_eventService.publish(new LabelingEditorResetRowEvent());
 			}
 		});
 
-		add(new JScrollPane(m_jLabelList));
+		buttonBox.add(resetButton);
+		buttonBox.add(Box.createHorizontalGlue());
 
+		gbc.gridheight = GridBagConstraints.REMAINDER;
+
+		add(buttonBox, gbc);
+
+	}
+
+	@Override
+	public Position getPosition() {
+		return Position.ADDITIONAL;
 	}
 
 	@EventListener
@@ -356,22 +215,287 @@ public class LabelingEditorLabelPanel extends AnnotatorLabelPanel {
 		}
 	}
 
-	// public void addNewLabel(String label) {
-	// m_newLabels.add(label);
-	// }
+	public void setCurrentLabels(Set<String> currentLabels) {
+		m_labels.clear();
+		m_labels.addAll(currentLabels);
+		Collections.sort(m_labels);
+
+		m_labelList.setListData(m_labels);
+		m_labelList.updateUI();
+
+	}
+
+	public void setNewLabels(Set<String> newLabels) {
+		m_newLabels.clear();
+		m_newLabels.addAll(newLabels);
+		Collections.sort(m_newLabels);
+
+		m_newLabelList.setListData(m_newLabels);
+		m_newLabelList.updateUI();
+	}
 
 	@Override
-	/**
-	 * @param list
-	 */
-	public void addLabels(final Set<String> list) {
+	public void setEventService(EventService eventService) {
+		m_eventService = eventService;
+		m_eventService.subscribe(this);
 
-		for (String label : list) {
-			if (!m_labels.contains(label) && !m_newLabels.contains(label)) {
-				m_labels.add(label);
+	}
+
+	@Override
+	public void saveComponentConfiguration(ObjectOutput out) throws IOException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void loadComponentConfiguration(ObjectInput in) throws IOException, ClassNotFoundException {
+		// TODO Auto-generated method stub
+
+	}
+
+	private JComponent createNewLabelPanel() {
+
+		JPanel root = new JPanel(new GridBagLayout());
+
+		GridBagConstraints gbc = new GridBagConstraints();
+
+		gbc.insets = new Insets(5, 5, 5, 5);
+		gbc.weightx = 1;
+		gbc.weighty = 1;
+		gbc.gridy = 0;
+		gbc.gridheight = GridBagConstraints.REMAINDER;
+		gbc.gridwidth = 1;
+		gbc.fill = GridBagConstraints.BOTH;
+
+		m_newLabelList = new JList<String>(m_newLabels);
+
+		m_newLabelList.setSelectedIndex(0);
+
+		m_newLabelList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+		m_newLabelList.addListSelectionListener(new ListSelectionListener() {
+
+			@Override
+			public void valueChanged(final ListSelectionEvent e) {
+
+				if(e.getValueIsAdjusting())
+					return;
+				
+
+				int i = m_newLabelList.getSelectedIndex();
+				
+				m_labelList.clearSelection();
+				
+				m_newLabelList.setSelectedIndex(i);
+
+				m_eventService.publish(
+						new AnnotatorLabelsSelChgEvent(m_newLabelList.getSelectedValuesList().toArray(new String[0])));
+				if (m_highlight) {
+					m_eventService.publish(new LabelingEditorHighlightEvent(m_newLabels, true));
+				}
 			}
-		}
+		});
 
-		updateLocalUI();
+		root.add(new JScrollPane(m_newLabelList), gbc);
+
+		Box buttonPanel = new Box(BoxLayout.Y_AXIS);
+		JButton button1 = new JButton("Create");
+		buttonPanel.add(button1);
+		buttonPanel.add(Box.createVerticalStrut(5));
+		JButton button2 = new JButton("Delete");
+		buttonPanel.add(button2);
+		buttonPanel.add(Box.createVerticalStrut(5));
+		final JCheckBox highlight = new JCheckBox("Highlight new?");		
+		buttonPanel.add(highlight);
+		buttonPanel.add(Box.createGlue());
+
+		button1.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				final String name = JOptionPane.showInputDialog(m_parent, "Class name:");
+				if ((name != null) && (name.length() > 0)) {
+					m_newLabels.add(name);
+					Collections.sort(m_newLabels);
+					m_newLabelList.setListData(m_newLabels);
+					m_newLabelList.setSelectedIndex(
+							m_newLabelList.getNextMatch(name, 0, javax.swing.text.Position.Bias.Forward));
+				}
+			}
+		});
+
+		button2.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (m_newLabelList.getSelectedValue() != null) {
+
+					// m_newLabelList.updateUI();
+					m_eventService.publish(new LabelingEditorDeleteAllEvent(m_newLabelList.getSelectedValuesList()));
+					deleteAll(m_newLabelList.getSelectedValue());
+					m_newLabelList.setListData(m_newLabels);
+					m_eventService.publish(new ImgRedrawEvent());
+				}
+			}
+		});
+		
+		highlight.addItemListener(new ItemListener() {
+
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == ItemEvent.SELECTED) {
+					m_highlight = true;
+
+					m_eventService.publish(new LabelingEditorHighlightEvent(m_newLabels, true));
+
+				} else {
+					m_highlight = false;
+					m_eventService.publish(new LabelingEditorHighlightEvent(null, false));
+				}
+				m_eventService.publish(new ImgRedrawEvent());
+			}
+		});
+
+		gbc.weightx = 0;
+		gbc.fill = GridBagConstraints.VERTICAL;
+
+		root.add(buttonPanel, gbc);
+		return root;
+	}
+
+	private JComponent createCurrentLabelPanel() {
+
+		JPanel root = new JPanel(new GridBagLayout());
+
+		GridBagConstraints gbc = new GridBagConstraints();
+
+		gbc.insets = new Insets(5, 5, 5, 5);
+		gbc.weightx = 1;
+		gbc.weighty = 1;
+		gbc.gridy = 0;
+		gbc.gridheight = GridBagConstraints.REMAINDER;
+		gbc.gridwidth = 1;
+		gbc.fill = GridBagConstraints.BOTH;
+
+		m_labelList = new JList<String>(m_labels);
+
+		m_labelList.addListSelectionListener(new ListSelectionListener() {
+
+			@Override
+			public void valueChanged(final ListSelectionEvent e) {
+				
+				if(e.getValueIsAdjusting())
+					return;
+
+				int i = m_labelList.getSelectedIndex();
+				
+				m_newLabelList.clearSelection();
+
+				m_labelList.setSelectedIndex(i);
+				
+				m_eventService.publish(
+						new AnnotatorLabelsSelChgEvent(m_labelList.getSelectedValuesList().toArray(new String[0])));
+			}
+		});
+
+		root.add(new JScrollPane(m_labelList), gbc);
+
+		Box ButtonPanel = new Box(BoxLayout.Y_AXIS);
+		JButton button1 = new JButton("Rename");
+		ButtonPanel.add(button1);
+		ButtonPanel.add(Box.createVerticalStrut(5));
+		JButton button2 = new JButton("Delete");
+		ButtonPanel.add(button2);
+		ButtonPanel.add(Box.createVerticalStrut(10));
+		ButtonPanel.add(Box.createGlue());
+
+		button1.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (m_labelList.getSelectedValue() != null) {
+					final String oldName = m_labelList.getSelectedValue();
+					final String newName = JOptionPane.showInputDialog(m_parent, "New class name:");
+					if ((newName != null) && (newName.length() > 0)) {
+
+						m_eventService.publish(new LabelingEditorRenameAddedEvent(oldName, newName));
+						renameLabel(oldName, newName);
+
+						if (m_highlight) {
+							m_eventService.publish(new LabelingEditorHighlightEvent(m_newLabels, true));
+						}
+						m_eventService.publish(new ImgRedrawEvent());
+					}
+				}
+
+			}
+		});
+
+		button2.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (m_labelList.getSelectedValue() != null) {
+
+					// m_newLabelList.updateUI();
+					m_eventService.publish(new LabelingEditorDeleteEvent(m_labelList.getSelectedValuesList()));
+					m_labels.remove(m_labelList.getSelectedValue());
+					m_labelList.setListData(m_labels);
+
+
+				}
+			}
+		});
+
+		gbc.weightx = 0;
+		gbc.fill = GridBagConstraints.VERTICAL;
+
+		root.add(ButtonPanel, gbc);
+		return root;
+	}
+
+	private void deleteAll(String label) {
+		m_labels.remove(label);
+		m_newLabels.remove(label);
+		m_labelList.setListData(m_labels);
+		m_newLabelList.setListData(m_newLabels);
+	}
+
+	private void renameLabel(String oldLabel, String newLabel) {
+		if (m_labels.remove(oldLabel)) {
+			m_labels.add(newLabel);
+			Collections.sort(m_labels);
+		}
+		if (m_newLabels.remove(oldLabel)) {
+			m_newLabels.add(newLabel);
+			Collections.sort(m_newLabels);
+		}
+		m_labelList.setListData(m_labels);
+		m_labelList.setSelectedIndex(m_labelList.getNextMatch(newLabel, 0, javax.swing.text.Position.Bias.Forward));
+	}
+
+	@EventListener
+	public void onLabelAdd(final LabelingEditorAddEvent e) {
+		
+		boolean added = false;
+
+		for (String label : e.getNewLabels())
+			if(!m_labels.contains(label)){
+					m_labels.add(label);
+					added = true;
+			}
+		
+		if(added){
+			Collections.sort(m_labels);
+			m_labelList.setListData(m_labels);
+		}
+		
+
+	}
+	
+	public void clearLabels()
+	{
+		m_labels.clear();
+		m_labelList.setListData(m_labels);
 	}
 }

@@ -53,7 +53,7 @@ import java.awt.event.MouseEvent;
 import org.knime.knip.core.ui.event.KNIPEvent;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -66,8 +66,8 @@ public class ImgViewerMouseMovedEvent extends ImgViewerMouseEvent {
      * @param imgWidth
      * @param imgHeight
      */
-    public ImgViewerMouseMovedEvent(final MouseEvent e, final double[] factors, final int imgWidth, final int imgHeight) {
-        super(e, factors, imgWidth, imgHeight);
+    public ImgViewerMouseMovedEvent(final MouseEvent e, final double[] factors, final int imgWidth, final int imgHeight, final int xoffset, final int yoffset) {
+        super(e, factors, imgWidth, imgHeight, xoffset, yoffset);
     }
 
     @Override

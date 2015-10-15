@@ -49,6 +49,7 @@
 package org.knime.knip.io.nodes.annotation.edit.events;
 
 import java.util.Collection;
+import java.util.Set;
 
 import org.knime.knip.core.ui.event.KNIPEvent;
 
@@ -60,18 +61,18 @@ import org.knime.knip.core.ui.event.KNIPEvent;
  */
 public class LabelingEditorAddEvent implements KNIPEvent {
 
-	private final Collection<String> m_labels;
+	private final Set<String> m_oldlabel;
 
 	private final Collection<String> m_newLabel;
 
-	public LabelingEditorAddEvent(final Collection<String> labels,
+	public LabelingEditorAddEvent(Set<String> old,
 			final Collection<String> labelstoAdd) {
-		m_labels = labels;
+		m_oldlabel = old;
 		m_newLabel = labelstoAdd;
 	}
 
-	public Collection<String> getModifiedLabels() {
-		return m_labels;
+	public Set<String> getOldLabels() {
+		return m_oldlabel;
 	}
 
 	public Collection<String> getNewLabels() {

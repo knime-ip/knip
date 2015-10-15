@@ -49,11 +49,12 @@
 package org.knime.knip.io.nodes.annotation.edit.tools;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorAddEvent;
-import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorDeleteEvent;
+import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorRemoveAllEvent;
+import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorRemoveEvent;
 
 /**
  * Default Tool used in the InteractiveLabelingEditor. Capable of adding and
@@ -69,17 +70,22 @@ public class LabelingEditorModificationTool extends AbstractLabelingEditorTool {
 	}
 
 	@Override
-	public void onLeftClick(Collection<String> labels, String[] selectedLabels) {
+	public void onLeftClick(Set<String> labels, String[] selectedLabels) {
 		List<String> labelsToAdd = Arrays.asList(selectedLabels);
 		m_eventService.publish(new LabelingEditorAddEvent(labels, labelsToAdd));
 
 	}
 
 	@Override
-	public void onRightClick(Collection<String> labels, String[] selectedLabels) {
+	public void onRightClick(Set<String> labels, String[] selectedLabels) {
+		m_eventService.publish(new LabelingEditorRemoveAllEvent(labels));
+
+	}
+
+	@Override
+	public void onCtrlRightClick(Set<String> labels, String[] selectedLabels) {
 		List<String> labelsToDelete = Arrays.asList(selectedLabels);
-		m_eventService.publish(new LabelingEditorDeleteEvent(labels,
-				labelsToDelete));
+		m_eventService.publish(new LabelingEditorRemoveEvent(labels, labelsToDelete));
 
 	}
 

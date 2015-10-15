@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2013
+ *  Copyright (C) 2003 - 2015
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -44,96 +44,15 @@
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
  * ---------------------------------------------------------------------
- *
+ * 
+ * Created on Sep 23, 2015 by pop210958
  */
-package org.knime.knip.core.awt.labelingcolortable;
-
-import gnu.trove.map.hash.TIntIntHashMap;
-
-import java.util.Random;
+package org.knime.knip.core.ui.imgviewer.events;
 
 /**
- * TODO Auto-generated
- *
- * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * 
+ * @author pop210958
  */
-public class RandomMissingColorHandler implements MissingColorHandler {
-
-    // Fast HashMap implementation
-    private static TIntIntHashMap m_colorTable = new TIntIntHashMap(4096);
-
-    private static int m_generation;
-
-    private static long m_seed;
-
-    private static int randomColor() {
-        final Random rand = new Random();
-        if(m_seed != -1) {
-            rand.setSeed(m_seed++);
-        }
-        int col = rand.nextInt(255);
-        col = col << 8;
-        col |= rand.nextInt(255);
-        col = col << 8;
-        col |= rand.nextInt(255);
-
-        if (col == 0) {
-            col = randomColor();
-        }
-
-        return col;
-    }
-
-    public static <L> void setColor(final L o, final int color) {
-        m_colorTable.put(o.hashCode(), color);
-        m_generation++;
-    }
-
-    public static <L> void resetColor(final L o) {
-        m_colorTable.put(o.hashCode(), randomColor());
-        m_generation++;
-    }
-
-    /**
-     * resets the color table such that the label colors can be assigned again. Increases the ColorMapNr to indicate the
-     * change.
-     */
-    public static void resetColorMap() {
-        m_colorTable.clear();
-        m_generation++;
-    }
-
-    /**
-     * @return current generation (e.g. needed for caching)
-     */
-    public static int getGeneration() {
-        return m_generation;
-    }
-
-    public static void setSeed(final long s) {
-        m_seed = s;
-    }
-
-    public static <L> int getLabelColor(final L label) {
-
-        final int hashCode = label.toString().hashCode();
-        int res = m_colorTable.get(hashCode);
-        if (res == 0) {
-            res = LabelingColorTableUtils.getTransparentRGBA(randomColor(), 255);
-            m_colorTable.put(hashCode, res);
-        }
-
-        return res;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final <L> int getColor(final L label) {
-        return RandomMissingColorHandler.getLabelColor(label);
-    }
+public class ForcedImgRedrawEvent extends ImgRedrawEvent {
 
 }
