@@ -221,10 +221,9 @@ public class GaussNativeTypeNodeFactory2<T extends NumericType<T> & RealType<T> 
     @Override
     protected void addNodeDescriptionContent(final KnimeNode node) {
         super.addNodeDescriptionContent(node);
-        Tab t = node.getFullDescription().addNewTab();
+        final Tab t = node.getFullDescription().addNewTab();
         t.setName("Options");
         DialogComponentOutOfBoundsSelection.createNodeDescription(t.addNewOption());
-
     }
 
 }
