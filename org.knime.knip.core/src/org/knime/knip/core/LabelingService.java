@@ -1,7 +1,6 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2015
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -61,6 +60,11 @@ import net.imglib2.roi.labeling.LabelingType;
  */
 public interface LabelingService extends Service {
 
+    /**
+     * @param labeling used to compute the {@link LabelRegions}
+     *
+     * @return computed (potentially cached) {@link LabelRegions}
+     */
     <L> LabelRegions<L> regions(final RandomAccessibleInterval<LabelingType<L>> labeling);
 
 }

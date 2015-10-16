@@ -52,6 +52,8 @@ package org.knime.knip.core;
 import org.knime.knip.scijava.core.ResourceAwareClassLoader;
 import org.scijava.Context;
 import org.scijava.cache.CacheService;
+import org.scijava.log.LogService;
+import org.scijava.module.ModuleService;
 import org.scijava.plugin.DefaultPluginFinder;
 import org.scijava.plugin.PluginIndex;
 import org.scijava.thread.ThreadService;
@@ -124,6 +126,10 @@ public class KNIPGateway {
 
     private static CacheService m_cs;
 
+    private static ModuleService m_ms;
+
+    private static LogService m_log;
+
     private final Context m_context;
 
     private KNIPGateway() {
@@ -134,6 +140,9 @@ public class KNIPGateway {
                 new DefaultPluginFinder(new ResourceAwareClassLoader(getClass().getClassLoader(), getClass()))));
     }
 
+    /**
+     * @return singleton instance of {@link KNIPGateway}
+     */
     public static synchronized KNIPGateway getInstance() {
         if (m_instance == null) {
             m_instance = new KNIPGateway();
@@ -141,6 +150,9 @@ public class KNIPGateway {
         return m_instance;
     }
 
+    /**
+     * @return singleton instance of {@link OpService}
+     */
     public static OpService ops() {
         if (m_os == null) {
             m_os = getInstance().m_context.getService(OpService.class);
@@ -148,6 +160,9 @@ public class KNIPGateway {
         return m_os;
     }
 
+    /**
+     * @return singleton instance of {@link ThreadService}
+     */
     public static ThreadService threads() {
         if (m_ts == null) {
             m_ts = getInstance().m_context.getService(ThreadService.class);
@@ -155,6 +170,9 @@ public class KNIPGateway {
         return m_ts;
     }
 
+    /**
+     * @return singleton instance of {@link LabelingService}
+     */
     public static LabelingService regions() {
         if (m_ls == null) {
             m_ls = getInstance().m_context.getService(LabelingService.class);
@@ -162,6 +180,9 @@ public class KNIPGateway {
         return m_ls;
     }
 
+    /**
+     * @return singleton instance of {@link CacheService}
+     */
     public static CacheService cache() {
         if (m_cs == null) {
             m_cs = getInstance().m_context.getService(CacheService.class);
@@ -169,4 +190,23 @@ public class KNIPGateway {
         return m_cs;
     }
 
+    /**
+     * @return singleton instance of {@link ModuleService}
+     */
+    public static ModuleService ms() {
+        if (m_ms == null) {
+            m_ms = getInstance().m_context.getService(ModuleService.class);
+        }
+        return m_ms;
+    }
+
+    /**
+     * @return singleton instance of {@link LogService}
+     */
+    public static LogService log() {
+        if (m_log == null) {
+            m_log = getInstance().m_context.getService(LogService.class);
+        }
+        return m_log;
+    }
 }

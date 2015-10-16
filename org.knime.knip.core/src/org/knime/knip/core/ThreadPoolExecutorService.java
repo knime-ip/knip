@@ -1,7 +1,6 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2015
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -64,9 +63,7 @@ import org.knime.core.util.ThreadPool;
 /**
  * ExecutorService for KNIME {@link ThreadPool}
  *
- * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author Christian Dietz, University of Konstanz
  */
 public class ThreadPoolExecutorService implements ExecutorService {
 
@@ -108,7 +105,7 @@ public class ThreadPoolExecutorService implements ExecutorService {
     /**
      * Get the underlying {@link ThreadPool}
      *
-     * @return
+     * @return {@link ThreadPool}
      */
     public ThreadPool getThreadPool() {
         return m_pool;
