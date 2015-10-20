@@ -400,7 +400,7 @@ public final class AWTImageTools {
             transform = new AffineTransform3D();
             ((AffineTransform3D)transform).set(factor, 0.0, 0.0, 0.0, 0.0, factor, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
-            interval = new FinalInterval(min, new long[]{width, height, img.dimension(2)});
+            interval = new FinalInterval(min, new long[]{width, height, img.max(2)});
 
         } else {
             throw new IllegalArgumentException("Images with more than 3 dimensions are not supported!");
