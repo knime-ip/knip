@@ -746,7 +746,7 @@ propagated with or for interoperation with KNIME.
          version="0.0.0"/>
 
    <plugin
-         id="org.knime.knip.featurenode"
+         id="org.knime.knip.features"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
