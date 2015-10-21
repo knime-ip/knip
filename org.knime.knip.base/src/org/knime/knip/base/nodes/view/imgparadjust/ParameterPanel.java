@@ -101,7 +101,7 @@ public class ParameterPanel extends ViewerComponent {
     private final Map<String, Long> m_planeSelection = new HashMap<String, Long>();
 
     public ParameterPanel() {
-        super("Parameters", false);
+        super("Parameters", true);
 
         m_parameterList = new JTextArea();
         m_parameterList.setEditable(false);

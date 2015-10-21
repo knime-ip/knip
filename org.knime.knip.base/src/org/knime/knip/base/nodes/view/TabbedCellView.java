@@ -85,7 +85,7 @@ public class TabbedCellView extends AbstractCellView {
      */
     public void addTab(final String title, final Component component) {
         m_cellView.addTab(title, component);
-        subscribeTo(component);
+        subscribe(component);
     }
 
     /**

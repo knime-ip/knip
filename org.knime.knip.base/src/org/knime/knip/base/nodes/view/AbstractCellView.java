@@ -323,7 +323,7 @@ public abstract class AbstractCellView extends JPanel implements EventServiceCli
 
     }
 
-    public void subscribeTo(final Component c) {
+    public void subscribe(final Component c) {
         if (c instanceof ImgViewer) {
             EventService es = ((ImgViewer)c).getEventService();
             m_contentServices.add(es);

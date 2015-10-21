@@ -62,14 +62,9 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSplitPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-
-import net.imagej.ImgPlus;
-import net.imglib2.img.Img;
-import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.node.NodeView;
 import org.knime.core.node.tableview.TableContentModel;
@@ -77,14 +72,25 @@ import org.knime.core.node.tableview.TableContentView;
 import org.knime.core.node.tableview.TableView;
 import org.knime.core.node.workflow.FlowVariable;
 import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.base.nodes.view.PlainCellView;
+import org.knime.knip.core.ui.event.EventListener;
+import org.knime.knip.core.ui.event.EventService;
+import org.knime.knip.core.ui.imgviewer.ExpandingPanel;
 import org.knime.knip.core.ui.imgviewer.ImgCanvas;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
+import org.knime.knip.core.ui.imgviewer.events.TablePositionEvent;
 import org.knime.knip.core.ui.imgviewer.panels.ImgNormalizationPanel;
-import org.knime.knip.core.ui.imgviewer.panels.MinimapPanel;
-import org.knime.knip.core.ui.imgviewer.panels.PlaneSelectionPanel;
+import org.knime.knip.core.ui.imgviewer.panels.MinimapAndPlaneSelectionPanel;
+import org.knime.knip.core.ui.imgviewer.panels.ViewerControlEvent;
+import org.knime.knip.core.ui.imgviewer.panels.ViewerScrollEvent;
+import org.knime.knip.core.ui.imgviewer.panels.ViewerScrollEvent.Direction;
 import org.knime.knip.core.ui.imgviewer.panels.infobars.ImgViewInfoPanel;
 import org.knime.knip.core.ui.imgviewer.panels.providers.AWTImageProvider;
 import org.knime.knip.core.ui.imgviewer.panels.providers.ThresholdRU;
+
+import net.imagej.ImgPlus;
+import net.imglib2.img.Img;
+import net.imglib2.type.numeric.RealType;
 
 /**
  *
@@ -111,6 +117,18 @@ public class ImgParAdjustNodeView<T extends RealType<T>> extends NodeView<ImgPar
     private ParameterPanel m_parameterPanel;
 
     private TableContentView m_tableContentView;
+
+    private PlainCellView m_cellView;
+
+    private TableView m_tableView;
+
+    private int m_col;
+
+    private int m_row;
+
+    private EventService m_eventService;
+
+    private JPanel m_content;
 
     /**
      * @param nodeModel
@@ -146,12 +164,15 @@ public class ImgParAdjustNodeView<T extends RealType<T>> extends NodeView<ImgPar
             }
         });
 
-        final TableView tableView = new TableView(m_tableContentView);
+        m_eventService = new EventService();
+        m_eventService.subscribe(this);
+
+        m_tableView = new TableView(m_tableContentView);
 
         // scale to thumbnail size, if desired
         final int TABLE_CELL_SIZE = 100;
-        tableView.setColumnWidth(TABLE_CELL_SIZE);
-        tableView.setRowHeight(TABLE_CELL_SIZE);
+        m_tableView.setColumnWidth(TABLE_CELL_SIZE);
+        m_tableView.setRowHeight(TABLE_CELL_SIZE);
 
         // contructing the image viewer
         final int CACHE_SIZE = 50;
@@ -159,19 +180,22 @@ public class ImgParAdjustNodeView<T extends RealType<T>> extends NodeView<ImgPar
         final AWTImageProvider realProvider = new AWTImageProvider(CACHE_SIZE, new ThresholdRU<T>());
         realProvider.setEventService(m_imgViewer.getEventService());
 
+        m_imgViewer.addViewerComponent(realProvider);
         m_imgViewer.addViewerComponent(new ImgViewInfoPanel<T>());
         m_imgViewer.addViewerComponent(new ImgCanvas<T, Img<T>>());
 
-        m_imgViewer.addViewerComponent(new MinimapPanel());
-        m_imgViewer.addViewerComponent(new PlaneSelectionPanel<T, Img<T>>());
-        m_imgViewer.addViewerComponent(new ImgNormalizationPanel<T, Img<T>>());
-        m_imgViewer.addViewerComponent(new SetThresholdPanel<T, Img<T>>());
+        m_imgViewer.addViewerComponent(new MinimapAndPlaneSelectionPanel());
+        m_imgViewer.addViewerComponent(new ExpandingPanel("Normalization", new ImgNormalizationPanel<T, Img<T>>()));
+        m_imgViewer.addViewerComponent(new ExpandingPanel("Threshold", new SetThresholdPanel<T, Img<T>>()));
         m_parameterPanel = new ParameterPanel();
-        m_imgViewer.addViewerComponent(m_parameterPanel);
+        m_imgViewer.addViewerComponent(new ExpandingPanel("Parameters", m_parameterPanel));
+        m_imgViewer.doneAdding();
 
-        final JPanel content = new JPanel(new BorderLayout());
-        content.add(m_imgViewer, BorderLayout.CENTER);
+        m_cellView = new PlainCellView(m_tableView, m_imgViewer);
 
+        m_content = new JPanel(new BorderLayout());
+
+        m_content.add(m_cellView, BorderLayout.CENTER);
         final JButton continueButton = new JButton("Set parameters and continue execution ...");
         continueButton.addActionListener(new ActionListener() {
             @Override
@@ -179,20 +203,16 @@ public class ImgParAdjustNodeView<T extends RealType<T>> extends NodeView<ImgPar
                 onContinueExecution();
             }
         });
-        content.add(continueButton, BorderLayout.SOUTH);
+        m_content.add(continueButton, BorderLayout.SOUTH);
 
-        final JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        splitPane.setDividerLocation(300);
-        splitPane.add(tableView);
-        splitPane.add(content);
 
-        setComponent(splitPane);
+        setComponent(m_tableView);
 
         // let this class listening to the imgViewer events (registers
         // the
         // onNormalization... method the the event service of the
         // imgviewer)
-        m_imgViewer.getEventService().subscribe(this);
+        m_cellView.setEventService(m_eventService);
     }
 
     private void loadPortContent() {
@@ -222,19 +242,41 @@ public class ImgParAdjustNodeView<T extends RealType<T>> extends NodeView<ImgPar
 
     }
 
+    private boolean cellExists(final int row, final int col) {
+        return (col >= 0 && col < m_tableContentView.getColumnCount() && row >= 0
+                && row < m_tableContentView.getRowCount());
+    }
+
     /**
      * @param row
      * @param col
      */
     protected void onCellSelectionChanged() {
-
         final int row = m_tableContentView.getSelectionModel().getLeadSelectionIndex();
         final int col = m_tableContentView.getColumnModel().getSelectionModel().getLeadSelectionIndex();
+
+        onCellSelectionChanged(col, row);
+    }
+
+    protected void onCellSelectionChanged(final int col, final int row) {
+
+        if (!cellExists(row, col)) {
+            return;
+        }
+
+        m_col = col;
+        m_row = row;
 
         if (m_tableContentView.getContentModel().getValueAt(row, col) instanceof ImgPlusValue) {
             final ImgPlus<T> imgPlus =
                     ((ImgPlusValue<T>)m_tableContentView.getContentModel().getValueAt(row, col)).getImgPlus();
+
             m_imgViewer.setImg(imgPlus);
+
+            if (getComponent() != m_content) {
+                setComponent(m_content);
+            }
+            m_eventService.publish(new TablePositionEvent(m_tableContentView.getColumnCount(), m_tableContentView.getRowCount(), col+1, row+1));
         }
     }
 
@@ -280,6 +322,36 @@ public class ImgParAdjustNodeView<T extends RealType<T>> extends NodeView<ImgPar
         }
 
         setComponent(p);
+
+    }
+
+    @EventListener
+    public void onViewerScrollEvent(final ViewerScrollEvent e) {
+
+        if (e.getDirection() == Direction.NORTH) {
+            onCellSelectionChanged(m_row - 1, m_col);
+        }
+        if (e.getDirection() == Direction.EAST) {
+            onCellSelectionChanged(m_row, m_col + 1);
+        }
+        if (e.getDirection() == Direction.WEST) {
+            onCellSelectionChanged(m_row, m_col - 1);
+        }
+        if (e.getDirection() == Direction.SOUTH) {
+            onCellSelectionChanged(m_row + 1, m_col);
+        }
+
+    }
+
+    @EventListener
+    public void onOverviewToggle(final ViewerControlEvent e) {
+        if (getComponent() == m_cellView) {
+            if (m_cellView.isTableViewVisible()) {
+                m_cellView.hideTableView();
+            }
+            m_tableContentView.clearSelection();
+            setComponent(m_tableView);
+        }
 
     }
 
