@@ -55,6 +55,7 @@ public abstract class AbstractDefaultAnnotatorView<A> implements
 		// Scale to thumbnail size
 		m_tableContentView.validate();
 		m_tableContentView.repaint();
+		m_tableContentView.changeSelection(0, 0, false, false);
 	}
 
 	/*

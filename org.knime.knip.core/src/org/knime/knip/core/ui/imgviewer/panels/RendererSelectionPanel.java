@@ -48,15 +48,16 @@
  */
 package org.knime.knip.core.ui.imgviewer.panels;
 
-import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import javax.swing.Box;
 import javax.swing.JComboBox;
-import javax.swing.JScrollPane;
 
 import org.knime.knip.core.awt.ImageRenderer;
 import org.knime.knip.core.awt.RendererFactory;
@@ -95,9 +96,16 @@ public class RendererSelectionPanel<T extends Type<T>> extends ViewerComponent {
         super("", true);
         // renderer selection
 
-        setLayout(new BorderLayout());
+        setLayout(new GridBagLayout());
+
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        gbc.gridx = 0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1;
 
         m_rendList = new JComboBox();
+
         //m_rendList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 
@@ -133,10 +141,16 @@ public class RendererSelectionPanel<T extends Type<T>> extends ViewerComponent {
 
    //     m_rendList.setSelectedIndex(0);
 
-        add(new JScrollPane(m_rendList), BorderLayout.CENTER);
+        add(m_rendList, gbc);
+
+        gbc.weighty = 1;
+        gbc.fill = GridBagConstraints.BOTH;
+
+        add(Box.createVerticalGlue(), gbc);
 //        setPreferredSize(new Dimension(getPreferredSize().width, 200));
 //        setMaximumSize(getPreferredSize());
 //        setMinimumSize(new Dimension(100, getMinimumSize().height));
+
         validate();
     }
 

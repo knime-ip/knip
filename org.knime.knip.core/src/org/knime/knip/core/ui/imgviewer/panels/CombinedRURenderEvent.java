@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2013
+ *  Copyright (C) 2003 - 2015
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -43,56 +43,48 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
+ * Created on Sep 18, 2015 by pop210958
  */
-package org.knime.knip.core.ui.imgviewer.events;
-
-import java.awt.event.MouseEvent;
+package org.knime.knip.core.ui.imgviewer.panels;
 
 import org.knime.knip.core.ui.event.KNIPEvent;
 
 /**
  *
- * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author pop210958
  */
-public class ImgViewerMouseMovedEvent extends ImgViewerMouseEvent {
+public class CombinedRURenderEvent implements KNIPEvent {
+
+    private final boolean m_combineRendering;
+
+
+    public CombinedRURenderEvent(final boolean combine) {
+        m_combineRendering = combine;
+    }
+
+    public boolean getCombineStatus()
+    {
+        return m_combineRendering;
+    }
 
     /**
-     * @param e
-     * @param factors
-     * @param imgWidth
-     * @param imgHeight
+     * {@inheritDoc}
      */
-    public ImgViewerMouseMovedEvent(final MouseEvent e, final double[] factors, final int imgWidth, final int imgHeight,
-                                    final int xoffset, final int yoffset) {
-        super(e, factors, imgWidth, imgHeight, xoffset, yoffset);
-
-        m_posX = (int)(e.getX() / m_factorA) - xoffset;
-        m_posY = (int)(e.getY() / m_factorB) - yoffset;
-
-    }
-
-    @Override
-    public boolean isInsideImgView(final long dimA, final long dimB) {
-
-        return !(((m_posX / m_factorA) >= dimA) || ((m_posX / m_factorA) < 0) || ((m_posY / m_factorB) >= dimB)
-                || ((m_posY / m_factorB) < 0));
-    }
-
     @Override
     public ExecutionPriority getExecutionOrder() {
-        return ExecutionPriority.NORMAL;
+        // TODO Auto-generated method stub
+        return ExecutionPriority.LOW;
     }
 
     /**
-     * implements object equality {@inheritDoc}
+     * {@inheritDoc}
      */
     @Override
     public <E extends KNIPEvent> boolean isRedundant(final E thatEvent) {
-        return this.equals(thatEvent);
+        // TODO Auto-generated method stub
+        return false;
     }
 
 }

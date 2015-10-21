@@ -55,15 +55,6 @@ import java.awt.Rectangle;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import net.imagej.axis.TypedAxis;
-import net.imagej.space.TypedSpace;
-import net.imglib2.Interval;
-import net.imglib2.IterableInterval;
-import net.imglib2.RandomAccess;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.type.Type;
-import net.imglib2.view.Views;
-
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.ViewerComponent;
@@ -73,6 +64,15 @@ import org.knime.knip.core.ui.imgviewer.events.ImgViewerRectChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.IntervalWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
+
+import net.imagej.axis.TypedAxis;
+import net.imagej.space.TypedSpace;
+import net.imglib2.Interval;
+import net.imglib2.IterableInterval;
+import net.imglib2.RandomAccess;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.type.Type;
+import net.imglib2.view.Views;
 
 /**
  *
@@ -239,7 +239,7 @@ public abstract class ViewInfoPanel<T extends Type<T>> extends ViewerComponent {
     @EventListener
     public void onMouseMoved(final ImgViewerMouseMovedEvent e) {
         m_currentCoords = e;
-        if (m_currentCoords.isInsideImgView(m_dims[m_sel.getPlaneDimIndex1()], m_dims[m_sel.getPlaneDimIndex2()])) {
+        if (e.isInsideImgView(m_dims[m_sel.getPlaneDimIndex1()], m_dims[m_sel.getPlaneDimIndex2()])) {
             m_pos = m_sel.getPlanePos(m_currentCoords.getPosX(), m_currentCoords.getPosY());
 
             //TODO instead of testing for null to indicate that something went wrong make sure the method is never

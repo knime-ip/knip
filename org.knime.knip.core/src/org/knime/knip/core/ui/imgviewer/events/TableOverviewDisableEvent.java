@@ -48,8 +48,6 @@
  */
 package org.knime.knip.core.ui.imgviewer.events;
 
-import java.awt.event.MouseEvent;
-
 import org.knime.knip.core.ui.event.KNIPEvent;
 
 /**
@@ -58,41 +56,48 @@ import org.knime.knip.core.ui.event.KNIPEvent;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class ImgViewerMouseMovedEvent extends ImgViewerMouseEvent {
+public class TableOverviewDisableEvent implements KNIPEvent {
+
+    private final boolean m_colsStatus;
+
+    private final boolean m_rowsStatus;
+
+
+    public TableOverviewDisableEvent(final boolean isColsEnabled, final boolean isRowsEnabled) {
+        m_colsStatus = isColsEnabled;
+        m_rowsStatus = isRowsEnabled;
+    }
+
+    public boolean getColStatus(){
+        return m_colsStatus;
+    }
+
+    public boolean getRowStatus(){
+        return m_rowsStatus;
+    }
 
     /**
-     * @param e
-     * @param factors
-     * @param imgWidth
-     * @param imgHeight
+     * {@inheritDoc}
      */
-    public ImgViewerMouseMovedEvent(final MouseEvent e, final double[] factors, final int imgWidth, final int imgHeight,
-                                    final int xoffset, final int yoffset) {
-        super(e, factors, imgWidth, imgHeight, xoffset, yoffset);
-
-        m_posX = (int)(e.getX() / m_factorA) - xoffset;
-        m_posY = (int)(e.getY() / m_factorB) - yoffset;
-
-    }
-
-    @Override
-    public boolean isInsideImgView(final long dimA, final long dimB) {
-
-        return !(((m_posX / m_factorA) >= dimA) || ((m_posX / m_factorA) < 0) || ((m_posY / m_factorB) >= dimB)
-                || ((m_posY / m_factorB) < 0));
-    }
-
     @Override
     public ExecutionPriority getExecutionOrder() {
-        return ExecutionPriority.NORMAL;
+        // TODO Auto-generated method stub
+        return ExecutionPriority.LOW;
     }
 
+
     /**
-     * implements object equality {@inheritDoc}
+     * {@inheritDoc}
      */
     @Override
     public <E extends KNIPEvent> boolean isRedundant(final E thatEvent) {
-        return this.equals(thatEvent);
+        if(thatEvent instanceof TableOverviewDisableEvent) {
+            TableOverviewDisableEvent t = (TableOverviewDisableEvent)thatEvent;
+            if(t.getRowStatus() == m_rowsStatus && t.getColStatus() == m_colsStatus) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

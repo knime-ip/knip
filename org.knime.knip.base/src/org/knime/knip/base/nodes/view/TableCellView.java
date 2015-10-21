@@ -100,14 +100,18 @@ package org.knime.knip.base.nodes.view;
  */
 
 import java.awt.Component;
+import java.util.List;
+
+import javax.swing.JOptionPane;
 
 import org.knime.core.data.DataValue;
 import org.knime.core.node.config.ConfigRO;
 import org.knime.core.node.config.ConfigWO;
+import org.knime.knip.core.KNIPGateway;
 
 /**
  * An arbitrary component, which provides an additional view for on single cell with the specific DataValue.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -126,21 +130,21 @@ public interface TableCellView {
 
     /**
      * Is called before {@link TableCellView#updateComponent(DataValue)} is possibly multiple times.
-     * 
+     *
      * @return the actual view component
      */
     public Component getViewComponent();
 
     /**
      * To save and restore a configuration
-     * 
+     *
      * @param config
      */
     public void loadConfigurationFrom(ConfigRO config);
 
     /**
      * Called if the table cell view is closed.
-     * 
+     *
      */
 
     public void onClose();
@@ -152,7 +156,7 @@ public interface TableCellView {
 
     /**
      * To save and restore a configuration
-     * 
+     *
      * @param config
      */
     public void saveConfigurationTo(ConfigWO config);
@@ -160,9 +164,20 @@ public interface TableCellView {
     /**
      * Instructs the pane to update the view. This method call should modify the {@link Component} returned by
      * {@link TableCellView#getViewComponent()}.
-     * 
+     *
      * @param valueToView
      */
     public void updateComponent(DataValue valueToView);
+
+    public default void updateComponent(final List<? extends DataValue> valuesToView) {
+        assert valuesToView.size() == 1;
+        try{
+            updateComponent(valuesToView.get(0));
+        } catch (Exception e){
+            KNIPGateway.log().error(e);
+            JOptionPane.showMessageDialog(getViewComponent(), e.getClass() +": " + e.getMessage(), "An error occurred", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+    }
 
 }
