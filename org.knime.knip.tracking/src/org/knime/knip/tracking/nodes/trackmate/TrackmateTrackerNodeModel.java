@@ -97,8 +97,8 @@ import net.imglib2.type.logic.BitType;
 /**
  * Node Model for the Trackmate Tracker Node.
  *
- * @author gabriel
- * @author christian
+ * @author Gabriel Einsdorf, University of Konstanz
+ * @author Christian Dietz, University of Konstanz
  *
  */
 public class TrackmateTrackerNodeModel extends NodeModel
@@ -603,7 +603,7 @@ public class TrackmateTrackerNodeModel extends NodeModel
             final String trackPrefix,
             final Map<Integer, Map<String, Double>> featureValues)
 
-    throws IOException, CanceledExecutionException {
+                    throws IOException, CanceledExecutionException {
 
         final DataTableSpec[] outSpec = createOutSpec();
 
