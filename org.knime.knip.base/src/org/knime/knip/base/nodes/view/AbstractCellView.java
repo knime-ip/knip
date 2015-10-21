@@ -50,14 +50,31 @@
 package org.knime.knip.base.nodes.view;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.util.LinkedList;
-import java.util.List;
+import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JColorChooser;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
+import javax.swing.JToggleButton;
 
 import org.knime.core.node.tableview.TableView;
 import org.knime.knip.core.ui.event.EventListener;
@@ -65,9 +82,11 @@ import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.event.EventServiceClient;
 import org.knime.knip.core.ui.event.KNIPEvent;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
+import org.knime.knip.core.ui.imgviewer.events.BackgroundColorChangedEvent;
+import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
+import org.knime.knip.core.ui.imgviewer.panels.TableOverviewPanel;
 import org.knime.knip.core.ui.imgviewer.panels.ViewerControlEvent;
 import org.knime.knip.core.ui.imgviewer.panels.ViewerScrollEvent;
-import org.knime.knip.core.ui.imgviewer.panels.ViewerToggleEvent;
 
 /**
  *
@@ -76,6 +95,8 @@ import org.knime.knip.core.ui.imgviewer.panels.ViewerToggleEvent;
 public abstract class AbstractCellView extends JPanel implements EventServiceClient {
 
     protected JPanel m_tablePanel;
+
+    protected JPanel m_cellPanel;
 
     protected final TableView m_tableView;
 
@@ -87,31 +108,154 @@ public abstract class AbstractCellView extends JPanel implements EventServiceCli
 
     protected EventService m_eventService;
 
-    protected List<EventService> m_contentServices;
+    protected Set<EventService> m_contentServices;
+
+    protected TableOverviewPanel m_navPanel;
+
+    protected Color m_bgColour = Color.black;
+
+    private JToggleButton m_bottomQuickViewButton;
 
     public AbstractCellView(final TableView tableView) {
 
+        setLayout(new BorderLayout());
+
         m_tableView = tableView;
 
-        m_contentServices = new LinkedList<EventService>();
+        m_contentServices = new HashSet<EventService>();
 
         m_verticalSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 
-        setLayout(new GridBagLayout());
+        add(m_verticalSplit, BorderLayout.CENTER);
+
+        m_verticalSplit.setTopComponent(createViewPanel());
+
+        m_tablePanel = new JPanel(new BorderLayout());
+        //        m_verticalSplit.setBo
+
+    }
+
+    private JPanel createViewPanel() {
+        JPanel viewPanel = new JPanel(new GridBagLayout());
+
         GridBagConstraints gbc = new GridBagConstraints();
 
         gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.weightx = 1;
         gbc.weighty = 1;
-        gbc.gridheight = GridBagConstraints.REMAINDER;
+        gbc.weightx = 1;
+        gbc.gridheight = 1;
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.fill = GridBagConstraints.BOTH;
 
-        m_tablePanel = new JPanel(new BorderLayout());
+        m_cellPanel = new JPanel(new BorderLayout());
 
-        add(m_verticalSplit, gbc);
+        viewPanel.add(m_cellPanel, gbc);
 
+        gbc.weighty = 0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridy = 1;
+
+        viewPanel.add(createNavBar(), gbc);
+
+        return viewPanel;
+    }
+
+    private JComponent createNavBar() {
+        Box navbar = new Box(BoxLayout.X_AXIS);
+
+        navbar.add(Box.createRigidArea(new Dimension(10, 40)));
+
+        Box firstPanel = new Box(BoxLayout.X_AXIS);
+
+        JButton overviewButton =
+                new JButton("Back to Table");
+        overviewButton.setMnemonic(KeyEvent.VK_B);
+        firstPanel.add(overviewButton);
+        //        overviewButtonPanel.add(Box.createHorizontalGlue());
+
+        overviewButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                m_eventService.publish(new ViewerControlEvent());
+                m_bottomQuickViewButton.setSelected(false);
+
+            }
+
+        });
+
+        firstPanel.add(Box.createHorizontalStrut(20));
+        JLabel expandLabel = new JLabel("Expand Table View ");
+        firstPanel.add(expandLabel);
+        Box quickViewButtonPanel = new Box(BoxLayout.X_AXIS);
+        //      py  quickViewButtonPanel.add(Box.createHorizontalGlue());
+        ImageIcon i = new ImageIcon(this.getClass().getResource("/icons/tableup.png"));
+        ImageIcon i2 = new ImageIcon(this.getClass().getResource("/icons/tabledown.png"));
+
+        m_bottomQuickViewButton =
+                new JToggleButton(new ImageIcon(i.getImage().getScaledInstance(32, 16, java.awt.Image.SCALE_SMOOTH)));
+        m_bottomQuickViewButton
+                .setSelectedIcon(new ImageIcon(i2.getImage().getScaledInstance(32, 16, java.awt.Image.SCALE_SMOOTH)));
+        m_bottomQuickViewButton.setMnemonic(KeyEvent.VK_Q);
+
+        quickViewButtonPanel.add(m_bottomQuickViewButton);
+        //        quickViewButtonPanel.add(Box.createHorizontalGlue());
+        firstPanel.add(quickViewButtonPanel);
+
+        firstPanel.add(Box.createHorizontalStrut(20));
+
+        Box colourButtonPanel = new Box(BoxLayout.X_AXIS);
+
+        JLabel colourLabel = new JLabel("Background Color ");
+        firstPanel.add(colourLabel);
+
+        JButton colourButton  =
+                new JButton(new ColorIcon(m_bgColour));
+
+        colourButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                Color c = JColorChooser.showDialog(m_cellPanel, "Select Background Color", m_bgColour);
+                if(c != null){
+                    m_bgColour = c;
+                    colourButton.setIcon(new ColorIcon(c));
+                    broadcastEvent(new BackgroundColorChangedEvent(c));
+                }
+
+
+
+            }
+        });
+
+
+        colourButtonPanel.add(colourButton);
+        //        quickViewButtonPanel.add(Box.createHorizontalGlue());
+        firstPanel.add(colourButtonPanel);
+
+        navbar.add(firstPanel);
+
+        navbar.add(Box.createHorizontalGlue());
+
+        m_bottomQuickViewButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                setTableViewVisible(!isTableViewVisible());
+            }
+
+        });
+
+        m_navPanel = new TableOverviewPanel();
+        navbar.add(m_navPanel);
+        navbar.add(Box.createHorizontalGlue());
+
+        Box thirdPanel = new Box(BoxLayout.X_AXIS);
+        thirdPanel.add(Box.createHorizontalGlue());
+
+        navbar.add(thirdPanel);
+
+        return navbar;
     }
 
     /**
@@ -121,7 +265,7 @@ public abstract class AbstractCellView extends JPanel implements EventServiceCli
      * @param d The location of the table whose visibility will be set
      */
     public void setTableViewVisible(final boolean isVisible) {
-        m_tablePanel.add(m_tableView);
+        m_tablePanel.add(m_tableView, BorderLayout.CENTER);
         if (isVisible) {
             m_isLeftVisible = !isVisible;
             showTableView();
@@ -175,25 +319,29 @@ public abstract class AbstractCellView extends JPanel implements EventServiceCli
     @Override
     public void setEventService(final EventService eventService) {
         m_eventService = eventService;
+        m_navPanel.setEventService(eventService);
 
     }
 
     public void subscribeTo(final Component c) {
         if (c instanceof ImgViewer) {
             EventService es = ((ImgViewer)c).getEventService();
-            es.subscribe(this);
             m_contentServices.add(es);
         }
     }
 
-    public void broadcastEvent(final KNIPEvent e){
-        for(EventService es : m_contentServices)
-        {
-          es.publish(e);
+    public void broadcastEvent(final KNIPEvent e) {
+        for (EventService es : m_contentServices) {
+            es.publish(e);
         }
     }
 
     //TODO: Inheritance
+
+    @EventListener
+    public void onPlaneSelectionChanged(final PlaneSelectionEvent e) {
+        m_eventService.publish(e);
+    }
 
     @EventListener
     public void onViewerImgChange(final ViewerScrollEvent e) {
@@ -209,11 +357,39 @@ public abstract class AbstractCellView extends JPanel implements EventServiceCli
         }
     }
 
-    @EventListener
-    public void onViewerQuickviewToggle(final ViewerToggleEvent e){
-        if(m_eventService != null) {
-            setTableViewVisible(!isTableViewVisible());
+    private static class ColorIcon implements Icon
+    {
+        private final int size = 16;
+
+        private final Color color;
+
+        public ColorIcon( final Color color )
+        {
+            this.color = color;
+        }
+
+        @Override
+        public void paintIcon( final Component c, final Graphics g, final int x, final int y )
+        {
+            final Graphics2D g2d = ( Graphics2D ) g;
+            g2d.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
+            g2d.setColor( color );
+            g2d.fillOval( x, y, size, size );
+        }
+
+        @Override
+        public int getIconWidth()
+        {
+            return size;
+        }
+
+        @Override
+        public int getIconHeight()
+        {
+            return size;
         }
     }
+
+
 
 }

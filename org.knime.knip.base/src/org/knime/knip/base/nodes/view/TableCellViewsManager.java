@@ -50,6 +50,7 @@ package org.knime.knip.base.nodes.view;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -95,8 +96,7 @@ public final class TableCellViewsManager {
     private final Map<Class<? extends DataValue>, List<String>> m_viewDescriptions =
             new HashMap<Class<? extends DataValue>, List<String>>();
 
-    private final Map<Class<? extends DataValue>, List<TableCellViewFactory>> m_viewFactories =
-            new HashMap<Class<? extends DataValue>, List<TableCellViewFactory>>();
+    private List<TableCellViewFactory> m_viewFactories = new LinkedList<TableCellViewFactory>();
 
     /**
      * Singleton, use getInstance()
@@ -104,6 +104,8 @@ public final class TableCellViewsManager {
     private TableCellViewsManager() {
         addTableCellViewFactory(new ImgCellViewFactory());
         addTableCellViewFactory(new LabelingCellViewFactory());
+        addTableCellViewFactory(new CombinedCellViewFactory());
+        addTableCellViewFactory(new MissingCellViewFactory());
         registerExtensionPoints();
     }
 
@@ -112,15 +114,12 @@ public final class TableCellViewsManager {
      */
     public void addTableCellViewFactory(final TableCellViewFactory fac) {
         final Class<? extends DataValue> value = fac.getDataValueClass();
-        List<TableCellViewFactory> facs = m_viewFactories.get(value);
         List<String> descs = m_viewDescriptions.get(value);
-        if (facs == null) {
-            facs = new ArrayList<TableCellViewFactory>();
-            m_viewFactories.put(value, facs);
+        if (descs == null) {
             descs = new ArrayList<String>();
             m_viewDescriptions.put(value, descs);
         }
-        facs.add(fac);
+        m_viewFactories.add(fac);
         final TableCellView[] views = fac.createTableCellViews();
         for (final TableCellView tcv : views) {
             descs.add(tcv.getName() + ": " + tcv.getDescription());
@@ -134,19 +133,33 @@ public final class TableCellViewsManager {
      */
     public List<TableCellView> createTableCellViews(final List<Class<? extends DataValue>> valueClasses) {
         final List<TableCellView> views = new ArrayList<TableCellView>();
-        for (final Class<? extends DataValue> valueClass : valueClasses) {
-            final List<TableCellViewFactory> facs = m_viewFactories.get(valueClass);
-            if (facs == null) {
-                continue;
-            }
 
-            for (final TableCellViewFactory fac : facs) {
-                for (final TableCellView view : fac.createTableCellViews()) {
-                    views.add(view);
-                }
+        final List<TableCellViewFactory> facs = new LinkedList<TableCellViewFactory>();
+        for (TableCellViewFactory f : m_viewFactories) {
+            if (f.check(valueClasses)) {
+                facs.add(f);
             }
         }
+
+        for (final TableCellViewFactory fac : facs) {
+            for (final TableCellView view : fac.createTableCellViews()) {
+                views.add(view);
+            }
+        }
+
         return views;
+
+    }
+
+    public List<TableCellViewFactory> getCompatibleFactories(final List<Class<? extends DataValue>> valueClasses) {
+        final List<TableCellView> views = new ArrayList<TableCellView>();
+        final List<TableCellViewFactory> facs = new LinkedList<TableCellViewFactory>();
+        for (TableCellViewFactory f : m_viewFactories) {
+            if (f.check(valueClasses)) {
+                facs.add(f);
+            }
+        }
+        return facs;
 
     }
 
@@ -184,7 +197,8 @@ public final class TableCellViewsManager {
                             (TableCellViewFactory)elem.createExecutableExtension(EXT_POINT_ATTR_DF);
                     addTableCellViewFactory(factory);
                 } catch (final Exception t) {
-                    LOGGER.error("Problems during initialization of " + "Table Cell View (with id '" + operator + "'.)");
+                    LOGGER.error("Problems during initialization of " + "Table Cell View (with id '" + operator
+                            + "'.)");
                     if (decl != null) {
                         LOGGER.error("Extension " + decl + " ignored.", t);
                     }

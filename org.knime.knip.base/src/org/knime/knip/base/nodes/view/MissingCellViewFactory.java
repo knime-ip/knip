@@ -46,53 +46,91 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.core.ui.imgviewer.events;
+package org.knime.knip.base.nodes.view;
 
-import java.awt.event.MouseEvent;
+import java.awt.Component;
 
-import org.knime.knip.core.ui.event.KNIPEvent;
+import org.knime.core.data.DataValue;
+import org.knime.core.data.MissingValue;
+import org.knime.core.node.config.ConfigRO;
+import org.knime.core.node.config.ConfigWO;
+import org.knime.knip.core.ui.imgviewer.ImgViewer;
+import org.knime.knip.core.ui.imgviewer.MissingImgViewer;
+import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
+
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
 
 /**
+ * TODO Auto-generated
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
  */
-public class ImgViewerMouseMovedEvent extends ImgViewerMouseEvent {
+public class MissingCellViewFactory<T extends RealType<T> & NativeType<T>> implements TableCellViewFactory {
 
-    /**
-     * @param e
-     * @param factors
-     * @param imgWidth
-     * @param imgHeight
-     */
-    public ImgViewerMouseMovedEvent(final MouseEvent e, final double[] factors, final int imgWidth, final int imgHeight,
-                                    final int xoffset, final int yoffset) {
-        super(e, factors, imgWidth, imgHeight, xoffset, yoffset);
+    @Override
+    public TableCellView[] createTableCellViews() {
+        return new TableCellView[]{new TableCellView() {
 
-        m_posX = (int)(e.getX() / m_factorA) - xoffset;
-        m_posY = (int)(e.getY() / m_factorB) - yoffset;
+            private ImgViewer m_view = null;
 
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            public String getDescription() {
+                return "";
+            }
+
+            @Override
+            public String getName() {
+                return "? Missing Value ?";
+            }
+
+            @Override
+            public Component getViewComponent() {
+                if (m_view == null) {
+                    m_view = new MissingImgViewer();
+                }
+
+                return m_view;
+            }
+
+            @Override
+            public void loadConfigurationFrom(final ConfigRO config) {
+                //
+
+            }
+
+            @Override
+            public void onClose() {
+                m_view.getEventService().publish(new ViewClosedEvent());
+            }
+
+            @Override
+            public void onReset() {
+                // Nothing to do here
+            }
+
+            @Override
+            public void saveConfigurationTo(final ConfigWO config) {
+                //
+
+            }
+
+            @Override
+            public void updateComponent(final DataValue valueToView) {
+
+
+            }
+        }};
     }
 
     @Override
-    public boolean isInsideImgView(final long dimA, final long dimB) {
-
-        return !(((m_posX / m_factorA) >= dimA) || ((m_posX / m_factorA) < 0) || ((m_posY / m_factorB) >= dimB)
-                || ((m_posY / m_factorB) < 0));
+    public Class<? extends DataValue> getDataValueClass() {
+        return MissingValue.class;
     }
-
-    @Override
-    public ExecutionPriority getExecutionOrder() {
-        return ExecutionPriority.NORMAL;
-    }
-
-    /**
-     * implements object equality {@inheritDoc}
-     */
-    @Override
-    public <E extends KNIPEvent> boolean isRedundant(final E thatEvent) {
-        return this.equals(thatEvent);
-    }
-
 }

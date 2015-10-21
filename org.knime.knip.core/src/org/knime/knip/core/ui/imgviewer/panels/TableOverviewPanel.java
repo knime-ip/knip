@@ -49,20 +49,9 @@
  */
 package org.knime.knip.core.ui.imgviewer.panels;
 
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.font.TextLayout;
-import java.awt.geom.Line2D;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.awt.geom.RoundRectangle2D;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -70,13 +59,14 @@ import java.io.ObjectOutput;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JPanel;
+import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import javax.swing.plaf.basic.BasicArrowButton;
 
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.ViewerComponent;
+import org.knime.knip.core.ui.imgviewer.events.TableOverviewDisableEvent;
 import org.knime.knip.core.ui.imgviewer.events.TablePositionEvent;
 import org.knime.knip.core.ui.imgviewer.panels.ViewerScrollEvent.Direction;
 
@@ -87,8 +77,6 @@ import org.knime.knip.core.ui.imgviewer.panels.ViewerScrollEvent.Direction;
 public class TableOverviewPanel extends ViewerComponent {
 
     private EventService m_eventService;
-
-    private final JPanel m_canvas;
 
     private int m_x = 0;
 
@@ -102,9 +90,23 @@ public class TableOverviewPanel extends ViewerComponent {
 
     private Box m_westPanel;
 
+    private JButton m_northButton;
+
+    private JButton m_eastButton;
+
+    private JButton m_southButton;
+
+    private JButton m_westButton;
+
     private int m_height;
 
     private int m_width;
+
+    private JLabel m_coordLabel;
+
+    private JLabel m_colLabel;
+
+    private JLabel m_rowLabel;
 
     /**
      * @param title
@@ -113,108 +115,82 @@ public class TableOverviewPanel extends ViewerComponent {
     public TableOverviewPanel() {
         super("", true);
 
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        JPanel comp = new JPanel();
-        comp.setLayout(new BorderLayout());
-
-        m_canvas = new JPanel() {
-
-            private void drawArrow(final int x1, final int y1, final int x2, final int y2, final String label,
-                                   final Graphics2D g, final int dir) {
-                Point2D base = new Point2D.Double(x1, y1);
-                Point2D tip = new Point2D.Double(x2, y2);
-                Point2D mid = new Point2D.Double(x1 + (x2 - x1) * 0.4, y1 + (y2 - y1) * 0.4);
-                g.draw(new Line2D.Double(base.getX(), base.getY(), tip.getX(), tip.getY()));
-                Font f = g.getFont();
-                TextLayout t = new TextLayout(label, f, g.getFontRenderContext());
-                Rectangle2D b = t.getBounds();
-                int r;
-                if (dir == 0) {
-                    r = (int)(b.getHeight() + 8);
-                } else {
-                    r = (int)(b.getWidth() + 5);
-                }
-                g.setColor(Color.GRAY);
-                g.fillOval((int)mid.getX() - r / 2, (int)mid.getY() - r / 2, r, r);
-                g.setColor(Color.BLACK);
-
-                g.drawString(label, (int)(mid.getX() - b.getWidth() / 2), (int)(mid.getY() + b.getHeight() / 2));
-                double angle = Math.atan2(y2 - y1, x2 - x1) + Math.toRadians(30);
-                for (int i = 0; i < 2; i++) {
-                    double x = tip.getX() - 20 * Math.cos(angle);
-                    double y = tip.getY() - 20 * Math.sin(angle);
-                    g.draw(new Line2D.Double(tip.getX(), tip.getY(), x, y));
-                    angle -= 2 * Math.toRadians(30);
-                }
-
-            }
-
-            @Override
-            public void paint(final Graphics g) {
-                super.paint(g);
-                int boxwidth = getWidth();
-                int boxheight = getHeight();
-
-                int w = getWidth();
-                int h = getHeight();
-
-                Graphics2D g2 = (Graphics2D)g;
-                g2.setColor(Color.LIGHT_GRAY);
-                g2.setStroke(new BasicStroke(3.0f));
-                g2.fill(new RoundRectangle2D.Double(w / 2 - boxwidth / 2, h / 2 - boxheight / 2, boxwidth, boxheight,
-                        20, 20));
-                g2.setColor(Color.BLACK);
-
-                Font f = g.getFont();
-                TextLayout t = new TextLayout("X: " + m_x+ " / " + m_width, f, g2.getFontRenderContext());
-                Rectangle2D b = t.getBounds();
-
-                g2.drawString("X: " + m_x+ " / " + m_width, (int)(w / 2 - 25 - b.getWidth() / 2), (int)(h / 2 + b.getHeight() / 2));
-
-                t = new TextLayout("Y: " + m_y + " / " + m_height, f, g2.getFontRenderContext());
-                b = t.getBounds();
-
-                g2.drawString("Y: " + m_y + " / " + m_height, (int)(w / 2 + 25 - b.getWidth() / 2), (int)(h / 2 + b.getHeight() / 2));
-
-                //                drawArrow(w/2, h/2 - boxheight/2 - 5, w/2, 20,""  + (m_y), g2, 0);
-                //
-                //                drawArrow(w/2 + boxwidth/2 + 5, h/2 , w - 20, h/2 , "" + (m_width-m_x -1), g2, 1);
-                ////
-                //                drawArrow(w/2 - boxwidth/2 - 5, h/2 , 20, h/2 , "" + (m_x), g2, 1);
-                ////
-                //                drawArrow(w/2, h/2 + boxheight/2 + 5, w/2, h - 20, "" + (m_height-m_y -1), g2, 0);
-            }
-        };
-        m_canvas.setBackground(Color.LIGHT_GRAY);
-       // comp.setMaximumSize(new Dimension(150, 100));
-
-        comp.add(m_canvas, BorderLayout.CENTER);
+        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+        //        JPanel comp = new JPanel();
+        //        comp.setLayout(new BorderLayout());
 
         setUpPanels();
 
-        comp.add(m_northPanel, BorderLayout.NORTH);
-        comp.add(m_eastPanel, BorderLayout.EAST);
-        comp.add(m_westPanel, BorderLayout.WEST);
-        comp.add(m_southPanel, BorderLayout.SOUTH);
-        add(comp);
-        setMaximumSize(new Dimension(300, 200));
-        setMinimumSize(new Dimension(200, 200));
-        setPreferredSize(new Dimension(250, 200));
+        Box columnBox = new Box(BoxLayout.X_AXIS);
+
+        m_colLabel = new JLabel("Column (0/0): ");
+        columnBox.add(m_colLabel);
+        columnBox.add(Box.createVerticalStrut(20));
+        columnBox.add(Box.createHorizontalStrut(5));
+        columnBox.add(m_westPanel);
+        columnBox.add(Box.createHorizontalStrut(5));
+        columnBox.add(m_eastPanel);
+
+        add(columnBox);
+        add(Box.createHorizontalStrut(20));
+
+        Box rowBox = new Box(BoxLayout.X_AXIS);
+        rowBox.add(Box.createVerticalStrut(20));
+        m_rowLabel = new JLabel("Row (0/0): ");
+        rowBox.add(m_rowLabel);
+        rowBox.add(Box.createHorizontalStrut(5));
+        rowBox.add(m_northPanel);
+        rowBox.add(Box.createHorizontalStrut(5));
+        rowBox.add(m_southPanel);
+
+        add(rowBox);
+
+        //        add(Box.createHorizontalStrut(20));
+        //
+        //        Box coordBox = new Box(BoxLayout.X_AXIS);
+        //        m_coordLabel = new JLabel("(" + m_x + "," + m_y + ")");
+        //        coordBox.add(m_coordLabel);
+        //
+        //        add(coordBox);
+
+        setMaximumSize(new Dimension(100, 200));
+        //        setMinimumSize(new Dimension(200, 200));
+        //        setPreferredSize(new Dimension(250, 200));
         validate();
+    }
+
+    public TableOverviewPanel(final Boolean... isActive) {
+        this();
+        for (int i = 0; i < 4; ++i) {
+            if (isActive.length > i && !isActive[i]) {
+                if (i == 0) {
+                    m_northPanel.removeAll();
+                }
+                if (i == 1) {
+                    m_eastPanel.removeAll();
+                }
+                if (i == 2) {
+                    m_westPanel.removeAll();
+                }
+                if (i == 3) {
+                    m_southPanel.removeAll();
+                }
+            }
+        }
     }
 
     private void setUpPanels() {
 
         m_northPanel = Box.createHorizontalBox();
-        m_northPanel.add(Box.createVerticalStrut(30));
-        JButton northButton = new BasicArrowButton(SwingConstants.NORTH) {
+
+        m_northButton = new BasicArrowButton(SwingConstants.NORTH) {
 
             @Override
             public Dimension getMaximumSize() {
-                return new Dimension(16, 16);
+                return new Dimension(20, 20);
             }
         };
-        northButton.addActionListener(new ActionListener() {
+        m_northButton.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -222,20 +198,19 @@ public class TableOverviewPanel extends ViewerComponent {
 
             }
         });
-        northButton.setAlignmentY(0.5f);
-        m_northPanel.add(northButton);
-        m_northPanel.add(Box.createHorizontalGlue());
+        m_northButton.setAlignmentY(0.5f);
+        m_northPanel.add(m_northButton);
 
         m_southPanel = Box.createHorizontalBox();
-        m_southPanel.add(Box.createVerticalStrut(30));
-        JButton southButton = new BasicArrowButton(SwingConstants.SOUTH) {
+
+        m_southButton = new BasicArrowButton(SwingConstants.SOUTH) {
 
             @Override
             public Dimension getMaximumSize() {
-                return new Dimension(16, 16);
+                return new Dimension(20, 20);
             }
         };
-        southButton.addActionListener(new ActionListener() {
+        m_southButton.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -244,20 +219,18 @@ public class TableOverviewPanel extends ViewerComponent {
             }
         });
 
-        southButton.setAlignmentY(0.5f);
-        m_southPanel.add(southButton);
-        m_southPanel.add(Box.createHorizontalGlue());
+        m_southButton.setAlignmentY(0.5f);
+        m_southPanel.add(m_southButton);
 
         m_eastPanel = Box.createVerticalBox();
-        m_eastPanel.add(Box.createHorizontalStrut(30));
-        JButton eastButton = new BasicArrowButton(SwingConstants.EAST) {
+        m_eastButton = new BasicArrowButton(SwingConstants.EAST) {
 
             @Override
             public Dimension getMaximumSize() {
-                return new Dimension(16, 16);
+                return new Dimension(20, 20);
             }
         };
-        eastButton.addActionListener(new ActionListener() {
+        m_eastButton.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -265,20 +238,18 @@ public class TableOverviewPanel extends ViewerComponent {
 
             }
         });
-        eastButton.setAlignmentX(0.5f);
-        m_eastPanel.add(eastButton);
-        m_eastPanel.add(Box.createVerticalGlue());
+        m_eastButton.setAlignmentX(0.5f);
+        m_eastPanel.add(m_eastButton);
 
         m_westPanel = Box.createVerticalBox();
-        m_westPanel.add(Box.createHorizontalStrut(30));
-        JButton westButton = new BasicArrowButton(SwingConstants.WEST) {
+        m_westButton = new BasicArrowButton(SwingConstants.WEST) {
 
             @Override
             public Dimension getMaximumSize() {
-                return new Dimension(16, 16);
+                return new Dimension(20, 20);
             }
         };
-        westButton.addActionListener(new ActionListener() {
+        m_westButton.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -286,9 +257,8 @@ public class TableOverviewPanel extends ViewerComponent {
 
             }
         });
-        westButton.setAlignmentX(0.5f);
-        m_westPanel.add(westButton);
-        m_westPanel.add(Box.createVerticalGlue());
+        m_westButton.setAlignmentX(0.5f);
+        m_westPanel.add(m_westButton);
 
     }
 
@@ -304,10 +274,51 @@ public class TableOverviewPanel extends ViewerComponent {
 
     @EventListener
     public void onTablePositionEvent(final TablePositionEvent e) {
+        if (e.getwidth() != -1 || e.getx() != -1) {
+            if (e.getheight() != -1 || e.gety() != -1) {
+                setButtonStatus(true, true);
+            } else {
+                setButtonStatus(true, false);
+            }
+        } else {
+            if (e.getheight() != -1 || e.gety() != -1) {
+                setButtonStatus(false, true);
+            } else {
+                setButtonStatus(false, false);
+            }
+        }
         m_height = e.getheight();
         m_width = e.getwidth();
         m_x = e.getx();
         m_y = e.gety();
+
+        if (m_x != -1 || m_width != -1) {
+            m_colLabel.setText("Column (" + m_x + "/" + m_width + ")");
+        }
+        if (m_y != -1 || m_height != -1) {
+            m_rowLabel.setText("Row (" + m_y + "/" + m_height + ")");
+            //        m_coordLabel.setText("(" + m_x + "," + m_y + ")");
+        }
+    }
+
+    @EventListener
+    public void onDisableEvent(final TableOverviewDisableEvent e) {
+        if (!e.getColStatus()) {
+            m_colLabel.setText("");
+        }
+        if (!e.getRowStatus()) {
+            m_rowLabel.setText("");
+        }
+        setButtonStatus(e.getColStatus(), e.getRowStatus());
+
+    }
+
+    private void setButtonStatus(final boolean columnStatus, final boolean rowStatus) {
+        m_northButton.setEnabled(rowStatus);
+        m_eastButton.setEnabled(columnStatus);
+        m_westButton.setEnabled(columnStatus);
+        m_southButton.setEnabled(rowStatus);
+
     }
 
     /**

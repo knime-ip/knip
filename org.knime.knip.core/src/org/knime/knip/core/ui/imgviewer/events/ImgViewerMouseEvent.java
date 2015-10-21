@@ -80,17 +80,17 @@ public abstract class ImgViewerMouseEvent implements KNIPEvent {
 
     private final boolean m_isControlDown;
 
-    private final int m_posX;
+    protected int m_posX;
 
-    private final int m_posY;
+    protected int m_posY;
 
     private boolean m_isInside;
 
-    private final MouseEvent m_e;
+    protected final MouseEvent m_e;
 
-    private final double m_factorA;
+    protected final double m_factorA;
 
-    private final double m_factorB;
+    protected final double m_factorB;
 
     private final int m_xOffset;
 
