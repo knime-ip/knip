@@ -52,6 +52,7 @@ package org.knime.knip.core;
 import org.knime.knip.scijava.core.ResourceAwareClassLoader;
 import org.scijava.Context;
 import org.scijava.cache.CacheService;
+import org.scijava.command.CommandService;
 import org.scijava.log.LogService;
 import org.scijava.module.ModuleService;
 import org.scijava.plugin.DefaultPluginFinder;
@@ -129,6 +130,8 @@ public class KNIPGateway {
     private static ModuleService m_ms;
 
     private static LogService m_log;
+
+    private static CommandService m_commands;
 
     private final Context m_context;
 
@@ -208,5 +211,22 @@ public class KNIPGateway {
             m_log = getInstance().m_context.getService(LogService.class);
         }
         return m_log;
+    }
+
+    /**
+     * @return singleton instance of {@link CommandService}
+     */
+    public static CommandService cs() {
+        if (m_commands == null) {
+            m_commands = getInstance().m_context.getService(CommandService.class);
+        }
+        return m_commands;
+    }
+
+    /**
+     * @return {@link Context}
+     */
+    public Context ctx() {
+        return m_context;
     }
 }
