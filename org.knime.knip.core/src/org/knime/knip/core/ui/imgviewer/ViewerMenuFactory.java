@@ -59,7 +59,6 @@ import javax.swing.JPanel;
 
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.panels.LabelOptionPanel;
-import org.knime.knip.core.ui.imgviewer.panels.TableOverviewPanel;
 
 /**
  *
@@ -102,52 +101,6 @@ public class ViewerMenuFactory {
         return menu;
     }
 
-    public static JComponent getImgViewerImgMenu(final EventService e) {
-        JPanel menu = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-
-        gbc.gridx = 0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1;
-        gbc.anchor = GridBagConstraints.NORTH;
-        gbc.insets = new Insets(0, 0, 5, 0);
-
-        ViewerComponent comp =
-                new ExpandingPanel("Plane Selection",ViewerComponents.MINIMAP_PLANE_SELECTION.createInstance(), true);
-        menu.add(comp, gbc);
-        comp.setEventService(e);
-
-        comp =
-                new ExpandingPanel("Image Enhancement",
-                                   ViewerComponents.IMAGE_ENHANCE.createInstance(), true);
-        menu.add(comp, gbc);
-        comp.setEventService(e);
-
-        comp =
-                new ExpandingPanel("Renderer Selection",
-                                   ViewerComponents.RENDERER_SELECTION.createInstance());
-        menu.add(comp, gbc);
-        comp.setEventService(e);
-
-        comp =
-                new ExpandingPanel("Image Properties",
-                                   ViewerComponents.IMAGE_PROPERTIES.createInstance());
-        menu.add(comp, gbc);
-        comp.setEventService(e);
-
-        comp =
-                new ExpandingPanel("Navigation", new TableOverviewPanel(), true);
-        menu.add(comp, gbc);
-        comp.setEventService(e);
-
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.weighty = 1;
-
-        menu.add(Box.createGlue(), gbc);
-
-        return menu;
-    }
-
     public static JComponent getCombinedImgViewerLabelingMenu(final EventService e) {
 
         JPanel menu = new JPanel(new GridBagLayout());
@@ -164,26 +117,19 @@ public class ViewerMenuFactory {
         menu.add(comp, gbc);
         comp.setEventService(e);
 
-        comp =
-                new ExpandingPanel("Labels/Filter", ViewerComponents.LABEL_FILTER.createInstance(),
-                                   true);
+        comp = new ExpandingPanel("Labels/Filter", ViewerComponents.LABEL_FILTER.createInstance(), true);
         menu.add(comp, gbc);
         comp.setEventService(e);
 
-        comp =
-                new ExpandingPanel("Label Options", new LabelOptionPanel());
+        comp = new ExpandingPanel("Label Options", new LabelOptionPanel());
         menu.add(comp, gbc);
         comp.setEventService(e);
 
-        comp =
-                new ExpandingPanel("Renderer Selection",
-                                   ViewerComponents.RENDERER_SELECTION.createInstance());
+        comp = new ExpandingPanel("Renderer Selection", ViewerComponents.RENDERER_SELECTION.createInstance());
         menu.add(comp, gbc);
         comp.setEventService(e);
 
-        comp =
-                new ExpandingPanel("Image Properties",
-                                   ViewerComponents.IMAGE_PROPERTIES.createInstance());
+        comp = new ExpandingPanel("Image Properties", ViewerComponents.IMAGE_PROPERTIES.createInstance());
         menu.add(comp, gbc);
         comp.setEventService(e);
 

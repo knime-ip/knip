@@ -72,7 +72,7 @@ import org.knime.knip.core.ui.imgviewer.panels.ViewerScrollEvent.Direction;
 
 /**
  *
- * @author pop210958
+ * @author Andreas Burger, University of Konstanz
  */
 public class TableOverviewPanel extends ViewerComponent {
 
@@ -116,8 +116,6 @@ public class TableOverviewPanel extends ViewerComponent {
         super("", true);
 
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-        //        JPanel comp = new JPanel();
-        //        comp.setLayout(new BorderLayout());
 
         setUpPanels();
 
@@ -145,17 +143,8 @@ public class TableOverviewPanel extends ViewerComponent {
 
         add(rowBox);
 
-        //        add(Box.createHorizontalStrut(20));
-        //
-        //        Box coordBox = new Box(BoxLayout.X_AXIS);
-        //        m_coordLabel = new JLabel("(" + m_x + "," + m_y + ")");
-        //        coordBox.add(m_coordLabel);
-        //
-        //        add(coordBox);
-
         setMaximumSize(new Dimension(100, 200));
-        //        setMinimumSize(new Dimension(200, 200));
-        //        setPreferredSize(new Dimension(250, 200));
+
         validate();
     }
 
@@ -297,7 +286,6 @@ public class TableOverviewPanel extends ViewerComponent {
         }
         if (m_y != -1 || m_height != -1) {
             m_rowLabel.setText("Row (" + m_y + "/" + m_height + ")");
-            //        m_coordLabel.setText("(" + m_x + "," + m_y + ")");
         }
     }
 
@@ -335,7 +323,7 @@ public class TableOverviewPanel extends ViewerComponent {
      */
     @Override
     public void saveComponentConfiguration(final ObjectOutput out) throws IOException {
-        // TODO Auto-generated method stub
+        // Nothing to do here
 
     }
 
@@ -344,7 +332,7 @@ public class TableOverviewPanel extends ViewerComponent {
      */
     @Override
     public void loadComponentConfiguration(final ObjectInput in) throws IOException, ClassNotFoundException {
-        // TODO Auto-generated method stub
+        // Nothing to do here
 
     }
 

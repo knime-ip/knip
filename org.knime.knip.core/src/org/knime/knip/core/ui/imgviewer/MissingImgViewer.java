@@ -71,13 +71,13 @@ public class MissingImgViewer extends ImgViewer {
      */
     @Override
     protected JPanel createViewPanel() {
-        JPanel result = new JPanel(new BorderLayout());
+        JPanel mainPanel = new JPanel(new BorderLayout());
 
         ImageIcon bg = new ImageIcon(this.getClass().getResource("/icons/missingval.png"));
         JLabel iconLabel = new JLabel(bg, SwingConstants.CENTER);
-        result.add(iconLabel, BorderLayout.CENTER);
+        mainPanel.add(iconLabel, BorderLayout.CENTER);
 
-        return result;
+        return mainPanel;
 
     }
 

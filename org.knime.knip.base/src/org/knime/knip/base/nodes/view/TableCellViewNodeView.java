@@ -446,8 +446,6 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
             }
         };
 
-
-
         // Initialize CellView
         m_cellView = new TabbedCellView(m_tableView);
         m_cellView.setEventService(m_eventService);

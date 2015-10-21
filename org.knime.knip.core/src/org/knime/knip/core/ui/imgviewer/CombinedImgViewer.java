@@ -75,11 +75,11 @@ import org.knime.knip.core.ui.imgviewer.panels.providers.RenderUnit;
 
 /**
  *
- * @author pop210958
+ * @author Andreas Burger, University of Konstanz
  */
 public class CombinedImgViewer extends ImgViewer {
 
-    protected  CombinedRU m_ru;
+    protected CombinedRU m_ru;
 
     protected AWTImageProvider m_provider;
 
@@ -93,9 +93,9 @@ public class CombinedImgViewer extends ImgViewer {
 
     private boolean m_sync = false;
 
-    private int m_imgC = 1;
+    private int m_imgCounter = 1;
 
-    private int m_labC = 1;
+    private int m_labCounter = 1;
 
     public CombinedImgViewer(final int cacheSize) {
         super();
@@ -116,35 +116,32 @@ public class CombinedImgViewer extends ImgViewer {
     @Override
     protected JComponent createMenu() {
 
-        Box menu = new Box(BoxLayout.Y_AXIS);
+        Box menuPanel = new Box(BoxLayout.Y_AXIS);
 
-        menu.add(Box.createVerticalStrut(10));
+        menuPanel.add(Box.createVerticalStrut(10));
 
-        MinimapPanel m = new MinimapPanel();
+        MinimapPanel minimap = new MinimapPanel();
 
-        m.setEventService(getEventService());
+        minimap.setEventService(getEventService());
 
-        menu.add(m);
+        menuPanel.add(minimap);
 
-
-        menu.add(Box.createVerticalStrut(5));
+        menuPanel.add(Box.createVerticalStrut(5));
 
         CombinedRUControlPanel c = new CombinedRUControlPanel();
 
         c.setEventService(getEventService());
-        menu.add(c);
+        menuPanel.add(c);
 
         m_tabbedMenu = new JTabbedPane();
 
-        menu.add(m_tabbedMenu);
+        menuPanel.add(m_tabbedMenu);
 
-        menu.add(Box.createVerticalStrut(10));
+        menuPanel.add(Box.createVerticalStrut(10));
 
-        menu.add(Box.createVerticalGlue());
+        menuPanel.add(Box.createVerticalGlue());
 
-
-
-        return menu;
+        return menuPanel;
     }
 
     public void addRU(final RenderUnit ru) {
@@ -156,21 +153,19 @@ public class CombinedImgViewer extends ImgViewer {
         m_ru.add(ru);
         m_eventServices.add(e);
         ru.setEventService(e);
-        if(ru instanceof ImageRU) {
-            m_tabbedMenu.add(ViewerMenuFactory.getCombinedImgViewerImgMenu(e), "Img "+m_imgC++);
+        if (ru instanceof ImageRU) {
+            m_tabbedMenu.add(ViewerMenuFactory.getCombinedImgViewerImgMenu(e), "Img " + m_imgCounter++);
         }
-        if(ru instanceof LabelingRU) {
-            m_tabbedMenu.add(ViewerMenuFactory.getCombinedImgViewerLabelingMenu(e), "Labeling "+m_labC++);
+        if (ru instanceof LabelingRU) {
+            m_tabbedMenu.add(ViewerMenuFactory.getCombinedImgViewerLabelingMenu(e), "Labeling " + m_labCounter++);
         }
     }
 
+    public void clear() {
 
+        m_imgCounter = 1;
 
-    public void clear(){
-
-        m_imgC = 1;
-
-        m_labC = 1;
+        m_labCounter = 1;
 
         m_eventServices.clear();
 
@@ -179,49 +174,44 @@ public class CombinedImgViewer extends ImgViewer {
         m_tabbedMenu.removeAll();
     }
 
-    public void redraw(){
+    public void redraw() {
 
         broadcast(new ImgRedrawEvent());
         m_eventService.publish(new ImgRedrawEvent());
     }
 
-    public void broadcast(final KNIPEvent e)
-    {
-        for(EventService es : m_eventServices)
-        {
+    public void broadcast(final KNIPEvent e) {
+        for (EventService es : m_eventServices) {
             es.publish(e);
         }
     }
 
-    public void publish(final KNIPEvent e){
+    public void publish(final KNIPEvent e) {
         getEventService().publish(e);
     }
 
-    public void publishToPrev(final KNIPEvent e){
+    public void publishToPrev(final KNIPEvent e) {
         m_prevService.publish(e);
     }
 
-    public void setStackedRendering(){
+    public void setStackedRendering() {
         m_ru.setStackedRendering(true);
     }
 
     @EventListener
-    public void onEvent(final PlaneSelectionEvent e)
-    {
-        if(m_sync) {
+    public void onEvent(final PlaneSelectionEvent e) {
+        if (m_sync) {
             broadcast(e);
         }
     }
+
     @EventListener
-    public void onCombinedRUSynchChange(final CombinedRUSynchEvent e)
-    {
+    public void onCombinedRUSynchChange(final CombinedRUSynchEvent e) {
         m_sync = e.getSyncStatus();
-        System.out.println("Sync " + m_sync);
     }
 
     @EventListener
-    public void onCombinedRURenderChange(final CombinedRURenderEvent e)
-    {
+    public void onCombinedRURenderChange(final CombinedRURenderEvent e) {
         m_ru.invalidateCache();
         m_ru.setStackedRendering(!e.getCombineStatus());
         redraw();

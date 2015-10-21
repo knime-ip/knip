@@ -53,7 +53,7 @@ import org.knime.knip.core.ui.event.KNIPEvent;
 
 /**
  *
- * @author pop210958
+ * @author Andreas Burger, University of Konstanz
  */
 public class ViewerScrollEvent implements KNIPEvent {
 
@@ -82,7 +82,7 @@ public class ViewerScrollEvent implements KNIPEvent {
     @Override
     public ExecutionPriority getExecutionOrder() {
         // TODO Auto-generated method stub
-        return null;
+        return ExecutionPriority.NORMAL;
     }
 
     /**
