@@ -25,7 +25,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.knip.scijava.core,
  org.apache.commons.math3;bundle-version="3.4.1",
  org.knime.knip.core;bundle-version="1.4.0",
- imagej-ops;bundle-version="0.22.0"
+ imagej-ops;bundle-version="0.22.0",
+ knip-tmp-imglib2-ops
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
