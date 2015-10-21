@@ -96,15 +96,10 @@ public class ViewerFactory {
         viewer.addViewerComponent(new HistogramViewInfoPanel<T, Img<T>>());
         viewer.addViewerComponent(new ImgCanvas<T, Img<T>>());
 
-        //        viewer.addViewerComponent(new ControlPanel(Position.NORTH));
-        //        viewer.addViewerComponent(new ControlPanel(Position.EAST));
-        //        viewer.addViewerComponent(new ControlPanel(Position.WEST));
-        //        viewer.addViewerComponent(new ControlPanel(Position.SOUTH));
-
         viewer.addViewerComponent(ViewerComponents.MINIMAP_PLANE_SELECTION.createInstance());
         viewer.addViewerComponent(new ExpandingPanel("Image Properties",
                 ViewerComponents.IMAGE_PROPERTIES.createInstance()));
-//        viewer.addViewerComponent(new ExpandingPanel("Navigation", new TableOverviewPanel(), true));
+
         viewer.doneAdding();
 
         return viewer;
@@ -128,11 +123,6 @@ public class ViewerFactory {
         viewer.addViewerComponent(new ImgViewInfoPanel<T>());
         viewer.addViewerComponent(new ImgCanvas<T, Img<T>>());
 
-        //        viewer.addViewerComponent(new ControlPanel(Position.NORTH));
-        //        viewer.addViewerComponent(new ControlPanel(Position.EAST));
-        //        viewer.addViewerComponent(new ControlPanel(Position.WEST));
-        //        viewer.addViewerComponent(new ControlPanel(Position.SOUTH));
-
         viewer.addViewerComponent(ViewerComponents.MINIMAP_PLANE_SELECTION.createInstance());
         viewer.addViewerComponent(new ExpandingPanel("Image Enhancement",
                 ViewerComponents.IMAGE_ENHANCE.createInstance(), true));
@@ -140,9 +130,6 @@ public class ViewerFactory {
                 ViewerComponents.RENDERER_SELECTION.createInstance()));
         viewer.addViewerComponent(new ExpandingPanel("Image Properties",
                 ViewerComponents.IMAGE_PROPERTIES.createInstance()));
-//        viewer.addViewerComponent(new ExpandingPanel("Navigation", new TableOverviewPanel(), true));
-
-//        viewer.setMenu(ViewerMenuFactory.getImgViewerImgMenu(viewer.getEventService()));
 
         viewer.doneAdding();
 
@@ -158,7 +145,8 @@ public class ViewerFactory {
      *
      * @return {@link ImgViewer}
      */
-    public static <T extends RealType<T> & NativeType<T>> CombinedImgViewer createCombinedImgViewer(final int cacheSize) {
+    public static <T extends RealType<T> & NativeType<T>> CombinedImgViewer
+           createCombinedImgViewer(final int cacheSize) {
 
         final CombinedImgViewer viewer = new CombinedImgViewer(cacheSize);
         viewer.addViewerComponent(new ImgCanvas<T, Img<T>>());
@@ -180,11 +168,6 @@ public class ViewerFactory {
 
         viewer.addViewerComponent(new ImgCanvas<LabelingType<L>, RandomAccessibleInterval<LabelingType<L>>>());
 
-        //        viewer.addViewerComponent(new ControlPanel(Position.NORTH));
-        //        viewer.addViewerComponent(new ControlPanel(Position.EAST));
-        //        viewer.addViewerComponent(new ControlPanel(Position.WEST));
-        //        viewer.addViewerComponent(new ControlPanel(Position.SOUTH));
-
         viewer.addViewerComponent(ViewerComponents.MINIMAP_PLANE_SELECTION.createInstance());
 
         viewer.addViewerComponent(new ExpandingPanel("Labels/Filter", ViewerComponents.LABEL_FILTER.createInstance(),
@@ -197,7 +180,6 @@ public class ViewerFactory {
 
         viewer.addViewerComponent(new ExpandingPanel("Image Properties",
                 ViewerComponents.IMAGE_PROPERTIES.createInstance()));
-//        viewer.addViewerComponent(new ExpandingPanel("Navigation", new TableOverviewPanel(), true));
 
         viewer.doneAdding();
 

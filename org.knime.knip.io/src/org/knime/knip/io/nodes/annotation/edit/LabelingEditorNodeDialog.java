@@ -7,9 +7,6 @@ import java.util.Set;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.base.data.filter.column.FilterColumnTable;
 import org.knime.base.data.filter.row.FilterRowGenerator;
 import org.knime.base.data.filter.row.FilterRowTable;
@@ -39,6 +36,9 @@ import org.knime.knip.io.nodes.annotation.edit.control.LabelingEditorRowKey;
 import org.knime.knip.io.nodes.annotation.edit.dialogcomponents.DialogComponentLabelingEditorView;
 import org.knime.knip.io.nodes.annotation.edit.dialogcomponents.LabelingEditorView;
 
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
+
 /**
  * Dialog Panel of the InteractiveLabelingEditor Node.
  * 
@@ -52,19 +52,14 @@ public class LabelingEditorNodeDialog<T extends RealType<T> & NativeType<T>, L e
 
 	private DialogComponentLabelingEditorView m_dialogComponentAnnotator;
 
-	private SettingsModelString m_smColCreationMode = LabelingEditorNodeModel
-			.createColCreationModeModel();
-	private SettingsModelString m_smColumnSuffix = LabelingEditorNodeModel
-			.createColSuffixModel();
+	private SettingsModelString m_smColCreationMode = LabelingEditorNodeModel.createColCreationModeModel();
+	private SettingsModelString m_smColumnSuffix = LabelingEditorNodeModel.createColSuffixModel();
 
-	private SettingsModelString m_smImgColumn = LabelingEditorNodeModel
-			.createSecondColModel();
+	private SettingsModelString m_smImgColumn = LabelingEditorNodeModel.createSecondColModel();
 
-	private SettingsModelString m_smLabelColumn = LabelingEditorNodeModel
-			.createFirstColModel();
+	private SettingsModelString m_smLabelColumn = LabelingEditorNodeModel.createFirstColModel();
 
-	private SettingsModelLabelEditor m_annotatorSM = LabelingEditorNodeModel
-			.createAnnotatorSM();
+	private SettingsModelLabelEditor m_annotatorSM = LabelingEditorNodeModel.createAnnotatorSM();
 
 	private BufferedDataTable m_inputTable;
 
@@ -78,29 +73,26 @@ public class LabelingEditorNodeDialog<T extends RealType<T> & NativeType<T>, L e
 
 		// final SettingsModelLabelEditor annotatorSM = LabelingEditorNodeModel
 		// .createAnnotatorSM();
-		m_dialogComponentAnnotator = new DialogComponentLabelingEditorView(
-				new LabelingEditorView<T, L>(m_annotatorSM), m_annotatorSM);
+		m_dialogComponentAnnotator = new DialogComponentLabelingEditorView(new LabelingEditorView<T, L>(m_annotatorSM),
+				m_annotatorSM);
 		addDialogComponent(m_dialogComponentAnnotator);
 		closeCurrentGroup();
 
 		// column selection dialog component
 		createNewTab("Column Selection");
 		createNewGroup("Change Columns");
-		addDialogComponent(new DialogComponentColumnNameSelection(
-				m_smImgColumn, "(Optional) Image Column:", 0, false, true,
-				ImgPlusValue.class));
-		addDialogComponent(new DialogComponentColumnNameSelection(
-				m_smLabelColumn, "Labeling Column:", 0, LabelingValue.class));
+		addDialogComponent(new DialogComponentColumnNameSelection(m_smImgColumn, "(Optional) Image Column:", 0, false,
+				true, ImgPlusValue.class));
+		addDialogComponent(
+				new DialogComponentColumnNameSelection(m_smLabelColumn, "Labeling Column:", 0, LabelingValue.class));
 		closeCurrentGroup();
 		createNewGroup("Creation Mode");
-		addDialogComponent(new DialogComponentStringSelection(
-				m_smColCreationMode, "Column Creation Mode",
+		addDialogComponent(new DialogComponentStringSelection(m_smColCreationMode, "Column Creation Mode",
 				ValueToCellNodeModel.COL_CREATION_MODES));
 		closeCurrentGroup();
 
 		createNewGroup("Column suffix");
-		addDialogComponent(new DialogComponentString(m_smColumnSuffix,
-				"Column suffix"));
+		addDialogComponent(new DialogComponentString(m_smColumnSuffix, "Column suffix"));
 		closeCurrentGroup();
 
 		m_smImgColumn.addChangeListener(new ChangeListener() {
@@ -113,26 +105,20 @@ public class LabelingEditorNodeDialog<T extends RealType<T> & NativeType<T>, L e
 					return;
 				final DataTableSpec inspec = m_inputTable.getDataTableSpec();
 				try {
-					final int imgColIndex = NodeUtils.getColumnIndex(
-							m_smImgColumn, inspec, ImgPlusValue.class,
+					final int imgColIndex = NodeUtils.getColumnIndex(m_smImgColumn, inspec, ImgPlusValue.class,
 							LabelingEditorNodeModel.class);
-					final int labelColIndex = NodeUtils.getColumnIndex(
-							m_smLabelColumn, inspec, LabelingValue.class,
+					final int labelColIndex = NodeUtils.getColumnIndex(m_smLabelColumn, inspec, LabelingValue.class,
 							LabelingEditorNodeModel.class);
 					if (imgColIndex != -1 && labelColIndex != -1) {
-						filteredTable = new FilterColumnTable(m_inputTable,
-								imgColIndex, labelColIndex);
+						filteredTable = new FilterColumnTable(m_inputTable, imgColIndex, labelColIndex);
 					} else if (labelColIndex != -1) {
 
-						filteredTable = new FilterColumnTable(m_inputTable,
-								labelColIndex);
+						filteredTable = new FilterColumnTable(m_inputTable, labelColIndex);
 					} else {
-						filteredTable = new FilterColumnTable(m_inputTable,
-								new int[] {});
+						filteredTable = new FilterColumnTable(m_inputTable, new int[] {});
 					}
 					m_dialogComponentAnnotator
-							.updateDataTable(new FilterRowTable(filteredTable,
-									new FilterMissingRows()));
+							.updateDataTable(new FilterRowTable(filteredTable, new FilterMissingRows()));
 
 				} catch (final InvalidSettingsException e) {
 					// TODO What to do?
@@ -152,26 +138,20 @@ public class LabelingEditorNodeDialog<T extends RealType<T> & NativeType<T>, L e
 					return;
 				final DataTableSpec inspec = m_inputTable.getDataTableSpec();
 				try {
-					final int imgColIndex = NodeUtils.getColumnIndex(
-							m_smImgColumn, inspec, ImgPlusValue.class,
+					final int imgColIndex = NodeUtils.getColumnIndex(m_smImgColumn, inspec, ImgPlusValue.class,
 							LabelingEditorNodeModel.class);
-					final int labelColIndex = NodeUtils.getColumnIndex(
-							m_smLabelColumn, inspec, LabelingValue.class,
+					final int labelColIndex = NodeUtils.getColumnIndex(m_smLabelColumn, inspec, LabelingValue.class,
 							LabelingEditorNodeModel.class);
 					if (imgColIndex != -1 && labelColIndex != -1) {
-						filteredTable = new FilterColumnTable(m_inputTable,
-								imgColIndex, labelColIndex);
+						filteredTable = new FilterColumnTable(m_inputTable, imgColIndex, labelColIndex);
 					} else if (labelColIndex != -1) {
 
-						filteredTable = new FilterColumnTable(m_inputTable,
-								labelColIndex);
+						filteredTable = new FilterColumnTable(m_inputTable, labelColIndex);
 					} else {
-						filteredTable = new FilterColumnTable(m_inputTable,
-								new int[] {});
+						filteredTable = new FilterColumnTable(m_inputTable, new int[] {});
 					}
 					m_dialogComponentAnnotator
-							.updateDataTable(new FilterRowTable(filteredTable,
-									new FilterMissingRows()));
+							.updateDataTable(new FilterRowTable(filteredTable, new FilterMissingRows()));
 
 				} catch (final InvalidSettingsException e) {
 					// TODO What to do?
@@ -190,8 +170,8 @@ public class LabelingEditorNodeDialog<T extends RealType<T> & NativeType<T>, L e
 	}
 
 	@Override
-	public void loadAdditionalSettingsFrom(final NodeSettingsRO settings,
-			final PortObject[] input) throws NotConfigurableException {
+	public void loadAdditionalSettingsFrom(final NodeSettingsRO settings, final PortObject[] input)
+			throws NotConfigurableException {
 
 		// update input data dependent
 		m_inputTable = (BufferedDataTable) input[0];
@@ -201,35 +181,30 @@ public class LabelingEditorNodeDialog<T extends RealType<T> & NativeType<T>, L e
 		// issue a warning
 		// if there are more
 
-		final int firstImage = inSpec.findColumnIndex(m_smImgColumn
-				.getStringValue());
-		final int firstLabel = inSpec.findColumnIndex(m_smLabelColumn
-				.getStringValue());
+		final int firstImage = inSpec.findColumnIndex(m_smImgColumn.getStringValue());
+		final int firstLabel = inSpec.findColumnIndex(m_smLabelColumn.getStringValue());
 
 		// Whenever we load the dialog, we check for outdated rows. Otherwise,
 		// the underlying SettingsModel increases in size whenever the input is
 		// changed.
 
-		final Map<RowColKey, LabelingEditorChangeTracker> map = m_annotatorSM
-				.getTrackerMap();
+		final Map<RowColKey, LabelingEditorChangeTracker> map = m_annotatorSM.getTrackerMap();
 
 		Set<LabelingEditorRowKey> inputKeySet = new HashSet<LabelingEditorRowKey>();
 
 		RowIterator it = m_inputTable.iterator();
 		while (it.hasNext()) {
 			DataRow r = it.next();
-			if(r.getCell(firstLabel).isMissing())
+			if (r.getCell(firstLabel).isMissing())
 				continue;
 			// Fetch the necessary data for the key
 			String rowName = r.getKey().getString();
 
 			// There is always at least a labeling accessible
 			@SuppressWarnings("unchecked")
-			long[] labelingDims = ((LabelingValue<L>) r.getCell(firstLabel))
-					.getDimensions();
+			long[] labelingDims = ((LabelingValue<L>) r.getCell(firstLabel)).getDimensions();
 
-			LabelingEditorRowKey k = new LabelingEditorRowKey(rowName,
-					labelingDims);
+			LabelingEditorRowKey k = new LabelingEditorRowKey(rowName, labelingDims);
 
 			inputKeySet.add(k);
 
@@ -253,26 +228,22 @@ public class LabelingEditorNodeDialog<T extends RealType<T> & NativeType<T>, L e
 
 		DataTable filteredTable;
 		if (firstImage != -1 && firstLabel != -1) {
-			filteredTable = new FilterColumnTable(m_inputTable, firstImage,
-					firstLabel);
+			filteredTable = new FilterColumnTable(m_inputTable, firstImage, firstLabel);
 		} else if (firstLabel != -1) {
 			filteredTable = new FilterColumnTable(m_inputTable, firstLabel);
 		} else {
 			filteredTable = new FilterColumnTable(m_inputTable, new int[] {});
 		}
 
-		m_dialogComponentAnnotator.updateDataTable(new FilterRowTable(
-				filteredTable, new FilterMissingRows()));
+		m_dialogComponentAnnotator.updateDataTable(new FilterRowTable(filteredTable, new FilterMissingRows()));
 	}
 
 	/**
 	 * If column creation mode is 'append', a suffix needs to be chosen!
 	 */
 	@Override
-	public void saveAdditionalSettingsTo(final NodeSettingsWO settings)
-			throws InvalidSettingsException {
-		if (m_smColCreationMode.getStringValue().equals(
-				ValueToCellNodeModel.COL_CREATION_MODES[1])
+	public void saveAdditionalSettingsTo(final NodeSettingsWO settings) throws InvalidSettingsException {
+		if (m_smColCreationMode.getStringValue().equals(ValueToCellNodeModel.COL_CREATION_MODES[1])
 				&& m_smColumnSuffix.getStringValue().trim().isEmpty()) {
 			throw new InvalidSettingsException(
 					"If the selected column creation mode is 'append', a column suffix for the resulting column name must to be chosen!");

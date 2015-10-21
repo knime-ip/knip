@@ -51,10 +51,9 @@ package org.knime.knip.core.ui.imgviewer.events;
 import org.knime.knip.core.ui.event.KNIPEvent;
 
 /**
- *
+ * @author Andreas Burger, University of Konstanz
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 public class TableOverviewDisableEvent implements KNIPEvent {
 
@@ -62,17 +61,16 @@ public class TableOverviewDisableEvent implements KNIPEvent {
 
     private final boolean m_rowsStatus;
 
-
     public TableOverviewDisableEvent(final boolean isColsEnabled, final boolean isRowsEnabled) {
         m_colsStatus = isColsEnabled;
         m_rowsStatus = isRowsEnabled;
     }
 
-    public boolean getColStatus(){
+    public boolean getColStatus() {
         return m_colsStatus;
     }
 
-    public boolean getRowStatus(){
+    public boolean getRowStatus() {
         return m_rowsStatus;
     }
 
@@ -85,15 +83,14 @@ public class TableOverviewDisableEvent implements KNIPEvent {
         return ExecutionPriority.LOW;
     }
 
-
     /**
      * {@inheritDoc}
      */
     @Override
     public <E extends KNIPEvent> boolean isRedundant(final E thatEvent) {
-        if(thatEvent instanceof TableOverviewDisableEvent) {
+        if (thatEvent instanceof TableOverviewDisableEvent) {
             TableOverviewDisableEvent t = (TableOverviewDisableEvent)thatEvent;
-            if(t.getRowStatus() == m_rowsStatus && t.getColStatus() == m_colsStatus) {
+            if (t.getRowStatus() == m_rowsStatus && t.getColStatus() == m_colsStatus) {
                 return true;
             }
         }

@@ -15,8 +15,8 @@ import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.node.TwoValuesToCellNodeModel;
 import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
-import org.knime.knip.io.nodes.annotation.edit.control.LabelingEditorLabelingConverter;
 import org.knime.knip.io.nodes.annotation.edit.control.LabelingEditorChangeTracker;
+import org.knime.knip.io.nodes.annotation.edit.control.LabelingEditorLabelingConverter;
 import org.knime.knip.io.nodes.annotation.edit.control.LabelingEditorRowKey;
 
 import net.imglib2.Cursor;
@@ -42,8 +42,7 @@ import net.imglib2.view.Views;
  * @param <L>
  */
 public class LabelingEditorNodeModel<L extends Comparable<L>>
-		extends
-		TwoValuesToCellNodeModel<LabelingValue<L>, ImgPlusValue<?>, LabelingCell<String>> {
+		extends TwoValuesToCellNodeModel<LabelingValue<L>, ImgPlusValue<?>, LabelingCell<String>> {
 
 	static String LABEL_SETTINGS_KEY = "editedLabels";
 
@@ -82,17 +81,15 @@ public class LabelingEditorNodeModel<L extends Comparable<L>>
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	protected LabelingCell<String> compute(final LabelingValue<L> cellValue1,
-			final ImgPlusValue<?> cellValue2) throws Exception {
+	protected LabelingCell<String> compute(final LabelingValue<L> cellValue1, final ImgPlusValue<?> cellValue2)
+			throws Exception {
 
 		// Get RowKey of current row
 
-		final RowColKey k = new LabelingEditorRowKey(m_currentRow.getKey()
-				.getString(), cellValue1.getDimensions());
+		final RowColKey k = new LabelingEditorRowKey(m_currentRow.getKey().getString(), cellValue1.getDimensions());
 
 		// Get the Map containing all changes from the settings model
-		final Map<RowColKey, LabelingEditorChangeTracker> map = m_annotationsSM
-				.getTrackerMap();
+		final Map<RowColKey, LabelingEditorChangeTracker> map = m_annotationsSM.getTrackerMap();
 		// Get the tracker of the current row
 		final LabelingEditorChangeTracker currentTrack = map.get(k);
 
@@ -102,26 +99,21 @@ public class LabelingEditorNodeModel<L extends Comparable<L>>
 
 			// Convert the input label to string, and then to the modified
 			// label.
-			src = Converters.convert(cellValue1.getLabeling(),
-					new LabelingEditorLabelingConverter<L>(currentTrack),
+			src = Converters.convert(cellValue1.getLabeling(), new LabelingEditorLabelingConverter<L>(currentTrack),
 					cellValue1.getLabeling().randomAccess().get().createVariable(String.class));
 
 		} else {
 			// Convert the label to string
-			src = Converters.convert(
-					(RandomAccessibleInterval<LabelingType<L>>) cellValue1
-							.getLabeling(),
+			src = Converters.convert((RandomAccessibleInterval<LabelingType<L>>) cellValue1.getLabeling(),
 					new ToStringLabelingConverter<L>(),
-					(LabelingType<String>) Util.getTypeFromInterval(
-							cellValue1.getLabeling()).createVariable());
+					(LabelingType<String>) Util.getTypeFromInterval(cellValue1.getLabeling()).createVariable());
 		}
 
 		// Create a new labeling and copy the values of the source-labeling
 		ImgLabeling<L, ? extends IntegerType<?>> lab = (ImgLabeling<L, ? extends IntegerType<?>>) cellValue1
 				.getLabeling();
 
-		final RandomAccessibleInterval<? extends IntegerType<?>> img = lab
-				.getIndexImg();
+		final RandomAccessibleInterval<? extends IntegerType<?>> img = lab.getIndexImg();
 		Img newStorageImg = null;
 
 		// We need to make sure the new labeling can store all the labels
@@ -130,30 +122,25 @@ public class LabelingEditorNodeModel<L extends Comparable<L>>
 			if (currentTrack != null)
 				modifiedLabels += currentTrack.getNewLabels().size();
 
-			IntegerType type = findMatchingType(lab.firstElement().getMapping()
-					.numSets()
-					+ modifiedLabels);
-			
+			IntegerType type = findMatchingType(lab.firstElement().getMapping().numSets() + modifiedLabels);
+
 			newStorageImg = KNIPGateway.ops().create().img(img, type);
 		} catch (Exception e) {
 			throw new KNIPException("Error when creating new storage Image!");
 		}
 
-		ImgLabeling<String, ? extends IntegerType<?>> newLabeling = new ImgLabeling(
-				newStorageImg);
+		ImgLabeling<String, ? extends IntegerType<?>> newLabeling = new ImgLabeling(newStorageImg);
 
 		// Copy the labelings
 		final Cursor<LabelingType<String>> resCursor = newLabeling.cursor();
-		final Cursor<LabelingType<String>> srcCursor = Views.iterable(src)
-				.cursor();
+		final Cursor<LabelingType<String>> srcCursor = Views.iterable(src).cursor();
 
 		while (resCursor.hasNext()) {
 			resCursor.next().addAll(srcCursor.next());
 		}
 
-		return m_labelingCellFactory.createCell(newLabeling,
-				cellValue1.getLabelingMetadata());
-		
+		return m_labelingCellFactory.createCell(newLabeling, cellValue1.getLabelingMetadata());
+
 	}
 
 	/**

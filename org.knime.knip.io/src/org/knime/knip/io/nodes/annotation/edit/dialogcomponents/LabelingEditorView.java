@@ -40,9 +40,9 @@ import org.knime.knip.io.nodes.annotation.AbstractDefaultAnnotatorView;
 import org.knime.knip.io.nodes.annotation.AnnotatorView;
 import org.knime.knip.io.nodes.annotation.deprecated.AnnotatorImgCanvas;
 import org.knime.knip.io.nodes.annotation.edit.SettingsModelLabelEditor;
-import org.knime.knip.io.nodes.annotation.edit.control.LabelingEditorLabelingConverter;
 import org.knime.knip.io.nodes.annotation.edit.control.LabelingEditorChangeTracker;
 import org.knime.knip.io.nodes.annotation.edit.control.LabelingEditorLabelingAccess;
+import org.knime.knip.io.nodes.annotation.edit.control.LabelingEditorLabelingConverter;
 import org.knime.knip.io.nodes.annotation.edit.control.LabelingEditorManager;
 import org.knime.knip.io.nodes.annotation.edit.control.LabelingEditorRowKey;
 import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorResetRowEvent;
@@ -141,8 +141,6 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 
 		annotator.addViewerComponent(new AnnotatorMinimapAndPlaneSelectionPanel());
 		annotator.addViewerComponent(m_labelPanel, true, true);
-		// annotator.addViewerComponent(new LabelingEditorLabelPanel2(new
-		// Vector<String>()));
 		annotator.addViewerComponent(new ExpandingPanel("Normalization", new ImgNormalizationPanel<T, Img<T>>()));
 		annotator.addViewerComponent(new ExpandingPanel("Renderer Selection", new RendererSelectionPanel<T>()));
 		annotator.addViewerComponent(new ExpandingPanel("Transparency", new TransparencyPanel()));
@@ -196,16 +194,7 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 					new DefaultImgMetadata(m_currentCell.getDimensions().length)));
 		}
 
-		// Convert the input labeling into a string-based labeling using the
-		// underlying changetrackers to keep up to date with user changes
-
 		final LabelingEditorChangeTracker currTrack = m_annotationManager.getTracker(m_currentKey);
-		// Ensure that the complete labeling is loaded
-		// currTrack.disableFiltering();
-
-		// EditorLabeling lab2 = new EditorLabeling((ImgLabeling<L, IntType>)
-		// m_currentCell.getLabeling(),
-		// currTrack.getMap());
 
 		RandomAccessible<LabelingType<String>> converterLabeling = Converters.convert(m_currentCell.getLabeling(),
 				new LabelingEditorLabelingConverter<L>(currTrack),

@@ -61,9 +61,8 @@ import org.knime.knip.core.ui.event.KNIPEvent;
 public class LabelingEditorHighlightEvent implements KNIPEvent {
 
 	private final Collection<String> m_labels;
-	
-	private final boolean m_enabled;
 
+	private final boolean m_enabled;
 
 	public LabelingEditorHighlightEvent(final Collection<String> labels, boolean enabled) {
 		m_labels = labels;
@@ -74,8 +73,8 @@ public class LabelingEditorHighlightEvent implements KNIPEvent {
 	public Collection<String> getHighlightedLabels() {
 		return m_labels;
 	}
-	
-	public boolean isFilterEnabled(){
+
+	public boolean isFilterEnabled() {
 		return m_enabled;
 	}
 

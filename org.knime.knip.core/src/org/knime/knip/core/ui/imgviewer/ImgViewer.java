@@ -338,6 +338,9 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
      * Ensures a valid layout. Should be called after all components are added to the Position.ADDITIONAL slot.
      */
     public void doneAdding() {
+
+        //TODO: Necessary?
+
         GridBagConstraints gbc = new GridBagConstraints();
 
         gbc.gridx = 0;

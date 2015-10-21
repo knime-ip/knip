@@ -87,7 +87,6 @@ import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorLabelsColReset
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorLabelsSelChgEvent;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorResetEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
-import org.knime.knip.io.nodes.annotation.edit.control.LabelingEditorChangeTracker;
 import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorAddEvent;
 import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorDeleteAllEvent;
 import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorDeleteEvent;
@@ -278,14 +277,13 @@ public class LabelingEditorLabelPanel extends ViewerComponent {
 			@Override
 			public void valueChanged(final ListSelectionEvent e) {
 
-				if(e.getValueIsAdjusting())
+				if (e.getValueIsAdjusting())
 					return;
-				
 
 				int i = m_newLabelList.getSelectedIndex();
-				
+
 				m_labelList.clearSelection();
-				
+
 				m_newLabelList.setSelectedIndex(i);
 
 				m_eventService.publish(
@@ -305,7 +303,7 @@ public class LabelingEditorLabelPanel extends ViewerComponent {
 		JButton button2 = new JButton("Delete");
 		buttonPanel.add(button2);
 		buttonPanel.add(Box.createVerticalStrut(5));
-		final JCheckBox highlight = new JCheckBox("Highlight new?");		
+		final JCheckBox highlight = new JCheckBox("Highlight new?");
 		buttonPanel.add(highlight);
 		buttonPanel.add(Box.createGlue());
 
@@ -330,7 +328,6 @@ public class LabelingEditorLabelPanel extends ViewerComponent {
 			public void actionPerformed(ActionEvent e) {
 				if (m_newLabelList.getSelectedValue() != null) {
 
-					// m_newLabelList.updateUI();
 					m_eventService.publish(new LabelingEditorDeleteAllEvent(m_newLabelList.getSelectedValuesList()));
 					deleteAll(m_newLabelList.getSelectedValue());
 					m_newLabelList.setListData(m_newLabels);
@@ -338,7 +335,7 @@ public class LabelingEditorLabelPanel extends ViewerComponent {
 				}
 			}
 		});
-		
+
 		highlight.addItemListener(new ItemListener() {
 
 			@Override
@@ -383,16 +380,16 @@ public class LabelingEditorLabelPanel extends ViewerComponent {
 
 			@Override
 			public void valueChanged(final ListSelectionEvent e) {
-				
-				if(e.getValueIsAdjusting())
+
+				if (e.getValueIsAdjusting())
 					return;
 
 				int i = m_labelList.getSelectedIndex();
-				
+
 				m_newLabelList.clearSelection();
 
 				m_labelList.setSelectedIndex(i);
-				
+
 				m_eventService.publish(
 						new AnnotatorLabelsSelChgEvent(m_labelList.getSelectedValuesList().toArray(new String[0])));
 			}
@@ -442,7 +439,6 @@ public class LabelingEditorLabelPanel extends ViewerComponent {
 					m_labels.remove(m_labelList.getSelectedValue());
 					m_labelList.setListData(m_labels);
 
-
 				}
 			}
 		});
@@ -476,25 +472,23 @@ public class LabelingEditorLabelPanel extends ViewerComponent {
 
 	@EventListener
 	public void onLabelAdd(final LabelingEditorAddEvent e) {
-		
+
 		boolean added = false;
 
 		for (String label : e.getNewLabels())
-			if(!m_labels.contains(label)){
-					m_labels.add(label);
-					added = true;
+			if (!m_labels.contains(label)) {
+				m_labels.add(label);
+				added = true;
 			}
-		
-		if(added){
+
+		if (added) {
 			Collections.sort(m_labels);
 			m_labelList.setListData(m_labels);
 		}
-		
 
 	}
-	
-	public void clearLabels()
-	{
+
+	public void clearLabels() {
 		m_labels.clear();
 		m_labelList.setListData(m_labels);
 	}

@@ -62,7 +62,6 @@ import org.knime.knip.core.awt.parametersupport.RendererWithHilite;
 import org.knime.knip.core.awt.parametersupport.RendererWithLabels;
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorResetEvent;
-import org.knime.knip.core.ui.imgviewer.events.ForcedImgRedrawEvent;
 import org.knime.knip.core.ui.imgviewer.events.HilitedLabelsChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelColoringChangeEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelOptionsChangeEvent;
@@ -218,12 +217,6 @@ public class LabelingRU<L> extends AbstractDefaultRU<LabelingType<L>> {
         m_labelingColorMapping =
                 LabelingColorTableUtils.extendLabelingColorTable(e.getLabelingMetaData().getLabelingColorTable(),
                                                                  new RandomMissingColorHandler());
-    }
-
-    @EventListener
-    public void onForcedUpdate(final ForcedImgRedrawEvent e){
-        m_forceupdate++;
-
     }
 
     /**
