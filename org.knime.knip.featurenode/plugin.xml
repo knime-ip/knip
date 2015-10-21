@@ -17,9 +17,10 @@
    <extension
          point="org.knime.workbench.repository.nodes">
       <node
-            expert-flag="false"
-            factory-class="org.knime.knip.featurenode.FeatureNodeFactory"
-            id="org.knime.knip.featurenode.FeatureNodeFactory">
+            category-path="/community/knip/features"
+            deprecated="false"
+            factory-class="org.knime.knip.features.node.FeatureCalculatorFactory"
+            id="org.knime.knip.features.node.FeatureCalculatorFactory">
       </node>
    </extension>
    
