@@ -29,6 +29,7 @@ import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorRowColKeyChgEv
 import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelingWithMetadataChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.TableOverviewDisableEvent;
 import org.knime.knip.core.ui.imgviewer.panels.ImgNormalizationPanel;
 import org.knime.knip.core.ui.imgviewer.panels.RendererSelectionPanel;
 import org.knime.knip.core.ui.imgviewer.panels.TransparencyPanel;
@@ -129,6 +130,8 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 		gbc.weighty = 1.0;
 		gbc.fill = GridBagConstraints.BOTH;
 		PlainCellView v = new PlainCellView(tableView, (ImgViewer) createAnnotatorComponent());
+		v.setEventService(m_eventService);
+		m_eventService.publish(new TableOverviewDisableEvent(false, false));
 		m_mainPanel.add(v, gbc);
 	}
 
