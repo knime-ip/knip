@@ -6,6 +6,7 @@ Bundle-Version: 1.4.0.qualifier
 Bundle-Vendor: University of Konstanz
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: knip-core.jar
+Eclipse-BuddyPolicy: registered
 Require-Bundle: org.apache.log4j;bundle-version="1.2.15",
  org.eclipse.core.runtime;bundle-version="3.6.0",
  imglib2-algorithm;bundle-version="0.2.0",
