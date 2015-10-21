@@ -34,6 +34,8 @@ public class LabelingEditorChangeTracker {
 	private int m_generation = 1;
 
 	private boolean isFiltered;
+	
+	private boolean m_isDirty = false;
 
 	private Set<String> m_filteredLabels;
 
@@ -58,6 +60,7 @@ public class LabelingEditorChangeTracker {
 		if (changed) {
 			m_generation++;
 			increaseCounter(newLabel);
+			m_isDirty = true;
 		}
 		return changed;
 	}
@@ -75,6 +78,7 @@ public class LabelingEditorChangeTracker {
 		}
 		if (changed)
 			m_generation++;
+		m_isDirty = true;
 		return changed;
 	}
 
@@ -93,6 +97,7 @@ public class LabelingEditorChangeTracker {
 		if (changed) {
 			decreaseCounter(labelToRemove);
 			m_generation++;
+			m_isDirty = true;
 		}
 		return changed;
 	}
@@ -103,6 +108,7 @@ public class LabelingEditorChangeTracker {
 			if (set.remove(oldName)){
 				set.add(newName);
 				++count;
+				m_isDirty = true;
 			}
 		}
 		if (m_occurrence.containsKey(newName)) {
@@ -123,6 +129,7 @@ public class LabelingEditorChangeTracker {
 		}
 		m_occurrence.remove(label);
 		m_generation++;
+		m_isDirty = true;
 	}
 
 	public Set<String> get(Set<String> key) {
@@ -164,6 +171,7 @@ public class LabelingEditorChangeTracker {
 		m_map.clear();
 		m_occurrence.clear();
 		m_generation++;
+		m_isDirty = false;
 	}
 
 	public Map<Set<String>, Set<String>> getMap() {
@@ -185,6 +193,10 @@ public class LabelingEditorChangeTracker {
 
 	public Set<String> getFilteredLabels() {
 		return m_filteredLabels;
+	}
+	
+	public boolean isDirty(){
+		return m_isDirty;
 	}
 	
 	public Set<String> getCurrentLabels(List<Set<?>> originalLabels) {
@@ -220,6 +232,7 @@ public class LabelingEditorChangeTracker {
 	}
 
 	public void saveSettingsTo(NodeSettingsWO settings, int prefix) {
+		settings.addBoolean("CHANGETRACKER_" + prefix +"_DIRTYFLAG", m_isDirty);
 		saveChangeMap(settings, "CHANGETRACKER_" + prefix);
 		saveCountMap(settings, "CHANGETRACKER_C_" + prefix);
 
@@ -250,6 +263,7 @@ public class LabelingEditorChangeTracker {
 	}
 
 	public void loadSettingsFrom(NodeSettingsRO settings, int prefix) throws InvalidSettingsException {
+		m_isDirty = settings.getBoolean("CHANGETRACKER_" + prefix +"_DIRTYFLAG");
 		loadChangeMap(settings, "CHANGETRACKER_" + prefix);
 		loadCountMap(settings, "CHANGETRACKER_C_" + prefix);
 

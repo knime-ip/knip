@@ -92,6 +92,9 @@ public class LabelingEditorNodeModel<L extends Comparable<L>>
 		final Map<RowColKey, LabelingEditorChangeTracker> map = m_annotationsSM.getTrackerMap();
 		// Get the tracker of the current row
 		final LabelingEditorChangeTracker currentTrack = map.get(k);
+		
+//		if(!currentTrack.isDirty())
+//			TODO: Unmodified Cell handling.
 
 		RandomAccessibleInterval<LabelingType<String>> src = null;
 
