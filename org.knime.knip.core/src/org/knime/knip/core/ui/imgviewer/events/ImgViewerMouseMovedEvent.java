@@ -70,16 +70,12 @@ public class ImgViewerMouseMovedEvent extends ImgViewerMouseEvent {
                                     final int xoffset, final int yoffset) {
         super(e, factors, imgWidth, imgHeight, xoffset, yoffset);
 
-        m_posX = (int)(e.getX() / m_factorA) - xoffset;
-        m_posY = (int)(e.getY() / m_factorB) - yoffset;
-
     }
 
     @Override
     public boolean isInsideImgView(final long dimA, final long dimB) {
 
-        return !(((m_posX / m_factorA) >= dimA) || ((m_posX / m_factorA) < 0) || ((m_posY / m_factorB) >= dimB)
-                || ((m_posY / m_factorB) < 0));
+        return !((m_posX >= dimA) || (m_posX < 0) || (m_posY >= dimB) || (m_posY < 0));
     }
 
     @Override

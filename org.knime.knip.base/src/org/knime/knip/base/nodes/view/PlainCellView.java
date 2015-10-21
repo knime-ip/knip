@@ -18,7 +18,7 @@ public class PlainCellView extends AbstractCellView {
 
         m_cellView = cellView;
         m_cellPanel.add(cellView);
-        this.subscribeTo(cellView);
+        this.subscribe(cellView);
 
     }
 

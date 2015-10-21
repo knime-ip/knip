@@ -361,8 +361,6 @@ public class ImgCanvas<T extends Type<T>, I extends RandomAccessibleInterval<T>>
 
     private void fireImageCoordMouseMoved(final MouseEvent e) {
 
-        //TODO: Use in all mouseEvents?
-
         // Calculate relative coordinates
 
         if (!isMouseEventBlocked()) {
