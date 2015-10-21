@@ -69,6 +69,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
+import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelFilterSelection;
 import org.knime.knip.core.KNIPGateway;
@@ -306,7 +307,8 @@ public class FeatureCalculatorModel<T extends RealType<T> & NativeType<T>, L ext
 	private int getColIdx(final DataTableSpec inSpec, final Class<? extends DataValue> type,
 			final SettingsModelString colModel) throws InvalidSettingsException {
 		int colIndex = -1;
-		if (null == colModel.getStringValue()) {
+		if (colModel.getStringValue().equals("")) {
+			colIndex = NodeUtils.silentOptionalAutoColumnSelection(inSpec, colModel, type);
 			return colIndex;
 		}
 		colIndex = inSpec.findColumnIndex(colModel.getStringValue());
@@ -332,4 +334,5 @@ public class FeatureCalculatorModel<T extends RealType<T> & NativeType<T>, L ext
 	private boolean getIntersectionMode() {
 		return m_labelIntersectionModeModel.getBooleanValue();
 	}
+
 }
