@@ -5,14 +5,13 @@
 	<name>Feature Calculator (BETA)</name>
 
 	<shortDescription>
-		Calculate numerical features of an image, the regions in a labeling (=
-		segments) or segment on an image. 
-	
-		<i>
-			Please note: This node is in a beta-testing phase. We would be happy if you
-			would report any bugs in our forum
-			(https://tech.knime.org/forum/knime-image-processing).
-		</i>
+		Calculate numerical features of an image, the regions
+		in a labeling (=
+		segments) or segment on an image.
+
+		Please note: This node is in a beta-testing phase. We would be happy if you
+		would report any bugs in our forum
+		(https://tech.knime.org/forum/knime-image-processing).
 	</shortDescription>
 
 	<fullDescription>
@@ -46,7 +45,8 @@
 		<inPort index="0" name="Input Table">Input table with at least one image or
 			one labeling column.
 		</inPort>
-		<outPort index="0" name="Computed Features">Input table with computed feature sets.
+		<outPort index="0" name="Computed Features">Input table with computed feature
+			sets.
 		</outPort>
 	</ports>
 </knimeNode>
