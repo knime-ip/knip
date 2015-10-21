@@ -90,35 +90,44 @@ public class ColorLabelingRenderer<L> extends ProjectingRenderer<LabelingType<L>
 
     private LabelingColorTable m_colorMapping;
 
+    private Set<String> m_hilitedLabels;
+
+    private boolean m_isHiliteMode;
+
+    private Operator m_operator;
+
+    private Set<String> m_activeLabels;
+
     public ColorLabelingRenderer() {
         m_rebuildRequired = true;
     }
 
-    @Override public void setOperator(final Operator operator) {
-        rebuildLabelConverter();
-        m_converter.setOperator(operator);
+    @Override
+    public void setOperator(final Operator operator) {
         m_rebuildRequired = true;
+        m_operator = operator;
+
     }
 
     @Override
     public void setActiveLabels(final Set<String> activeLabels) {
-        rebuildLabelConverter();
-        m_converter.setActiveLabels(activeLabels);
         m_rebuildRequired = true;
+        m_activeLabels = activeLabels;
+
     }
 
     @Override
     public void setHilitedLabels(final Set<String> hilitedLabels) {
-        rebuildLabelConverter();
-        m_converter.setHilitedLabels(hilitedLabels);
         m_rebuildRequired = true;
+        m_hilitedLabels = hilitedLabels;
+
     }
 
     @Override
     public void setHiliteMode(final boolean isHiliteMode) {
-        rebuildLabelConverter();
-        m_converter.setHiliteMode(isHiliteMode);
         m_rebuildRequired = true;
+        m_isHiliteMode = isHiliteMode;
+
     }
 
     @Override
@@ -148,6 +157,17 @@ public class ColorLabelingRenderer<L> extends ProjectingRenderer<LabelingType<L>
                         new RandomMissingColorHandler());
             }
             m_converter = new LabelingTypeARGBConverter<L>(m_colorMapping);
+            if (m_activeLabels != null) {
+                m_converter.setActiveLabels(m_activeLabels);
+            }
+            if (m_hilitedLabels != null) {
+                m_converter.setHilitedLabels(m_hilitedLabels);
+            }
+            if (m_operator != null) {
+                m_converter.setOperator(m_operator);
+            }
+            m_converter.setHiliteMode(m_isHiliteMode);
+            m_converter.clear();
         }
     }
 
@@ -161,15 +181,13 @@ public class ColorLabelingRenderer<L> extends ProjectingRenderer<LabelingType<L>
      */
     @Override
     public void setLabelingColorTable(final LabelingColorTable mapping) {
+        m_colorMapping = mapping;
         m_rebuildRequired = true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void setLabelMapping(final LabelingMapping<L> labelMapping) {
-        // TODO Auto-generated method stub
+    public void setLabelMapping(final LabelingMapping<L> mapping) {
+        // Nothing
 
     }
 
