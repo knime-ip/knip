@@ -317,8 +317,8 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>>
                     final ExtendedPolygon iPoly = iObj.getContour();
                     final ExtendedPolygon jPoly = jObj.getContour();
 
-                    final long[] jCenter = add2D(jPoly.getCenter(), iObj.getTopLeft());
-                    final long[] iCenter = add2D(iPoly.getCenter(), jObj.getTopLeft());
+                    final long[] jCenter = add2D(jPoly.getCenter(), jObj.getTopLeft());
+                    final long[] iCenter = add2D(iPoly.getCenter(), iObj.getTopLeft());
 
                     final double diffX =
                             (iCenter[0] + iPoly.getBounds2D().getX()) - (jCenter[0] + jPoly.getBounds2D().getX());
