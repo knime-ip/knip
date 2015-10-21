@@ -69,9 +69,9 @@ import net.imglib2.type.numeric.real.DoubleType;
  */
 @Plugin(type = FeatureSet.class, label = "Center of Gravity", description = "<h1> Center of Gravity Feature Set</h1> <h2>Description</h2> Calculates the center of gravity for each dimension of the given input.")
 public class CenterOfGravityFeatureSet<T extends RealType<T>>
-		extends AbstractCachedFeatureSet<IterableInterval<T>, DoubleType> {
+		extends AbstractCachedFeatureSet<IterableInterval<T>, DoubleType> implements RequireNumDimensions {
 
-	private int numDims;
+	private int numDims = -1;
 
 	@Override
 	public List<NamedFeature> getFeatures() {
@@ -108,6 +108,11 @@ public class CenterOfGravityFeatureSet<T extends RealType<T>>
 	@Override
 	public boolean conforms() {
 		return true;
+	}
+
+	@Override
+	public void setNumDimensions(int numDims) {
+		this.numDims = numDims;
 	}
 
 }
