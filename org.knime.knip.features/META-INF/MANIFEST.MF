@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: KNIME Featurenode extension for KNIME Workbench
-Bundle-SymbolicName: org.knime.knip.featurenode;singleton:=true
+Bundle-SymbolicName: org.knime.knip.features;singleton:=true
 Bundle-Version: 1.4.0.qualifier
 Bundle-Vendor: University of Konstanz
 Eclipse-RegisterBuddy: org.knime.knip.core

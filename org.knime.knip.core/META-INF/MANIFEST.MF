@@ -28,7 +28,7 @@ Require-Bundle: org.apache.log4j;bundle-version="1.2.15",
  org.eclipse.ui;bundle-version="3.107.0",
  scijava-cache;bundle-version="0.1.0",
  guava;bundle-version="18.0.0",
- knip-tmp-imglib2-ops;bundle-version="0.4.0"
+ knip-tmp-imglib2-ops;bundle-version="0.4.0",
  org.apache.commons.math3;bundle-version="3.4.1"
 Bundle-ActivationPolicy: lazy
 Export-Package: org.knime.knip.core,
