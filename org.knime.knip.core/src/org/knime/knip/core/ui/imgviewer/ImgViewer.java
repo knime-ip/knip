@@ -105,16 +105,13 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -128,8 +125,6 @@ import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelingWithMetadataChgEvent;
-import org.knime.knip.core.ui.imgviewer.panels.ViewerControlEvent;
-import org.knime.knip.core.ui.imgviewer.panels.ViewerToggleEvent;
 
 import net.imagej.ImgPlus;
 import net.imagej.ImgPlusMetadata;
@@ -159,19 +154,11 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
     private JSplitPane m_background;
 
-    private JPanel m_centerPanel;
+    protected JPanel m_centerPanel;
 
-    private JPanel m_bottomControl;
+    protected JPanel m_infoPanel;
 
-    private JPanel m_leftControl;
-
-    private JPanel m_rightControl;
-
-    private JPanel m_topControl;
-
-    private JPanel m_infoPanel;
-
-    private JPanel m_rightPanel;
+    private JComponent m_menuComponent;
 
     // Counter to keep track of added components
 
@@ -211,12 +198,11 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
         // Right panel, i.e. the menus
 
-        m_rightPanel = new JPanel();
-        JScrollPane sp = new JScrollPane(m_rightPanel);
+        m_menuComponent = createMenu();
+
+        JScrollPane sp = new JScrollPane(m_menuComponent);
         sp.setMinimumSize(new Dimension(300, sp.getMinimumSize().height));
         sp.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        m_rightPanel.setLayout(new GridBagLayout());
-        m_rightPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
 
         m_background.setLeftComponent(view);
         m_background.setRightComponent(sp);
@@ -225,6 +211,19 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
         add(m_background);
 
+    }
+
+    protected JComponent createMenu() {
+        JPanel menu = new JPanel();
+
+        menu.setLayout(new GridBagLayout());
+        menu.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+
+        return menu;
+    }
+
+    public void setMenu(final JComponent menu) {
+        m_menuComponent = menu;
     }
 
     /**
@@ -240,7 +239,7 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
         // Infopanel
         gbc.anchor = GridBagConstraints.CENTER;
 
-        gbc.gridx = 2;
+        gbc.gridx = 1;
         gbc.gridy = 1;
 
         gbc.gridheight = 1;
@@ -254,11 +253,11 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
         // The imageview
 
-        gbc.gridx = 1;
+        gbc.gridx = 0;
         gbc.gridy = 2;
 
         gbc.gridheight = 4;
-        gbc.gridwidth = 5;
+        gbc.gridwidth = 4;
 
         gbc.fill = GridBagConstraints.BOTH;
         gbc.weightx = 1;
@@ -267,111 +266,6 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
         m_centerPanel = new JPanel();
         m_centerPanel.setLayout(new BorderLayout());
         viewPanel.add(m_centerPanel, gbc);
-
-        // Left & right control panel
-
-        gbc.insets = new Insets(5, 5, 5, 5);
-
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-
-        gbc.gridheight = 1;
-        gbc.gridwidth = 1;
-
-        gbc.fill = GridBagConstraints.NONE;
-
-        gbc.weightx = 0;
-        gbc.weighty = 1;
-
-        m_leftControl = new JPanel();
-        m_leftControl.setLayout(new BorderLayout());
-        viewPanel.add(m_leftControl, gbc);
-
-        gbc.gridx = 6;
-        gbc.gridy = 4;
-
-        m_rightControl = new JPanel();
-        m_rightControl.setLayout(new BorderLayout());
-        viewPanel.add(m_rightControl, gbc);
-
-        // Top & botton control panel
-
-        gbc.gridx = 3;
-        gbc.gridy = 6;
-
-        gbc.weightx = 1;
-        gbc.weighty = 0;
-
-        m_bottomControl = new JPanel();
-        m_bottomControl.setLayout(new BorderLayout());
-        viewPanel.add(m_bottomControl, gbc);
-
-        gbc.gridx = 3;
-        gbc.gridy = 0;
-
-        m_topControl = new JPanel();
-        m_topControl.setLayout(new BorderLayout());
-        viewPanel.add(m_topControl, gbc);
-
-        // Overview and quickview panel
-
-        gbc.gridx = 0;
-        gbc.gridy = 6;
-
-        gbc.weightx = 0;
-        gbc.weighty = 0;
-
-        ImageIcon i = new ImageIcon(this.getClass().getResource("/icons/tableup.png"));
-        ImageIcon i2 = new ImageIcon(this.getClass().getResource("/icons/tabledown.png"));
-
-        m_bottomQuickViewButton =
-                new JToggleButton(new ImageIcon(i.getImage().getScaledInstance(32, 16, java.awt.Image.SCALE_SMOOTH)));
-        m_bottomQuickViewButton
-                .setSelectedIcon(new ImageIcon(i2.getImage().getScaledInstance(32, 16, java.awt.Image.SCALE_SMOOTH)));
-        m_bottomQuickViewButton.setMnemonic(KeyEvent.VK_Q);
-
-        viewPanel.add(m_bottomQuickViewButton, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-
-        m_bottomQuickViewButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                m_eventService.publish(new ViewerToggleEvent());
-            }
-
-        });
-
-        JPanel overviewButtonPanel = new JPanel();
-        overviewButtonPanel.setLayout(new BorderLayout());
-        i = new ImageIcon(this.getClass().getResource("/icons/backarrow.png"));
-        m_overviewButton =
-                new JButton(new ImageIcon(i.getImage().getScaledInstance(32, 16, java.awt.Image.SCALE_SMOOTH)));
-        m_overviewButton.setMnemonic(KeyEvent.VK_B);
-        overviewButtonPanel.add(m_overviewButton, BorderLayout.CENTER);
-        viewPanel.add(overviewButtonPanel, gbc);
-
-        new JButton(new ImageIcon(i.getImage().getScaledInstance(32, 16, java.awt.Image.SCALE_SMOOTH)));
-        m_overviewButton.setMnemonic(KeyEvent.VK_B);
-        overviewButtonPanel.add(m_overviewButton, BorderLayout.CENTER);
-        viewPanel.add(overviewButtonPanel, gbc);
-
-        m_overviewButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                m_eventService.publish(new ViewerControlEvent());
-
-            }
-
-        });
-
-        m_bottomControl.add(Box.createRigidArea(new Dimension(16, 16)));
-        m_leftControl.add(Box.createRigidArea(new Dimension(16, 16)));
-        m_topControl.add(Box.createRigidArea(new Dimension(16, 16)));
-        m_rightControl.add(Box.createRigidArea(new Dimension(16, 16)));
 
         return viewPanel;
     }
@@ -394,7 +288,8 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
      *            {@link ViewerComponent}
      *
      */
-    public void addViewerComponent(final ViewerComponent panel, final boolean setEventService, final boolean dynamicSize) {
+    public void addViewerComponent(final ViewerComponent panel, final boolean setEventService,
+                                   final boolean dynamicSize) {
 
         if (setEventService) {
             panel.setEventService(m_eventService);
@@ -406,22 +301,6 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
             case CENTER:
                 m_centerPanel.add(panel);
                 break;
-            case SOUTH: // BTMCONTROL
-                m_bottomControl.add(panel);
-
-                break;
-            case WEST: // LFTCONTROL
-                m_leftControl.add(panel);
-
-                break;
-            case EAST:
-                m_rightControl.add(panel);
-
-                break;
-            case NORTH:
-                m_topControl.add(panel);
-
-                break;
             case INFO: // CONTROL
                 m_infoPanel.add(panel);
                 break;
@@ -429,7 +308,7 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
                 GridBagConstraints gbc = new GridBagConstraints();
                 gbc.insets = new Insets(5, 0, 5, 0);
                 gbc.weightx = 1;
-                if(dynamicSize) {
+                if (dynamicSize) {
                     gbc.weighty = 1;
                     gbc.fill = GridBagConstraints.BOTH;
                 } else {
@@ -442,7 +321,7 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
                 gbc.gridheight = 1;
                 gbc.gridwidth = GridBagConstraints.REMAINDER;
-                m_rightPanel.add(panel, gbc);
+                m_menuComponent.add(panel, gbc);
 
                 break;
             default: // hidden
@@ -451,8 +330,7 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
 
     }
 
-    public void addViewerComponent(final ViewerComponent panel, final boolean setEventService)
-    {
+    public void addViewerComponent(final ViewerComponent panel, final boolean setEventService) {
         addViewerComponent(panel, setEventService, false);
     }
 
@@ -470,25 +348,7 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
         gbc.gridwidth = GridBagConstraints.REMAINDER;
 
         Component panel = Box.createVerticalGlue();
-        m_rightPanel.add(panel, gbc);
-    }
-
-    /**
-     * Returns the button used to show the quick view of the table in the viewer
-     *
-     * @return the button used to show the quickview
-     */
-    public JToggleButton getBottomQuickViewButton() {
-        return m_bottomQuickViewButton;
-    }
-
-    /**
-     * Returns the button used to return to the main table view in the viewer
-     *
-     * @return the return-button
-     */
-    public JButton getOverViewButton() {
-        return m_overviewButton;
+        m_menuComponent.add(panel, gbc);
     }
 
     /**

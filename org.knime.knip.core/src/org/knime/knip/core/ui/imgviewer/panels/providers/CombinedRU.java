@@ -87,6 +87,8 @@ public class CombinedRU implements RenderUnit {
     /** caches the last rendered image. */
     private Image m_lastImage;
 
+    private boolean m_renderStack;
+
     // event members
 
     private EventService m_eventService;
@@ -102,11 +104,10 @@ public class CombinedRU implements RenderUnit {
      */
     public CombinedRU(final RenderUnit... renderUnits) {
         m_renderUnits = new ArrayList<RenderUnit>();
-        for(RenderUnit ru : renderUnits)
-        {
-         m_renderUnits.add(ru);
+        for (RenderUnit ru : renderUnits) {
+            m_renderUnits.add(ru);
         }
-//        m_renderUnits = renderUnits;
+        //        m_renderUnits = renderUnits;
         m_graphicsConfig =
                 GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
     }
@@ -124,8 +125,8 @@ public class CombinedRU implements RenderUnit {
         }
 
         Image ret;
-        int i = 0;
 
+        int i = 0;
         //forward to the first active image
         while (i < m_renderUnits.size()) {
             if (m_renderUnits.get(i).isActive()) {
@@ -135,34 +136,74 @@ public class CombinedRU implements RenderUnit {
         }
 
         if (i < m_renderUnits.size()) {
-            //at least one active image
-            Image img = m_renderUnits.get(i).createImage();
-            Image joinedImg =
-                    m_graphicsConfig.createCompatibleImage(img.getWidth(null), img.getHeight(null),
-                                                           java.awt.Transparency.TRANSLUCENT);
-            Graphics g = joinedImg.getGraphics();
-            g.drawImage(img, 0, 0, null);
-            i++;
 
-            //blend in the other active images
-            while (i < m_renderUnits.size()) {
-                if (m_renderUnits.get(i).isActive()) {
-                    g.drawImage(Transparency.makeColorTransparent(m_renderUnits.get(i).createImage(), Color.WHITE,
-                                                                  m_transparency), 0, 0, null);
+            Image joinedImg = null;
+
+            if (m_renderStack) {
+                int first = i;
+                int w = 0, h = 0;
+                Image img = m_renderUnits.get(i).createImage();
+                w+= img.getWidth(null);
+                h = Math.max(h, img.getHeight(null));
+                ++i;
+                while (i < m_renderUnits.size()) {
+                    if (m_renderUnits.get(i).isActive()) {
+                        img = m_renderUnits.get(i).createImage();
+                        w+= img.getWidth(null);
+                        h = Math.max(h, img.getHeight(null));
+                    }
+                    i++;
                 }
+                joinedImg = m_graphicsConfig.createCompatibleImage(w, h,
+                                                                   java.awt.Transparency.OPAQUE);
+                Graphics g = joinedImg.getGraphics();
+                int x = 0;
+                i = first;
+                while (i < m_renderUnits.size()) {
+                    if (m_renderUnits.get(i).isActive()) {
+                        img = m_renderUnits.get(i).createImage();
+                        g.drawImage(img,
+                                    x, 0, null);
+                        x+= img.getWidth(null);
+                    }
+                    i++;
+                }
+
+            } else {
+                //at least one active image
+                Image img = m_renderUnits.get(i).createImage();
+                joinedImg = m_graphicsConfig.createCompatibleImage(img.getWidth(null), img.getHeight(null),
+                                                                         java.awt.Transparency.TRANSLUCENT);
+                Graphics g = joinedImg.getGraphics();
+
+                g.drawImage(img, 0, 0, null);
                 i++;
+
+                //blend in the other active images
+                while (i < m_renderUnits.size()) {
+                    if (m_renderUnits.get(i).isActive()) {
+                        g.drawImage(Transparency.makeColorTransparent(m_renderUnits.get(i).createImage(), Color.WHITE,
+                                                                      m_transparency),
+                                    0, 0, null);
+                    }
+                    i++;
+                }
             }
 
-            ret = joinedImg;
-        } else {
-            //no active renderer create dummy image
-            ret = m_graphicsConfig.createCompatibleImage(100, 100);
-        }
+        ret = joinedImg;
+    }else
 
-        m_lastImage = ret;
-        m_hashOfLastRendering = generateHashCode();
+    {
+        //no active renderer create dummy image
+        ret = m_graphicsConfig.createCompatibleImage(100, 100);
+    }
 
-        return ret;
+    m_lastImage=ret;m_hashOfLastRendering=
+
+    generateHashCode();
+
+    return ret;
+
     }
 
     /**
@@ -194,9 +235,21 @@ public class CombinedRU implements RenderUnit {
         return isActive;
     }
 
-    public void addRenderUnit(final RenderUnit ru)
-    {
+    public void add(final RenderUnit ru) {
         m_renderUnits.add(ru);
+    }
+
+    public void clear() {
+        m_renderUnits.clear();
+    }
+
+    public void invalidateCache(){
+        m_lastImage = null;
+    }
+
+    public void setStackedRendering(final boolean b)
+    {
+        m_renderStack = b;
     }
 
     // event handling

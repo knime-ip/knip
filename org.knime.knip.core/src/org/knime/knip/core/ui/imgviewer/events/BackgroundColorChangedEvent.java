@@ -48,7 +48,7 @@
  */
 package org.knime.knip.core.ui.imgviewer.events;
 
-import java.awt.event.MouseEvent;
+import java.awt.Color;
 
 import org.knime.knip.core.ui.event.KNIPEvent;
 
@@ -58,28 +58,13 @@ import org.knime.knip.core.ui.event.KNIPEvent;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class ImgViewerMouseMovedEvent extends ImgViewerMouseEvent {
+public class BackgroundColorChangedEvent implements KNIPEvent {
 
-    /**
-     * @param e
-     * @param factors
-     * @param imgWidth
-     * @param imgHeight
-     */
-    public ImgViewerMouseMovedEvent(final MouseEvent e, final double[] factors, final int imgWidth, final int imgHeight,
-                                    final int xoffset, final int yoffset) {
-        super(e, factors, imgWidth, imgHeight, xoffset, yoffset);
+    private final Color m_color;
 
-        m_posX = (int)(e.getX() / m_factorA) - xoffset;
-        m_posY = (int)(e.getY() / m_factorB) - yoffset;
+    public BackgroundColorChangedEvent(final Color color) {
+        m_color = color;
 
-    }
-
-    @Override
-    public boolean isInsideImgView(final long dimA, final long dimB) {
-
-        return !(((m_posX / m_factorA) >= dimA) || ((m_posX / m_factorA) < 0) || ((m_posY / m_factorB) >= dimB)
-                || ((m_posY / m_factorB) < 0));
     }
 
     @Override
@@ -93,6 +78,13 @@ public class ImgViewerMouseMovedEvent extends ImgViewerMouseEvent {
     @Override
     public <E extends KNIPEvent> boolean isRedundant(final E thatEvent) {
         return this.equals(thatEvent);
+    }
+
+    /**
+     * @return the renderer
+     */
+    public Color getColor() {
+        return m_color;
     }
 
 }

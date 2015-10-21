@@ -48,13 +48,14 @@
  */
 package org.knime.knip.base.nodes.view;
 
+import java.util.List;
+
 import org.knime.core.data.DataValue;
 
 /**
  * Implementing classes need to provide a no-args constructor!
- * 
- * 
- * @param <V>
+ *
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -64,11 +65,20 @@ public interface TableCellViewFactory {
     /**
      * @return the possible views for the given data value
      */
-    TableCellView[] createTableCellViews();
+    public TableCellView[] createTableCellViews();
 
     /**
      * @return the data value
      */
-    Class<? extends DataValue> getDataValueClass();
+    public Class<? extends DataValue> getDataValueClass();
+
+    default boolean check(final List<Class<? extends DataValue>> values) {
+        if (values.size() > 1) {
+            return false;
+        }
+        return values.get(0).equals(getDataValueClass());
+    }
+
+
 
 }

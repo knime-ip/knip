@@ -48,7 +48,6 @@
  */
 package org.knime.knip.base.nodes.testing.TableCellViewer;
 
-import java.awt.Component;
 import java.awt.Dimension;
 import java.util.LinkedList;
 import java.util.List;
@@ -61,9 +60,7 @@ import org.knime.core.data.DataValue;
 import org.knime.core.node.BufferedDataTableHolder;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeModel;
-import org.knime.knip.base.nodes.view.TableCellView;
 import org.knime.knip.base.nodes.view.TableCellViewNodeView;
-import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.node2012.ViewDocument.View;
 import org.knime.node2012.ViewsDocument.Views;
 
@@ -208,83 +205,83 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
      * @param setRow Row to select
      */
     private void cellSelectionChanged(final int setCol, final int setRow) {
-        final int row, col;
-        if (setCol == -1 || setRow == -1) {
-            row = m_tableContentView.getSelectionModel().getLeadSelectionIndex();
-            col = m_tableContentView.getColumnModel().getSelectionModel().getLeadSelectionIndex();
-        } else {
-            row = setRow;
-            col = setCol;
-        }
-
-        // if neither the row nor the column changed, do nothing
-        if ((row == m_row) && (col == m_col)) {
-            return;
-        }
-
-        m_row = row;
-        m_col = col;
-
-        try {
-            m_currentCell = m_tableContentView.getContentModel().getValueAt(row, col);
-        } catch (final IndexOutOfBoundsException e2) {
-
-            return;
-        }
-        final int selection = m_cellView.getSelectedIndex();
-        m_cellView.removeAll();
-
-        List<TableCellView> cellView;
-
-        final String currentDataCellClass = m_currentCell.getClass().getCanonicalName();
-
-        // cache cell view
-        if ((cellView = m_cellViews.get(currentDataCellClass)) == null) {
-            // if the cell view wasn't loaded, yet, load
-            // configuration and put
-            // it to the cache
-            cellView =
-                    TestTableCellViewsManager.getInstance().createTableCellViews(m_currentCell.getType()
-                                                                                         .getValueClasses());
-
-            // if no cell view exists for the selected cell
-            if (cellView.size() == 0) {
-                m_currentCell = null;
-                m_cellView.addTab("Viewer", new JLabel("This cell type doesn't provide a Table Cell Viewer!"));
-                return;
-            }
-            m_cellViews.put(currentDataCellClass, cellView);
-            for (final TableCellView v : cellView) {
-
-                // cache the view component
-                final Component comp = v.getViewComponent();
-
-                if (isLogging) {
-                    // add the image-logger to every component before storing it.
-                    ImgViewer viewer = (ImgViewer)comp;
-                    HiddenImageLogger logger = new HiddenImageLogger();
-
-                    viewer.addViewerComponent(logger);
-                    m_logger.add(logger);
-                }
-
-                m_viewComponents.put(currentDataCellClass + ":" + v.getName(), comp);
-
-            }
-
-        }
-
-        // add the components to the tabs
-        for (final TableCellView v : cellView) {
-
-            try {
-                m_cellView.addTab(v.getName(), m_viewComponents.get(currentDataCellClass + ":" + v.getName()));
-            } catch (final Exception ex) {
-                LOGGER.error("Could not add Tab " + v.getName(), ex);
-            }
-        }
-
-        m_cellView.setSelectedIndex(Math.max(0, Math.min(selection, m_cellView.getTabCount() - 1)));
+//        final int row, col;
+//        if (setCol == -1 || setRow == -1) {
+//            row = m_tableContentView.getSelectionModel().getLeadSelectionIndex();
+//            col = m_tableContentView.getColumnModel().getSelectionModel().getLeadSelectionIndex();
+//        } else {
+//            row = setRow;
+//            col = setCol;
+//        }
+//
+//        // if neither the row nor the column changed, do nothing
+//        if ((row == m_row) && (col == m_col)) {
+//            return;
+//        }
+//
+//        m_row = row;
+//        m_col = col;
+//
+//        try {
+////            m_currentCell = m_tableContentView.getContentModel().getValueAt(row, col);
+//        } catch (final IndexOutOfBoundsException e2) {
+//
+//            return;
+//        }
+//        final int selection = m_cellView.getSelectedIndex();
+//        m_cellView.removeAll();
+//
+//        List<TableCellView> cellView;
+//
+//        final String currentDataCellClass = m_currentCell.getClass().getCanonicalName();
+//
+//        // cache cell view
+//        if ((cellView = m_cellViewCache.get(currentDataCellClass)) == null) {
+//            // if the cell view wasn't loaded, yet, load
+//            // configuration and put
+//            // it to the cache
+//            cellView =
+//                    TestTableCellViewsManager.getInstance().createTableCellViews(m_currentCell.getType()
+//                                                                                         .getValueClasses());
+//
+//            // if no cell view exists for the selected cell
+//            if (cellView.size() == 0) {
+//                m_currentCell = null;
+//                m_cellView.addTab("Viewer", new JLabel("This cell type doesn't provide a Table Cell Viewer!"));
+//                return;
+//            }
+//            m_cellViewCache.put(currentDataCellClass, cellView);
+//            for (final TableCellView v : cellView) {
+//
+//                // cache the view component
+//                final Component comp = v.getViewComponent();
+//
+//                if (isLogging) {
+//                    // add the image-logger to every component before storing it.
+//                    ImgViewer viewer = (ImgViewer)comp;
+//                    HiddenImageLogger logger = new HiddenImageLogger();
+//
+//                    viewer.addViewerComponent(logger);
+//                    m_logger.add(logger);
+//                }
+//
+//                m_viewComponents.put(currentDataCellClass + ":" + v.getName(), comp);
+//
+//            }
+//
+//        }
+//
+//        // add the components to the tabs
+//        for (final TableCellView v : cellView) {
+//
+//            try {
+//                m_cellView.addTab(v.getName(), m_viewComponents.get(currentDataCellClass + ":" + v.getName()));
+//            } catch (final Exception ex) {
+//                LOGGER.error("Could not add Tab " + v.getName(), ex);
+//            }
+//        }
+//
+//        m_cellView.setSelectedIndex(Math.max(0, Math.min(selection, m_cellView.getTabCount() - 1)));
 
     }
 
@@ -303,13 +300,13 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
     @Override
     protected void onClose() {
 
-        if (m_cellViews != null) {
-            for (final String key : m_cellViews.keySet()) {
-                for (final TableCellView v : m_cellViews.get(key)) {
-                    v.onClose();
-                }
-            }
-        }
+//        if (m_cellViewCache != null) {
+//            for (final String key : m_cellViewCache.keySet()) {
+//                for (final TableCellView v : m_cellViewCache.get(key)) {
+//                    v.onClose();
+//                }
+//            }
+//        }
 
         if (m_tableContentView != null) {
             m_tableContentView.getSelectionModel().removeListSelectionListener(m_listSelectionListenerA);
@@ -321,10 +318,10 @@ public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHo
             m_cellView.removeTabChangeListener(m_changeListener);
         }
 
-        m_cellViews = null;
+        m_cellViewCache = null;
         m_viewComponents = null;
         m_tableContentView = null;
-        m_currentCell = null;
+//        m_currentCell = null;
         m_logger.clear();
     }
 

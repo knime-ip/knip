@@ -84,9 +84,9 @@ public class ExpandingPanel extends ViewerComponent {
 
         m_header.add(getDividerPanel());
         m_header.add(Box.createHorizontalStrut(2));
-        m_header.add(new JLabel(name, SwingConstants.CENTER));
-        m_header.add(Box.createHorizontalStrut(10));
         m_header.add(arrow);
+        m_header.add(Box.createHorizontalStrut(2));
+        m_header.add(new JLabel(name, SwingConstants.CENTER));
 
         m_header.add(Box.createHorizontalStrut(2));
         m_header.add(getDividerPanel());
@@ -138,10 +138,10 @@ public class ExpandingPanel extends ViewerComponent {
 
         gbc.insets = new Insets(5, 0, 5, 0);
         gbc.gridy = 1;
-        gbc.fill = GridBagConstraints.BOTH;
+//        gbc.fill = GridBagConstraints.BOTH;
         gbc.gridheight = GridBagConstraints.REMAINDER;
-        gbc.weightx = 1;
-        gbc.weighty = 1;
+//        gbc.weightx = 1;
+//        gbc.weighty = 1;
 
         m_content = content;
         m_content.setVisible(isExpanded);
@@ -171,6 +171,32 @@ public class ExpandingPanel extends ViewerComponent {
     public void setEventService(final EventService eventService) {
         m_content.setEventService(eventService);
 
+    }
+
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Dimension getPreferredSize() {
+        if(!isExpanded) {
+            return m_header.getPreferredSize();
+        } else {
+            return super.getPreferredSize();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Dimension getMaximumSize() {
+        if(!isExpanded) {
+            return m_header.getMaximumSize();
+        } else {
+            return m_content.getMaximumSize();
+        }
     }
 
     /**

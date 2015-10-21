@@ -49,6 +49,7 @@
  */
 package org.knime.knip.base.nodes.view;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 
 import javax.swing.JTabbedPane;
@@ -70,7 +71,7 @@ public class TabbedCellView extends AbstractCellView {
         super(tableView);
 
         m_cellView = new JTabbedPane();
-        m_verticalSplit.setTopComponent(m_cellView);
+        m_cellPanel.add(m_cellView, BorderLayout.CENTER);
 
 
     }
@@ -84,6 +85,7 @@ public class TabbedCellView extends AbstractCellView {
      */
     public void addTab(final String title, final Component component) {
         m_cellView.addTab(title, component);
+        subscribeTo(component);
     }
 
     /**

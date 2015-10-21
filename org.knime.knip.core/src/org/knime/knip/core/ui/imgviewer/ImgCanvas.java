@@ -77,6 +77,7 @@ import javax.swing.JScrollPane;
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.events.AWTImageChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.BackgroundColorChangedEvent;
 import org.knime.knip.core.ui.imgviewer.events.CalibrationUpdateEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgViewerMouseDraggedEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgViewerMouseMovedEvent;
@@ -91,7 +92,6 @@ import org.knime.knip.core.ui.imgviewer.panels.MinimapPanel;
 
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.Type;
-
 
 /**
  *
@@ -156,6 +156,8 @@ public class ImgCanvas<T extends Type<T>, I extends RandomAccessibleInterval<T>>
     //TODO Workaround
     private boolean m_init;
 
+    private Color m_bgColor = Color.black;
+
     public ImgCanvas() {
         this("Image", false);
     }
@@ -188,12 +190,11 @@ public class ImgCanvas<T extends Type<T>, I extends RandomAccessibleInterval<T>>
                 int h = this.getHeight();
                 int imgw = (int)(m_image.getWidth(null) * m_factors[0]);
                 int imgh = (int)(m_image.getHeight(null) * m_factors[1]);
-                g.drawImage(m_image, (w-imgw)/2, (h-imgh)/2, imgw ,
-                            imgh, null);
+                g.drawImage(m_image, (w - imgw) / 2, (h - imgh) / 2, imgw, imgh, null);
             }
         };
 
-        m_imageCanvas.setBackground(Color.BLACK);
+        m_imageCanvas.setBackground(m_bgColor);
         // TODO discuss global key listener
 
         m_imageCanvas.addMouseListener(new MouseAdapter() {
@@ -328,8 +329,8 @@ public class ImgCanvas<T extends Type<T>, I extends RandomAccessibleInterval<T>>
         if (!isMouseEventBlocked()) {
             int w = m_imageCanvas.getWidth() - (int)(m_image.getWidth(null) * m_factors[0]);
             int h = m_imageCanvas.getHeight() - (int)(m_image.getHeight(null) * m_factors[1]);
-            m_eventService
-                    .publish(new ImgViewerMousePressedEvent(e, m_factors, m_image.getWidth(), m_image.getHeight(), w/2, h/2));
+            m_eventService.publish(new ImgViewerMousePressedEvent(e, m_factors, m_image.getWidth(), m_image.getHeight(),
+                    w / 2, h / 2));
         }
 
     }
@@ -339,8 +340,9 @@ public class ImgCanvas<T extends Type<T>, I extends RandomAccessibleInterval<T>>
             int w = m_imageCanvas.getWidth() - (int)(m_image.getWidth(null) * m_factors[0]);
             int h = m_imageCanvas.getHeight() - (int)(m_image.getHeight(null) * m_factors[1]);
             m_eventService.publish(
-            // TODO CHANGE HERE TO FACTORS
-                    new ImgViewerMouseReleasedEvent(e, m_factors, m_image.getWidth(), m_image.getHeight(), w/2, h/2));
+                                   // TODO CHANGE HERE TO FACTORS
+                                   new ImgViewerMouseReleasedEvent(e, m_factors, m_image.getWidth(),
+                                           m_image.getHeight(), w / 2, h / 2));
         }
 
     }
@@ -350,18 +352,27 @@ public class ImgCanvas<T extends Type<T>, I extends RandomAccessibleInterval<T>>
             int w = m_imageCanvas.getWidth() - (int)(m_image.getWidth(null) * m_factors[0]);
             int h = m_imageCanvas.getHeight() - (int)(m_image.getHeight(null) * m_factors[1]);
             m_eventService.publish(
-            // TODO CHANGE HERE TO FACTORS
-                    new ImgViewerMouseDraggedEvent(e, m_factors, m_image.getWidth(), m_image.getHeight(), w/2, h/2));
+                                   // TODO CHANGE HERE TO FACTORS
+                                   new ImgViewerMouseDraggedEvent(e, m_factors, m_image.getWidth(), m_image.getHeight(),
+                                           w / 2, h / 2));
         }
 
     }
 
     private void fireImageCoordMouseMoved(final MouseEvent e) {
+
+        //TODO: Use in all mouseEvents?
+
+        // Calculate relative coordinates
+
         if (!isMouseEventBlocked()) {
             int w = m_imageCanvas.getWidth() - (int)(m_image.getWidth(null) * m_factors[0]);
             int h = m_imageCanvas.getHeight() - (int)(m_image.getHeight(null) * m_factors[1]);
+            int imgw = (int)(m_image.getWidth(null) * m_factors[0]);
+            int imgh = (int)(m_image.getHeight(null) * m_factors[1]);
             // TODO CHANGE HERE TO FACTORS
-            m_eventService.publish(new ImgViewerMouseMovedEvent(e, m_factors, m_image.getWidth(), m_image.getHeight(), w/2, h/2));
+            m_eventService.publish(new ImgViewerMouseMovedEvent(e, m_factors, m_image.getWidth(), m_image.getHeight(),
+                    (w - imgw) / 2, (h - imgh) / 2));
         }
 
     }
@@ -384,6 +395,13 @@ public class ImgCanvas<T extends Type<T>, I extends RandomAccessibleInterval<T>>
         }
         m_scaleFactors = newFactors;
         updateImageCanvas();
+    }
+
+    @EventListener
+    public void onBackgroundColorChange(final BackgroundColorChangedEvent e) {
+        m_bgColor = e.getColor();
+        m_imageCanvas.setBackground(m_bgColor);
+        m_imageCanvas.repaint();
     }
 
     /**
@@ -423,9 +441,8 @@ public class ImgCanvas<T extends Type<T>, I extends RandomAccessibleInterval<T>>
             m_init = false;
 
             // enlarge canvas
-            final Dimension d =
-                    new Dimension((int)(m_image.getWidth(null) * m_factors[0]),
-                            (int)(m_image.getHeight(null) * m_factors[1]));
+            final Dimension d = new Dimension((int)(m_image.getWidth(null) * m_factors[0]),
+                    (int)(m_image.getHeight(null) * m_factors[1]));
             m_imageCanvas.setSize(d);
             m_imageCanvas.setPreferredSize(d);
 
