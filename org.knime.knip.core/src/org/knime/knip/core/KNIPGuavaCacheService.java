@@ -73,15 +73,15 @@ public class KNIPGuavaCacheService extends AbstractService implements CacheServi
     @Parameter
     private MemoryService ms;
 
-    private Cache<Object, Object> cache;
+    private Cache<Integer, Object> cache;
 
     private final Semaphore gate = new Semaphore(1);
 
     @Override
     public void initialize() {
         //FIXME: Make parameters accessible via image processing config at some point
-        cache = CacheBuilder.newBuilder().expireAfterAccess(20, TimeUnit.SECONDS).maximumSize((long)(ms.limit() * 0.8))
-                .weakKeys().softValues().build();
+        cache = CacheBuilder.newBuilder().expireAfterAccess(20, TimeUnit.SECONDS).maximumSize(1500).softValues()
+                .build();
 
         ms.register(new MemoryAlertable() {
 
@@ -99,17 +99,17 @@ public class KNIPGuavaCacheService extends AbstractService implements CacheServi
 
     @Override
     public void put(final Object key, final Object value) {
-        cache.put(key, value);
+        cache.put(key.hashCode(), value);
     }
 
     @Override
     public Object get(final Object key) {
-        return cache.getIfPresent(key);
+        return cache.getIfPresent(key.hashCode());
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <V> V get(final Object key, final Callable<V> valueLoader) throws ExecutionException {
-        return (V)cache.get(key, valueLoader);
+        return (V)cache.get(key.hashCode(), valueLoader);
     }
 }
