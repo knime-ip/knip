@@ -113,7 +113,7 @@ public abstract class ImgViewerMouseEvent implements KNIPEvent {
 
         m_e = e;
 
-        m_posX = (int)(Math.max(Math.min((e.getX() - xoffset) / m_factorA, imgWidth), -1));
+        m_posX = (int)Math.max(Math.min((e.getX() - xoffset) / m_factorA, imgWidth), -1);
         m_posY = (int)Math.max(Math.min((e.getY() - yoffset) / m_factorB, imgHeight), -1);
 
         setInside(isInsideImgView(imgWidth, imgHeight));

@@ -86,7 +86,6 @@ public class LabelingTypeARGBConverter<L> implements Converter<LabelingType<L>, 
 
     public LabelingTypeARGBConverter(final LabelingColorTable colorMapping) {
         this.m_colorTable = new TIntIntHashMap();
-
         this.m_colorMapping = colorMapping;
     }
 
@@ -99,17 +98,15 @@ public class LabelingTypeARGBConverter<L> implements Converter<LabelingType<L>, 
     }
 
     public void setHilitedLabels(final Set<String> hilitedLabels) {
-
-        // intersec of sets? ol
-
         m_hilitedLabels = hilitedLabels;
-
-        // setze alle bisher gehiliteten die jetzt nicht mehr gehilitet sind auf
-        // setze alle  labels in colortable set auf hilited
     }
 
     public void setHiliteMode(final boolean isHiliteMode) {
         m_isHiliteMode = isHiliteMode;
+    }
+
+    public void clear(){
+        m_colorTable.clear();
     }
 
     @Override
@@ -168,11 +165,12 @@ public class LabelingTypeARGBConverter<L> implements Converter<LabelingType<L>, 
 
         if (op == Operator.OR) {
             for (final L label : labeling) {
-                if (activeLabels.contains(labeling.toString())) {
+                if (activeLabels.contains(label.toString())) {
                     intersected.add(label);
                 }
             }
         } else if (op == Operator.AND) {
+
             if (labeling.containsAll(activeLabels)) {
                 intersected.addAll(labeling);
             }

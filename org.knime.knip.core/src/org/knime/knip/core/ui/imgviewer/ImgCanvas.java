@@ -368,11 +368,9 @@ public class ImgCanvas<T extends Type<T>, I extends RandomAccessibleInterval<T>>
         if (!isMouseEventBlocked()) {
             int w = m_imageCanvas.getWidth() - (int)(m_image.getWidth(null) * m_factors[0]);
             int h = m_imageCanvas.getHeight() - (int)(m_image.getHeight(null) * m_factors[1]);
-            int imgw = (int)(m_image.getWidth(null) * m_factors[0]);
-            int imgh = (int)(m_image.getHeight(null) * m_factors[1]);
             // TODO CHANGE HERE TO FACTORS
             m_eventService.publish(new ImgViewerMouseMovedEvent(e, m_factors, m_image.getWidth(), m_image.getHeight(),
-                    (w - imgw) / 2, (h - imgh) / 2));
+                    w / 2, h/ 2));
         }
 
     }
