@@ -268,7 +268,7 @@ public class TrackmateTrackerNodeModel extends NodeModel
         final int labelingIndex = getColIndices(m_sourceLabelingColumn,
                 LabelingValue.class, inData[0].getSpec());
 
-        if (inData[0].getRowCount() < 1) {
+        if (inData[0].size() < 1) {
             throw new Error("Input Table is empty!");
         }
 
@@ -330,6 +330,7 @@ public class TrackmateTrackerNodeModel extends NodeModel
      * @throws CanceledExecutionException
      * @throws InvalidSettingsException
      */
+    @SuppressWarnings("unchecked")
     private TrackableObjectCollection<TrackedNode<String>> createTrackedNodes(
             final BufferedDataTable[] inData, final ExecutionContext exec,
             final String sourceLabelingName) throws CanceledExecutionException,
@@ -684,7 +685,7 @@ public class TrackmateTrackerNodeModel extends NodeModel
         final Img<BitType> bitMask = createBinaryMask(regions, trackName);
 
         cells.add(new ImgPlusCellFactory(exec)
-                .createCell(new ImgPlus(bitMask, mdata)));
+                .createCell(new ImgPlus<>(bitMask, mdata)));
 
         // Features
         for (final TrackMateTrackFeature feature : TrackMateTrackFeature

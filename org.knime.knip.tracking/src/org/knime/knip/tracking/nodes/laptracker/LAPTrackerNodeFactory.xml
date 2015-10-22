@@ -8,7 +8,7 @@
 <knimeNode icon="laptracker.png" type="Manipulator"  deprecated="true">
 	<name>LAPTracker (TrackMate)</name>
 
-	<shortDescription>
+	<shortDescription> Replaced by: TrackMate Tracker!.
 		Tracking based on the TrackMate (see
 		http://fiji.sc/TrackMate).
 	</shortDescription>
