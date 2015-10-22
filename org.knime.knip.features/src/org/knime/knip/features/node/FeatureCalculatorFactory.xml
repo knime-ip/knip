@@ -16,37 +16,85 @@
 
 	<fullDescription>
 		<intro>
-			Calculate features of an image, labeling or an image under
-			consideration of a given labeling.
+			Calculate numerical features of an image, the regions
+			in a labeling (= segments) or segment on an image.
 			<p>
-				Add as many feature sets as you want to the selected feature set
-				panel. Some feature sets need some input parameters set. Once you
-				have
-				added a feature set you can set the missing
-				input parameters in
-				the
-				feature selection panel.
+				Please note: This node is in a beta-testing phase. We would be happy if you
+				would report any bugs in our forum
+				(https://tech.knime.org/forum/knime-image-processing).
 			</p>
 		</intro>
-
-		<option name="Select Image Column: ">Select the image column on which the features
-			should be computed.
-		</option>
-		<option name="Select Labeling Column: ">Select the image column on which the features
-			should be computed.
-		</option>
-
-		<option name="Select Feature Set: ">Select the feature set to compute and add it with
-			the "Add" button
-		</option>
+		
+		<tab name = "Feature Set Configuration">
+			<h3>Column Selection: </h3>
+				<option name="Select Image Column">
+					Select the image column on which 
+					the features should be computed.
+				</option>
+				<option name="Select Labeling Column">
+					Select the labeling column on 
+					which the features should be computed.
+				</option>
+				<option name="Column Creation Mode">
+					Mode how to handle the selected 
+					columns. The processed columns can be added to a new table or 
+					appended to the end of the input table.
+				</option>
+				
+			<hr></hr>
+			
+			<h3>Dimension Selection: </h3>
+				<option name = "Dimensions">
+					Select the dimensions on which the selected 
+					feature sets should be computed. If the input has three dimensions 
+					but only two dimensions are selected the node will slice the input 
+					and compute the features on the two dimensional slices.
+				</option>
+				
+			<hr></hr>
+			
+			<h3>Select Feature Set: </h3>
+				<option name = "Add">
+					Select the feature set to compute and add it with
+					the "Add" button to the "Selected Feature Sets" - Panel. 
+					<br></br>
+					You can add as many feature sets as you want. If you add feature sets 
+					which are not compatible with the input columns or the selected dimensions 
+					the node will skip the feature set during execution. 
+				</option>
+				
+			<hr></hr>
+			
+			<h3>Selected Feature Sets: </h3>
+				Some of the feature sets can be configured. You can select the features 
+				which should be computed or enter other parameters for the feature computation. 
+		</tab>
+		
+		<tab name = "Label Segment Settings">
+			<option name = "Append labels of overlapping segments">
+				If true, the labels of overlapping segments will be appended in an 
+				additional column (';'-separated).
+			</option>
+			<option name = "Overlapping segments do NOT need to completely overlap">
+				If selected, segments will also be counted as overlapping, if so don't 
+				overlap completely.
+			</option>
+			<option name = "Append segment information">
+				If selected, the bitmask and the label of each segment will be added.
+			</option>
+			<option name = "Segment Label Filter">
+				Only labels which hold the given regular expression are considered during 
+				the calculation.
+			</option>
+		</tab>
 	</fullDescription>
 
 	<ports>
-		<inPort index="0" name="Input Table">Input table with at least one image or
-			one labeling column.
+		<inPort index="0" name="Input Table">
+			Input table with at least one image or one labeling column.
 		</inPort>
-		<outPort index="0" name="Computed Features">Input table with computed feature
-			sets.
+		<outPort index="0" name="Computed Features">
+			Feature table. 
 		</outPort>
 	</ports>
 </knimeNode>
