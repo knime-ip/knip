@@ -307,7 +307,7 @@ public class FeatureCalculatorModel<T extends RealType<T> & NativeType<T>, L ext
 	private int getColIdx(final DataTableSpec inSpec, final Class<? extends DataValue> type,
 			final SettingsModelString colModel) throws InvalidSettingsException {
 		int colIndex = -1;
-		if (colModel.getStringValue().equals("")) {
+		if (colModel.getStringValue() != null && colModel.getStringValue().equals("")) {
 			colIndex = NodeUtils.silentOptionalAutoColumnSelection(inSpec, colModel, type);
 			return colIndex;
 		}
