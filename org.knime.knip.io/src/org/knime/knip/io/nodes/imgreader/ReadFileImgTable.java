@@ -100,12 +100,10 @@ import net.imglib2.util.Pair;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
  */
-public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
-		DataTable {
+public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements DataTable {
 
 	/* Standard node logger */
-	private static final NodeLogger LOGGER = NodeLogger
-			.getLogger(ReadFileImgTable.class);
+	private static final NodeLogger LOGGER = NodeLogger.getLogger(ReadFileImgTable.class);
 
 	/* connection timeout if images are read from an url */
 	private static final int CONNECTION_TIMEOUT = 2000;
@@ -205,11 +203,9 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 	 * 
 	 * 
 	 */
-	public ReadFileImgTable(final ExecutionContext exec,
-			final Iterable<String> fileList, final long numberOfFiles,
-			final SettingsModelSubsetSelection sel, final boolean omexml,
-			final boolean checkFileFormat, final boolean completePathRowKey,
-			final boolean isGroupFiles, final int selectedSeries,
+	public ReadFileImgTable(final ExecutionContext exec, final Iterable<String> fileList, final long numberOfFiles,
+			final SettingsModelSubsetSelection sel, final boolean omexml, final boolean checkFileFormat,
+			final boolean completePathRowKey, final boolean isGroupFiles, final int selectedSeries,
 			final ImgFactory<T> imgFactory) {
 
 		initCanonicalWorkflowPath();
@@ -220,10 +216,8 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 		m_exec = exec;
 		m_omexml = omexml;
 		m_selectedSeries = selectedSeries;
-		m_scifioConfig = new SCIFIOConfig()
-				.groupableSetGroupFiles(isGroupFiles);
-		m_imgSource = new ScifioImgSource(imgFactory, checkFileFormat,
-				m_scifioConfig);
+		m_scifioConfig = new SCIFIOConfig().groupableSetGroupFiles(isGroupFiles);
+		m_imgSource = new ScifioImgSource(imgFactory, checkFileFormat, m_scifioConfig);
 	}
 
 	/**
@@ -234,14 +228,12 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 		final int col = 0;
 
 		DataColumnSpecCreator creator;
-		final DataColumnSpec[] cspecs = new DataColumnSpec[1 + (m_omexml ? 1
-				: 0)];
+		final DataColumnSpec[] cspecs = new DataColumnSpec[1 + (m_omexml ? 1 : 0)];
 		creator = new DataColumnSpecCreator("Image", ImgPlusCell.TYPE);
 		cspecs[col] = creator.createSpec();
 
 		if (m_omexml) {
-			creator = new DataColumnSpecCreator("OME-XML Metadata",
-					XMLCell.TYPE);
+			creator = new DataColumnSpecCreator("OME-XML Metadata", XMLCell.TYPE);
 			cspecs[cspecs.length - 1] = creator.createSpec();
 		}
 
@@ -304,8 +296,7 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 			private String rowKey;
 
 			/* current image of the series contained in one file */
-			private int currentSeries = m_selectedSeries == -1 ? 0
-					: m_selectedSeries;
+			private int currentSeries = m_selectedSeries == -1 ? 0 : m_selectedSeries;
 
 			/* iterator over filelist */
 			private final Iterator<String> fileIterator = m_fileList.iterator();
@@ -326,9 +317,8 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 			public boolean hasNext() {
 				if (m_selectedSeries == -1 && (currentSeries + 1) < seriesCount) {
 					return true;
-				} else {
-					return fileIterator.hasNext();
 				}
+				return fileIterator.hasNext();
 			}
 
 			@SuppressWarnings("unchecked")
@@ -338,8 +328,7 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 
 				final DataCell[] result = new DataCell[m_omexml ? 2 : 1];
 				try {
-					if ((currentSeries + 1) < seriesCount
-							&& m_selectedSeries == -1) {
+					if ((currentSeries + 1) < seriesCount && m_selectedSeries == -1) {
 						// if there still is a series left and ALL series are
 						// selected to be read (m_selectedSeries!=-1)
 						currentSeries++;
@@ -350,9 +339,8 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 						rowKey = currentFile;
 
 						// replace relative file pathes knime://knime.workflow
-						currentFile = DialogComponentMultiFileChooser
-								.convertToFilePath(currentFile,
-										m_workflowCanonicalPath);
+						currentFile = DialogComponentMultiFileChooser.convertToFilePath(currentFile,
+								m_workflowCanonicalPath);
 
 						// download file and return new file path, if
 						// 'currentFile' is an url
@@ -366,8 +354,7 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 							// check whether file exists
 							File f = new File(currentFile);
 							if (!f.exists()) {
-								throw new KNIPException("Image " + rowKey
-										+ " doesn't exist!");
+								throw new KNIPException("Image " + rowKey + " doesn't exist!");
 							}
 							if (!m_completePathRowKey) {
 								rowKey = f.getName();
@@ -376,53 +363,42 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 						}
 
 						seriesCount = m_imgSource.getSeriesCount(currentFile);
-						currentSeries = m_selectedSeries == -1 ? 0
-								: m_selectedSeries;
+						currentSeries = m_selectedSeries == -1 ? 0 : m_selectedSeries;
 
 						idx++;
 					}
 					if (currentSeries >= seriesCount) {
-						LOGGER.warn("Image file only contains " + seriesCount
-								+ " series, but series number " + currentSeries
-								+ " selected. File skipped!");
+						LOGGER.warn("Image file only contains " + seriesCount + " series, but series number "
+								+ currentSeries + " selected. File skipped!");
 					}
 
-					List<CalibratedAxis> calibAxes = m_imgSource.getAxes(
-							currentFile, currentSeries);
+					List<CalibratedAxis> calibAxes = m_imgSource.getAxes(currentFile, currentSeries);
 
-					final Pair<TypedAxis, long[]>[] axisSelectionConstraints = m_sel
-							.createSelectionConstraints(
-									m_imgSource.getDimensions(currentFile,
-											currentSeries),
-									calibAxes
-											.toArray(new CalibratedAxis[calibAxes
-													.size()]));
+					final Pair<TypedAxis, long[]>[] axisSelectionConstraints = m_sel.createSelectionConstraints(
+							m_imgSource.getDimensions(currentFile, currentSeries),
+							calibAxes.toArray(new CalibratedAxis[calibAxes.size()]));
 
 					// reads the ome xml metadata
 					if (m_omexml) {
-						result[result.length - 1] = XMLCellFactory
-								.create(m_imgSource
-										.getOMEXMLMetadata(currentFile));
+						result[result.length - 1] = XMLCellFactory.create(m_imgSource.getOMEXMLMetadata(currentFile));
 					}
 
 					// One _can_ be sure that if and only if
 					// some dims are removed (as they are of
 					// size 1) an optimized iterable interval
 					// is created
-					final ImgPlus<T> resImgPlus = (ImgPlus<T>) m_imgSource
-							.getImg(currentFile, currentSeries,
-									axisSelectionConstraints);
+					final ImgPlus<T> resImgPlus = (ImgPlus<T>) m_imgSource.getImg(currentFile, currentSeries,
+							axisSelectionConstraints);
 
 					result[0] = cellFactory.createCell(resImgPlus);
 
 				} catch (final FormatException e) {
-					LOGGER.warn("Format not supported for image " + rowKey
-							+ " (" + e.getMessage() + ")");
+					LOGGER.warn("Format not supported for image " + rowKey + " (" + e.getMessage() + ")");
 					m_error = true;
 
 				} catch (final IOException e) {
-					LOGGER.error("An IO problem occured while opening the image "
-							+ rowKey + " (" + e.getMessage() + ")");
+					LOGGER.error(
+							"An IO problem occured while opening the image " + rowKey + " (" + e.getMessage() + ")");
 					m_error = true;
 				} catch (final KNIPException e) {
 					LOGGER.warn(e.getLocalizedMessage());
@@ -482,9 +458,7 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 		m_workflowCanonicalPath = null;
 		try {
 			m_workflowCanonicalPath = ResolverUtil
-					.resolveURItoLocalFile(
-							new URI(
-									DialogComponentMultiFileChooser.KNIME_WORKFLOW_RELPATH))
+					.resolveURItoLocalFile(new URI(DialogComponentMultiFileChooser.KNIME_WORKFLOW_RELPATH))
 					.getCanonicalPath();
 		} catch (URISyntaxException e) {
 			LOGGER.warn("could not resolve the workflow directory as local file");
@@ -514,21 +488,16 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements
 			// necessary for the scifio readers to identify the right reader)
 			String file = url.getFile();
 			int idx = file.lastIndexOf(".");
-			String suffix = file.substring(idx,
-					Math.min(idx + 4, file.length() - 1));
+			String suffix = file.substring(idx, Math.min(idx + 4, file.length() - 1));
 
 			// create tmp file and copy data from url
-			File tmpFile = FileUtil.createTempFile(
-					FileUtil.getValidFileName(url.toString(), -1), suffix);
-			FileUtils.copyURLToFile(url, tmpFile, CONNECTION_TIMEOUT,
-					READ_TIMEOUT);
+			File tmpFile = FileUtil.createTempFile(FileUtil.getValidFileName(url.toString(), -1), suffix);
+			FileUtils.copyURLToFile(url, tmpFile, CONNECTION_TIMEOUT, READ_TIMEOUT);
 			return tmpFile.getAbsolutePath();
 		} catch (MalformedURLException e) {
 			return null;
 		} catch (IOException e) {
-			throw new KNIPException(
-					"Can't create temporary file to download image from URL ("
-							+ s + ").", e);
+			throw new KNIPException("Can't create temporary file to download image from URL (" + s + ").", e);
 		}
 	}
 }

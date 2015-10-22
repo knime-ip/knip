@@ -1,7 +1,6 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2013
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -96,7 +95,7 @@ public class OverlayAnnotatorNodeDialog<T extends RealType<T> & NativeType<T>>
 	private SettingsModelString m_smColumnSuffix = ValueToCellNodeModel
 			.createColSuffixNodeModel();
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "deprecation" })
 	public OverlayAnnotatorNodeDialog() {
 		super();
 

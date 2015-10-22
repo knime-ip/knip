@@ -1,3 +1,50 @@
+/*
+ * ------------------------------------------------------------------------
+ *  University of Konstanz, Germany and
+ *  KNIME GmbH, Konstanz, Germany
+ *  Website: http://www.knime.org; Email: contact@knime.org
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License, Version 3, as
+ *  published by the Free Software Foundation.
+ *
+ *  This program is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, see <http://www.gnu.org/licenses>.
+ *
+ *  Additional permission under GNU GPL version 3 section 7:
+ *
+ *  KNIME interoperates with ECLIPSE solely via ECLIPSE's plug-in APIs.
+ *  Hence, KNIME and ECLIPSE are both independent programs and are not
+ *  derived from each other. Should, however, the interpretation of the
+ *  GNU GPL Version 3 ("License") under any applicable laws result in
+ *  KNIME and ECLIPSE being a combined program, KNIME GMBH herewith grants
+ *  you the additional permission to use and propagate KNIME together with
+ *  ECLIPSE with only the license terms in place for ECLIPSE applying to
+ *  ECLIPSE and the GNU GPL Version 3 applying for KNIME, provided the
+ *  license terms of ECLIPSE themselves allow for the respective use and
+ *  propagation of ECLIPSE together with KNIME.
+ *
+ *  Additional permission relating to nodes for KNIME that extend the Node
+ *  Extension (and in particular that are based on subclasses of NodeModel,
+ *  NodeDialog, and NodeView) and that only interoperate with KNIME through
+ *  standard APIs ("Nodes"):
+ *  Nodes are deemed to be separate and independent programs and to not be
+ *  covered works.  Notwithstanding anything to the contrary in the
+ *  License, the License does not apply to Nodes, you are not required to
+ *  license Nodes under the License, and you are granted a license to
+ *  prepare and propagate Nodes, in each case even if such Nodes are
+ *  propagated with or for interoperation with KNIME.  The owner of a Node
+ *  may freely choose the license terms applicable to such Node, including
+ *  when such Node is propagated with or for interoperation with KNIME.
+ * --------------------------------------------------------------------- *
+ *
+ */
+
 package org.knime.knip.io.nodes.annotation.edit.dialogcomponents;
 
 import java.awt.GridBagConstraints;
@@ -73,15 +120,9 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 
 	private EventService m_eventService;
 
-	private RandomAccessibleInterval<LabelingType<String>> m_currentChangeLabeling;
-
-	private RandomAccessibleInterval<LabelingType<String>> m_currentStringLabeling;
-
 	private LabelingValue<L> m_currentCell;
 
 	private RowColKey m_currentKey;
-
-	private Set<String> m_currentLabels;
 
 	public LabelingEditorView(final SettingsModelLabelEditor sm) {
 		m_annotationManager = sm.getManager();
@@ -155,9 +196,7 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 		return annotator;
 	}
 
-	private RandomAccessible<LabelingType<String>> m_lab;
-
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	protected void currentSelectionChanged(final DataCell[] currentRow, final int currentColNr, final RowColKey key) {
 
@@ -187,7 +226,7 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 					new ImgWithMetadataChgEvent<T>(imgPlusCell.getImgPlus().getImg(), imgPlusCell.getMetadata()));
 		} else {
 			m_currentCell = (LabelingValue<L>) currentRow[0];
-			final Img<BitType> view = new ImgView<BitType>(Views.interval(
+			final Img<BitType> view = ImgView.wrap(Views.interval(
 					ConstantUtils.constantRandomAccessible(new BitType(true), m_currentCell.getDimensions().length),
 					m_currentCell.getLabeling()), null);
 
@@ -204,9 +243,7 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 				m_currentCell.getLabeling().randomAccess().get().createVariable(String.class));
 		RandomAccessibleInterval<? extends LabelingType<?>> originalLabeling = m_currentCell.getLabeling();
 
-		m_annotationManager.setLabeling(converterLabeling);
 		m_annotationManager.setOriginalLabeling(originalLabeling);
-		m_annotationManager.setMap(currTrack.getMap());
 
 		// Set labels in the LabelPanel
 		final Set<String> labels = currTrack.getCurrentLabels(

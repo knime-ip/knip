@@ -85,8 +85,6 @@ public class ImgWriter2 {
     private static final NodeLogger LOGGER = NodeLogger
             .getLogger(ImgWriter2.class);
 
-    private static final boolean DEBUG = true; // switch for debug output
-
     /*
      * List of the names of the available writers associated with specific
      * formats.

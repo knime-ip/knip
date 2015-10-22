@@ -1,7 +1,5 @@
 /*
  * ------------------------------------------------------------------------
- *
- *  Copyright (C) 2003 - 2013
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -157,6 +155,7 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
 
 	// AbstractDefaultAnnotator
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	protected JComponent createAnnotatorComponent() {
 		ImgViewer annotator = new ImgViewer();
@@ -180,6 +179,7 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
 		return annotator;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	protected void currentSelectionChanged(DataCell[] currentRow,
 			int currentColNr, RowColKey key) {

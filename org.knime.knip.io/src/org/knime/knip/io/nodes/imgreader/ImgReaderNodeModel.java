@@ -81,6 +81,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.knime.core.node.port.PortType;
+import org.knime.core.node.port.PortTypeRegistry;
 import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
 
 /**
@@ -91,13 +92,14 @@ import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
  */
-public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
-		NodeModel implements BufferedDataTableHolder {
+public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends NodeModel
+		implements BufferedDataTableHolder {
 
 	public static class CombinedIterable<E> implements Iterable<E> {
 
 		private final Iterable<E>[] m_iterables;
 
+		@SafeVarargs
 		public CombinedIterable(final Iterable<E>... iterables) {
 			m_iterables = iterables;
 
@@ -223,47 +225,38 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 	/**
 	 * The available factory types available for selection.
 	 */
-	public static final String[] IMG_FACTORIES = new String[] {
-			"Array Image Factory", "Planar Image Factory", "Cell Image Factory" };
+	public static final String[] IMG_FACTORIES = new String[] { "Array Image Factory", "Planar Image Factory",
+			"Cell Image Factory" };
 
-	private final SettingsModelBoolean m_checkFileFormat = new SettingsModelBoolean(
-			CFG_CHECK_FILE_FORMAT, true);
+	private final SettingsModelBoolean m_checkFileFormat = new SettingsModelBoolean(CFG_CHECK_FILE_FORMAT, true);
 
-	private final SettingsModelBoolean m_completePathRowKey = new SettingsModelBoolean(
-			CFG_COMPLETE_PATH_ROWKEY, false);
+	private final SettingsModelBoolean m_completePathRowKey = new SettingsModelBoolean(CFG_COMPLETE_PATH_ROWKEY, false);
 
 	/* data table for the table cell viewer */
 	private BufferedDataTable m_data;
 
-	private final SettingsModelString m_filenameCol = new SettingsModelString(
-			CFG_FILENAME_COLUMN, "");
+	private final SettingsModelString m_filenameCol = new SettingsModelString(CFG_FILENAME_COLUMN, "");
 
 	/*
 	 * Collection of all settings.
 	 */
 
-	private final SettingsModelStringArray m_files = new SettingsModelStringArray(
-			CFG_FILE_LIST, new String[] {});
+	private final SettingsModelStringArray m_files = new SettingsModelStringArray(CFG_FILE_LIST, new String[] {});
 
 	// New in 1.0.2
-	private final SettingsModelBoolean m_isGroupFiles = new SettingsModelBoolean(
-			CFG_GROUP_FILES, true);
+	private final SettingsModelBoolean m_isGroupFiles = new SettingsModelBoolean(CFG_GROUP_FILES, true);
 
-	private final SettingsModelBoolean m_omexmlCol = new SettingsModelBoolean(
-			CFG_OME_XML_METADATA_COLUMN, false);
+	private final SettingsModelBoolean m_omexmlCol = new SettingsModelBoolean(CFG_OME_XML_METADATA_COLUMN, false);
 
-	private final SettingsModelSubsetSelection m_planeSelect = new SettingsModelSubsetSelection(
-			CFG_PLANE_SLECTION);
+	private final SettingsModelSubsetSelection m_planeSelect = new SettingsModelSubsetSelection(CFG_PLANE_SLECTION);
 
 	// new in 1.1
-	private final SettingsModelString m_imgFactory = new SettingsModelString(
-			CFG_IMG_FACTORY, IMG_FACTORIES[0]);
+	private final SettingsModelString m_imgFactory = new SettingsModelString(CFG_IMG_FACTORY, IMG_FACTORIES[0]);
 
-	private SettingsModelBoolean m_readAllSeries = new SettingsModelBoolean(
-			CFG_READ_ALL_SERIES, true);
+	private SettingsModelBoolean m_readAllSeries = new SettingsModelBoolean(CFG_READ_ALL_SERIES, true);
 
-	private final SettingsModelIntegerBounded m_seriesSelection = new SettingsModelIntegerBounded(
-			CFG_SERIES_SELECTION, 0, 0, 1000);
+	private final SettingsModelIntegerBounded m_seriesSelection = new SettingsModelIntegerBounded(CFG_SERIES_SELECTION,
+			0, 0, 1000);
 
 	private final Collection<SettingsModel> m_settingsCollection;
 
@@ -271,7 +264,7 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 	 * Initializes the ImageReader
 	 */
 	public ImgReaderNodeModel() {
-		super(new PortType[] { new PortType(BufferedDataTable.class, true) },
+		super(new PortType[] { PortTypeRegistry.getInstance().getPortType(BufferedDataTable.class, true) },
 				new PortType[] { BufferedDataTable.TYPE });
 		m_settingsCollection = new ArrayList<SettingsModel>();
 		m_settingsCollection.add(m_files);
@@ -291,11 +284,9 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
-			throws InvalidSettingsException {
+	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
 
-		final ReadFileImgTable<T> tab = new ReadFileImgTable<T>(
-				m_omexmlCol.getBooleanValue());
+		final ReadFileImgTable<T> tab = new ReadFileImgTable<T>(m_omexmlCol.getBooleanValue());
 		// tab.setDimLabelProperty(m_planeSelect.getDimLabelsAsString());
 		return new DataTableSpec[] { tab.getDataTableSpec() };
 	}
@@ -303,10 +294,9 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 	/**
 	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
-	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
-			final ExecutionContext exec) throws Exception {
+	protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
+			throws Exception {
 		final String[] fnames = m_files.getStringArrayValue();
 
 		// String[] metaDataColumns =
@@ -317,8 +307,7 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 		Iterable<String> dialogImgList = null;
 
 		if (inData[0] != null) {
-			final int colIdx = inData[0].getDataTableSpec().findColumnIndex(
-					m_filenameCol.getStringValue());
+			final int colIdx = inData[0].getDataTableSpec().findColumnIndex(m_filenameCol.getStringValue());
 			if (colIdx >= 0) {
 				tableImgList = new Iterable<String>() {
 					@Override
@@ -337,10 +326,8 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 								DataCell cell = rowIt.next().getCell(colIdx);
 								if (cell.isMissing()) {
 									return "missing cell";
-								} else {
-									return ((StringValue) cell)
-											.getStringValue();
 								}
+								return ((StringValue) cell).getStringValue();
 							}
 
 							@Override
@@ -359,13 +346,13 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 		}
 
 		Iterable<String> imgIt = null;
-		int numImages;
+		long numImages;
 		if ((tableImgList != null) && (dialogImgList != null)) {
 			imgIt = new CombinedIterable<String>(dialogImgList, tableImgList);
-			numImages = fnames.length + inData[0].getRowCount();
+			numImages = fnames.length + inData[0].size();
 		} else if (tableImgList != null) {
 			imgIt = tableImgList;
-			numImages = inData[0].getRowCount();
+			numImages = inData[0].size();
 		} else {
 			imgIt = dialogImgList;
 			numImages = fnames.length;
@@ -391,23 +378,19 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 		}
 
 		// create data table
-		final ReadFileImgTable<T> dt = new ReadFileImgTable<T>(exec, imgIt,
-				numImages, m_planeSelect, m_omexmlCol.getBooleanValue(),
-				m_checkFileFormat.getBooleanValue(),
-				m_completePathRowKey.getBooleanValue(),
-				m_isGroupFiles.getBooleanValue(), seriesSelection, imgFac);
+		final ReadFileImgTable<T> dt = new ReadFileImgTable<T>(exec, imgIt, numImages, m_planeSelect,
+				m_omexmlCol.getBooleanValue(), m_checkFileFormat.getBooleanValue(),
+				m_completePathRowKey.getBooleanValue(), m_isGroupFiles.getBooleanValue(), seriesSelection, imgFac);
 
 		// dt.setDimLabelProperty(m_planeSelect.getDimLabelsAsString());
-		final BufferedDataTable[] out = new BufferedDataTable[] { exec
-				.createBufferedDataTable(dt, exec) };
+		final BufferedDataTable[] out = new BufferedDataTable[] { exec.createBufferedDataTable(dt, exec) };
 
 		if (dt.hasAnErrorOccured()) {
 			setWarningMessage("Some errors occured opening images or image planes! See console log for details.");
-		} else if (!dt.usedDifferentReaders()
-				&& m_checkFileFormat.getBooleanValue()
-				&& out[0].getRowCount() > 1) {
+		} else if (!dt.usedDifferentReaders() && m_checkFileFormat.getBooleanValue() && out[0].size() > 1) {
 			// used only one reader and had more than one image
-			setWarningMessage("All read files had the same format. To reduce read time uncheck \"Additional Options -> Check file format for each file\".");
+			setWarningMessage(
+					"All read files had the same format. To reduce read time uncheck \"Additional Options -> Check file format for each file\".");
 		}
 
 		// data table for the table cell viewer
@@ -428,9 +411,8 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadInternals(final File nodeInternDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 		//
 	}
 
@@ -447,9 +429,8 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void saveInternals(final File nodeInternDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void saveInternals(final File nodeInternDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 		//
 	}
 
@@ -457,8 +438,7 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
 		for (final SettingsModel sm : m_settingsCollection) {
 			sm.loadSettingsFrom(settings);
 		}
@@ -498,8 +478,7 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void validateSettings(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
 		for (final SettingsModel sm : m_settingsCollection) {
 			sm.validateSettings(settings);
 		}

@@ -87,8 +87,7 @@ import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
  *         Zinsmaier</a>
  */
 public class OverlayAnnotatorNodeModel<T extends RealType<T> & NativeType<T>>
-		extends ValueToCellNodeModel<ImgPlusValue<T>, LabelingCell<String>>
-		implements BufferedDataTableHolder {
+		extends ValueToCellNodeModel<ImgPlusValue<T>, LabelingCell<String>> implements BufferedDataTableHolder {
 
 	static String LABEL_SETTINGS_KEY = "annotatedLabels";
 
@@ -101,13 +100,11 @@ public class OverlayAnnotatorNodeModel<T extends RealType<T> & NativeType<T>>
 	}
 
 	static SettingsModelString creatFactoryTypeSM() {
-		return new SettingsModelString("factory_type",
-				ImgFactoryTypes.NTREE_IMG_FACTORY.toString());
+		return new SettingsModelString("factory_type", ImgFactoryTypes.NTREE_IMG_FACTORY.toString());
 	}
 
 	static SettingsModelString createLabelingTypeSM() {
-		return new SettingsModelString("labeling_type",
-				NativeTypes.SHORTTYPE.toString());
+		return new SettingsModelString("labeling_type", NativeTypes.SHORTTYPE.toString());
 	}
 
 	private SettingsModelOverlayAnnotator m_annotationsSM = createAnnotatorSM();
@@ -136,8 +133,7 @@ public class OverlayAnnotatorNodeModel<T extends RealType<T> & NativeType<T>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs)
-			throws InvalidSettingsException {
+	protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
 		m_inSpec = (DataTableSpec) inSpecs[0];
 
 		return super.configure(inSpecs);
@@ -154,8 +150,7 @@ public class OverlayAnnotatorNodeModel<T extends RealType<T> & NativeType<T>>
 	}
 
 	@Override
-	protected LabelingCell<String> compute(ImgPlusValue<T> cellValue)
-			throws Exception {
+	protected LabelingCell<String> compute(ImgPlusValue<T> cellValue) throws Exception {
 
 		Map<RowColKey, Overlay> overlayMap = m_annotationsSM.getAnnotationMap();
 		ImgPlus<?> imgPlus = cellValue.getImgPlus();
@@ -167,21 +162,17 @@ public class OverlayAnnotatorNodeModel<T extends RealType<T> & NativeType<T>>
 		final Overlay overlay = overlayMap.get(new RowColKey(rowName, colName));
 
 		if ((overlay != null) && (overlay.getElements().length > 0)) {
-			final ImgLabeling<String, ?> labeling = overlay.renderSegmentationImage(
-					m_addSegmentID.getBooleanValue(),
+			final ImgLabeling<String, ?> labeling = overlay.renderSegmentationImage(m_addSegmentID.getBooleanValue(),
 					NativeTypes.valueOf(m_labelingType.getStringValue()));
 
 			try {
 				return m_labelingCellFactory.createCell(labeling,
-						new DefaultLabelingMetadata(imgPlus, imgPlus, imgPlus,
-								new DefaultLabelingColorTable()));
+						new DefaultLabelingMetadata(imgPlus, imgPlus, imgPlus, new DefaultLabelingColorTable()));
 			} catch (IOException e) {
-				throw new KNIPRuntimeException(
-						"error while creating new labeling", e);
+				throw new KNIPRuntimeException("error while creating new labeling", e);
 			}
-		} else {
-			// => missing cell
-			return null;
 		}
+
+		return null;
 	}
 }

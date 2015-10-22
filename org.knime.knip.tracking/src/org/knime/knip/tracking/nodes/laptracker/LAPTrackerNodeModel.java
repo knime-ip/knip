@@ -22,16 +22,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import net.imagej.ImgPlus;
-import net.imagej.axis.Axes;
-import net.imagej.axis.AxisType;
-import net.imglib2.Cursor;
-import net.imglib2.RandomAccess;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.ops.operation.iterableinterval.unary.Centroid;
-import net.imglib2.roi.labeling.ImgLabeling;
-import net.imglib2.type.logic.BitType;
-
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.knime.core.data.DataColumnSpec;
@@ -71,9 +61,18 @@ import fiji.plugin.trackmate.tracking.DefaultTOCollection;
 import fiji.plugin.trackmate.tracking.TrackableObjectCollection;
 import fiji.plugin.trackmate.util.LAPUtils;
 import fiji.plugin.trackmate.util.TrackableObjectUtils;
+import net.imagej.ImgPlus;
+import net.imagej.axis.Axes;
+import net.imagej.axis.AxisType;
+import net.imglib2.Cursor;
+import net.imglib2.RandomAccess;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.ops.operation.iterableinterval.unary.Centroid;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.type.logic.BitType;
 
-public class LAPTrackerNodeModel extends NodeModel implements
-        BufferedDataTableHolder {
+public class LAPTrackerNodeModel extends NodeModel
+        implements BufferedDataTableHolder {
 
     public enum LAPTrackerAlgorithm {
         HUNGARIAN("Hungarian"), MUNKRESKUHN("Munkres Kuhn"), JONKERVOLGENANT(
@@ -174,10 +173,7 @@ public class LAPTrackerNodeModel extends NodeModel implements
 
         // simply to check whether the input changed
         getSelectedColumnIndices(inSpecs[0]);
-        getColIndices(
-                m_labelColumnModel,
-                StringValue.class,
-                inSpecs[0],
+        getColIndices(m_labelColumnModel, StringValue.class, inSpecs[0],
                 getColIndices(m_bitMaskColumnModel, ImgPlusValue.class,
                         inSpecs[0]),
                 getColIndices(m_sourceLabelingColumn, LabelingValue.class,
@@ -206,12 +202,11 @@ public class LAPTrackerNodeModel extends NodeModel implements
         final int bitMaskColumnIdx =
                 getColIndices(m_bitMaskColumnModel, ImgPlusValue.class, spec);
 
-        final int labelIdx =
-                getColIndices(m_labelColumnModel, StringValue.class, spec,
-                        bitMaskColumnIdx);
+        final int labelIdx = getColIndices(m_labelColumnModel,
+                StringValue.class, spec, bitMaskColumnIdx);
 
-        final int sourceLabelingIdx =
-                getColIndices(m_sourceLabelingColumn, LabelingValue.class, spec);
+        final int sourceLabelingIdx = getColIndices(m_sourceLabelingColumn,
+                LabelingValue.class, spec);
 
         // time axis
         final AxisType timeAxis = Axes.get(m_timeAxisModel.getStringValue());
@@ -247,10 +242,9 @@ public class LAPTrackerNodeModel extends NodeModel implements
                 sourceLabeling = labValue.getLabeling();
                 sourceLabelingName = labValue.getLabelingMetadata().getName();
                 sourceLabelingMetadata = labValue.getLabelingMetadata();
-            } else if (!sourceLabelingName
-                    .equalsIgnoreCase(((LabelingValue<?>) row
-                            .getCell(sourceLabelingIdx)).getLabelingMetadata()
-                            .getName())) {
+            } else if (!sourceLabelingName.equalsIgnoreCase(
+                    ((LabelingValue<?>) row.getCell(sourceLabelingIdx))
+                            .getLabelingMetadata().getName())) {
                 throw new IllegalArgumentException(
                         "Since now only labels from one Labeling are allowed. Use KNIME Loops!");
             }
@@ -263,24 +257,22 @@ public class LAPTrackerNodeModel extends NodeModel implements
             }
 
             final Centroid centroid = new Centroid();
-            final double[] pos =
-                    centroid.compute(bitMask,
-                            new double[bitMask.numDimensions()]);
+            final double[] pos = centroid.compute(bitMask,
+                    new double[bitMask.numDimensions()]);
 
             // add the node
-            final TrackedNode<String> trackedNode =
-                    new TrackedNode<String>(bitMask, pos, label, timeIdx,
-                            featureMap);
+            final TrackedNode<String> trackedNode = new TrackedNode<String>(
+                    bitMask, pos, label, timeIdx, featureMap);
 
             trackedNodes.add(trackedNode, trackedNode.frame());
         }
 
         // Set-Up the tracker
-        final GenericLapTracker<String> tracker =
-                new GenericLapTracker<String>(EnumUtils.valueForName(
+        final GenericLapTracker<String> tracker = new GenericLapTracker<String>(
+                EnumUtils.valueForName(
                         m_trackingAlgorithmModel.getStringValue(),
-                        LAPTrackerAlgorithm.values()), trackedNodes,
-                        initSettings());
+                        LAPTrackerAlgorithm.values()),
+                trackedNodes, initSettings());
 
         // Start tracking
         tracker.setNumThreads(Runtime.getRuntime().availableProcessors());
@@ -340,8 +332,9 @@ public class LAPTrackerNodeModel extends NodeModel implements
                     if (useCustomPrefix) {
                         labeling.add(customPrefix + trackCtr);
                     } else {
-                        labeling.add(LAPTrackerSettingsModels.DEFAULT_TRACK_PREFIX
-                                + trackCtr);
+                        labeling.add(
+                                LAPTrackerSettingsModels.DEFAULT_TRACK_PREFIX
+                                        + trackCtr);
                     }
                     // add original labeling if selected by the user
                     if (attachSourceLabelings) {
@@ -402,16 +395,16 @@ public class LAPTrackerNodeModel extends NodeModel implements
 
     @Override
     protected void loadInternals(final File nodeInternDir,
-            final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
+            final ExecutionMonitor exec)
+                    throws IOException, CanceledExecutionException {
         // TODO Auto-generated method stub
 
     }
 
     @Override
     protected void saveInternals(final File nodeInternDir,
-            final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
+            final ExecutionMonitor exec)
+                    throws IOException, CanceledExecutionException {
         // TODO Auto-generated method stub
 
     }
@@ -532,7 +525,8 @@ public class LAPTrackerNodeModel extends NodeModel implements
             colNames = new ArrayList<String>();
             colNames.addAll(m_columns.getIncludeList());
             if (!validateColumnSelection(colNames, inSpec)) {
-                setWarningMessage("Invalid column selection. All columns are selected!");
+                setWarningMessage(
+                        "Invalid column selection. All columns are selected!");
                 collectAllColumns(colNames, inSpec);
             }
         }
@@ -544,10 +538,10 @@ public class LAPTrackerNodeModel extends NodeModel implements
             final int colIdx = inSpec.findColumnIndex(colNames.get(i));
             if (colIdx == -1) {
                 // can not occur, actually
-                throw new IllegalStateException("this should really not happen");
-            } else {
-                colIndices.add(colIdx);
+                throw new IllegalStateException(
+                        "this should really not happen");
             }
+            colIndices.add(colIdx);
         }
 
         final int[] colIdx = new int[colIndices.size()];
@@ -576,9 +570,8 @@ public class LAPTrackerNodeModel extends NodeModel implements
 
         int colIdx = -1;
         if (model.getStringValue() != null) {
-            colIdx =
-                    NodeUtils.autoColumnSelection(inSpec, model, clazz,
-                            this.getClass(), excludeCols);
+            colIdx = NodeUtils.autoColumnSelection(inSpec, model, clazz,
+                    this.getClass(), excludeCols);
         }
         return colIdx;
     }
