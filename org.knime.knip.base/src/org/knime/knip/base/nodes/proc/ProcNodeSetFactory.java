@@ -168,6 +168,8 @@ public class ProcNodeSetFactory implements NodeSetFactory {
         m_nodeFactories.put(ImgCropperNodeFactory2.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(AlignerNodeFactory2.class.getCanonicalName(), "/community/knip/image/process");
 
+        m_nodeFactories.put(ColorspaceConvertNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
+
         return m_nodeFactories.keySet();
     }
 }
