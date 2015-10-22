@@ -175,7 +175,7 @@
 	</ports>
 
 	<views>
-		<view index="0" name="Table Cell View">
+		<view index="0" name="Image Viewer">
 			Displays the selected cells with their
 			associated viewer if it exists.
 		</view>
