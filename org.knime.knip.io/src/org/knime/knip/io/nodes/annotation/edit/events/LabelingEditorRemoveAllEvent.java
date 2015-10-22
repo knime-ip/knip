@@ -48,7 +48,6 @@
  */
 package org.knime.knip.io.nodes.annotation.edit.events;
 
-import java.util.Collection;
 import java.util.Set;
 
 import org.knime.knip.core.ui.event.KNIPEvent;
