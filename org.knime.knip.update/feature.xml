@@ -280,6 +280,13 @@
          unpack="false"/>
 
    <plugin
+         id="xml-apis"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
          id="org.knime.scijava.core"
          download-size="0"
          install-size="0"
