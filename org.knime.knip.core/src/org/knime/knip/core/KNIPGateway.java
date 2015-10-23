@@ -49,7 +49,7 @@
 
 package org.knime.knip.core;
 
-import org.knime.knip.scijava.core.ResourceAwareClassLoader;
+import org.knime.scijava.core.ResourceAwareClassLoader;
 import org.scijava.Context;
 import org.scijava.cache.CacheService;
 import org.scijava.command.CommandService;

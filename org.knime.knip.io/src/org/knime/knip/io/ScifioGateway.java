@@ -48,20 +48,20 @@
  */
 package org.knime.knip.io;
 
-import io.scif.SCIFIO;
-import io.scif.SCIFIOService;
-import io.scif.ome.services.OMEXMLService;
-import io.scif.services.FormatService;
-
 import java.util.HashSet;
 import java.util.Set;
 
-import org.knime.knip.scijava.core.ResourceAwareClassLoader;
+import org.knime.scijava.core.ResourceAwareClassLoader;
 import org.scijava.Context;
 import org.scijava.plugin.DefaultPluginFinder;
 import org.scijava.plugin.PluginIndex;
 import org.scijava.service.SciJavaService;
 import org.scijava.service.Service;
+
+import io.scif.SCIFIO;
+import io.scif.SCIFIOService;
+import io.scif.ome.services.OMEXMLService;
+import io.scif.services.FormatService;
 
 /**
  * Encapsulates the scifio instance as singleton.

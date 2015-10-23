@@ -50,7 +50,7 @@ package org.knime.knip.features;
 import java.util.Arrays;
 import java.util.List;
 
-import org.knime.knip.scijava.core.ResourceAwareClassLoader;
+import org.knime.scijava.core.ResourceAwareClassLoader;
 import org.scijava.Context;
 import org.scijava.plugin.DefaultPluginFinder;
 import org.scijava.plugin.PluginIndex;
