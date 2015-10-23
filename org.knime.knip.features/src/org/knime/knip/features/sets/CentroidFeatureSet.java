@@ -68,7 +68,7 @@ import net.imglib2.type.numeric.real.DoubleType;
  * @param <I>
  * @param <O>
  */
-@Plugin(type = FeatureSet.class, label = "Centroid", description = "<h1> Centroid Feature Set</h1> <h2>Description</h2> Calculates the centroid of the given input.")
+@Plugin(type = FeatureSet.class, label = "Centroid", description = "<h1> Centroid Feature Set</h1> <h2>Runs only on regions of labelings.</h2> <h2>Description</h2> Calculates the centroid of the given input.")
 public class CentroidFeatureSet<L>
 		extends
 			AbstractCachedFeatureSet<LabelRegion<L>, DoubleType>
@@ -88,7 +88,7 @@ public class CentroidFeatureSet<L>
 		}
 
 		for (int i = 0; i < numDims; i++) {
-			fs.add(new NamedFeature("Centroid of dimension#" + i));
+			fs.add(new NamedFeature("Dimension "+ i));
 		}
 		return fs;
 	}
@@ -106,7 +106,7 @@ public class CentroidFeatureSet<L>
 		final RealLocalizable centroid = centroidOp.compute(input);
 
 		for (int i = 0; i < getFeatures().size(); i++) {
-			res.put(new NamedFeature("Centroid of dimension#" + i),
+			res.put(new NamedFeature("Dimension " + i),
 					new DoubleType(centroid.getDoublePosition(i)));
 		}
 
@@ -115,7 +115,7 @@ public class CentroidFeatureSet<L>
 
 	@Override
 	public boolean isCompatible(final Class<?> container, final Class<?> type) {
-		return container.isAssignableFrom(LabelRegion.class);
+		return LabelRegion.class.isAssignableFrom(container);
 	}
 
 	@Override

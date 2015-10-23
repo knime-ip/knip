@@ -53,6 +53,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.knime.knip.features.sets.optimizedfeatures.TmpZernikeComputer;
 import org.scijava.ItemIO;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
@@ -82,13 +83,10 @@ public class ZernikeFeatureSet<T extends RealType<T>>
 	@Parameter(type = ItemIO.INPUT, label = "Maximum Order of Zernike Moment", description = "The maximum order of the zernike moment to be calculated.", min = "1", max = "2147483647", stepSize = "1")
 	private int orderMax = 4;
 
-	private ZernikeComputer<T> zernikeComputer;
-
 	@Override
 	public void initialize() {
 		super.initialize();
 
-		zernikeComputer = new ZernikeComputer<T>();
 	}
 
 	@Override
@@ -109,7 +107,8 @@ public class ZernikeFeatureSet<T extends RealType<T>>
 
 	@Override
 	public Map<NamedFeature, DoubleType> compute(IterableInterval<T> input) {
-		HashMap<NamedFeature, DoubleType> map = new HashMap<NamedFeature, DoubleType>();
+		final TmpZernikeComputer<T> zernikeComputer = new TmpZernikeComputer<T>();
+		final HashMap<NamedFeature, DoubleType> map = new HashMap<NamedFeature, DoubleType>();
 
 		for (int order = orderMin; order <= orderMax; order++) {
 			for (int repetition = 0; repetition <= order; repetition++) {

@@ -251,8 +251,12 @@ public class PairedFeatureSetGroup<L, T extends RealType<T>, O extends RealType<
 
 					if (!isInitialized) {
 						final LabelRegion<L> region = regions.iterator().next();
-						initFeatureSet(regionSets, region);
-						initFeatureSet(iterableSets, Regions.sample(region, sliceImgPlus));
+						if (!initFeatureSet(regionSets, region)
+								|| !initFeatureSet(iterableSets, Regions.sample(region, sliceImgPlus))) {
+							KNIPGateway.log().warn(
+									"Not all features can be calculated on the given inputs. Missing cells are inserted!");
+						}
+						;
 						isInitialized = true;
 					}
 

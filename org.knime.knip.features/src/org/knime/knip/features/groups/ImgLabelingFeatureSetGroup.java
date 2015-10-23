@@ -170,6 +170,8 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 
 		final ComputerOp<DataRow, DataContainer> op = new FeatureSetGroupComputer<R>() {
 
+			private boolean initialized = false;
+
 			@Override
 			public void compute(final DataRow row, final DataContainer container) {
 
@@ -210,7 +212,13 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 						continue;
 					}
 
-					initFeatureSet(featureSets, regions.iterator().next());
+					if (!initialized) {
+						if (!initFeatureSet(featureSets, regions.iterator().next())) {
+							KNIPGateway.log().warn(
+									"Not all features can be calculated on the given inputs. Missing cells are inserted!");
+						}
+						initialized = true;
+					}
 
 					String intervalDef = null;
 					if (!slicingActive) {
@@ -254,6 +262,7 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 						}
 					}
 				}
+
 			}
 		};
 

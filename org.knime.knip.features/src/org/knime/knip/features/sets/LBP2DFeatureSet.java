@@ -57,7 +57,7 @@ import org.scijava.plugin.Plugin;
 
 import net.imagej.ops.FunctionOp;
 import net.imagej.ops.Ops.LBP.LBP2D;
-import net.imglib2.IterableInterval;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.LongType;
 
@@ -67,9 +67,10 @@ import net.imglib2.type.numeric.integer.LongType;
  * @author Christian Dietz (University of Konstanz)
  * @param <T>
  */
-@Plugin(type = FeatureSet.class, label = "Local Binary Patterns 2D", description = "<h1> 2D Local Binary Pattern Feature Set</h1> <h2> Description</h2> Local binary patterns (LBP) is a type of feature used for classification in computer vision.. The LBP feature vector, in its simplest form, is created in the following manner: <ul> <li> For each pixel in a cell, compare the pixel to each of its 8 neighbors (on its left-top, left-middle, left-bottom, right-top, etc.). Follow the pixels along a circle, i.e. clockwise or counter-clockwise. </li> <li> Where the center pixel's value is greater than the neighbor's value, write \"1\". Otherwise, write \"0\". This gives an 8-digit binary number (which is usually converted to decimal for convenience).</li> <li> Compute the histogram, over the cell, of the frequency of each \"number\" occurring (i.e., each combination of which pixels are smaller and which are greater than the center).</li> </ul><h2>Parameters</h2> <ul><li><strong>Distance: </strong> Distance of the neighborhood pixels to the center pixel </li> <li><strong>Number of Bins: </strong> The number of bins of the histogram</li></ul> See <a href=\"https://en.wikipedia.org/wiki/Local_binary_patterns\"> Wikipedia</a> for more information.")
-public class LBP2DFeatureSet<T extends RealType<T>> extends AbstractIteratingFeatureSet<IterableInterval<T>, LongType>
-		implements FeatureSet<IterableInterval<T>, LongType>, RequireNumDimensions {
+@Plugin(type = FeatureSet.class, label = "Local Binary Patterns 2D", description = "<h1> 2D Local Binary Pattern Feature Set</h1> <h2>Note: Runs only on single Images!</h2> <h2> Description</h2> Local binary patterns (LBP) is a type of feature used for classification in computer vision.. The LBP feature vector, in its simplest form, is created in the following manner: <ul> <li> For each pixel in a cell, compare the pixel to each of its 8 neighbors (on its left-top, left-middle, left-bottom, right-top, etc.). Follow the pixels along a circle, i.e. clockwise or counter-clockwise. </li> <li> Where the center pixel's value is greater than the neighbor's value, write \"1\". Otherwise, write \"0\". This gives an 8-digit binary number (which is usually converted to decimal for convenience).</li> <li> Compute the histogram, over the cell, of the frequency of each \"number\" occurring (i.e., each combination of which pixels are smaller and which are greater than the center).</li> </ul><h2>Parameters</h2> <ul><li><strong>Distance: </strong> Distance of the neighborhood pixels to the center pixel </li> <li><strong>Number of Bins: </strong> The number of bins of the histogram</li></ul> See <a href=\"https://en.wikipedia.org/wiki/Local_binary_patterns\"> Wikipedia</a> for more information.")
+public class LBP2DFeatureSet<T extends RealType<T>>
+		extends AbstractIteratingFeatureSet<RandomAccessibleInterval<T>, LongType>
+		implements FeatureSet<RandomAccessibleInterval<T>, LongType>, RequireNumDimensions {
 
 	@Parameter(required = true, label = "Distance", description = "Size of the neighborhood around each pixel", min = "1", max = "2147483647", stepSize = "1")
 	private int distance = 1;
@@ -78,7 +79,7 @@ public class LBP2DFeatureSet<T extends RealType<T>> extends AbstractIteratingFea
 	private int numBins = 256;
 
 	@SuppressWarnings("rawtypes")
-	private FunctionOp<IterableInterval<T>, ArrayList> histogramFunc;
+	private FunctionOp<RandomAccessibleInterval<T>, ArrayList> histogramFunc;
 
 	private List<LongType> histogram;
 
@@ -92,7 +93,7 @@ public class LBP2DFeatureSet<T extends RealType<T>> extends AbstractIteratingFea
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected void preCompute(final IterableInterval<T> input) {
+	protected void preCompute(final RandomAccessibleInterval<T> input) {
 		histogram = histogramFunc.compute(input);
 	}
 
@@ -113,7 +114,7 @@ public class LBP2DFeatureSet<T extends RealType<T>> extends AbstractIteratingFea
 
 	@Override
 	public boolean isCompatible(final Class<?> object, final Class<?> type) {
-		return IterableInterval.class.isAssignableFrom(object) && RealType.class.isAssignableFrom(type);
+		return RandomAccessibleInterval.class.isAssignableFrom(object) && RealType.class.isAssignableFrom(type);
 	}
 
 	@Override

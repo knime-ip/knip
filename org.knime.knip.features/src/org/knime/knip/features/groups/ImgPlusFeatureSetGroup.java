@@ -139,14 +139,18 @@ public class ImgPlusFeatureSetGroup<T extends RealType<T>, R extends RealType<R>
 				final Hyperslice slicer = new Hyperslice(KNIPGateway.ops(), imgPlus,
 						dimSelection.getSelectedDimIndices(imgPlus), true);
 				final Cursor<RandomAccessibleInterval<?>> slicingCursor = slicer.cursor();
+				
 				boolean slicingActive = (slicer.size() == 1);
-
+				
 				while (slicingCursor.hasNext()) {
 					@SuppressWarnings("unchecked")
 					final RandomAccessibleInterval<T> slice = (RandomAccessibleInterval<T>) slicingCursor.next();
 
 					if (!initialized) {
-						initFeatureSet(featureSets, slice);
+						if (!initFeatureSet(featureSets, slice)) {
+							KNIPGateway.log().warn(
+									"Not all features can be calculated on the given inputs. Missing cells are inserted!");
+						}
 						initialized = true;
 					}
 

@@ -59,6 +59,7 @@ import org.knime.knip.features.groups.ImgPlusFeatureSetGroup;
 import org.knime.knip.features.groups.PairedFeatureSetGroup;
 import org.knime.knip.features.node.model.FeatureSetInfo;
 import org.knime.knip.features.sets.FeatureSet;
+import org.scijava.module.Module;
 import org.scijava.plugin.Plugin;
 import org.scijava.service.AbstractService;
 
@@ -100,14 +101,19 @@ public class DefaultFeatureService extends AbstractService implements FeatureSer
 
 		final List<FeatureSet<I, O>> validSets = new ArrayList<>();
 		for (final FeatureSetInfo info : infos) {
+			Module load = info.load();
 			@SuppressWarnings("rawtypes")
-			final FeatureSet fs = (FeatureSet) info.load().getDelegateObject();
+			final FeatureSet fs = (FeatureSet) load.getDelegateObject();
 
 			// FIXME: isCompatible is just a workaround because I was not able
 			// to get the desired information from the generic types, yet.
 			if (fs.isCompatible(object, type)) {
 				fs.setEnvironment(KNIPGateway.ops());
 				validSets.add(fs);
+			} else {
+				// FIXME: Nicer name for featureset
+				KNIPGateway.log().warn("Selected feature set " + load.getInfo().getLabel()
+						+ " can't handle the provided input. The feature set will be ignored!");
 			}
 
 		}

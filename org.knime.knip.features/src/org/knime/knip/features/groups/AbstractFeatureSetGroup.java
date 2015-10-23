@@ -127,20 +127,21 @@ public abstract class AbstractFeatureSetGroup implements FeatureSetGroup {
 				((RequireNumDimensions) featureSet).setNumDimensions(expectedDims);
 			}
 
-			final String prefix = KNIPGateway.cs().getCommand(featureSet.getClass()).getLabel() + ": ";
+			final String featureSetName = KNIPGateway.cs().getCommand(featureSet.getClass()).getLabel() + "";
 			final String suffix;
 
-			if (prefixMap.containsKey(prefix)) {
-				final int ctr = prefixMap.get(prefix);
+			if (prefixMap.containsKey(featureSetName)) {
+				final int ctr = prefixMap.get(featureSetName);
 				suffix = " [#" + ctr + "]";
-				prefixMap.put(prefix, ctr + 1);
+				prefixMap.put(featureSetName, ctr + 1);
 			} else {
-				prefixMap.put(prefix, 1);
+				prefixMap.put(featureSetName, 1);
 				suffix = "";
 			}
 
 			for (final NamedFeature featureName : featureSet.getFeatures()) {
-				specs.add(new DataColumnSpecCreator(colNameGenerator.newName(prefix + featureName.getName() + suffix),
+				specs.add(new DataColumnSpecCreator(
+						colNameGenerator.newName(featureName.getName() + " /(" + featureSetName + ")" + suffix),
 						DoubleCell.TYPE).createSpec());
 			}
 		}
@@ -167,13 +168,19 @@ public abstract class AbstractFeatureSetGroup implements FeatureSetGroup {
 
 	public abstract class FeatureSetGroupComputer<O extends RealType<O>>
 			extends AbstractComputerOp<DataRow, DataContainer> {
-		protected <I> void initFeatureSet(final List<FeatureSet<I, O>> sets, final I in) {
+		protected <I> boolean initFeatureSet(final List<FeatureSet<I, O>> sets, final I in) {
+
+			boolean allValid = true;
 			for (final FeatureSet<I, O> fs : sets) {
 				fs.setInput(in);
 				if (fs.conforms()) {
 					fs.initialize();
+				} else {
+					allValid = false;
 				}
 			}
+
+			return allValid;
 		}
 
 		protected <I> List<DataCell> computeOnFeatureSets(final List<FeatureSet<I, O>> sets, final I in) {
