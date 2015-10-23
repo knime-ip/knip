@@ -53,8 +53,6 @@ import javax.swing.JPanel;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 
-import net.miginfocom.layout.AC;
-import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 
 public class ColumnSelectionPanel extends JPanel {
@@ -69,10 +67,10 @@ public class ColumnSelectionPanel extends JPanel {
 			DialogComponentStringSelection m_columnCreationModeComponent) {
 
 		this.setBorder(BorderFactory.createTitledBorder("Column Selection:"));
-		this.setLayout(new MigLayout(new LC().wrapAfter(3), new AC().fill().grow()));
+		this.setLayout(new MigLayout());
 
-		this.add(imgColumnComponent.getComponentPanel());
-		this.add(labelingColumnComponent.getComponentPanel());
+		this.add(imgColumnComponent.getComponentPanel(), "wrap");
+		this.add(labelingColumnComponent.getComponentPanel(), "wrap");
 		this.add(m_columnCreationModeComponent.getComponentPanel());
 	}
 }
