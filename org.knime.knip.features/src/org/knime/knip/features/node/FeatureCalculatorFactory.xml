@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <knimeNode icon="./imglabfeature.png" type="Manipulator"
-	xmlns="http://knime.org/node/v2.10" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://knime.org/node/v2.10 http://knime.org/node/v2.10.xsd">
 	<name>Feature Calculator (BETA)</name>
 
@@ -26,7 +26,6 @@
 		</intro>
 		
 		<tab name = "Feature Set Configuration">
-			<h3>Column Selection: </h3>
 				<option name="Select Image Column">
 					Select the image column on which 
 					the features should be computed.
@@ -40,20 +39,14 @@
 					columns. The processed columns can be added to a new table or 
 					appended to the end of the input table.
 				</option>
-				
-			<hr></hr>
 			
-			<h3>Dimension Selection: </h3>
 				<option name = "Dimensions">
 					Select the dimensions on which the selected 
 					feature sets should be computed. If the input has three dimensions 
 					but only two dimensions are selected the node will slice the input 
 					and compute the features on the two dimensional slices.
 				</option>
-				
-			<hr></hr>
 			
-			<h3>Select Feature Set: </h3>
 				<option name = "Add">
 					Select the feature set to compute and add it with
 					the "Add" button to the "Selected Feature Sets" - Panel. 
@@ -62,12 +55,11 @@
 					which are not compatible with the input columns or the selected dimensions 
 					the node will skip the feature set during execution. 
 				</option>
-				
-			<hr></hr>
-			
-			<h3>Selected Feature Sets: </h3>
+
+			<option name = "Selected Feature Sets">
 				Some of the feature sets can be configured. You can select the features 
-				which should be computed or enter other parameters for the feature computation. 
+				which should be computed or enter other parameters for the feature computation.
+			</option> 
 		</tab>
 		
 		<tab name = "Label Segment Settings">
