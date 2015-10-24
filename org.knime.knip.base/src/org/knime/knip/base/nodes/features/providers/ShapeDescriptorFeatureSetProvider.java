@@ -52,11 +52,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import net.imagej.space.CalibratedSpace;
-import net.imglib2.IterableInterval;
-import net.imglib2.type.logic.BitType;
-import net.imglib2.util.ValuePair;
-
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -73,6 +68,11 @@ import org.knime.knip.core.features.fd.CentroidDistanceFeatureSet;
 import org.knime.knip.core.features.fd.FDCentroidDistanceFeatureSet;
 import org.knime.knip.core.util.EnumUtils;
 
+import net.imagej.space.CalibratedSpace;
+import net.imglib2.IterableInterval;
+import net.imglib2.type.logic.BitType;
+import net.imglib2.util.ValuePair;
+
 /**
  * FeatureFactory Wrapper to calculate shape descriptors
  *
@@ -81,8 +81,8 @@ import org.knime.knip.core.util.EnumUtils;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class ShapeDescriptorFeatureSetProvider implements
-        FeatureSetProvider<ValuePair<IterableInterval<BitType>, CalibratedSpace>> {
+public class ShapeDescriptorFeatureSetProvider
+        implements FeatureSetProvider<ValuePair<IterableInterval<BitType>, CalibratedSpace>> {
 
     /**
      * Different kinds of shape features
@@ -166,8 +166,8 @@ public class ShapeDescriptorFeatureSetProvider implements
     @Override
     public void initAndAddDialogComponents(final List<DialogComponent> components) {
 
-        components.add(new DialogComponentStringListSelection(createFeatModel(), "Shape Descriptors", Arrays
-                .asList(EnumUtils.getStringListFromName(ShapeDescriptors.values())), true, 2));
+        components.add(new DialogComponentStringListSelection(createFeatModel(), "Shape Descriptors",
+                Arrays.asList(EnumUtils.getStringListFromName(ShapeDescriptors.values())), true, 2));
 
         components.add(new DialogComponentNumber(createSamplingRateModel(),
                 "Number of contour points (should fit 2^n, if FD used)", 2));
@@ -178,5 +178,15 @@ public class ShapeDescriptorFeatureSetProvider implements
         settingsModels.add(m_fouriershapeFeat = createFeatModel());
 
         settingsModels.add(m_samplingRate = createSamplingRateModel());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void cleanUp() {
+        if (m_featFac != null) {
+            m_featFac.cleanUp();
+        }
     }
 }

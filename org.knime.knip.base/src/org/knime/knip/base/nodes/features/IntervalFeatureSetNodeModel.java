@@ -340,7 +340,6 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
 
             final LabelRegions<L> regions = new LabelRegions<L>(labeling);
 
-
             for (final L label : regions.getExistingLabels()) {
                 if (!dependencies.keySet().contains(label)) {
                     continue;
@@ -424,6 +423,10 @@ public class IntervalFeatureSetNodeModel<L extends Comparable<L>, T extends Real
             }
             exec.checkCanceled();
             exec.setProgress(++i / count);
+        }
+
+        for (FeatureSetProvider prov : m_featSetProviders) {
+            prov.cleanUp();
         }
         con.close();
         return new BufferedDataTable[]{con.getTable()};

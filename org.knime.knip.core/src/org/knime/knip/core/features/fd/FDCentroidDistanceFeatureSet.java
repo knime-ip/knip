@@ -50,9 +50,6 @@ package org.knime.knip.core.features.fd;
 
 import java.awt.Polygon;
 
-import net.imglib2.IterableInterval;
-import net.imglib2.type.logic.BitType;
-
 import org.knime.knip.core.algorithm.InplaceFFT;
 import org.knime.knip.core.data.algebra.Complex;
 import org.knime.knip.core.features.FeatureSet;
@@ -61,14 +58,17 @@ import org.knime.knip.core.features.ObjectCalcAndCache;
 import org.knime.knip.core.features.SharesObjects;
 import org.knime.knip.core.util.PolygonTools;
 
+import net.imglib2.IterableInterval;
+import net.imglib2.type.logic.BitType;
+
 /**
- * 
+ *
  * Calculates the distance of the points on the contour to the centroid and transforms them into the fourier space. The
  * resulting features are additionally normalized by the first FD-component.
- * 
+ *
  * The contour points are extracted by an contour tracing algorithm (
  * {@link PolygonTools#extractPolygon(net.imglib2.RandomAccessibleInterval, int[])}).
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -181,6 +181,14 @@ public class FDCentroidDistanceFeatureSet implements FeatureSet, SharesObjects {
     public void setSharedObjectInstances(final Object[] instances) {
         m_ocac = (ObjectCalcAndCache)instances[0];
 
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void cleanUp() {
+        m_ocac.cleanUp();
     }
 
 }

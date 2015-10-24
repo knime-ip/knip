@@ -48,15 +48,15 @@
  */
 package org.knime.knip.core.features.seg;
 
-import net.imglib2.IterableInterval;
-import net.imglib2.ops.operation.iterableinterval.unary.Centroid;
-import net.imglib2.type.numeric.RealType;
-
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.knime.knip.core.features.FeatureSet;
 import org.knime.knip.core.features.FeatureTargetListener;
 import org.knime.knip.core.features.ObjectCalcAndCache;
 import org.knime.knip.core.features.SharesObjects;
+
+import net.imglib2.IterableInterval;
+import net.imglib2.ops.operation.iterableinterval.unary.Centroid;
+import net.imglib2.type.numeric.RealType;
 
 /**
  *
@@ -222,5 +222,14 @@ public class FirstOrderMomentsFeatureSet<T extends RealType<T>> implements Featu
     public double getPercentile(final IterableInterval<T> ii, final double percentile) {
         return m_ocac.descriptiveStatistics(ii).getPercentile(percentile);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void cleanUp() {
+        m_ocac.cleanUp();
+    }
+
 
 }

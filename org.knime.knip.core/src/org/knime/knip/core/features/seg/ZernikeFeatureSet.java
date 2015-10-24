@@ -48,15 +48,15 @@
  */
 package org.knime.knip.core.features.seg;
 
-import net.imglib2.IterableInterval;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.knip.core.features.FeatureSet;
 import org.knime.knip.core.features.FeatureTargetListener;
 import org.knime.knip.core.features.zernike.ZernikeFeatureComputer;
 
+import net.imglib2.IterableInterval;
+import net.imglib2.type.numeric.RealType;
+
 /**
- * 
+ *
  * @param <T> image type
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -173,4 +173,12 @@ public class ZernikeFeatureSet<T extends RealType<T>> implements FeatureSet {
         return "Zernike Feature Factory";
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void cleanUp() {
+        m_interval = null;
+        m_comp = null;
+    }
 }

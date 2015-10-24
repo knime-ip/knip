@@ -50,17 +50,17 @@ package org.knime.knip.core.features.seg;
 
 import java.util.BitSet;
 
+import org.knime.knip.core.features.FeatureSet;
+import org.knime.knip.core.features.FeatureTargetListener;
+import org.knime.knip.core.features.ObjectCalcAndCache;
+import org.knime.knip.core.features.SharesObjects;
+
 import net.imglib2.IterableInterval;
 import net.imglib2.ops.data.CooccurrenceMatrix;
 import net.imglib2.ops.data.CooccurrenceMatrix.MatrixOrientation;
 import net.imglib2.ops.operation.iterableinterval.unary.MakeCooccurrenceMatrix.HaralickFeature;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.ValuePair;
-
-import org.knime.knip.core.features.FeatureSet;
-import org.knime.knip.core.features.FeatureTargetListener;
-import org.knime.knip.core.features.ObjectCalcAndCache;
-import org.knime.knip.core.features.SharesObjects;
 
 /**
  *
@@ -206,7 +206,14 @@ public class HaralickFeatureSet<T extends RealType<T>> implements FeatureSet, Sh
     @Override
     public void setSharedObjectInstances(final Object[] instances) {
         m_ocac = (ObjectCalcAndCache)instances[0];
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void cleanUp() {
+        m_ocac.cleanUp();
     }
 
 }

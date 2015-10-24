@@ -51,6 +51,12 @@ package org.knime.knip.core.features.seg;
 import java.util.ArrayList;
 import java.util.BitSet;
 
+import org.knime.knip.core.features.CalculatePerimeter;
+import org.knime.knip.core.features.FeatureSet;
+import org.knime.knip.core.features.FeatureTargetListener;
+import org.knime.knip.core.features.ObjectCalcAndCache;
+import org.knime.knip.core.features.SharesObjects;
+
 import net.imagej.axis.TypedAxis;
 import net.imagej.space.CalibratedSpace;
 import net.imagej.space.TypedSpace;
@@ -65,12 +71,6 @@ import net.imglib2.ops.operation.iterableinterval.unary.CalculateDiameter;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.ConvexHull2D;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.real.DoubleType;
-
-import org.knime.knip.core.features.CalculatePerimeter;
-import org.knime.knip.core.features.FeatureSet;
-import org.knime.knip.core.features.FeatureTargetListener;
-import org.knime.knip.core.features.ObjectCalcAndCache;
-import org.knime.knip.core.features.SharesObjects;
 
 /**
  *
@@ -318,7 +318,16 @@ public class SegmentFeatureSet implements FeatureSet, SharesObjects {
     @Override
     public void setSharedObjectInstances(final Object[] instances) {
         m_ocac = (ObjectCalcAndCache)instances[0];
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void cleanUp() {
+        m_ocac.cleanUp();
+        m_interval = null;
+        m_cs = null;
     }
 
 }

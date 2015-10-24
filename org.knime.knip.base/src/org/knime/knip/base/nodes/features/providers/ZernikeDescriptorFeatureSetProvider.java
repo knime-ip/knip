@@ -50,11 +50,6 @@ package org.knime.knip.base.nodes.features.providers;
 
 import java.util.List;
 
-import net.imagej.space.CalibratedSpace;
-import net.imglib2.IterableInterval;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.util.ValuePair;
-
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -68,15 +63,20 @@ import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.knip.core.features.FeatureFactory;
 import org.knime.knip.core.features.seg.ZernikeFeatureSet;
 
+import net.imagej.space.CalibratedSpace;
+import net.imglib2.IterableInterval;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.ValuePair;
+
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class ZernikeDescriptorFeatureSetProvider<T extends RealType<T>> implements
-        FeatureSetProvider<ValuePair<IterableInterval<T>, CalibratedSpace>> {
+public class ZernikeDescriptorFeatureSetProvider<T extends RealType<T>>
+        implements FeatureSetProvider<ValuePair<IterableInterval<T>, CalibratedSpace>> {
 
     private static SettingsModelBoolean createMagnitudeModel() {
         return new SettingsModelBoolean("zernike_magnitude", true);
@@ -89,8 +89,8 @@ public class ZernikeDescriptorFeatureSetProvider<T extends RealType<T>> implemen
     private SettingsModelInteger m_zernikeOrder;
 
     @Override
-    public void
-            calcAndAddFeatures(final ValuePair<IterableInterval<T>, CalibratedSpace> roi, final List<DataCell> cells) {
+    public void calcAndAddFeatures(final ValuePair<IterableInterval<T>, CalibratedSpace> roi,
+                                   final List<DataCell> cells) {
         m_featFac.updateFeatureTarget(roi.a);
         m_featFac.updateFeatureTarget(roi.b);
 
@@ -119,9 +119,8 @@ public class ZernikeDescriptorFeatureSetProvider<T extends RealType<T>> implemen
     public void initAndAddColumnSpecs(final List<DataColumnSpec> specs) {
         // create outspec according to the selected features
 
-        m_featFac =
-                new FeatureFactory(true, new ZernikeFeatureSet<T>(m_zernikeOrder.getIntValue(),
-                        m_magnitude.getBooleanValue()));
+        m_featFac = new FeatureFactory(true,
+                new ZernikeFeatureSet<T>(m_zernikeOrder.getIntValue(), m_magnitude.getBooleanValue()));
 
         final String[] featNames = m_featFac.getFeatureNames();
         for (int i = 0; i < featNames.length; i++) {
@@ -146,5 +145,15 @@ public class ZernikeDescriptorFeatureSetProvider<T extends RealType<T>> implemen
         model.add(m_magnitude = createMagnitudeModel());
         model.add(m_zernikeOrder = createOrderModel());
 
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void cleanUp() {
+        if (m_featFac != null) {
+            m_featFac.cleanUp();
+        }
     }
 }
