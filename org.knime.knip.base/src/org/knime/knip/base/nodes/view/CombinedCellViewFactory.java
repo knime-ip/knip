@@ -51,8 +51,6 @@ package org.knime.knip.base.nodes.view;
 import java.awt.Component;
 import java.util.List;
 
-import javax.swing.SwingWorker;
-
 import org.knime.core.data.DataValue;
 import org.knime.core.data.MissingValue;
 import org.knime.core.node.config.ConfigRO;
@@ -139,46 +137,34 @@ public class CombinedCellViewFactory implements TableCellViewFactory {
             public void updateComponent(final List<? extends DataValue> valueToView) {
                 WaitingIndicatorUtils.setWaiting(m_view, true);
 
-                SwingWorker worker = new SwingWorker() {
+                m_view.clear();
 
-                    @Override
-                    protected Object doInBackground() throws Exception {
+                for (DataValue v : valueToView) {
+                    if (v instanceof ImgPlusValue) {
+                        final ImgPlusValue imgPlusValue = (ImgPlusValue)v;
+                        ImageRU ru = new ImageRU();
+                        m_view.addRU(ru);
+                        m_view.publishToPrev(new ImgWithMetadataChgEvent<>(imgPlusValue.getImgPlus(),
+                                imgPlusValue.getMetadata()));
+                        m_view.publishToPrev(new RendererSelectionChgEvent(new Real2GreyRenderer()));
 
-                        m_view.clear();
-
-                        for (DataValue v : valueToView) {
-                            if (v instanceof ImgPlusValue) {
-                                final ImgPlusValue imgPlusValue = (ImgPlusValue)v;
-                                ImageRU ru = new ImageRU();
-                                m_view.addRU(ru);
-                                m_view.publishToPrev(new ImgWithMetadataChgEvent<>(imgPlusValue.getImgPlus(),
-                                        imgPlusValue.getMetadata()));
-                                m_view.publishToPrev(new RendererSelectionChgEvent(new Real2GreyRenderer()));
-
-                            }
-                            if (v instanceof LabelingValue) {
-                                final LabelingValue labValue = (LabelingValue)v;
-                                LabelingRU labRU = new LabelingRU();
-                                m_view.addRU(labRU);
-                                m_view.publishToPrev(new LabelingWithMetadataChgEvent(labValue.getLabeling(),
-                                        labValue.getLabelingMetadata()));
-                                m_view.publishToPrev(new RendererSelectionChgEvent(new ColorLabelingRenderer<>()));
-                            }
-                        }
-
-//                        m_view.broadcast(m_planeSel);
-                        m_view.redraw();
-                        return null;
+                    } else if (v instanceof LabelingValue) {
+                        final LabelingValue labValue = (LabelingValue)v;
+                        LabelingRU labRU = new LabelingRU();
+                        m_view.addRU(labRU);
+                        m_view.publishToPrev(new LabelingWithMetadataChgEvent(labValue.getLabeling(),
+                                labValue.getLabelingMetadata()));
+                        m_view.publishToPrev(new RendererSelectionChgEvent(new ColorLabelingRenderer<>()));
                     }
+                }
 
-                    @Override
-                    protected void done() {
-                        WaitingIndicatorUtils.setWaiting(m_view, false);
-                    }
-                };
+                m_view.redraw();
 
-                worker.execute();
+                WaitingIndicatorUtils.setWaiting(m_view, false);
+
             }
+
+
 
             @Override
             public void updateComponent(final DataValue valueToView) {

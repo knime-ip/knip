@@ -277,6 +277,8 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     private PlaneSelectionEvent m_planeSel;
 
+    private int m_prevSelectedIndex = -1;
+
     public TableCellViewNodeView(final T nodeModel) {
         this(nodeModel, 0);
     }
@@ -586,8 +588,15 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
     protected void tabSelectionChanged() {
 
         if ((m_cellView.getSelectedIndex() == -1) || (m_currentCells.size() == 0)) {
+            m_prevSelectedIndex = -1;
             return;
         }
+
+        if(m_cellView.getSelectedIndex() == m_prevSelectedIndex) {
+            return;
+        }
+
+        m_prevSelectedIndex = m_cellView.getSelectedIndex();
 
         List<Class<? extends DataValue>> prefClasses = new LinkedList<Class<? extends DataValue>>();
         for (DataCell c : m_currentCells) {

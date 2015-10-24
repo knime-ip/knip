@@ -28,6 +28,7 @@ import org.knime.core.node.port.PortObject;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.NodeUtils;
+import org.knime.knip.base.node.TwoValuesToCellNodeModel;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DataAwareDefaultNodeSettingsPane;
 import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
@@ -88,7 +89,7 @@ public class LabelingEditorNodeDialog<T extends RealType<T> & NativeType<T>, L e
 		closeCurrentGroup();
 		createNewGroup("Creation Mode");
 		addDialogComponent(new DialogComponentStringSelection(m_smColCreationMode, "Column Creation Mode",
-				ValueToCellNodeModel.COL_CREATION_MODES));
+				TwoValuesToCellNodeModel.COL_CREATION_MODES));
 		closeCurrentGroup();
 
 		createNewGroup("Column suffix");

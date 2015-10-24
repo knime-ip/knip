@@ -82,12 +82,13 @@ public class ExpandingPanel extends ViewerComponent {
 
         };
 
-        m_header.add(getDividerPanel());
         m_header.add(Box.createHorizontalStrut(2));
         m_header.add(arrow);
         m_header.add(Box.createHorizontalStrut(2));
-        m_header.add(new JLabel(name, SwingConstants.CENTER));
 
+        m_header.add(getDividerPanel());
+        m_header.add(Box.createHorizontalStrut(2));
+        m_header.add(new JLabel(name, SwingConstants.CENTER));
         m_header.add(Box.createHorizontalStrut(2));
         m_header.add(getDividerPanel());
 

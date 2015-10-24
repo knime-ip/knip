@@ -175,7 +175,6 @@ public class CombinedImgViewer extends ImgViewer {
     }
 
     public void redraw() {
-
         broadcast(new ImgRedrawEvent());
         m_eventService.publish(new ImgRedrawEvent());
     }
@@ -212,9 +211,9 @@ public class CombinedImgViewer extends ImgViewer {
 
     @EventListener
     public void onCombinedRURenderChange(final CombinedRURenderEvent e) {
-        m_ru.invalidateCache();
+
         m_ru.setStackedRendering(!e.getCombineStatus());
-        redraw();
+        m_eventService.publish(new ImgRedrawEvent());
     }
 
     @Override

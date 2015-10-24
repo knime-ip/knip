@@ -81,11 +81,11 @@ public class ViewerMenuFactory {
         menu.add(comp, gbc);
         comp.setEventService(e);
 
-        comp = new ExpandingPanel("Image Enhancement", ViewerComponents.IMAGE_ENHANCE.createInstance());
+        comp = new ExpandingPanel("Image Enhancement", ViewerComponents.IMAGE_ENHANCE.createInstance(), true);
         comp.setEventService(e);
         menu.add(comp, gbc);
 
-        comp = new ExpandingPanel("Renderer Selection", ViewerComponents.RENDERER_SELECTION.createInstance());
+        comp = new ExpandingPanel("Renderer Selection", ViewerComponents.RENDERER_SELECTION.createInstance(), true);
         menu.add(comp, gbc);
         comp.setEventService(e);
 
@@ -121,11 +121,11 @@ public class ViewerMenuFactory {
         menu.add(comp, gbc);
         comp.setEventService(e);
 
-        comp = new ExpandingPanel("Label Options", new LabelOptionPanel());
+        comp = new ExpandingPanel("Label Options", new LabelOptionPanel(), true);
         menu.add(comp, gbc);
         comp.setEventService(e);
 
-        comp = new ExpandingPanel("Renderer Selection", ViewerComponents.RENDERER_SELECTION.createInstance());
+        comp = new ExpandingPanel("Renderer Selection", ViewerComponents.RENDERER_SELECTION.createInstance(), true);
         menu.add(comp, gbc);
         comp.setEventService(e);
 

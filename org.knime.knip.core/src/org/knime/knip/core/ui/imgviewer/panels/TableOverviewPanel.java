@@ -176,7 +176,7 @@ public class TableOverviewPanel extends ViewerComponent {
 
             @Override
             public Dimension getMaximumSize() {
-                return new Dimension(20, 20);
+                return new Dimension(30, 30);
             }
         };
         m_northButton.addActionListener(new ActionListener() {
@@ -196,7 +196,7 @@ public class TableOverviewPanel extends ViewerComponent {
 
             @Override
             public Dimension getMaximumSize() {
-                return new Dimension(20, 20);
+                return new Dimension(30, 30);
             }
         };
         m_southButton.addActionListener(new ActionListener() {
@@ -216,7 +216,7 @@ public class TableOverviewPanel extends ViewerComponent {
 
             @Override
             public Dimension getMaximumSize() {
-                return new Dimension(20, 20);
+                return new Dimension(30, 30);
             }
         };
         m_eastButton.addActionListener(new ActionListener() {
@@ -235,7 +235,7 @@ public class TableOverviewPanel extends ViewerComponent {
 
             @Override
             public Dimension getMaximumSize() {
-                return new Dimension(20, 20);
+                return new Dimension(30, 30);
             }
         };
         m_westButton.addActionListener(new ActionListener() {

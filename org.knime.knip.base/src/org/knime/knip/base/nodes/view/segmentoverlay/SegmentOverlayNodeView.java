@@ -215,9 +215,9 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
                 .createInstance(), true));
         m_imgView.addViewerComponent(new ExpandingPanel("Renderer Selection", new RendererSelectionPanel<T>(), true));
 
-        m_imgView.addViewerComponent(new ExpandingPanel("Transparency", new TransparencyColorSelectionPanel()));
+        m_imgView.addViewerComponent(new ExpandingPanel("Transparency", new TransparencyColorSelectionPanel(), true));
         m_imgView.addViewerComponent(new ExpandingPanel("Label Filter", new LabelFilterPanel<L>(getNodeModel()
-                .getInternalTables().length > SegmentOverlayNodeModel.PORT_SEG)));
+                .getInternalTables().length > SegmentOverlayNodeModel.PORT_SEG), true));
 
         m_imgView.doneAdding();
 

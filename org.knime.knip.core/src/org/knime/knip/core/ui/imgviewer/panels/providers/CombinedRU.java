@@ -95,6 +95,8 @@ public class CombinedRU implements RenderUnit {
 
     private Integer m_transparency = 128;
 
+    private boolean m_invalidateHash;
+
     /**
      * Uses different parameters from the {@link EventService} to create images using its associated {@link RenderUnit}
      * s. The images are blended together and put in a cache for efficient image management.
@@ -143,28 +145,26 @@ public class CombinedRU implements RenderUnit {
                 int first = i;
                 int w = 0, h = 0;
                 Image img = m_renderUnits.get(i).createImage();
-                w+= img.getWidth(null);
+                w += img.getWidth(null);
                 h = Math.max(h, img.getHeight(null));
                 ++i;
                 while (i < m_renderUnits.size()) {
                     if (m_renderUnits.get(i).isActive()) {
                         img = m_renderUnits.get(i).createImage();
-                        w+= img.getWidth(null);
+                        w += img.getWidth(null);
                         h = Math.max(h, img.getHeight(null));
                     }
                     i++;
                 }
-                joinedImg = m_graphicsConfig.createCompatibleImage(w, h,
-                                                                   java.awt.Transparency.OPAQUE);
+                joinedImg = m_graphicsConfig.createCompatibleImage(w, h, java.awt.Transparency.OPAQUE);
                 Graphics g = joinedImg.getGraphics();
                 int x = 0;
                 i = first;
                 while (i < m_renderUnits.size()) {
                     if (m_renderUnits.get(i).isActive()) {
                         img = m_renderUnits.get(i).createImage();
-                        g.drawImage(img,
-                                    x, 0, null);
-                        x+= img.getWidth(null);
+                        g.drawImage(img, x, 0, null);
+                        x += img.getWidth(null);
                     }
                     i++;
                 }
@@ -173,7 +173,7 @@ public class CombinedRU implements RenderUnit {
                 //at least one active image
                 Image img = m_renderUnits.get(i).createImage();
                 joinedImg = m_graphicsConfig.createCompatibleImage(img.getWidth(null), img.getHeight(null),
-                                                                         java.awt.Transparency.TRANSLUCENT);
+                                                                   java.awt.Transparency.TRANSLUCENT);
                 Graphics g = joinedImg.getGraphics();
 
                 g.drawImage(img, 0, 0, null);
@@ -190,19 +190,18 @@ public class CombinedRU implements RenderUnit {
                 }
             }
 
-        ret = joinedImg;
-    }else
+            ret = joinedImg;
+        } else
 
-    {
-        //no active renderer create dummy image
-        ret = m_graphicsConfig.createCompatibleImage(100, 100);
-    }
+        {
+            //no active renderer create dummy image
+            ret = m_graphicsConfig.createCompatibleImage(100, 100);
+        }
 
-    m_lastImage=ret;m_hashOfLastRendering=
+        m_lastImage = ret;
+        m_hashOfLastRendering = generateHashCode();
 
-    generateHashCode();
-
-    return ret;
+        return ret;
 
     }
 
@@ -217,6 +216,9 @@ public class CombinedRU implements RenderUnit {
         hash *= 31;
         for (RenderUnit ru : m_renderUnits) {
             hash += ru.generateHashCode();
+            hash *= 31;
+        }
+        if(m_renderStack) {
             hash *= 31;
         }
         return hash;
@@ -243,12 +245,7 @@ public class CombinedRU implements RenderUnit {
         m_renderUnits.clear();
     }
 
-    public void invalidateCache(){
-        m_lastImage = null;
-    }
-
-    public void setStackedRendering(final boolean b)
-    {
+    public void setStackedRendering(final boolean b) {
         m_renderStack = b;
     }
 
