@@ -45,81 +45,27 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ---------------------------------------------------------------------
  *
+ * Created on Oct 24, 2015 by dietzc
  */
-
 package org.knime.knip.core;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-
-import org.scijava.Priority;
-import org.scijava.cache.CacheService;
-import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
-import org.scijava.service.AbstractService;
 import org.scijava.service.Service;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import net.imagej.ops.DefaultOpService;
+import net.imagej.ops.create.CreateNamespace;
 
 /**
- * {@link CacheService} implementation wrapping a guava {@link Cache}.
+ * @author Christian Dietz, University of Konstanz
  */
-@Plugin(type = Service.class, priority = Priority.HIGH_PRIORITY)
-public class KNIPGuavaCacheService extends AbstractService implements CacheService {
-
-    @Parameter
-    private MemoryService ms;
-
-    private Cache<Integer, Object> cache;
-
-    private final Semaphore gate = new Semaphore(1);
-
-    @Override
-    public void initialize() {
-        //FIXME: Make parameters accessible via image processing config at some point
-        cache = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.SECONDS).maximumSize(1000).weakValues()
-                .build();
-
-        ms.register(new MemoryAlertable() {
-
-            @Override
-            public void memoryLow() {
-                if (gate.tryAcquire()) {
-                    cache.invalidateAll();
-                    cache.cleanUp();
-                    gate.release();
-                }
-
-            }
-        });
-    }
-
-    @Override
-    public void put(final Object key, final Object value) {
-        cache.put(key.hashCode(), value);
-    }
-
-    @Override
-    public Object get(final Object key) {
-        return cache.getIfPresent(key.hashCode());
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <V> V get(final Object key, final Callable<V> valueLoader) throws ExecutionException {
-        return (V)cache.get(key.hashCode(), valueLoader);
-    }
+@Plugin(type = Service.class, priority = org.scijava.Priority.HIGH_PRIORITY)
+public class KNIPOpService extends DefaultOpService {
 
     /**
-     * Cleans up the cache, i.e. removes all invalidated objects.
+     * {@inheritDoc}
      */
-    public synchronized void cleanUp() {
-        if (gate.tryAcquire()) {
-            cache.cleanUp();
-            gate.release();
-        }
+    @Override
+    public CreateNamespace create() {
+        return namespace(KNIPCreateNamespace.class);
     }
 }
