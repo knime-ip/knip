@@ -51,18 +51,18 @@ package org.knime.knip.core.features.seg;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.imglib2.IterableInterval;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.util.ValuePair;
-
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.knime.knip.core.features.FeatureSet;
 import org.knime.knip.core.features.FeatureTargetListener;
 import org.knime.knip.core.features.ObjectCalcAndCache;
 import org.knime.knip.core.features.SharesObjects;
 
+import net.imglib2.IterableInterval;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.ValuePair;
+
 /**
- * 
+ *
  * @param <T>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -95,9 +95,8 @@ public class TamuraFeatureSet<T extends RealType<T>> implements FeatureSet, Shar
             m_valid = false;
         } else {
             m_valid = true;
-            m_tamura =
-                    new Tamura<T>(validDims.a, validDims.b, m_enabledFeatures.toArray(new String[m_enabledFeatures
-                            .size()]));
+            m_tamura = new Tamura<T>(validDims.a, validDims.b,
+                    m_enabledFeatures.toArray(new String[m_enabledFeatures.size()]));
             m_stats = m_ocac.descriptiveStatistics(interval);
             m_hist = m_tamura.updateROI(interval);
         }
@@ -202,7 +201,14 @@ public class TamuraFeatureSet<T extends RealType<T>> implements FeatureSet, Shar
     @Override
     public void setSharedObjectInstances(final Object[] instances) {
         m_ocac = (ObjectCalcAndCache)instances[0];
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void cleanUp() {
+        m_ocac.cleanUp();
     }
 
 }

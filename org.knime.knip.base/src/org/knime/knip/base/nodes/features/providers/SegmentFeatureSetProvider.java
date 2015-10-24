@@ -52,12 +52,6 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 
-import net.imagej.axis.TypedAxis;
-import net.imagej.space.CalibratedSpace;
-import net.imglib2.IterableInterval;
-import net.imglib2.type.logic.BitType;
-import net.imglib2.util.ValuePair;
-
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -69,6 +63,12 @@ import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.knime.knip.base.KNIMEKNIPPlugin;
 import org.knime.knip.core.features.FeatureFactory;
 import org.knime.knip.core.features.seg.SegmentFeatureSet;
+
+import net.imagej.axis.TypedAxis;
+import net.imagej.space.CalibratedSpace;
+import net.imglib2.IterableInterval;
+import net.imglib2.type.logic.BitType;
+import net.imglib2.util.ValuePair;
 
 /**
  * TODO Auto-generated
@@ -164,5 +164,15 @@ public class SegmentFeatureSetProvider implements
     @Override
     public void initAndAddSettingsModels(final List<SettingsModel> settingsModels) {
         settingsModels.add(m_genFeat = createFeatModel());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void cleanUp() {
+        if (m_featFac != null) {
+            m_featFac.cleanUp();
+        }
     }
 }

@@ -52,11 +52,6 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 
-import net.imagej.space.CalibratedSpace;
-import net.imglib2.IterableInterval;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.util.ValuePair;
-
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -68,6 +63,11 @@ import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.knime.knip.core.features.FeatureFactory;
 import org.knime.knip.core.features.seg.TamuraFeatureSet;
+
+import net.imagej.space.CalibratedSpace;
+import net.imglib2.IterableInterval;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.ValuePair;
 
 /**
  * TODO Auto-generated
@@ -156,5 +156,15 @@ public class TamuraFeatureSetProvider<T extends RealType<T>> implements
     public void initAndAddSettingsModels(final List<SettingsModel> settingsModels) {
         settingsModels.add(m_textFeat = createFeatModel());
 
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void cleanUp() {
+        if (m_featFac != null) {
+            m_featFac.cleanUp();
+        }
     }
 }

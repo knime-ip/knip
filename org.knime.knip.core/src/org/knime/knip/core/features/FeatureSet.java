@@ -49,7 +49,7 @@
 package org.knime.knip.core.features;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -64,7 +64,7 @@ public interface FeatureSet {
 
     /**
      * Called whenever a feature is going to be enabled.
-     * 
+     *
      * @param id
      */
     void enable(int id);
@@ -83,9 +83,14 @@ public interface FeatureSet {
     /**
      * Returns a unique identifier of this feature set. If the feature set is initialized with parameters, it should be
      * included in the returned id.
-     * 
+     *
      * @return a unique id
      */
     String featureSetId();
+
+    /**
+     *
+     */
+    void cleanUp();
 
 }

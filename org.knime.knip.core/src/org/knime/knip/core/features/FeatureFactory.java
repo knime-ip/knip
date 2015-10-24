@@ -64,7 +64,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Calculates a specific set of features (double values) for a particular {@link FeatureTarget}. The feature factory
  * itself basically takes care about which features are enabled.
- * 
+ *
  * @param <T>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -92,7 +92,7 @@ public class FeatureFactory {
 
     /**
      * Creates a new feature factory
-     * 
+     *
      * @param enableAll if all features of the added feature sets have to be enabled
      * @param fsets
      */
@@ -102,7 +102,7 @@ public class FeatureFactory {
 
     /**
      * Creates a new feature factory
-     * 
+     *
      * @param enableAll if all features of the added feature sets have to be enabled
      * @param fsets
      */
@@ -217,7 +217,7 @@ public class FeatureFactory {
 
     /**
      * Updates a feature target.
-     * 
+     *
      * @param m_target
      * @param obj
      */
@@ -263,7 +263,7 @@ public class FeatureFactory {
     }
 
     /**
-     * 
+     *
      * @param featID
      * @return the feature for the given feature ID, the feature id is assigned according to the order the feature sets
      *         were added
@@ -300,7 +300,7 @@ public class FeatureFactory {
 
     /**
      * The total number of enabled features.
-     * 
+     *
      * @return num enabled features
      */
     public int getNumFeatures() {
@@ -309,8 +309,8 @@ public class FeatureFactory {
     }
 
     /**
-     * 
-     * 
+     *
+     *
      * @return the names of the enabled features.
      */
     public String[] getFeatureNames() {
@@ -373,10 +373,21 @@ public class FeatureFactory {
                 throw new RuntimeException(
                         "InvocationTargetException when invoking annotated method from FeatureTarget Update. Data: "
 
-                        + target.toString() + ", subscriber:" + m_listener, e);
+                                + target.toString() + ", subscriber:" + m_listener,
+                        e);
             }
         }
 
+    }
+
+    /**
+     *
+     */
+    public void cleanUp() {
+        for (FeatureSet fs : m_featureSetList) {
+            fs.cleanUp();
+        }
+        m_sharedObjects.clear();
     }
 
 }

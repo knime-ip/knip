@@ -51,6 +51,10 @@ package org.knime.knip.core.features;
 import java.awt.Polygon;
 import java.util.BitSet;
 
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.knime.knip.core.data.labeling.Signature;
+import org.knime.knip.core.util.PolygonTools;
+
 import net.imglib2.Cursor;
 import net.imglib2.FinalInterval;
 import net.imglib2.IterableInterval;
@@ -65,10 +69,6 @@ import net.imglib2.ops.operation.iterableinterval.unary.MakeCooccurrenceMatrix;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.knime.knip.core.data.labeling.Signature;
-import org.knime.knip.core.util.PolygonTools;
-
 /**
  *
  * Utility class which calculates "caches" commonly used objects, i.e. as soon as one of the methods is called, the
@@ -81,12 +81,24 @@ import org.knime.knip.core.util.PolygonTools;
  */
 public class ObjectCalcAndCache {
 
-    public ObjectCalcAndCache() {
-    }
+    private CooccurrenceMatrix m_coocMatrix;
+
+    private IterableInterval<? extends RealType<?>> m_coocII;
+
+    private int m_coocDist;
+
+    private int m_coocGrayLevels;
+
+    private MatrixOrientation m_coocOrientation;
+
+    private BitSet m_coocBitSet;
 
     private Img<BitType> m_binaryMask;
 
     private IterableInterval<BitType> m_bmIterableInterval;
+
+    public ObjectCalcAndCache() {
+    }
 
     public Img<BitType> binaryMask(final IterableInterval<BitType> ii) {
         if (m_bmIterableInterval != ii) {
@@ -136,7 +148,7 @@ public class ObjectCalcAndCache {
         return m_binaryMask2D;
     }
 
-    private final DescriptiveStatistics m_descriptiveStatistics = new DescriptiveStatistics();
+    private DescriptiveStatistics m_descriptiveStatistics = new DescriptiveStatistics();
 
     private IterableInterval<? extends RealType<?>> m_dsIterableInterval;
 
@@ -262,23 +274,9 @@ public class ObjectCalcAndCache {
 
     }
 
-    private CooccurrenceMatrix m_coocMatrix;
-
-    private IterableInterval<? extends RealType<?>> m_coocII;
-
-    private int m_coocDist;
-
-    private int m_coocGrayLevels;
-
-    private MatrixOrientation m_coocOrientation;
-
-    private BitSet m_coocBitSet;
-
-    public <T extends RealType<T>> CooccurrenceMatrix cooccurenceMatrix(final IterableInterval<T> ii, final int dimX,
-                                                                        final int dimY, final int distance,
-                                                                        final int nrGrayLevels,
-                                                                        final MatrixOrientation matrixOrientation,
-                                                                        final BitSet features) {
+    public <T extends RealType<T>> CooccurrenceMatrix
+           cooccurenceMatrix(final IterableInterval<T> ii, final int dimX, final int dimY, final int distance,
+                             final int nrGrayLevels, final MatrixOrientation matrixOrientation, final BitSet features) {
         if ((m_coocII != ii) || (m_coocDist != distance) || (m_coocGrayLevels != nrGrayLevels)
                 || (m_coocOrientation != matrixOrientation) || !features.equals(m_coocBitSet)) {
             final MakeCooccurrenceMatrix<T> matrixOp =
@@ -295,6 +293,29 @@ public class ObjectCalcAndCache {
             m_coocBitSet = features;
         }
         return m_coocMatrix;
+    }
+
+    /**
+     *
+     */
+    public void cleanUp() {
+        m_binaryMask = null;
+        m_binaryMask2D = null;
+        m_bm2dIterableInterval = null;
+        m_bmIterableInterval = null;
+        m_centroid = null;
+        m_cIterableInterval = null;
+        m_coocBitSet = null;
+        m_coocMatrix = null;
+        m_coocII = null;
+        m_descriptiveStatistics = null;
+        m_polygon = null;
+        m_dsIterableInterval = null;
+        m_sIterableInterval = null;
+        m_signature = null;
+        m_wcIterableInterval = null;
+        m_tIterableInterval = null;
+
     }
 
 }

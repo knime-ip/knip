@@ -56,12 +56,6 @@ import java.util.List;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.imagej.space.CalibratedSpace;
-import net.imglib2.Cursor;
-import net.imglib2.IterableInterval;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.util.ValuePair;
-
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -81,6 +75,12 @@ import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.knime.knip.core.features.FeatureFactory;
 import org.knime.knip.core.features.seg.FirstOrderMomentsFeatureSet;
 
+import net.imagej.space.CalibratedSpace;
+import net.imglib2.Cursor;
+import net.imglib2.IterableInterval;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.ValuePair;
+
 /**
  * TODO Auto-generated
  *
@@ -88,8 +88,8 @@ import org.knime.knip.core.features.seg.FirstOrderMomentsFeatureSet;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class FirstOrderMomentsFeatureSetProvider<T extends RealType<T>> implements
-        FeatureSetProvider<ValuePair<IterableInterval<T>, CalibratedSpace>> {
+public class FirstOrderMomentsFeatureSetProvider<T extends RealType<T>>
+        implements FeatureSetProvider<ValuePair<IterableInterval<T>, CalibratedSpace>> {
 
     private SettingsModelBoolean m_appendHistogram;
 
@@ -109,8 +109,8 @@ public class FirstOrderMomentsFeatureSetProvider<T extends RealType<T>> implemen
      * {@inheritDoc}
      */
     @Override
-    public void
-            calcAndAddFeatures(final ValuePair<IterableInterval<T>, CalibratedSpace> roi, final List<DataCell> cells) {
+    public void calcAndAddFeatures(final ValuePair<IterableInterval<T>, CalibratedSpace> roi,
+                                   final List<DataCell> cells) {
         m_featFac.updateFeatureTarget(roi.a);
         m_featFac.updateFeatureTarget(roi.b);
 
@@ -250,8 +250,8 @@ public class FirstOrderMomentsFeatureSetProvider<T extends RealType<T>> implemen
             }
         });
 
-        dialogComponents.add(new DialogComponentStringListSelection(createFosFeatModel(), "Features", Arrays
-                .asList(FirstOrderMomentsFeatureSet.FEATURES), false, 5));
+        dialogComponents.add(new DialogComponentStringListSelection(createFosFeatModel(), "Features",
+                Arrays.asList(FirstOrderMomentsFeatureSet.FEATURES), false, 5));
 
         dialogComponents.add(new DialogComponentBoolean(appendHistogram, "Append Histogram"));
 
@@ -268,6 +268,15 @@ public class FirstOrderMomentsFeatureSetProvider<T extends RealType<T>> implemen
         settingsModels.add(m_fosFeat = createFosFeatModel());
         settingsModels.add(m_histogramBins = createHistBinsModel());
         settingsModels.add(m_percentiles = createPercentilesModel());
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void cleanUp() {
+        if (m_featFac != null) {
+            m_featFac.cleanUp();
+        }
     }
 }
