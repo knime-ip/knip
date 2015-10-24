@@ -49,15 +49,15 @@
  */
 package org.knime.knip.base.nodes.seg.waehlby;
 
+import org.knime.knip.core.data.algebra.ExtendedPolygon;
+
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.type.Type;
-import net.imglib2.type.logic.BitType;
+import net.imglib2.type.logic.BoolType;
 import net.imglib2.view.Views;
-
-import org.knime.knip.core.data.algebra.ExtendedPolygon;
 
 /**
  * MooreContourExtractionOp
@@ -77,7 +77,7 @@ import org.knime.knip.core.data.algebra.ExtendedPolygon;
  */
 @SuppressWarnings("deprecation")
 //TODO: We need better Polygons. Remove this when they made them.
-public class MooreContourExtractionOp implements UnaryOperation<RandomAccessibleInterval<BitType>, ExtendedPolygon> {
+public class MooreContourExtractionOp implements UnaryOperation<RandomAccessibleInterval<BoolType>, ExtendedPolygon> {
 
     /**
      * ClockwiseMooreNeighborhoodIterator Iterates clockwise through a 2D Moore Neighborhood (8 connected Neighborhood).
@@ -231,12 +231,12 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
      * Note that the output Polygon is cleared before the contour extraction!
      */
     @Override
-    public ExtendedPolygon compute(final RandomAccessibleInterval<BitType> input, final ExtendedPolygon output) {
+    public ExtendedPolygon compute(final RandomAccessibleInterval<BoolType> input, final ExtendedPolygon output) {
 
-        final RandomAccess<BitType> raInput = Views.extendValue(input, new BitType(!m_inverted)).randomAccess();
-        final Cursor<BitType> cInput = Views.flatIterable(input).cursor();
-        final ClockwiseMooreNeighborhoodIterator<BitType> cNeigh =
-                new ClockwiseMooreNeighborhoodIterator<BitType>(raInput);
+        final RandomAccess<BoolType> raInput = Views.extendValue(input, new BoolType(!m_inverted)).randomAccess();
+        final Cursor<BoolType> cInput = Views.flatIterable(input).cursor();
+        final ClockwiseMooreNeighborhoodIterator<BoolType> cNeigh =
+                new ClockwiseMooreNeighborhoodIterator<BoolType>(raInput);
 
         int[] position = new int[2];
         int[] startPos = new int[2];
@@ -305,7 +305,7 @@ public class MooreContourExtractionOp implements UnaryOperation<RandomAccessible
      * {@inheritDoc}
      */
     @Override
-    public UnaryOperation<RandomAccessibleInterval<BitType>, ExtendedPolygon> copy() {
+    public UnaryOperation<RandomAccessibleInterval<BoolType>, ExtendedPolygon> copy() {
         return new MooreContourExtractionOp(m_jacobs);
     }
 

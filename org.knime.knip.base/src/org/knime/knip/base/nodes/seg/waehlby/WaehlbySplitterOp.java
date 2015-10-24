@@ -110,8 +110,7 @@ import net.imglib2.view.Views;
  * @param <L> Type of the input {@link Labeling}<L>
  * @param <T> Type of the input {@link RandomAccessibleInterval}<T>
  */
-public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>>
-        implements
+public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> implements
         BinaryOutputOperation<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<T>, RandomAccessibleInterval<LabelingType<String>>> {
 
     /**
@@ -123,10 +122,9 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>>
         /**
          * Shape based segmentation.
          */
-        SHAPE_BASED_SEGMENTATION,
-        /**
-         * Segmentation without Distance Transformation
-         */
+        SHAPE_BASED_SEGMENTATION, /**
+                                   * Segmentation without Distance Transformation
+                                   */
         OTHER_SEGMENTATION
     }
 
@@ -157,8 +155,8 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>>
      */
     public WaehlbySplitterOp(final SEG_TYPE segType, final int seedDistanceThreshold, final int mergeSizeThreshold,
                              final int gaussSize) {
-        this(segType, seedDistanceThreshold, mergeSizeThreshold, gaussSize, new CCA<BitType>(
-                AbstractRegionGrowing.get8ConStructuringElement(2), new BitType()),
+        this(segType, seedDistanceThreshold, mergeSizeThreshold, gaussSize,
+                new CCA<BitType>(AbstractRegionGrowing.get8ConStructuringElement(2), new BitType()),
                 new WatershedWithSheds<FloatType, Integer>(AbstractRegionGrowing.get8ConStructuringElement(2)));
     }
 
@@ -189,8 +187,8 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>>
      */
     @Override
     public RandomAccessibleInterval<LabelingType<String>>
-            compute(final RandomAccessibleInterval<LabelingType<L>> inLab, final RandomAccessibleInterval<T> img,
-                    final RandomAccessibleInterval<LabelingType<String>> outLab) {
+           compute(final RandomAccessibleInterval<LabelingType<L>> inLab, final RandomAccessibleInterval<T> img,
+                   final RandomAccessibleInterval<LabelingType<String>> outLab) {
 
         Img<FloatType> imgAlice = m_floatFactory.create(img, new FloatType());
         Img<FloatType> imgBob = m_floatFactory.create(img, new FloatType());
@@ -262,29 +260,12 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>>
                     Regions.sample(regions.getLabelRegion(label), watershedResult);
 
             //Create individual images for every object
-            Img<BitType> objImage = bitFactory.create(intervalOverSrc, new BitType());
-
-            final long[] min = new long[2];
-            intervalOverSrc.min(min);
-
-            final long[] offset = new long[]{-min[0], -min[1]}; //offset for moving pixel back
-
-            RandomAccess<BitType> ra = objImage.randomAccess();
-            Cursor<LabelingType<String>> curs = intervalOverSrc.cursor();
-
-            while (curs.hasNext()) {
-                curs.fwd();
-                ra.setPosition(curs);
-                ra.move(offset);
-                ra.get().setOne();
-            }
-
             final ExtendedPolygon poly = new ExtendedPolygon();
 
             //compute contour polygon
-            contourExtraction.compute(objImage, poly);
+            contourExtraction.compute(regions.getLabelRegion(label), poly);
 
-            objects.add(new LabeledObject(poly, label, min, intervalOverSrc));
+            objects.add(new LabeledObject(poly, label, intervalOverSrc));
         }
 
         Cursor<LabelingType<String>> outC = Views.iterable(outLab).cursor();
@@ -303,9 +284,11 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>>
             boolean found = false;
 
             NeighborhoodsAccessible<LabelingType<String>> raNeighWatershed =
-                    RECTANGLE_SHAPE
-                            .neighborhoodsRandomAccessibleSafe(Views.interval(Views.extendValue(watershedResult, Util
-                                    .getTypeFromInterval(watershedResult).createVariable()), watershedResult));
+                    RECTANGLE_SHAPE.neighborhoodsRandomAccessibleSafe(Views.interval(
+                                                                                     Views.extendValue(watershedResult,
+                                                                                                       Util.getTypeFromInterval(watershedResult)
+                                                                                                               .createVariable()),
+                                                                                     watershedResult));
 
             // find two objects that are closer than rSize
             for (int i = 0; i < objects.size(); ++i) {
@@ -317,8 +300,8 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>>
                     final ExtendedPolygon iPoly = iObj.getContour();
                     final ExtendedPolygon jPoly = jObj.getContour();
 
-                    final long[] jCenter = add2D(jPoly.getCenter(), jObj.getTopLeft());
-                    final long[] iCenter = add2D(iPoly.getCenter(), iObj.getTopLeft());
+                    final long[] jCenter = jPoly.getCenter();
+                    final long[] iCenter = iPoly.getCenter();
 
                     final double diffX =
                             (iCenter[0] + iPoly.getBounds2D().getX()) - (jCenter[0] + jPoly.getBounds2D().getX());
@@ -401,28 +384,10 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>>
 
             final IterableInterval<LabelingType<String>> intervalOverSrc = Regions.sample(roi, watershedResult);
 
-            final Img<BitType> objImage = bitFactory.create(intervalOverSrc, new BitType());
-
-            final long[] min = new long[2];
-            intervalOverSrc.min(min);
-
-            final long[] offset = new long[]{-min[0], -min[1]}; //offset for moving pixel back
-
-            final RandomAccess<BitType> ra = objImage.randomAccess();
-            final Cursor<LabelingType<String>> curs = intervalOverSrc.cursor();
-
-            while (curs.hasNext()) {
-                curs.fwd();
-
-                ra.setPosition(curs);
-                ra.move(offset);
-                ra.get().setOne();
-            }
-
             final ExtendedPolygon poly = new ExtendedPolygon();
 
             //compute contour polygon
-            contourExtraction.compute(objImage, poly);
+            contourExtraction.compute(roi, poly);
 
             long iSize = triple.getFirst().getIterableIntervalOverWatershedResult().size();
             long jSize = triple.getSecond().getIterableIntervalOverWatershedResult().size();
@@ -432,6 +397,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>>
             double jCircularity = featureCircularity(triple.getSecond().getPerimeter(), jSize);
             double ijCircularity = featureCircularity(poly.length(), intervalOverSrc.size());
 
+            final Cursor<LabelingType<String>> curs = intervalOverSrc.cursor();
             if (!(iCircularity < ijCircularity || jCircularity < ijCircularity) || iSize < m_minMergeSize
                     || jSize < m_minMergeSize) {
                 curs.reset();
@@ -504,14 +470,13 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>>
      * {@inheritDoc}
      */
     @Override
-    public
-            BinaryObjectFactory<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<T>, RandomAccessibleInterval<LabelingType<String>>>
-            bufferFactory() {
+    public BinaryObjectFactory<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<T>, RandomAccessibleInterval<LabelingType<String>>>
+           bufferFactory() {
         return new BinaryObjectFactory<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<T>, RandomAccessibleInterval<LabelingType<String>>>() {
             @Override
-            public RandomAccessibleInterval<LabelingType<String>>
-                    instantiate(final RandomAccessibleInterval<LabelingType<L>> lab,
-                                final RandomAccessibleInterval<T> in) {
+            public RandomAccessibleInterval<LabelingType<String>> instantiate(
+                                                                              final RandomAccessibleInterval<LabelingType<L>> lab,
+                                                                              final RandomAccessibleInterval<T> in) {
                 return KNIPGateway.ops().create().imgLabeling(lab);
             }
         };
@@ -521,9 +486,8 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>>
      * {@inheritDoc}
      */
     @Override
-    public
-            BinaryOutputOperation<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<T>, RandomAccessibleInterval<LabelingType<String>>>
-            copy() {
+    public BinaryOutputOperation<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<T>, RandomAccessibleInterval<LabelingType<String>>>
+           copy() {
         return new WaehlbySplitterOp<L, T>(m_segType, m_seedDistanceThreshold, m_minMergeSize, m_gaussSize,
                 (CCA<BitType>)m_cca.copy(), (WatershedWithSheds<FloatType, Integer>)m_watershed.copy());
     }
@@ -538,26 +502,18 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>>
 
         final String m_label;
 
-        final long[] m_topleft;
-
         final IterableInterval<LabelingType<String>> m_overSrc;
 
-        public LabeledObject(final ExtendedPolygon c, final String l, final long[] tl,
+        public LabeledObject(final ExtendedPolygon c, final String l,
                              final IterableInterval<LabelingType<String>> oSrc) {
 
             m_contour = c;
             m_label = l;
-            m_topleft = tl;
-
             m_overSrc = oSrc;
         }
 
         public final ExtendedPolygon getContour() {
             return m_contour;
-        }
-
-        public final long[] getTopLeft() {
-            return m_topleft;
         }
 
         public final int getPerimeter() {
@@ -573,9 +529,12 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>>
         }
     }
 
-    private <RT extends RealType<RT>> IntervalView<RT> invertImg(final RandomAccessibleInterval<RT> rai, final RT type) {
-        return Views.interval(new ConvertedRandomAccessible<RT, RT>(rai, new UnaryOperationBasedConverter<RT, RT>(
-                new SignedRealInvert<RT, RT>()), type), rai);
+    private <RT extends RealType<RT>> IntervalView<RT> invertImg(final RandomAccessibleInterval<RT> rai,
+                                                                 final RT type) {
+        return Views.interval(
+                              new ConvertedRandomAccessible<RT, RT>(rai,
+                                      new UnaryOperationBasedConverter<RT, RT>(new SignedRealInvert<RT, RT>()), type),
+                              rai);
     }
 
     /**
