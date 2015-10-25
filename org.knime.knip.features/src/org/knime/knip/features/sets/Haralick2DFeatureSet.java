@@ -49,16 +49,12 @@
 package org.knime.knip.features.sets;
 
 import org.scijava.ItemIO;
-import org.scijava.convert.AbstractConverter;
-import org.scijava.convert.ConversionRequest;
-import org.scijava.convert.Converter;
 import org.scijava.plugin.Attr;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
 import net.imagej.ops.Contingent;
 import net.imagej.ops.features.haralick.HaralickFeature;
-import net.imagej.ops.image.cooccurrencematrix.MatrixOrientation2D;
 import net.imglib2.IterableInterval;
 import net.imglib2.type.numeric.RealType;
 
@@ -82,7 +78,7 @@ public class Haralick2DFeatureSet<T extends RealType<T>, O extends RealType<O>>
 	private int distance = 1;
 
 	@Parameter(type = ItemIO.INPUT, label = "Orientation", description = "Orientation of the pairs of pixels which will be added to the co-occurence matrix", choices = {
-			"DIAGONAL", "ANTIDIAGONAL", "HORIZONTAL", "VERTICAL" })
+			"DIAGONAL 2D", "ANTIDIAGONAL 2D", "HORIZONTAL 2D", "VERTICAL 2D" })
 	private String orientation = "HORIZONTAL";
 
 	@Parameter(required = false, label = "ASM", attrs = { @Attr(name = ATTR_FEATURE),
@@ -178,45 +174,5 @@ public class Haralick2DFeatureSet<T extends RealType<T>, O extends RealType<O>>
 	@Override
 	public boolean isCompatible(final Class<?> object, final Class<?> type) {
 		return IterableInterval.class.isAssignableFrom(object) && RealType.class.isAssignableFrom(type);
-	}
-
-	@Plugin(type = Converter.class)
-	public static class StringToMatrixOrientation2D extends AbstractConverter<String, MatrixOrientation2D> {
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public <T> T convert(Object src, Class<T> dest) {
-			return (T) MatrixOrientation2D.valueOf(((String) src));
-		}
-
-		@Override
-		public Class<MatrixOrientation2D> getOutputType() {
-			return MatrixOrientation2D.class;
-		}
-
-		@Override
-		public Class<String> getInputType() {
-			return String.class;
-		}
-
-		@Override
-		public boolean canConvert(final ConversionRequest request) {
-			return canConvert(request.sourceObject(), request.destClass());
-		}
-
-		@Override
-		public boolean canConvert(final Object src, Class<?> dest) {
-			if (!(src instanceof String)) {
-				return false;
-			}
-
-			final String toTest = (String) src;
-			for (MatrixOrientation2D matrix : MatrixOrientation2D.values()) {
-				if (matrix.toString().equals(toTest)) {
-					return super.canConvert(src, dest);
-				}
-			}
-			return false;
-		}
 	}
 }

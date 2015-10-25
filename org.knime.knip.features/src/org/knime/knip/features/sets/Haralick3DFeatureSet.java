@@ -49,16 +49,12 @@
 package org.knime.knip.features.sets;
 
 import org.scijava.ItemIO;
-import org.scijava.convert.AbstractConverter;
-import org.scijava.convert.ConversionRequest;
-import org.scijava.convert.Converter;
 import org.scijava.plugin.Attr;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
 import net.imagej.ops.Contingent;
 import net.imagej.ops.features.haralick.HaralickFeature;
-import net.imagej.ops.image.cooccurrencematrix.MatrixOrientation3D;
 import net.imglib2.IterableInterval;
 import net.imglib2.type.numeric.RealType;
 
@@ -82,10 +78,10 @@ public class Haralick3DFeatureSet<T extends RealType<T>, O extends RealType<O>>
 	private int distance = 1;
 
 	@Parameter(type = ItemIO.INPUT, label = "Orientation", description = "Orientation of the pairs of pixels which will be added to the co-occurence matrix", choices = {
-			"HORIZONTAL", "VERTICAL", "DIAGONAL", "ANTIDIAGONAL", "HORIZONTAL_VERTICAL", "HORIZONTAL_DIAGONAL",
-			"VERTICAL_VERTICAL", "VERTICAL_DIAGONAL", "DIAGONAL_VERTICAL", "DIAGONAL_DIAGONAL", "ANTIDIAGONAL_VERTICAL",
-			"ANTIDIAGONAL_DIAGONAL", "DEPTH" })
-	private String orientation = "HORIZONTAL";
+			"HORIZONTAL 3D", "VERTICAL 3D", "DIAGONAL 3D", "ANTIDIAGONAL 3D", "HORIZONTAL_VERTICAL 3D",
+			"HORIZONTAL_DIAGONAL 3D", "VERTICAL_VERTICAL 3D", "VERTICAL_DIAGONAL 3D", "DIAGONAL_VERTICAL 3D",
+			"DIAGONAL_DIAGONAL 3D", "ANTIDIAGONAL_VERTICAL 3D", "ANTIDIAGONAL_DIAGONAL 3D", "DEPTH 3D" })
+	private String orientation = "HORIZONTAL 3D";
 
 	@Parameter(required = false, label = "ASM", attrs = { @Attr(name = ATTR_FEATURE),
 			@Attr(name = ATTR_PARAMS, value = "numGreyLevels,distance,orientation"),
@@ -181,45 +177,4 @@ public class Haralick3DFeatureSet<T extends RealType<T>, O extends RealType<O>>
 	public boolean isCompatible(final Class<?> object, final Class<?> type) {
 		return IterableInterval.class.isAssignableFrom(object) && RealType.class.isAssignableFrom(type);
 	}
-
-	@Plugin(type = Converter.class)
-	public static class StringToMatrixOrientation3D extends AbstractConverter<String, MatrixOrientation3D> {
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public <T> T convert(Object src, Class<T> dest) {
-			return (T) MatrixOrientation3D.valueOf(((String) src));
-		}
-
-		@Override
-		public Class<MatrixOrientation3D> getOutputType() {
-			return MatrixOrientation3D.class;
-		}
-
-		@Override
-		public Class<String> getInputType() {
-			return String.class;
-		}
-
-		@Override
-		public boolean canConvert(ConversionRequest request) {
-			return canConvert(request.sourceObject(), request.destClass());
-		}
-
-		@Override
-		public boolean canConvert(final Object src, Class<?> dest) {
-			if (!(src instanceof String)) {
-				return false;
-			}
-
-			final String toTest = (String) src;
-			for (MatrixOrientation3D matrix : MatrixOrientation3D.values()) {
-				if (matrix.toString().equals(toTest)) {
-					return super.canConvert(src, dest);
-				}
-			}
-			return false;
-		}
-	}
-
 }
