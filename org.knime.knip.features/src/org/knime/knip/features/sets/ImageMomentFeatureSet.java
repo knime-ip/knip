@@ -121,7 +121,7 @@ public class ImageMomentFeatureSet<T extends RealType<T>, O extends RealType<O>>
 	private boolean isCentralMoment21Active = true;
 
 	@Parameter(required = false, label = "Central Moment 30", attrs = { @Attr(name = ATTR_FEATURE),
-			@Attr(name = ATTR_TYPE, value = PKG + "Central Moment 30") })
+			@Attr(name = ATTR_TYPE, value = PKG + "CentralMoment30") })
 	private boolean isCentralMoment30Active = true;
 
 	@Parameter(required = false, label = "Normalized CentralMoment 02", attrs = { @Attr(name = ATTR_FEATURE),
