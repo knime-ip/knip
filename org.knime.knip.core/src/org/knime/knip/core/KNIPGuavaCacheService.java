@@ -52,7 +52,6 @@ package org.knime.knip.core;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 
 import org.scijava.Priority;
 import org.scijava.cache.CacheService;
@@ -80,7 +79,7 @@ public class KNIPGuavaCacheService extends AbstractService implements CacheServi
     @Override
     public void initialize() {
         //FIXME: Make parameters accessible via image processing config at some point
-        cache = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.SECONDS).maximumSize(1000).weakValues()
+        cache = CacheBuilder.newBuilder().maximumSize(1000).weakValues()
                 .build();
 
         ms.register(new MemoryAlertable() {
