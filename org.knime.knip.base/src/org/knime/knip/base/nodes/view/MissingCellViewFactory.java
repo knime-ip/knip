@@ -82,12 +82,12 @@ public class MissingCellViewFactory<T extends RealType<T> & NativeType<T>> imple
              */
             @Override
             public String getDescription() {
-                return "";
+                return "An empty viewer that is shown when the input cell has no value to display.";
             }
 
             @Override
             public String getName() {
-                return "? Missing Value ?";
+                return "Missing Value";
             }
 
             @Override

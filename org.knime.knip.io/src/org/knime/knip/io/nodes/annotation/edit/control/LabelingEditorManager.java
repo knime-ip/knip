@@ -77,6 +77,7 @@ import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorHighlightEve
 import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorRemoveAllEvent;
 import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorRemoveEvent;
 import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorRenameAddedEvent;
+import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorRenameEvent;
 import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorToolChangedEvent;
 import org.knime.knip.io.nodes.annotation.edit.tools.AbstractLabelingEditorTool;
 import org.knime.knip.io.nodes.annotation.edit.tools.LabelingEditorModificationTool;
@@ -299,7 +300,14 @@ public class LabelingEditorManager extends HiddenViewerComponent {
 	}
 
 	@EventListener
-	public void onLabelRename(final LabelingEditorRenameAddedEvent e) {
+	public void onLabelRenameAll(final LabelingEditorRenameAddedEvent e) {
+		for(LabelingEditorChangeTracker t : m_IdTrackerMap.values())
+			t.rename(e.getOldName(), e.getNewName());
+
+	}
+	
+	@EventListener
+	public void onLabelRename(final LabelingEditorRenameEvent e) {
 		LabelingEditorChangeTracker t = m_IdTrackerMap.get(m_currentRowKey);
 		t.rename(e.getOldName(), e.getNewName());
 

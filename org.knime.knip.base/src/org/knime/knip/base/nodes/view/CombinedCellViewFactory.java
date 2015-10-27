@@ -94,7 +94,9 @@ public class CombinedCellViewFactory implements TableCellViewFactory {
              */
             @Override
             public String getDescription() {
-                return "";
+                return "A viewer shown when the user selects an interval of rows and columns in the viewer. " +
+            "This viewer combines all images and labelings in the selected interval to one image by rendering them next to each other. "
+                        + "Alternatively, the images and labelings can be layed over each other.";
             }
 
             @Override

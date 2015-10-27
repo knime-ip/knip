@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2015
+ *  Copyright (C) 2003 - 2013
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -43,93 +43,47 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * ---------------------------------------------------------------------
+ * --------------------------------------------------------------------- *
  *
- * Created on Apr 17, 2015 by mdm210958
  */
-package org.knime.knip.core.ui.imgviewer.panels;
+package org.knime.knip.io.nodes.annotation.edit.events;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-
-import org.knime.knip.core.ui.event.EventService;
-import org.knime.knip.core.ui.imgviewer.ViewerComponent;
-import org.knime.knip.core.ui.imgviewer.ViewerComponents;
+import org.knime.knip.core.ui.event.KNIPEvent;
 
 /**
- * This class wraps the old minimap and plane selection components and turns them into a single component.
- *
+ * TBD.
+ * 
  * @author Andreas Burger, University of Konstanz
  */
-public class MinimapAndPlaneSelectionPanel extends ViewerComponent {
+public class LabelingEditorRenameEvent implements KNIPEvent {
 
-    private ViewerComponent m_Minimap;
+	private String m_oldName;
 
-    private ViewerComponent m_PlaneSelection;
+	private String m_newName;
 
-    private ViewerComponent m_backgroundColor;
+	public LabelingEditorRenameEvent(String oldName, String newName) {
+		m_oldName = oldName;
+		m_newName = newName;
+	}
 
-    public MinimapAndPlaneSelectionPanel() {
-        super("", true);
+	public String getOldName() {
+		return m_oldName;
+	}
 
-        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+	public String getNewName() {
+		return m_newName;
+	}
 
-        m_Minimap = ViewerComponents.MINIMAP.createInstance();
-        m_PlaneSelection = ViewerComponents.PLANE_SELECTION.createInstance();
-        m_backgroundColor = new BackgroundColorChooserPanel();
+	@Override
+	public ExecutionPriority getExecutionOrder() {
+		// TODO Auto-generated method stub
+		return ExecutionPriority.NORMAL;
+	}
 
-        this.add(m_Minimap);
-        this.add(Box.createVerticalStrut(3));
-        this.add(m_PlaneSelection);
-        this.add(Box.createVerticalStrut(3));
-        this.add(m_backgroundColor);
-        this.add(Box.createVerticalGlue());
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setEventService(final EventService eventService) {
-        m_Minimap.setEventService(eventService);
-        m_PlaneSelection.setEventService(eventService);
-        m_backgroundColor.setEventService(eventService);
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Position getPosition() {
-        return Position.ADDITIONAL;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void saveComponentConfiguration(final ObjectOutput out) throws IOException {
-        m_Minimap.saveComponentConfiguration(out);
-        m_PlaneSelection.saveComponentConfiguration(out);
-        m_backgroundColor.saveComponentConfiguration(out);
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadComponentConfiguration(final ObjectInput in) throws IOException, ClassNotFoundException {
-        m_Minimap.loadComponentConfiguration(in);
-        m_PlaneSelection.loadComponentConfiguration(in);
-        m_backgroundColor.loadComponentConfiguration(in);
-
-    }
+	@Override
+	public <E extends KNIPEvent> boolean isRedundant(E thatEvent) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 }

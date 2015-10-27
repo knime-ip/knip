@@ -21,27 +21,31 @@
 			removes them.
 			<br />
 			The labels present in the image are organized in two lists - one for
-			 newly created labels and one for previously existing ones. New labels can
-			 be created, renamed or deleted freely, affecting all occurrences in the input.
-			 Old labels can only be added or removed manually.
+			 newly created labels and one for labels already existing in the laoded image. 
+			 New labels can be created, renamed or deleted freely, affecting all occurrences in the input.
 			 <br />
-			<b>Changes are only visible in the output table after execution.</b>
 		</intro>
 		<tab name="Operations on New Labels">
+			<option name="Create Label"> Create a new label.
+			</option>
+			<option name="Delete Label"> Delete all occurrences of the selected label. 
+			This affects all images in the Table.
+			</option>
 			<option name="Highlight New"> Highlights new labels in the image.
 			</option>
-			<option name="Create Label"> Create a new label for the labeling.
+
+		</tab>
+		<tab name="Operations on Current Labels">
+			<option name="Rename Label"> Rename the selected Label. If this label is also contained in the "New Labels"-list, 
+			it will be changed in ALL images.
 			</option>
-			<option name="Delete Label"> Delete all occurrences of the selected label.
-			</option>
-			<option name="Rename Label"> Rename all occurrences of the selected label.
+			<option name="Delete Label"> Delete all occurrences of the selected label in the current image.
 			</option>
 		</tab>
-		<tab name="General Operations">
-			<option name="Reset to Input"> Discards all changes made and resets the view to
-				the input data.
+		<tab name="General Options">
+			<option name="Recolor Label"> Recolors the selected label with a random color.
 			</option>
-			<option name="Recolor Label"> Randomizes the color of the selected label.
+			<option name="Reset Labels"> Restores the labeling to its original state.
 			</option>
 		</tab>
 

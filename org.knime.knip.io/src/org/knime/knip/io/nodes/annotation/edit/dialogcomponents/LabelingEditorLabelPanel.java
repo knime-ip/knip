@@ -90,6 +90,7 @@ import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorDeleteAllEve
 import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorDeleteEvent;
 import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorHighlightEvent;
 import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorRenameAddedEvent;
+import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorRenameEvent;
 import org.knime.knip.io.nodes.annotation.edit.events.LabelingEditorResetRowEvent;
 
 /**
@@ -413,13 +414,24 @@ public class LabelingEditorLabelPanel extends ViewerComponent {
 					final String newName = JOptionPane.showInputDialog(m_parent, "New class name:");
 					if ((newName != null) && (newName.length() > 0)) {
 
-						m_eventService.publish(new LabelingEditorRenameAddedEvent(oldName, newName));
-						renameLabel(oldName, newName);
+						if (!m_newLabels.contains(oldName)) {
 
-						if (m_highlight) {
-							m_eventService.publish(new LabelingEditorHighlightEvent(m_newLabels, true));
+							m_eventService.publish(new LabelingEditorRenameEvent(oldName, newName));
+							renameLabel(oldName, newName, false);
+
+							if (m_highlight) {
+								m_eventService.publish(new LabelingEditorHighlightEvent(m_newLabels, true));
+							}
+							m_eventService.publish(new ImgRedrawEvent());
+						} else {
+							m_eventService.publish(new LabelingEditorRenameAddedEvent(oldName, newName));
+							renameLabel(oldName, newName, true);
+
+							if (m_highlight) {
+								m_eventService.publish(new LabelingEditorHighlightEvent(m_newLabels, true));
+							}
+							m_eventService.publish(new ImgRedrawEvent());
 						}
-						m_eventService.publish(new ImgRedrawEvent());
 					}
 				}
 
@@ -455,17 +467,21 @@ public class LabelingEditorLabelPanel extends ViewerComponent {
 		m_newLabelList.setListData(m_newLabels);
 	}
 
-	private void renameLabel(String oldLabel, String newLabel) {
+	private void renameLabel(String oldLabel, String newLabel, boolean isNewLabel) {
 		if (m_labels.remove(oldLabel)) {
 			m_labels.add(newLabel);
 			Collections.sort(m_labels);
 		}
-		if (m_newLabels.remove(oldLabel)) {
-			m_newLabels.add(newLabel);
-			Collections.sort(m_newLabels);
-		}
+		if (isNewLabel)
+			m_newLabels.remove(oldLabel);
+
+		m_newLabels.add(newLabel);
+		Collections.sort(m_newLabels);
+
 		m_labelList.setListData(m_labels);
 		m_labelList.setSelectedIndex(m_labelList.getNextMatch(newLabel, 0, javax.swing.text.Position.Bias.Forward));
+		
+		m_newLabelList.setListData(m_newLabels);
 	}
 
 	@EventListener

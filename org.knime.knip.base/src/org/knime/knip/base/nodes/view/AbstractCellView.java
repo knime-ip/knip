@@ -53,11 +53,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -66,12 +63,8 @@ import java.util.Set;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JColorChooser;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JToggleButton;
@@ -82,7 +75,6 @@ import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.event.EventServiceClient;
 import org.knime.knip.core.ui.event.KNIPEvent;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
-import org.knime.knip.core.ui.imgviewer.events.BackgroundColorChangedEvent;
 import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
 import org.knime.knip.core.ui.imgviewer.panels.TableOverviewPanel;
 import org.knime.knip.core.ui.imgviewer.panels.ViewerControlEvent;
@@ -167,8 +159,7 @@ public abstract class AbstractCellView extends JPanel implements EventServiceCli
 
         Box firstPanel = new Box(BoxLayout.X_AXIS);
 
-        JButton overviewButton =
-                new JButton("Back to Table");
+        JButton overviewButton = new JButton("Back to Table");
         overviewButton.setMnemonic(KeyEvent.VK_B);
         firstPanel.add(overviewButton);
         //        overviewButtonPanel.add(Box.createHorizontalGlue());
@@ -185,18 +176,12 @@ public abstract class AbstractCellView extends JPanel implements EventServiceCli
         });
 
         firstPanel.add(Box.createHorizontalStrut(20));
-        JLabel expandLabel = new JLabel("Expand Table View ");
-        firstPanel.add(expandLabel);
+//        JLabel expandLabel = new JLabel("Expand Table View ");
+//        firstPanel.add(expandLabel);
         Box quickViewButtonPanel = new Box(BoxLayout.X_AXIS);
         //      py  quickViewButtonPanel.add(Box.createHorizontalGlue());
-        ImageIcon i = new ImageIcon(this.getClass().getResource("/icons/tableup.png"));
-        ImageIcon i2 = new ImageIcon(this.getClass().getResource("/icons/tabledown.png"));
 
-        m_bottomQuickViewButton =
-                new JToggleButton(new ImageIcon(i.getImage().getScaledInstance(32, 16, java.awt.Image.SCALE_SMOOTH)));
-        m_bottomQuickViewButton
-                .setSelectedIcon(new ImageIcon(i2.getImage().getScaledInstance(32, 16, java.awt.Image.SCALE_SMOOTH)));
-        m_bottomQuickViewButton.setMnemonic(KeyEvent.VK_Q);
+        m_bottomQuickViewButton = new JToggleButton("Expand Table View");
 
         quickViewButtonPanel.add(m_bottomQuickViewButton);
         //        quickViewButtonPanel.add(Box.createHorizontalGlue());
@@ -206,30 +191,26 @@ public abstract class AbstractCellView extends JPanel implements EventServiceCli
 
         Box colourButtonPanel = new Box(BoxLayout.X_AXIS);
 
-        JLabel colourLabel = new JLabel("Background Color ");
-        firstPanel.add(colourLabel);
+//        JLabel colourLabel = new JLabel("Background Color ");
+//        firstPanel.add(colourLabel);
 
-        JButton colourButton  =
-                new JButton(new ColorIcon(m_bgColour));
-
-        colourButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                Color c = JColorChooser.showDialog(m_cellPanel, "Select Background Color", m_bgColour);
-                if(c != null){
-                    m_bgColour = c;
-                    colourButton.setIcon(new ColorIcon(c));
-                    broadcastEvent(new BackgroundColorChangedEvent(c));
-                }
-
-
-
-            }
-        });
-
-
-        colourButtonPanel.add(colourButton);
+//        JButton colourButton = new JButton(new ColorIcon(m_bgColour));
+//
+//        colourButton.addActionListener(new ActionListener() {
+//
+//            @Override
+//            public void actionPerformed(final ActionEvent e) {
+//                Color c = JColorChooser.showDialog(m_cellPanel, "Select Background Color", m_bgColour);
+//                if (c != null) {
+//                    m_bgColour = c;
+//                    colourButton.setIcon(new ColorIcon(c));
+//                    broadcastEvent(new BackgroundColorChangedEvent(c));
+//                }
+//
+//            }
+//        });
+//
+//        colourButtonPanel.add(colourButton);
         //        quickViewButtonPanel.add(Box.createHorizontalGlue());
         firstPanel.add(colourButtonPanel);
 
@@ -345,48 +326,15 @@ public abstract class AbstractCellView extends JPanel implements EventServiceCli
 
     @EventListener
     public void onViewerImgChange(final ViewerScrollEvent e) {
-        if(m_eventService != null) {
+        if (m_eventService != null) {
             m_eventService.publish(new ViewerScrollEvent(e));
         }
     }
 
     @EventListener
     public void onViewerOverviewToggle(final ViewerControlEvent e) {
-        if(m_eventService != null) {
+        if (m_eventService != null) {
             m_eventService.publish(e);
-        }
-    }
-
-    private static class ColorIcon implements Icon
-    {
-        private final int size = 16;
-
-        private final Color color;
-
-        public ColorIcon( final Color color )
-        {
-            this.color = color;
-        }
-
-        @Override
-        public void paintIcon( final Component c, final Graphics g, final int x, final int y )
-        {
-            final Graphics2D g2d = ( Graphics2D ) g;
-            g2d.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
-            g2d.setColor( color );
-            g2d.fillOval( x, y, size, size );
-        }
-
-        @Override
-        public int getIconWidth()
-        {
-            return size;
-        }
-
-        @Override
-        public int getIconHeight()
-        {
-            return size;
         }
     }
 

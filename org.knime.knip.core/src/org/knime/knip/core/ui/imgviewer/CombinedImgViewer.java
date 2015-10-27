@@ -62,6 +62,7 @@ import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.event.KNIPEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
 import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
+import org.knime.knip.core.ui.imgviewer.panels.BackgroundColorChooserPanel;
 //import org.knime.knip.core.ui.imgviewer.events.ResetCacheEvent;
 import org.knime.knip.core.ui.imgviewer.panels.CombinedRUControlPanel;
 import org.knime.knip.core.ui.imgviewer.panels.CombinedRURenderEvent;
@@ -128,10 +129,19 @@ public class CombinedImgViewer extends ImgViewer {
 
         menuPanel.add(Box.createVerticalStrut(5));
 
-        CombinedRUControlPanel c = new CombinedRUControlPanel();
+        CombinedRUControlPanel controlPanel = new CombinedRUControlPanel();
 
-        c.setEventService(getEventService());
-        menuPanel.add(c);
+        controlPanel.setEventService(getEventService());
+        menuPanel.add(controlPanel);
+
+        menuPanel.add(Box.createVerticalStrut(5));
+
+        BackgroundColorChooserPanel colourChooser = new BackgroundColorChooserPanel();
+
+        colourChooser.setEventService(getEventService());
+        menuPanel.add(colourChooser);
+
+        menuPanel.add(Box.createVerticalStrut(10));
 
         m_tabbedMenu = new JTabbedPane();
 
