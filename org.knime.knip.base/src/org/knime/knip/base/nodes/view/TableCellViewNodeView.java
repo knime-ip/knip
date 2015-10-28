@@ -48,6 +48,7 @@
  */
 package org.knime.knip.base.nodes.view;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
@@ -59,10 +60,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
+import javax.swing.border.BevelBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
@@ -242,7 +246,9 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     protected boolean m_adjusting;
 
-    protected boolean m_forceUpdate;
+    protected JPanel m_tableViewPanel;
+
+    protected static final String m_defStatusBarText = "Click on a cell or drag and select multiple cells to continue ...";
 
     // private static final ExecutorService UPDATE_EXECUTOR = Executors
     // .newCachedThreadPool(new ThreadFactory() {
@@ -278,6 +284,8 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
     private PlaneSelectionEvent m_planeSel;
 
     private int m_prevSelectedIndex = -1;
+
+    private JLabel m_statusLabel;
 
     public TableCellViewNodeView(final T nodeModel) {
         this(nodeModel, 0);
@@ -433,7 +441,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
             @Override
             protected void done() {
                 WaitingIndicatorUtils.setWaiting(loadpanel, false);
-                setComponent(m_tableView);
+                setComponent(m_tableViewPanel);
             }
         };
 
@@ -496,6 +504,18 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
         m_tableContentView.getColumnModel().getSelectionModel().addListSelectionListener(m_listSelectionListenerB);
         m_tableView = new TableView(m_tableContentView);
+        m_tableViewPanel = new JPanel(new BorderLayout());
+        m_tableViewPanel.add(m_tableView, BorderLayout.CENTER);
+
+        JPanel statusBar = new JPanel();
+        statusBar.setBorder(new BevelBorder(BevelBorder.LOWERED));
+        m_tableViewPanel.add(statusBar, BorderLayout.SOUTH);
+        statusBar.setPreferredSize(new Dimension(m_tableViewPanel.getWidth(), 16));
+        statusBar.setLayout(new BoxLayout(statusBar, BoxLayout.X_AXIS));
+        m_statusLabel = new JLabel(m_defStatusBarText);
+        m_statusLabel.setHorizontalAlignment(SwingConstants.LEFT);
+        statusBar.add(m_statusLabel);
+
 
         m_tableView.setHiLiteHandler(getNodeModel().getInHiLiteHandler(0));
 
@@ -659,7 +679,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
                 m_cellView.hideTableView();
             }
             m_tableContentView.clearSelection();
-            setComponent(m_tableView);
+            setComponent(m_tableViewPanel);
         }
 
     }

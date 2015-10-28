@@ -49,6 +49,7 @@
 package org.knime.knip.base.nodes.view.imgparadjust;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Map;
@@ -63,6 +64,8 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.border.BevelBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -130,6 +133,12 @@ public class ImgParAdjustNodeView<T extends RealType<T>> extends NodeView<ImgPar
 
     private JPanel m_content;
 
+    private JLabel m_statusLabel;
+
+    private JPanel m_tableViewPanel;
+
+    protected static final String m_defStatusBarText = "Click on a cell or drag and select multiple cells to continue ...";
+
     /**
      * @param nodeModel
      */
@@ -195,6 +204,18 @@ public class ImgParAdjustNodeView<T extends RealType<T>> extends NodeView<ImgPar
 
         m_content = new JPanel(new BorderLayout());
 
+        m_tableViewPanel = new JPanel(new BorderLayout());
+        m_tableViewPanel.add(m_tableView, BorderLayout.CENTER);
+
+        JPanel statusBar = new JPanel();
+        statusBar.setBorder(new BevelBorder(BevelBorder.LOWERED));
+        m_tableViewPanel.add(statusBar, BorderLayout.SOUTH);
+        statusBar.setPreferredSize(new Dimension(m_tableViewPanel.getWidth(), 16));
+        statusBar.setLayout(new BoxLayout(statusBar, BoxLayout.X_AXIS));
+        m_statusLabel = new JLabel(m_defStatusBarText);
+        m_statusLabel.setHorizontalAlignment(SwingConstants.LEFT);
+        statusBar.add(m_statusLabel);
+
         m_content.add(m_cellView, BorderLayout.CENTER);
         final JButton continueButton = new JButton("Set parameters and continue execution ...");
         continueButton.addActionListener(new ActionListener() {
@@ -206,7 +227,7 @@ public class ImgParAdjustNodeView<T extends RealType<T>> extends NodeView<ImgPar
         m_content.add(continueButton, BorderLayout.SOUTH);
 
 
-        setComponent(m_tableView);
+        setComponent(m_tableViewPanel);
 
         // let this class listening to the imgViewer events (registers
         // the
@@ -345,12 +366,12 @@ public class ImgParAdjustNodeView<T extends RealType<T>> extends NodeView<ImgPar
 
     @EventListener
     public void onOverviewToggle(final ViewerControlEvent e) {
-        if (getComponent() == m_cellView) {
+        if (getComponent() == m_content) {
             if (m_cellView.isTableViewVisible()) {
                 m_cellView.hideTableView();
             }
             m_tableContentView.clearSelection();
-            setComponent(m_tableView);
+            setComponent(m_tableViewPanel);
         }
 
     }

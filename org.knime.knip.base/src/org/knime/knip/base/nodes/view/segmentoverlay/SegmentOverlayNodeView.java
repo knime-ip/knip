@@ -48,6 +48,9 @@
  */
 package org.knime.knip.base.nodes.view.segmentoverlay;
 
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
@@ -56,7 +59,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.border.BevelBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -162,6 +170,12 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
 
     private ActionListener m_nextRowListener;
 
+    private Container m_tableViewPanel;
+
+    private JLabel m_statusLabel;
+
+    protected static final String m_defStatusBarText = "Click on a cell or drag and select multiple cells to continue ...";
+
     /**
      * Constructor
      *
@@ -176,7 +190,7 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
         m_eventService = new EventService();
         m_eventService.subscribe(this);
 
-        setComponent(m_tableView);
+        setComponent(m_tableViewPanel);
 
         loadPortContent();
 
@@ -198,6 +212,18 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
         m_tableContentView.getSelectionModel().addListSelectionListener(this);
         m_tableContentView.getColumnModel().getSelectionModel().addListSelectionListener(this);
         m_tableView = new TableView(m_tableContentView);
+
+        m_tableViewPanel = new JPanel(new BorderLayout());
+        m_tableViewPanel.add(m_tableView, BorderLayout.CENTER);
+
+        JPanel statusBar = new JPanel();
+        statusBar.setBorder(new BevelBorder(BevelBorder.LOWERED));
+        m_tableViewPanel.add(statusBar, BorderLayout.SOUTH);
+        statusBar.setPreferredSize(new Dimension(m_tableViewPanel.getWidth(), 16));
+        statusBar.setLayout(new BoxLayout(statusBar, BoxLayout.X_AXIS));
+        m_statusLabel = new JLabel(m_defStatusBarText);
+        m_statusLabel.setHorizontalAlignment(SwingConstants.LEFT);
+        statusBar.add(m_statusLabel);
     }
 
     /* Initializes the img view (right side of the split pane)*/
@@ -384,7 +410,7 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
             m_eventService.publish(new TablePositionEvent(-1, m_tableContentView.getRowCount(),
                                                              -1, m_row+1));
 
-            if (getComponent() == m_tableView) {
+            if (getComponent() == m_tableViewPanel) {
 
                 setComponent(m_cellView);
             }
@@ -407,7 +433,7 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
         final int row = m_tableContentView.getSelectionModel().getLeadSelectionIndex();
 
         if ((row == m_row) || e.getValueIsAdjusting()) {
-            if (getComponent() == m_tableView && m_cellView != null) {
+            if (getComponent() == m_tableViewPanel && m_cellView != null) {
 
                 setComponent(m_cellView);
             }
@@ -446,7 +472,7 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
                 m_cellView.hideTableView();
             }
             m_tableContentView.clearSelection();
-            setComponent(m_tableView);
+            setComponent(m_tableViewPanel);
         } else {
             // Should not happen.
         }
