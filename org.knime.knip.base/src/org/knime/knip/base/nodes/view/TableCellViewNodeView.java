@@ -248,7 +248,8 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
     protected JPanel m_tableViewPanel;
 
-    protected static final String m_defStatusBarText = "Click on a cell or drag and select multiple cells to continue ...";
+    protected static final String m_defStatusBarText =
+            "Click on a cell or drag and select multiple cells to continue ...";
 
     // private static final ExecutorService UPDATE_EXECUTOR = Executors
     // .newCachedThreadPool(new ThreadFactory() {
@@ -342,15 +343,13 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
         final int selection = m_cellView.getSelectedIndex();
 
-        m_currentCells.clear();
-
-        m_cellView.removeAllTabs();
-
         List<Class<? extends DataValue>> prefClasses = new LinkedList<Class<? extends DataValue>>();
         DataCell currentCell;
 
         int col = -1;
         int row = -1;
+
+        m_currentCells.clear();
 
         for (int i : rowIndices) {
             for (int j : colIndices) {
@@ -371,11 +370,26 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
         if (m_currentCells.size() == 0) {
             return;
+        } else {
+            if (m_currentCells.size() == 1) {
+                m_col = col;
+                m_row = row;
+                m_eventService.publish(new TablePositionEvent(m_tableModel.getColumnCount(), m_tableModel.getRowCount(),
+                        col + 1, row + 1));
+            } else {
+                m_eventService.publish(new TableOverviewDisableEvent(false, false));
+            }
         }
+
+        m_cellView.removeAllTabs();
 
         List<TableCellViewFactory> compatibleFactories =
                 TableCellViewsManager.getInstance().getCompatibleFactories(prefClasses);
         List<TableCellView> availableViews = new LinkedList<TableCellView>();
+
+        if (compatibleFactories.isEmpty()) {
+            return;
+        }
 
         for (TableCellViewFactory f : compatibleFactories) {
             if (m_factoryCache.containsKey(f)) {
@@ -402,9 +416,6 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
 
         if (m_currentCells.size() == 1) {
             m_adjusting = true;
-
-            m_col = col;
-            m_row = row;
             m_cellView.scrollTablesToIndex(row, col);
             m_eventService.publish(new TablePositionEvent(m_tableModel.getColumnCount(), m_tableModel.getRowCount(),
                     col + 1, row + 1));
@@ -516,7 +527,6 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         m_statusLabel.setHorizontalAlignment(SwingConstants.LEFT);
         statusBar.add(m_statusLabel);
 
-
         m_tableView.setHiLiteHandler(getNodeModel().getInHiLiteHandler(0));
 
         if (!m_hiliteAdded) {
@@ -612,7 +622,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
             return;
         }
 
-        if(m_cellView.getSelectedIndex() == m_prevSelectedIndex) {
+        if (m_cellView.getSelectedIndex() == m_prevSelectedIndex) {
             return;
         }
 
