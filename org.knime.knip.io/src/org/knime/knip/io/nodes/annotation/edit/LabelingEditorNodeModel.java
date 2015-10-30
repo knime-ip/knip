@@ -31,7 +31,6 @@ import net.imglib2.type.numeric.integer.Unsigned12BitType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.type.numeric.integer.UnsignedIntType;
 import net.imglib2.type.numeric.integer.UnsignedShortType;
-import net.imglib2.util.Util;
 import net.imglib2.view.Views;
 
 /**
@@ -41,8 +40,8 @@ import net.imglib2.view.Views;
  * 
  * @param <L>
  */
-public class LabelingEditorNodeModel<L extends Comparable<L>>
-		extends TwoValuesToCellNodeModel<LabelingValue<L>, ImgPlusValue<?>, LabelingCell<String>> {
+public class LabelingEditorNodeModel
+		extends TwoValuesToCellNodeModel<LabelingValue<?>, ImgPlusValue<?>, LabelingCell<String>> {
 
 	static String LABEL_SETTINGS_KEY = "editedLabels";
 
@@ -81,7 +80,7 @@ public class LabelingEditorNodeModel<L extends Comparable<L>>
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	protected LabelingCell<String> compute(final LabelingValue<L> cellValue1, final ImgPlusValue<?> cellValue2)
+	protected LabelingCell compute(final LabelingValue<?> cellValue1, final ImgPlusValue<?> cellValue2)
 			throws Exception {
 
 		// Get RowKey of current row
@@ -92,29 +91,19 @@ public class LabelingEditorNodeModel<L extends Comparable<L>>
 		final Map<RowColKey, LabelingEditorChangeTracker> map = m_annotationsSM.getTrackerMap();
 		// Get the tracker of the current row
 		final LabelingEditorChangeTracker currentTrack = map.get(k);
-		
-//		if(!currentTrack.isDirty())
-//			TODO: Unmodified Cell handling.
+
+		if (!currentTrack.isDirty())
+			return (LabelingCell) cellValue1;
 
 		RandomAccessibleInterval<LabelingType<String>> src = null;
 
-		if (currentTrack != null) {
-
-			// Convert the input label to string, and then to the modified
-			// label.
-			src = Converters.convert(cellValue1.getLabeling(), new LabelingEditorLabelingConverter<L>(currentTrack),
-					cellValue1.getLabeling().randomAccess().get().createVariable(String.class));
-
-		} else {
-			// Convert the label to string
-			src = Converters.convert((RandomAccessibleInterval<LabelingType<L>>) cellValue1.getLabeling(),
-					new ToStringLabelingConverter<L>(),
-					(LabelingType<String>) Util.getTypeFromInterval(cellValue1.getLabeling()).createVariable());
-		}
+		// Convert the input label to string, and then to the modified
+		// label.
+		src = Converters.convert(cellValue1.getLabeling(), new LabelingEditorLabelingConverter(currentTrack),
+				cellValue1.getLabeling().randomAccess().get().createVariable(String.class));
 
 		// Create a new labeling and copy the values of the source-labeling
-		ImgLabeling<L, ? extends IntegerType<?>> lab = (ImgLabeling<L, ? extends IntegerType<?>>) cellValue1
-				.getLabeling();
+		ImgLabeling<?, ? extends IntegerType<?>> lab = (ImgLabeling) cellValue1.getLabeling();
 
 		final RandomAccessibleInterval<? extends IntegerType<?>> img = lab.getIndexImg();
 		Img newStorageImg = null;

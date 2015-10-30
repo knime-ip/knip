@@ -15,15 +15,15 @@ import org.knime.knip.base.nodes.view.TableCellViewNodeView;
  * @param <T>
  * @param <L>
  */
-public class LabelingEditorNodeFactory<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
-		extends NodeFactory<LabelingEditorNodeModel<T>> {
+public class LabelingEditorNodeFactory<T extends RealType<T> & NativeType<T>, L>
+		extends NodeFactory<LabelingEditorNodeModel> {
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public LabelingEditorNodeModel<T> createNodeModel() {
-		return new LabelingEditorNodeModel<T>();
+	public LabelingEditorNodeModel createNodeModel() {
+		return new LabelingEditorNodeModel();
 	}
 
 	/**
@@ -39,17 +39,18 @@ public class LabelingEditorNodeFactory<T extends RealType<T> & NativeType<T>, L 
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public NodeView<LabelingEditorNodeModel<T>> createNodeView(final int i,
-			final LabelingEditorNodeModel<T> nodeModel) {
+	public NodeView<LabelingEditorNodeModel> createNodeView(final int i,
+			final LabelingEditorNodeModel nodeModel) {
 		return new TableCellViewNodeView(nodeModel);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@SuppressWarnings("rawtypes")
 	@Override
 	public NodeDialogPane createNodeDialogPane() {
-		return new LabelingEditorNodeDialog<T, L>();
+		return new LabelingEditorNodeDialog();
 	}
 
 	/**
