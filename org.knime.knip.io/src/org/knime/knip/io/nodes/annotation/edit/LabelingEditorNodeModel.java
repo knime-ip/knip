@@ -92,7 +92,7 @@ public class LabelingEditorNodeModel
 		// Get the tracker of the current row
 		final LabelingEditorChangeTracker currentTrack = map.get(k);
 
-		if (!currentTrack.isDirty())
+		if (currentTrack== null || !currentTrack.isDirty())
 			return (LabelingCell) cellValue1;
 
 		RandomAccessibleInterval<LabelingType<String>> src = null;
