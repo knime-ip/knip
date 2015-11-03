@@ -52,6 +52,8 @@ import net.imagej.axis.Axes;
 import net.imagej.axis.CalibratedAxis;
 import net.imagej.axis.DefaultLinearAxis;
 import net.imagej.space.DefaultCalibratedSpace;
+import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
 import net.imglib2.img.array.ArrayImg;
 import net.imglib2.img.basictypeaccess.array.ArrayDataAccess;
 import net.imglib2.img.basictypeaccess.array.ByteArray;
@@ -512,25 +514,25 @@ public class ImgMergeOperator<T extends RealType<T> & NativeType<T>, A, ADA exte
      */
     @Override
     protected boolean computeInternal(final DataRow row, final DataCell cell) {
-        final ImgPlus<T> img = ((ImgPlusValue<T>)cell).getImgPlus();
+        final ImgPlus<T> imgPlus = ((ImgPlusValue<T>)cell).getImgPlus();
 
-        if ((m_type != null) && !img.firstElement().getClass().isAssignableFrom(m_type.getClass())) {
+        if ((m_type != null) && !imgPlus.firstElement().getClass().isAssignableFrom(m_type.getClass())) {
             throw new IllegalArgumentException(
-                    "Image " + img.getName() + " not compatible with first-row image. Different type!");
+                    "Image " + imgPlus.getName() + " not compatible with first-row image. Different type!");
         }
 
         if (m_dims != null) {
             for (int i = 0; i < 2; i++) {
-                if (img.dimension(i) != m_dims[i]) {
+                if (imgPlus.dimension(i) != m_dims[i]) {
                     throw new IllegalArgumentException(
-                            "Image " + img.getName() + " not compatible with first-row image. Different dimension!");
+                            "Image " + imgPlus.getName() + " not compatible with first-row image. Different dimension!");
                 }
             }
 
         }
 
         if (m_data == null) {
-            m_type = img.firstElement().createVariable();
+            m_type = imgPlus.firstElement().createVariable();
             if (m_type instanceof ByteType) {
                 m_typeHandler = (RealTypeHandler<T, A, ADA>)new ByteTypeHandler();
             } else if (m_type instanceof UnsignedByteType) {
@@ -553,8 +555,8 @@ public class ImgMergeOperator<T extends RealType<T> & NativeType<T>, A, ADA exte
             }
             m_data = new ArrayList<A>();
 
-            final CalibratedAxis[] axes = new CalibratedAxis[img.numDimensions()];
-            img.axes(axes);
+            final CalibratedAxis[] axes = new CalibratedAxis[imgPlus.numDimensions()];
+            imgPlus.axes(axes);
             final CalibratedAxis[] newAxes = new CalibratedAxis[3];
             for (int i = 0; i < 2; i++) {
                 newAxes[i] = axes[i];
@@ -562,37 +564,44 @@ public class ImgMergeOperator<T extends RealType<T> & NativeType<T>, A, ADA exte
 
             //TODO: How to support different types of calibrates spaces/axis.
             newAxes[2] = new DefaultLinearAxis(Axes.get(m_axisLabel));
-            m_metadata = new DefaultImgMetadata(new DefaultCalibratedSpace(newAxes), img, img, img);
+            m_metadata = new DefaultImgMetadata(new DefaultCalibratedSpace(newAxes), imgPlus, imgPlus, imgPlus);
             m_dims = new long[3];
-            m_dims[0] = img.dimension(0);
-            m_dims[1] = img.dimension(1);
+            m_dims[0] = imgPlus.dimension(0);
+            m_dims[1] = imgPlus.dimension(1);
 
         }
 
-        final int planeSize = (int)(img.dimension(0) * img.dimension(1));
-        final int numPlanes = (int)(img.size() / planeSize);
+        final int planeSize = (int)(imgPlus.dimension(0) * imgPlus.dimension(1));
+        final int numPlanes = (int)(imgPlus.size() / planeSize);
         m_dims[2] += numPlanes;
 
+        //in case of a previous virtual operation (img is wrapped in a ImgView), first execute the operation in order to get the 'physical' pixel data
+        Img<T> img;
+        if(imgPlus.getImg() instanceof ImgView) {
+            img = imgPlus.getImg().copy();
+        } else {
+            img = imgPlus.getImg();
+        }
+
         // copy data
-        if (img.getImg() instanceof ArrayImg) {
+        if (img instanceof ArrayImg) {
             for (int i = 0; i < numPlanes; i++) {
                 final A plane = m_typeHandler.createArray(planeSize);
-                m_typeHandler.copyData((A)((ArrayDataAccess<A>)((ArrayImg)img.getImg()).update(null))
+                m_typeHandler.copyData((A)((ArrayDataAccess<A>)((ArrayImg)img).update(null))
                         .getCurrentStorageArray(), plane, 0);
                 m_data.add(plane);
             }
 
-        } else if (img.getImg() instanceof PlanarImg) {
+        } else if (imgPlus.getImg() instanceof PlanarImg) {
 
-            for (int i = 0; i < ((PlanarImg)img.getImg()).numSlices(); i++) {
+            for (int i = 0; i < ((PlanarImg)img).numSlices(); i++) {
                 final A plane = m_typeHandler.createArray(planeSize);
-                m_typeHandler.copyData((A)((ArrayDataAccess<A>)((PlanarImg)img.getImg()).getPlane(i))
+                m_typeHandler.copyData((A)((ArrayDataAccess<A>)((PlanarImg)img).getPlane(i))
                         .getCurrentStorageArray(), plane, 0);
                 m_data.add(plane);
             }
-
         } else {
-            if (img.numDimensions() != (m_dims.length - 1)) {
+            if (imgPlus.numDimensions() != (m_dims.length - 1)) {
                 throw new IllegalArgumentException("Image type not supported, yet.");
             }
         }
