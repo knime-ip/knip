@@ -51,8 +51,12 @@ package org.knime.knip.base.nodes.proc.imgjep;
 import java.util.HashSet;
 import java.util.LinkedList;
 
+import org.knime.core.node.NodeLogger;
+import org.nfunk.jep.ParseException;
+
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
+import net.imglib2.img.ImgView;
 import net.imglib2.ops.img.BinaryOperationAssignment;
 import net.imglib2.ops.img.UnaryConstantLeftAssignment;
 import net.imglib2.ops.img.UnaryConstantRightAssignment;
@@ -62,9 +66,7 @@ import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.type.numeric.ComplexType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.DoubleType;
-
-import org.knime.core.node.NodeLogger;
-import org.nfunk.jep.ParseException;
+import net.imglib2.view.Views;
 
 /**
  * TODO Auto-generated
@@ -198,7 +200,13 @@ public class ImgOperationEval {
         if (m_imgBuffer.size() > 0) {
             return m_imgBuffer.poll();
         } else {
-            return m_imgFactory.create(img, m_resultType);
+            Img tmpImg = m_imgFactory.create(img, m_resultType);
+
+            //wrap the result image with an ImgView in case the other image has an offset (i.e. minimum)
+            //-> if not set, an iteration order exception will occur
+            long[] min = new long[img.numDimensions()];
+            img.min(min);
+            return ImgView.wrap(Views.translate(tmpImg, min), tmpImg.factory());
         }
     }
 
