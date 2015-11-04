@@ -141,7 +141,7 @@ public abstract class AbstractFeatureSetGroup implements FeatureSetGroup {
 
 			for (final NamedFeature featureName : featureSet.getFeatures()) {
 				specs.add(new DataColumnSpecCreator(
-						colNameGenerator.newName(featureName.getName() + " /(" + featureSetName + ")" + suffix),
+						colNameGenerator.newName(featureName.getName() + " (" + featureSetName + ")" + suffix),
 						DoubleCell.TYPE).createSpec());
 			}
 		}
