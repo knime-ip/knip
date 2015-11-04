@@ -76,9 +76,6 @@ public class Geometric3DFeatureSet<L, O extends RealType<O>> extends AbstractOpR
 
 	private static final String PKG = "net.imagej.ops.Ops$Geometric$";
 
-	@Parameter
-	private OpService ops;
-
 	@Parameter(required = false, label = "Volume (in pixel units)", attrs = { @Attr(name = ATTR_FEATURE),
 			@Attr(name = ATTR_TYPE, value = PKG + "Size") })
 	private boolean isSizeActive = true;
@@ -133,7 +130,7 @@ public class Geometric3DFeatureSet<L, O extends RealType<O>> extends AbstractOpR
 	public void initialize() {
 		super.initialize();
 
-		converter = ops.function(MarchingCubes.class, Mesh.class, in());
+		converter = ops().function(MarchingCubes.class, Mesh.class, in());
 	}
 
 	/**
