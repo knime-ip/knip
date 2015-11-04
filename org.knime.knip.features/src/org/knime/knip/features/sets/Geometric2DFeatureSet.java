@@ -58,6 +58,7 @@ import net.imagej.ops.FunctionOp;
 import net.imagej.ops.OpService;
 import net.imagej.ops.Ops.Geometric.Contour;
 import net.imagej.ops.Ops.Geometric.Size;
+import net.imagej.ops.geom.geom2d.DefaultSizePolygon;
 import net.imglib2.roi.geometric.Polygon;
 import net.imglib2.roi.labeling.LabelRegion;
 import net.imglib2.type.numeric.RealType;
@@ -75,8 +76,6 @@ public class Geometric2DFeatureSet<L, O extends RealType<O>> extends AbstractOpR
 
 	private static final String PKG = "net.imagej.ops.Ops$Geometric$";
 
-	@Parameter
-	private OpService ops;
 
 	@Parameter(required = false, label = "Size", attrs = { @Attr(name = ATTR_FEATURE),
 			@Attr(name = ATTR_TYPE, value = PKG + "Size") })
@@ -137,31 +136,24 @@ public class Geometric2DFeatureSet<L, O extends RealType<O>> extends AbstractOpR
 	private FunctionOp<LabelRegion<L>, Polygon> converter;
 
 	public Geometric2DFeatureSet() {
-//		prioritizedOps = new Class[] { TmpMinorMajorAxis.class, TmpMinorAxis.class, TmpMajorAxis.class };
+		prioritizedOps = new Class[] { DefaultSizePolygon.class};
 	}
 
 	@Override
 	public void initialize() {
 		super.initialize();
 
-		converter = ops.function(Contour.class, Polygon.class, in(), true, true);
+		converter = ops().function(Contour.class, Polygon.class, in(), true, true);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	protected O evalFunction(FunctionOp<Object, ? extends O> func, LabelRegion<L> input) {
 
-		// FIXME: We MUST use direct methods on LabelRegions for easy
-		// calculations (e.g. size).
 		if (input.size() <= 4) {
 			KNIPGateway.log()
 					.warn("LabelRegion was too small to calculate geometric features. Must be bigger than 4 pixels");
 			return (O) new DoubleType(Double.NaN);
-		}
-
-		// size can be directly computed on label region
-		if (Size.class.isAssignableFrom(((CachedFunctionOp<?, ?>) func).getDelegateType())) {
-			return func.compute(input);
 		}
 
 		return func.compute(converter.compute(input));
