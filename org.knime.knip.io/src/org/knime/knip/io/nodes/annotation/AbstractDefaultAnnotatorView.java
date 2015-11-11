@@ -29,8 +29,8 @@ public abstract class AbstractDefaultAnnotatorView<A> implements
 
 	private TableContentModel m_tableModel;
 	
-	private int m_currentRow = -1;
-	private int m_currentCol = -1;
+	protected int m_currentRow = -1;
+	protected int m_currentCol = -1;
 
 	protected abstract JComponent createAnnotatorComponent();
 
@@ -87,18 +87,24 @@ public abstract class AbstractDefaultAnnotatorView<A> implements
 
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
+		if ( e.getValueIsAdjusting()) {
+			return;
+		}
 		final int row = m_tableContentView.getSelectionModel()
 				.getLeadSelectionIndex();
 		final int col = m_tableContentView.getColumnModel().getSelectionModel()
 				.getLeadSelectionIndex();
-
-		if ((row == m_currentRow && col == m_currentCol)
-				|| e.getValueIsAdjusting()) {
-			return;
+		
+		rowSelectionChanged(row, col);
+		
+	}
+	
+	protected void rowSelectionChanged(int row, int col)
+	{
+		if(row < m_tableContentView.getRowCount() && col < m_tableContentView.getColumnCount()){
+			m_currentRow = row;
+			m_currentCol = col;
 		}
-
-		m_currentRow = row;
-		m_currentCol = col;
 
 		try {
 			int nrCols = m_tableContentView.getContentModel().getColumnCount();

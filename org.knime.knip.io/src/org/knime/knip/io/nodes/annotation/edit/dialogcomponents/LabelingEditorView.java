@@ -47,6 +47,7 @@
 
 package org.knime.knip.io.nodes.annotation.edit.dialogcomponents;
 
+import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.LinkedList;
@@ -76,10 +77,14 @@ import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorRowColKeyChgEv
 import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelingWithMetadataChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
 import org.knime.knip.core.ui.imgviewer.events.TableOverviewDisableEvent;
 import org.knime.knip.core.ui.imgviewer.panels.ImgNormalizationPanel;
 import org.knime.knip.core.ui.imgviewer.panels.RendererSelectionPanel;
 import org.knime.knip.core.ui.imgviewer.panels.TransparencyPanel;
+import org.knime.knip.core.ui.imgviewer.panels.ViewerControlEvent;
+import org.knime.knip.core.ui.imgviewer.panels.ViewerScrollEvent;
+import org.knime.knip.core.ui.imgviewer.panels.ViewerScrollEvent.Direction;
 import org.knime.knip.core.ui.imgviewer.panels.infobars.LabelingViewInfoPanel;
 import org.knime.knip.core.ui.imgviewer.panels.providers.AWTImageProvider;
 import org.knime.knip.core.ui.imgviewer.panels.providers.CombinedRU;
@@ -123,6 +128,12 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 	private LabelingValue<L> m_currentCell;
 
 	private RowColKey m_currentKey;
+	
+	private PlainCellView m_view;
+	
+	private TableView m_tableView;
+	
+	private boolean isViewActive;
 
 	public LabelingEditorView(final SettingsModelLabelEditor sm) {
 		m_annotationManager = sm.getManager();
@@ -159,21 +170,16 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 		m_tableContentView.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		m_tableContentView.getSelectionModel().addListSelectionListener(this);
 		m_tableContentView.getColumnModel().getSelectionModel().addListSelectionListener(this);
-		TableView tableView = new TableView(m_tableContentView);
+		m_tableView = new TableView(m_tableContentView);
 
 		m_mainPanel.removeAll();
 
-		m_mainPanel.setLayout(new GridBagLayout());
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.gridheight = GridBagConstraints.REMAINDER;
-		gbc.gridwidth = GridBagConstraints.REMAINDER;
-		gbc.weightx = 1.0;
-		gbc.weighty = 1.0;
-		gbc.fill = GridBagConstraints.BOTH;
-		PlainCellView v = new PlainCellView(tableView, (ImgViewer) createAnnotatorComponent());
-		v.setEventService(m_eventService);
-		m_eventService.publish(new TableOverviewDisableEvent(false, false));
-		m_mainPanel.add(v, gbc);
+		m_mainPanel.setLayout(new BorderLayout());
+		m_view = new PlainCellView(m_tableView, (ImgViewer) createAnnotatorComponent());
+		m_view.setEventService(m_eventService);
+		m_eventService.publish(new TableOverviewDisableEvent(false, true));
+		m_mainPanel.add(m_view, BorderLayout.CENTER);
+		isViewActive = true;
 	}
 
 	@Override
@@ -199,6 +205,13 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	protected void currentSelectionChanged(final DataCell[] currentRow, final int currentColNr, final RowColKey key) {
+		
+		if(!isViewActive) {
+			m_mainPanel.removeAll();
+			m_mainPanel.add(m_view, BorderLayout.CENTER);
+			m_mainPanel.repaint();
+			isViewActive = true;
+		}
 
 		ImgPlusCell<T> imgPlusCell = null;
 
@@ -282,5 +295,38 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 		// m_eventService.publish(new LabelingEditorLabelingModifiedEvent());
 		m_eventService.publish(new ImgRedrawEvent());
 	}
+	
+	 @EventListener
+	    public void onViewerScrollEvent(final ViewerScrollEvent e) {
+
+	        if (e.getDirection() == Direction.NORTH) {
+	            rowSelectionChanged(m_currentRow - 1, m_currentCol);
+	        }
+//	        if (e.getDirection() == Direction.EAST) {
+//	            cellSelectionChanged(m_row, m_col + 1);
+//	        }
+//	        if (e.getDirection() == Direction.WEST) {
+//	            cellSelectionChanged(m_row, m_col - 1);
+//	        }
+	        if (e.getDirection() == Direction.SOUTH) {
+	        	rowSelectionChanged(m_currentRow + 1, m_currentCol);
+	        }
+
+	    }
+
+	    @EventListener
+	    public void onOverviewToggle(final ViewerControlEvent e) {
+	        if (isViewActive) {
+	            if (m_view.isTableViewVisible()) {
+	            	m_view.hideTableView();
+	            }
+	            m_tableContentView.clearSelection();
+	            m_mainPanel.removeAll();
+	            m_mainPanel.add(m_tableView, BorderLayout.CENTER);
+	            m_mainPanel.repaint();
+	            isViewActive = false;
+	        }
+
+	    }
 
 }
