@@ -118,6 +118,15 @@ public class ThreadPoolExecutorService implements ExecutorService {
 
             l.add(m_pool.submit(task));
         }
+
+        for (final Future<T> future : l) {
+            try {
+                future.get();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
+
         return l;
     }
 
