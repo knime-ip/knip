@@ -1,7 +1,6 @@
 package org.knime.knip.io.nodes.annotation;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.BorderLayout;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -20,15 +19,14 @@ import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorResetEvent;
 
-public abstract class AbstractDefaultAnnotatorView<A> implements
-		AnnotatorView<A>, ListSelectionListener {
+public abstract class AbstractDefaultAnnotatorView<A> implements AnnotatorView<A>, ListSelectionListener {
 
 	protected final JPanel m_mainPanel = new JPanel();
 
 	protected TableContentView m_tableContentView;
 
 	private TableContentModel m_tableModel;
-	
+
 	protected int m_currentRow = -1;
 	protected int m_currentCol = -1;
 
@@ -62,46 +60,37 @@ public abstract class AbstractDefaultAnnotatorView<A> implements
 	protected void createAnnotator() {
 		// table viewer
 		m_tableContentView = new TableContentView();
-		m_tableContentView.getSelectionModel().setSelectionMode(
-				ListSelectionModel.SINGLE_SELECTION);
+		m_tableContentView.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		m_tableContentView.getSelectionModel().addListSelectionListener(this);
-		m_tableContentView.getColumnModel().getSelectionModel()
-				.addListSelectionListener(this);
+		m_tableContentView.getColumnModel().getSelectionModel().addListSelectionListener(this);
 		TableView tableView = new TableView(m_tableContentView);
 		PlainCellView p = new PlainCellView(tableView, (ImgViewer) createAnnotatorComponent());
 
 		// split pane
-//		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-//		splitPane.add(tableView);
-//		splitPane.add(createAnnotatorComponent());
-//		splitPane.setDividerLocation(300);
-//
-		m_mainPanel.setLayout(new GridBagLayout());
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.weightx = 1.0;
-		gbc.weighty = 1.0;
-		gbc.fill = GridBagConstraints.BOTH;
+		// JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+		// splitPane.add(tableView);
+		// splitPane.add(createAnnotatorComponent());
+		// splitPane.setDividerLocation(300);
+		//
+		m_mainPanel.setLayout(new BorderLayout());
 
-		m_mainPanel.add(p, gbc);
+		m_mainPanel.add(p, BorderLayout.CENTER);
 	}
 
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
-		if ( e.getValueIsAdjusting()) {
+		if (e.getValueIsAdjusting()) {
 			return;
 		}
-		final int row = m_tableContentView.getSelectionModel()
-				.getLeadSelectionIndex();
-		final int col = m_tableContentView.getColumnModel().getSelectionModel()
-				.getLeadSelectionIndex();
-		
+		final int row = m_tableContentView.getSelectionModel().getLeadSelectionIndex();
+		final int col = m_tableContentView.getColumnModel().getSelectionModel().getLeadSelectionIndex();
+
 		rowSelectionChanged(row, col);
-		
+
 	}
-	
-	protected void rowSelectionChanged(int row, int col)
-	{
-		if(row < m_tableContentView.getRowCount() && col < m_tableContentView.getColumnCount()){
+
+	protected void rowSelectionChanged(int row, int col) {
+		if (row < m_tableContentView.getRowCount() && col < m_tableContentView.getColumnCount() && row >= 0 && col >= 0) {
 			m_currentRow = row;
 			m_currentCol = col;
 		}
@@ -109,15 +98,14 @@ public abstract class AbstractDefaultAnnotatorView<A> implements
 		try {
 			int nrCols = m_tableContentView.getContentModel().getColumnCount();
 			final DataCell[] currentCells = new DataCell[nrCols];
-			
+
 			for (int i = 0; i < currentCells.length; i++) {
-				currentCells[i] = m_tableContentView.getContentModel()
-						.getValueAt(m_currentRow, i);
+				currentCells[i] = m_tableContentView.getContentModel().getValueAt(m_currentRow, i);
 			}
-			
+
 			String colName = m_tableContentView.getColumnName(m_currentCol);
 			String rowName = m_tableModel.getRowKey(m_currentRow).getString();
-			
+
 			currentSelectionChanged(currentCells, m_currentCol, new RowColKey(rowName, colName));
 		} catch (final IndexOutOfBoundsException e2) {
 			return;
@@ -125,6 +113,6 @@ public abstract class AbstractDefaultAnnotatorView<A> implements
 	}
 
 	protected abstract void currentSelectionChanged(DataCell[] currentRow, int currentColNr, RowColKey key);
-	
+
 	protected abstract EventService getEventService();
 }

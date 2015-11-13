@@ -50,6 +50,7 @@ package org.knime.knip.io.nodes.annotation.edit.dialogcomponents;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Rectangle;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -79,6 +80,7 @@ import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelingWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
 import org.knime.knip.core.ui.imgviewer.events.TableOverviewDisableEvent;
+import org.knime.knip.core.ui.imgviewer.events.TablePositionEvent;
 import org.knime.knip.core.ui.imgviewer.panels.ImgNormalizationPanel;
 import org.knime.knip.core.ui.imgviewer.panels.RendererSelectionPanel;
 import org.knime.knip.core.ui.imgviewer.panels.TransparencyPanel;
@@ -270,6 +272,8 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 		m_eventService.publish(
 				new LabelingWithMetadataChgEvent(Views.interval(converterLabeling, m_currentCell.getLabeling()), meta));
 		m_eventService.publish(new ImgRedrawEvent());
+		m_eventService.publish(new TablePositionEvent(-1, m_tableContentView.getRowCount(),
+                -1, m_currentRow+1));
 		//
 		m_renderUnit.setTracker(currTrack);
 	}
@@ -302,12 +306,6 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 	        if (e.getDirection() == Direction.NORTH) {
 	            rowSelectionChanged(m_currentRow - 1, m_currentCol);
 	        }
-//	        if (e.getDirection() == Direction.EAST) {
-//	            cellSelectionChanged(m_row, m_col + 1);
-//	        }
-//	        if (e.getDirection() == Direction.WEST) {
-//	            cellSelectionChanged(m_row, m_col - 1);
-//	        }
 	        if (e.getDirection() == Direction.SOUTH) {
 	        	rowSelectionChanged(m_currentRow + 1, m_currentCol);
 	        }
@@ -323,7 +321,7 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 	            m_tableContentView.clearSelection();
 	            m_mainPanel.removeAll();
 	            m_mainPanel.add(m_tableView, BorderLayout.CENTER);
-	            m_mainPanel.repaint();
+	            m_mainPanel.revalidate();
 	            isViewActive = false;
 	        }
 
