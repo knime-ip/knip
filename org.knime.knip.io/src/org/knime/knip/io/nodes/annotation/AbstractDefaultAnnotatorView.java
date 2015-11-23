@@ -27,6 +27,8 @@ public abstract class AbstractDefaultAnnotatorView<A> implements AnnotatorView<A
 
 	private TableContentModel m_tableModel;
 
+	private boolean m_clearSelection;
+
 	protected int m_currentRow = -1;
 	protected int m_currentCol = -1;
 
@@ -66,12 +68,6 @@ public abstract class AbstractDefaultAnnotatorView<A> implements AnnotatorView<A
 		TableView tableView = new TableView(m_tableContentView);
 		PlainCellView p = new PlainCellView(tableView, (ImgViewer) createAnnotatorComponent());
 
-		// split pane
-		// JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-		// splitPane.add(tableView);
-		// splitPane.add(createAnnotatorComponent());
-		// splitPane.setDividerLocation(300);
-		//
 		m_mainPanel.setLayout(new BorderLayout());
 		m_mainPanel.add(p, BorderLayout.CENTER);
 	}
@@ -105,6 +101,9 @@ public abstract class AbstractDefaultAnnotatorView<A> implements AnnotatorView<A
 		if (row == -1 || col == -1 || (m_currentRow == row && m_currentCol == col)) {
 			return;
 		}
+		System.out.println("test");
+		if (row < m_tableContentView.getRowCount() && col < m_tableContentView.getColumnCount() && row >= 0
+				&& col >= 0) {
 			m_currentRow = row;
 			m_currentCol = col;
 		}

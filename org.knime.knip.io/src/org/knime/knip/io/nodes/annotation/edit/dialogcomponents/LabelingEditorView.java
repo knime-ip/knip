@@ -48,9 +48,6 @@
 package org.knime.knip.io.nodes.annotation.edit.dialogcomponents;
 
 import java.awt.BorderLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Rectangle;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -78,7 +75,6 @@ import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorRowColKeyChgEv
 import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelingWithMetadataChgEvent;
-import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
 import org.knime.knip.core.ui.imgviewer.events.TableOverviewDisableEvent;
 import org.knime.knip.core.ui.imgviewer.events.TablePositionEvent;
 import org.knime.knip.core.ui.imgviewer.panels.ImgNormalizationPanel;
@@ -114,8 +110,9 @@ import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.ConstantUtils;
 import net.imglib2.view.Views;
 
-public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends Comparable<L>> extends
-		AbstractDefaultAnnotatorView<LabelingEditorChangeTracker>implements AnnotatorView<LabelingEditorChangeTracker> {
+public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
+		extends AbstractDefaultAnnotatorView<LabelingEditorChangeTracker>
+		implements AnnotatorView<LabelingEditorChangeTracker> {
 
 	public static final String FIXED_COL = "FirstMatch";
 
@@ -130,11 +127,11 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 	private LabelingValue<L> m_currentCell;
 
 	private RowColKey m_currentKey;
-	
+
 	private PlainCellView m_view;
-	
+
 	private TableView m_tableView;
-	
+
 	private boolean isViewActive;
 
 	public LabelingEditorView(final SettingsModelLabelEditor sm) {
@@ -163,7 +160,6 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 		// Fetch all modified Changetrackers from the manager and return them
 		return new LinkedList<RowColKey>(m_annotationManager.getTrackerMap().keySet());
 	}
-	// AbstractDefaultAnnotatorView
 
 	@Override
 	protected void createAnnotator() {
@@ -206,8 +202,8 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	protected void currentSelectionChanged(final DataCell[] currentRow, final int currentColNr, final RowColKey key) {
-		
-		if(!isViewActive) {
+
+		if (!isViewActive) {
 			m_mainPanel.removeAll();
 			m_mainPanel.add(m_view, BorderLayout.CENTER);
 			m_mainPanel.repaint();
@@ -271,8 +267,7 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 		m_eventService.publish(
 				new LabelingWithMetadataChgEvent(Views.interval(converterLabeling, m_currentCell.getLabeling()), meta));
 		m_eventService.publish(new ImgRedrawEvent());
-		m_eventService.publish(new TablePositionEvent(-1, m_tableContentView.getRowCount(),
-                -1, m_currentRow+1));
+		m_eventService.publish(new TablePositionEvent(-1, m_tableContentView.getRowCount(), -1, m_currentRow + 1));
 		//
 		m_renderUnit.setTracker(currTrack);
 	}
@@ -298,32 +293,32 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 		// m_eventService.publish(new LabelingEditorLabelingModifiedEvent());
 		m_eventService.publish(new ImgRedrawEvent());
 	}
-	
-	 @EventListener
-	    public void onViewerScrollEvent(final ViewerScrollEvent e) {
 
-	        if (e.getDirection() == Direction.NORTH) {
-	            rowSelectionChanged(m_currentRow - 1, m_currentCol);
-	        }
-	        if (e.getDirection() == Direction.SOUTH) {
-	        	rowSelectionChanged(m_currentRow + 1, m_currentCol);
-	        }
+	@EventListener
+	public void onViewerScrollEvent(final ViewerScrollEvent e) {
 
-	    }
+		if (e.getDirection() == Direction.NORTH) {
+			rowSelectionChanged(m_currentRow - 1, m_currentCol);
+		}
+		if (e.getDirection() == Direction.SOUTH) {
+			rowSelectionChanged(m_currentRow + 1, m_currentCol);
+		}
 
-	    @EventListener
-	    public void onOverviewToggle(final ViewerControlEvent e) {
-	        if (isViewActive) {
-	            if (m_view.isTableViewVisible()) {
-	            	m_view.hideTableView();
-	            }
-	            m_tableContentView.clearSelection();
-	            m_mainPanel.removeAll();
-	            m_mainPanel.add(m_tableView, BorderLayout.CENTER);
-	            m_mainPanel.revalidate();
-	            isViewActive = false;
-	        }
+	}
 
-	    }
+	@EventListener
+	public void onOverviewToggle(final ViewerControlEvent e) {
+		if (isViewActive) {
+			if (m_view.isTableViewVisible()) {
+				m_view.hideTableView();
+			}
+			m_tableContentView.clearSelection();
+			m_mainPanel.removeAll();
+			m_mainPanel.add(m_tableView, BorderLayout.CENTER);
+			m_mainPanel.revalidate();
+			isViewActive = false;
+		}
+
+	}
 
 }
