@@ -66,7 +66,6 @@ public class TablePositionEvent implements KNIPEvent {
 
     private final int m_y;
 
-
     public TablePositionEvent(final int width, final int height, final int x, final int y) {
 
         m_width = width;
@@ -75,14 +74,12 @@ public class TablePositionEvent implements KNIPEvent {
         m_y = y;
     }
 
-
     /**
      * @return the m_width
      */
     public int getwidth() {
         return m_width;
     }
-
 
     /**
      * @return the m_height
@@ -91,7 +88,6 @@ public class TablePositionEvent implements KNIPEvent {
         return m_height;
     }
 
-
     /**
      * @return the m_x
      */
@@ -99,14 +95,12 @@ public class TablePositionEvent implements KNIPEvent {
         return m_x;
     }
 
-
     /**
      * @return the m_y
      */
     public int gety() {
         return m_y;
     }
-
 
     /**
      * {@inheritDoc}
@@ -117,13 +111,17 @@ public class TablePositionEvent implements KNIPEvent {
         return ExecutionPriority.LOW;
     }
 
-
     /**
      * {@inheritDoc}
      */
     @Override
     public <E extends KNIPEvent> boolean isRedundant(final E thatEvent) {
-        // TODO Auto-generated method stub
+        if (thatEvent instanceof TablePositionEvent) {
+            if (((TablePositionEvent)thatEvent).m_x == m_x && m_y == ((TablePositionEvent)thatEvent).m_y) {
+                return true;
+            }
+        }
+
         return false;
     }
 
