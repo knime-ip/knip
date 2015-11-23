@@ -1,7 +1,6 @@
 package org.knime.knip.io.nodes.annotation;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.BorderLayout;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -15,22 +14,33 @@ import org.knime.core.node.tableview.TableContentModel;
 import org.knime.core.node.tableview.TableContentView;
 import org.knime.core.node.tableview.TableView;
 import org.knime.knip.base.nodes.view.PlainCellView;
+import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorResetEvent;
+import org.knime.knip.core.ui.imgviewer.panels.ViewerControlEvent;
+import org.knime.knip.core.ui.imgviewer.panels.ViewerScrollEvent;
+import org.knime.knip.core.ui.imgviewer.panels.ViewerScrollEvent.Direction;
 
-public abstract class AbstractDefaultAnnotatorView<A> implements
-		AnnotatorView<A>, ListSelectionListener {
+public abstract class AbstractDefaultAnnotatorView<A> implements AnnotatorView<A>, ListSelectionListener {
 
 	protected final JPanel m_mainPanel = new JPanel();
 
 	protected TableContentView m_tableContentView;
+	
+	protected TableView m_tableView;
 
 	private TableContentModel m_tableModel;
+
+	private boolean m_clearSelection;
 	
-	private int m_currentRow = -1;
-	private int m_currentCol = -1;
+	protected PlainCellView m_view;
+
+	protected int m_currentRow = -1;
+	protected int m_currentCol = -1;
+	
+	protected boolean isViewActive;
 
 	protected abstract JComponent createAnnotatorComponent();
 
@@ -61,57 +71,67 @@ public abstract class AbstractDefaultAnnotatorView<A> implements
 	 */
 	protected void createAnnotator() {
 		// table viewer
-		m_tableContentView = new TableContentView();
-		m_tableContentView.getSelectionModel().setSelectionMode(
-				ListSelectionModel.SINGLE_SELECTION);
+		m_tableContentView = createTableContentModel();
+		m_tableView = new TableView(m_tableContentView);
+		m_tableContentView.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		m_tableContentView.getSelectionModel().addListSelectionListener(this);
-		m_tableContentView.getColumnModel().getSelectionModel()
-				.addListSelectionListener(this);
-		TableView tableView = new TableView(m_tableContentView);
-		PlainCellView p = new PlainCellView(tableView, (ImgViewer) createAnnotatorComponent());
+		m_view = new PlainCellView(m_tableView, (ImgViewer) createAnnotatorComponent());
+		m_view.setEventService(getEventService());
 
-		// split pane
-//		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-//		splitPane.add(tableView);
-//		splitPane.add(createAnnotatorComponent());
-//		splitPane.setDividerLocation(300);
-//
-		m_mainPanel.setLayout(new GridBagLayout());
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.weightx = 1.0;
-		gbc.weighty = 1.0;
-		gbc.fill = GridBagConstraints.BOTH;
+		m_mainPanel.setLayout(new BorderLayout());
+		m_mainPanel.add(m_view, BorderLayout.CENTER);
+		isViewActive = true;
+	}
 
-		m_mainPanel.add(p, gbc);
+	protected TableContentView createTableContentModel() {
+		TableContentView v =  new TableContentView() {
+			@Override
+			public void clearSelection() {
+				super.clearSelection();
+				m_currentCol = -1;
+				m_currentRow = -1;
+			}
+		};
+		
+
+		return v;
 	}
 
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
-		final int row = m_tableContentView.getSelectionModel()
-				.getLeadSelectionIndex();
-		final int col = m_tableContentView.getColumnModel().getSelectionModel()
-				.getLeadSelectionIndex();
-
-		if ((row == m_currentRow && col == m_currentCol)
-				|| e.getValueIsAdjusting()) {
+		if (e.getValueIsAdjusting()) {
 			return;
 		}
 
-		m_currentRow = row;
-		m_currentCol = col;
+		final int row = m_tableContentView.getSelectionModel().getLeadSelectionIndex();
+		final int col = m_tableContentView.getColumnModel().getSelectionModel().getLeadSelectionIndex();
+
+		rowSelectionChanged(row, col);
+
+	}
+
+	protected void rowSelectionChanged(int row, int col) {
+
+		if (row == -1 || col == -1 || (m_currentRow == row && m_currentCol == col)) {
+			return;
+		}
+		if (row < m_tableContentView.getRowCount() && col < m_tableContentView.getColumnCount() && row >= 0
+				&& col >= 0) {
+			m_currentRow = row;
+			m_currentCol = col;
+		}
 
 		try {
 			int nrCols = m_tableContentView.getContentModel().getColumnCount();
 			final DataCell[] currentCells = new DataCell[nrCols];
-			
+
 			for (int i = 0; i < currentCells.length; i++) {
-				currentCells[i] = m_tableContentView.getContentModel()
-						.getValueAt(m_currentRow, i);
+				currentCells[i] = m_tableContentView.getContentModel().getValueAt(m_currentRow, i);
 			}
-			
+
 			String colName = m_tableContentView.getColumnName(m_currentCol);
 			String rowName = m_tableModel.getRowKey(m_currentRow).getString();
-			
+
 			currentSelectionChanged(currentCells, m_currentCol, new RowColKey(rowName, colName));
 		} catch (final IndexOutOfBoundsException e2) {
 			return;
@@ -119,6 +139,33 @@ public abstract class AbstractDefaultAnnotatorView<A> implements
 	}
 
 	protected abstract void currentSelectionChanged(DataCell[] currentRow, int currentColNr, RowColKey key);
-	
+
 	protected abstract EventService getEventService();
+	
+	@EventListener
+	public void onViewerScrollEvent(final ViewerScrollEvent e) {
+
+		if (e.getDirection() == Direction.NORTH) {
+			rowSelectionChanged(m_currentRow - 1, m_currentCol);
+		}
+		if (e.getDirection() == Direction.SOUTH) {
+			rowSelectionChanged(m_currentRow + 1, m_currentCol);
+		}
+
+	}
+
+	@EventListener
+	public void onOverviewToggle(final ViewerControlEvent e) {
+		if (isViewActive) {
+			if (m_view.isTableViewVisible()) {
+				m_view.hideTableView();
+			}
+			m_tableContentView.clearSelection();
+			m_mainPanel.removeAll();
+			m_mainPanel.add(m_tableView, BorderLayout.CENTER);
+			m_mainPanel.revalidate();
+			isViewActive = false;
+		}
+
+	}
 }
