@@ -46,6 +46,7 @@
  */
 package org.knime.knip.io.nodes.annotation.create;
 
+import java.awt.BorderLayout;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +72,7 @@ import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorResetEvent;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorRowColKeyChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.TablePositionEvent;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
 import org.knime.knip.core.ui.imgviewer.overlay.OverlayElement2D;
 import org.knime.knip.core.ui.imgviewer.panels.ImgNormalizationPanel;
@@ -175,7 +177,8 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
 		annotator.addViewerComponent(new AnnotatorImgCanvas<T>());
 
 		m_eventService = annotator.getEventService();
-
+		m_eventService.subscribe(this);
+		isViewActive = true;
 		return annotator;
 	}
 
@@ -183,6 +186,12 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
 	@Override
 	protected void currentSelectionChanged(DataCell[] currentRow,
 			int currentColNr, RowColKey key) {
+		if (!isViewActive) {
+			m_mainPanel.removeAll();
+			m_mainPanel.add(m_view, BorderLayout.CENTER);
+			m_mainPanel.repaint();
+			isViewActive = true;
+		}
 		if (!currentRow[currentColNr].isMissing()) {
 
 			ImgPlus<T> imgPlus = ((ImgPlusValue<T>) currentRow[currentColNr])
@@ -192,6 +201,7 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
 					imgPlus.getImg(), imgPlus));
 			m_eventService.publish(new AnnotatorRowColKeyChgEvent(key));
 			m_eventService.publish(new ImgRedrawEvent());
+			m_eventService.publish(new TablePositionEvent(-1, m_tableContentView.getRowCount(), -1, m_currentRow + 1));
 		}
 	}
 

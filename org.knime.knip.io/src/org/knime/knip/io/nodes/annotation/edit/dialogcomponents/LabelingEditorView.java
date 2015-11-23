@@ -110,9 +110,8 @@ import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.ConstantUtils;
 import net.imglib2.view.Views;
 
-public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
-		extends AbstractDefaultAnnotatorView<LabelingEditorChangeTracker>
-		implements AnnotatorView<LabelingEditorChangeTracker> {
+public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends Comparable<L>> extends
+		AbstractDefaultAnnotatorView<LabelingEditorChangeTracker>implements AnnotatorView<LabelingEditorChangeTracker> {
 
 	public static final String FIXED_COL = "FirstMatch";
 
@@ -127,12 +126,6 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 	private LabelingValue<L> m_currentCell;
 
 	private RowColKey m_currentKey;
-
-	private PlainCellView m_view;
-
-	private TableView m_tableView;
-
-	private boolean isViewActive;
 
 	public LabelingEditorView(final SettingsModelLabelEditor sm) {
 		m_annotationManager = sm.getManager();
@@ -292,33 +285,6 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 
 		// m_eventService.publish(new LabelingEditorLabelingModifiedEvent());
 		m_eventService.publish(new ImgRedrawEvent());
-	}
-
-	@EventListener
-	public void onViewerScrollEvent(final ViewerScrollEvent e) {
-
-		if (e.getDirection() == Direction.NORTH) {
-			rowSelectionChanged(m_currentRow - 1, m_currentCol);
-		}
-		if (e.getDirection() == Direction.SOUTH) {
-			rowSelectionChanged(m_currentRow + 1, m_currentCol);
-		}
-
-	}
-
-	@EventListener
-	public void onOverviewToggle(final ViewerControlEvent e) {
-		if (isViewActive) {
-			if (m_view.isTableViewVisible()) {
-				m_view.hideTableView();
-			}
-			m_tableContentView.clearSelection();
-			m_mainPanel.removeAll();
-			m_mainPanel.add(m_tableView, BorderLayout.CENTER);
-			m_mainPanel.revalidate();
-			isViewActive = false;
-		}
-
 	}
 
 }
