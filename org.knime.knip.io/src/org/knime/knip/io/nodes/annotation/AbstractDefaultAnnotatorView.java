@@ -59,10 +59,10 @@ public abstract class AbstractDefaultAnnotatorView<A> implements AnnotatorView<A
 	 */
 	protected void createAnnotator() {
 		// table viewer
-		m_tableContentView = new TableContentView();
+		m_tableContentView = createTableContentModel();
+
 		m_tableContentView.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		m_tableContentView.getSelectionModel().addListSelectionListener(this);
-		m_tableContentView.getColumnModel().getSelectionModel().addListSelectionListener(this);
 		TableView tableView = new TableView(m_tableContentView);
 		PlainCellView p = new PlainCellView(tableView, (ImgViewer) createAnnotatorComponent());
 
@@ -73,8 +73,18 @@ public abstract class AbstractDefaultAnnotatorView<A> implements AnnotatorView<A
 		// splitPane.setDividerLocation(300);
 		//
 		m_mainPanel.setLayout(new BorderLayout());
-
 		m_mainPanel.add(p, BorderLayout.CENTER);
+	}
+
+	protected TableContentView createTableContentModel() {
+		return new TableContentView() {
+			@Override
+			public void clearSelection() {
+				super.clearSelection();
+				m_currentCol = -1;
+				m_currentRow = -1;
+			}
+		};
 	}
 
 	@Override
@@ -82,6 +92,7 @@ public abstract class AbstractDefaultAnnotatorView<A> implements AnnotatorView<A
 		if (e.getValueIsAdjusting()) {
 			return;
 		}
+
 		final int row = m_tableContentView.getSelectionModel().getLeadSelectionIndex();
 		final int col = m_tableContentView.getColumnModel().getSelectionModel().getLeadSelectionIndex();
 
@@ -90,7 +101,10 @@ public abstract class AbstractDefaultAnnotatorView<A> implements AnnotatorView<A
 	}
 
 	protected void rowSelectionChanged(int row, int col) {
-		if (row < m_tableContentView.getRowCount() && col < m_tableContentView.getColumnCount() && row >= 0 && col >= 0) {
+
+		if (row == -1 || col == -1 || (m_currentRow == row && m_currentCol == col)) {
+			return;
+		}
 			m_currentRow = row;
 			m_currentCol = col;
 		}

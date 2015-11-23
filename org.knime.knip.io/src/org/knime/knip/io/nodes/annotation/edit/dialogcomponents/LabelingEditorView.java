@@ -168,10 +168,9 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 	@Override
 	protected void createAnnotator() {
 		// table viewer
-		m_tableContentView = new TableContentView();
+		m_tableContentView = createTableContentModel();
 		m_tableContentView.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		m_tableContentView.getSelectionModel().addListSelectionListener(this);
-		m_tableContentView.getColumnModel().getSelectionModel().addListSelectionListener(this);
 		m_tableView = new TableView(m_tableContentView);
 
 		m_mainPanel.removeAll();
