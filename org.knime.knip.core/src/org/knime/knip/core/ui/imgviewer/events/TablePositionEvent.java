@@ -66,12 +66,21 @@ public class TablePositionEvent implements KNIPEvent {
 
     private final int m_y;
 
-    public TablePositionEvent(final int width, final int height, final int x, final int y) {
+    private final String m_colName;
 
+    private final String m_rowName;
+
+    public TablePositionEvent(final int width, final int height, final int x, final int y) {
+        this(width, height, x, y, "", "");
+    }
+
+    public TablePositionEvent(final int width, final int height, final int x, final int y, final String colName, final String rowName) {
         m_width = width;
         m_height = height;
         m_x = x;
         m_y = y;
+        m_colName = colName;
+        m_rowName = rowName;
     }
 
     /**
@@ -100,6 +109,14 @@ public class TablePositionEvent implements KNIPEvent {
      */
     public int gety() {
         return m_y;
+    }
+
+    public String getColumnName(){
+        return m_colName;
+    }
+
+    public String getRowName(){
+        return m_rowName;
     }
 
     /**

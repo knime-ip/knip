@@ -375,7 +375,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
                 m_col = col;
                 m_row = row;
                 m_eventService.publish(new TablePositionEvent(m_tableModel.getColumnCount(), m_tableModel.getRowCount(),
-                        col + 1, row + 1));
+                                                              col + 1, row + 1, m_tableModel.getColumnName(col), m_tableModel.getRowKey(row).toString()));
             } else {
                 m_eventService.publish(new TableOverviewDisableEvent(false, false));
             }
@@ -417,8 +417,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         if (m_currentCells.size() == 1) {
             m_adjusting = true;
             m_cellView.scrollTablesToIndex(row, col);
-            m_eventService.publish(new TablePositionEvent(m_tableModel.getColumnCount(), m_tableModel.getRowCount(),
-                    col + 1, row + 1));
+
             m_adjusting = false;
         } else {
             m_eventService.publish(new TableOverviewDisableEvent(false, false));
