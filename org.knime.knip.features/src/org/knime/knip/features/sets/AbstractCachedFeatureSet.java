@@ -54,7 +54,6 @@ import java.util.Map;
 
 import org.scijava.Priority;
 import org.scijava.cache.CacheService;
-import org.scijava.command.CommandInfo;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.PluginService;
 
@@ -65,6 +64,7 @@ import net.imagej.ops.FunctionOp;
 import net.imagej.ops.HybridOp;
 import net.imagej.ops.Op;
 import net.imagej.ops.OpEnvironment;
+import net.imagej.ops.OpInfo;
 import net.imagej.ops.cached.CachedOpEnvironment;
 import net.imglib2.type.numeric.RealType;
 
@@ -90,11 +90,11 @@ public abstract class AbstractCachedFeatureSet<I, O extends RealType<O>>
 
 	@Override
 	public void initialize() {
-		final List<CommandInfo> infos = new ArrayList<CommandInfo>();
+		final List<OpInfo> infos = new ArrayList<OpInfo>();
 		if (prioritizedOps != null) {
 			for (final Class<? extends Op> prio : prioritizedOps) {
-				final CommandInfo info = new CommandInfo(prio);
-				info.setPriority(Priority.FIRST_PRIORITY);
+				final OpInfo info = new OpInfo(prio);
+				info.cInfo().setPriority(Priority.FIRST_PRIORITY);
 				infos.add(info);
 			}
 		}
@@ -112,10 +112,10 @@ public abstract class AbstractCachedFeatureSet<I, O extends RealType<O>>
 		}
 
 		public KNIPCachedOpEnvironment(final OpEnvironment parent,
-				final Collection<? extends CommandInfo> prioritizedInfos) {
+				final Collection<? extends OpInfo> prioritizedInfos) {
 			super(parent, prioritizedInfos);
-			for (final CommandInfo info : prioritizedInfos) {
-				info.setPriority(Priority.FIRST_PRIORITY);
+			for (final OpInfo info : prioritizedInfos) {
+				info.cInfo().setPriority(Priority.FIRST_PRIORITY);
 			}
 		}
 
