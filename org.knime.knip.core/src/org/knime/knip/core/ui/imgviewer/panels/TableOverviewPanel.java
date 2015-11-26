@@ -108,6 +108,10 @@ public class TableOverviewPanel extends ViewerComponent {
 
     private JLabel m_rowLabel;
 
+    private String m_rowName = "";
+
+    private String m_colName = "";
+
     /**
      * @param title
      * @param isBorderHidden
@@ -121,7 +125,7 @@ public class TableOverviewPanel extends ViewerComponent {
 
         Box columnBox = new Box(BoxLayout.X_AXIS);
 
-        m_colLabel = new JLabel("Column (0/0): ");
+        m_colLabel = new JLabel("Column [" + m_colName.substring(0, Math.min(12, m_colName.length())) + "] (0/0): ");
         columnBox.add(m_colLabel);
         columnBox.add(Box.createVerticalStrut(20));
         columnBox.add(Box.createHorizontalStrut(5));
@@ -134,12 +138,15 @@ public class TableOverviewPanel extends ViewerComponent {
 
         Box rowBox = new Box(BoxLayout.X_AXIS);
         rowBox.add(Box.createVerticalStrut(20));
-        m_rowLabel = new JLabel("Row (0/0): ");
+        m_rowLabel = new JLabel("Row [" + m_rowName.substring(0, Math.min(12, m_rowName.length())) + "] (0/0): ");
         rowBox.add(m_rowLabel);
         rowBox.add(Box.createHorizontalStrut(5));
         rowBox.add(m_northPanel);
         rowBox.add(Box.createHorizontalStrut(5));
         rowBox.add(m_southPanel);
+
+        m_rowLabel.setToolTipText(m_rowName);
+        m_colLabel.setToolTipText(m_colName);
 
         add(rowBox);
 
@@ -282,11 +289,15 @@ public class TableOverviewPanel extends ViewerComponent {
         m_y = e.gety();
 
         if (m_x != -1 || m_width != -1) {
-            m_colLabel.setText("Column (" + m_x + "/" + m_width + ")");
+            m_colLabel.setText("Column [" + e.getColumnName().substring(0, Math.min(12, e.getColumnName().length()))
+                    + "] (" + m_x + "/" + m_width + ")");
         }
         if (m_y != -1 || m_height != -1) {
-            m_rowLabel.setText("Row (" + m_y + "/" + m_height + ")");
+            m_rowLabel.setText("Row [" + e.getRowName().substring(0, Math.min(12, e.getRowName().length())) + "] ("
+                    + m_y + "/" + m_height + ")");
         }
+        m_rowLabel.setToolTipText(e.getRowName());
+        m_colLabel.setToolTipText(e.getColumnName());
     }
 
     @EventListener

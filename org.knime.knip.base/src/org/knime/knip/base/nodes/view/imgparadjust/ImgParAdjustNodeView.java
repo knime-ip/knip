@@ -137,7 +137,8 @@ public class ImgParAdjustNodeView<T extends RealType<T>> extends NodeView<ImgPar
 
     private JPanel m_tableViewPanel;
 
-    protected static final String m_defStatusBarText = "Click on a cell or drag and select multiple cells to continue ...";
+    protected static final String m_defStatusBarText =
+            "Click on a cell or drag and select multiple cells to continue ...";
 
     /**
      * @param nodeModel
@@ -226,7 +227,6 @@ public class ImgParAdjustNodeView<T extends RealType<T>> extends NodeView<ImgPar
         });
         m_content.add(continueButton, BorderLayout.SOUTH);
 
-
         setComponent(m_tableViewPanel);
 
         // let this class listening to the imgViewer events (registers
@@ -297,7 +297,9 @@ public class ImgParAdjustNodeView<T extends RealType<T>> extends NodeView<ImgPar
             if (getComponent() != m_content) {
                 setComponent(m_content);
             }
-            m_eventService.publish(new TablePositionEvent(m_tableContentView.getColumnCount(), m_tableContentView.getRowCount(), col+1, row+1));
+            m_eventService.publish(new TablePositionEvent(m_tableContentView.getColumnCount(),
+                    m_tableContentView.getRowCount(), col + 1, row + 1, m_tableContentView.getColumnName(col),
+                    m_tableContentView.getContentModel().getRowKey(row).toString()));
         }
     }
 
