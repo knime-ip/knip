@@ -53,11 +53,6 @@ import java.util.Map;
 
 import javax.swing.JComponent;
 
-import net.imagej.ImgPlus;
-import net.imglib2.img.Img;
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.data.DataCell;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.core.ui.event.EventService;
@@ -72,6 +67,7 @@ import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorResetEvent;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorRowColKeyChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.TableOverviewDisableEvent;
 import org.knime.knip.core.ui.imgviewer.events.TablePositionEvent;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
 import org.knime.knip.core.ui.imgviewer.overlay.OverlayElement2D;
@@ -86,6 +82,11 @@ import org.knime.knip.io.nodes.annotation.AbstractDefaultAnnotatorView;
 import org.knime.knip.io.nodes.annotation.AnnotatorView;
 import org.knime.knip.io.nodes.annotation.deprecated.AnnotatorImgCanvas;
 
+import net.imagej.ImgPlus;
+import net.imglib2.img.Img;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
+
 /**
  * TODO Auto-generated
  * 
@@ -94,9 +95,8 @@ import org.knime.knip.io.nodes.annotation.deprecated.AnnotatorImgCanvas;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
  */
-public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
-		extends AbstractDefaultAnnotatorView<Overlay> implements
-		AnnotatorView<Overlay> {
+public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>> extends AbstractDefaultAnnotatorView<Overlay>
+		implements AnnotatorView<Overlay> {
 
 	private OverlayAnnotatorManager<T> m_manager;
 
@@ -161,21 +161,19 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
 	@Override
 	protected JComponent createAnnotatorComponent() {
 		ImgViewer annotator = new ImgViewer();
-		annotator.addViewerComponent(new AWTImageProvider(0,
-				new OverlayRU<String>(new ImageRU<T>())));
+		annotator.addViewerComponent(new AWTImageProvider(0, new OverlayRU<String>(new ImageRU<T>())));
 		annotator.addViewerComponent(m_manager);
 
 		annotator.addViewerComponent(new AnnotatorMinimapAndPlaneSelectionPanel());
-		annotator
-		.addViewerComponent(new ExpandingPanel("Labels",m_annotatorLabelPanel = new AnnotatorLabelPanel(), true));
+		annotator.addViewerComponent(
+				new ExpandingPanel("Labels", m_annotatorLabelPanel = new AnnotatorLabelPanel(), true));
 		annotator.addViewerComponent(AnnotatorToolbar.createStandardToolbar());
 		annotator.addViewerComponent(new ExpandingPanel("Normalization", new ImgNormalizationPanel<T, Img<T>>()));
-//		annotator.addViewerComponent(new PlaneSelectionPanel<T, Img<T>>());
+		// annotator.addViewerComponent(new PlaneSelectionPanel<T, Img<T>>());
 		annotator.addViewerComponent(new ExpandingPanel("Renderer Selection", new RendererSelectionPanel<T>()));
 		annotator.addViewerComponent(new ExpandingPanel("Transparency", new TransparencyPanel()));
 		annotator.addViewerComponent(new ExpandingPanel("Info", new ImgViewInfoPanel()));
 		annotator.addViewerComponent(new AnnotatorImgCanvas<T>());
-
 		m_eventService = annotator.getEventService();
 		m_eventService.subscribe(this);
 		isViewActive = true;
@@ -184,8 +182,7 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	protected void currentSelectionChanged(DataCell[] currentRow,
-			int currentColNr, RowColKey key) {
+	protected void currentSelectionChanged(DataCell[] currentRow, int currentColNr, RowColKey key) {
 		if (!isViewActive) {
 			m_mainPanel.removeAll();
 			m_mainPanel.add(m_view, BorderLayout.CENTER);
@@ -194,14 +191,13 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>>
 		}
 		if (!currentRow[currentColNr].isMissing()) {
 
-			ImgPlus<T> imgPlus = ((ImgPlusValue<T>) currentRow[currentColNr])
-					.getImgPlus();
+			ImgPlus<T> imgPlus = ((ImgPlusValue<T>) currentRow[currentColNr]).getImgPlus();
 
-			m_eventService.publish(new ImgWithMetadataChgEvent(
-					imgPlus.getImg(), imgPlus));
+			m_eventService.publish(new ImgWithMetadataChgEvent(imgPlus.getImg(), imgPlus));
 			m_eventService.publish(new AnnotatorRowColKeyChgEvent(key));
 			m_eventService.publish(new ImgRedrawEvent());
-			m_eventService.publish(new TablePositionEvent(-1, m_tableContentView.getRowCount(), -1, m_currentRow + 1));
+			m_eventService.publish(new TablePositionEvent(-1, m_tableContentView.getRowCount(), -1, m_currentRow + 1,
+					"", m_tableContentView.getContentModel().getRowKey(m_currentRow).toString()));
 		}
 	}
 

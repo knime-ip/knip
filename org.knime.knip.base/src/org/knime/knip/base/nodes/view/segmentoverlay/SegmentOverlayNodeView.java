@@ -393,7 +393,7 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
                                                             currentLabelingCell.getLabelingMetadata(),
                                                             underlyingInterval,
 
-                                                            (ImgPlus<T>)underlyingInterval);
+                (ImgPlus<T>)underlyingInterval);
                 labelingMetadata =
                         new DefaultLabelingMetadata((ImgPlus<T>)underlyingInterval, labelingMetadata, labelingMetadata,
                                 labelingMetadata.getLabelingColorTable());
@@ -408,7 +408,7 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
             m_imgView.getEventService().publish(new ImgRedrawEvent());
             m_eventService.publish(new TableOverviewDisableEvent(false, true));
             m_eventService.publish(new TablePositionEvent(-1, m_tableContentView.getRowCount(),
-                                                             -1, m_row+1));
+                                                             -1, m_row+1, "", m_tableContentView.getContentModel().getRowKey(m_row).toString()));
 
             if (getComponent() == m_tableViewPanel) {
 

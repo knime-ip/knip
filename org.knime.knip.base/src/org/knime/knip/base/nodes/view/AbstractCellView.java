@@ -176,8 +176,8 @@ public abstract class AbstractCellView extends JPanel implements EventServiceCli
         });
 
         firstPanel.add(Box.createHorizontalStrut(20));
-//        JLabel expandLabel = new JLabel("Expand Table View ");
-//        firstPanel.add(expandLabel);
+        //        JLabel expandLabel = new JLabel("Expand Table View ");
+        //        firstPanel.add(expandLabel);
         Box quickViewButtonPanel = new Box(BoxLayout.X_AXIS);
         //      py  quickViewButtonPanel.add(Box.createHorizontalGlue());
 
@@ -191,26 +191,26 @@ public abstract class AbstractCellView extends JPanel implements EventServiceCli
 
         Box colourButtonPanel = new Box(BoxLayout.X_AXIS);
 
-//        JLabel colourLabel = new JLabel("Background Color ");
-//        firstPanel.add(colourLabel);
+        //        JLabel colourLabel = new JLabel("Background Color ");
+        //        firstPanel.add(colourLabel);
 
-//        JButton colourButton = new JButton(new ColorIcon(m_bgColour));
-//
-//        colourButton.addActionListener(new ActionListener() {
-//
-//            @Override
-//            public void actionPerformed(final ActionEvent e) {
-//                Color c = JColorChooser.showDialog(m_cellPanel, "Select Background Color", m_bgColour);
-//                if (c != null) {
-//                    m_bgColour = c;
-//                    colourButton.setIcon(new ColorIcon(c));
-//                    broadcastEvent(new BackgroundColorChangedEvent(c));
-//                }
-//
-//            }
-//        });
-//
-//        colourButtonPanel.add(colourButton);
+        //        JButton colourButton = new JButton(new ColorIcon(m_bgColour));
+        //
+        //        colourButton.addActionListener(new ActionListener() {
+        //
+        //            @Override
+        //            public void actionPerformed(final ActionEvent e) {
+        //                Color c = JColorChooser.showDialog(m_cellPanel, "Select Background Color", m_bgColour);
+        //                if (c != null) {
+        //                    m_bgColour = c;
+        //                    colourButton.setIcon(new ColorIcon(c));
+        //                    broadcastEvent(new BackgroundColorChangedEvent(c));
+        //                }
+        //
+        //            }
+        //        });
+        //
+        //        colourButtonPanel.add(colourButton);
         //        quickViewButtonPanel.add(Box.createHorizontalGlue());
         firstPanel.add(colourButtonPanel);
 
@@ -337,7 +337,5 @@ public abstract class AbstractCellView extends JPanel implements EventServiceCli
             m_eventService.publish(e);
         }
     }
-
-
 
 }

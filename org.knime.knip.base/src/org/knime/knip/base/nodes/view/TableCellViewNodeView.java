@@ -377,7 +377,7 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
                 m_eventService.publish(new TablePositionEvent(m_tableModel.getColumnCount(), m_tableModel.getRowCount(),
                                                               col + 1, row + 1, m_tableModel.getColumnName(col), m_tableModel.getRowKey(row).toString()));
             } else {
-                m_eventService.publish(new TableOverviewDisableEvent(false, false));
+
             }
         }
 
