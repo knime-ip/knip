@@ -61,9 +61,9 @@ import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
  * Allows you to use the implemented component in dialogs, views, ... see e.g.
  * {@link DialogComponentAnnotatorView}.<br>
  * <br>
- * A AnnotatorView allows to create/alter annotations for sources from a table. A
- * source can have zero or one associated annotations. The AnnotatorView allows
- * to edit and create these annotations.
+ * A AnnotatorView allows to create/alter annotations for sources from a table.
+ * A source can have zero or one associated annotations. The AnnotatorView
+ * allows to edit and create these annotations.
  * 
  * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
@@ -80,23 +80,25 @@ public interface AnnotatorView<T> {
 	public JPanel getAnnotatorPanel();
 
 	/**
-	 * @return a list of the source names of all sources that have been annotated
-	 * by the view (may also be a change of a existing annotation).
+	 * @return a list of the source names of all sources that have been
+	 *         annotated by the view (may also be a change of a existing
+	 *         annotation).
 	 */
 	public List<RowColKey> getIdentifiersOfManagedSources();
 
 	/**
 	 * @param key
-	 *            (table based) source identifier for the associated annotation data structure (e.g. a {@link Overlay})
-	 * @return the annotation data structure that is associated with the source name
-	 *         or <code>null</code> if no annotation exists.
+	 *            (table based) source identifier for the associated annotation
+	 *            data structure (e.g. a {@link Overlay})
+	 * @return the annotation data structure that is associated with the source
+	 *         name or <code>null</code> if no annotation exists.
 	 */
 	public T getAnnotation(RowColKey key);
 
 	/**
-	 * Adds an already existing annotation to the AnnotatorView. A source that can be
-	 * addressed with the given identifier has to exist in the inputTable. This method exist to
-	 * allow recreation after serialization.
+	 * Adds an already existing annotation to the AnnotatorView. A source that
+	 * can be addressed with the given identifier has to exist in the
+	 * inputTable. This method exist to allow recreation after serialization.
 	 * 
 	 * @param srcName
 	 *            source name of the associated source
@@ -104,7 +106,6 @@ public interface AnnotatorView<T> {
 	 *            annotation data structure
 	 */
 	public void setAnnotation(RowColKey key, T annotation);
-
 
 	/**
 	 * Deletes all managed annotations.

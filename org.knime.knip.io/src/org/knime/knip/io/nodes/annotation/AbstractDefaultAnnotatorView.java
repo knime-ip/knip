@@ -19,6 +19,7 @@ import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorResetEvent;
+import org.knime.knip.core.ui.imgviewer.events.TableOverviewDisableEvent;
 import org.knime.knip.core.ui.imgviewer.panels.ViewerControlEvent;
 import org.knime.knip.core.ui.imgviewer.panels.ViewerScrollEvent;
 import org.knime.knip.core.ui.imgviewer.panels.ViewerScrollEvent.Direction;
@@ -28,18 +29,18 @@ public abstract class AbstractDefaultAnnotatorView<A> implements AnnotatorView<A
 	protected final JPanel m_mainPanel = new JPanel();
 
 	protected TableContentView m_tableContentView;
-	
+
 	protected TableView m_tableView;
 
 	private TableContentModel m_tableModel;
 
 	private boolean m_clearSelection;
-	
+
 	protected PlainCellView m_view;
 
 	protected int m_currentRow = -1;
 	protected int m_currentCol = -1;
-	
+
 	protected boolean isViewActive;
 
 	protected abstract JComponent createAnnotatorComponent();
@@ -77,14 +78,14 @@ public abstract class AbstractDefaultAnnotatorView<A> implements AnnotatorView<A
 		m_tableContentView.getSelectionModel().addListSelectionListener(this);
 		m_view = new PlainCellView(m_tableView, (ImgViewer) createAnnotatorComponent());
 		m_view.setEventService(getEventService());
-
+		getEventService().publish(new TableOverviewDisableEvent(false, true));
 		m_mainPanel.setLayout(new BorderLayout());
 		m_mainPanel.add(m_view, BorderLayout.CENTER);
 		isViewActive = true;
 	}
 
 	protected TableContentView createTableContentModel() {
-		TableContentView v =  new TableContentView() {
+		TableContentView v = new TableContentView() {
 			@Override
 			public void clearSelection() {
 				super.clearSelection();
@@ -92,7 +93,6 @@ public abstract class AbstractDefaultAnnotatorView<A> implements AnnotatorView<A
 				m_currentRow = -1;
 			}
 		};
-		
 
 		return v;
 	}
@@ -141,7 +141,7 @@ public abstract class AbstractDefaultAnnotatorView<A> implements AnnotatorView<A
 	protected abstract void currentSelectionChanged(DataCell[] currentRow, int currentColNr, RowColKey key);
 
 	protected abstract EventService getEventService();
-	
+
 	@EventListener
 	public void onViewerScrollEvent(final ViewerScrollEvent e) {
 

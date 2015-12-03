@@ -56,7 +56,6 @@ import javax.swing.JComponent;
 import javax.swing.ListSelectionModel;
 
 import org.knime.core.data.DataCell;
-import org.knime.core.node.tableview.TableContentView;
 import org.knime.core.node.tableview.TableView;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusValue;
@@ -80,9 +79,6 @@ import org.knime.knip.core.ui.imgviewer.events.TablePositionEvent;
 import org.knime.knip.core.ui.imgviewer.panels.ImgNormalizationPanel;
 import org.knime.knip.core.ui.imgviewer.panels.RendererSelectionPanel;
 import org.knime.knip.core.ui.imgviewer.panels.TransparencyPanel;
-import org.knime.knip.core.ui.imgviewer.panels.ViewerControlEvent;
-import org.knime.knip.core.ui.imgviewer.panels.ViewerScrollEvent;
-import org.knime.knip.core.ui.imgviewer.panels.ViewerScrollEvent.Direction;
 import org.knime.knip.core.ui.imgviewer.panels.infobars.LabelingViewInfoPanel;
 import org.knime.knip.core.ui.imgviewer.panels.providers.AWTImageProvider;
 import org.knime.knip.core.ui.imgviewer.panels.providers.CombinedRU;
@@ -260,7 +256,8 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 		m_eventService.publish(
 				new LabelingWithMetadataChgEvent(Views.interval(converterLabeling, m_currentCell.getLabeling()), meta));
 		m_eventService.publish(new ImgRedrawEvent());
-		m_eventService.publish(new TablePositionEvent(-1, m_tableContentView.getRowCount(), -1, m_currentRow + 1));
+		m_eventService.publish(new TablePositionEvent(-1, m_tableContentView.getRowCount(), -1, m_currentRow + 1, "",
+				m_tableContentView.getContentModel().getRowKey(m_currentRow).toString()));
 		//
 		m_renderUnit.setTracker(currTrack);
 	}
