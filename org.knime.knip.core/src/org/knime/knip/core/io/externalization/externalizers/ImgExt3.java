@@ -82,8 +82,7 @@ import net.imglib2.view.Views;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-@Deprecated
-public class ImgExt2 implements Externalizer<Img> {
+public class ImgExt3 implements Externalizer<Img> {
 
     /**
      * {@inheritDoc}
@@ -106,7 +105,7 @@ public class ImgExt2 implements Externalizer<Img> {
      */
     @Override
     public int getPriority() {
-        return 2;
+        return 3;
     }
 
     /**
@@ -141,19 +140,24 @@ public class ImgExt2 implements Externalizer<Img> {
         cur.reset();
         switch (nType) {
             case BITTYPE:
-
+                final int longArraySize = (int) Math.ceil(totalSize / 64.0);
                 final Cursor<BitType> bitTypeCursor = (Cursor<BitType>)cur;
-                final boolean[] booleanBuf = new boolean[Math.min(buffSize, totalSize)];
+                long[] longBuf = new long[Math.min(buffSize, longArraySize)];
                 int currIdx = 0;
-                while (currIdx < totalSize) {
-                    in.read(booleanBuf, 0, Math.min(booleanBuf.length, totalSize - currIdx));
+                while (cur.hasNext()) {
+                    in.read(longBuf, 0, Math.min(longBuf.length, longArraySize - currIdx));
 
-                    int idx = 0;
-                    while (cur.hasNext() && (idx < buffSize)) {
-                        cur.fwd();
-                        bitTypeCursor.get().set(booleanBuf[idx++]);
+                    int bufIdx = 0;
+                    while (cur.hasNext() && (bufIdx < buffSize)) {
+                        long buf = longBuf[bufIdx++];
+                        for (int i = 0; i < 64 && cur.hasNext(); i++) {
+                            cur.fwd();
+                            if(1 == ((buf >>> ((i & 63))) & 1l)) {
+                                bitTypeCursor.get().set(true);
+                            }
+                        }
                     }
-                    currIdx += idx;
+                    currIdx += bufIdx;
                 }
                 break;
             case BYTETYPE:
@@ -223,7 +227,7 @@ public class ImgExt2 implements Externalizer<Img> {
                 break;
             case LONGTYPE:
                 final Cursor<LongType> longTypeCursor = (Cursor<LongType>)cur;
-                long[] longBuf = new long[Math.min(buffSize, totalSize)];
+                longBuf = new long[Math.min(buffSize, totalSize)];
 
                 currIdx = 0;
                 while (currIdx < totalSize) {
@@ -351,9 +355,22 @@ public class ImgExt2 implements Externalizer<Img> {
             case BITTYPE:
                 final Cursor<BitType> bitTypeCursor = (Cursor<BitType>)cur;
 
+                long tmp = 0;
+                long i = 0;
                 while (bitTypeCursor.hasNext()) {
                     bitTypeCursor.fwd();
-                    out.writeBoolean(bitTypeCursor.get().get());
+                    if(bitTypeCursor.get().get()) {
+                        final long bit = 1l << (i & 63);
+                        tmp = tmp | bit;
+                    }
+                    i++;
+                    if(i % 64 == 0) {
+                        out.writeLong(tmp);
+                        tmp = 0;
+                    }
+                }
+                if (i % 64 != 0) {
+                    out.writeLong(tmp);
                 }
                 break;
             case BYTETYPE:

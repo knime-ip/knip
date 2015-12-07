@@ -96,7 +96,7 @@ public final class ImgPlusCellFactory extends KNIPCellFactory {
 
     private final <T extends RealType<T>> double getImgSize(final Img<T> img) {
         // calculate the approx. size of the current image
-        return (img.firstElement().getBitsPerPixel() / 8) * img.size();
+        return (img.firstElement().getBitsPerPixel() / 8.0) * img.size();
     }
 
     /**
