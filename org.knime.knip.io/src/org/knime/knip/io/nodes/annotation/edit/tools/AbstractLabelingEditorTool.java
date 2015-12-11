@@ -82,6 +82,7 @@ public abstract class AbstractLabelingEditorTool implements EventServiceClient {
 		return m_iconPath;
 	}
 
+	@Override
 	public void setEventService(EventService e) {
 		m_eventService = e;
 	}

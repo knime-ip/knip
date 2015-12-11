@@ -144,6 +144,7 @@ public class Geometric3DFeatureSet<L, O extends RealType<O>> extends AbstractOpR
 	 *            input object
 	 * @return
 	 */
+	@Override
 	protected O evalFunction(final FunctionOp<Object, ? extends O> func, final LabelRegion<L> input) {
 
 		Class<?> funcClass = ((CachedFunctionOp<?, ?>) func).getDelegateType();
