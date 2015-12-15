@@ -82,6 +82,7 @@ public class MinimapAndPlaneSelectionPanel extends ViewerComponent {
         m_PlaneSelection = ViewerComponents.PLANE_SELECTION.createInstance();
         m_backgroundColor = new BackgroundColorChooserPanel();
 
+
         this.add(m_Minimap);
         this.add(Box.createVerticalStrut(3));
         this.add(m_PlaneSelection);
@@ -90,6 +91,7 @@ public class MinimapAndPlaneSelectionPanel extends ViewerComponent {
         this.add(Box.createVerticalGlue());
 
     }
+
 
     /**
      * {@inheritDoc}
@@ -101,6 +103,8 @@ public class MinimapAndPlaneSelectionPanel extends ViewerComponent {
         m_backgroundColor.setEventService(eventService);
 
     }
+
+
 
     /**
      * {@inheritDoc}

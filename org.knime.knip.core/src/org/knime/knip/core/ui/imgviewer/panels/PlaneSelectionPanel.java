@@ -79,12 +79,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 
-import net.imagej.axis.CalibratedAxis;
-import net.imagej.axis.TypedAxis;
-import net.imagej.space.CalibratedSpace;
-import net.imglib2.Interval;
-import net.imglib2.type.Type;
-
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.ViewerComponent;
@@ -94,6 +88,12 @@ import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
 import org.knime.knip.core.ui.imgviewer.events.IntervalWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
+
+import net.imagej.axis.CalibratedAxis;
+import net.imagej.axis.TypedAxis;
+import net.imagej.space.CalibratedSpace;
+import net.imglib2.Interval;
+import net.imglib2.type.Type;
 
 /**
  * Allows the user to select a plane in a multdimensional space.
@@ -447,7 +447,9 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
 
         if (!Arrays.equals(oldDims, m_dims) || !Arrays.equals(m_axes, oldAxes)) {
             draw();
-
+            setMaximumSize(getPreferredSize());
+            setMinimumSize(getPreferredSize());
+            validate();
             for (int i = 0; i < m_dims.length; i++) {
                 m_coordinateTextFields[i].setValue(m_scrollBars[i].getValue() + 1);
             }
@@ -511,8 +513,7 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
             inMap.put(javax.swing.KeyStroke.getKeyStroke('-'), "BACKWARD");
             actMap.put("FORWARD", new ForwardBackwardAction("FORWARD", m_totalSlider, 1));
             actMap.put("BACKWARD", new ForwardBackwardAction("BACKWARD", m_totalSlider, 1));
-            final JPanel dimPanel = new JPanel();
-            dimPanel.setLayout(new BoxLayout(dimPanel, BoxLayout.Y_AXIS));
+            final Box dimPanel = new Box(BoxLayout.Y_AXIS);
             add(dimPanel, gbc);
 
             gbc.gridy++;
@@ -521,10 +522,9 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
             m_planeCheckBoxes = new JCheckBox[m_dims.length];
             m_coordinateTextFields = new JFormattedTextField[m_dims.length];
 
-            JPanel sliderPanel;
+            Box sliderPanel;
             for (int i = 0; i < m_dims.length; i++) {
-                sliderPanel = new JPanel();
-                sliderPanel.setLayout(new BoxLayout(sliderPanel, BoxLayout.X_AXIS));
+                sliderPanel = new Box(BoxLayout.X_AXIS);
                 m_scrollBars[i] = new JScrollBar(Adjustable.HORIZONTAL);
                 m_planeCheckBoxes[i] = new JCheckBox("", false);
                 m_planeCheckBoxes[i].addItemListener(new ItemListenerWithId(i));
@@ -532,7 +532,9 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
 
                 dim = m_scrollBars[i].getPreferredSize();
                 dim.width = 150;
+                dim.height = 20;
                 m_scrollBars[i].setPreferredSize(dim);
+                m_scrollBars[i].setMinimumSize(dim);
                 m_scrollBars[i].setValue(m_scrollBars[i].getValue() < m_dims[i] ? m_scrollBars[i].getValue() : 0);
                 m_scrollBars[i].setMinimum(0);
                 m_scrollBars[i].setMaximum((int)m_dims[i]);
@@ -581,8 +583,10 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
                 sliderPanel.add(m_planeCheckBoxes[i]);
                 sliderPanel.add(Box.createHorizontalStrut(7));
                 dimPanel.add(sliderPanel);
+                dimPanel.add(Box.createVerticalStrut(1));
 
             }
+            dimPanel.add(Box.createVerticalGlue());
 
             // add calibration checkbox
             m_calibrationCheckbox = new JCheckBox("use calibration");
@@ -594,9 +598,7 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
                     onCalibrationBoxChanged();
                 }
             });
-
             add(m_calibrationCheckbox, gbc);
-
             setPlaneDimensionIndices(m_dim1, m_dim2);
 
             m_eventService.publish(new PlaneSelectionEvent(Math.min(m_dim1, m_dim2), Math.max(m_dim2, m_dim1),
