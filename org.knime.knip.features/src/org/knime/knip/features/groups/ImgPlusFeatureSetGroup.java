@@ -67,8 +67,8 @@ import org.knime.knip.features.node.model.FeatureSetInfo;
 import org.knime.knip.features.sets.FeatureSet;
 
 import net.imagej.ImgPlus;
-import net.imagej.ops.ComputerOp;
 import net.imagej.ops.slicewise.Hyperslice;
+import net.imagej.ops.special.UnaryComputerOp;
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.RealType;
@@ -119,14 +119,14 @@ public class ImgPlusFeatureSetGroup<T extends RealType<T>, R extends RealType<R>
 	}
 
 	@Override
-	public ComputerOp<DataRow, DataContainer> createComputerOp() {
+	public UnaryComputerOp<DataRow, DataContainer> createComputerOp() {
 
-		final ComputerOp<DataRow, DataContainer> op = new FeatureSetGroupComputer<R>() {
+		final UnaryComputerOp<DataRow, DataContainer> op = new FeatureSetGroupComputer<R>() {
 
 			private boolean initialized = false;
 
 			@Override
-			public void compute(final DataRow row, final DataContainer container) {
+			public void compute1(final DataRow row, final DataContainer container) {
 				final DataCell cell = row.getCell(imgIdx);
 				if (cell.isMissing()) {
 					KNIPGateway.log().warn("Skipping missing Image at Row: " + row.getKey() + ".");
@@ -136,15 +136,14 @@ public class ImgPlusFeatureSetGroup<T extends RealType<T>, R extends RealType<R>
 				@SuppressWarnings("unchecked")
 				final ImgPlus<T> imgPlus = ((ImgPlusValue<T>) cell).getImgPlus();
 
-				final Hyperslice slicer = new Hyperslice(KNIPGateway.ops(), imgPlus,
+				final Hyperslice<T> slicer = new Hyperslice<T>(KNIPGateway.ops(), imgPlus,
 						dimSelection.getSelectedDimIndices(imgPlus), true);
-				final Cursor<RandomAccessibleInterval<?>> slicingCursor = slicer.cursor();
-				
+				final Cursor<RandomAccessibleInterval<T>> slicingCursor = slicer.cursor();
+
 				boolean slicingActive = (slicer.size() == 1);
-				
+
 				while (slicingCursor.hasNext()) {
-					@SuppressWarnings("unchecked")
-					final RandomAccessibleInterval<T> slice = (RandomAccessibleInterval<T>) slicingCursor.next();
+					final RandomAccessibleInterval<T> slice = slicingCursor.next();
 
 					if (!initialized) {
 						if (!initFeatureSet(featureSets, slice)) {

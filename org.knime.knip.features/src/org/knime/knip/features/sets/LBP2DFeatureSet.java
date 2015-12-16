@@ -55,8 +55,9 @@ import org.scijava.ItemIO;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
-import net.imagej.ops.FunctionOp;
 import net.imagej.ops.Ops.LBP.LBP2D;
+import net.imagej.ops.special.Functions;
+import net.imagej.ops.special.UnaryFunctionOp;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.LongType;
@@ -79,7 +80,7 @@ public class LBP2DFeatureSet<T extends RealType<T>>
 	private int numBins = 256;
 
 	@SuppressWarnings("rawtypes")
-	private FunctionOp<RandomAccessibleInterval<T>, ArrayList> histogramFunc;
+	private UnaryFunctionOp<RandomAccessibleInterval<T>, ArrayList> histogramFunc;
 
 	private List<LongType> histogram;
 
@@ -88,13 +89,13 @@ public class LBP2DFeatureSet<T extends RealType<T>>
 	@Override
 	public void initialize() {
 		super.initialize();
-		histogramFunc = ops().function(LBP2D.class, ArrayList.class, in(), distance, numBins);
+		histogramFunc = Functions.unary(ops(), LBP2D.class, ArrayList.class, in(), distance, numBins);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void preCompute(final RandomAccessibleInterval<T> input) {
-		histogram = histogramFunc.compute(input);
+		histogram = histogramFunc.compute1(input);
 	}
 
 	@Override

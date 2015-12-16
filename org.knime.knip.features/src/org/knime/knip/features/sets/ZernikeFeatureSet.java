@@ -53,11 +53,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.knime.knip.features.sets.optimizedfeatures.TmpZernikeComputer;
 import org.scijava.ItemIO;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
+import net.imagej.ops.features.zernike.helper.ZernikeComputer;
 import net.imagej.ops.features.zernike.helper.ZernikeMoment;
 import net.imglib2.IterableInterval;
 import net.imglib2.type.numeric.RealType;
@@ -105,8 +105,8 @@ public class ZernikeFeatureSet<T extends RealType<T>>
 	}
 
 	@Override
-	public Map<NamedFeature, DoubleType> compute(IterableInterval<T> input) {
-		final TmpZernikeComputer<T> zernikeComputer = new TmpZernikeComputer<T>();
+	public Map<NamedFeature, DoubleType> compute1(IterableInterval<T> input) {
+		final ZernikeComputer<T> zernikeComputer = new ZernikeComputer<T>();
 		final HashMap<NamedFeature, DoubleType> map = new HashMap<NamedFeature, DoubleType>();
 
 		for (int order = orderMin; order <= orderMax; order++) {
@@ -115,7 +115,7 @@ public class ZernikeFeatureSet<T extends RealType<T>>
 					zernikeComputer.setOrder(order);
 					zernikeComputer.setRepetition(repetition);
 
-					ZernikeMoment results = zernikeComputer.compute(input);
+					ZernikeMoment results = zernikeComputer.compute1(input);
 
 					map.put(new NamedFeature("Magnitude for Order " + order + " and Repetition " + repetition),
 							new DoubleType(results.getMagnitude()));

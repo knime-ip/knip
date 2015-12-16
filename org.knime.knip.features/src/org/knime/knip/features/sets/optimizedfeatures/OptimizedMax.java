@@ -50,11 +50,12 @@ package org.knime.knip.features.sets.optimizedfeatures;
 import org.scijava.Priority;
 import org.scijava.plugin.Plugin;
 
-import net.imagej.ops.AbstractFunctionOp;
-import net.imagej.ops.FunctionOp;
 import net.imagej.ops.Op;
 import net.imagej.ops.Ops.Stats.Max;
 import net.imagej.ops.Ops.Stats.MinMax;
+import net.imagej.ops.special.AbstractUnaryFunctionOp;
+import net.imagej.ops.special.Functions;
+import net.imagej.ops.special.UnaryFunctionOp;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Pair;
 
@@ -69,20 +70,20 @@ import net.imglib2.util.Pair;
  */
 @Plugin(type = Max.class, label = "Statistics: Max", priority = Priority.FIRST_PRIORITY - 1)
 public class OptimizedMax<IN extends RealType<IN>, OUT extends RealType<OUT>>
-		extends AbstractFunctionOp<Iterable<IN>, OUT> implements Max {
+		extends AbstractUnaryFunctionOp<Iterable<IN>, OUT> implements Max {
 
 	@SuppressWarnings("rawtypes")
-	private FunctionOp<Iterable<IN>, Pair> function;
+	private UnaryFunctionOp<Iterable<IN>, Pair> function;
 
 	@Override
 	public void initialize() {
 		super.initialize();
-		function = ops().function(MinMax.class, Pair.class, in());
+		function = Functions.unary(ops(), MinMax.class, Pair.class, in());
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public OUT compute(Iterable<IN> input) {
-		return (OUT) function.compute(input).getB();
+	public OUT compute1(Iterable<IN> input) {
+		return (OUT) function.compute1(input).getB();
 	}
 }

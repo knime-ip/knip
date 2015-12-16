@@ -51,12 +51,12 @@ import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.container.DataContainer;
 
-import net.imagej.ops.ComputerOp;
+import net.imagej.ops.special.UnaryComputerOp;
 
 public interface FeatureSetGroup {
 
 	public DataTableSpec createSpec(final DataTableSpec inSpec);
 
-	public ComputerOp<DataRow, DataContainer> createComputerOp();
+	public UnaryComputerOp<DataRow, DataContainer> createComputerOp();
 
 }

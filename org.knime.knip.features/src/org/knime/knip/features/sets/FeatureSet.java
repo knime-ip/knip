@@ -52,7 +52,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.imagej.ops.Contingent;
-import net.imagej.ops.FunctionOp;
+import net.imagej.ops.special.UnaryFunctionOp;
 import net.imglib2.type.numeric.RealType;
 
 /**
@@ -61,7 +61,7 @@ import net.imglib2.type.numeric.RealType;
  * @param <I>
  * @param <O>
  */
-public interface FeatureSet<I, O extends RealType<O>> extends FunctionOp<I, Map<NamedFeature, O>>, Contingent {
+public interface FeatureSet<I, O extends RealType<O>> extends UnaryFunctionOp<I, Map<NamedFeature, O>>, Contingent {
 
 	/**
 	 * @return all {@link NamedFeature}s which are supported by this feature

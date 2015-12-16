@@ -78,8 +78,8 @@ import org.knime.knip.features.node.model.FeatureSetInfo;
 import org.knime.knip.features.sets.FeatureSet;
 
 import net.imagej.ImgPlus;
-import net.imagej.ops.ComputerOp;
 import net.imagej.ops.slicewise.Hyperslice;
+import net.imagej.ops.special.UnaryComputerOp;
 import net.imglib2.Cursor;
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
@@ -168,7 +168,7 @@ public class PairedFeatureSetGroup<L, T extends RealType<T>, O extends RealType<
 	}
 
 	@Override
-	public ComputerOp<DataRow, DataContainer> createComputerOp() {
+	public UnaryComputerOp<DataRow, DataContainer> createComputerOp() {
 		final ImgPlusCellFactory imgPlusCellFactory;
 		final LabelingDependency<L> dependencyOp;
 
@@ -186,13 +186,13 @@ public class PairedFeatureSetGroup<L, T extends RealType<T>, O extends RealType<
 			imgPlusCellFactory = null;
 		}
 
-		final ComputerOp<DataRow, DataContainer> op = new FeatureSetGroupComputer<O>() {
+		final UnaryComputerOp<DataRow, DataContainer> op = new FeatureSetGroupComputer<O>() {
 
 			private boolean isInitialized = false;
 
 			@SuppressWarnings("unchecked")
 			@Override
-			public void compute(final DataRow row, final DataContainer container) {
+			public void compute1(final DataRow row, final DataContainer container) {
 
 				final DataCell labCell = row.getCell(labdx);
 				final DataCell imgPlusCell = row.getCell(imgIdx);
@@ -220,14 +220,14 @@ public class PairedFeatureSetGroup<L, T extends RealType<T>, O extends RealType<
 							imgPlus);
 				}
 
-				final Hyperslice slicerLab = new Hyperslice(KNIPGateway.ops(), labeling,
-						dimSelection.getSelectedDimIndices(val.getLabelingMetadata()), true);
+				final Hyperslice<LabelingType<L>> slicerLab = new Hyperslice<LabelingType<L>>(KNIPGateway.ops(),
+						labeling, dimSelection.getSelectedDimIndices(val.getLabelingMetadata()), true);
 
-				final Hyperslice slicerImg = new Hyperslice(KNIPGateway.ops(), imgPlus,
+				final Hyperslice<T> slicerImg = new Hyperslice<T>(KNIPGateway.ops(), imgPlus,
 						dimSelection.getSelectedDimIndices(imgPlus), true);
 
-				final Cursor<RandomAccessibleInterval<?>> slicingImgCursor = slicerImg.cursor();
-				final Cursor<RandomAccessibleInterval<?>> slicingLabCursor = slicerLab.cursor();
+				final Cursor<RandomAccessibleInterval<T>> slicingImgCursor = slicerImg.cursor();
+				final Cursor<RandomAccessibleInterval<LabelingType<L>>> slicingLabCursor = slicerLab.cursor();
 
 				boolean slicingActive = (slicerImg.size() == 1);
 				while (slicingImgCursor.hasNext() && slicingLabCursor.hasNext()) {

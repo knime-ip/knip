@@ -55,8 +55,9 @@ import java.util.Map;
 
 import org.scijava.plugin.Plugin;
 
-import net.imagej.ops.FunctionOp;
 import net.imagej.ops.Ops.Geometric.Centroid;
+import net.imagej.ops.special.Functions;
+import net.imagej.ops.special.UnaryFunctionOp;
 import net.imglib2.RealLocalizable;
 import net.imglib2.roi.labeling.LabelRegion;
 import net.imglib2.type.numeric.real.DoubleType;
@@ -69,13 +70,10 @@ import net.imglib2.type.numeric.real.DoubleType;
  * @param <O>
  */
 @Plugin(type = FeatureSet.class, label = "Centroid", description = "<h1> Centroid Feature Set</h1> <h2>Runs only on regions of labelings.</h2> <h2>Description</h2> Calculates the centroid of the given input.")
-public class CentroidFeatureSet<L>
-		extends
-			AbstractCachedFeatureSet<LabelRegion<L>, DoubleType>
-		implements
-			RequireNumDimensions {
+public class CentroidFeatureSet<L> extends AbstractCachedFeatureSet<LabelRegion<L>, DoubleType>
+		implements RequireNumDimensions {
 
-	private FunctionOp<LabelRegion<L>, RealLocalizable> centroidOp;
+	private UnaryFunctionOp<LabelRegion<L>, RealLocalizable> centroidOp;
 
 	private int numDims = -1;
 
@@ -88,7 +86,7 @@ public class CentroidFeatureSet<L>
 		}
 
 		for (int i = 0; i < numDims; i++) {
-			fs.add(new NamedFeature("Dimension "+ i));
+			fs.add(new NamedFeature("Dimension " + i));
 		}
 		return fs;
 	}
@@ -96,18 +94,17 @@ public class CentroidFeatureSet<L>
 	@Override
 	public void initialize() {
 		super.initialize();
-		centroidOp = ops().function(Centroid.class, RealLocalizable.class,
-				in());
+		centroidOp = Functions.unary(ops(), Centroid.class, RealLocalizable.class, in());
 	}
+
 	@Override
-	public Map<NamedFeature, DoubleType> compute(final LabelRegion<L> input) {
+	public Map<NamedFeature, DoubleType> compute1(final LabelRegion<L> input) {
 		Map<NamedFeature, DoubleType> res = new LinkedHashMap<NamedFeature, DoubleType>();
 
-		final RealLocalizable centroid = centroidOp.compute(input);
+		final RealLocalizable centroid = centroidOp.compute1(input);
 
 		for (int i = 0; i < getFeatures().size(); i++) {
-			res.put(new NamedFeature("Dimension " + i),
-					new DoubleType(centroid.getDoublePosition(i)));
+			res.put(new NamedFeature("Dimension " + i), new DoubleType(centroid.getDoublePosition(i)));
 		}
 
 		return res;

@@ -74,8 +74,8 @@ import org.knime.knip.features.sets.NamedFeature;
 import org.knime.knip.features.sets.RequireNumDimensions;
 
 import net.imagej.ImgPlus;
-import net.imagej.ops.AbstractComputerOp;
 import net.imagej.ops.OpEnvironment;
+import net.imagej.ops.special.AbstractUnaryComputerOp;
 import net.imglib2.img.Img;
 import net.imglib2.roi.labeling.LabelRegion;
 import net.imglib2.type.logic.BitType;
@@ -167,7 +167,7 @@ public abstract class AbstractFeatureSetGroup implements FeatureSetGroup {
 	}
 
 	public abstract class FeatureSetGroupComputer<O extends RealType<O>>
-			extends AbstractComputerOp<DataRow, DataContainer> {
+			extends AbstractUnaryComputerOp<DataRow, DataContainer> {
 		protected <I> boolean initFeatureSet(final List<FeatureSet<I, O>> sets, final I in) {
 
 			boolean allValid = true;
@@ -188,7 +188,7 @@ public abstract class AbstractFeatureSetGroup implements FeatureSetGroup {
 			for (final FeatureSet<I, O> fs : sets) {
 				fs.setInput(in);
 				if (fs.conforms()) {
-					final Map<NamedFeature, O> fsRes = fs.compute(in);
+					final Map<NamedFeature, O> fsRes = fs.compute1(in);
 					for (final NamedFeature namedFeature : fs.getFeatures()) {
 						cells.add(new DoubleCell(fsRes.get(namedFeature).getRealDouble()));
 					}

@@ -60,8 +60,9 @@ import org.scijava.module.Module;
 import org.scijava.module.ModuleItem;
 import org.scijava.plugin.Parameter;
 
-import net.imagej.ops.FunctionOp;
 import net.imagej.ops.OpRef;
+import net.imagej.ops.special.Functions;
+import net.imagej.ops.special.UnaryFunctionOp;
 import net.imglib2.type.numeric.RealType;
 
 /**
@@ -85,7 +86,7 @@ public abstract class AbstractOpRefFeatureSet<I, O extends RealType<O>> extends 
 	private CommandService cs;
 
 	// all features
-	private Map<NamedFeature, FunctionOp<Object, ? extends O>> namedFeatureMap;
+	private Map<NamedFeature, UnaryFunctionOp<Object, ? extends O>> namedFeatureMap;
 
 	@Override
 	public List<NamedFeature> getFeatures() {
@@ -112,7 +113,7 @@ public abstract class AbstractOpRefFeatureSet<I, O extends RealType<O>> extends 
 	public void initialize() {
 		super.initialize();
 
-		namedFeatureMap = new LinkedHashMap<NamedFeature, FunctionOp<Object, ? extends O>>();
+		namedFeatureMap = new LinkedHashMap<NamedFeature, UnaryFunctionOp<Object, ? extends O>>();
 
 		final Module self = cs.getCommand(this.getClass()).createModule(this);
 		try {
@@ -137,10 +138,11 @@ public abstract class AbstractOpRefFeatureSet<I, O extends RealType<O>> extends 
 					}
 
 					@SuppressWarnings("rawtypes")
-					final OpRef ref = new OpRef(Class.forName((String) item.get(ATTR_TYPE)), args);
+					final OpRef ref = new OpRef(null, Class.forName((String) item.get(ATTR_TYPE)), null, null, args);
 
-					namedFeatureMap.put(new NamedFeature(ref, item.getLabel()), (FunctionOp<Object, ? extends O>) ops()
-							.function(ref.getType(), RealType.class, in(), ref.getArgs()));
+					namedFeatureMap.put(new NamedFeature(ref, item.getLabel()),
+							(UnaryFunctionOp<Object, ? extends O>) Functions.unary(ops(), ref.getType(), RealType.class,
+									in(), ref.getArgs()));
 				}
 			}
 		} catch (final ClassNotFoundException e) {
@@ -149,10 +151,10 @@ public abstract class AbstractOpRefFeatureSet<I, O extends RealType<O>> extends 
 	}
 
 	@Override
-	public Map<NamedFeature, O> compute(final I input) {
+	public Map<NamedFeature, O> compute1(final I input) {
 		final Map<NamedFeature, O> res = new HashMap<NamedFeature, O>();
 
-		for (final Entry<NamedFeature, FunctionOp<Object, ? extends O>> entry : namedFeatureMap.entrySet()) {
+		for (final Entry<NamedFeature, UnaryFunctionOp<Object, ? extends O>> entry : namedFeatureMap.entrySet()) {
 			res.put(entry.getKey(), evalFunction(entry.getValue(), input));
 		}
 
@@ -170,7 +172,7 @@ public abstract class AbstractOpRefFeatureSet<I, O extends RealType<O>> extends 
 	 *            input object
 	 * @return
 	 */
-	protected O evalFunction(final FunctionOp<Object, ? extends O> func, final I input) {
-		return func.compute(input);
+	protected O evalFunction(final UnaryFunctionOp<Object, ? extends O> func, final I input) {
+		return func.compute1(input);
 	}
 }

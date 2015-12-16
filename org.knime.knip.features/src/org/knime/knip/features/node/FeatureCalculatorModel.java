@@ -77,7 +77,7 @@ import org.knime.knip.features.FeatureSetGroup;
 import org.knime.knip.features.FeaturesGateway;
 import org.knime.knip.features.node.model.SettingsModelFeatureSet;
 
-import net.imagej.ops.ComputerOp;
+import net.imagej.ops.special.UnaryComputerOp;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
@@ -178,7 +178,7 @@ public class FeatureCalculatorModel<T extends RealType<T> & NativeType<T>, L ext
 
 		// iterate over input table
 		double currentRow = 0;
-		final ComputerOp<DataRow, DataContainer> computer = group.createComputerOp();
+		final UnaryComputerOp<DataRow, DataContainer> computer = group.createComputerOp();
 		for (final DataRow row : inData[0]) {
 			if (imgColIndex != -1 && row.getCell(imgColIndex).isMissing()) {
 				logMissingCell(imgColIndex, row);
@@ -188,7 +188,7 @@ public class FeatureCalculatorModel<T extends RealType<T> & NativeType<T>, L ext
 				exec.setProgress(
 						"Computing " + m_featureSetsModel.getFeatureSetNames() + " on row " + row.getKey() + ".");
 				// magic happens here ;-)
-				computer.compute(row, container);
+				computer.compute1(row, container);
 			}
 
 			exec.checkCanceled();

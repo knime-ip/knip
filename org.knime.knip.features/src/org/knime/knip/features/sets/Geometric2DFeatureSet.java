@@ -49,16 +49,14 @@
 package org.knime.knip.features.sets;
 
 import org.knime.knip.core.KNIPGateway;
-import org.knime.knip.features.sets.AbstractCachedFeatureSet.KNIPCachedOpEnvironment.CachedFunctionOp;
 import org.scijava.plugin.Attr;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
-import net.imagej.ops.FunctionOp;
-import net.imagej.ops.OpService;
 import net.imagej.ops.Ops.Geometric.Contour;
-import net.imagej.ops.Ops.Geometric.Size;
 import net.imagej.ops.geom.geom2d.DefaultSizePolygon;
+import net.imagej.ops.special.Functions;
+import net.imagej.ops.special.UnaryFunctionOp;
 import net.imglib2.roi.geometric.Polygon;
 import net.imglib2.roi.labeling.LabelRegion;
 import net.imglib2.type.numeric.RealType;
@@ -75,7 +73,6 @@ import net.imglib2.type.numeric.real.DoubleType;
 public class Geometric2DFeatureSet<L, O extends RealType<O>> extends AbstractOpRefFeatureSet<LabelRegion<L>, O> {
 
 	private static final String PKG = "net.imagej.ops.Ops$Geometric$";
-
 
 	@Parameter(required = false, label = "Size", attrs = { @Attr(name = ATTR_FEATURE),
 			@Attr(name = ATTR_TYPE, value = PKG + "Size") })
@@ -133,22 +130,23 @@ public class Geometric2DFeatureSet<L, O extends RealType<O>> extends AbstractOpR
 			@Attr(name = ATTR_TYPE, value = PKG + "Solidity") })
 	private boolean isSolidityActive = true;
 
-	private FunctionOp<LabelRegion<L>, Polygon> converter;
+	private UnaryFunctionOp<LabelRegion<L>, Polygon> converter;
 
+	@SuppressWarnings("unchecked")
 	public Geometric2DFeatureSet() {
-		prioritizedOps = new Class[] { DefaultSizePolygon.class};
+		prioritizedOps = new Class[] { DefaultSizePolygon.class };
 	}
 
 	@Override
 	public void initialize() {
 		super.initialize();
 
-		converter = ops().function(Contour.class, Polygon.class, in(), true, true);
+		converter = Functions.unary(ops(), Contour.class, Polygon.class, in(), true, true);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected O evalFunction(FunctionOp<Object, ? extends O> func, LabelRegion<L> input) {
+	protected O evalFunction(final UnaryFunctionOp<Object, ? extends O> func, LabelRegion<L> input) {
 
 		if (input.size() <= 4) {
 			KNIPGateway.log()
@@ -156,7 +154,7 @@ public class Geometric2DFeatureSet<L, O extends RealType<O>> extends AbstractOpR
 			return (O) new DoubleType(Double.NaN);
 		}
 
-		return func.compute(converter.compute(input));
+		return func.compute1(converter.compute1(input));
 	}
 
 	@Override

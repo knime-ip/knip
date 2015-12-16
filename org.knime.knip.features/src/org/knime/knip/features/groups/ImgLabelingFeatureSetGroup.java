@@ -74,8 +74,8 @@ import org.knime.knip.features.FeaturesGateway;
 import org.knime.knip.features.node.model.FeatureSetInfo;
 import org.knime.knip.features.sets.FeatureSet;
 
-import net.imagej.ops.ComputerOp;
 import net.imagej.ops.slicewise.Hyperslice;
+import net.imagej.ops.special.UnaryComputerOp;
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.ops.operation.Operations;
@@ -150,7 +150,7 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 	}
 
 	@Override
-	public ComputerOp<DataRow, DataContainer> createComputerOp() {
+	public UnaryComputerOp<DataRow, DataContainer> createComputerOp() {
 		final ImgPlusCellFactory imgPlusCellFactory;
 		final LabelingDependency<L> dependencyOp;
 
@@ -168,12 +168,12 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 			imgPlusCellFactory = null;
 		}
 
-		final ComputerOp<DataRow, DataContainer> op = new FeatureSetGroupComputer<R>() {
+		final UnaryComputerOp<DataRow, DataContainer> op = new FeatureSetGroupComputer<R>() {
 
 			private boolean initialized = false;
 
 			@Override
-			public void compute(final DataRow row, final DataContainer container) {
+			public void compute1(final DataRow row, final DataContainer container) {
 
 				final DataCell labCell = row.getCell(labdx);
 
@@ -187,15 +187,14 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 				final RandomAccessibleInterval<LabelingType<L>> labeling = labValue.getLabeling();
 				// here we have to loop!!!
 
-				final Hyperslice slicer = new Hyperslice(KNIPGateway.ops(), labeling,
+				final Hyperslice<LabelingType<L>> slicer = new Hyperslice<LabelingType<L>>(KNIPGateway.ops(), labeling,
 						dimSelection.getSelectedDimIndices(labValue.getLabelingMetadata()), true);
 
-				final Cursor<RandomAccessibleInterval<?>> slicingCursor = slicer.cursor();
+				final Cursor<RandomAccessibleInterval<LabelingType<L>>> slicingCursor = slicer.cursor();
 
 				boolean slicingActive = (slicer.size() == 1);
 
 				while (slicingCursor.hasNext()) {
-					@SuppressWarnings("unchecked")
 					final RandomAccessibleInterval<LabelingType<L>> slice = ((RandomAccessibleInterval<LabelingType<L>>) slicingCursor
 							.next());
 

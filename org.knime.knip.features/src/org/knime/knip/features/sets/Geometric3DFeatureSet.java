@@ -48,19 +48,20 @@
 
 package org.knime.knip.features.sets;
 
-import org.knime.knip.features.sets.AbstractCachedFeatureSet.KNIPCachedOpEnvironment.CachedFunctionOp;
+import org.knime.knip.features.sets.optimizedfeatures.KNIPCachedOpEnvironment;
 import org.scijava.plugin.Attr;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
-import net.imagej.ops.FunctionOp;
-import net.imagej.ops.OpService;
 import net.imagej.ops.Ops.Geometric.MainElongation;
 import net.imagej.ops.Ops.Geometric.MarchingCubes;
 import net.imagej.ops.Ops.Geometric.MedianElongation;
 import net.imagej.ops.Ops.Geometric.Size;
 import net.imagej.ops.Ops.Geometric.Spareness;
+import net.imagej.ops.cached.CachedOpEnvironment;
 import net.imagej.ops.geom.geom3d.mesh.Mesh;
+import net.imagej.ops.special.Functions;
+import net.imagej.ops.special.UnaryFunctionOp;
 import net.imglib2.roi.labeling.LabelRegion;
 import net.imglib2.type.numeric.RealType;
 
@@ -120,7 +121,7 @@ public class Geometric3DFeatureSet<L, O extends RealType<O>> extends AbstractOpR
 			@Attr(name = ATTR_TYPE, value = PKG + "Sphericity") })
 	private boolean isSphericityActive = true;
 
-	private FunctionOp<LabelRegion<L>, Mesh> converter;
+	private UnaryFunctionOp<LabelRegion<L>, Mesh> converter;
 
 	public Geometric3DFeatureSet() {
 		// NB: Empty Constructor
@@ -130,7 +131,7 @@ public class Geometric3DFeatureSet<L, O extends RealType<O>> extends AbstractOpR
 	public void initialize() {
 		super.initialize();
 
-		converter = ops().function(MarchingCubes.class, Mesh.class, in());
+		converter = Functions.unary(ops(), MarchingCubes.class, Mesh.class, in());
 	}
 
 	/**
@@ -145,16 +146,16 @@ public class Geometric3DFeatureSet<L, O extends RealType<O>> extends AbstractOpR
 	 * @return
 	 */
 	@Override
-	protected O evalFunction(final FunctionOp<Object, ? extends O> func, final LabelRegion<L> input) {
+	protected O evalFunction(final UnaryFunctionOp<Object, ? extends O> func, final LabelRegion<L> input) {
 
-		Class<?> funcClass = ((CachedFunctionOp<?, ?>) func).getDelegateType();
+		Class<?> funcClass = ((KNIPCachedOpEnvironment.CachedFunctionOp<?, ?>) func).getDelegateType();
 		// these ops can be directly computed on label region
 		if (MainElongation.class.isAssignableFrom(funcClass) || MedianElongation.class.isAssignableFrom(funcClass)
 				|| Spareness.class.isAssignableFrom(funcClass) || Size.class.isAssignableFrom(funcClass)) {
-			return func.compute(input);
+			return func.compute1(input);
 		}
 
-		return func.compute(converter.compute(input));
+		return func.compute1(converter.compute1(input));
 	}
 
 	@Override

@@ -49,8 +49,8 @@ package org.knime.knip.features;
 
 import org.scijava.plugin.Plugin;
 
-import net.imagej.ops.AbstractFunctionOp;
 import net.imagej.ops.Ops;
+import net.imagej.ops.special.AbstractUnaryFunctionOp;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.converter.Converter;
 import net.imglib2.converter.Converters;
@@ -64,10 +64,10 @@ import net.imglib2.type.logic.BoolType;
 
 @Plugin(type = Ops.Convert.Copy.class)
 public class LabelRegionToBitmaskConverter<B extends BooleanType<B>>
-		extends AbstractFunctionOp<LabelRegion<B>, Img<BitType>> implements Ops.Convert.Copy {
+		extends AbstractUnaryFunctionOp<LabelRegion<B>, Img<BitType>> implements Ops.Convert.Copy {
 
 	@Override
-	public Img<BitType> compute(final LabelRegion<B> labelRegion) {
+	public Img<BitType> compute1(final LabelRegion<B> labelRegion) {
 
 		final RandomAccessibleInterval<BitType> convert = Converters.convert(labelRegion,
 				new Converter<BoolType, BitType>() {
