@@ -79,8 +79,8 @@ public class LabelSettingsPanel extends JPanel {
 		this.setLayout(new GridBagLayout());
 		
 		final GridBagConstraints gbc = SettingsModelFeatureSet.getNewDefaultGridBagConstraints();
-		gbc.gridheight = 2;
-		gbc.gridwidth = 1;
+		gbc.anchor = GridBagConstraints.NORTH;
+		gbc.fill = GridBagConstraints.BOTH;
 		gbc.weightx = 1;
 		gbc.weighty = 0;
 		gbc.gridx = 0;
@@ -89,10 +89,8 @@ public class LabelSettingsPanel extends JPanel {
 		this.add(new SegmentSettingsPanel(appendOverlappingLabels, intersectionComponent, appendSegmentInformationComponent), gbc);
 		
 		gbc.gridy++;
-		JPanel includeLabelsPanel = new JPanel(new MigLayout(new LC().wrapAfter(1), new AC().fill().grow()));
-		includeLabelsPanel.setBorder(BorderFactory.createTitledBorder("Segment Label Filter"));
-		includeLabelsPanel.add(includeLabelsSelectionModel.getComponentPanel());
-
-		this.add(includeLabelsPanel, gbc);
+		gbc.weighty = 1;
+		
+		this.add(new IncludeLabelsPanel(includeLabelsSelectionModel), gbc);
 	}
 }
