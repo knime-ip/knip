@@ -47,6 +47,10 @@
  */
 package org.knime.knip.features.node.ui;
 
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
@@ -62,15 +66,32 @@ public class ColumnSelectionPanel extends JPanel {
 	 */
 	private static final long serialVersionUID = -7299527416096266344L;
 
-	public ColumnSelectionPanel(DialogComponentColumnNameSelection imgColumnComponent,
-			DialogComponentColumnNameSelection labelingColumnComponent,
-			DialogComponentStringSelection m_columnCreationModeComponent) {
+	public ColumnSelectionPanel(final DialogComponentColumnNameSelection imgColumnComponent,
+			final DialogComponentColumnNameSelection labelingColumnComponent,
+			final DialogComponentStringSelection columnCreationModeComponent) {
 
 		this.setBorder(BorderFactory.createTitledBorder("Column Selection:"));
-		this.setLayout(new MigLayout());
+		this.setLayout(new GridBagLayout());
 
-		this.add(imgColumnComponent.getComponentPanel(), "wrap");
-		this.add(labelingColumnComponent.getComponentPanel(), "wrap");
-		this.add(m_columnCreationModeComponent.getComponentPanel());
+		final GridBagConstraints gbc = new GridBagConstraints();
+		
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.anchor = GridBagConstraints.LINE_START;
+		gbc.weightx = 1;
+		gbc.weighty = 0;
+		gbc.insets = new Insets(2, 2, 2, 2);
+		gbc.gridheight = 1;
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		
+		this.add(imgColumnComponent.getComponentPanel(), gbc);
+		
+		gbc.gridx++;
+		
+		this.add(labelingColumnComponent.getComponentPanel(), gbc);
+		
+		gbc.gridx++;
+		
+		this.add(columnCreationModeComponent.getComponentPanel(), gbc);
 	}
 }
