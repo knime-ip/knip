@@ -48,6 +48,9 @@
 
 package org.knime.knip.features.node.ui;
 
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
@@ -69,20 +72,27 @@ public class LabelSettingsPanel extends JPanel {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public LabelSettingsPanel(DialogComponent appendOverlappingLabels, DialogComponent intersectionComponent,
-			DialogComponent appendSegmentInformationComponent, DialogComponent includeLabelsSelectionModel) {
-
-		this.setBorder(BorderFactory.createTitledBorder("Segment Settings"));
-		this.setLayout(new MigLayout(new LC().wrapAfter(1), new AC().fill().grow()));
-
-		this.add(appendOverlappingLabels.getComponentPanel());
-		this.add(intersectionComponent.getComponentPanel());
-		this.add(appendSegmentInformationComponent.getComponentPanel());
-
+	public LabelSettingsPanel(final DialogComponent appendOverlappingLabels,
+			final DialogComponent intersectionComponent, final DialogComponent appendSegmentInformationComponent,
+			final DialogComponent includeLabelsSelectionModel) {
+		
+		this.setLayout(new GridBagLayout());
+		
+		final GridBagConstraints gbc = SettingsModelFeatureSet.getNewDefaultGridBagConstraints();
+		gbc.gridheight = 2;
+		gbc.gridwidth = 1;
+		gbc.weightx = 1;
+		gbc.weighty = 0;
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		
+		this.add(new SegmentSettingsPanel(appendOverlappingLabels, intersectionComponent, appendSegmentInformationComponent), gbc);
+		
+		gbc.gridy++;
 		JPanel includeLabelsPanel = new JPanel(new MigLayout(new LC().wrapAfter(1), new AC().fill().grow()));
 		includeLabelsPanel.setBorder(BorderFactory.createTitledBorder("Segment Label Filter"));
 		includeLabelsPanel.add(includeLabelsSelectionModel.getComponentPanel());
 
-		this.add(includeLabelsPanel);
+		this.add(includeLabelsPanel, gbc);
 	}
 }
