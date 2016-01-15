@@ -49,6 +49,8 @@
 package org.knime.knip.features.node.ui;
 
 import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -66,6 +68,7 @@ import net.miginfocom.swing.MigLayout;
 
 import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.features.node.model.FeatureSetInfo;
+import org.knime.knip.features.node.model.SettingsModelFeatureSet;
 import org.knime.knip.features.sets.FeatureSet;
 import org.scijava.command.CommandInfo;
 
@@ -76,23 +79,22 @@ public class FeatureSetSelectionPanel extends JPanel {
 	 * serialVersionUID.
 	 */
 	private static final long serialVersionUID = 1691899824989296852L;
-	private JComboBox<CommandInfo> featureSetComboxBox;
-	private JButton addButton;
+	private final JComboBox<CommandInfo> featureSetComboxBox;
+	private final JButton addButton;
 
 	public FeatureSetSelectionPanel(final FeatureSetCollectionPanel featureSetCollectionPanel) {
 
-		// create an array of plugininfos to put into a combobox
-		List<CommandInfo> fs = KNIPGateway.cs().getCommandsOfType(FeatureSet.class);
+		// get all available featuresets
+		final List<CommandInfo> featureSetList = KNIPGateway.cs().getCommandsOfType(FeatureSet.class);
 
-		// create combobox and add button
-		this.featureSetComboxBox = new JComboBox<CommandInfo>(fs.toArray(new CommandInfo[fs.size()]));
+		this.featureSetComboxBox = new JComboBox<CommandInfo>(featureSetList.toArray(new CommandInfo[featureSetList.size()]));
 		this.featureSetComboxBox.setRenderer(new ListCellRenderer<CommandInfo>() {
 
 			@Override
-			public Component getListCellRendererComponent(JList<? extends CommandInfo> list, CommandInfo value,
-					int index, boolean isSelected, boolean cellHasFocus) {
+			public Component getListCellRendererComponent(final JList<? extends CommandInfo> list, final CommandInfo value,
+					final int index, final boolean isSelected, final boolean cellHasFocus) {
 
-				JLabel renderer = (JLabel) new DefaultListCellRenderer().getListCellRendererComponent(list, value,
+				final JLabel renderer = (JLabel) new DefaultListCellRenderer().getListCellRendererComponent(list, value,
 						index, isSelected, cellHasFocus);
 
 				if (!isSelected) {
@@ -100,10 +102,11 @@ public class FeatureSetSelectionPanel extends JPanel {
 				}
 
 				renderer.setText(value.getLabel());
+				
 				return renderer;
-
 			}
 		});
+		
 		this.addButton = new JButton("Add");
 		this.addButton.addActionListener(new ActionListener() {
 			@Override
@@ -117,15 +120,16 @@ public class FeatureSetSelectionPanel extends JPanel {
 			}
 		});
 
-		// set sizes
-		this.featureSetComboxBox.setMaximumSize(this.featureSetComboxBox.getPreferredSize());
-		this.addButton.setMaximumSize(this.addButton.getPreferredSize());
-
-		// add everything to this jpanel
 		this.setBorder(BorderFactory.createTitledBorder("Select Feature Set:"));
-		this.setLayout(new MigLayout("", "push[][]push", ""));
-		this.add(this.featureSetComboxBox);
-		this.add(this.addButton);
+		this.setLayout(new GridBagLayout());
+		
+		final GridBagConstraints gbc = SettingsModelFeatureSet.getNewDefaultGridBagConstraints();
+		gbc.weightx = 0;
+		
+		this.add(this.featureSetComboxBox, gbc);
+		
+		gbc.gridx++;
+		this.add(this.addButton, gbc);
 	}
 
 	@SuppressWarnings("unchecked")
