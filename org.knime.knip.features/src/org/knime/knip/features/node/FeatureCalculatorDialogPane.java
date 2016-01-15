@@ -48,14 +48,7 @@
 
 package org.knime.knip.features.node;
 
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-
-import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
@@ -91,10 +84,6 @@ import org.scijava.module.ModuleException;
 
 public class FeatureCalculatorDialogPane<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
 		extends NodeDialogPane {
-
-	private static final int DEFAULT_HEIGHT = 500;
-
-	private static final int DEFAULT_WIDTH = 792;
 
 	/**
 	 * The logger instance.
@@ -137,7 +126,6 @@ public class FeatureCalculatorDialogPane<T extends RealType<T> & NativeType<T>, 
 	private final FeatureSetConfigPanel featureSetConfigPanel;
 	private SettingsModelFeatureSet smfs;
 
-
 	public FeatureCalculatorDialogPane() {
 
 		// initialize dialog components
@@ -152,7 +140,7 @@ public class FeatureCalculatorDialogPane<T extends RealType<T> & NativeType<T>, 
 
 		// create the feature set collection panel
 		this.featureSetCollectionPanel = new FeatureSetCollectionPanel();
-		
+
 		// create the feature set selection panel
 		this.featureSetSelectionPanel = new FeatureSetSelectionPanel(featureSetCollectionPanel);
 
@@ -174,7 +162,7 @@ public class FeatureCalculatorDialogPane<T extends RealType<T> & NativeType<T>, 
 		// column selection
 		this.m_imgSelectionComponent = new DialogComponentColumnNameSelection(
 				FeatureCalculatorModel.createImgColumnModel(), "Image", 0, false, true, ImgPlusValue.class);
-		
+
 		// labeling selection
 		this.m_labelingSelectionComponent = new DialogComponentColumnNameSelection(
 				FeatureCalculatorModel.createLabelingColumnModel(), "Labeling", 0, false, true, LabelingValue.class);
