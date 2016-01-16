@@ -114,6 +114,7 @@ public class FeatureCalculatorDialogPane<T extends RealType<T> & NativeType<T>, 
 	private DialogComponentBoolean intersectionModeComponent;
 	private DialogComponentBoolean appendSegmentInformationComponent;
 	private DialogComponentFilterSelection<L> includeLabelsComponent;
+	private DialogComponentFilterSelection<L> filterOverlappingLabelsComponent;
 
 	/**
 	 * Feature Set GUI Elements
@@ -146,7 +147,7 @@ public class FeatureCalculatorDialogPane<T extends RealType<T> & NativeType<T>, 
 
 		// create label settings panel
 		this.labelSettingsPanel = new LabelSettingsPanel(appendLabelsOfOverlappingSegments, intersectionModeComponent,
-				appendSegmentInformationComponent, includeLabelsComponent);
+				appendSegmentInformationComponent, includeLabelsComponent, filterOverlappingLabelsComponent);
 
 		// arrange all components
 		this.featureSetConfigPanel = new FeatureSetConfigPanel(columnSelectionPanel, dimensionSelectionPanel,
@@ -154,7 +155,7 @@ public class FeatureCalculatorDialogPane<T extends RealType<T> & NativeType<T>, 
 
 		this.addTab("Feature Set Configuration", this.featureSetConfigPanel);
 
-		this.addTab("Label Segment Settings", this.labelSettingsPanel);
+		this.addTab("Segment Settings", this.labelSettingsPanel);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -194,6 +195,10 @@ public class FeatureCalculatorDialogPane<T extends RealType<T> & NativeType<T>, 
 		this.includeLabelsComponent = new DialogComponentFilterSelection<L>(
 				FeatureCalculatorModel.<L> createIncludeLabelModel());
 
+		// filter overlapping labels settings
+		this.filterOverlappingLabelsComponent = new DialogComponentFilterSelection<L>(
+				FeatureCalculatorModel.<L> createFilterOverlappingLabelModel());
+		
 		// feature set selection
 		this.smfs = FeatureCalculatorModel.createFeatureSetsModel();
 	}

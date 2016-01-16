@@ -121,7 +121,9 @@ public class PairedFeatureSetGroup<L, T extends RealType<T>, O extends RealType<
 
 	private final boolean intersectionMode;
 
-	private final RulebasedLabelFilter<L> filter;
+	private final RulebasedLabelFilter<L> labelFilter;
+	
+	private final RulebasedLabelFilter<L> labelOverlappingFilter;
 
 	private final ExecutionContext exec;
 
@@ -130,7 +132,8 @@ public class PairedFeatureSetGroup<L, T extends RealType<T>, O extends RealType<
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public PairedFeatureSetGroup(final List<FeatureSetInfo> infos, final int imgIdx, final int labIdx,
 			final boolean append, final boolean appendOverlappingSegments, final boolean appendSegmentInformation,
-			final boolean intersectionMode, final RulebasedLabelFilter<L> filter, final ExecutionContext exec,
+			final boolean intersectionMode, final RulebasedLabelFilter<L> labelFilter,
+			final RulebasedLabelFilter<L> labelOverlappingFilter, final ExecutionContext exec,
 			final SettingsModelDimSelection dimSelection) {
 		this.regionSets = (List) FeaturesGateway.fs().getValidFeatureSets(LabelRegion.class, Void.class, infos);
 		this.iterableSets = (List) FeaturesGateway.fs().getValidFeatureSets(IterableInterval.class, RealType.class,
@@ -141,7 +144,8 @@ public class PairedFeatureSetGroup<L, T extends RealType<T>, O extends RealType<
 		this.appendOverlappingSegments = appendOverlappingSegments;
 		this.appendSegmentInformation = appendSegmentInformation;
 		this.intersectionMode = intersectionMode;
-		this.filter = filter;
+		this.labelFilter = labelFilter;
+		this.labelOverlappingFilter = labelOverlappingFilter;
 		this.exec = exec;
 		this.dimSelection = dimSelection;
 	}
@@ -173,9 +177,7 @@ public class PairedFeatureSetGroup<L, T extends RealType<T>, O extends RealType<
 		final LabelingDependency<L> dependencyOp;
 
 		if (appendOverlappingSegments) {
-			RulebasedLabelFilter<L> rightFilter = new RulebasedLabelFilter<>();
-			rightFilter.addRules(".+");
-			dependencyOp = new LabelingDependency<L>(filter, rightFilter, intersectionMode);
+			dependencyOp = new LabelingDependency<L>(labelFilter, labelOverlappingFilter, intersectionMode);
 		} else {
 			dependencyOp = null;
 		}
@@ -272,7 +274,7 @@ public class PairedFeatureSetGroup<L, T extends RealType<T>, O extends RealType<
 
 					final ArrayList<Future<Pair<String, List<DataCell>>>> futures = new ArrayList<>();
 					for (final LabelRegion<L> region : regions) {
-						if (!filter.getRules().isEmpty() && !filter.isValid(region.getLabel())) {
+						if (!labelFilter.getRules().isEmpty() && !labelFilter.isValid(region.getLabel())) {
 							continue;
 						}
 
