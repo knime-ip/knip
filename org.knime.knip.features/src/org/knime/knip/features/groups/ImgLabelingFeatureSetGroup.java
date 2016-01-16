@@ -110,16 +110,19 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 
 	private final boolean intersectionMode;
 
-	private final RulebasedLabelFilter<L> filter;
+	private final RulebasedLabelFilter<L> filterLabel;
 
 	private final ExecutionContext exec;
 
 	private final SettingsModelDimSelection dimSelection;
 
+	private final RulebasedLabelFilter<L> filterOverlappingLabel;
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public ImgLabelingFeatureSetGroup(final List<FeatureSetInfo> infos, final int labIdx, final boolean append,
 			final boolean appendOverlappingSegments, final boolean appendSegmentInformation,
-			final boolean intersectionMode, final RulebasedLabelFilter<L> filter, final ExecutionContext exec,
+			final boolean intersectionMode, final RulebasedLabelFilter<L> filterLabel,
+			final RulebasedLabelFilter<L> filterOverlappingLabel, final ExecutionContext exec,
 			final SettingsModelDimSelection dimSelection) {
 		this.featureSets = (List) FeaturesGateway.fs().getValidFeatureSets(LabelRegion.class, Void.class, infos);
 		this.labdx = labIdx;
@@ -127,7 +130,8 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 		this.appendOverlappingSegments = appendOverlappingSegments;
 		this.appendSegmentInformation = appendSegmentInformation;
 		this.intersectionMode = intersectionMode;
-		this.filter = filter;
+		this.filterLabel = filterLabel;
+		this.filterOverlappingLabel = filterOverlappingLabel;
 		this.exec = exec;
 		this.dimSelection = dimSelection;
 	}
@@ -155,9 +159,7 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 		final LabelingDependency<L> dependencyOp;
 
 		if (appendOverlappingSegments) {
-			RulebasedLabelFilter<L> rightFilter = new RulebasedLabelFilter<>();
-			rightFilter.addRules(".+");
-			dependencyOp = new LabelingDependency<L>(filter, rightFilter, intersectionMode);
+			dependencyOp = new LabelingDependency<L>(filterLabel, filterOverlappingLabel, intersectionMode);
 		} else {
 			dependencyOp = null;
 		}
@@ -230,7 +232,7 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 
 					final ArrayList<Future<Pair<String, List<DataCell>>>> futures = new ArrayList<>();
 					for (final LabelRegion<L> region : regions) {
-						if (!filter.getRules().isEmpty() && !filter.isValid(region.getLabel())) {
+						if (!filterLabel.getRules().isEmpty() && !filterLabel.isValid(region.getLabel())) {
 							continue;
 						}
 						futures.add(KNIPGateway.threads().run(new Callable<Pair<String, List<DataCell>>>() {

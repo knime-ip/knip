@@ -131,6 +131,10 @@ public class FeatureCalculatorModel<T extends RealType<T> & NativeType<T>, L ext
 	public static <K extends Comparable<K>> SettingsModelFilterSelection<K> createIncludeLabelModel() {
 		return new SettingsModelFilterSelection<K>("segment_filter");
 	}
+	
+	public static <L extends Comparable<L>> SettingsModelFilterSelection<L> createFilterOverlappingLabelModel() {
+		return new SettingsModelFilterSelection<L>("overlapping_segment_filter");
+	}
 
 	/**
 	 * Setting Models
@@ -143,6 +147,7 @@ public class FeatureCalculatorModel<T extends RealType<T> & NativeType<T>, L ext
 	private final SettingsModelBoolean m_labelIntersectionModeModel = createIntersectionModeModel();
 	private final SettingsModelBoolean m_appendSegmentInfoModel = createAppendSegmentInfoModel();
 	private final SettingsModelFilterSelection<L> m_includeLabelModel = createIncludeLabelModel();
+	private final SettingsModelFilterSelection<L> m_filterOverlappingLabelsModeModel = createFilterOverlappingLabelModel();
 	private final SettingsModelFeatureSet m_featureSetsModel = createFeatureSetsModel();
 
 	/**
@@ -164,7 +169,7 @@ public class FeatureCalculatorModel<T extends RealType<T> & NativeType<T>, L ext
 
 		final FeatureSetGroup group = FeaturesGateway.fs().getFeatureGroup(m_featureSetsModel.getFeatureSetInfos(),
 				imgColIndex, labColIdx, doAppend(), doAppendOverlappingSegments(), doAppendSegmentInformation(),
-				getIntersectionMode(), m_includeLabelModel.getRulebasedFilter(), exec, m_dimselectionModel);
+				getIntersectionMode(), m_includeLabelModel.getRulebasedFilter(), m_filterOverlappingLabelsModeModel.getRulebasedFilter(), exec, m_dimselectionModel);
 
 		final DataTableSpec outSpec = group.createSpec(inData[0].getDataTableSpec());
 		final BufferedDataContainer container = exec.createDataContainer(outSpec);
@@ -227,7 +232,7 @@ public class FeatureCalculatorModel<T extends RealType<T> & NativeType<T>, L ext
 
 		final FeatureSetGroup group = FeaturesGateway.fs().getFeatureGroup(m_featureSetsModel.getFeatureSetInfos(),
 				imgColIndex, labelingColIdx, doAppend(), doAppendOverlappingSegments(), doAppendSegmentInformation(),
-				getIntersectionMode(), m_includeLabelModel.getRulebasedFilter(), null, m_dimselectionModel);
+				getIntersectionMode(), m_includeLabelModel.getRulebasedFilter(), m_filterOverlappingLabelsModeModel.getRulebasedFilter(), null, m_dimselectionModel);
 
 		final DataTableSpec outSpec = group.createSpec(inSpecs[0]);
 
@@ -248,6 +253,7 @@ public class FeatureCalculatorModel<T extends RealType<T> & NativeType<T>, L ext
 		this.m_labelIntersectionModeModel.saveSettingsTo(settings);
 		this.m_appendSegmentInfoModel.saveSettingsTo(settings);
 		this.m_includeLabelModel.saveSettingsTo(settings);
+		this.m_filterOverlappingLabelsModeModel.saveSettingsTo(settings);
 	}
 
 	/**
@@ -264,6 +270,7 @@ public class FeatureCalculatorModel<T extends RealType<T> & NativeType<T>, L ext
 		this.m_labelIntersectionModeModel.loadSettingsFrom(settings);
 		this.m_appendSegmentInfoModel.loadSettingsFrom(settings);
 		this.m_includeLabelModel.loadSettingsFrom(settings);
+		this.m_filterOverlappingLabelsModeModel.loadSettingsFrom(settings);
 	}
 
 	/**
@@ -280,6 +287,7 @@ public class FeatureCalculatorModel<T extends RealType<T> & NativeType<T>, L ext
 		this.m_labelIntersectionModeModel.validateSettings(settings);
 		this.m_appendSegmentInfoModel.validateSettings(settings);
 		this.m_includeLabelModel.validateSettings(settings);
+		this.m_filterOverlappingLabelsModeModel.validateSettings(settings);
 	}
 
 	/**

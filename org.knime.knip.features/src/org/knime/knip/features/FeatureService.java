@@ -71,7 +71,8 @@ public interface FeatureService extends Service {
 
 	<L> FeatureSetGroup getFeatureGroup(final List<FeatureSetInfo> infos, final int imgColIndex, final int labColIdx,
 			final boolean append, final boolean appendOverlappingSegments, final boolean appendSegmentInformation,
-			final boolean intersectionMode, final RulebasedLabelFilter<L> rulebasedFilter, final ExecutionContext exec,
+			final boolean intersectionMode, final RulebasedLabelFilter<L> rulebasedLabelFilter,
+			final RulebasedLabelFilter<L> rulebasedOverlappingLabelFilter, final ExecutionContext exec,
 			final SettingsModelDimSelection dimSelection);
 
 }
