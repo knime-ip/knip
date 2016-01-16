@@ -74,7 +74,7 @@ public class LabelSettingsPanel extends JPanel {
 
 	public LabelSettingsPanel(final DialogComponent appendOverlappingLabels,
 			final DialogComponent intersectionComponent, final DialogComponent appendSegmentInformationComponent,
-			final DialogComponent includeLabelsSelectionModel) {
+			final DialogComponent filterLabelsModel, final DialogComponent filterOverlappingLabelsModel) {
 		
 		this.setLayout(new GridBagLayout());
 		
@@ -89,8 +89,15 @@ public class LabelSettingsPanel extends JPanel {
 		this.add(new SegmentSettingsPanel(appendOverlappingLabels, intersectionComponent, appendSegmentInformationComponent), gbc);
 		
 		gbc.gridy++;
-		gbc.weighty = 1;
 		
-		this.add(new IncludeLabelsPanel(includeLabelsSelectionModel), gbc);
+		this.add(new FilterSegmentLabelsPanel(filterLabelsModel), gbc);
+		
+		gbc.gridy++;
+		
+		this.add(new FilterOverlappingLabelsPanel(filterOverlappingLabelsModel), gbc);
+		// just an empty panel so everything is pushed to the top
+		gbc.gridy++;
+		gbc.weighty = 1;
+		this.add(new JPanel(), gbc);
 	}
 }
