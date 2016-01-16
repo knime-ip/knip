@@ -22,7 +22,7 @@ public class SegmentSettingsPanel extends JPanel {
 
 	public SegmentSettingsPanel(final DialogComponent appendOverlappingLabels,
 			final DialogComponent intersectionComponent, final DialogComponent appendSegmentInformationComponent) {
-		this.setBorder(BorderFactory.createTitledBorder("Segment Settings"));
+		this.setBorder(BorderFactory.createTitledBorder("Settings"));
 		this.setLayout(new GridBagLayout());
 
 		final GridBagConstraints gbc = SettingsModelFeatureSet.getNewDefaultGridBagConstraints();
