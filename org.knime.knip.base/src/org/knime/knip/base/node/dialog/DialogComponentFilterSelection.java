@@ -86,8 +86,6 @@ public class DialogComponentFilterSelection<L extends Comparable<L>> extends Dia
     @SuppressWarnings("rawtypes")
     private final JComboBox m_operatorBox;
 
-    private JButton m_removeButton;
-
     private final List<JButton> m_removeButtons;
 
     private final List<JTextField> m_textFields;
@@ -151,28 +149,27 @@ public class DialogComponentFilterSelection<L extends Comparable<L>> extends Dia
         newField.setColumns(10);
         oneFieldRow.add(newField);
 
-        m_removeButton = new JButton("-");
-        m_removeButton.addActionListener(new ActionListener() {
+        JButton removeButton = new JButton("-");
 
             @Override
             public void actionPerformed(final ActionEvent e) {
 
-                for (final Component p : m_removeButton.getParent().getComponents()) {
+                for (final Component p : removeButton.getParent().getComponents()) {
 
                     if (p instanceof JTextField) {
                         m_textFields.remove(p);
                     }
 
                 }
-                m_textFieldsPanel.remove(m_removeButton.getParent());
+                m_textFieldsPanel.remove(removeButton.getParent());
                 getComponentPanel().updateUI();
 
             }
         });
 
-        oneFieldRow.add(m_removeButton);
+        oneFieldRow.add(removeButton, gbc);
         m_textFields.add(newField);
-        m_removeButtons.add(m_removeButton);
+        m_removeButtons.add(removeButton);
         m_textFieldsPanel.add(oneFieldRow);
 
         getComponentPanel().updateUI();
