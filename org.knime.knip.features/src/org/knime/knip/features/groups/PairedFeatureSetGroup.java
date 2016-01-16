@@ -284,7 +284,7 @@ public class PairedFeatureSetGroup<L, T extends RealType<T>, O extends RealType<
 							public Pair<String, List<DataCell>> call() throws Exception {
 								final List<DataCell> cells = new ArrayList<DataCell>();
 
-								appendRegionOptions(region, cells, imgPlusCellFactory, dependencies, ops());
+								appendRegionOptions(region, cells, imgPlusCellFactory, dependencies, appendOverlappingSegments, ops());
 
 								cells.addAll(computeOnFeatureSets(regionSets, region));
 								cells.addAll(computeOnFeatureSets(iterableSets, Regions.sample(region, sliceImgPlus)));

@@ -158,11 +158,7 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 		final ImgPlusCellFactory imgPlusCellFactory;
 		final LabelingDependency<L> dependencyOp;
 
-		if (appendOverlappingSegments) {
-			dependencyOp = new LabelingDependency<L>(filterLabel, filterOverlappingLabel, intersectionMode);
-		} else {
-			dependencyOp = null;
-		}
+		dependencyOp = new LabelingDependency<L>(filterLabel, filterOverlappingLabel, intersectionMode);
 
 		if (appendSegmentInformation) {
 			imgPlusCellFactory = new ImgPlusCellFactory(exec);
@@ -232,7 +228,7 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 
 					final ArrayList<Future<Pair<String, List<DataCell>>>> futures = new ArrayList<>();
 					for (final LabelRegion<L> region : regions) {
-						if (!filterLabel.getRules().isEmpty() && !filterLabel.isValid(region.getLabel())) {
+						if (dependencies != null && !dependencies.keySet().contains(region.getLabel())) {
 							continue;
 						}
 						futures.add(KNIPGateway.threads().run(new Callable<Pair<String, List<DataCell>>>() {
@@ -241,7 +237,7 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 							public Pair<String, List<DataCell>> call() throws Exception {
 								final List<DataCell> cells = new ArrayList<DataCell>();
 
-								appendRegionOptions(region, cells, imgPlusCellFactory, dependencies, ops());
+								appendRegionOptions(region, cells, imgPlusCellFactory, dependencies, appendOverlappingSegments, ops());
 
 								cells.addAll(computeOnFeatureSets(featureSets, region));
 
