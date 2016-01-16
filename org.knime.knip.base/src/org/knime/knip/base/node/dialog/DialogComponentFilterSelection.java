@@ -50,12 +50,14 @@ package org.knime.knip.base.node.dialog;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -92,6 +94,8 @@ public class DialogComponentFilterSelection<L extends Comparable<L>> extends Dia
 
     private final JPanel m_textFieldsPanel;
 
+    private GridBagConstraints m_textFieldsGBC;
+
     /**
      * @param model
      */
@@ -104,11 +108,16 @@ public class DialogComponentFilterSelection<L extends Comparable<L>> extends Dia
         m_textFields = new ArrayList<JTextField>();
         m_removeButtons = new ArrayList<JButton>();
 
-        final JPanel m_confirmationPanel = new JPanel();
-        m_confirmationPanel.setLayout(new BoxLayout(m_confirmationPanel, BoxLayout.X_AXIS));
-
         m_textFieldsPanel = new JPanel();
-        m_textFieldsPanel.setLayout(new BoxLayout(m_textFieldsPanel, BoxLayout.X_AXIS));
+        m_textFieldsPanel.setLayout(new GridBagLayout());
+        m_textFieldsGBC = new GridBagConstraints();
+        m_textFieldsGBC.anchor = GridBagConstraints.NORTH;
+        m_textFieldsGBC.fill = GridBagConstraints.HORIZONTAL;
+        m_textFieldsGBC.insets = new Insets(1, 2, 1, 2);
+        m_textFieldsGBC.gridx = 0;
+        m_textFieldsGBC.gridy = 0;
+        m_textFieldsGBC.weightx = 1;
+        m_textFieldsGBC.weighty = 0;
 
         m_addButton = new JButton("+");
         m_addButton.addActionListener(new ActionListener() {
@@ -120,19 +129,32 @@ public class DialogComponentFilterSelection<L extends Comparable<L>> extends Dia
         });
 
         m_operatorBox = new JComboBox(RulebasedLabelFilter.Operator.values());
-        m_operatorBox.setSize(new Dimension(43, 20));
-        m_operatorBox.setMaximumSize(new Dimension(43, 20));
 
-        m_confirmationPanel.add(m_addButton);
-        m_confirmationPanel.add(m_operatorBox);
+        getComponentPanel().setLayout(new GridBagLayout());
 
-        getComponentPanel().setLayout(new BoxLayout(getComponentPanel(), BoxLayout.X_AXIS));
+        final GridBagConstraints dialogGBC = new GridBagConstraints();
+        dialogGBC.fill = GridBagConstraints.BOTH;
+        dialogGBC.weightx = 1;
+        dialogGBC.weighty = 1;
+        dialogGBC.gridx = 0;
+        dialogGBC.gridy = 0;
+        dialogGBC.insets = new Insets(2, 2, 2, 2);
+        dialogGBC.anchor = GridBagConstraints.NORTH;
 
-        getComponentPanel().add(m_textFieldsPanel);
-        getComponentPanel().add(m_confirmationPanel);
+        getComponentPanel().add(m_textFieldsPanel, dialogGBC);
+        dialogGBC.fill = GridBagConstraints.NONE;
+        dialogGBC.anchor = GridBagConstraints.CENTER;
+        dialogGBC.gridx++;
+        dialogGBC.weightx = 0;
+        dialogGBC.weighty = 1;
+        getComponentPanel().add(m_operatorBox, dialogGBC);
+        dialogGBC.gridwidth = 2;
+        dialogGBC.gridx = 0;
+        dialogGBC.gridy++;
+        dialogGBC.weighty = 0;
+        getComponentPanel().add(m_addButton, dialogGBC);
 
         stateChanged(null);
-
     }
 
     /**
@@ -140,16 +162,27 @@ public class DialogComponentFilterSelection<L extends Comparable<L>> extends Dia
      */
     protected void addTextField(final String initValue) {
         final JPanel oneFieldRow = new JPanel();
-        oneFieldRow.add(new JLabel("Rule " + (m_textFields.size() + 1) + ":"));
-        oneFieldRow.setLayout(new BoxLayout(oneFieldRow, BoxLayout.X_AXIS));
+        oneFieldRow.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 0;
+        gbc.weighty = 0;
+        gbc.insets = new Insets(1, 2, 1, 2);
+
+        oneFieldRow.add(new JLabel("Rule " + (m_textFields.size() + 1) + ":"), gbc);
 
         final JTextField newField = new JTextField(initValue);
-        newField.setSize(new Dimension(350, 20));
-        newField.setMaximumSize(new Dimension(350, 20));
         newField.setColumns(10);
-        oneFieldRow.add(newField);
+        gbc.weightx = 1;
+        gbc.gridx++;
+        oneFieldRow.add(newField, gbc);
 
         JButton removeButton = new JButton("-");
+        // set size so it aligns with the textfield size
+        removeButton.setPreferredSize(new Dimension(40, 18));
+        removeButton.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -163,14 +196,17 @@ public class DialogComponentFilterSelection<L extends Comparable<L>> extends Dia
                 }
                 m_textFieldsPanel.remove(removeButton.getParent());
                 getComponentPanel().updateUI();
-
+                m_textFieldsGBC.gridy--;
             }
         });
 
+        gbc.weightx = 0;
+        gbc.gridx++;
         oneFieldRow.add(removeButton, gbc);
         m_textFields.add(newField);
         m_removeButtons.add(removeButton);
-        m_textFieldsPanel.add(oneFieldRow);
+        m_textFieldsPanel.add(oneFieldRow, m_textFieldsGBC);
+        m_textFieldsGBC.gridy++;
 
         getComponentPanel().updateUI();
 
