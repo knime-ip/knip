@@ -354,14 +354,15 @@ public class SettingsModelFeatureSet extends SettingsModel {
 	public void clearFeatureSets() {
 		this.m_featureSets.clear();
 	}
-	
+
 	/**
 	 * Default GridBagConstraints for this Node Dialog.
+	 * 
 	 * @return gridBagConstraints
 	 */
 	public static GridBagConstraints getNewDefaultGridBagConstraints() {
 		final GridBagConstraints gbc = new GridBagConstraints();
-		
+
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.anchor = GridBagConstraints.LINE_START;
 		gbc.weightx = 1;
@@ -370,7 +371,7 @@ public class SettingsModelFeatureSet extends SettingsModel {
 		gbc.gridheight = 1;
 		gbc.gridx = 0;
 		gbc.gridy = 0;
-		
+
 		return gbc;
 	}
 }

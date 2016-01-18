@@ -70,8 +70,6 @@ import org.knime.knip.features.sets.FeatureSet;
 import org.scijava.InstantiableException;
 import org.scijava.module.Module;
 import org.scijava.module.ModuleException;
-import org.scijava.ui.swing.widget.SwingInputHarvester;
-import org.scijava.ui.swing.widget.SwingInputPanel;
 
 //TODO ONE PANEL OF FEATURESET
 @SuppressWarnings("rawtypes")
@@ -166,7 +164,7 @@ public class FeatureSetPanel extends JPanel {
 		menuPanel.add(this.btnClose, "cell 5 0");
 
 		this.add(menuPanel, BorderLayout.NORTH);
-		
+
 		if (!getUnresolvedParameterNames().isEmpty()) {
 			this.chkbSelectAll.setVisible(false);
 			this.btnMinimize.setVisible(true);
@@ -210,10 +208,9 @@ public class FeatureSetPanel extends JPanel {
 			this.inputPanel.getComponent().setVisible(this.shouldMaximize);
 		}
 	}
-	
 
 	public void selectAll() {
-		//this.inputPanel.getComponent().
+		// this.inputPanel.getComponent().
 	}
 
 	/**

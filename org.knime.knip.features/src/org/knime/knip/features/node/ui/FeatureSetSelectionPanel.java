@@ -87,12 +87,13 @@ public class FeatureSetSelectionPanel extends JPanel {
 		// get all available featuresets
 		final List<CommandInfo> featureSetList = KNIPGateway.cs().getCommandsOfType(FeatureSet.class);
 
-		this.featureSetComboxBox = new JComboBox<CommandInfo>(featureSetList.toArray(new CommandInfo[featureSetList.size()]));
+		this.featureSetComboxBox = new JComboBox<CommandInfo>(
+				featureSetList.toArray(new CommandInfo[featureSetList.size()]));
 		this.featureSetComboxBox.setRenderer(new ListCellRenderer<CommandInfo>() {
 
 			@Override
-			public Component getListCellRendererComponent(final JList<? extends CommandInfo> list, final CommandInfo value,
-					final int index, final boolean isSelected, final boolean cellHasFocus) {
+			public Component getListCellRendererComponent(final JList<? extends CommandInfo> list,
+					final CommandInfo value, final int index, final boolean isSelected, final boolean cellHasFocus) {
 
 				final JLabel renderer = (JLabel) new DefaultListCellRenderer().getListCellRendererComponent(list, value,
 						index, isSelected, cellHasFocus);
@@ -102,11 +103,11 @@ public class FeatureSetSelectionPanel extends JPanel {
 				}
 
 				renderer.setText(value.getLabel());
-				
+
 				return renderer;
 			}
 		});
-		
+
 		this.addButton = new JButton("Add");
 		this.addButton.addActionListener(new ActionListener() {
 			@Override
@@ -122,12 +123,12 @@ public class FeatureSetSelectionPanel extends JPanel {
 
 		this.setBorder(BorderFactory.createTitledBorder("Select Feature Set:"));
 		this.setLayout(new GridBagLayout());
-		
+
 		final GridBagConstraints gbc = SettingsModelFeatureSet.getNewDefaultGridBagConstraints();
 		gbc.weightx = 0;
-		
+
 		this.add(this.featureSetComboxBox, gbc);
-		
+
 		gbc.gridx++;
 		this.add(this.addButton, gbc);
 	}

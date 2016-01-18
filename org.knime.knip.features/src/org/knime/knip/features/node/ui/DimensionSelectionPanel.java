@@ -70,9 +70,9 @@ public class DimensionSelectionPanel extends JPanel {
 
 		this.setBorder(BorderFactory.createTitledBorder("Dimension Selection:"));
 		this.setLayout(new GridBagLayout());
-		
+
 		final GridBagConstraints gbc = SettingsModelFeatureSet.getNewDefaultGridBagConstraints();
-		
+
 		this.add(dimSelection.getComponentPanel(), gbc);
 	}
 
