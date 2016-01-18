@@ -83,7 +83,7 @@ public class FeatureSetPanel extends JPanel {
 	private static final long serialVersionUID = 5766985553194363328L;
 
 	private final Module module;
-	private final SwingInputPanel inputPanel;
+	private final FeatureCalculatorSwingInputPanel inputPanel;
 
 	/*****************************************************************
 	 ******* LOAD ICONS
@@ -125,7 +125,7 @@ public class FeatureSetPanel extends JPanel {
 		this.module = fsi.load();
 
 		// inject harvester and get input panel
-		final SwingInputHarvester builder = new SwingInputHarvester();
+		final FeatureCalculatorSwingInputHarvester builder = new FeatureCalculatorSwingInputHarvester();
 		FeaturesGateway.getInstance().getContext().inject(builder);
 		this.inputPanel = builder.createInputPanel();
 
@@ -166,12 +166,11 @@ public class FeatureSetPanel extends JPanel {
 		menuPanel.add(this.btnClose, "cell 5 0");
 
 		this.add(menuPanel, BorderLayout.NORTH);
-
+		
 		if (!getUnresolvedParameterNames().isEmpty()) {
-			// FIXME: Select all does nothing right now
-			// this.chkbSelectAll.setVisible(true);
+			this.chkbSelectAll.setVisible(false);
 			this.btnMinimize.setVisible(true);
-			this.add(this.inputPanel.getComponent(), BorderLayout.CENTER);
+			this.add(this.inputPanel.getComponent());
 		}
 
 	}
@@ -210,6 +209,11 @@ public class FeatureSetPanel extends JPanel {
 		if (!getUnresolvedParameterNames().isEmpty()) {
 			this.inputPanel.getComponent().setVisible(this.shouldMaximize);
 		}
+	}
+	
+
+	public void selectAll() {
+		//this.inputPanel.getComponent().
 	}
 
 	/**
