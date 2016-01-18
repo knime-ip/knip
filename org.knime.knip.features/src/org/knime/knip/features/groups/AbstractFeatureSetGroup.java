@@ -210,7 +210,8 @@ public abstract class AbstractFeatureSetGroup implements FeatureSetGroup {
 	}
 
 	protected <L> void appendRegionOptions(final LabelRegion<L> region, final List<DataCell> cells,
-			final ImgPlusCellFactory imgPlusCellFactory, final Map<L, List<L>> dependencies, final boolean appendOverlappingLabels, final OpEnvironment ops) {
+			final ImgPlusCellFactory imgPlusCellFactory, final Map<L, List<L>> dependencies,
+			final boolean appendOverlappingLabels, final OpEnvironment ops) {
 		if (imgPlusCellFactory != null) {
 			@SuppressWarnings("unchecked")
 			Img<BitType> bitmask = (Img<BitType>) ops.run(LabelRegionToBitmaskConverter.class, region);

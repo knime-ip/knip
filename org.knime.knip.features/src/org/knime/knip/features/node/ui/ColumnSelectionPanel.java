@@ -49,7 +49,6 @@ package org.knime.knip.features.node.ui;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
@@ -75,15 +74,15 @@ public class ColumnSelectionPanel extends JPanel {
 		this.setLayout(new GridBagLayout());
 
 		final GridBagConstraints gbc = SettingsModelFeatureSet.getNewDefaultGridBagConstraints();
-		
+
 		this.add(imgColumnComponent.getComponentPanel(), gbc);
-		
+
 		gbc.gridx++;
-		
+
 		this.add(labelingColumnComponent.getComponentPanel(), gbc);
-		
+
 		gbc.gridx++;
-		
+
 		this.add(columnCreationModeComponent.getComponentPanel(), gbc);
 	}
 }
