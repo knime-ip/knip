@@ -237,7 +237,8 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 							public Pair<String, List<DataCell>> call() throws Exception {
 								final List<DataCell> cells = new ArrayList<DataCell>();
 
-								appendRegionOptions(region, cells, imgPlusCellFactory, dependencies, appendOverlappingSegments, ops());
+								appendRegionOptions(region, cells, imgPlusCellFactory, dependencies,
+										appendOverlappingSegments, ops());
 
 								cells.addAll(computeOnFeatureSets(featureSets, region));
 
