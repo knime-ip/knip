@@ -50,12 +50,11 @@ package org.knime.knip.base.data.img;
 
 import java.awt.Image;
 import java.awt.RenderingHints;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import javax.swing.Icon;
-
-import net.imagej.ImgPlus;
-import net.imagej.ImgPlusMetadata;
-import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataValue;
@@ -63,6 +62,14 @@ import org.knime.core.data.DataValueComparator;
 import org.knime.core.data.renderer.DataValueRendererFamily;
 import org.knime.core.data.renderer.DefaultDataValueRendererFamily;
 import org.knime.knip.base.renderer.ThumbnailRenderer;
+import org.knime.knip2.core.storage.Storage;
+import org.knime.knip2.core.tree.Access;
+import org.knime.knip2.core.values.delegates.ImgValue;
+
+import net.imagej.ImgPlus;
+import net.imagej.ImgPlusMetadata;
+import net.imglib2.img.Img;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * DataValue for image objects.
@@ -72,7 +79,7 @@ import org.knime.knip.base.renderer.ThumbnailRenderer;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public interface ImgPlusValue<T extends RealType<T>> extends DataValue {
+public interface ImgPlusValue<T extends RealType<T>> extends DataValue, ImgValue {
 
     /** Gathers meta information to this type. */
     public static final class ImgPlusUtilityFactory extends UtilityFactory {
@@ -164,4 +171,41 @@ public interface ImgPlusValue<T extends RealType<T>> extends DataValue {
      * @return a small {@link Image} representation of the original image
      */
     public Image getThumbnail(RenderingHints renderingHints);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    default Access<?, Img<T>> getDelegatedImg() {
+        //dummy access that isn't externalizable by itself
+        return new Access() {
+
+            @Override
+            public void writeExternal(final ObjectOutput out) throws IOException {
+                throw new UnsupportedOperationException("Access is not externalizable!");
+            }
+
+            @Override
+            public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException {
+                throw new UnsupportedOperationException("Access is not externalizable!");
+
+            }
+
+            @Override
+            public Object get() {
+                return getImgPlus();
+            }
+
+            @Override
+            public void setStorage(final Storage storage) {
+                //nothing to do
+            }
+
+            @Override
+            public Storage getStorage() {
+                throw new UnsupportedOperationException("Access doesn't hold a storage!");
+            }
+
+        };
+    }
 }

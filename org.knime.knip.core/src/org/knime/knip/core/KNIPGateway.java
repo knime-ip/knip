@@ -49,6 +49,7 @@
 
 package org.knime.knip.core;
 
+import org.knime.knip2.core.tree.AccessProviderService;
 import org.knime.scijava.core.ResourceAwareClassLoader;
 import org.scijava.Context;
 import org.scijava.cache.CacheService;
@@ -132,6 +133,8 @@ public class KNIPGateway {
     private static LogService m_log;
 
     private static CommandService m_commands;
+
+    private static AccessProviderService m_aps;
 
     private final Context m_context;
 
@@ -221,6 +224,16 @@ public class KNIPGateway {
             m_commands = getInstance().m_context.getService(CommandService.class);
         }
         return m_commands;
+    }
+
+    /**
+     * @return singleton instance of {@link AccessProviderService}
+     */
+    public static AccessProviderService aps() {
+        if(m_aps == null) {
+            m_aps = getInstance().m_context.getService(AccessProviderService.class);
+        }
+        return m_aps;
     }
 
     /**

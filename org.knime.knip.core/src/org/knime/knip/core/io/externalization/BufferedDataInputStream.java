@@ -81,11 +81,11 @@ import java.io.InputStreamReader;
  * take advantage of NIO.]
  * <p>
  * Testing and timing routines are provided in the nom.tam.util.test.BufferedFileTester class.
- * 
+ *
  * Version 1.1: October 12, 2000: Fixed handling of EOF to return partially read arrays when EOF is detected. Version
  * 1.2: July 20, 2009: Added handling of very large Object arrays. Additional work is required to handle very large
  * arrays generally.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -112,7 +112,7 @@ public class BufferedDataInputStream extends BufferedInputStream {
 
     /**
      * Read a byte array. This is the only method for reading arrays in the fundamental I/O classes.
-     * 
+     *
      * @param obuf The byte array.
      * @param offset The starting offset into the array.
      * @param len The number of bytes to read.
@@ -146,7 +146,7 @@ public class BufferedDataInputStream extends BufferedInputStream {
 
     /**
      * Read a boolean value.
-     * 
+     *
      * @return b The value read.
      */
     public boolean readBoolean() throws IOException {
@@ -161,7 +161,7 @@ public class BufferedDataInputStream extends BufferedInputStream {
 
     /**
      * Read a byte value in the range -128 to 127.
-     * 
+     *
      * @return The byte value as a byte (see read() to return the value as an integer.
      */
     public byte readByte() throws IOException {
@@ -170,7 +170,7 @@ public class BufferedDataInputStream extends BufferedInputStream {
 
     /**
      * Read a byte value in the range 0-255.
-     * 
+     *
      * @return The byte value as an integer.
      */
     public int readUnsignedByte() throws IOException {
@@ -179,7 +179,7 @@ public class BufferedDataInputStream extends BufferedInputStream {
 
     /**
      * Read an integer.
-     * 
+     *
      * @return The integer value.
      */
     public int readInt() throws IOException {
@@ -193,7 +193,7 @@ public class BufferedDataInputStream extends BufferedInputStream {
 
     /**
      * Read a 2-byte value as a short (-32788 to 32767)
-     * 
+     *
      * @return The short value.
      */
     public short readShort() throws IOException {
@@ -208,7 +208,7 @@ public class BufferedDataInputStream extends BufferedInputStream {
 
     /**
      * Read a 2-byte value in the range 0-65536.
-     * 
+     *
      * @return the value as an integer.
      */
     public int readUnsignedShort() throws IOException {
@@ -222,7 +222,7 @@ public class BufferedDataInputStream extends BufferedInputStream {
 
     /**
      * Read a 2-byte value as a character.
-     * 
+     *
      * @return The character read.
      */
     public char readChar() throws IOException {
@@ -238,7 +238,7 @@ public class BufferedDataInputStream extends BufferedInputStream {
 
     /**
      * Read a long.
-     * 
+     *
      * @return The value read.
      */
     public long readLong() throws IOException {
@@ -255,7 +255,7 @@ public class BufferedDataInputStream extends BufferedInputStream {
 
     /**
      * Read a 4 byte real number.
-     * 
+     *
      * @return The value as a float.
      */
     public float readFloat() throws IOException {
@@ -271,7 +271,7 @@ public class BufferedDataInputStream extends BufferedInputStream {
 
     /**
      * Read an 8 byte real number.
-     * 
+     *
      * @return The value as a double.
      */
     public double readDouble() throws IOException {
@@ -288,7 +288,7 @@ public class BufferedDataInputStream extends BufferedInputStream {
 
     /**
      * Read a buffer and signal an EOF if the buffer cannot be fully read.
-     * 
+     *
      * @param b The buffer to be read.
      */
     public void readFully(final byte[] b) throws IOException {
@@ -297,10 +297,10 @@ public class BufferedDataInputStream extends BufferedInputStream {
 
     /**
      * Read a buffer and signal an EOF if the requested elements cannot be read.
-     * 
+     *
      * This differs from read(b,off,len) since that call will not signal and end of file unless no bytes can be read.
      * However both of these routines will attempt to fill their buffers completely.
-     * 
+     *
      * @param b The input buffer.
      * @param off The requested offset into the buffer.
      * @param len The number of bytes requested.
@@ -319,7 +319,7 @@ public class BufferedDataInputStream extends BufferedInputStream {
     /**
      * Skip the requested number of bytes. This differs from the skip call in that it takes an long argument and will
      * throw an end of file if the full number of bytes cannot be skipped.
-     * 
+     *
      * @param toSkip The number of bytes to skip.
      */
     private byte[] m_skipBuf = null;
@@ -380,7 +380,7 @@ public class BufferedDataInputStream extends BufferedInputStream {
     /**
      * Read a String in the UTF format. The implementation of this is very inefficient and use of this class is not
      * recommended for applications which will use this routine heavily.
-     * 
+     *
      * @return The String that was read.
      * @throws IOException
      */
@@ -391,14 +391,14 @@ public class BufferedDataInputStream extends BufferedInputStream {
         try {
             return d.readUTF();
         } finally {
-            d.close();
+//            d.close();
         }
     }
 
     /**
      * Emulate the deprecated DataInputStream.readLine() method. Originally we used the method itself, but Alan Brighton
      * suggested using a BufferedReader to eliminate the deprecation warning. This method is slow regardless.
-     * 
+     *
      * @return The String read.
      * @throws IOException
      * @deprecated Use BufferedReader methods.
@@ -419,7 +419,7 @@ public class BufferedDataInputStream extends BufferedInputStream {
      * This routine provides efficient reading of arrays of any primitive type. It is an error to invoke this method
      * with an object that is not an array of some primitive type. Note that there is no corresponding capability to
      * writePrimitiveArray in BufferedDataOutputStream to read in an array of Strings.
-     * 
+     *
      * @param o The object to be read. It must be an array of a primitive type, or an array of Object's.
      * @deprecated See readLArray(Object o).
      */
@@ -438,9 +438,9 @@ public class BufferedDataInputStream extends BufferedInputStream {
     /**
      * Read an object. An EOF will be signaled if the object cannot be fully read. The getPrimitiveArrayCount() method
      * may then be used to get a minimum number of bytes read.
-     * 
+     *
      * @param o The object to be read. This object should be a primitive (possibly multi-dimensional) array.
-     * 
+     *
      * @returns The number of bytes read.
      * @deprecated See readLArray(Object) which handles large arrays properly.
      */
@@ -452,9 +452,9 @@ public class BufferedDataInputStream extends BufferedInputStream {
     /**
      * Read an object. An EOF will be signaled if the object cannot be fully read. The getPrimitiveArrayCount() method
      * may then be used to get a minimum number of bytes read.
-     * 
+     *
      * @param o The object to be read. This object should be a primitive (possibly multi-dimensional) array.
-     * 
+     *
      * @returns The number of bytes read.
      */
     public long readLArray(final Object o) throws IOException {
@@ -464,7 +464,7 @@ public class BufferedDataInputStream extends BufferedInputStream {
 
     /**
      * Read recursively over a multi-dimensional array.
-     * 
+     *
      * @return The number of bytes read.
      */
     protected long primitiveArrayRecurse(final Object o) throws IOException {
@@ -542,7 +542,7 @@ public class BufferedDataInputStream extends BufferedInputStream {
     /**
      * Ensure that the requested number of bytes are available in the buffer or throw an EOF if they cannot be obtained.
      * Note that this routine will try to fill the buffer completely.
-     * 
+     *
      * @param The required number of bytes.
      */
     private void fillBuf(int need) throws IOException {

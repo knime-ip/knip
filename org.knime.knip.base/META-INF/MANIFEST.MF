@@ -4,7 +4,7 @@ Bundle-SymbolicName: org.knime.knip.base;singleton:=true
 Bundle-ManifestVersion: 2
 Bundle-Version: 1.4.2.qualifier
 Bundle-Vendor: University of Konstanz
-Eclipse-RegisterBuddy: org.knime.core
+Eclipse-RegisterBuddy: org.knime.core, org.knime.knip2.core
 Require-Bundle: org.knime.base;bundle-version="[3.0.0,4.0.0)",
  org.knime.workbench.repository;bundle-version="[3.0.0,4.0.0)",
  org.eclipse.core.runtime;bundle-version="3.6.0",
@@ -26,7 +26,8 @@ Require-Bundle: org.knime.base;bundle-version="[3.0.0,4.0.0)",
  imglib2-roi;bundle-version="0.3.2",
  imagej-ops;bundle-version="0.16.0",
  org.knime.core,
- knip-tmp-imglib2-ops;bundle-version="0.4.0"
+ knip-tmp-imglib2-ops;bundle-version="0.4.0",
+ org.knime.knip2.core;bundle-version="0.0.1"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: knip-base.jar
 Bundle-ActivationPolicy: lazy
@@ -36,6 +37,7 @@ Export-Package: org.knime.knip.base,
  org.knime.knip.base.data,
  org.knime.knip.base.data.aggregation,
  org.knime.knip.base.data.img,
+ org.knime.knip.base.data.img2,
  org.knime.knip.base.data.labeling,
  org.knime.knip.base.data.ui,
  org.knime.knip.base.exceptions,

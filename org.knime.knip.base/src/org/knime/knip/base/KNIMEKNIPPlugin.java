@@ -50,13 +50,14 @@ package org.knime.knip.base;
 
 import java.awt.image.BufferedImage;
 
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.knime.core.data.filestore.FileStoreCell;
+import org.knime.knip.base.prefs.PreferenceConstants;
+
 import net.imagej.axis.Axes;
 import net.imagej.axis.DefaultTypedAxis;
 import net.imagej.axis.TypedAxis;
-
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.knime.knip.base.prefs.PreferenceConstants;
 
 /**
  * TODO Auto-generated
@@ -128,6 +129,17 @@ public class KNIMEKNIPPlugin extends AbstractUIPlugin {
     public static final String[] parseDimensionLabels() {
         final IPreferenceStore store = KNIMEKNIPPlugin.getDefault().getPreferenceStore();
         return store.getString(PreferenceConstants.P_DIM_LABELS).split(",");
+    }
+
+    /**
+     * If the number of pixels of an image exceeds the returned number of pixels, a {@link FileStoreCell} will be
+     * created to back it.
+     *
+     * @return the minimum number of pixels an image can have if back by a {@link FileStoreCell}
+     */
+    public static long getMinNumPixelsForFileStoreImgCell() {
+        //TODO make it configurable!
+        return 200*200*3;
     }
 
     /**

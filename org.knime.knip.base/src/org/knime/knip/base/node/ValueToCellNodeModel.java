@@ -349,7 +349,7 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
         if (getOutDataCellListCellType() != null) {
             dt = ListCell.getCollectionType(getOutDataCellListCellType());
         } else {
-            dt = DataType.getType(m_outCellClass);
+            dt = getDataType();
         }
 
         for (int i = 0; i < colIndices.length; i++) {
@@ -657,6 +657,17 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
             }
             c = c.getSuperclass();
         }
+    }
+
+    /**
+     * Determines {@link DataType} of the cells produced by this {@link ValueToCellNodeModel}. In the default
+     * implementation it is automatically determined from the argument types (generics). Override this method if that
+     * doesn't work out.
+     *
+     * @return the data type of the cells to be returned
+     */
+    protected DataType getDataType() {
+        return DataType.getType(m_outCellClass);
     }
 
     /**

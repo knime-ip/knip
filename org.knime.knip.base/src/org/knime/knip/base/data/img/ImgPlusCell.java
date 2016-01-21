@@ -102,6 +102,7 @@ import net.imglib2.view.Views;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
+@Deprecated
 public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
         implements ImgPlusValue<T>, StringValue, IntervalValue {
 
@@ -596,4 +597,5 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
     public String toString() {
         return getStringValue();
     }
+
 }

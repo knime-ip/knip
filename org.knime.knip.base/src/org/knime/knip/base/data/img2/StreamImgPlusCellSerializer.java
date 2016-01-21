@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2013
+ *  Copyright (C) 2003 - 2016
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -43,69 +43,61 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
+ * Created on Jan 20, 2016 by hornm
  */
-package org.knime.knip.base.nodes.testing;
+package org.knime.knip.base.data.img2;
 
-import org.knime.core.node.DynamicNodeFactory;
-import org.knime.core.node.NodeDescription;
-import org.knime.core.node.NodeDescription210Proxy;
-import org.knime.core.node.NodeDialogPane;
-import org.knime.core.node.NodeFactory;
-import org.knime.core.node.NodeView;
-import org.knime.knip.base.data.img.ImgPlusValue;
-import org.knime.knip.base.node.XMLNodeUtils;
-import org.knime.node.v210.KnimeNodeDocument;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
+import org.knime.core.data.DataCellDataInput;
+import org.knime.core.data.DataCellDataOutput;
+import org.knime.core.data.DataCellSerializer;
 
-/**
- * {@link NodeFactory} for {@link ImgComparatorNodeModel}
- *
- * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
- *
- * @param <T>
- */
-public class ImgComparatorNodeFactory<T extends NativeType<T> & RealType<T>> extends
-        DynamicNodeFactory<ComparatorNodeModel<ImgPlusValue<T>, ImgPlusValue<T>>> {
+public class StreamImgPlusCellSerializer
+        implements DataCellSerializer<StreamImgPlusCell> {
 
     @Override
-    protected NodeDescription createNodeDescription() {
-        KnimeNodeDocument doc = KnimeNodeDocument.Factory.newInstance();
-        XMLNodeUtils.addXMLNodeDescriptionTo(doc, getClass());
-
-        return new NodeDescription210Proxy(doc);
+    public void serialize(final StreamImgPlusCell cell, final DataCellDataOutput output)
+            throws IOException {
+        writeString(output, cell.getClass().getName());
+        final ObjectOutputStream oos = new ObjectOutputStream(
+                (OutputStream) output);
+        cell.writeExternal(oos);
+        oos.flush();
     }
 
     @Override
-    public ComparatorNodeModel<ImgPlusValue<T>, ImgPlusValue<T>> createNodeModel() {
-        return new ImgComparatorNodeModel<T>();
+    public StreamImgPlusCell deserialize(final DataCellDataInput input) throws IOException {
+        try {
+            String name = readString(input);
+            final StreamImgPlusCell cell = (StreamImgPlusCell) Class.forName(name).newInstance();
+            final ObjectInputStream ois = new ObjectInputStream(
+                    (InputStream) input);
+            cell.readExternal(ois);
+            return cell;
+        } catch (final ClassNotFoundException | InstantiationException
+                | IllegalAccessException e) {
+            // TODO Logging
+            throw new RuntimeException(e);
+        }
     }
 
-    @Override
-    protected int getNrNodeViews() {
-        return 0;
+    private static void writeString(final DataCellDataOutput output, final String s) throws IOException {
+        output.writeInt(s.length());
+        output.writeBytes(s);
     }
 
-    @Override
-    public NodeView<ComparatorNodeModel<ImgPlusValue<T>, ImgPlusValue<T>>>
-            createNodeView(final int viewIndex, final ComparatorNodeModel<ImgPlusValue<T>, ImgPlusValue<T>> nodeModel) {
-        return null;
+    private static String readString(final DataCellDataInput input) throws IOException {
+        byte[] bytes = new byte[input.readInt()];
+        input.readFully(bytes);
+        return new String(bytes);
     }
 
-    @Override
-    protected boolean hasDialog() {
-        return true;
-    }
-
-    @Override
-    protected NodeDialogPane createNodeDialogPane() {
-        return new ComparatorNodeDialog<ImgPlusValue<T>, ImgPlusValue<T>>() {
-        };
-    }
 
 }

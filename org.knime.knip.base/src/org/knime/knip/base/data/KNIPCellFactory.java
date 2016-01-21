@@ -128,4 +128,11 @@ public abstract class KNIPCellFactory implements DataCellFactory {
 
     }
 
+    /**
+     * @return the {@link ExecutionContext} this factory has been created with. Can be <code>null</code>!!
+     */
+    protected ExecutionContext getExecutionContext() {
+        return m_exec;
+    }
+
 }

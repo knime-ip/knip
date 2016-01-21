@@ -50,10 +50,17 @@ package org.knime.knip.base.data.img;
 
 import java.io.IOException;
 
+import org.knime.core.data.DataCell;
 import org.knime.core.data.DataType;
 import org.knime.core.data.filestore.FileStoreFactory;
 import org.knime.core.node.ExecutionContext;
+import org.knime.knip.base.KNIMEKNIPPlugin;
 import org.knime.knip.base.data.KNIPCellFactory;
+import org.knime.knip.base.data.img2.FileStoreImgPlusCell;
+import org.knime.knip.base.data.img2.StreamImgPlusCell;
+import org.knime.knip.core.KNIPGateway;
+import org.knime.knip2.core.storage.FileStoreStorage;
+import org.knime.knip2.core.storage.SimpleStorage;
 
 import net.imagej.ImgPlus;
 import net.imglib2.img.Img;
@@ -68,6 +75,11 @@ import net.imglib2.type.numeric.RealType;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 public final class ImgPlusCellFactory extends KNIPCellFactory {
+
+    /**
+     * The type of the {@link DataCell}s this factory is going to create.
+     */
+    public static final DataType TYPE  = FileStoreImgPlusCell.TYPE;
 
     /**
      * @param exec
@@ -89,9 +101,41 @@ public final class ImgPlusCellFactory extends KNIPCellFactory {
      *
      * @return {@link ImgPlusCell}
      * @throws IOException
+     *
+     * @Deprecated use {@link #createDataCell(ImgPlus)} instead
      */
+    @Deprecated
     public final <T extends RealType<T>> ImgPlusCell<T> createCell(final ImgPlus<T> imgPlus) throws IOException {
         return new ImgPlusCell<T>(imgPlus.getImg(), imgPlus, getFileStore(getImgSize(imgPlus.getImg())));
+    }
+
+    /**
+     * Creates a new {@link DataCell} of type {@link ImgPlusCellFactory#TYPE}. Where as the {@link DataType} is guaranteed the type
+     * of the actual {@link DataCell}-implementation is NOT.
+     *
+     * @param imgPlus
+     * @return an arbitrary {@link DataCell}-implementation of typer {@link ImgPlusCellFactory#TYPE}.
+     * @throws IOException
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public final <T extends RealType<T>> DataCell createDataCell(final ImgPlus<T> imgPlus) throws IOException {
+        //the call is delegated to the cell factory of the knip2 framework
+        long[] dims = new long[imgPlus.numDimensions()];
+        imgPlus.dimensions(dims);
+        T type = imgPlus.firstElement().createVariable();
+        ImgPlusCellMetadata cellMetadata =
+                new ImgPlusCellMetadata(imgPlus, imgPlus.size(), null, dims, type.getClass(), null);
+
+        //depending on the image size either an ordinary data cell or a file store cell is created
+        if (imgPlus.size() < KNIMEKNIPPlugin.getMinNumPixelsForFileStoreImgCell()) {
+            SimpleStorage ss = new SimpleStorage();
+            return new StreamImgPlusCell(KNIPGateway.aps().getAccess(ss, imgPlus.getImg(), Img.class),
+                    KNIPGateway.aps().getAccess(ss, cellMetadata, ImgPlusCellMetadata.class));
+        } else {
+            FileStoreStorage fss = new FileStoreStorage(getExecutionContext());
+            return new FileStoreImgPlusCell(KNIPGateway.aps().getAccess(fss, imgPlus.getImg(), Img.class),
+                    KNIPGateway.aps().getAccess(fss, cellMetadata, ImgPlusCellMetadata.class));
+        }
     }
 
     private final <T extends RealType<T>> double getImgSize(final Img<T> img) {

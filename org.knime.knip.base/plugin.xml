@@ -270,5 +270,21 @@
                  serializerClass="org.knime.knip.base.data.labeling.LabelingCellSerializer">
            </serializer>
         </DataType>
+        <DataType
+              cellClass="org.knime.knip.base.data.img2.FileStoreImgPlusCell"
+              factoryClass="org.knime.knip.base.data.img.ImgPlusCellFactory">
+           <serializer
+                 cellClass="org.knime.knip.base.data.img2.FileStoreImgPlusCell"
+                 serializerClass="org.knime.knip.base.data.img2.FileStoreImgPlusCellSerializer">
+           </serializer>
+        </DataType>
+        <DataType
+              cellClass="org.knime.knip.base.data.img2.StreamImgPlusCell"
+              factoryClass="org.knime.knip.base.data.img.ImgPlusCellFactory">
+           <serializer
+                 cellClass="org.knime.knip.base.data.img2.StreamImgPlusCell"
+                 serializerClass="org.knime.knip.base.data.img2.StreamImgPlusCellSerializer">
+           </serializer>
+        </DataType>
      </extension>
 </plugin>

@@ -56,6 +56,7 @@ import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.io.externalization.BufferedDataInputStream;
 import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
 import org.knime.knip.core.io.externalization.ExternalizerManager;
+import org.knime.knip.core.io.externalization.StreamUtil;
 import org.scijava.cache.CacheService;
 
 /**

@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2015
+ *  Copyright (C) 2003 - 2016
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -45,67 +45,68 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ---------------------------------------------------------------------
  *
- * Created on Oct 9, 2015 by dietzc
+ * Created on Jan 20, 2016 by hornm
  */
-package org.knime.knip.base.data;
+package org.knime.knip.core.io.externalization;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
+import org.knime.knip2.core.storage.FileStoreStorage;
+import org.knime.knip2.core.storage.SimpleStorage;
+import org.knime.knip2.core.storage.Storage;
+import org.knime.knip2.core.tree.Access;
+import org.knime.knip2.core.tree.ext.AbstractExtAccessProvider;
+import org.knime.knip2.core.tree.ext.ExtAccessProvider;
+import org.scijava.plugin.Plugin;
 
-import org.knime.knip.base.KNIPConstants;
-import org.knime.knip.core.io.externalization.BufferedDataInputStream;
-import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
+import net.imglib2.img.Img;
 
-/**
- * Util class for handling streams used by cell implementations.
- *
- * @author Christian Dietz, University of Konstanz
- */
-public class StreamUtil {
+@Plugin(type = ExtAccessProvider.class)
+public class ExternalizerAccessProvider<S extends Storage<S>, O>
+        extends AbstractExtAccessProvider<S, O, BufferedDataInputStream, BufferedDataOutputStream> {
 
     /**
-     * Helper to create the respective input stream (e.g. if zip file or not)
+     * {@inheritDoc}
      */
-    public static BufferedDataInputStream createInputStream(final File f, final long offset) throws IOException {
-        BufferedDataInputStream stream = null;
-        try {
-            if (f.getName().endsWith(KNIPConstants.ZIP_SUFFIX)) {
-                final FileInputStream fileInput = new FileInputStream(f);
-                fileInput.skip(offset);
-                final ZipInputStream zip = new ZipInputStream(fileInput);
-                zip.getNextEntry();
-                stream = new BufferedDataInputStream(zip);
-            } else {
-                stream = new BufferedDataInputStream(new FileInputStream(f));
-                stream.skip(offset);
-            }
-        } catch (IOException e) {
-            if (stream != null) {
-                stream.close();
-            }
-            throw e;
-        }
-        return stream;
+    @Override
+    public Class<BufferedDataInputStream> getInputType() {
+        return BufferedDataInputStream.class;
     }
 
     /**
-     * Helper to create the respective output stream (e.g. if zip file or not)
+     * {@inheritDoc}
      */
-    public static BufferedDataOutputStream createOutStream(final File file) throws FileNotFoundException, IOException {
-        BufferedDataOutputStream stream;
-        if (file.getName().endsWith(KNIPConstants.ZIP_SUFFIX)) {
-            final ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(file, true));
-            zip.putNextEntry(new ZipEntry("img"));
-            stream = new BufferedDataOutputStream(zip);
+    @Override
+    public Class<BufferedDataOutputStream> getOutputType() {
+        return BufferedDataOutputStream.class;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean canAccess(final Storage<?> storage, final Object input, final Class<?> outputType) {
+        return super.canAccess(storage, input, outputType)
+                && (storage instanceof FileStoreStorage || storage instanceof SimpleStorage);
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public Access<S, O> getAccess(final S storage, final O obj) {
+        if (storage instanceof FileStoreStorage) {
+            //use a file to back the obj?
+            boolean useFile = obj instanceof Img;
+            ExternalizerFileAccess<O> access =
+                    new ExternalizerFileAccess<O>((FileStoreStorage)storage, obj, getExt(obj), useFile);
+            ((FileStoreStorage)storage).registerFlushable(access);
+            return (Access<S, O>)access;
+        } else if (storage instanceof SimpleStorage) {
+            return (Access<S, O>)new ExternalizerStreamAccess<O>((SimpleStorage)storage, obj, getExt(obj));
         } else {
-            stream = new BufferedDataOutputStream(new FileOutputStream(file, true));
+            throw new IllegalStateException("No other storages than FileStoreStorage or SimpleStorage allowed.");
         }
-        return stream;
     }
+
 }

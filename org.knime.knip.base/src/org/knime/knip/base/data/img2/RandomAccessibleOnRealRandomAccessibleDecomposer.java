@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2013
+ *  Copyright (C) 2003 - 2016
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -43,69 +43,62 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
+ * Created on Jan 20, 2016 by hornm
  */
-package org.knime.knip.base.nodes.testing;
+package org.knime.knip.base.data.img2;
 
-import org.knime.core.node.DynamicNodeFactory;
-import org.knime.core.node.NodeDescription;
-import org.knime.core.node.NodeDescription210Proxy;
-import org.knime.core.node.NodeDialogPane;
-import org.knime.core.node.NodeFactory;
-import org.knime.core.node.NodeView;
-import org.knime.knip.base.data.img.ImgPlusValue;
-import org.knime.knip.base.node.XMLNodeUtils;
-import org.knime.node.v210.KnimeNodeDocument;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
+import org.knime.knip2.core.tree.decompose.Decomposer;
+import org.scijava.plugin.Plugin;
 
-/**
- * {@link NodeFactory} for {@link ImgComparatorNodeModel}
- *
- * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
- *
- * @param <T>
- */
-public class ImgComparatorNodeFactory<T extends NativeType<T> & RealType<T>> extends
-        DynamicNodeFactory<ComparatorNodeModel<ImgPlusValue<T>, ImgPlusValue<T>>> {
+import net.imglib2.view.RandomAccessibleOnRealRandomAccessible;
 
+@Plugin(type = Decomposer.class)
+public class RandomAccessibleOnRealRandomAccessibleDecomposer<T> implements Decomposer<RandomAccessibleOnRealRandomAccessible<T>>{
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected NodeDescription createNodeDescription() {
-        KnimeNodeDocument doc = KnimeNodeDocument.Factory.newInstance();
-        XMLNodeUtils.addXMLNodeDescriptionTo(doc, getClass());
+    public void writeExternal(final ObjectOutput out) throws IOException {
+        //stateless
 
-        return new NodeDescription210Proxy(doc);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public ComparatorNodeModel<ImgPlusValue<T>, ImgPlusValue<T>> createNodeModel() {
-        return new ImgComparatorNodeModel<T>();
+    public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException {
+        //stateless
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected int getNrNodeViews() {
-        return 0;
+    public Object[] decompose(final RandomAccessibleOnRealRandomAccessible<T> obj) {
+        return new Object[] {obj.getTarget()};
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public NodeView<ComparatorNodeModel<ImgPlusValue<T>, ImgPlusValue<T>>>
-            createNodeView(final int viewIndex, final ComparatorNodeModel<ImgPlusValue<T>, ImgPlusValue<T>> nodeModel) {
-        return null;
+    public RandomAccessibleOnRealRandomAccessible<T> compose(final Object[] o) {
+        return new RandomAccessibleOnRealRandomAccessible<>(cast(o[0]));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected boolean hasDialog() {
-        return true;
+    public boolean canDecompose(final Object obj) {
+        return obj instanceof RandomAccessibleOnRealRandomAccessible;
     }
-
-    @Override
-    protected NodeDialogPane createNodeDialogPane() {
-        return new ComparatorNodeDialog<ImgPlusValue<T>, ImgPlusValue<T>>() {
-        };
-    }
-
 }

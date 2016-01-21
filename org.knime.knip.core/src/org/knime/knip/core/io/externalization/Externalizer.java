@@ -52,9 +52,9 @@ package org.knime.knip.core.io.externalization;
  * Externalizer which serializes/deserializes a specific object given by {@link #getType()}. Usually used together with
  * the {@link ExternalizerManager}. Every object externalized with an externalize of a certain id ({@link #getId()})
  * should be able to be restored every time with a exteranlizer of the id it was serialized.
- * 
+ *
  * Note: needs to provide an empty constructor.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -78,7 +78,7 @@ public interface Externalizer<T> {
 
     /**
      * Restores the object from a stream
-     * 
+     *
      * @param in
      * @return the object
      * @throws Exception
@@ -87,7 +87,7 @@ public interface Externalizer<T> {
 
     /**
      * Writes the object to the stream
-     * 
+     *
      * @param out
      * @param obj object to write
      * @throws Exception

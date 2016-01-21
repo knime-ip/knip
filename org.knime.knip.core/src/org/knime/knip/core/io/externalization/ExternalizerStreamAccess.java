@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2013
+ *  Copyright (C) 2003 - 2016
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -43,69 +43,91 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
+ * Created on Jan 20, 2016 by hornm
  */
-package org.knime.knip.base.nodes.testing;
+package org.knime.knip.core.io.externalization;
 
-import org.knime.core.node.DynamicNodeFactory;
-import org.knime.core.node.NodeDescription;
-import org.knime.core.node.NodeDescription210Proxy;
-import org.knime.core.node.NodeDialogPane;
-import org.knime.core.node.NodeFactory;
-import org.knime.core.node.NodeView;
-import org.knime.knip.base.data.img.ImgPlusValue;
-import org.knime.knip.base.node.XMLNodeUtils;
-import org.knime.node.v210.KnimeNodeDocument;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.io.OutputStream;
 
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
+import org.knime.knip2.core.ext.Externalizer;
+import org.knime.knip2.core.storage.SimpleStorage;
+import org.knime.knip2.core.tree.ext.AbstractFlushableExtAccess;
 
-/**
- * {@link NodeFactory} for {@link ImgComparatorNodeModel}
- *
- * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
- *
- * @param <T>
- */
-public class ImgComparatorNodeFactory<T extends NativeType<T> & RealType<T>> extends
-        DynamicNodeFactory<ComparatorNodeModel<ImgPlusValue<T>, ImgPlusValue<T>>> {
+public class ExternalizerStreamAccess<O>
+        extends AbstractFlushableExtAccess<SimpleStorage, O, BufferedDataInputStream, BufferedDataOutputStream> {
 
-    @Override
-    protected NodeDescription createNodeDescription() {
-        KnimeNodeDocument doc = KnimeNodeDocument.Factory.newInstance();
-        XMLNodeUtils.addXMLNodeDescriptionTo(doc, getClass());
+    private O m_obj;
 
-        return new NodeDescription210Proxy(doc);
+    public ExternalizerStreamAccess() {
+        //deserialisation
     }
 
-    @Override
-    public ComparatorNodeModel<ImgPlusValue<T>, ImgPlusValue<T>> createNodeModel() {
-        return new ImgComparatorNodeModel<T>();
+    ExternalizerStreamAccess(final SimpleStorage storage, final O obj,
+                             final Externalizer<BufferedDataInputStream, BufferedDataOutputStream, O> ext) {
+        super(storage, obj, ext);
+        m_obj = obj;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected int getNrNodeViews() {
-        return 0;
+    public O get() {
+        //we have to overwrite this method in order to "inactive" the caching mechanism
+        return m_obj;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public NodeView<ComparatorNodeModel<ImgPlusValue<T>, ImgPlusValue<T>>>
-            createNodeView(final int viewIndex, final ComparatorNodeModel<ImgPlusValue<T>, ImgPlusValue<T>> nodeModel) {
+    protected void releaseToCache() {
+        //nothing to do here
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void readState(final ObjectInput in) throws IOException {
+        BufferedDataInputStream inStream = new BufferedDataInputStream((InputStream)in);
+        m_obj = getExt().read(inStream);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void writeState(final ObjectOutput out) throws IOException {
+        BufferedDataOutputStream outStream = new BufferedDataOutputStream((OutputStream)out);
+        outStream.flush();
+        getExt().write(outStream, m_obj);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected O read(final SimpleStorage storage,
+                     final Externalizer<BufferedDataInputStream, BufferedDataOutputStream, O> ext) throws IOException {
+        //nothing to do
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected boolean hasDialog() {
-        return true;
-    }
-
-    @Override
-    protected NodeDialogPane createNodeDialogPane() {
-        return new ComparatorNodeDialog<ImgPlusValue<T>, ImgPlusValue<T>>() {
-        };
+    protected void write(final SimpleStorage storage,
+                         final Externalizer<BufferedDataInputStream, BufferedDataOutputStream, O> ext)
+                                 throws IOException {
+        //nothing to do
     }
 
 }

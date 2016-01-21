@@ -75,7 +75,7 @@ import java.io.OutputStream;
  * int).
  * <p>
  * Testing and timing for this class is peformed in the nom.tam.util.test.BufferedFileTester class.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -84,7 +84,7 @@ public class BufferedDataOutputStream extends BufferedOutputStream {
 
     /**
      * Use the BufferedOutputStream constructor
-     * 
+     *
      * @param o An open output stream.
      */
     public BufferedDataOutputStream(final OutputStream o) {
@@ -93,7 +93,7 @@ public class BufferedDataOutputStream extends BufferedOutputStream {
 
     /**
      * Use the BufferedOutputStream constructor
-     * 
+     *
      * @param o An open output stream.
      * @param bufLength The buffer size.
      */
@@ -103,7 +103,7 @@ public class BufferedDataOutputStream extends BufferedOutputStream {
 
     /**
      * Write a boolean value
-     * 
+     *
      * @param b The value to be written. Externally true is represented as a byte of 1 and false as a byte value of 0.
      */
     public void writeBoolean(final boolean b) throws IOException {
@@ -211,7 +211,7 @@ public class BufferedDataOutputStream extends BufferedOutputStream {
 
     /**
      * Write a string using the local protocol to convert char's to bytes.
-     * 
+     *
      * @param s The string to be written.
      */
     public void writeBytes(final String s) throws IOException {
@@ -239,7 +239,7 @@ public class BufferedDataOutputStream extends BufferedOutputStream {
         final DataOutputStream d = new DataOutputStream(this);
         d.writeUTF(s);
         d.flush();
-        d.close();
+        //        d.close();
     }
 
     /**
@@ -247,9 +247,9 @@ public class BufferedDataOutputStream extends BufferedOutputStream {
      * is an error to invoke this method with an object that is not an array of these types. If the array is
      * multidimensional, then it calls itself recursively to write the entire array. Strings are written using the
      * standard 1 byte format (i.e., as in writeBytes).
-     * 
+     *
      * If the array is an array of objects, then writePrimitiveArray will be called for each element of the array.
-     * 
+     *
      * @param o The object to be written. It must be an array of a primitive type, Object, or String.
      */
     public void writePrimitiveArray(final Object o) throws IOException {
@@ -261,9 +261,9 @@ public class BufferedDataOutputStream extends BufferedOutputStream {
      * is an error to invoke this method with an object that is not an array of these types. If the array is
      * multidimensional, then it calls itself recursively to write the entire array. Strings are written using the
      * standard 1 byte format (i.e., as in writeBytes).
-     * 
+     *
      * If the array is an array of objects, then writePrimitiveArray will be called for each element of the array.
-     * 
+     *
      * @param o The object to be written. It must be an array of a primitive type, Object, or String.
      */
     public void writeArray(final Object o) throws IOException {

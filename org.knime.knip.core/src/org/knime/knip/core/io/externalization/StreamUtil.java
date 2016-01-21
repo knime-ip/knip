@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2013
+ *  Copyright (C) 2003 - 2015
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -43,69 +43,70 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
+ * Created on Oct 9, 2015 by dietzc
  */
-package org.knime.knip.base.nodes.testing;
+package org.knime.knip.core.io.externalization;
 
-import org.knime.core.node.DynamicNodeFactory;
-import org.knime.core.node.NodeDescription;
-import org.knime.core.node.NodeDescription210Proxy;
-import org.knime.core.node.NodeDialogPane;
-import org.knime.core.node.NodeFactory;
-import org.knime.core.node.NodeView;
-import org.knime.knip.base.data.img.ImgPlusValue;
-import org.knime.knip.base.node.XMLNodeUtils;
-import org.knime.node.v210.KnimeNodeDocument;
-
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 /**
- * {@link NodeFactory} for {@link ImgComparatorNodeModel}
+ * Util class for handling streams used by cell implementations.
  *
- * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
- *
- * @param <T>
+ * @author Christian Dietz, University of Konstanz
  */
-public class ImgComparatorNodeFactory<T extends NativeType<T> & RealType<T>> extends
-        DynamicNodeFactory<ComparatorNodeModel<ImgPlusValue<T>, ImgPlusValue<T>>> {
+public class StreamUtil {
 
-    @Override
-    protected NodeDescription createNodeDescription() {
-        KnimeNodeDocument doc = KnimeNodeDocument.Factory.newInstance();
-        XMLNodeUtils.addXMLNodeDescriptionTo(doc, getClass());
+    /**
+     * Suffix to be added to files if they are zip compressed.
+     */
+    public static final String ZIP_SUFFIX = ".zip";
 
-        return new NodeDescription210Proxy(doc);
+    /**
+     * Helper to create the respective input stream (e.g. if zip file or not)
+     */
+    public static BufferedDataInputStream createInputStream(final File f, final long offset) throws IOException {
+        BufferedDataInputStream stream = null;
+        try {
+            if (f.getName().endsWith(ZIP_SUFFIX)) {
+                final FileInputStream fileInput = new FileInputStream(f);
+                fileInput.skip(offset);
+                final ZipInputStream zip = new ZipInputStream(fileInput);
+                zip.getNextEntry();
+                stream = new BufferedDataInputStream(zip);
+            } else {
+                stream = new BufferedDataInputStream(new FileInputStream(f));
+                stream.skip(offset);
+            }
+        } catch (IOException e) {
+            if (stream != null) {
+                stream.close();
+            }
+            throw e;
+        }
+        return stream;
     }
 
-    @Override
-    public ComparatorNodeModel<ImgPlusValue<T>, ImgPlusValue<T>> createNodeModel() {
-        return new ImgComparatorNodeModel<T>();
+    /**
+     * Helper to create the respective output stream (e.g. if zip file or not)
+     */
+    public static BufferedDataOutputStream createOutStream(final File file) throws FileNotFoundException, IOException {
+        BufferedDataOutputStream stream;
+        if (file.getName().endsWith(ZIP_SUFFIX)) {
+            final ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(file, true));
+            zip.putNextEntry(new ZipEntry("img"));
+            stream = new BufferedDataOutputStream(zip);
+        } else {
+            stream = new BufferedDataOutputStream(new FileOutputStream(file, true));
+        }
+        return stream;
     }
-
-    @Override
-    protected int getNrNodeViews() {
-        return 0;
-    }
-
-    @Override
-    public NodeView<ComparatorNodeModel<ImgPlusValue<T>, ImgPlusValue<T>>>
-            createNodeView(final int viewIndex, final ComparatorNodeModel<ImgPlusValue<T>, ImgPlusValue<T>> nodeModel) {
-        return null;
-    }
-
-    @Override
-    protected boolean hasDialog() {
-        return true;
-    }
-
-    @Override
-    protected NodeDialogPane createNodeDialogPane() {
-        return new ComparatorNodeDialog<ImgPlusValue<T>, ImgPlusValue<T>>() {
-        };
-    }
-
 }
