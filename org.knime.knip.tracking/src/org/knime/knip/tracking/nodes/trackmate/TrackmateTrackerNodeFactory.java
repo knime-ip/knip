@@ -12,8 +12,8 @@ import org.knime.knip.base.nodes.view.TableCellViewNodeView;
  * @author christian
  *
  */
-public class TrackmateTrackerNodeFactory extends
-        NodeFactory<TrackmateTrackerNodeModel> {
+public class TrackmateTrackerNodeFactory
+        extends NodeFactory<TrackmateTrackerNodeModel> {
 
     @Override
     public TrackmateTrackerNodeModel createNodeModel() {
@@ -28,7 +28,7 @@ public class TrackmateTrackerNodeFactory extends
     @Override
     public NodeView<TrackmateTrackerNodeModel> createNodeView(
             final int viewIndex, final TrackmateTrackerNodeModel nodeModel) {
-        return new TableCellViewNodeView<TrackmateTrackerNodeModel>(nodeModel);
+        return new TableCellViewNodeView<>(nodeModel);
     }
 
     @Override

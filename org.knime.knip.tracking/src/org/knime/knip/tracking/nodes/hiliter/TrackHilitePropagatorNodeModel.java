@@ -143,10 +143,8 @@ public class TrackHilitePropagatorNodeModel extends NodeModel
                         TrackHilitePropagatorSettingsModels.DEFAULT_TRACK_PREFIX;
             }
 
-            final Map<String, String> labelToTrack =
-                    new HashMap<String, String>();
-            final Map<String, List<String>> trackToLabels =
-                    new HashMap<String, List<String>>();
+            final Map<String, String> labelToTrack = new HashMap<>();
+            final Map<String, List<String>> trackToLabels = new HashMap<>();
 
             // Fill the maps with the associated labelings.
             for (int i = 0; i < mapping.numSets(); i++) {
@@ -160,7 +158,7 @@ public class TrackHilitePropagatorNodeModel extends NodeModel
 
                 // Identify the labels and the track
                 String track = "";
-                final List<String> otherLabels = new ArrayList<String>();
+                final List<String> otherLabels = new ArrayList<>();
                 for (final String label : localLabels) {
                     if (label.startsWith(trackPrefix)) {
                         track = label;
@@ -200,15 +198,13 @@ public class TrackHilitePropagatorNodeModel extends NodeModel
                     throws IOException, CanceledExecutionException {
         m_hiliteHandler.addHiLiteListener(this);
 
-        final ObjectInputStream in = new ObjectInputStream(new FileInputStream(
-                new File(nodeInternDir, SERIALISATION_KEY)));
-        try {
+        try (final ObjectInputStream in =
+                new ObjectInputStream(new FileInputStream(
+                        new File(nodeInternDir, SERIALISATION_KEY)))) {
             m_rowIdToTrackData = (HashMap<String, TrackData>) in.readObject();
         } catch (final ClassNotFoundException e) {
-            in.close();
             throw new IOException("Could not restore the state!", e);
         }
-        in.close();
     }
 
     @Override
@@ -216,11 +212,12 @@ public class TrackHilitePropagatorNodeModel extends NodeModel
             final ExecutionMonitor exec)
                     throws IOException, CanceledExecutionException {
 
-        final ObjectOutputStream out =
+        try (final ObjectOutputStream out =
                 new ObjectOutputStream(new FileOutputStream(
-                        new File(nodeInternDir, SERIALISATION_KEY)));
-        out.writeObject(m_rowIdToTrackData);
-        out.close();
+                        new File(nodeInternDir, SERIALISATION_KEY)))) {
+            out.writeObject(m_rowIdToTrackData);
+            out.close();
+        }
     }
 
     @Override

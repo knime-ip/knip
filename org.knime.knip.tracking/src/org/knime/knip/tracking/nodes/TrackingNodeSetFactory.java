@@ -67,9 +67,9 @@ import org.knime.core.node.config.ConfigRO;
  */
 public class TrackingNodeSetFactory implements NodeSetFactory {
 
-    private static final NodeLogger LOGGER = NodeLogger
-            .getLogger(TrackingNodeSetFactory.class);
-    private final Map<String, String> m_nodeFactories = new HashMap<String, String>();
+    private static final NodeLogger LOGGER =
+            NodeLogger.getLogger(TrackingNodeSetFactory.class);
+    private final Map<String, String> m_nodeFactories = new HashMap<>();
 
     /**
      * {@inheritDoc}

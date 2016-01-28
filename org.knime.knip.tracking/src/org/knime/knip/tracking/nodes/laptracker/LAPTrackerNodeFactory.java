@@ -20,7 +20,7 @@ public class LAPTrackerNodeFactory extends NodeFactory<LAPTrackerNodeModel> {
     @Override
     public NodeView<LAPTrackerNodeModel> createNodeView(int viewIndex,
             LAPTrackerNodeModel nodeModel) {
-        return new TableCellViewNodeView<LAPTrackerNodeModel>(nodeModel);
+        return new TableCellViewNodeView<>(nodeModel);
     }
 
     @Override
