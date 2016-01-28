@@ -269,7 +269,7 @@ public class TrackmateTrackerNodeModel extends NodeModel
                 LabelingValue.class, inData[0].getSpec());
 
         if (inData[0].size() < 1) {
-            throw new Error("Input Table is empty!");
+            throw new IllegalArgumentException("Input Table is empty!");
         }
 
         final LabelingValue<String> srcLabelingValue;
@@ -277,8 +277,9 @@ public class TrackmateTrackerNodeModel extends NodeModel
             srcLabelingValue = (LabelingValue<String>) inData[0].iterator()
                     .next().getCell(labelingIndex);
         } catch (final ClassCastException e) {
-            throw new Error("Invalid labeling type in the Labeling Column: "
-                    + e.getMessage());
+            throw new IllegalArgumentException(
+                    "Invalid labeling type in the Labeling Column: "
+                            + e.getMessage());
         }
 
         // create a list of all nodes
@@ -370,7 +371,7 @@ public class TrackmateTrackerNodeModel extends NodeModel
             ImgPlusValue<BitType> bitMaskValue = null;
             try {
                 bitMaskValue =
-                        ((ImgPlusValue<BitType>) row.getCell(bitMaskColumnIdx));
+                        (ImgPlusValue<BitType>) row.getCell(bitMaskColumnIdx);
                 bitMask = bitMaskValue.getImgPlus();
             } catch (final ClassCastException e) {
                 handleMissingValue(row.getKey(), columnNames[bitMaskColumnIdx]);
