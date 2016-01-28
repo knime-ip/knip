@@ -71,6 +71,7 @@ import net.imglib2.ops.operation.iterableinterval.unary.Centroid;
 import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.type.logic.BitType;
 
+@Deprecated
 public class LAPTrackerNodeModel extends NodeModel
         implements BufferedDataTableHolder {
 
@@ -238,7 +239,7 @@ public class LAPTrackerNodeModel extends NodeModel
             // allowed since now
             if (sourceLabeling == null) {
                 final LabelingValue<?> labValue =
-                        ((LabelingValue<?>) row.getCell(sourceLabelingIdx));
+                        (LabelingValue<?>) row.getCell(sourceLabelingIdx);
                 sourceLabeling = labValue.getLabeling();
                 sourceLabelingName = labValue.getLabelingMetadata().getName();
                 sourceLabelingMetadata = labValue.getLabelingMetadata();
@@ -498,7 +499,7 @@ public class LAPTrackerNodeModel extends NodeModel
                 colNames.add(c.getName());
             }
         }
-        if (colNames.size() == 0) {
+        if (colNames.isEmpty()) {
             return;
         }
     }

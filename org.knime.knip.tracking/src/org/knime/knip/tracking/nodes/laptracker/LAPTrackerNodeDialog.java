@@ -23,68 +23,69 @@ import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.tracking.nodes.laptracker.LAPTrackerNodeModel.LAPTrackerAlgorithm;
 
+@Deprecated
 public class LAPTrackerNodeDialog extends DefaultNodeSettingsPane {
 
     // Trackmate
 
-    private final SettingsModelString m_trackingAlgorithmModel = LAPTrackerSettingsModels
-            .createTrackingAlgorithmModel();
+    private final SettingsModelString m_trackingAlgorithmModel =
+            LAPTrackerSettingsModels.createTrackingAlgorithmModel();
 
-    private final SettingsModelBoolean m_allowGapClosingModel = LAPTrackerSettingsModels
-            .createAllowGapClosingModel();
+    private final SettingsModelBoolean m_allowGapClosingModel =
+            LAPTrackerSettingsModels.createAllowGapClosingModel();
 
-    private final SettingsModelBoolean m_allowMergingModel = LAPTrackerSettingsModels
-            .createAllowMergingModel();
+    private final SettingsModelBoolean m_allowMergingModel =
+            LAPTrackerSettingsModels.createAllowMergingModel();
 
-    private final SettingsModelBoolean m_allowSplittingModel = LAPTrackerSettingsModels
-            .createAllowSplittingModel();
+    private final SettingsModelBoolean m_allowSplittingModel =
+            LAPTrackerSettingsModels.createAllowSplittingModel();
 
-    private final SettingsModelIntegerBounded m_gapClosingMaxFrameModel = LAPTrackerSettingsModels
-            .createMaxFrameGapClosingModel();
+    private final SettingsModelIntegerBounded m_gapClosingMaxFrameModel =
+            LAPTrackerSettingsModels.createMaxFrameGapClosingModel();
 
-    private final SettingsModelDouble m_mergingMaxDistanceModel = LAPTrackerSettingsModels
-            .createMergingMaxDistance();
+    private final SettingsModelDouble m_mergingMaxDistanceModel =
+            LAPTrackerSettingsModels.createMergingMaxDistance();
 
-    private final SettingsModelDouble m_gapClosingMaxDistanceModel = LAPTrackerSettingsModels
-            .createGapClosingMaxDistanceModel();
+    private final SettingsModelDouble m_gapClosingMaxDistanceModel =
+            LAPTrackerSettingsModels.createGapClosingMaxDistanceModel();
 
-    private final SettingsModelDouble m_splittingMaxDistance = LAPTrackerSettingsModels
-            .createSplittingMaxDistance();
+    private final SettingsModelDouble m_splittingMaxDistance =
+            LAPTrackerSettingsModels.createSplittingMaxDistance();
 
-    private final SettingsModelDouble m_alternativeLinkingCostFactor = LAPTrackerSettingsModels
-            .createAlternativeLinkingCostFactor();
+    private final SettingsModelDouble m_alternativeLinkingCostFactor =
+            LAPTrackerSettingsModels.createAlternativeLinkingCostFactor();
 
-    private final SettingsModelDouble m_cutoffPercentileModel = LAPTrackerSettingsModels
-            .createCutoffPercentileModel();
+    private final SettingsModelDouble m_cutoffPercentileModel =
+            LAPTrackerSettingsModels.createCutoffPercentileModel();
 
-    private final SettingsModelDouble m_linkingMaxDistanceModel = LAPTrackerSettingsModels
-            .createLinkingMaxDistanceModel();
+    private final SettingsModelDouble m_linkingMaxDistanceModel =
+            LAPTrackerSettingsModels.createLinkingMaxDistanceModel();
 
     // KNIME
 
-    private final SettingsModelString m_sourceLabelingColumn = LAPTrackerSettingsModels
-            .createSourceLabelingSettingsModel();
+    private final SettingsModelString m_sourceLabelingColumn =
+            LAPTrackerSettingsModels.createSourceLabelingSettingsModel();
 
-    private final SettingsModelFilterString m_columns = LAPTrackerSettingsModels
-            .createColumnSelectionModel();
+    private final SettingsModelFilterString m_columns =
+            LAPTrackerSettingsModels.createColumnSelectionModel();
 
-    private final SettingsModelString m_timeAxisModel = LAPTrackerSettingsModels
-            .createTimeAxisModel();
+    private final SettingsModelString m_timeAxisModel =
+            LAPTrackerSettingsModels.createTimeAxisModel();
 
-    private final SettingsModelString m_bitMaskColumnModel = LAPTrackerSettingsModels
-            .createBitMaskModel();
+    private final SettingsModelString m_bitMaskColumnModel =
+            LAPTrackerSettingsModels.createBitMaskModel();
 
-    private final SettingsModelString m_labelColumnModel = LAPTrackerSettingsModels
-            .createLabelModel();
+    private final SettingsModelString m_labelColumnModel =
+            LAPTrackerSettingsModels.createLabelModel();
 
-    private final SettingsModelBoolean m_attachSourceLabelings = LAPTrackerSettingsModels
-            .createAttachSourceLabelingsModel();
+    private final SettingsModelBoolean m_attachSourceLabelings =
+            LAPTrackerSettingsModels.createAttachSourceLabelingsModel();
 
-    private final SettingsModelBoolean m_useCustomTrackPrefix = LAPTrackerSettingsModels
-            .createUseCustomTrackPrefixModel();
+    private final SettingsModelBoolean m_useCustomTrackPrefix =
+            LAPTrackerSettingsModels.createUseCustomTrackPrefixModel();
 
-    private final SettingsModelString m_customTrackPrefix = LAPTrackerSettingsModels
-            .createCustomTrackPrefixModel();
+    private final SettingsModelString m_customTrackPrefix =
+            LAPTrackerSettingsModels.createCustomTrackPrefixModel();
 
     public LAPTrackerNodeDialog() {
 
@@ -129,15 +130,15 @@ public class LAPTrackerNodeDialog extends DefaultNodeSettingsPane {
         addDialogComponent(new DialogComponentColumnNameSelection(
                 m_labelColumnModel, "Labels", 0, StringValue.class));
 
-        addDialogComponent(new DialogComponentColumnNameSelection(
-                m_sourceLabelingColumn, "Source Labeling", 0,
-                LabelingValue.class));
+        addDialogComponent(
+                new DialogComponentColumnNameSelection(m_sourceLabelingColumn,
+                        "Source Labeling", 0, LabelingValue.class));
     }
 
     private void addAdvancedSettings() {
-        addDialogComponent(new DialogComponentNumber(
-                m_alternativeLinkingCostFactor,
-                "Alternative Linking Cost Factor", 0.05));
+        addDialogComponent(
+                new DialogComponentNumber(m_alternativeLinkingCostFactor,
+                        "Alternative Linking Cost Factor", 0.05));
 
         addDialogComponent(new DialogComponentNumber(m_cutoffPercentileModel,
                 "Cutoff Percentile", 0.05));
@@ -145,10 +146,10 @@ public class LAPTrackerNodeDialog extends DefaultNodeSettingsPane {
     }
 
     private void addBasicOptions() {
-        addDialogComponent(new DialogComponentStringSelection(
-                m_trackingAlgorithmModel, "Algorithm",
-                EnumUtils.getStringListFromToString(LAPTrackerAlgorithm
-                        .values())));
+        addDialogComponent(
+                new DialogComponentStringSelection(m_trackingAlgorithmModel,
+                        "Algorithm", EnumUtils.getStringListFromToString(
+                                LAPTrackerAlgorithm.values())));
         addDialogComponent(new DialogComponentNumber(m_linkingMaxDistanceModel,
                 "Maximum Object Distance", 2.5));
 
@@ -170,10 +171,10 @@ public class LAPTrackerNodeDialog extends DefaultNodeSettingsPane {
 
             @Override
             public void stateChanged(ChangeEvent e) {
-                m_gapClosingMaxDistanceModel.setEnabled(m_allowGapClosingModel
-                        .getBooleanValue());
-                m_gapClosingMaxFrameModel.setEnabled(m_allowGapClosingModel
-                        .getBooleanValue());
+                m_gapClosingMaxDistanceModel
+                        .setEnabled(m_allowGapClosingModel.getBooleanValue());
+                m_gapClosingMaxFrameModel
+                        .setEnabled(m_allowGapClosingModel.getBooleanValue());
             }
         });
     }
@@ -189,8 +190,8 @@ public class LAPTrackerNodeDialog extends DefaultNodeSettingsPane {
         m_useCustomTrackPrefix.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                m_customTrackPrefix.setEnabled(m_useCustomTrackPrefix
-                        .getBooleanValue());
+                m_customTrackPrefix
+                        .setEnabled(m_useCustomTrackPrefix.getBooleanValue());
             }
         });
         addDialogComponent(new DialogComponentBoolean(m_useCustomTrackPrefix,
@@ -213,8 +214,8 @@ public class LAPTrackerNodeDialog extends DefaultNodeSettingsPane {
 
             @Override
             public void stateChanged(ChangeEvent e) {
-                m_mergingMaxDistanceModel.setEnabled(m_allowMergingModel
-                        .getBooleanValue());
+                m_mergingMaxDistanceModel
+                        .setEnabled(m_allowMergingModel.getBooleanValue());
             }
         });
     }
@@ -230,8 +231,8 @@ public class LAPTrackerNodeDialog extends DefaultNodeSettingsPane {
 
             @Override
             public void stateChanged(ChangeEvent e) {
-                m_splittingMaxDistance.setEnabled(m_allowSplittingModel
-                        .getBooleanValue());
+                m_splittingMaxDistance
+                        .setEnabled(m_allowSplittingModel.getBooleanValue());
             }
         });
     }

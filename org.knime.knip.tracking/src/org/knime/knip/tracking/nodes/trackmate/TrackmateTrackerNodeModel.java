@@ -447,7 +447,7 @@ public class TrackmateTrackerNodeModel extends NodeModel
     }
 
     /**
-     * Retrieves the calculated track segments in a harmonised form from the
+     * Retrieves the calculated track segments in a harmonized form from the
      * Tracker.
      *
      * @param tracker
@@ -502,6 +502,7 @@ public class TrackmateTrackerNodeModel extends NodeModel
         final boolean attachSourceLabelings =
                 m_attachSourceLabelings.getBooleanValue();
         final int numDims = resAccess.numDimensions();
+        final long[] pos = new long[numDims];
 
         int trackCtr = 0;
         for (final SortedSet<TrackedNode<String>> track : tracks) {
@@ -513,13 +514,11 @@ public class TrackmateTrackerNodeModel extends NodeModel
                         continue;
                     }
 
-                    for (int d = 0; d < numDims; d++) {
-                        resAccess.setPosition(bitMaskCursor.getLongPosition(d),
-                                d);
-                    }
+                    bitMaskCursor.localize(pos);
+                    resAccess.setPosition(pos);
+
                     // set all the important information
                     final Set<String> labeling = new HashSet<>(resAccess.get());
-
                     labeling.add(trackPrefix + trackCtr);
 
                     // add original labelings if selected by the user

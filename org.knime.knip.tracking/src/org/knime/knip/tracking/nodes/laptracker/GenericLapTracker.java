@@ -12,8 +12,9 @@ import fiji.plugin.trackmate.tracking.oldlap.hungarian.HungarianAlgorithm;
 import fiji.plugin.trackmate.tracking.oldlap.hungarian.JonkerVolgenantAlgorithm;
 import fiji.plugin.trackmate.tracking.oldlap.hungarian.MunkresKuhnAlgorithm;
 
-public class GenericLapTracker<L extends Comparable<L>> extends
-        LAPTracker<TrackedNode<L>> {
+@Deprecated
+public class GenericLapTracker<L extends Comparable<L>>
+        extends LAPTracker<TrackedNode<L>> {
 
     private final LAPTrackerAlgorithm algorithm;
 

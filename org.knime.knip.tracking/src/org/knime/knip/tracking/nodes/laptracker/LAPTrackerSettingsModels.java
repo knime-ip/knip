@@ -15,8 +15,9 @@ import fiji.plugin.trackmate.tracking.TrackerKeys;
  * {@link LAPTrackerNodeModel}
  *
  * @author Christian Dietz
- *
+ * @Deprecated
  */
+@Deprecated
 final class LAPTrackerSettingsModels {
 
     private LAPTrackerSettingsModels() {

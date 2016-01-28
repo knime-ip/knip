@@ -5,6 +5,7 @@ import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 import org.knime.knip.base.nodes.view.TableCellViewNodeView;
 
+@Deprecated
 public class LAPTrackerNodeFactory extends NodeFactory<LAPTrackerNodeModel> {
 
     @Override
