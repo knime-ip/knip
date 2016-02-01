@@ -67,7 +67,6 @@ import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorResetEvent;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorRowColKeyChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
-import org.knime.knip.core.ui.imgviewer.events.TableOverviewDisableEvent;
 import org.knime.knip.core.ui.imgviewer.events.TablePositionEvent;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
 import org.knime.knip.core.ui.imgviewer.overlay.OverlayElement2D;

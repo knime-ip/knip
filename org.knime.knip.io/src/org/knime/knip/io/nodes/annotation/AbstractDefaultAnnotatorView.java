@@ -34,8 +34,6 @@ public abstract class AbstractDefaultAnnotatorView<A> implements AnnotatorView<A
 
 	private TableContentModel m_tableModel;
 
-	private boolean m_clearSelection;
-
 	protected PlainCellView m_view;
 
 	protected int m_currentRow = -1;
