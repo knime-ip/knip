@@ -180,6 +180,8 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 			exec.checkCanceled();
 
 		}
+		
+		rifp.close();
 
 		bdc.close();
 		
@@ -228,7 +230,7 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 				if (encounteredExceptions.get()) {
 					setWarningMessage("Encountered errors during execution!");
 				}
-
+				rifp.close();
 				out.close();
 			}
 		};

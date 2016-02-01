@@ -156,4 +156,11 @@ public abstract class AbstractReadImgFunction<T extends RealType<T> & NativeType
 
 		return new Pair<DataRow, Optional<Throwable>>(new DefaultRow(rowKey, cells), Optional.empty());
 	}
+	
+	/**
+	 * Performs all the clean-up work, e.g. closing files etc.
+	 */
+	public void close() {
+	    m_imgSource.close();
+	}
 }

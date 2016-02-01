@@ -168,6 +168,9 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 			exec.checkCanceled();
 		}
 
+		//close img file sources
+		rifp.close();
+		
 		bdc.close();
 		// data table for the table cell viewer
 		m_data = bdc.getTable();
@@ -218,6 +221,8 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 
 				in.close();
 				out.close();
+				
+				readImgFunction.close();
 			}
 		};
 	}
