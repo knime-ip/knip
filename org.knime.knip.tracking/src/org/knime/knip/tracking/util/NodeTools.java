@@ -140,8 +140,8 @@ public final class NodeTools {
      *            the DataTableSpec of the table
      * @return list of indices
      */
-    public static final List<Integer> columnNamesToIndices(
-            final String[] names, final DataTableSpec spec) {
+    public static final List<Integer> columnNamesToIndices(final String[] names,
+            final DataTableSpec spec) {
         final List<Integer> incices = new ArrayList<>();
         for (final String name : names) {
             incices.add(spec.findColumnIndex(name));
@@ -158,7 +158,8 @@ public final class NodeTools {
      * @param include
      *            The indices of columns that are included in the array
      * @return array containing the double values from the included columns
-     * @throws ClassCastException when there are missing values
+     * @throws ClassCastException
+     *             when there are missing values
      */
     public static double[] toDoubleArray(final DataRow row,
             final List<Integer> include) {
@@ -182,8 +183,8 @@ public final class NodeTools {
      */
     public static double[] toDoubleArray(final DataRow row,
             final DataTableSpec spec) {
-        final List<Integer> include = collectAllColumnIndicesOfType(
-                DoubleValue.class, spec);
+        final List<Integer> include =
+                collectAllColumnIndicesOfType(DoubleValue.class, spec);
         return toDoubleArray(row, include);
     }
 
@@ -213,8 +214,8 @@ public final class NodeTools {
         // in case of an invalid selection, select all
         if (result.getIncludes().length == 0
                 && result.getExcludes().length == 0) {
-            NodeLogger.getLogger(nodeModelClass).warn(
-                    "Invalid column selection, automatically selecting "
+            NodeLogger.getLogger(nodeModelClass)
+                    .warn("Invalid column selection, automatically selecting "
                             + "all columns of the following type: "
                             + valueClass.getSimpleName());
             return collectAllColumnIndicesOfType(valueClass, spec);
@@ -229,7 +230,7 @@ public final class NodeTools {
      * @return the row as list.
      */
     public static List<DataCell> makeListFromRow(final DataRow row) {
-        final List<DataCell> list = new ArrayList<DataCell>(row.getNumCells());
+        final List<DataCell> list = new ArrayList<>(row.getNumCells());
         for (final DataCell cell : row) {
             list.add(cell);
         }

@@ -8,8 +8,9 @@ import fiji.plugin.trackmate.tracking.oldlap.costfunction.CostCalculator;
 import fiji.plugin.trackmate.util.FeatureHolderUtils;
 import fiji.plugin.trackmate.util.TrackableObjectUtils;
 
-public class KNIPCostCalculator<L extends Comparable<L>> implements
-        CostCalculator<TrackedNode<L>> {
+@Deprecated
+public class KNIPCostCalculator<L extends Comparable<L>>
+        implements CostCalculator<TrackedNode<L>> {
 
     @Override
     public double computeLinkingCostFor(final TrackedNode<L> t0,
@@ -26,8 +27,8 @@ public class KNIPCostCalculator<L extends Comparable<L>> implements
 
         double penalty = 1;
         for (final String feature : featurePenalties.keySet()) {
-            final double ndiff = FeatureHolderUtils.normalizeDiffTo(t0, t1,
-                    feature);
+            final double ndiff =
+                    FeatureHolderUtils.normalizeDiffTo(t0, t1, feature);
             if (Double.isNaN(ndiff))
                 continue;
             final double factor = featurePenalties.get(feature);

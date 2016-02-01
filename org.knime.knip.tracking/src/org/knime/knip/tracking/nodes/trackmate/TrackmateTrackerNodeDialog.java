@@ -1,8 +1,5 @@
 package org.knime.knip.tracking.nodes.trackmate;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
 import org.knime.core.data.StringValue;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
@@ -137,15 +134,15 @@ public class TrackmateTrackerNodeDialog extends DefaultNodeSettingsPane {
         addDialogComponent(new DialogComponentColumnNameSelection(
                 m_labelColumnModel, "Labels", 0, StringValue.class));
 
-        addDialogComponent(new DialogComponentColumnNameSelection(
-                m_sourceLabelingColumn, "Source Labeling", 0,
-                LabelingValue.class));
+        addDialogComponent(
+                new DialogComponentColumnNameSelection(m_sourceLabelingColumn,
+                        "Source Labeling", 0, LabelingValue.class));
     }
 
     private void addAdvancedSettings() {
-        addDialogComponent(new DialogComponentNumber(
-                m_alternativeLinkingCostFactor,
-                "Alternative Linking Cost Factor", 0.05));
+        addDialogComponent(
+                new DialogComponentNumber(m_alternativeLinkingCostFactor,
+                        "Alternative Linking Cost Factor", 0.05));
 
         addDialogComponent(new DialogComponentNumber(m_cutoffPercentileModel,
                 "Cutoff Percentile", 0.05));
@@ -173,15 +170,11 @@ public class TrackmateTrackerNodeDialog extends DefaultNodeSettingsPane {
         addDialogComponent(new DialogComponentNumber(m_gapClosingMaxFrameModel,
                 "Max GAP Size (Frames)", 1));
 
-        m_allowGapClosingModel.addChangeListener(new ChangeListener() {
-
-            @Override
-            public void stateChanged(final ChangeEvent e) {
-                m_gapClosingMaxDistanceModel.setEnabled(m_allowGapClosingModel
-                        .getBooleanValue());
-                m_gapClosingMaxFrameModel.setEnabled(m_allowGapClosingModel
-                        .getBooleanValue());
-            }
+        m_allowGapClosingModel.addChangeListener(e -> {
+            m_gapClosingMaxDistanceModel
+                    .setEnabled(m_allowGapClosingModel.getBooleanValue());
+            m_gapClosingMaxFrameModel
+                    .setEnabled(m_allowGapClosingModel.getBooleanValue());
         });
     }
 
@@ -193,13 +186,9 @@ public class TrackmateTrackerNodeDialog extends DefaultNodeSettingsPane {
         setHorizontalPlacement(true);
 
         m_customTrackPrefix.setEnabled(false);
-        m_useCustomTrackPrefix.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(final ChangeEvent e) {
-                m_customTrackPrefix.setEnabled(m_useCustomTrackPrefix
-                        .getBooleanValue());
-            }
-        });
+        m_useCustomTrackPrefix.addChangeListener(e -> m_customTrackPrefix
+                .setEnabled(m_useCustomTrackPrefix.getBooleanValue()));
+
         addDialogComponent(new DialogComponentBoolean(m_useCustomTrackPrefix,
                 "Use a Custom Track Prefix"));
 
@@ -216,14 +205,8 @@ public class TrackmateTrackerNodeDialog extends DefaultNodeSettingsPane {
         addDialogComponent(new DialogComponentNumber(m_mergingMaxDistanceModel,
                 "Max Distance", 0.5));
 
-        m_allowMergingModel.addChangeListener(new ChangeListener() {
-
-            @Override
-            public void stateChanged(final ChangeEvent e) {
-                m_mergingMaxDistanceModel.setEnabled(m_allowMergingModel
-                        .getBooleanValue());
-            }
-        });
+        m_allowMergingModel.addChangeListener(e -> m_mergingMaxDistanceModel
+                .setEnabled(m_allowMergingModel.getBooleanValue()));
     }
 
     private void addSplittingOptions() {
@@ -233,13 +216,7 @@ public class TrackmateTrackerNodeDialog extends DefaultNodeSettingsPane {
         addDialogComponent(new DialogComponentNumber(m_splittingMaxDistance,
                 "Max Distance", 0.5));
 
-        m_allowSplittingModel.addChangeListener(new ChangeListener() {
-
-            @Override
-            public void stateChanged(final ChangeEvent e) {
-                m_splittingMaxDistance.setEnabled(m_allowSplittingModel
-                        .getBooleanValue());
-            }
-        });
+        m_allowSplittingModel.addChangeListener(e -> m_splittingMaxDistance
+                .setEnabled(m_allowSplittingModel.getBooleanValue()));
     }
 }

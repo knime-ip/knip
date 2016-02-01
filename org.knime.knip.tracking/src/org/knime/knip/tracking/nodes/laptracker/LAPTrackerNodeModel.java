@@ -71,6 +71,7 @@ import net.imglib2.ops.operation.iterableinterval.unary.Centroid;
 import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.type.logic.BitType;
 
+@Deprecated
 public class LAPTrackerNodeModel extends NodeModel
         implements BufferedDataTableHolder {
 
@@ -217,7 +218,7 @@ public class LAPTrackerNodeModel extends NodeModel
         LabelingMetadata sourceLabelingMetadata = null;
 
         final TrackableObjectCollection<TrackedNode<String>> trackedNodes =
-                new DefaultTOCollection<TrackedNode<String>>();
+                new DefaultTOCollection<>();
         for (final DataRow row : inData[0]) {
             exec.checkCanceled();
             final ImgPlusValue<BitType> bitMaskValue =
@@ -238,7 +239,7 @@ public class LAPTrackerNodeModel extends NodeModel
             // allowed since now
             if (sourceLabeling == null) {
                 final LabelingValue<?> labValue =
-                        ((LabelingValue<?>) row.getCell(sourceLabelingIdx));
+                        (LabelingValue<?>) row.getCell(sourceLabelingIdx);
                 sourceLabeling = labValue.getLabeling();
                 sourceLabelingName = labValue.getLabelingMetadata().getName();
                 sourceLabelingMetadata = labValue.getLabelingMetadata();
@@ -249,8 +250,7 @@ public class LAPTrackerNodeModel extends NodeModel
                         "Since now only labels from one Labeling are allowed. Use KNIME Loops!");
             }
 
-            final Map<String, Double> featureMap =
-                    new HashMap<String, Double>();
+            final Map<String, Double> featureMap = new HashMap<>();
             for (final int idx : featureIndices) {
                 featureMap.put(columnNames[idx],
                         ((DoubleValue) row.getCell(idx)).getDoubleValue());
@@ -261,14 +261,14 @@ public class LAPTrackerNodeModel extends NodeModel
                     new double[bitMask.numDimensions()]);
 
             // add the node
-            final TrackedNode<String> trackedNode = new TrackedNode<String>(
-                    bitMask, pos, label, timeIdx, featureMap);
+            final TrackedNode<String> trackedNode =
+                    new TrackedNode<>(bitMask, pos, label, timeIdx, featureMap);
 
             trackedNodes.add(trackedNode, trackedNode.frame());
         }
 
         // Set-Up the tracker
-        final GenericLapTracker<String> tracker = new GenericLapTracker<String>(
+        final GenericLapTracker<String> tracker = new GenericLapTracker<>(
                 EnumUtils.valueForName(
                         m_trackingAlgorithmModel.getStringValue(),
                         LAPTrackerAlgorithm.values()),
@@ -281,18 +281,15 @@ public class LAPTrackerNodeModel extends NodeModel
         // use the results and create output labeling
         // create tracks
         final ConnectivityInspector<TrackedNode<String>, DefaultWeightedEdge> inspector =
-                new ConnectivityInspector<TrackedNode<String>, DefaultWeightedEdge>(
-                        tracker.getResult());
+                new ConnectivityInspector<>(tracker.getResult());
         final List<Set<TrackedNode<String>>> unsortedSegments =
                 inspector.connectedSets();
         final ArrayList<SortedSet<TrackedNode<String>>> trackSegments =
-                new ArrayList<SortedSet<TrackedNode<String>>>(
-                        unsortedSegments.size());
+                new ArrayList<>(unsortedSegments.size());
 
         for (final Set<TrackedNode<String>> set : unsortedSegments) {
             final SortedSet<TrackedNode<String>> sortedSet =
-                    new TreeSet<TrackedNode<String>>(
-                            TrackableObjectUtils.frameComparator());
+                    new TreeSet<>(TrackableObjectUtils.frameComparator());
             sortedSet.addAll(set);
             trackSegments.add(sortedSet);
         }
@@ -325,8 +322,7 @@ public class LAPTrackerNodeModel extends NodeModel
                                 d);
                     }
                     // set all the important information
-                    final Set<String> labeling =
-                            new HashSet<String>(resAccess.get());
+                    final Set<String> labeling = new HashSet<>(resAccess.get());
 
                     // add custom track prefix if selected
                     if (useCustomPrefix) {
@@ -503,7 +499,7 @@ public class LAPTrackerNodeModel extends NodeModel
                 colNames.add(c.getName());
             }
         }
-        if (colNames.size() == 0) {
+        if (colNames.isEmpty()) {
             return;
         }
     }
@@ -517,12 +513,12 @@ public class LAPTrackerNodeModel extends NodeModel
         final List<String> colNames;
         if ((m_columns.getIncludeList().size() == 0)
                 || m_columns.isKeepAllSelected()) {
-            colNames = new ArrayList<String>();
+            colNames = new ArrayList<>();
             collectAllColumns(colNames, inSpec);
             m_columns.setIncludeList(colNames);
 
         } else {
-            colNames = new ArrayList<String>();
+            colNames = new ArrayList<>();
             colNames.addAll(m_columns.getIncludeList());
             if (!validateColumnSelection(colNames, inSpec)) {
                 setWarningMessage(
@@ -532,8 +528,7 @@ public class LAPTrackerNodeModel extends NodeModel
         }
 
         // get column indices
-        final List<Integer> colIndices =
-                new ArrayList<Integer>(colNames.size());
+        final List<Integer> colIndices = new ArrayList<>(colNames.size());
         for (int i = 0; i < colNames.size(); i++) {
             final int colIdx = inSpec.findColumnIndex(colNames.get(i));
             if (colIdx == -1) {

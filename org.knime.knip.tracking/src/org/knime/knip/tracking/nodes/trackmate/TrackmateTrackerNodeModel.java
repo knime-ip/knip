@@ -269,7 +269,7 @@ public class TrackmateTrackerNodeModel extends NodeModel
                 LabelingValue.class, inData[0].getSpec());
 
         if (inData[0].size() < 1) {
-            throw new Error("Input Table is empty!");
+            throw new IllegalArgumentException("Input Table is empty!");
         }
 
         final LabelingValue<String> srcLabelingValue;
@@ -277,8 +277,9 @@ public class TrackmateTrackerNodeModel extends NodeModel
             srcLabelingValue = (LabelingValue<String>) inData[0].iterator()
                     .next().getCell(labelingIndex);
         } catch (final ClassCastException e) {
-            throw new Error("Invalid labeling type in the Labeling Column: "
-                    + e.getMessage());
+            throw new IllegalArgumentException(
+                    "Invalid labeling type in the Labeling Column: "
+                            + e.getMessage());
         }
 
         // create a list of all nodes
@@ -370,7 +371,7 @@ public class TrackmateTrackerNodeModel extends NodeModel
             ImgPlusValue<BitType> bitMaskValue = null;
             try {
                 bitMaskValue =
-                        ((ImgPlusValue<BitType>) row.getCell(bitMaskColumnIdx));
+                        (ImgPlusValue<BitType>) row.getCell(bitMaskColumnIdx);
                 bitMask = bitMaskValue.getImgPlus();
             } catch (final ClassCastException e) {
                 handleMissingValue(row.getKey(), columnNames[bitMaskColumnIdx]);
@@ -400,8 +401,7 @@ public class TrackmateTrackerNodeModel extends NodeModel
                                 + "Use KNIME Loops!");
             }
 
-            final Map<String, Double> featureMap =
-                    new HashMap<String, Double>();
+            final Map<String, Double> featureMap = new HashMap<>();
 
             for (final int idx : featureIndices) {
                 try {
@@ -427,8 +427,8 @@ public class TrackmateTrackerNodeModel extends NodeModel
             featureMap.put(TrackmateConstants.POSITION_T, pos[timeIdx]);
 
             // add the node
-            final TrackedNode<String> trackedNode = new TrackedNode<String>(
-                    bitMask, pos, label, timeIdx, featureMap);
+            final TrackedNode<String> trackedNode =
+                    new TrackedNode<>(bitMask, pos, label, timeIdx, featureMap);
 
             trackedNodes.add(trackedNode, trackedNode.frame());
         }
@@ -448,7 +448,7 @@ public class TrackmateTrackerNodeModel extends NodeModel
     }
 
     /**
-     * Retrieves the calculated track segments in a harmonised form from the
+     * Retrieves the calculated track segments in a harmonized form from the
      * Tracker.
      *
      * @param tracker
@@ -459,19 +459,16 @@ public class TrackmateTrackerNodeModel extends NodeModel
             final SparseLAPTracker<TrackedNode<String>> tracker) {
         // get the tracks from the tracker and
         final ConnectivityInspector<TrackedNode<String>, DefaultWeightedEdge> inspector =
-                new ConnectivityInspector<TrackedNode<String>, DefaultWeightedEdge>(
-                        tracker.getResult());
+                new ConnectivityInspector<>(tracker.getResult());
         final List<Set<TrackedNode<String>>> unsortedSegments =
                 inspector.connectedSets();
         final List<SortedSet<TrackedNode<String>>> trackSegments =
-                new ArrayList<SortedSet<TrackedNode<String>>>(
-                        unsortedSegments.size());
+                new ArrayList<>(unsortedSegments.size());
 
         // sort the track nodes by adding all segments to a sorted TreeSet
         for (final Set<TrackedNode<String>> segmentSet : unsortedSegments) {
             final SortedSet<TrackedNode<String>> sortedSet =
-                    new TreeSet<TrackedNode<String>>(
-                            TrackableObjectUtils.frameComparator());
+                    new TreeSet<>(TrackableObjectUtils.frameComparator());
             sortedSet.addAll(segmentSet);
             trackSegments.add(sortedSet);
         }
@@ -506,6 +503,7 @@ public class TrackmateTrackerNodeModel extends NodeModel
         final boolean attachSourceLabelings =
                 m_attachSourceLabelings.getBooleanValue();
         final int numDims = resAccess.numDimensions();
+        final long[] pos = new long[numDims];
 
         int trackCtr = 0;
         for (final SortedSet<TrackedNode<String>> track : tracks) {
@@ -517,14 +515,11 @@ public class TrackmateTrackerNodeModel extends NodeModel
                         continue;
                     }
 
-                    for (int d = 0; d < numDims; d++) {
-                        resAccess.setPosition(bitMaskCursor.getLongPosition(d),
-                                d);
-                    }
-                    // set all the important information
-                    final Set<String> labeling =
-                            new HashSet<String>(resAccess.get());
+                    bitMaskCursor.localize(pos);
+                    resAccess.setPosition(pos);
 
+                    // set all the important information
+                    final Set<String> labeling = new HashSet<>(resAccess.get());
                     labeling.add(trackPrefix + trackCtr);
 
                     // add original labelings if selected by the user
@@ -604,7 +599,7 @@ public class TrackmateTrackerNodeModel extends NodeModel
             final String trackPrefix,
             final Map<Integer, Map<String, Double>> featureValues)
 
-                    throws IOException, CanceledExecutionException {
+    throws IOException, CanceledExecutionException {
 
         final DataTableSpec[] outSpec = createOutSpec();
 
@@ -798,7 +793,7 @@ public class TrackmateTrackerNodeModel extends NodeModel
      */
     private void collectSettingsModels() {
         if (m_settingsModels == null) {
-            m_settingsModels = new ArrayList<SettingsModel>();
+            m_settingsModels = new ArrayList<>();
 
             m_settingsModels.add(m_bitMaskColumnModel);
             m_settingsModels.add(m_columnFilterModel);
