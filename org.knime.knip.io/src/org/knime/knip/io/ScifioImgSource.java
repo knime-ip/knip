@@ -283,10 +283,8 @@ public class ScifioImgSource implements ImgSource {
 			options.imgOpenerSetRegion(new ImageRegion(axes, ranges));
 		}
 
-		UnclosableReaderFilter r = getReader(imgRef);
 		final ImgPlus<RealType> ret = MiscViews.cleanImgPlus(
-				m_imgOpener.openImg(r, getPixelType(imgRef, currentSeries), m_imgFactory, options));
-		r.closeNow();
+				m_imgOpener.openImg(getReader(imgRef), getPixelType(imgRef, currentSeries), m_imgFactory, options));
 
 		return ret;
 	}
@@ -348,10 +346,8 @@ public class ScifioImgSource implements ImgSource {
 			options.imgOpenerSetRegion(new ImageRegion(axes, ranges));
 		}
 
-		UnclosableReaderFilter r = getReader(imgRef);
 		final ImgPlus<T> ret = MiscViews
-				.cleanImgPlus(m_imgOpener.openImg(r, type, m_imgFactory, options));
-		r.closeNow();
+				.cleanImgPlus(m_imgOpener.openImg(getReader(imgRef), type, m_imgFactory, options));
 		return ret;
 	}
 
