@@ -283,8 +283,10 @@ public class ScifioImgSource implements ImgSource {
 			options.imgOpenerSetRegion(new ImageRegion(axes, ranges));
 		}
 
+		UnclosableReaderFilter r = getReader(imgRef);
 		final ImgPlus<RealType> ret = MiscViews.cleanImgPlus(
-				m_imgOpener.openImg(getReader(imgRef), getPixelType(imgRef, currentSeries), m_imgFactory, options));
+				m_imgOpener.openImg(r, getPixelType(imgRef, currentSeries), m_imgFactory, options));
+		r.closeNow();
 
 		return ret;
 	}
@@ -346,9 +348,10 @@ public class ScifioImgSource implements ImgSource {
 			options.imgOpenerSetRegion(new ImageRegion(axes, ranges));
 		}
 
+		UnclosableReaderFilter r = getReader(imgRef);
 		final ImgPlus<T> ret = MiscViews
-				.cleanImgPlus(m_imgOpener.openImg(getReader(imgRef), type, m_imgFactory, options));
-
+				.cleanImgPlus(m_imgOpener.openImg(r, type, m_imgFactory, options));
+		r.closeNow();
 		return ret;
 	}
 
@@ -426,7 +429,7 @@ public class ScifioImgSource implements ImgSource {
 
 	// -- private helper methods --
 
-	private Reader getReader(final String imgRef) throws FormatException, IOException {
+	private UnclosableReaderFilter getReader(final String imgRef) throws FormatException, IOException {
 		if (m_reader == null || (!m_currentFile.equals(imgRef) && m_checkFileFormat)) {
 
 			final Format format = ScifioGateway.getSCIFIO().format().getFormat(imgRef,
