@@ -83,7 +83,7 @@ public class ImgReader2NodeDialog extends AbstractImgReaderNodeDialog {
 	private static final FileFilter FILEFILTER;
 
 	static {
-		FILEFILTER = new FileNameExtensionFilter("BioFormats files", ScifioGateway.getAllSuffixes());
+		FILEFILTER = new FileNameExtensionFilter("Bio-Formats files", ScifioGateway.getAllSuffixes());
 	}
 
 	private final DialogComponentMultiFileChooser m_filechooser;
