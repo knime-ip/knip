@@ -106,8 +106,8 @@ public class ExternalizerStreamAccess<O>
     @Override
     protected void writeState(final ObjectOutput out) throws IOException {
         BufferedDataOutputStream outStream = new BufferedDataOutputStream((OutputStream)out);
-        outStream.flush();
         getExt().write(outStream, m_obj);
+        outStream.flush();
     }
 
     /**

@@ -136,6 +136,7 @@ public class ExternalizerFileAccess<O>
         } else {
             BufferedDataOutputStream outStream = new BufferedDataOutputStream((OutputStream)out);
             getExt().write(outStream, m_obj);
+            outStream.flush();
         }
     }
 

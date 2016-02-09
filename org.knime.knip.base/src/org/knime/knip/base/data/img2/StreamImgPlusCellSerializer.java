@@ -65,39 +65,21 @@ public class StreamImgPlusCellSerializer
     @Override
     public void serialize(final StreamImgPlusCell cell, final DataCellDataOutput output)
             throws IOException {
-        writeString(output, cell.getClass().getName());
         final ObjectOutputStream oos = new ObjectOutputStream(
                 (OutputStream) output);
-        cell.writeExternal(oos);
+        oos.writeObject(cell);
         oos.flush();
     }
 
     @Override
     public StreamImgPlusCell deserialize(final DataCellDataInput input) throws IOException {
         try {
-            String name = readString(input);
-            final StreamImgPlusCell cell = (StreamImgPlusCell) Class.forName(name).newInstance();
             final ObjectInputStream ois = new ObjectInputStream(
                     (InputStream) input);
-            cell.readExternal(ois);
-            return cell;
-        } catch (final ClassNotFoundException | InstantiationException
-                | IllegalAccessException e) {
+            return (StreamImgPlusCell) ois.readObject();
+        } catch (final ClassNotFoundException e) {
             // TODO Logging
             throw new RuntimeException(e);
         }
     }
-
-    private static void writeString(final DataCellDataOutput output, final String s) throws IOException {
-        output.writeInt(s.length());
-        output.writeBytes(s);
-    }
-
-    private static String readString(final DataCellDataInput input) throws IOException {
-        byte[] bytes = new byte[input.readInt()];
-        input.readFully(bytes);
-        return new String(bytes);
-    }
-
-
 }

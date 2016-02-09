@@ -139,7 +139,7 @@ public class KNIMEKNIPPlugin extends AbstractUIPlugin {
      */
     public static long getMinNumPixelsForFileStoreImgCell() {
         //TODO make it configurable!
-        return 200*200*3;
+        return 100*100;
     }
 
     /**
