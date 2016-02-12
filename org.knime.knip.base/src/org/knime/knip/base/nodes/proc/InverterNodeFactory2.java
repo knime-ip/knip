@@ -50,6 +50,16 @@ package org.knime.knip.base.nodes.proc;
 
 import java.util.List;
 
+import org.knime.core.data.DataCell;
+import org.knime.core.node.defaultnodesettings.SettingsModel;
+import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.base.node.IterableIntervalsNodeDialog;
+import org.knime.knip.base.node.IterableIntervalsNodeFactory;
+import org.knime.knip.base.node.IterableIntervalsNodeModel;
+import org.knime.node.v210.FullDescriptionDocument.FullDescription;
+import org.knime.node.v210.KnimeNodeDocument;
+import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
+
 import net.imagej.ImgPlus;
 import net.imglib2.IterableInterval;
 import net.imglib2.converter.read.ConvertedRandomAccessibleInterval;
@@ -59,16 +69,6 @@ import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.ops.operation.real.unary.RealUnaryOperation;
 import net.imglib2.type.numeric.RealType;
-
-import org.knime.core.node.defaultnodesettings.SettingsModel;
-import org.knime.knip.base.data.img.ImgPlusCell;
-import org.knime.knip.base.data.img.ImgPlusValue;
-import org.knime.knip.base.node.IterableIntervalsNodeDialog;
-import org.knime.knip.base.node.IterableIntervalsNodeFactory;
-import org.knime.knip.base.node.IterableIntervalsNodeModel;
-import org.knime.node.v210.FullDescriptionDocument.FullDescription;
-import org.knime.node.v210.KnimeNodeDocument;
-import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 
 /**
  * Factory class to produce an image inverter node.
@@ -163,17 +163,17 @@ public class InverterNodeFactory2<T extends RealType<T>, L extends Comparable<L>
              * {@inheritDoc}
              */
             @Override
-            protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
+            protected DataCell compute(final ImgPlusValue<T> cellValue) throws Exception {
                 if (isLabelingPresent()) {
                     // here we really can't optimize using converters
                     return super.compute(cellValue);
                 } else {
                     // this can be done faster
                     ImgPlus<T> in = cellValue.getImgPlus();
-                    return m_cellFactory.createCell(new ImgPlus<T>(new ImgView<T>(
+                    return m_cellFactory.createDataCell(new ImgPlus<T>(new ImgView<T>(
                             new ConvertedRandomAccessibleInterval<T, T>(in, new UnaryOperationBasedConverter<T, T>(
                                     createOp(in.firstElement().createVariable())), getOutType(in.firstElement())), in
-                                    .factory()), in));
+                                    .factory()), in), !doVirtually());
                 }
             }
 
@@ -222,6 +222,14 @@ public class InverterNodeFactory2<T extends RealType<T>, L extends Comparable<L>
             @Override
             public void addDialogComponents() {
                 //
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected boolean supportsVirtualProcessing() {
+                return true;
             }
         };
     }

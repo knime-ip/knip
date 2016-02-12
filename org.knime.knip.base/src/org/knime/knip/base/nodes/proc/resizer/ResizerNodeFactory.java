@@ -53,10 +53,8 @@ import java.util.List;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataType;
 import org.knime.core.node.ExecutionContext;
-import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
-import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
@@ -75,7 +73,6 @@ import net.imglib2.img.ImgView;
 import net.imglib2.interpolation.randomaccess.LanczosInterpolatorFactory;
 import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
 import net.imglib2.interpolation.randomaccess.NearestNeighborInterpolatorFactory;
-import net.imglib2.ops.operation.img.unary.ImgCopyOperation;
 import net.imglib2.realtransform.RealViews;
 import net.imglib2.realtransform.Scale;
 import net.imglib2.type.numeric.RealType;
@@ -141,10 +138,6 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
         return new SettingsModelResizeInputValues("input_factors");
     }
 
-    private static SettingsModelBoolean createDoVirtuallyModel() {
-        return new SettingsModelBoolean("do_virtually", true);
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -166,8 +159,14 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
                                    new DialogComponentStringSelection(createInputFactorInterpretationModel(), "",
                                            EnumUtils.getStringListFromToString(InputFactors.values())));
 
-                addDialogComponent("Options", "", new DialogComponentBoolean(createDoVirtuallyModel(), "Do virtually"));
+            }
 
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected boolean supportsVirtualProcessing() {
+                return true;
             }
         };
     }
@@ -187,15 +186,11 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
 
             private final SettingsModelString m_scalingTypeModel = createInputFactorInterpretationModel();
 
-            private final SettingsModelBoolean m_doVirtually = createDoVirtuallyModel();
-
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
                 settingsModels.add(m_extensionTypeModel);
                 settingsModels.add(m_inputFactorsModel);
                 settingsModels.add(m_scalingTypeModel);
-                settingsModels.add(m_doVirtually);
-
             }
 
             @Override
@@ -253,11 +248,8 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
                                       EnumUtils.valueForName(m_extensionTypeModel.getStringValue(),
                                                              ResizeStrategy.values()),
                                       new FinalInterval(newDimensions), scaleFactors);
-                if (!m_doVirtually.getBooleanValue()) {
-                    res = burnIn(res);
-                }
 
-                DataCell cell = m_imgCellFactory.createDataCell(new ImgPlus<T>(res, metadata));
+                DataCell cell = m_imgCellFactory.createDataCell(new ImgPlus<T>(res, metadata), !doVirtually());
                 return cell;
 
             }
@@ -277,14 +269,9 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
             protected DataType getDataType() {
                 return ImgPlusCellFactory.TYPE;
             }
-
         };
     }
 
-    private Img<T> burnIn(final Img<T> img) {
-        return (Img<T>)new ImgCopyOperation<T>()
-                .compute(img, img.factory().create(img, img.firstElement().createVariable()));
-    }
 
     private Img<T> resample(final Img<T> img, final ResizeStrategy mode, final Interval resultingInterval,
                             final double[] scaleFactors) {

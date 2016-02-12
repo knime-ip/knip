@@ -82,6 +82,7 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
+import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.port.PortObject;
@@ -151,6 +152,13 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
         return new SettingsModelFilterString("column_selection");
     }
 
+    /**
+     * @return settings model for the 'do virtually' option
+     */
+    public static SettingsModelBoolean createDoVirtuallyModel() {
+        return new SettingsModelBoolean("do_virtually", false);
+    }
+
     private static PortType[] createPortTypes(final PortType[] additionalPorts) {
         final PortType[] inPTypes = new PortType[additionalPorts.length + 1];
         inPTypes[0] = BufferedDataTable.TYPE;
@@ -174,6 +182,11 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
      * Settings to store the selected columns.
      */
     private final SettingsModelFilterString m_columns = createColumnSelectionModel();
+
+    /*
+     * Settings to store the 'do virtually' option.
+     */
+    private final SettingsModelBoolean m_doVirtually = createDoVirtuallyModel();
 
     /*
      * data table for the table cell view
@@ -285,6 +298,7 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
             m_settingsModels.add(m_colCreationMode);
             m_settingsModels.add(m_colSuffix);
             m_settingsModels.add(m_columns);
+            m_settingsModels.add(m_doVirtually);
             addSettingsModels(m_settingsModels);
         }
     }
@@ -670,6 +684,17 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
         return DataType.getType(m_outCellClass);
     }
 
+
+    /**
+     * Tells whether the node should process the data just virtually. If the support for virtualization is not enabled
+     * (see {@link ValueToCellNodeDialog#supportsVirtualProcessing()}, it will always return false.
+     *
+     * @return <code>true</code> if the node needs to be processed just virtually, otherwise <code>false</code>.
+     */
+    protected final boolean doVirtually() {
+        return m_doVirtually.getBooleanValue();
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -686,6 +711,13 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
         collectSettingsModels();
         for (final SettingsModel sm : m_settingsModels) {
+            if (sm == m_doVirtually) {
+                try {
+                    m_doVirtually.loadSettingsFrom(settings);
+                } catch (InvalidSettingsException e) {
+                    //if setting is not available just use the default value (false)
+                }
+            }
             try {
                 sm.loadSettingsFrom(settings);
             } catch (final InvalidSettingsException e) {

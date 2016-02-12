@@ -59,6 +59,7 @@ import org.knime.core.data.DataValue;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.DialogComponent;
+import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnFilter;
 import org.knime.core.node.defaultnodesettings.DialogComponentString;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
@@ -142,6 +143,13 @@ public abstract class ValueToCellNodeDialog<VIN extends DataValue> extends LazyN
         opt = tab.addNewOption();
         opt.setName("Column Selection");
         opt.newCursor().setTextValue("Selection of the columns to be processed.");
+
+        final Tab procTab = desc.addNewTab();
+        procTab.setName("Processing");
+        opt = procTab.addNewOption();
+        opt.setName("Do Virtually");
+        opt.addNewP().newCursor()
+                .setTextValue("(Might not be available in every node!) Executes the node just virtually. That is, the operation is just applied virtually and actual performed only later on demand (e.g. in successor nodes or the view).");
     }
 
     /**
@@ -231,6 +239,12 @@ public abstract class ValueToCellNodeDialog<VIN extends DataValue> extends LazyN
             });
         }
 
+        //optionally add the virtual options
+        if (supportsVirtualProcessing()) {
+            addDialogComponent("Processing", "Virtualization", new DialogComponentBoolean(
+                    ValueToCellNodeModel.createDoVirtuallyModel(), "Do Virtually"));
+        }
+
     }
 
     /**
@@ -238,6 +252,20 @@ public abstract class ValueToCellNodeDialog<VIN extends DataValue> extends LazyN
      */
     protected String getDefaultSuffixForAppend() {
         return "";
+    }
+
+    /**
+     * Tells whether virtual processing is supported by this node, that is the operation can be executed virtual (rather
+     * than actual). Overwrite this method and return <code>true</code> in order to enable the virtualization-support.
+     * In that case, another tab with an 'do virtually'-option will be added to the dialog. If enabled, the
+     * {@link ValueToCellNodeModel#doVirtually()}-method must be used to check whether executing the node virtually or
+     * not is desired by the user.
+     *
+     * @return <code>true</code>, if virtual processing is supported by that node and the according option should be
+     *         added to the dialog
+     */
+    protected boolean supportsVirtualProcessing() {
+        return false;
     }
 
     /**

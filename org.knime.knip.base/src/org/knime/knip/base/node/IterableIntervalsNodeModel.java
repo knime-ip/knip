@@ -49,8 +49,10 @@
  */
 package org.knime.knip.base.node;
 
+import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DataType;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeLogger;
@@ -58,7 +60,6 @@ import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
-import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
@@ -94,7 +95,7 @@ import net.imglib2.view.Views;
  *
  */
 public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extends RealType<V>, L extends Comparable<L>>
-        extends ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<V>> {
+        extends ValueToCellNodeModel<ImgPlusValue<T>, DataCell> {
 
     private static final NodeLogger LOGGER = NodeLogger.getLogger(IterableIntervalsNodeModel.class);
 
@@ -309,7 +310,7 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
      * {@inheritDoc}
      */
     @Override
-    protected ImgPlusCell<V> compute(final ImgPlusValue<T> cellValue) throws Exception {
+    protected DataCell compute(final ImgPlusValue<T> cellValue) throws Exception {
 
         ImgPlus<T> in = cellValue.getImgPlus();
         ImgPlus<V> res = createResultImage(cellValue.getImgPlus());
@@ -401,6 +402,14 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
      */
     protected void postExecute() {
        // can be overriden by implemnetors
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected DataType getDataType() {
+        return ImgPlusCellFactory.TYPE;
     }
 
     // fills the res with val if labeling contains no labels at a certain position

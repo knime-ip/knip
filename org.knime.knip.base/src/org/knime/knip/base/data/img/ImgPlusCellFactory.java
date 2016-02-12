@@ -64,6 +64,7 @@ import org.knime.knip2.core.storage.SimpleStorage;
 
 import net.imagej.ImgPlus;
 import net.imglib2.img.Img;
+import net.imglib2.ops.operation.img.unary.ImgCopyOperation;
 import net.imglib2.type.numeric.RealType;
 
 /**
@@ -110,15 +111,17 @@ public final class ImgPlusCellFactory extends KNIPCellFactory {
     }
 
     /**
-     * Creates a new {@link DataCell} of type {@link ImgPlusCellFactory#TYPE}. Where as the {@link DataType} is guaranteed the type
-     * of the actual {@link DataCell}-implementation is NOT.
+     * Creates a new {@link DataCell} of type {@link ImgPlusCellFactory#TYPE}. Where as the {@link DataType} is
+     * guaranteed the type of the actual {@link DataCell}-implementation is NOT.
      *
      * @param imgPlus
+     * @param copy if <code>true</code> the passed img will be copied before the cell is created. This essentially
+     *            executes ('burns in') any possibly virtual operation that represents the actual image.
      * @return an arbitrary {@link DataCell}-implementation of typer {@link ImgPlusCellFactory#TYPE}.
      * @throws IOException
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public final <T extends RealType<T>> DataCell createDataCell(final ImgPlus<T> imgPlus) throws IOException {
+    public final <T extends RealType<T>> DataCell createDataCell(final ImgPlus<T> imgPlus, final boolean copy) throws IOException {
         //the call is delegated to the cell factory of the knip2 framework
         long[] dims = new long[imgPlus.numDimensions()];
         imgPlus.dimensions(dims);
@@ -127,13 +130,17 @@ public final class ImgPlusCellFactory extends KNIPCellFactory {
                 new ImgPlusCellMetadata(imgPlus, imgPlus.size(), null, dims, type.getClass(), null);
 
         //depending on the image size either an ordinary data cell or a file store cell is created
+        Img<T> img = imgPlus.getImg();
+        if(copy) {
+            img = burnIn(img);
+        }
         if (imgPlus.size() < KNIMEKNIPPlugin.getMinNumPixelsForFileStoreImgCell()) {
             SimpleStorage ss = new SimpleStorage();
-            return new StreamImgPlusCell(KNIPGateway.aps().getAccess(ss, imgPlus.getImg(), Img.class),
+            return new StreamImgPlusCell(KNIPGateway.aps().getAccess(ss, img, Img.class),
                     KNIPGateway.aps().getAccess(ss, cellMetadata, ImgPlusCellMetadata.class));
         } else {
             FileStoreStorage fss = new FileStoreStorage(getExecutionContext());
-            return new FileStoreImgPlusCell(KNIPGateway.aps().getAccess(fss, imgPlus.getImg(), Img.class),
+            return new FileStoreImgPlusCell(KNIPGateway.aps().getAccess(fss, img, Img.class),
                     KNIPGateway.aps().getAccess(fss, cellMetadata, ImgPlusCellMetadata.class));
         }
     }
@@ -141,6 +148,11 @@ public final class ImgPlusCellFactory extends KNIPCellFactory {
     private final <T extends RealType<T>> double getImgSize(final Img<T> img) {
         // calculate the approx. size of the current image
         return (img.firstElement().getBitsPerPixel() / 8.0) * img.size();
+    }
+
+    private <T extends RealType<T>> Img<T> burnIn(final Img<T> img) {
+        return (Img<T>)new ImgCopyOperation<T>()
+                .compute(img, img.factory().create(img, img.firstElement().createVariable()));
     }
 
     /**
