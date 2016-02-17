@@ -263,16 +263,8 @@ public abstract class AbstractImgReaderNodeModel<T extends RealType<T> & NativeT
 	 */
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
-		try {
-			for (final SettingsModel sm : m_settingsCollection) {
-				sm.loadSettingsFrom(settings);
-			}
-		} catch (InvalidSettingsException e) {
-			if (e.getMessage().equals("String for key \"m_pixeltype\" not found.")) {
-				// Ignore missing pixeltype settings model
-			} else {
-				throw e;
-			}
+		for (final SettingsModel sm : m_settingsCollection) {
+			sm.loadSettingsFrom(settings);
 		}
 	}
 
@@ -291,16 +283,8 @@ public abstract class AbstractImgReaderNodeModel<T extends RealType<T> & NativeT
 	 */
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
-		try {
-			for (final SettingsModel sm : m_settingsCollection) {
-				sm.validateSettings(settings);
-			}
-		} catch (InvalidSettingsException e) {
-			if (e.getMessage().equals("String for key \"m_pixeltype\" not found.")) {
-				// Ignore missing pixeltype settings model
-			} else {
-				throw e;
-			}
+		for (final SettingsModel sm : m_settingsCollection) {
+			sm.validateSettings(settings);
 		}
 	}
 
