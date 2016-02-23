@@ -120,38 +120,43 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
      */
     public enum SEG_TYPE {
         /**
-         * Shape based segmentation.
+         * Shape based segmentation
          */
-        SHAPE_BASED_SEGMENTATION, /**
-                                   * Segmentation without Distance Transformation
-                                   */
+        SHAPE_BASED_SEGMENTATION, //
+        /**
+         * Segmentation without distance transformation
+         */
         OTHER_SEGMENTATION
     }
 
-    /** Type of segmentation to be performed */
+    /* type of segmentation to be performed */
     private SEG_TYPE m_segType;
 
+    /* size of the gaussian blur */
     private final int m_gaussSize;
 
-    /** minimal Size of Objects */
+    /* minimal Size of Objects */
     private final int m_minMergeSize;
 
-    /** Minimal allowed object distance */
+    /* minimal allowed object distance */
     private final int m_seedDistanceThreshold;
 
+    /* connected component ananlysis op */
     private final CCA<BitType> m_cca;
 
+    /* watershed op */
     private WatershedWithSheds<FloatType, Integer> m_watershed;
 
-    final static RectangleShape RECTANGLE_SHAPE = new RectangleShape(1, true); //"true" skips center point
+    /* 3x3 rectangle shape cursor which skips the center point */
+    private final static RectangleShape RECTANGLE_SHAPE = new RectangleShape(1, true); //"true" skips center point
 
     /**
-     * Contructor for WaehlbySplitter operation.
+     * Constructor for WaehlbySplitter operation.
      *
-     * @param segType {@link SEG_TYPE} Type of segmentation to be used.
-     * @param seedDistanceThreshold
-     * @param mergeSizeThreshold
-     * @param gaussSize
+     * @param segType {@link SEG_TYPE} Type of segmentation to be used
+     * @param seedDistanceThreshold minimal distance between seeds for watershed
+     * @param mergeSizeThreshold maximal size at which segmented objects will start being merged.
+     * @param gaussSize sigma for the gaussian blur
      */
     public WaehlbySplitterOp(final SEG_TYPE segType, final int seedDistanceThreshold, final int mergeSizeThreshold,
                              final int gaussSize) {
@@ -161,12 +166,12 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
     }
 
     /**
-     * Contructor for WaehlbySplitter operation.
+     * Constructor for WaehlbySplitter operation.
      *
-     * @param segType {@link SEG_TYPE} Type of segmentation to be used.
-     * @param seedDistanceThreshold
-     * @param mergeSizeThreshold
-     * @param gaussSize
+     * @param segType {@link SEG_TYPE} Type of segmentation to be used
+     * @param seedDistanceThreshold minimal distance between seeds for watershed
+     * @param mergeSizeThreshold maximal size at which segmented objects will start being merged.
+     * @param gaussSize sigma for the gaussian blur
      */
     protected WaehlbySplitterOp(final SEG_TYPE segType, final int seedDistanceThreshold, final int mergeSizeThreshold,
                                 final int gaussSize, final CCA<BitType> cca,
@@ -180,6 +185,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         m_minMergeSize = mergeSizeThreshold;
     }
 
+    /* image factory used in this op TODO: Should use the img factory of the input img */
     private final ArrayImgFactory<FloatType> m_floatFactory = new ArrayImgFactory<FloatType>();
 
     /**
@@ -232,8 +238,8 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
 
         RandomAccessibleInterval<LabelingType<String>> watershedResult =
                 new ImgLabeling<String, ShortType>(new ArrayImgFactory<ShortType>().create(img, new ShortType()));
-        /* Seeded Watershed */
 
+        // seeded watershed
         m_watershed.compute(invertImg(imgAlice, new FloatType()), seeds, watershedResult);
 
         // use the sheds from the watershed to split the labeled objects
@@ -253,16 +259,16 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
             }
         });
 
-        //                 Get some more information about the objects. Contour, bounding box etc
+        // get some more information about the objects. Contour, bounding box etc
         for (final String label : labels) {
 
             IterableInterval<LabelingType<String>> intervalOverSrc =
                     Regions.sample(regions.getLabelRegion(label), watershedResult);
 
-            //Create individual images for every object
+            // create individual images for every object
             final ExtendedPolygon poly = new ExtendedPolygon();
 
-            //compute contour polygon
+            // compute contour polygon
             contourExtraction.compute(regions.getLabelRegion(label), poly);
 
             objects.add(new LabeledObject(poly, label, intervalOverSrc));
@@ -278,7 +284,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         final ArrayList<Triple<LabeledObject, LabeledObject, String>> mergedList =
                 new ArrayList<Triple<LabeledObject, LabeledObject, String>>();
 
-        { /*scope for object pair finding */
+        { /* scope for finding object pairs */
             ArrayList<int[]> points = new ArrayList<int[]>();
 
             boolean found = false;
@@ -335,21 +341,21 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
 
                             final RandomAccess<LabelingType<String>> raWatershed = watershedResult.randomAccess();
 
-                            //overwrite i to have label of j
+                            // overwrite i to have label of j
                             while (curs.hasNext()) {
                                 LabelingType<String> next = curs.next();
                                 next.clear();
                                 next.add(ijLabel);
                             }
 
-                            //set label of all points
+                            // set label of all points
                             for (int[] point : points) {
                                 raWatershed.setPosition(point);
                                 raWatershed.get().clear();
                                 raWatershed.get().add(ijLabel);
                             }
 
-                            //fill remaining gap for both points
+                            // fill remaining gap for both points
                             for (int[] point : points) {
                                 remainingGapFill(raNeighWatershed.randomAccess(watershedResult), point, ijLabel);
                             }
@@ -371,12 +377,12 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
                     }
                 }
             }
-        } /*end scope for object finding */
+        } /* end scope for object finding */
 
         RandomAccess<LabelingType<String>> raOut = outLab.randomAccess();
 
         regions = KNIPGateway.regions().regions(watershedResult);
-        // Decide on circularity and size whether to actually merge the found objects
+        // decide whether to merge objects using circularity and size
         for (Triple<LabeledObject, LabeledObject, String> triple : mergedList) {
             final String label = triple.getThird();
 
@@ -386,13 +392,13 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
 
             final ExtendedPolygon poly = new ExtendedPolygon();
 
-            //compute contour polygon
+            // compute contour polygon
             contourExtraction.compute(roi, poly);
 
             long iSize = triple.getFirst().getIterableIntervalOverWatershedResult().size();
             long jSize = triple.getSecond().getIterableIntervalOverWatershedResult().size();
 
-            //decide whether to actually merge the objects
+            // decide whether to actually merge the objects
             double iCircularity = featureCircularity(triple.getFirst().getPerimeter(), iSize);
             double jCircularity = featureCircularity(triple.getSecond().getPerimeter(), jSize);
             double ijCircularity = featureCircularity(poly.length(), intervalOverSrc.size());
@@ -561,9 +567,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
     }
 
     private class LabelingToBitConverter<LT extends LabelingType<?>> implements Converter<LT, BitType> {
-        /**
-         * {@inheritDoc}
-         */
+
         @Override
         public void convert(final LT input, final BitType output) {
             output.set(!input.isEmpty());
