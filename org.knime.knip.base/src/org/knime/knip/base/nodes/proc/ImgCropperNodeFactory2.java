@@ -49,6 +49,7 @@
 package org.knime.knip.base.nodes.proc;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.knime.core.node.ExecutionContext;
@@ -62,6 +63,7 @@ import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
+import org.knime.knip.base.node.dialog.DialogComponentSubsetSelection;
 import org.knime.knip.base.node.dialog.DialogComponentSubsetSelection2;
 import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection2;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
@@ -72,6 +74,7 @@ import net.imagej.space.DefaultCalibratedSpace;
 import net.imglib2.Interval;
 import net.imglib2.IterableInterval;
 import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.iterableinterval.unary.MergeIterableIntervals;
 import net.imglib2.type.NativeType;
@@ -151,7 +154,19 @@ public class ImgCropperNodeFactory2<T extends RealType<T> & NativeType<T>>
                     return m_imgCellFactory.createCell(cellValue.getImgPlusCopy());
                 } else {
 
-                    final ImgPlus<T> img = cellValue.getImgPlus();
+                    ImgPlus<T> img = cellValue.getImgPlus();
+
+                    //if an offset is set, translate the img to the origin for now
+                    long[] minimum = new long[img.numDimensions()];
+                    img.min(minimum);
+                    long minSum = Arrays.stream(minimum).sum();
+                    if(minSum > 0) {
+                        //if a minimum has been set (i.e. different from 0),
+                        //translate the image to the origin
+                        img = new ImgPlus<T>(ImgView.wrap(Views.translate(img, Arrays.stream(minimum).map(l -> {
+                            return -l;
+                        }).toArray()), cellValue.getImgPlus().factory()), img);
+                    }
 
                     final long[] dimensions = new long[img.numDimensions()];
                     img.dimensions(dimensions);
@@ -189,7 +204,7 @@ public class ImgCropperNodeFactory2<T extends RealType<T> & NativeType<T>>
                         }
                     }
 
-                    final Img<T> res = Operations.compute(mergeOp, iis);
+                    Img<T> res = Operations.compute(mergeOp, iis);
 
                     final List<CalibratedAxis> validAxes = new ArrayList<CalibratedAxis>();
                     for (int d = 0; d < img.numDimensions(); d++) {
@@ -204,6 +219,19 @@ public class ImgCropperNodeFactory2<T extends RealType<T> & NativeType<T>>
                     metadata.setSource(img.getSource());
                     metadata.setName(img.getName());
 
+                    //translate the result image to the given offset, if present
+                    if(minSum > 0) {
+                        if (m_smAdjustDimensionality.getBooleanValue()) {
+                            //remove the invalid dimensions (dim == 1) from the minimum as well
+                            for (Integer i : mergeOp.getInvalidDims()) {
+                                minimum[i] = -1;
+                            }
+                            minimum = Arrays.stream(minimum).filter(l -> {
+                                return l >= 0;
+                            }).toArray();
+                        }
+                        res = ImgView.wrap(Views.translate(res, minimum), res.factory());
+                    }
                     return m_imgCellFactory.createCell(new ImgPlus<T>(res, metadata));
                 }
             }
