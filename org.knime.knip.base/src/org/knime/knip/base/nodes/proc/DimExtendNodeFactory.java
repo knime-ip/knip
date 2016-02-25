@@ -48,14 +48,8 @@
  */
 package org.knime.knip.base.nodes.proc;
 
+import java.util.Arrays;
 import java.util.List;
-
-import net.imagej.ImgPlus;
-import net.imglib2.img.ImgView;
-import net.imglib2.ops.operation.Operations;
-import net.imglib2.ops.operation.imgplus.unary.ImgPlusExtendDims;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.view.Views;
 
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.DialogComponentString;
@@ -67,6 +61,13 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
+
+import net.imagej.ImgPlus;
+import net.imglib2.img.ImgView;
+import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.operation.imgplus.unary.ImgPlusExtendDims;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
 
 /**
  * DimensionExtenderNodeFactory
@@ -133,7 +134,15 @@ public class DimExtendNodeFactory<T extends RealType<T>> extends ValueToCellNode
                 long[] newMinimum = new long[minimum.length + 1];
                 System.arraycopy(minimum, 0, newMinimum, 0, minimum.length);
 
-                ImgPlus<T> res = Operations.compute(m_ext, cellValue.getImgPlus());
+                ImgPlus<T> src = cellValue.getImgPlus();
+                if(Arrays.stream(minimum).sum() > 0) {
+                    //if a minimum has been set (i.e. different from 0),
+                    //translate the image to the origin
+                    src = new ImgPlus<T>(ImgView.wrap(Views.translate(src, Arrays.stream(minimum).map(l -> {
+                        return -l;
+                    }).toArray()), cellValue.getImgPlus().factory()), src);
+                }
+                ImgPlus<T> res = Operations.compute(m_ext, src);
                 res =
                         new ImgPlus<T>(
                                 ImgView.wrap(Views.translate(res, newMinimum), cellValue.getImgPlus().factory()), res);
