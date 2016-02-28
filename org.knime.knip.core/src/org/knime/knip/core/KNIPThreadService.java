@@ -81,7 +81,7 @@ public final class KNIPThreadService extends AbstractService implements ThreadSe
     @Parameter
     private LogService log;
 
-    private ThreadPool pool = new ThreadPool(64);
+    private ThreadPool pool = new ThreadPool(Runtime.getRuntime().availableProcessors() * 8);
 
     private ExecutorService es;
 
