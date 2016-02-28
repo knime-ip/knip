@@ -235,6 +235,7 @@ public class PNGValueToImgPlusCellNodeFactory extends ValueToCellNodeFactory<PNG
                 imgPlus.setAxis(new DefaultLinearAxis(Axes.get("X")), 0);
                 imgPlus.setAxis(new DefaultLinearAxis(Axes.get("Y")), 1);
                 imgPlus.setAxis(new DefaultLinearAxis(Axes.get("Channel")), 2);
+                imgPlus.setName("Untitled");
 
                 return m_imgCellFactory.createCell(imgPlus);
             }
