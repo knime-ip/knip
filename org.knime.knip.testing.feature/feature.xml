@@ -729,6 +729,8 @@ propagated with or for interoperation with KNIME.
 
    <requires>
       <import feature="org.knime.features.testingapplication" version="2.7.0" match="greaterOrEqual"/>
+      <import plugin="org.knime.core.streaming"/>
+      <import plugin="org.knime.base.filehandling"/>
    </requires>
 
    <plugin
@@ -743,19 +745,5 @@ propagated with or for interoperation with KNIME.
          install-size="0"
          version="0.0.0"
          fragment="true"/>
-
-   <plugin
-         id="org.knime.base.filehandling"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.knime.core.streaming"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
 
 </feature>
