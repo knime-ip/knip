@@ -87,11 +87,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.roi.labeling.LabelRegions;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.util.Util;
-
 import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableUtils;
 import org.knime.knip.core.ui.event.EventListener;
@@ -108,6 +103,10 @@ import org.knime.knip.core.ui.imgviewer.events.NameSetbasedLabelFilter;
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter;
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter.Operator;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
+
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.roi.labeling.LabelRegions;
+import net.imglib2.roi.labeling.LabelingType;
 
 /**
  * Panel to generate a Rulebased LabelFilter.
@@ -272,7 +271,7 @@ public class LabelFilterPanel<L> extends ViewerComponent {
         add(m_filterTabbs, gbc);
         m_filterTabbs.add("Labels", m_scrollPane);
         m_filterTabbs.add("Filter Rules", m_filters);
-        m_filters.setPreferredSize(new Dimension(200,200));
+        m_filters.setPreferredSize(new Dimension(200, 200));
         gbc.gridheight = GridBagConstraints.REMAINDER;
         add(confirmationPanel, gbc);
 
@@ -362,7 +361,7 @@ public class LabelFilterPanel<L> extends ViewerComponent {
 
             // filter with hilites
             Collection<L> filtered =
-                    m_ruleFilter.filterLabeling(Util.getTypeFromInterval(m_labeling).getMapping().getLabels());
+                    m_ruleFilter.filterLabeling(KNIPGateway.regions().regions(m_labeling).getExistingLabels());
 
             // filter with rules
             if (m_showHilitedOnly || m_showUnhilitedOnly) {
@@ -379,8 +378,8 @@ public class LabelFilterPanel<L> extends ViewerComponent {
             if ((m_ruleFilter.getRules().size() == 0) && !m_showHilitedOnly && !m_showUnhilitedOnly) {
                 m_eventService.publish(new LabelPanelVisibleLabelsChgEvent(null, null));
             } else {
-                m_eventService.publish(new LabelPanelVisibleLabelsChgEvent(allLabels, (Operator)(m_operatorBox)
-                        .getSelectedItem()));
+                m_eventService.publish(new LabelPanelVisibleLabelsChgEvent(allLabels,
+                        (Operator)(m_operatorBox).getSelectedItem()));
             }
 
             m_eventService.publish(new ImgRedrawEvent());
@@ -408,7 +407,7 @@ public class LabelFilterPanel<L> extends ViewerComponent {
         m_regions = KNIPGateway.regions().regions(m_labeling);
 
         m_activeLabels.clear();
-        for (final L label : Util.getTypeFromInterval(m_labeling).getMapping().getLabels()) {
+        for (final L label : KNIPGateway.regions().regions(m_labeling).getExistingLabels()) {
             if (m_ruleFilter.isValid(label)) {
                 m_activeLabels.add(label);
             }
