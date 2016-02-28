@@ -51,9 +51,12 @@ package org.knime.knip.base.nodes.view.segmentoverlay;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -111,6 +114,8 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.converter.Converter;
 import net.imglib2.converter.Converters;
 import net.imglib2.img.Img;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelingMapping;
 import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.type.numeric.RealType;
@@ -125,8 +130,8 @@ import net.imglib2.util.Util;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<L>, I extends IntegerType<I>> extends
-        NodeView<SegmentOverlayNodeModel<T, L>> implements ListSelectionListener {
+public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<L>, I extends IntegerType<I>>
+        extends NodeView<SegmentOverlayNodeModel<T, L>> implements ListSelectionListener {
 
     /* A node logger */
     static NodeLogger LOGGER = NodeLogger.getLogger(SegmentOverlayNodeView.class);
@@ -158,23 +163,14 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
         }
     });
 
-    private ActionListener m_leftQuickViewListener;
-
-    private ActionListener m_bottomQuickViewListener;
-
-    private ActionListener m_OverviewListener;
-
     private PlainCellView m_cellView;
-
-    private ActionListener m_prevRowListener;
-
-    private ActionListener m_nextRowListener;
 
     private Container m_tableViewPanel;
 
     private JLabel m_statusLabel;
 
-    protected static final String m_defStatusBarText = "Click on a cell or drag and select multiple cells to continue ...";
+    private static final String DEFAULT_STATUS_BAR =
+            "Click on a cell or drag and select multiple cells to continue ...";
 
     /**
      * Constructor
@@ -221,7 +217,7 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
         m_tableViewPanel.add(statusBar, BorderLayout.SOUTH);
         statusBar.setPreferredSize(new Dimension(m_tableViewPanel.getWidth(), 16));
         statusBar.setLayout(new BoxLayout(statusBar, BoxLayout.X_AXIS));
-        m_statusLabel = new JLabel(m_defStatusBarText);
+        m_statusLabel = new JLabel(DEFAULT_STATUS_BAR);
         m_statusLabel.setHorizontalAlignment(SwingConstants.LEFT);
         statusBar.add(m_statusLabel);
     }
@@ -231,19 +227,21 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
         m_imgView = new ImgViewer();
         AWTImageProvider prov = new AWTImageProvider(20, new CombinedRU(new ImageRU<T>(true), new LabelingRU<L>()));
         prov.setEventService(m_imgView.getEventService());
-        m_imgView
-                .addViewerComponent(prov);
+        m_imgView.addViewerComponent(prov);
 
         m_imgView.addViewerComponent(new ImgLabelingViewInfoPanel<T, L>());
         m_imgView.addViewerComponent(new ImgCanvas<T, Img<T>>());
         m_imgView.addViewerComponent(ViewerComponents.MINIMAP_PLANE_SELECTION.createInstance());
-        m_imgView.addViewerComponent(new ExpandingPanel("Image Enhancement", ViewerComponents.IMAGE_ENHANCE
-                .createInstance(), true));
+        m_imgView.addViewerComponent(new ExpandingPanel("Image Enhancement",
+                ViewerComponents.IMAGE_ENHANCE.createInstance(), true));
         m_imgView.addViewerComponent(new ExpandingPanel("Renderer Selection", new RendererSelectionPanel<T>(), true));
 
         m_imgView.addViewerComponent(new ExpandingPanel("Transparency", new TransparencyColorSelectionPanel(), true));
-        m_imgView.addViewerComponent(new ExpandingPanel("Label Filter", new LabelFilterPanel<L>(getNodeModel()
-                .getInternalTables().length > SegmentOverlayNodeModel.PORT_SEG), true));
+        m_imgView.addViewerComponent(
+                                     new ExpandingPanel("Label Filter",
+                                             new LabelFilterPanel<L>(getNodeModel()
+                                                     .getInternalTables().length > SegmentOverlayNodeModel.PORT_SEG),
+                                             true));
 
         m_imgView.doneAdding();
 
@@ -313,9 +311,8 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
         initializeListeners();
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private void rowChanged(final int row) {
-
-
 
         //if the imgView isn't visible yet, add it to the spit pane -> happens when a cell is selected the first time
         if (m_imgView == null) {
@@ -337,21 +334,17 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
             LabelingValue<L> currentLabelingCell;
 
             if (labelingOnly) {
-                currentLabelingCell =
-                        (LabelingValue<L>)m_tableContentView.getContentModel()
-                                .getValueAt(row, SegmentOverlayNodeModel.COL_IDX_SINGLE_LABELING);
+                currentLabelingCell = (LabelingValue<L>)m_tableContentView.getContentModel()
+                        .getValueAt(row, SegmentOverlayNodeModel.COL_IDX_SINGLE_LABELING);
 
                 final T max = (T)new ByteType();
                 max.setReal(max.getMaxValue());
-                underlyingInterval =
-                        ConstantUtils.constantRandomAccessibleInterval(max,
-                                                                       currentLabelingCell.getDimensions().length,
-                                                                       new FinalInterval(currentLabelingCell
-                                                                               .getLabeling()));
+                underlyingInterval = ConstantUtils
+                        .constantRandomAccessibleInterval(max, currentLabelingCell.getDimensions().length,
+                                                          new FinalInterval(currentLabelingCell.getLabeling()));
             } else {
-                currentLabelingCell =
-                        (LabelingValue<L>)m_tableContentView.getContentModel()
-                                .getValueAt(row, SegmentOverlayNodeModel.COL_IDX_LABELING);
+                currentLabelingCell = (LabelingValue<L>)m_tableContentView.getContentModel()
+                        .getValueAt(row, SegmentOverlayNodeModel.COL_IDX_LABELING);
 
                 // Set image
                 final DataCell currentImgCell =
@@ -364,7 +357,7 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
             }
 
             // Update Labeling Mapping for Hiliting
-            RandomAccessibleInterval<LabelingType<L>> labeling = currentLabelingCell.getLabeling();
+            final RandomAccessibleInterval<LabelingType<L>> labeling = currentLabelingCell.getLabeling();
             LabelingMetadata labelingMetadata = currentLabelingCell.getLabelingMetadata();
 
             final Map<String, Object> transformationInputMap = new HashMap<String, Object>();
@@ -372,43 +365,64 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
             transformationInputMap.put(LabelTransformVariables.LabelingSource.toString(), labelingMetadata.getSource());
             transformationInputMap.put(LabelTransformVariables.ImgName.toString(), imgName);
             transformationInputMap.put(LabelTransformVariables.ImgSource.toString(), imgSource);
-            transformationInputMap.put(LabelTransformVariables.RowID.toString(), m_tableContentView.getContentModel()
-                    .getRowKey(row));
+            transformationInputMap.put(LabelTransformVariables.RowID.toString(),
+                                       m_tableContentView.getContentModel().getRowKey(row));
 
-            // read only converter
-            Converters.convert(labeling, new Converter<LabelingType<L>, LabelingType<String>>() {
+            RandomAccessibleInterval<LabelingType<String>> displayedLabeling = null;
+            if (labeling instanceof ImgLabeling) {
+                displayedLabeling = new ImgLabeling<>(((ImgLabeling)labeling).getIndexImg());
 
-                @Override
-                public void convert(final LabelingType<L> arg0, final LabelingType<String> arg1) {
-                    for (L label : arg0) {
-                        transformationInputMap.put(LabelTransformVariables.Label.toString(), label.toString());
-                        arg1.add(getNodeModel().getTransformer().transform(transformationInputMap));
-                    }
-                }
-            }, (LabelingType<String>)Util.getTypeFromInterval(labeling).createVariable());
+                new LabelingMappingAccess(Util.getTypeFromInterval(displayedLabeling).getMapping(),
+                        Util.getTypeFromInterval(labeling).getMapping(), transformationInputMap, getNodeModel());
+            } else {
+                final LabelingType<String> type =
+                        (LabelingType<String>)Util.getTypeFromInterval(labeling).createVariable();
+                // access and set
+                new LabelingMappingAccess(type.getMapping(), Util.getTypeFromInterval(labeling).getMapping(),
+                        transformationInputMap, getNodeModel());
 
-            if (!Intervals.equalDimensions(underlyingInterval, currentLabelingCell.getLabeling())) {
-                labeling =
-                        MiscViews.synchronizeDimensionality(currentLabelingCell.getLabeling(),
-                                                            currentLabelingCell.getLabelingMetadata(),
-                                                            underlyingInterval,
+                new LabelingMappingAccess(Util.getTypeFromInterval(displayedLabeling).getMapping(),
+                        Util.getTypeFromInterval(labeling).getMapping(), transformationInputMap, getNodeModel());
 
-                (ImgPlus<T>)underlyingInterval);
-                labelingMetadata =
-                        new DefaultLabelingMetadata((ImgPlus<T>)underlyingInterval, labelingMetadata, labelingMetadata,
-                                labelingMetadata.getLabelingColorTable());
+                // read only converter
+                displayedLabeling =
+                        Converters.convert(labeling, new Converter<LabelingType<L>, LabelingType<String>>() {
+
+                            @Override
+                            public void convert(final LabelingType<L> arg0, final LabelingType<String> arg1) {
+                                arg1.clear();
+                                for (final L label : arg0) {
+                                    transformationInputMap.put(LabelTransformVariables.Label.toString(),
+                                                               label.toString());
+                                    arg1.add(getNodeModel().getTransformer().transform(transformationInputMap));
+                                }
+                            }
+                        }, type);
+            }
+
+            // TODO here copy source labeling into new labeling
+
+            if (!Intervals.equalDimensions(underlyingInterval, displayedLabeling)) {
+                displayedLabeling = MiscViews.synchronizeDimensionality(displayedLabeling,
+                                                                        currentLabelingCell.getLabelingMetadata(),
+                                                                        underlyingInterval,
+
+                                                                        (ImgPlus<T>)underlyingInterval);
+                labelingMetadata = new DefaultLabelingMetadata((ImgPlus<T>)underlyingInterval, labelingMetadata,
+                        labelingMetadata, labelingMetadata.getLabelingColorTable());
 
             }
 
-            m_imgView.getEventService().publish(new LabelingWithMetadataChgEvent<L>(labeling, labelingMetadata));
+            m_imgView.getEventService()
+                    .publish(new LabelingWithMetadataChgEvent<String>(displayedLabeling, labelingMetadata));
 
-            m_imgView.getEventService().publish(new ImgAndLabelingChgEvent<T, L>(underlyingInterval, labeling,
-                                                        labelingMetadata, labelingMetadata, labelingMetadata));
+            m_imgView.getEventService().publish(new ImgAndLabelingChgEvent<T, String>(underlyingInterval,
+                    displayedLabeling, labelingMetadata, labelingMetadata, labelingMetadata));
 
             m_imgView.getEventService().publish(new ImgRedrawEvent());
             m_eventService.publish(new TableOverviewDisableEvent(false, true));
-            m_eventService.publish(new TablePositionEvent(-1, m_tableContentView.getRowCount(),
-                                                             -1, m_row+1, "", m_tableContentView.getContentModel().getRowKey(m_row).toString()));
+            m_eventService.publish(new TablePositionEvent(-1, m_tableContentView.getRowCount(), -1, m_row + 1, "",
+                    m_tableContentView.getContentModel().getRowKey(m_row).toString()));
 
             if (getComponent() == m_tableViewPanel) {
 
@@ -426,7 +440,6 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
      *
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     @Override
     public void valueChanged(final ListSelectionEvent e) {
 
@@ -477,4 +490,30 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
             // Should not happen.
         }
     }
+
+    static class LabelingMappingAccess extends LabelingMapping.SerialisationAccess<String> {
+
+        private LabelingMapping<String> mapping;
+
+        /**
+         * @param mapping
+         */
+        protected LabelingMappingAccess(final LabelingMapping<String> newMapping, final LabelingMapping<?> oldMapping,
+                                        final Map<String, Object> map, final SegmentOverlayNodeModel model) {
+            super(newMapping);
+
+            final List<Set<String>> newLabels = new ArrayList<>();
+            for (int i = 0; i < oldMapping.numSets(); i++) {
+                final HashSet<String> labels = new HashSet<>();
+                for (Object o : oldMapping.labelsAtIndex(i)) {
+                    map.put(LabelTransformVariables.Label.toString(), o.toString());
+                    labels.add(model.getTransformer().transform(map));
+                }
+                newLabels.add(labels);
+            }
+
+            super.setLabelSets(newLabels);
+        }
+    }
+
 }
