@@ -6,9 +6,6 @@ Bundle-Version: 1.4.2.qualifier
 Bundle-Vendor: University of Konstanz
 Eclipse-RegisterBuddy: org.knime.knip.core
 Require-Bundle: org.eclipse.core.runtime,
- org.knime.workbench.core;bundle-version="3.0.0",
- org.knime.workbench.repository;bundle-version="3.0.0",
- org.knime.base;bundle-version="3.0.0",
  imglib2;bundle-version="2.2.0",
  imglib2-algorithm;bundle-version="0.2.0",
  imglib2-algorithm-fft;bundle-version="0.1.1",
@@ -26,7 +23,10 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.knip.core;bundle-version="1.4.0",
  imagej-ops;bundle-version="0.22.0",
  knip-tmp-imglib2-ops,
- org.knime.scijava.core;bundle-version="0.2.0"
+ org.knime.scijava.core;bundle-version="0.2.0",
+ org.knime.base;bundle-version="3.0.0",
+ org.knime.workbench.repository;bundle-version="3.0.0",
+ org.knime.workbench.core;bundle-version="3.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
