@@ -78,6 +78,7 @@ import net.imglib2.roi.Regions;
 import net.imglib2.roi.labeling.LabelRegion;
 import net.imglib2.roi.labeling.LabelRegions;
 import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 
@@ -93,7 +94,7 @@ import net.imglib2.view.Views;
  * @param <L> Type of Labeling
  *
  */
-public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extends RealType<V>, L extends Comparable<L>>
+public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extends RealType<V> & NativeType<V>, L extends Comparable<L>>
         extends ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<V>> {
 
     private static final NodeLogger LOGGER = NodeLogger.getLogger(IterableIntervalsNodeModel.class);
@@ -400,7 +401,7 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
      * Can be overriden by implementors
      */
     protected void postExecute() {
-       // can be overriden by implemnetors
+        // can be overriden by implemnetors
     }
 
     // fills the res with val if labeling contains no labels at a certain position

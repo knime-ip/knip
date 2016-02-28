@@ -48,22 +48,21 @@
 
 package org.knime.knip.features.sets;
 
-import org.knime.knip.features.sets.optimizedfeatures.KNIPCachedOpEnvironment;
-import org.scijava.plugin.Attr;
-import org.scijava.plugin.Parameter;
-import org.scijava.plugin.Plugin;
-
 import net.imagej.ops.Ops.Geometric.MainElongation;
 import net.imagej.ops.Ops.Geometric.MarchingCubes;
 import net.imagej.ops.Ops.Geometric.MedianElongation;
 import net.imagej.ops.Ops.Geometric.Size;
 import net.imagej.ops.Ops.Geometric.Spareness;
-import net.imagej.ops.cached.CachedOpEnvironment;
 import net.imagej.ops.geom.geom3d.mesh.Mesh;
-import net.imagej.ops.special.Functions;
-import net.imagej.ops.special.UnaryFunctionOp;
+import net.imagej.ops.special.function.Functions;
+import net.imagej.ops.special.function.UnaryFunctionOp;
 import net.imglib2.roi.labeling.LabelRegion;
 import net.imglib2.type.numeric.RealType;
+
+import org.knime.knip.features.sets.optimizedfeatures.KNIPCachedOpEnvironment;
+import org.scijava.plugin.Attr;
+import org.scijava.plugin.Parameter;
+import org.scijava.plugin.Plugin;
 
 /**
  * {@link FeatureSet} to calculate 3D Geometric Features

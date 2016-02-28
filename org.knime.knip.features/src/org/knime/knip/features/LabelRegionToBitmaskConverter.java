@@ -47,10 +47,8 @@
  */
 package org.knime.knip.features;
 
-import org.scijava.plugin.Plugin;
-
 import net.imagej.ops.Ops;
-import net.imagej.ops.special.AbstractUnaryFunctionOp;
+import net.imagej.ops.special.function.AbstractUnaryFunctionOp;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.converter.Converter;
 import net.imglib2.converter.Converters;
@@ -61,6 +59,8 @@ import net.imglib2.roi.labeling.LabelRegion;
 import net.imglib2.type.BooleanType;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.logic.BoolType;
+
+import org.scijava.plugin.Plugin;
 
 @Plugin(type = Ops.Convert.Copy.class)
 public class LabelRegionToBitmaskConverter<B extends BooleanType<B>>

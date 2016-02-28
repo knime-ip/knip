@@ -55,15 +55,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import net.imagej.ops.OpRef;
+import net.imagej.ops.special.function.Functions;
+import net.imagej.ops.special.function.UnaryFunctionOp;
+import net.imglib2.type.numeric.RealType;
+
 import org.scijava.command.CommandService;
 import org.scijava.module.Module;
 import org.scijava.module.ModuleItem;
 import org.scijava.plugin.Parameter;
-
-import net.imagej.ops.OpRef;
-import net.imagej.ops.special.Functions;
-import net.imagej.ops.special.UnaryFunctionOp;
-import net.imglib2.type.numeric.RealType;
 
 /**
  * {@link OpRef} based {@link AbstractCachedFeatureSet}.

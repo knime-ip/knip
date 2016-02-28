@@ -53,15 +53,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.imglib2.util.Pair;
+import net.imglib2.util.ValuePair;
+
 import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.features.sets.FeatureSet;
 import org.scijava.command.CommandInfo;
 import org.scijava.module.Module;
 import org.scijava.module.process.InitPreprocessor;
 import org.scijava.module.process.ValidityPreprocessor;
-
-import net.imglib2.util.Pair;
-import net.imglib2.util.ValuePair;
 
 /**
  * Simple wrapper for a {@link FeatureSet}.

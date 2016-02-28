@@ -1,13 +1,13 @@
 package org.knime.knip.features.sets;
 
+import net.imagej.ops.image.cooccurrencematrix.MatrixOrientation;
+import net.imagej.ops.image.cooccurrencematrix.MatrixOrientation2D;
+import net.imagej.ops.image.cooccurrencematrix.MatrixOrientation3D;
+
 import org.scijava.convert.AbstractConverter;
 import org.scijava.convert.ConversionRequest;
 import org.scijava.convert.Converter;
 import org.scijava.plugin.Plugin;
-
-import net.imagej.ops.image.cooccurrencematrix.MatrixOrientation;
-import net.imagej.ops.image.cooccurrencematrix.MatrixOrientation2D;
-import net.imagej.ops.image.cooccurrencematrix.MatrixOrientation3D;
 
 @Plugin(type = Converter.class)
 public class StringToMatrixOrientation extends AbstractConverter<String, MatrixOrientation> {

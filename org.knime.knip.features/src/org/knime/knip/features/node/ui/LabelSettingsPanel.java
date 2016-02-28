@@ -51,11 +51,11 @@ package org.knime.knip.features.node.ui;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
-import org.knime.core.node.defaultnodesettings.DialogComponent;
-
 import net.miginfocom.layout.AC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
+
+import org.knime.core.node.defaultnodesettings.DialogComponent;
 
 /**
  * 

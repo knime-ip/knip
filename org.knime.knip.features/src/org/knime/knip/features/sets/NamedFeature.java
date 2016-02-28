@@ -48,9 +48,9 @@
 
 package org.knime.knip.features.sets;
 
-import org.scijava.Named;
-
 import net.imagej.ops.OpRef;
+
+import org.scijava.Named;
 
 /**
  * Simple semantic description of an arbitrary feature

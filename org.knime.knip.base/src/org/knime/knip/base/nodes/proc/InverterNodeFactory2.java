@@ -50,16 +50,6 @@ package org.knime.knip.base.nodes.proc;
 
 import java.util.List;
 
-import net.imagej.ImgPlus;
-import net.imglib2.IterableInterval;
-import net.imglib2.converter.read.ConvertedRandomAccessibleInterval;
-import net.imglib2.img.ImgView;
-import net.imglib2.ops.img.UnaryOperationBasedConverter;
-import net.imglib2.ops.operation.Operations;
-import net.imglib2.ops.operation.UnaryOperation;
-import net.imglib2.ops.operation.real.unary.RealUnaryOperation;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusValue;
@@ -70,6 +60,17 @@ import org.knime.node.v210.FullDescriptionDocument.FullDescription;
 import org.knime.node.v210.KnimeNodeDocument;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 
+import net.imagej.ImgPlus;
+import net.imglib2.IterableInterval;
+import net.imglib2.converter.read.ConvertedRandomAccessibleInterval;
+import net.imglib2.img.ImgView;
+import net.imglib2.ops.img.UnaryOperationBasedConverter;
+import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.operation.UnaryOperation;
+import net.imglib2.ops.operation.real.unary.RealUnaryOperation;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
+
 /**
  * Factory class to produce an image inverter node.
  *
@@ -79,8 +80,8 @@ import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
  * @param <T>
  * @param <L>
  */
-public class InverterNodeFactory2<T extends RealType<T>, L extends Comparable<L>> extends
-        IterableIntervalsNodeFactory<T, T, L> {
+public class InverterNodeFactory2<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
+        extends IterableIntervalsNodeFactory<T, T, L> {
 
     /**
      * Default Constructor
@@ -170,10 +171,13 @@ public class InverterNodeFactory2<T extends RealType<T>, L extends Comparable<L>
                 } else {
                     // this can be done faster
                     ImgPlus<T> in = cellValue.getImgPlus();
-                    return m_cellFactory.createCell(new ImgPlus<T>(new ImgView<T>(
-                            new ConvertedRandomAccessibleInterval<T, T>(in, new UnaryOperationBasedConverter<T, T>(
-                                    createOp(in.firstElement().createVariable())), getOutType(in.firstElement())), in
-                                    .factory()), in));
+                    return m_cellFactory.createCell(
+                                                    new ImgPlus<T>(new ImgView<T>(
+                                                            new ConvertedRandomAccessibleInterval<T, T>(in,
+                                                                    new UnaryOperationBasedConverter<T, T>(createOp(in
+                                                                            .firstElement().createVariable())),
+                                                                    getOutType(in.firstElement())),
+                                                            in.factory()), in));
                 }
             }
 

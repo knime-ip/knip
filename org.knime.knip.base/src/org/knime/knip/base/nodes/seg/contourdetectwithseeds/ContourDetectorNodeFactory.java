@@ -48,22 +48,23 @@
  */
 package org.knime.knip.base.nodes.seg.contourdetectwithseeds;
 
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
+
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 @Deprecated
-public class ContourDetectorNodeFactory<T extends RealType<T>, L extends Comparable<L>> extends
-        NodeFactory<ContourDetectorNodeModel<T, L>> {
+public class ContourDetectorNodeFactory<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
+        extends NodeFactory<ContourDetectorNodeModel<T, L>> {
 
     @Override
     protected NodeDialogPane createNodeDialogPane() {

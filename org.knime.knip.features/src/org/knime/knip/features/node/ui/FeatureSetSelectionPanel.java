@@ -62,12 +62,12 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.features.node.model.FeatureSetInfo;
 import org.knime.knip.features.sets.FeatureSet;
 import org.scijava.command.CommandInfo;
-
-import net.miginfocom.swing.MigLayout;
 
 @SuppressWarnings("rawtypes")
 public class FeatureSetSelectionPanel extends JPanel {

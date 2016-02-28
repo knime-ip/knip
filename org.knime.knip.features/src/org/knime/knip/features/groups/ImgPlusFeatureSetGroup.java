@@ -51,6 +51,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import net.imagej.ImgPlus;
+import net.imagej.ops.slicewise.Hyperslice;
+import net.imagej.ops.special.computer.UnaryComputerOp;
+import net.imglib2.Cursor;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.type.numeric.RealType;
+
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
@@ -65,13 +72,6 @@ import org.knime.knip.features.DataRowUtil;
 import org.knime.knip.features.FeaturesGateway;
 import org.knime.knip.features.node.model.FeatureSetInfo;
 import org.knime.knip.features.sets.FeatureSet;
-
-import net.imagej.ImgPlus;
-import net.imagej.ops.slicewise.Hyperslice;
-import net.imagej.ops.special.UnaryComputerOp;
-import net.imglib2.Cursor;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.type.numeric.RealType;
 
 /**
  * FIXME: Design of FeatureGroups is really weak. However, we can redesign it

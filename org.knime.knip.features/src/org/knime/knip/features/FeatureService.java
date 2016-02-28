@@ -49,14 +49,14 @@ package org.knime.knip.features;
 
 import java.util.List;
 
+import net.imglib2.type.numeric.RealType;
+
 import org.knime.core.node.ExecutionContext;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter;
 import org.knime.knip.features.node.model.FeatureSetInfo;
 import org.knime.knip.features.sets.FeatureSet;
 import org.scijava.service.Service;
-
-import net.imglib2.type.numeric.RealType;
 
 /**
  * Service to manage {@link FeatureSet}s;

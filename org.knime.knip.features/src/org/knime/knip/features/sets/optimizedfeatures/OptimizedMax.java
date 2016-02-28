@@ -47,17 +47,17 @@
  */
 package org.knime.knip.features.sets.optimizedfeatures;
 
-import org.scijava.Priority;
-import org.scijava.plugin.Plugin;
-
 import net.imagej.ops.Op;
 import net.imagej.ops.Ops.Stats.Max;
 import net.imagej.ops.Ops.Stats.MinMax;
-import net.imagej.ops.special.AbstractUnaryFunctionOp;
-import net.imagej.ops.special.Functions;
-import net.imagej.ops.special.UnaryFunctionOp;
+import net.imagej.ops.special.function.AbstractUnaryFunctionOp;
+import net.imagej.ops.special.function.Functions;
+import net.imagej.ops.special.function.UnaryFunctionOp;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Pair;
+
+import org.scijava.Priority;
+import org.scijava.plugin.Plugin;
 
 /**
  * {@link Op} to calculate the {@code stats.Max}.

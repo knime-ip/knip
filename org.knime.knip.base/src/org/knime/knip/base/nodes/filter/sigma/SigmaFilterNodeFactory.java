@@ -48,14 +48,15 @@
  */
 package org.knime.knip.base.nodes.filter.sigma;
 
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.NodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.dialog.DescriptionHelper;
 import org.knime.knip.base.node.dialog.DialogComponentOutOfBoundsSelection;
 import org.knime.knip.core.ops.iterator.SigmaFilter;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
+
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  *
@@ -69,7 +70,7 @@ import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
  *
  * @param <T>
  */
-public class SigmaFilterNodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
+public class SigmaFilterNodeFactory<T extends RealType<T> & NativeType<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
 
     /**
      * {@inheritDoc}
@@ -91,8 +92,8 @@ public class SigmaFilterNodeFactory<T extends RealType<T>> extends ImgPlusToImgP
     protected void addNodeDescriptionContent(final KnimeNode node) {
         super.addNodeDescriptionContent(node);
         int optionsIndex = DescriptionHelper.findTabIndex("Options", node.getFullDescription().getTabList());
-        DialogComponentOutOfBoundsSelection.createNodeDescription(node.getFullDescription().getTabArray(optionsIndex)
-                .addNewOption());
+        DialogComponentOutOfBoundsSelection
+                .createNodeDescription(node.getFullDescription().getTabArray(optionsIndex).addNewOption());
 
     }
 

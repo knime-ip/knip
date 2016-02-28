@@ -48,12 +48,13 @@
  */
 package org.knime.knip.core.util;
 
+import org.knime.knip.core.KNIPGateway;
+
 import net.imagej.ImgPlus;
 import net.imglib2.IterableInterval;
 import net.imglib2.ops.img.UnaryObjectFactory;
+import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
-
-import org.knime.knip.core.KNIPGateway;
 
 /**
  * TODO Auto-generated
@@ -62,8 +63,8 @@ import org.knime.knip.core.KNIPGateway;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class ImgPlusFactory<T extends RealType<T>, V extends RealType<V>> implements
-        UnaryObjectFactory<ImgPlus<T>, ImgPlus<V>> {
+public class ImgPlusFactory<T extends RealType<T>, V extends RealType<V> & NativeType<V>>
+        implements UnaryObjectFactory<ImgPlus<T>, ImgPlus<V>> {
 
     private final V m_outType;
 
@@ -78,12 +79,13 @@ public class ImgPlusFactory<T extends RealType<T>, V extends RealType<V>> implem
         return emptyCopy;
     }
 
-    public static <T extends RealType<T>, V extends RealType<V>> ImgPlusFactory<T, V> get(final V outType) {
+    public static <T extends RealType<T>, V extends RealType<V> & NativeType<V>> ImgPlusFactory<T, V>
+           get(final V outType) {
         return new ImgPlusFactory<T, V>(outType);
     }
 
-    public static <T extends RealType<T>, V extends RealType<V>> ImgPlusFactory<T, V>
-            get(final IterableInterval<V> interval) {
+    public static <T extends RealType<T>, V extends RealType<V> & NativeType<V>> ImgPlusFactory<T, V>
+           get(final IterableInterval<V> interval) {
         return new ImgPlusFactory<T, V>(interval.firstElement());
     }
 

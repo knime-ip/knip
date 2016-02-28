@@ -51,16 +51,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import net.imagej.ops.Op;
+import net.imagej.ops.OpInfo;
+import net.imagej.ops.cached.CachedOpEnvironment;
+import net.imagej.ops.special.function.AbstractUnaryFunctionOp;
+import net.imglib2.type.numeric.RealType;
+
 import org.knime.knip.features.sets.optimizedfeatures.KNIPCachedOpEnvironment;
 import org.scijava.Priority;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.PluginService;
-
-import net.imagej.ops.Op;
-import net.imagej.ops.OpInfo;
-import net.imagej.ops.cached.CachedOpEnvironment;
-import net.imagej.ops.special.AbstractUnaryFunctionOp;
-import net.imglib2.type.numeric.RealType;
 
 /**
  * In an {@link AbstractCachedFeatureSet} intermediate results are cached during

@@ -50,11 +50,6 @@ package org.knime.knip.base.nodes.filter.nonlinear;
 
 import java.util.List;
 
-import net.imagej.ImgPlus;
-import net.imglib2.ops.operation.Operations;
-import net.imglib2.ops.operation.UnaryOutputOperation;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
@@ -69,6 +64,12 @@ import org.knime.knip.core.ops.filters.BilateralFilter;
 import org.knime.knip.core.util.ImgPlusFactory;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 
+import net.imagej.ImgPlus;
+import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.operation.UnaryOutputOperation;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
+
 /**
  * {@link NodeModel} for {@link BilateralFilter}
  *
@@ -78,7 +79,8 @@ import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
  *
  * @param <T>
  */
-public class BilateralFilterNodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
+public class BilateralFilterNodeFactory<T extends RealType<T> & NativeType<T>>
+        extends ImgPlusToImgPlusNodeFactory<T, T> {
 
     private static SettingsModelInteger createRadiusModel() {
         return new SettingsModelInteger("radius", 10);
@@ -96,8 +98,8 @@ public class BilateralFilterNodeFactory<T extends RealType<T>> extends ImgPlusTo
     protected void addNodeDescriptionContent(final KnimeNode node) {
 
         int optIndex = DescriptionHelper.findTabIndex("Options", node.getFullDescription().getTabList());
-        DialogComponentSpanSelection.createNodeDescription(node.getFullDescription().getTabList().get(optIndex)
-                .addNewOption());
+        DialogComponentSpanSelection
+                .createNodeDescription(node.getFullDescription().getTabList().get(optIndex).addNewOption());
 
         super.addNodeDescriptionContent(node);
     }
@@ -111,10 +113,10 @@ public class BilateralFilterNodeFactory<T extends RealType<T>> extends ImgPlusTo
 
             @Override
             public void addDialogComponents() {
-                addDialogComponent("Options", "Deviations", new DialogComponentNumber(createSigmaRModel(),
-                        "Sigma_r (intensity domain)", 15));
-                addDialogComponent("Options", "Deviations", new DialogComponentNumber(createSigmaSModel(),
-                        "Sigma_s (spacial domain)", 5));
+                addDialogComponent("Options", "Deviations",
+                                   new DialogComponentNumber(createSigmaRModel(), "Sigma_r (intensity domain)", 15));
+                addDialogComponent("Options", "Deviations",
+                                   new DialogComponentNumber(createSigmaSModel(), "Sigma_s (spacial domain)", 5));
                 addDialogComponent("Options", "Parameters",
                                    new DialogComponentSpanSelection(BilateralFilterNodeFactory.createRadiusModel()));
             }
@@ -143,9 +145,10 @@ public class BilateralFilterNodeFactory<T extends RealType<T>> extends ImgPlusTo
 
             @Override
             protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> op(final ImgPlus<T> imgPlus) {
-                return Operations.wrap(new BilateralFilter<T, ImgPlus<T>>(m_smSigmaR.getDoubleValue(), m_smSigmaS
-                                               .getDoubleValue(), m_smRadius.getIntValue()), ImgPlusFactory
-                                               .<T, T> get(imgPlus.firstElement()));
+                return Operations.wrap(
+                                       new BilateralFilter<T, ImgPlus<T>>(m_smSigmaR.getDoubleValue(),
+                                               m_smSigmaS.getDoubleValue(), m_smRadius.getIntValue()),
+                                       ImgPlusFactory.<T, T> get(imgPlus.firstElement()));
             }
 
             @Override

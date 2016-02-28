@@ -47,11 +47,11 @@
  */
 package org.knime.knip.features;
 
+import net.imagej.ops.special.computer.UnaryComputerOp;
+
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.container.DataContainer;
-
-import net.imagej.ops.special.UnaryComputerOp;
 
 public interface FeatureSetGroup {
 

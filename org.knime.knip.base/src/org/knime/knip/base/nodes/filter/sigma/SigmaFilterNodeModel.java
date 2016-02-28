@@ -51,16 +51,6 @@ package org.knime.knip.base.nodes.filter.sigma;
 import java.util.Iterator;
 import java.util.List;
 
-import net.imagej.ImgPlus;
-import net.imglib2.algorithm.neighborhood.Shape;
-import net.imglib2.ops.operation.Operations;
-import net.imglib2.ops.operation.UnaryOperation;
-import net.imglib2.ops.operation.UnaryOutputOperation;
-import net.imglib2.ops.operation.iterable.unary.Variance;
-import net.imglib2.outofbounds.OutOfBoundsFactory;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.type.numeric.real.DoubleType;
-
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
@@ -75,6 +65,17 @@ import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
 import org.knime.knip.core.types.OutOfBoundsStrategyFactory;
 import org.knime.knip.core.util.ImgPlusFactory;
 
+import net.imagej.ImgPlus;
+import net.imglib2.algorithm.neighborhood.Shape;
+import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.operation.UnaryOperation;
+import net.imglib2.ops.operation.UnaryOutputOperation;
+import net.imglib2.ops.operation.iterable.unary.Variance;
+import net.imglib2.outofbounds.OutOfBoundsFactory;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.type.numeric.real.DoubleType;
+
 /**
  *
  *
@@ -84,7 +85,7 @@ import org.knime.knip.core.util.ImgPlusFactory;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @author wildnerm, University of Konstanz
  */
-public class SigmaFilterNodeModel<T extends RealType<T>> extends ImgPlusToImgPlusNodeModel<T, T> {
+public class SigmaFilterNodeModel<T extends RealType<T> & NativeType<T>> extends ImgPlusToImgPlusNodeModel<T, T> {
 
     private class CombinedSigmaFilterOp implements UnaryOperation<ImgPlus<T>, ImgPlus<T>> {
 
@@ -130,9 +131,9 @@ public class SigmaFilterNodeModel<T extends RealType<T>> extends ImgPlusToImgPlu
 
             final SlidingShapeOpBinaryInside<T, T, ImgPlus<T>, ImgPlus<T>> slidingWindowOp =
                     new SlidingShapeOpBinaryInside<T, T, ImgPlus<T>, ImgPlus<T>>(m_shape,
-                            new SigmaFilter<T, T, Iterator<T>>(Math.sqrt(m_variance.compute(input.cursor(),
-                                                                                            new DoubleType())
-                                    .getRealDouble()), m_sigmaFactor, m_pixelFraction, m_outlierDetection),
+                            new SigmaFilter<T, T, Iterator<T>>(
+                                    Math.sqrt(m_variance.compute(input.cursor(), new DoubleType()).getRealDouble()),
+                                    m_sigmaFactor, m_pixelFraction, m_outlierDetection),
                             m_outOfBounds);
 
             return slidingWindowOp.compute(input, output);
@@ -230,13 +231,19 @@ public class SigmaFilterNodeModel<T extends RealType<T>> extends ImgPlusToImgPlu
 
     @Override
     protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> op(final ImgPlus<T> imgPlus) {
-        return Operations
-                .wrap(new CombinedSigmaFilterOp(NeighborhoodType.getNeighborhood(NeighborhoodType
-                              .valueOf(m_neighborhoodTypeModel.getStringValue()), m_spanModel.getIntValue()),
-                              OutOfBoundsStrategyFactory.<T, ImgPlus<T>> getStrategy(m_outOfBoundsStrategyModel
-                                      .getStringValue(), imgPlus.firstElement()), m_sigmaFactorModel.getDoubleValue(),
-                              m_pixelFractionModel.getDoubleValue(), m_outlierDetectionModel.getBooleanValue()),
-                      ImgPlusFactory.<T, T> get(imgPlus.firstElement()));
+        return Operations.wrap(
+                               new CombinedSigmaFilterOp(
+                                       NeighborhoodType.getNeighborhood(
+                                                                        NeighborhoodType.valueOf(m_neighborhoodTypeModel
+                                                                                .getStringValue()),
+                                                                        m_spanModel.getIntValue()),
+                                       OutOfBoundsStrategyFactory.<T, ImgPlus<T>> getStrategy(
+                                                                                              m_outOfBoundsStrategyModel
+                                                                                                      .getStringValue(),
+                                                                                              imgPlus.firstElement()),
+                                       m_sigmaFactorModel.getDoubleValue(), m_pixelFractionModel.getDoubleValue(),
+                                       m_outlierDetectionModel.getBooleanValue()),
+                               ImgPlusFactory.<T, T> get(imgPlus.firstElement()));
     }
 
     /**

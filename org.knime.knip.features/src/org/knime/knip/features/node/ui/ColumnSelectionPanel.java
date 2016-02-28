@@ -50,10 +50,10 @@ package org.knime.knip.features.node.ui;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
-
-import net.miginfocom.swing.MigLayout;
 
 public class ColumnSelectionPanel extends JPanel {
 

@@ -48,12 +48,12 @@
 
 package org.knime.knip.features.sets;
 
+import net.imglib2.IterableInterval;
+import net.imglib2.type.numeric.RealType;
+
 import org.scijava.plugin.Attr;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
-
-import net.imglib2.IterableInterval;
-import net.imglib2.type.numeric.RealType;
 
 /**
  * {@link FeatureSet} to calculate first order statistic features

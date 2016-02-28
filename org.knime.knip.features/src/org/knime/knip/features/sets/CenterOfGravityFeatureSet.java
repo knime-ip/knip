@@ -53,12 +53,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.scijava.plugin.Plugin;
-
 import net.imglib2.IterableInterval;
 import net.imglib2.RealLocalizable;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.DoubleType;
+
+import org.scijava.plugin.Plugin;
 
 /**
  * {@link FeatureSet} to calculate {@link AbstractOpRefFeatureSet<I, O>}.

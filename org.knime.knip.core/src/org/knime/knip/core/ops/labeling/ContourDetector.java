@@ -52,16 +52,17 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import net.imglib2.img.Img;
-import net.imglib2.ops.operation.UnaryOperation;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.algorithm.PolarImageFactory;
 import org.knime.knip.core.data.algebra.ExtendedPolygon;
 import org.knime.knip.core.data.algebra.Vector;
 import org.knime.knip.core.data.labeling.Signature;
 import org.knime.knip.core.util.PermutationSort;
+
+import net.imglib2.img.Img;
+import net.imglib2.ops.operation.UnaryOperation;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  *
@@ -70,7 +71,7 @@ import org.knime.knip.core.util.PermutationSort;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 @Deprecated
-public class ContourDetector<T extends RealType<T>> {
+public class ContourDetector<T extends RealType<T> & NativeType<T>> {
 
     /*
      * the polar image sources to retrieve the signature and, hence, the
