@@ -3,6 +3,21 @@ package org.knime.knip.io.nodes.annotation.edit;
 import java.util.List;
 import java.util.Map;
 
+import net.imglib2.Cursor;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.converter.Converters;
+import net.imglib2.img.Img;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.logic.BitType;
+import net.imglib2.type.numeric.IntegerType;
+import net.imglib2.type.numeric.integer.Unsigned12BitType;
+import net.imglib2.type.numeric.integer.UnsignedByteType;
+import net.imglib2.type.numeric.integer.UnsignedIntType;
+import net.imglib2.type.numeric.integer.UnsignedShortType;
+import net.imglib2.view.Views;
+
 import org.knime.core.data.DataRow;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
@@ -18,20 +33,6 @@ import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
 import org.knime.knip.io.nodes.annotation.edit.control.LabelingEditorChangeTracker;
 import org.knime.knip.io.nodes.annotation.edit.control.LabelingEditorLabelingConverter;
 import org.knime.knip.io.nodes.annotation.edit.control.LabelingEditorRowKey;
-
-import net.imglib2.Cursor;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.converter.Converters;
-import net.imglib2.img.Img;
-import net.imglib2.roi.labeling.ImgLabeling;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.type.logic.BitType;
-import net.imglib2.type.numeric.IntegerType;
-import net.imglib2.type.numeric.integer.Unsigned12BitType;
-import net.imglib2.type.numeric.integer.UnsignedByteType;
-import net.imglib2.type.numeric.integer.UnsignedIntType;
-import net.imglib2.type.numeric.integer.UnsignedShortType;
-import net.imglib2.view.Views;
 
 /**
  * NodeModel of the InteractiveLabelingEditor node.
@@ -92,7 +93,7 @@ public class LabelingEditorNodeModel
 		// Get the tracker of the current row
 		final LabelingEditorChangeTracker currentTrack = map.get(k);
 
-		if (currentTrack== null || !currentTrack.isDirty())
+		if (currentTrack == null || !currentTrack.isDirty())
 			return (LabelingCell) cellValue1;
 
 		RandomAccessibleInterval<LabelingType<String>> src = null;
@@ -116,7 +117,7 @@ public class LabelingEditorNodeModel
 
 			IntegerType type = findMatchingType(lab.firstElement().getMapping().numSets() + modifiedLabels);
 
-			newStorageImg = KNIPGateway.ops().create().img(img, type);
+			newStorageImg = KNIPGateway.ops().create().img(img, (NativeType) type);
 		} catch (Exception e) {
 			throw new KNIPException("Error when creating new storage Image!");
 		}
