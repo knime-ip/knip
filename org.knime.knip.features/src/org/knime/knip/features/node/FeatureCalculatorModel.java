@@ -51,6 +51,10 @@ package org.knime.knip.features.node;
 import java.io.File;
 import java.io.IOException;
 
+import net.imagej.ops.special.computer.UnaryComputerOp;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
+
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataValue;
@@ -76,10 +80,6 @@ import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.features.FeatureSetGroup;
 import org.knime.knip.features.FeaturesGateway;
 import org.knime.knip.features.node.model.SettingsModelFeatureSet;
-
-import net.imagej.ops.special.UnaryComputerOp;
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
 
 /**
  * This is the model implementation of FeatureNode.

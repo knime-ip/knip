@@ -53,15 +53,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.scijava.ItemIO;
-import org.scijava.plugin.Parameter;
-import org.scijava.plugin.Plugin;
-
 import net.imagej.ops.features.zernike.helper.ZernikeComputer;
 import net.imagej.ops.features.zernike.helper.ZernikeMoment;
 import net.imglib2.IterableInterval;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.DoubleType;
+
+import org.scijava.ItemIO;
+import org.scijava.plugin.Parameter;
+import org.scijava.plugin.Plugin;
 
 /**
  * {@link FeatureSet} to calculate {@link StatOp}s.

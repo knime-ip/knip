@@ -51,11 +51,6 @@ package org.knime.knip.base.nodes.filter.maxhomogenity;
 import java.util.Arrays;
 import java.util.List;
 
-import net.imagej.ImgPlus;
-import net.imglib2.ops.operation.Operations;
-import net.imglib2.ops.operation.UnaryOutputOperation;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
@@ -72,6 +67,12 @@ import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
 import org.knime.knip.core.types.OutOfBoundsStrategyFactory;
 import org.knime.knip.core.util.ImgPlusFactory;
 
+import net.imagej.ImgPlus;
+import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.operation.UnaryOutputOperation;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
+
 /**
  *
  *
@@ -82,7 +83,7 @@ import org.knime.knip.core.util.ImgPlusFactory;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @author Lukas Siedentop (University of Konstanz)
  */
-public class MaxHomogenityNodeModel<T extends RealType<T>> extends ImgPlusToImgPlusNodeModel<T, T> {
+public class MaxHomogenityNodeModel<T extends RealType<T> & NativeType<T>> extends ImgPlusToImgPlusNodeModel<T, T> {
 
     protected static SettingsModelDimSelection createDimSelectionModel() {
         return new SettingsModelDimSelection("dimselection", "X", "Y");
@@ -140,15 +141,18 @@ public class MaxHomogenityNodeModel<T extends RealType<T>> extends ImgPlusToImgP
         Arrays.fill(spans, m_windowSize.getIntValue());
 
         if (m_dimSelection.getNumSelectedDimLabels(imgPlus) != 2) {
-            throw new KNIPRuntimeException("image " + imgPlus.getName()
-                    + " does not contain both of the two selected dimensions.");
+            throw new KNIPRuntimeException(
+                    "image " + imgPlus.getName() + " does not contain both of the two selected dimensions.");
         }
 
         //max homogenity op works only on 2d at the moment (may 2013)
-        return Operations.wrap(new MaxHomogenityOp<T, ImgPlus<T>>(m_lambda.getDoubleValue(), spans,
-                                       OutOfBoundsStrategyFactory.<T, ImgPlus<T>> getStrategy(m_outOfBoundsStrategy
-                                               .getStringValue(), imgPlus.firstElement())), ImgPlusFactory
-                                       .<T, T> get(imgPlus.firstElement()));
+        return Operations.wrap(
+                               new MaxHomogenityOp<T, ImgPlus<T>>(m_lambda.getDoubleValue(), spans,
+                                       OutOfBoundsStrategyFactory.<T, ImgPlus<T>> getStrategy(
+                                                                                              m_outOfBoundsStrategy
+                                                                                                      .getStringValue(),
+                                                                                              imgPlus.firstElement())),
+                               ImgPlusFactory.<T, T> get(imgPlus.firstElement()));
     }
 
     /**

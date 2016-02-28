@@ -53,15 +53,6 @@ import java.util.List;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.imagej.ImgPlus;
-import net.imglib2.IterableInterval;
-import net.imglib2.ops.operation.Operations;
-import net.imglib2.ops.operation.UnaryOperation;
-import net.imglib2.ops.operation.UnaryOutputOperation;
-import net.imglib2.ops.operation.iterableinterval.unary.EqualizeHistogram;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.util.ValuePair;
-
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
@@ -78,6 +69,16 @@ import org.knime.knip.core.ops.img.ImgPlusNormalize;
 import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgPlusFactory;
 
+import net.imagej.ImgPlus;
+import net.imglib2.IterableInterval;
+import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.operation.UnaryOperation;
+import net.imglib2.ops.operation.UnaryOutputOperation;
+import net.imglib2.ops.operation.iterableinterval.unary.EqualizeHistogram;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.ValuePair;
+
 /**
  * Use {@link ImgNormalizerNodeFactory} instead
  *
@@ -88,7 +89,8 @@ import org.knime.knip.core.util.ImgPlusFactory;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 @Deprecated
-public class ImageNormalizerNodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
+public class ImageNormalizerNodeFactory<T extends RealType<T> & NativeType<T>>
+        extends ImgPlusToImgPlusNodeFactory<T, T> {
 
     private enum ContrastEnhancementMode {
         EQUALIZE, MANUALNORMALIZE, NORMALIZE;
@@ -186,8 +188,8 @@ public class ImageNormalizerNodeFactory<T extends RealType<T>> extends ImgPlusTo
 
                     @Override
                     public void stateChanged(final ChangeEvent e) {
-                        initDialog(ContrastEnhancementMode.valueOf(((SettingsModelString)e.getSource())
-                                .getStringValue()));
+                        initDialog(ContrastEnhancementMode
+                                .valueOf(((SettingsModelString)e.getSource()).getStringValue()));
                     }
                 });
 
@@ -199,11 +201,11 @@ public class ImageNormalizerNodeFactory<T extends RealType<T>> extends ImgPlusTo
 
                 addDialogComponent("Options", "Manual Settings", new DialogComponentNumber(smMax, "Max", 1.0));
 
-                addDialogComponent("Options", "Manual Settings", new DialogComponentBoolean(smMinMaxOfNewImage,
-                        "Is Target Min/Max?"));
+                addDialogComponent("Options", "Manual Settings",
+                                   new DialogComponentBoolean(smMinMaxOfNewImage, "Is Target Min/Max?"));
 
-                addDialogComponent("Options", "Saturation (%)", new DialogComponentNumber(smSaturation, "Saturation ",
-                        1));
+                addDialogComponent("Options", "Saturation (%)",
+                                   new DialogComponentNumber(smSaturation, "Saturation ", 1));
 
             }
 
@@ -292,17 +294,15 @@ public class ImageNormalizerNodeFactory<T extends RealType<T>> extends ImgPlusTo
                         min.setReal(m_smManualMin.getDoubleValue());
                         max.setReal(m_smManualMax.getDoubleValue());
 
-                        op =
-                                new ImgPlusNormalize<T>(0, val, new ValuePair<T, T>(min, max),
-                                        m_smMinMaxOfNewImage.getBooleanValue());
+                        op = new ImgPlusNormalize<T>(0, val, new ValuePair<T, T>(min, max),
+                                m_smMinMaxOfNewImage.getBooleanValue());
                         break;
                     case EQUALIZE:
                         op = new ImgPlusWrapper(new EqualizeHistogram<T>(256));
                         break;
                     case NORMALIZE:
-                        op =
-                                new ImgPlusNormalize<T>(m_smSaturation.getDoubleValue(), val, null,
-                                        m_smMinMaxOfNewImage.getBooleanValue());
+                        op = new ImgPlusNormalize<T>(m_smSaturation.getDoubleValue(), val, null,
+                                m_smMinMaxOfNewImage.getBooleanValue());
                         break;
                     default:
                         throw new RuntimeException("Illegal state in contrast enhancer");

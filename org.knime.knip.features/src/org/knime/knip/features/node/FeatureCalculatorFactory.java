@@ -48,12 +48,12 @@
 
 package org.knime.knip.features.node;
 
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
+
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
-
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
 
 /**
  * <code>NodeFactory</code> for the "FeatureNode" Node.

@@ -51,15 +51,6 @@ package org.knime.knip.base.nodes.filter;
 import java.util.Iterator;
 import java.util.List;
 
-import net.imagej.ImgPlus;
-import net.imglib2.algorithm.neighborhood.Shape;
-import net.imglib2.ops.operation.BinaryOperation;
-import net.imglib2.ops.operation.Operations;
-import net.imglib2.ops.operation.UnaryOperation;
-import net.imglib2.ops.operation.UnaryOutputOperation;
-import net.imglib2.outofbounds.OutOfBoundsFactory;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
@@ -73,6 +64,16 @@ import org.knime.knip.core.types.NeighborhoodType;
 import org.knime.knip.core.types.OutOfBoundsStrategyFactory;
 import org.knime.knip.core.util.ImgPlusFactory;
 
+import net.imagej.ImgPlus;
+import net.imglib2.algorithm.neighborhood.Shape;
+import net.imglib2.ops.operation.BinaryOperation;
+import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.operation.UnaryOperation;
+import net.imglib2.ops.operation.UnaryOutputOperation;
+import net.imglib2.outofbounds.OutOfBoundsFactory;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
+
 /**
  * Abstract {@link NodeModel} which can be used for sliding window like operations
  *
@@ -84,8 +85,8 @@ import org.knime.knip.core.util.ImgPlusFactory;
  * @param <V>
  *
  */
-public abstract class AbstractSlidingWindowOperationNodeModel<T extends RealType<T>, V extends RealType<V>> extends
-        ImgPlusToImgPlusNodeModel<T, V> {
+public abstract class AbstractSlidingWindowOperationNodeModel<T extends RealType<T>, V extends RealType<V> & NativeType<V>>
+        extends ImgPlusToImgPlusNodeModel<T, V> {
 
     /**
      * Create Dimension Selection NodeModel
@@ -109,8 +110,8 @@ public abstract class AbstractSlidingWindowOperationNodeModel<T extends RealType
     /**
      * Type of the neighborhood (rectangular, elliptical, etc)
      */
-    protected SettingsModelString m_neighborhoodType = SlidingWindowOperationNodeFactory
-            .createNeighborhoodTypeNodeModel();
+    protected SettingsModelString m_neighborhoodType =
+            SlidingWindowOperationNodeFactory.createNeighborhoodTypeNodeModel();
 
     /**
      * {@link SettingsModelString} to store {@link OutOfBoundsStrategyFactory} which will be used for out of bounds
@@ -148,12 +149,11 @@ public abstract class AbstractSlidingWindowOperationNodeModel<T extends RealType
      * @return {@link UnaryOutputOperation}
      */
     protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<V>>
-            defaultBinary(final BinaryOperation<Iterator<T>, T, V> op, final V type, final Shape neighborhood,
-                          final OutOfBoundsFactory<T, ImgPlus<T>> outStrat) {
+              defaultBinary(final BinaryOperation<Iterator<T>, T, V> op, final V type, final Shape neighborhood,
+                            final OutOfBoundsFactory<T, ImgPlus<T>> outStrat) {
 
-        return Operations
-                .wrap(new SlidingShapeOpBinaryInside<T, V, ImgPlus<T>, ImgPlus<V>>(neighborhood, op, outStrat),
-                      ImgPlusFactory.<T, V> get(type.createVariable()));
+        return Operations.wrap(new SlidingShapeOpBinaryInside<T, V, ImgPlus<T>, ImgPlus<V>>(neighborhood, op, outStrat),
+                               ImgPlusFactory.<T, V> get(type.createVariable()));
 
     }
 
@@ -167,8 +167,8 @@ public abstract class AbstractSlidingWindowOperationNodeModel<T extends RealType
      * @return {@link UnaryOutputOperation}
      */
     protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<V>>
-            defaultUnary(final UnaryOperation<Iterator<T>, V> op, final V type, final Shape neighborhood,
-                         final OutOfBoundsFactory<T, ImgPlus<T>> outStrat) {
+              defaultUnary(final UnaryOperation<Iterator<T>, V> op, final V type, final Shape neighborhood,
+                           final OutOfBoundsFactory<T, ImgPlus<T>> outStrat) {
 
         return Operations.wrap(new SlidingShapeOpUnaryInside<T, V, ImgPlus<T>, ImgPlus<V>>(neighborhood, op, outStrat),
                                ImgPlusFactory.<T, V> get(type.createVariable()));
@@ -190,9 +190,8 @@ public abstract class AbstractSlidingWindowOperationNodeModel<T extends RealType
                 NeighborhoodType.getNeighborhood(NeighborhoodType.valueOf(m_neighborhoodType.getStringValue()),
                                                  m_intervalExtend.getIntValue());
 
-        final OutOfBoundsFactory<T, ImgPlus<T>> outStrat =
-                OutOfBoundsStrategyFactory.<T, ImgPlus<T>> getStrategy(m_outOfBoundsStrategy.getStringValue(),
-                                                                       img.firstElement());
+        final OutOfBoundsFactory<T, ImgPlus<T>> outStrat = OutOfBoundsStrategyFactory
+                .<T, ImgPlus<T>> getStrategy(m_outOfBoundsStrategy.getStringValue(), img.firstElement());
 
         return getSlidingOperation(img, type, neighborhood, outStrat);
     }
@@ -209,7 +208,8 @@ public abstract class AbstractSlidingWindowOperationNodeModel<T extends RealType
      * @return {@link UnaryOutputOperation}
      */
     protected abstract UnaryOutputOperation<ImgPlus<T>, ImgPlus<V>>
-            getSlidingOperation(ImgPlus<T> img, V type, Shape neighborhood, OutOfBoundsFactory<T, ImgPlus<T>> outStrat);
+              getSlidingOperation(ImgPlus<T> img, V type, Shape neighborhood,
+                                  OutOfBoundsFactory<T, ImgPlus<T>> outStrat);
 
     @Override
     protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<V>> op(final ImgPlus<T> vin) {

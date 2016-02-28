@@ -50,6 +50,13 @@ package org.knime.knip.base.nodes.proc.multilvlthresholding;
 
 import java.util.List;
 
+import org.knime.core.node.defaultnodesettings.SettingsModel;
+import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
+import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
+import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
+import org.knime.knip.core.util.ImgPlusFactory;
+
 import net.imagej.ImgPlus;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.UnaryOutputOperation;
@@ -57,14 +64,8 @@ import net.imglib2.ops.operation.iterableinterval.unary.multilevelthresholder.Mu
 import net.imglib2.ops.operation.iterableinterval.unary.multilevelthresholder.MultilevelThresholderType;
 import net.imglib2.ops.operation.iterableinterval.unary.multilevelthresholder.OtsuMultilevelThresholder;
 import net.imglib2.ops.operation.iterableinterval.unary.multilevelthresholder.ThresholdValueCollection;
+import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
-
-import org.knime.core.node.defaultnodesettings.SettingsModel;
-import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
-import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
-import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
-import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
  * Multi-Level OTSU Thresholding
@@ -76,7 +77,8 @@ import org.knime.knip.core.util.ImgPlusFactory;
  *
  * @author friedrichm, University of Konstanz
  */
-public class MultilevelThresholderNodeModel<T extends RealType<T>> extends ImgPlusToImgPlusNodeModel<T, T> {
+public class MultilevelThresholderNodeModel<T extends RealType<T> & NativeType<T>>
+        extends ImgPlusToImgPlusNodeModel<T, T> {
 
     static SettingsModelDimSelection createDimSelectionModel() {
         return new SettingsModelDimSelection("dimselection", "X", "Y");
@@ -121,9 +123,8 @@ public class MultilevelThresholderNodeModel<T extends RealType<T>> extends ImgPl
 
         switch (Enum.valueOf(MultilevelThresholderType.class, m_thresholder.getStringValue())) {
             case OTSU:
-                op =
-                        new OtsuMultilevelThresholder<T, ImgPlus<T>>(m_numberOfLevels.getIntValue(),
-                                m_numberOfIntensities.getIntValue());
+                op = new OtsuMultilevelThresholder<T, ImgPlus<T>>(m_numberOfLevels.getIntValue(),
+                        m_numberOfIntensities.getIntValue());
                 break;
             default:
                 throw new IllegalArgumentException("Unknown thresholding method");

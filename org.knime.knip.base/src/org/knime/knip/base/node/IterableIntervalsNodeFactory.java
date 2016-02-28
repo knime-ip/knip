@@ -49,14 +49,15 @@
  */
 package org.knime.knip.base.node;
 
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 import org.knime.node.v210.OptionDocument.Option;
 import org.knime.node.v210.TabDocument.Tab;
 import org.knime.node.v210.UlDocument.Ul;
+
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * NodeFactory for {@link IterableIntervalsNodeModel}
@@ -69,9 +70,8 @@ import org.knime.node.v210.UlDocument.Ul;
  * @param <V> Type of Output
  * @param <L> Type of Labeling
  */
-public abstract class IterableIntervalsNodeFactory<T extends RealType<T>, V extends RealType<V>, L extends Comparable<L>>
+public abstract class IterableIntervalsNodeFactory<T extends RealType<T>, V extends RealType<V> & NativeType<V>, L extends Comparable<L>>
         extends ValueToCellNodeFactory<ImgPlusValue<T>> {
-
 
     /**
      * Variable holding information whether this node has a dimSelection or not.
@@ -95,8 +95,9 @@ public abstract class IterableIntervalsNodeFactory<T extends RealType<T>, V exte
      */
     @Override
     protected void addNodeDescriptionContent(final KnimeNode node) {
-        if(m_hasDimensionSelection) {
-            DialogComponentDimSelection.createNodeDescription(node.getFullDescription().getTabList().get(0).addNewOption());
+        if (m_hasDimensionSelection) {
+            DialogComponentDimSelection
+                    .createNodeDescription(node.getFullDescription().getTabList().get(0).addNewOption());
         }
 
         Tab tab = node.getFullDescription().addNewTab();
@@ -111,14 +112,17 @@ public abstract class IterableIntervalsNodeFactory<T extends RealType<T>, V exte
      */
     private void createFillingModeDescription(final Option opt) {
         opt.setName("Filling Mode");
-        opt.addNewP()
-                .newCursor()
+        opt.addNewP().newCursor()
                 .setTextValue("The FillingMode determines how all values, which lie outside your defined region of interest, will be set. This option is only needed if you choose a labeling column, such that the node operates on ROIs instead of the entire image. There are currently four FillingModes:");
         Ul list = opt.addNewUl();
-        list.addNewLi().addNewTt().setStringValue("Value of Source: In this mode, pixels outside of the ROIs remain unchanged. ");
-        list.addNewLi().addNewTt().setStringValue("Minimum of Result Type: Here, values outside of the ROI are set to the smallest legal value of the output image type. ");
-        list.addNewLi().addNewTt().setStringValue("Maximum of Result Type: All values outside of the ROI are set to the largest posible value of the output image type. ");
-        list.addNewLi().addNewTt().setStringValue("No Filling: No action is taken after initializing the target image, thus all pixels outside the ROIs remain zero. ");
+        list.addNewLi().addNewTt()
+                .setStringValue("Value of Source: In this mode, pixels outside of the ROIs remain unchanged. ");
+        list.addNewLi().addNewTt()
+                .setStringValue("Minimum of Result Type: Here, values outside of the ROI are set to the smallest legal value of the output image type. ");
+        list.addNewLi().addNewTt()
+                .setStringValue("Maximum of Result Type: All values outside of the ROI are set to the largest posible value of the output image type. ");
+        list.addNewLi().addNewTt()
+                .setStringValue("No Filling: No action is taken after initializing the target image, thus all pixels outside the ROIs remain zero. ");
 
     }
 
@@ -127,8 +131,7 @@ public abstract class IterableIntervalsNodeFactory<T extends RealType<T>, V exte
      */
     private void createLabelingColumnSelectionDescription(final Option opt) {
         opt.setName("Labeling Column");
-        opt.addNewP()
-                .newCursor()
+        opt.addNewP().newCursor()
                 .setTextValue("If you choose a column with a labeling here, the node will only operate on the Regions of Interests (ROIs) which are defined by the incoming labeling!");
     }
 }

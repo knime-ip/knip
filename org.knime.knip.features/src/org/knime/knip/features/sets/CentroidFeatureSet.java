@@ -53,14 +53,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.scijava.plugin.Plugin;
-
 import net.imagej.ops.Ops.Geometric.Centroid;
-import net.imagej.ops.special.Functions;
-import net.imagej.ops.special.UnaryFunctionOp;
+import net.imagej.ops.special.function.Functions;
+import net.imagej.ops.special.function.UnaryFunctionOp;
 import net.imglib2.RealLocalizable;
 import net.imglib2.roi.labeling.LabelRegion;
 import net.imglib2.type.numeric.real.DoubleType;
+
+import org.scijava.plugin.Plugin;
 
 /**
  * {@link FeatureSet} to calculate {@link AbstractOpRefFeatureSet<I, O>}.

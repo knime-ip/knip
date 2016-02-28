@@ -49,11 +49,11 @@
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
-import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
-
 import net.miginfocom.layout.AC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
+
+import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 
 public class DimensionSelectionPanel extends JPanel {
 

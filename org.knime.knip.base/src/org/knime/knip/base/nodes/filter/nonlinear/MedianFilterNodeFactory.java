@@ -48,14 +48,6 @@
  */
 package org.knime.knip.base.nodes.filter.nonlinear;
 
-
-import net.imagej.ImgPlus;
-import net.imglib2.algorithm.neighborhood.Shape;
-import net.imglib2.ops.operation.UnaryOutputOperation;
-import net.imglib2.ops.operation.iterable.unary.MedianOp;
-import net.imglib2.outofbounds.OutOfBoundsFactory;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.NodeModel;
 import org.knime.knip.base.nodes.filter.AbstractSlidingWindowOperationNodeModel;
 import org.knime.knip.base.nodes.filter.SlidingWindowOperationNodeDialog;
@@ -63,6 +55,14 @@ import org.knime.knip.base.nodes.filter.SlidingWindowOperationNodeFactory;
 import org.knime.node.v210.FullDescriptionDocument.FullDescription;
 import org.knime.node.v210.KnimeNodeDocument;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
+
+import net.imagej.ImgPlus;
+import net.imglib2.algorithm.neighborhood.Shape;
+import net.imglib2.ops.operation.UnaryOutputOperation;
+import net.imglib2.ops.operation.iterable.unary.MedianOp;
+import net.imglib2.outofbounds.OutOfBoundsFactory;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * {@link NodeModel} for naive implementation of a Median Filter
@@ -73,7 +73,8 @@ import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
  *
  * @param <T>
  */
-public class MedianFilterNodeFactory<T extends RealType<T>> extends SlidingWindowOperationNodeFactory<T, T> {
+public class MedianFilterNodeFactory<T extends RealType<T> & NativeType<T>>
+        extends SlidingWindowOperationNodeFactory<T, T> {
 
     /**
      * {@inheritDoc}
@@ -105,8 +106,8 @@ public class MedianFilterNodeFactory<T extends RealType<T>> extends SlidingWindo
 
             @Override
             protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>>
-                    getSlidingOperation(final ImgPlus<T> img, final T type, final Shape neighborhood,
-                                        final OutOfBoundsFactory<T, ImgPlus<T>> outStrat) {
+                      getSlidingOperation(final ImgPlus<T> img, final T type, final Shape neighborhood,
+                                          final OutOfBoundsFactory<T, ImgPlus<T>> outStrat) {
 
                 return defaultUnary(new MedianOp<T, T>(), type, neighborhood, outStrat);
             }

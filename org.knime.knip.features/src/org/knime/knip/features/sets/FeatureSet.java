@@ -52,7 +52,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.imagej.ops.Contingent;
-import net.imagej.ops.special.UnaryFunctionOp;
+import net.imagej.ops.special.function.UnaryFunctionOp;
 import net.imglib2.type.numeric.RealType;
 
 /**

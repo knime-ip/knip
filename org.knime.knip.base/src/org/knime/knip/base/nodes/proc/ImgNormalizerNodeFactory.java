@@ -70,6 +70,7 @@ import org.knime.knip.core.util.EnumUtils;
 import net.imglib2.IterableInterval;
 import net.imglib2.ops.operation.UnaryOperation;
 import net.imglib2.ops.operation.iterableinterval.unary.EqualizeHistogram;
+import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.ValuePair;
 
@@ -83,8 +84,8 @@ import net.imglib2.util.ValuePair;
  * @param <T>
  * @param <L>
  */
-public class ImgNormalizerNodeFactory<T extends RealType<T>, L extends Comparable<L>> extends
-        IterableIntervalsNodeFactory<T, T, L> {
+public class ImgNormalizerNodeFactory<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
+        extends IterableIntervalsNodeFactory<T, T, L> {
 
     private enum ContrastEnhancementMode {
         EQUALIZE, MANUALNORMALIZE, NORMALIZE;
@@ -158,8 +159,8 @@ public class ImgNormalizerNodeFactory<T extends RealType<T>, L extends Comparabl
 
                     @Override
                     public void stateChanged(final ChangeEvent e) {
-                        initDialog(ContrastEnhancementMode.valueOf(((SettingsModelString)e.getSource())
-                                .getStringValue()));
+                        initDialog(ContrastEnhancementMode
+                                .valueOf(((SettingsModelString)e.getSource()).getStringValue()));
                     }
                 });
 
@@ -171,10 +172,11 @@ public class ImgNormalizerNodeFactory<T extends RealType<T>, L extends Comparabl
 
                 addDialogComponent("Options", "Manual Settings", new DialogComponentNumber(max, "Max", 1.0));
 
-                addDialogComponent("Options", "Manual Settings", new DialogComponentBoolean(minMaxOfNewImage,
-                        "Is Target Min/Max?"));
+                addDialogComponent("Options", "Manual Settings",
+                                   new DialogComponentBoolean(minMaxOfNewImage, "Is Target Min/Max?"));
 
-                addDialogComponent("Options", "Saturation (%)", new DialogComponentNumber(saturation, "Saturation ", 1));
+                addDialogComponent("Options", "Saturation (%)",
+                                   new DialogComponentNumber(saturation, "Saturation ", 1));
 
                 initDialog(ContrastEnhancementMode.valueOf(type.getStringValue()));
             }
@@ -269,17 +271,15 @@ public class ImgNormalizerNodeFactory<T extends RealType<T>, L extends Comparabl
                         min.setReal(m_smManualMin.getDoubleValue());
                         max.setReal(m_smManualMax.getDoubleValue());
 
-                        op =
-                                new IterableIntervalNormalize<T>(0, m_currentVal, new ValuePair<T, T>(min, max),
-                                        m_smMinMaxOfNewImage.getBooleanValue());
+                        op = new IterableIntervalNormalize<T>(0, m_currentVal, new ValuePair<T, T>(min, max),
+                                m_smMinMaxOfNewImage.getBooleanValue());
                         break;
                     case EQUALIZE:
                         op = new EqualizeHistogram<T>(256);
                         break;
                     case NORMALIZE:
-                        op =
-                                new IterableIntervalNormalize<T>(m_smSaturation.getDoubleValue(), m_currentVal, null,
-                                        m_smMinMaxOfNewImage.getBooleanValue());
+                        op = new IterableIntervalNormalize<T>(m_smSaturation.getDoubleValue(), m_currentVal, null,
+                                m_smMinMaxOfNewImage.getBooleanValue());
                         break;
                     default:
                         throw new RuntimeException("Illegal state in contrast enhancer");

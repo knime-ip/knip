@@ -48,28 +48,31 @@
  */
 package org.knime.knip.core.ops.img;
 
+import org.knime.knip.core.util.ImgPlusFactory;
+
 import net.imagej.ImgPlus;
 import net.imglib2.ops.img.UnaryObjectFactory;
 import net.imglib2.ops.operation.UnaryOutputOperation;
+import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.ValuePair;
 
-import org.knime.knip.core.util.ImgPlusFactory;
-
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class ImgPlusNormalize<T extends RealType<T>> implements UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> {
+public class ImgPlusNormalize<T extends RealType<T> & NativeType<T>>
+        implements UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>> {
 
     private final IterableIntervalNormalize<T> m_op;
 
     private final T m_val;
 
-    public ImgPlusNormalize(final double saturation, final T val, final ValuePair<T, T> minmax, final boolean isTarget) {
+    public ImgPlusNormalize(final double saturation, final T val, final ValuePair<T, T> minmax,
+                            final boolean isTarget) {
         m_val = val;
         m_op = new IterableIntervalNormalize<T>(saturation, val, minmax, isTarget);
     }

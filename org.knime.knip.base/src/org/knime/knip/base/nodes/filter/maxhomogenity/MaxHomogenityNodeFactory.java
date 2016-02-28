@@ -48,14 +48,15 @@
  */
 package org.knime.knip.base.nodes.filter.maxhomogenity;
 
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
 import org.knime.knip.base.node.dialog.DescriptionHelper;
 import org.knime.knip.base.node.dialog.DialogComponentOutOfBoundsSelection;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
+
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  *
@@ -65,7 +66,7 @@ import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
  * @author sidentopl, University of Konstanz
  * @param <T>
  */
-public class MaxHomogenityNodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
+public class MaxHomogenityNodeFactory<T extends RealType<T> & NativeType<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
 
     /**
      * {@inheritDoc}
@@ -90,8 +91,8 @@ public class MaxHomogenityNodeFactory<T extends RealType<T>> extends ImgPlusToIm
     protected void addNodeDescriptionContent(final KnimeNode node) {
         super.addNodeDescriptionContent(node);
         int optionsIndex = DescriptionHelper.findTabIndex("Options", node.getFullDescription().getTabList());
-        DialogComponentOutOfBoundsSelection.createNodeDescription(node.getFullDescription().getTabArray(optionsIndex)
-                .addNewOption());
+        DialogComponentOutOfBoundsSelection
+                .createNodeDescription(node.getFullDescription().getTabArray(optionsIndex).addNewOption());
 
     }
 

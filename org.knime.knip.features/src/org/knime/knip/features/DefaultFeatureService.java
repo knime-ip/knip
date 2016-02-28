@@ -50,6 +50,8 @@ package org.knime.knip.features;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.imglib2.type.numeric.RealType;
+
 import org.knime.core.node.ExecutionContext;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.KNIPGateway;
@@ -62,8 +64,6 @@ import org.knime.knip.features.sets.FeatureSet;
 import org.scijava.module.Module;
 import org.scijava.plugin.Plugin;
 import org.scijava.service.AbstractService;
-
-import net.imglib2.type.numeric.RealType;
 
 /**
  * Default implementation of {@link FeatureService}

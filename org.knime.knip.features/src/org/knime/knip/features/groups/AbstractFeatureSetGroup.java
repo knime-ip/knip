@@ -54,6 +54,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.imagej.ImgPlus;
+import net.imagej.ops.OpEnvironment;
+import net.imagej.ops.special.computer.AbstractUnaryComputerOp;
+import net.imglib2.img.Img;
+import net.imglib2.roi.labeling.LabelRegion;
+import net.imglib2.type.logic.BitType;
+import net.imglib2.type.numeric.RealType;
+
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -72,14 +80,6 @@ import org.knime.knip.features.LabelRegionToBitmaskConverter;
 import org.knime.knip.features.sets.FeatureSet;
 import org.knime.knip.features.sets.NamedFeature;
 import org.knime.knip.features.sets.RequireNumDimensions;
-
-import net.imagej.ImgPlus;
-import net.imagej.ops.OpEnvironment;
-import net.imagej.ops.special.AbstractUnaryComputerOp;
-import net.imglib2.img.Img;
-import net.imglib2.roi.labeling.LabelRegion;
-import net.imglib2.type.logic.BitType;
-import net.imglib2.type.numeric.RealType;
 
 /**
  * FIXME: Design of FeatureGroups is really weak. However, we can redesign it

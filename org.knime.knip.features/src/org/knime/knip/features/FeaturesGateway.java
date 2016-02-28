@@ -50,6 +50,8 @@ package org.knime.knip.features;
 import java.util.Arrays;
 import java.util.List;
 
+import net.imagej.ops.OpService;
+
 import org.knime.scijava.core.ResourceAwareClassLoader;
 import org.scijava.Context;
 import org.scijava.plugin.DefaultPluginFinder;
@@ -57,8 +59,6 @@ import org.scijava.plugin.PluginIndex;
 import org.scijava.service.Service;
 import org.scijava.ui.UIService;
 import org.scijava.widget.WidgetService;
-
-import net.imagej.ops.OpService;
 
 /**
  * Encapsulates the {@link OpService} instance as singleton.

@@ -48,19 +48,19 @@
 
 package org.knime.knip.features.sets;
 
-import org.knime.knip.core.KNIPGateway;
-import org.scijava.plugin.Attr;
-import org.scijava.plugin.Parameter;
-import org.scijava.plugin.Plugin;
-
 import net.imagej.ops.Ops.Geometric.Contour;
 import net.imagej.ops.geom.geom2d.DefaultSizePolygon;
-import net.imagej.ops.special.Functions;
-import net.imagej.ops.special.UnaryFunctionOp;
+import net.imagej.ops.special.function.Functions;
+import net.imagej.ops.special.function.UnaryFunctionOp;
 import net.imglib2.roi.geometric.Polygon;
 import net.imglib2.roi.labeling.LabelRegion;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.DoubleType;
+
+import org.knime.knip.core.KNIPGateway;
+import org.scijava.plugin.Attr;
+import org.scijava.plugin.Parameter;
+import org.scijava.plugin.Plugin;
 
 /**
  * {@link FeatureSet} to calculate Geometric2DFeatureSet

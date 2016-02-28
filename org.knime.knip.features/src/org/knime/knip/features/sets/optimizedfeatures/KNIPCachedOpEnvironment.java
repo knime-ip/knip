@@ -39,8 +39,8 @@ import net.imagej.ops.Op;
 import net.imagej.ops.OpEnvironment;
 import net.imagej.ops.OpInfo;
 import net.imagej.ops.OpRef;
-import net.imagej.ops.special.UnaryFunctionOp;
-import net.imagej.ops.special.UnaryHybridOp;
+import net.imagej.ops.special.function.UnaryFunctionOp;
+import net.imagej.ops.special.hybrid.UnaryHybridCF;
 
 import org.scijava.Priority;
 import org.scijava.cache.CacheService;
@@ -78,8 +78,8 @@ public class KNIPCachedOpEnvironment extends CustomOpEnvironment {
 	public Op op(final OpRef<?> ref) {
 		final Op op = super.op(ref);
 		final Op cachedOp;
-		if (op instanceof UnaryHybridOp) {
-			cachedOp = wrapUnaryHybrid((UnaryHybridOp<?, ?>) op);
+		if (op instanceof UnaryHybridCF) {
+			cachedOp = wrapUnaryHybrid((UnaryHybridCF<?, ?>) op);
 		} else if (op instanceof UnaryFunctionOp) {
 			cachedOp = wrapUnaryFunction((UnaryFunctionOp<?, ?>) op);
 		} else
@@ -95,7 +95,7 @@ public class KNIPCachedOpEnvironment extends CustomOpEnvironment {
 		return new CachedFunctionOp<>(op, otherArgs(op, 1));
 	}
 
-	private <I, O> CachedHybridOp<I, O> wrapUnaryHybrid(final UnaryHybridOp<I, O> op) {
+	private <I, O> CachedHybridOp<I, O> wrapUnaryHybrid(final UnaryHybridCF<I, O> op) {
 		return new CachedHybridOp<>(op, otherArgs(op, 2));
 	}
 
@@ -199,16 +199,16 @@ public class KNIPCachedOpEnvironment extends CustomOpEnvironment {
 	 * @param <I>
 	 * @param <O>
 	 */
-	public class CachedHybridOp<I, O> extends CachedFunctionOp<I, O> implements UnaryHybridOp<I, O> {
+	public class CachedHybridOp<I, O> extends CachedFunctionOp<I, O> implements UnaryHybridCF<I, O> {
 
 		@Parameter
 		private CacheService cache;
 
-		private final UnaryHybridOp<I, O> delegate;
+		private final UnaryHybridCF<I, O> delegate;
 
 		private final Object[] args;
 
-		public CachedHybridOp(final UnaryHybridOp<I, O> delegate, final Object[] args) {
+		public CachedHybridOp(final UnaryHybridCF<I, O> delegate, final Object[] args) {
 			super(delegate, args);
 			this.delegate = delegate;
 			this.args = args;

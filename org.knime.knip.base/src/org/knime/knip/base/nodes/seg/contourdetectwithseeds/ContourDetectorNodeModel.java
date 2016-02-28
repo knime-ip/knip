@@ -127,6 +127,7 @@ import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.iterableinterval.unary.Centroid;
 import net.imglib2.roi.labeling.LabelRegion;
 import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.NativeType;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
@@ -138,7 +139,8 @@ import net.imglib2.view.Views;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 @Deprecated
-public class ContourDetectorNodeModel<T extends RealType<T>, L extends Comparable<L>> extends NodeModel {
+public class ContourDetectorNodeModel<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
+        extends NodeModel {
 
     public static String[] GRADIENT_DIRECTIONS = {"Decreasing", "Increasing"};
 
@@ -322,7 +324,7 @@ public class ContourDetectorNodeModel<T extends RealType<T>, L extends Comparabl
                                                  .<T, RandomAccessibleInterval<T>> getStrategy(m_outOfBoundsSelection
                                                          .getStringValue(), img.firstElement())),
 
-                    angularDim, img.dimension(angularDim));
+                            angularDim, img.dimension(angularDim));
                 }
 
                 // Create Directional Gradient transformed

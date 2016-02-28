@@ -48,11 +48,12 @@
  */
 package org.knime.knip.base.nodes.proc.multilvlthresholding;
 
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
+
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * NodeFactory
@@ -64,7 +65,8 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
  *
  * @param <T>
  */
-public class MultilevelThresholderNodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
+public class MultilevelThresholderNodeFactory<T extends RealType<T> & NativeType<T>>
+        extends ImgPlusToImgPlusNodeFactory<T, T> {
 
     @Override
     protected ImgPlusToImgPlusNodeDialog<T> createNodeDialog() {

@@ -50,6 +50,17 @@ package org.knime.knip.base.nodes.proc;
 
 import java.util.List;
 
+import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
+import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
+import org.knime.core.node.defaultnodesettings.SettingsModel;
+import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
+import org.knime.core.node.defaultnodesettings.SettingsModelDoubleBounded;
+import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
+import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
+import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
+import org.knime.knip.core.util.ImgPlusFactory;
+
 import net.imagej.ImgPlus;
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
@@ -61,18 +72,8 @@ import net.imglib2.ops.img.UnaryObjectFactory;
 import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.HDomeTransformation;
 import net.imglib2.ops.types.ConnectedType;
+import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
-
-import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
-import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
-import org.knime.core.node.defaultnodesettings.SettingsModel;
-import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
-import org.knime.core.node.defaultnodesettings.SettingsModelDoubleBounded;
-import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
-import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
-import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
-import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
  * HDomeNodeFactory
@@ -85,7 +86,7 @@ import org.knime.knip.core.util.ImgPlusFactory;
  * @author muethingc, Univeristy of Konstanz
  *
  */
-public class HDomeNodeFactory<T extends RealType<T>, TMP extends IterableInterval<T> & RandomAccessibleInterval<T>>
+public class HDomeNodeFactory<T extends RealType<T> & NativeType<T>, TMP extends IterableInterval<T> & RandomAccessibleInterval<T>>
         extends ImgPlusToImgPlusNodeFactory<T, T> {
 
     private static SettingsModelString createConnectionTypeModel() {
@@ -116,8 +117,8 @@ public class HDomeNodeFactory<T extends RealType<T>, TMP extends IterableInterva
                 addDialogComponent("Options", "Regional Maxima Options", new DialogComponentNumber(
                         createSubtractModel(), "Subtract Domes of Height Before Extraction", 1));
 
-                addDialogComponent("Options", "Regional Maxima Options", new DialogComponentNumber(createHeightModel(),
-                        "Height of Domes", 1));
+                addDialogComponent("Options", "Regional Maxima Options",
+                                   new DialogComponentNumber(createHeightModel(), "Height of Domes", 1));
             }
         };
     }
@@ -144,14 +145,13 @@ public class HDomeNodeFactory<T extends RealType<T>, TMP extends IterableInterva
 
                 @Override
                 public ImgPlus<T> compute(final ImgPlus<T> input, final ImgPlus<T> output) {
-                    HDomeTransformation<T> hDomeTransformation =
-                            new HDomeTransformation<T>(ConnectedType.value(m_connection.getStringValue()),
-                                    m_height.getDoubleValue(), m_subtract.getDoubleValue(),
-                                    wrappedFactory(input.factory()));
+                    HDomeTransformation<T> hDomeTransformation = new HDomeTransformation<T>(
+                            ConnectedType.value(m_connection.getStringValue()), m_height.getDoubleValue(),
+                            m_subtract.getDoubleValue(), wrappedFactory(input.factory()));
 
                     // we really want to have the same buffer, that's why we
-                    hDomeTransformation.compute(new ImgView<T>(input, wrappedFactory(input.factory())), new ImgView<T>(
-                            output, wrappedFactory(output.factory())));
+                    hDomeTransformation.compute(new ImgView<T>(input, wrappedFactory(input.factory())),
+                                                new ImgView<T>(output, wrappedFactory(output.factory())));
 
                     return output;
                 }

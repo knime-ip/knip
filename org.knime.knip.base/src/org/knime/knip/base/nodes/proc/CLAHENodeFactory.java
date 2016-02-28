@@ -50,12 +50,6 @@ package org.knime.knip.base.nodes.proc;
 
 import java.util.List;
 
-import net.imagej.ImgPlus;
-import net.imglib2.ops.operation.ImgOperations;
-import net.imglib2.ops.operation.Operations;
-import net.imglib2.ops.operation.UnaryOutputOperation;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
@@ -66,17 +60,24 @@ import org.knime.knip.base.nodes.proc.clahe.ClaheND;
 import org.knime.knip.base.nodes.proc.clahe.ClaheNodeFactory;
 import org.knime.knip.core.util.ImgPlusFactory;
 
+import net.imagej.ImgPlus;
+import net.imglib2.ops.operation.ImgOperations;
+import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.operation.UnaryOutputOperation;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
+
 /**
  * Factory class to produce CLAHE Node. Deprecation: Use {@link ClaheNodeFactory}
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
-
+ *
  * @param <T>
  */
 @Deprecated
-public class CLAHENodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
+public class CLAHENodeFactory<T extends RealType<T> & NativeType<T>> extends ImgPlusToImgPlusNodeFactory<T, T> {
 
     private static SettingsModelInteger createCtxNumberX() {
         return new SettingsModelInteger("ctxX", 8);
@@ -110,8 +111,8 @@ public class CLAHENodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNod
                 addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxNumberY(),
                         "Number of contextual regions in Y direction", 1));
 
-                addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxNumberOfBins(),
-                        "Number of bins", 1));
+                addDialogComponent("Options", "CLAHE options",
+                                   new DialogComponentNumber(createCtxNumberOfBins(), "Number of bins", 1));
 
                 addDialogComponent("Options", "CLAHE options", new DialogComponentNumber(createCtxSlope(), "Slope", 1));
 

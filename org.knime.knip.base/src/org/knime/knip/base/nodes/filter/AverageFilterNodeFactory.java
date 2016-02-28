@@ -48,6 +48,12 @@
  */
 package org.knime.knip.base.nodes.filter;
 
+import org.knime.knip.core.ops.iterable.SlidingMeanIntegralImgBinaryOp;
+import org.knime.knip.core.util.ImgPlusFactory;
+import org.knime.node.v210.FullDescriptionDocument.FullDescription;
+import org.knime.node.v210.KnimeNodeDocument;
+import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
+
 import net.imagej.ImgPlus;
 import net.imglib2.algorithm.neighborhood.RectangleShape;
 import net.imglib2.algorithm.neighborhood.Shape;
@@ -56,14 +62,9 @@ import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.ops.operation.iterable.unary.Mean;
 import net.imglib2.outofbounds.OutOfBoundsFactory;
+import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.DoubleType;
-
-import org.knime.knip.core.ops.iterable.SlidingMeanIntegralImgBinaryOp;
-import org.knime.knip.core.util.ImgPlusFactory;
-import org.knime.node.v210.FullDescriptionDocument.FullDescription;
-import org.knime.node.v210.KnimeNodeDocument;
-import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 
 /**
  * TODO Auto-generated
@@ -73,7 +74,8 @@ import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @param <T>
  */
-public class AverageFilterNodeFactory<T extends RealType<T>> extends SlidingWindowOperationNodeFactory<T, T> {
+public class AverageFilterNodeFactory<T extends RealType<T> & NativeType<T>>
+        extends SlidingWindowOperationNodeFactory<T, T> {
 
     /**
      * simple helper class that simply returns the mean
@@ -128,15 +130,14 @@ public class AverageFilterNodeFactory<T extends RealType<T>> extends SlidingWind
 
             @Override
             protected UnaryOutputOperation<ImgPlus<T>, ImgPlus<T>>
-                    getSlidingOperation(final ImgPlus<T> img, final T type, final Shape neighborhood,
-                                        final OutOfBoundsFactory<T, ImgPlus<T>> outStrat) {
+                      getSlidingOperation(final ImgPlus<T> img, final T type, final Shape neighborhood,
+                                          final OutOfBoundsFactory<T, ImgPlus<T>> outStrat) {
 
                 if ((neighborhood instanceof RectangleShape) && m_speedUp.getBooleanValue()) {
 
                     // integral image speed up
                     return Operations.wrap(new SlidingMeanIntegralImgBinaryOp<T, T, ImgPlus<T>, ImgPlus<T>>(
-                                                   new MeanReturn(), (RectangleShape)neighborhood, m_intervalExtend
-                                                           .getIntValue(), outStrat),
+                            new MeanReturn(), (RectangleShape)neighborhood, m_intervalExtend.getIntValue(), outStrat),
                                            ImgPlusFactory.<T, T> get(type.createVariable()));
                 } else {
 

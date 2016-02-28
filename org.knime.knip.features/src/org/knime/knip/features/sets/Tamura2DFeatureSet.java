@@ -47,14 +47,14 @@
  */
 package org.knime.knip.features.sets;
 
+import net.imagej.ops.Contingent;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.type.numeric.RealType;
+
 import org.scijava.ItemIO;
 import org.scijava.plugin.Attr;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
-
-import net.imagej.ops.Contingent;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.type.numeric.RealType;
 
 /**
  * {@link FeatureSet} to calculate Tamura 2D Features

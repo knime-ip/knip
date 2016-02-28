@@ -62,6 +62,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.knime.knip.features.FeaturesGateway;
 import org.knime.knip.features.node.model.FeatureSetInfo;
 import org.knime.knip.features.sets.FeatureSet;
@@ -70,8 +72,6 @@ import org.scijava.module.Module;
 import org.scijava.module.ModuleException;
 import org.scijava.ui.swing.widget.SwingInputHarvester;
 import org.scijava.ui.swing.widget.SwingInputPanel;
-
-import net.miginfocom.swing.MigLayout;
 
 //TODO ONE PANEL OF FEATURESET
 @SuppressWarnings("rawtypes")

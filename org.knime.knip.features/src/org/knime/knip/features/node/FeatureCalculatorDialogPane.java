@@ -55,6 +55,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
+import net.miginfocom.layout.AC;
+import net.miginfocom.layout.LC;
+import net.miginfocom.swing.MigLayout;
+
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeDialogPane;
@@ -79,12 +85,6 @@ import org.knime.knip.features.node.ui.FeatureSetSelectionPanel;
 import org.knime.knip.features.node.ui.LabelSettingsPanel;
 import org.scijava.InstantiableException;
 import org.scijava.module.ModuleException;
-
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-import net.miginfocom.layout.AC;
-import net.miginfocom.layout.LC;
-import net.miginfocom.swing.MigLayout;
 
 public class FeatureCalculatorDialogPane<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
 		extends NodeDialogPane {
