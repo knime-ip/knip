@@ -66,13 +66,14 @@ import org.knime.knip.core.KNIPGateway;
 import net.imagej.ImgPlus;
 import net.imglib2.Cursor;
 import net.imglib2.img.Img;
+import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
 /**
  *
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  */
-public class IntensityBinnerNodeModel<T1 extends RealType<T1>, T2 extends RealType<T2>>
+public class IntensityBinnerNodeModel<T1 extends RealType<T1>, T2 extends RealType<T2> & NativeType<T2>>
         extends ValueToCellNodeModel<ImgPlusValue<T1>, ImgPlusCell<T2>> {
 
     static final String KEY_BIN_SETTINGS = "bin_settings";
