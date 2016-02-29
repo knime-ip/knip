@@ -60,23 +60,30 @@ public class KNIPCachedOpEnvironment extends CustomOpEnvironment {
 
 	@Parameter
 	private CacheService cs;
+	private Collection<Class<?>> ignored;
 
-	public KNIPCachedOpEnvironment(final OpEnvironment parent) {
-		this(parent, null);
-	}
-
-	public KNIPCachedOpEnvironment(final OpEnvironment parent, final Collection<? extends OpInfo> prioritizedInfos) {
+	public KNIPCachedOpEnvironment(final OpEnvironment parent, final Collection<? extends OpInfo> prioritizedInfos,
+			final Collection<Class<?>> ignored) {
 		super(parent, prioritizedInfos);
 
 		if (prioritizedInfos != null)
 			for (final OpInfo info : prioritizedInfos) {
 				info.cInfo().setPriority(Priority.FIRST_PRIORITY);
 			}
+
+		this.ignored = ignored;
 	}
 
 	@Override
 	public Op op(final OpRef<?> ref) {
 		final Op op = super.op(ref);
+
+		for (final Class<?> ignored : ignored) {
+			if (ignored.isAssignableFrom(ref.getType())) {
+				return op;
+			}
+		}
+
 		final Op cachedOp;
 		if (op instanceof UnaryHybridCF) {
 			cachedOp = wrapUnaryHybrid((UnaryHybridCF<?, ?>) op);
