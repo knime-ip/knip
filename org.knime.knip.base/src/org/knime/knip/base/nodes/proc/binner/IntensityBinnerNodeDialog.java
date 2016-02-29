@@ -103,7 +103,7 @@ import net.imglib2.type.numeric.RealType;
  *
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  */
-public class PixelBinnerNodeDialog<T extends RealType<T>> extends ValueToCellNodeDialog<ImgPlusValue<T>> {
+public class IntensityBinnerNodeDialog<T extends RealType<T>> extends ValueToCellNodeDialog<ImgPlusValue<T>> {
 
     /** The node logger for this class. */
     private static final NodeLogger LOGGER = NodeLogger.getLogger(BinnerNodeDialogPane.class);
@@ -115,7 +115,7 @@ public class PixelBinnerNodeDialog<T extends RealType<T>> extends ValueToCellNod
     /**
      * Creates a new binner dialog.
      */
-    public PixelBinnerNodeDialog() {
+    public IntensityBinnerNodeDialog() {
         super(true);
 
         // panel in tab
@@ -765,9 +765,9 @@ public class PixelBinnerNodeDialog<T extends RealType<T>> extends ValueToCellNod
     @Override
     public void loadAdditionalSettingsFrom(final NodeSettingsRO settings, final PortObjectSpec[] specs)
             throws NotConfigurableException {
-        PixelBins bins = null;
+        IntensityBins bins = null;
         try {
-            bins = new PixelBins(settings.getNodeSettings(PixelBinnerNodeModel.KEY_BIN_SETTINGS));
+            bins = new IntensityBins(settings.getNodeSettings(IntensityBinnerNodeModel.KEY_BIN_SETTINGS));
         } catch (InvalidSettingsException e) {
             // TODO
             throw new NotConfigurableException(e.getMessage(), e);
@@ -796,16 +796,16 @@ public class PixelBinnerNodeDialog<T extends RealType<T>> extends ValueToCellNod
         if (m_intervalPanel.getNumIntervals() == 0) {
             throw new InvalidSettingsException("No pixel bins have been specified.");
         }
-        createPixelBins().saveToSettings(settings.addNodeSettings(PixelBinnerNodeModel.KEY_BIN_SETTINGS));
+        createPixelBins().saveToSettings(settings.addNodeSettings(IntensityBinnerNodeModel.KEY_BIN_SETTINGS));
     }
 
     /**
-     * Helper method to create the {@link PixelBins}-object from the IntervalPanel.
+     * Helper method to create the {@link IntensityBins}-object from the IntervalPanel.
      *
      * @return
      */
-    private PixelBins createPixelBins() {
-        PixelBins bins = new PixelBins(m_intervalPanel.getNumIntervals());
+    private IntensityBins createPixelBins() {
+        IntensityBins bins = new IntensityBins(m_intervalPanel.getNumIntervals());
         for (int j = 0; j < m_intervalPanel.getNumIntervals(); j++) {
             IntervalItemPanel p = m_intervalPanel.getInterval(j);
             bins.setBinAtIndex(j, p.getBinValue(), p.isLeftOpen(), p.getLeftValue(false), p.isRightOpen(),

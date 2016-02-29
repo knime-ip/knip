@@ -62,14 +62,14 @@ import net.imglib2.type.numeric.RealType;
  *
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  */
-public class PixelBinnerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFactory<ImgPlusValue<T>> {
+public class IntensityBinnerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFactory<ImgPlusValue<T>> {
 
     /**
      * {@inheritDoc}
      */
     @Override
     protected ValueToCellNodeDialog<ImgPlusValue<T>> createNodeDialog() {
-        return new PixelBinnerNodeDialog<>();
+        return new IntensityBinnerNodeDialog<>();
     }
 
     /**
@@ -77,7 +77,7 @@ public class PixelBinnerNodeFactory<T extends RealType<T>> extends ValueToCellNo
      */
     @Override
     public ValueToCellNodeModel<ImgPlusValue<T>, ? extends DataCell> createNodeModel() {
-        return new PixelBinnerNodeModel<>();
+        return new IntensityBinnerNodeModel<>();
     }
 
 }

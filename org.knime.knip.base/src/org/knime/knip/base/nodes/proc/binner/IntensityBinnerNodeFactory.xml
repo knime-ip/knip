@@ -5,9 +5,9 @@
 	IBM Corporation - initial API and implementation -->
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="binner.png" type="Manipulator">
-	<name>Pixel Binner</name>
+	<name>Intensity Binner</name>
 	<shortDescription>
-		This node allows to bin pixels, i.e. re-assigning
+		This node allows to bin pixel intensities, i.e. re-assigning
 		pixel values depending
 		on
 		what interval the original pixel values belong
@@ -19,7 +19,7 @@
 
 	<fullDescription>
 		<intro>
-			This node allows to bin pixels, i.e. re-assigning pixel values
+			This node allows to bin pixel intensities, i.e. re-assigning pixel values
 			depending
 			on
 			what interval they belong to. It is useful if, for

@@ -72,12 +72,12 @@ import net.imglib2.type.numeric.RealType;
  *
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  */
-public class PixelBinnerNodeModel<T1 extends RealType<T1>, T2 extends RealType<T2>>
+public class IntensityBinnerNodeModel<T1 extends RealType<T1>, T2 extends RealType<T2>>
         extends ValueToCellNodeModel<ImgPlusValue<T1>, ImgPlusCell<T2>> {
 
     static final String KEY_BIN_SETTINGS = "bin_settings";
 
-    private PixelBins m_bins = new PixelBins(0);
+    private IntensityBins m_bins = new IntensityBins(0);
 
     private ImgPlusCellFactory m_imgCellFactory;
 
@@ -133,7 +133,7 @@ public class PixelBinnerNodeModel<T1 extends RealType<T1>, T2 extends RealType<T
     @Override
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
         super.loadValidatedSettingsFrom(settings);
-        m_bins = new PixelBins(settings.getNodeSettings(KEY_BIN_SETTINGS));
+        m_bins = new IntensityBins(settings.getNodeSettings(KEY_BIN_SETTINGS));
     }
 
     /**
@@ -151,7 +151,7 @@ public class PixelBinnerNodeModel<T1 extends RealType<T1>, T2 extends RealType<T
     @Override
     protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
         super.validateSettings(settings);
-        new PixelBins(settings.getNodeSettings(KEY_BIN_SETTINGS));
+        new IntensityBins(settings.getNodeSettings(KEY_BIN_SETTINGS));
     }
 
 }

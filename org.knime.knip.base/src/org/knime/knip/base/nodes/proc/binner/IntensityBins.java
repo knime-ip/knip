@@ -63,10 +63,10 @@ import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.type.numeric.real.FloatType;
 
 /**
- * Helper class the represents pixel bins, stores them, restores them etc.
+ * Helper class the represents pixel intensity bins, stores them, restores them etc.
  *
  */
-class PixelBins {
+class IntensityBins {
     /** Key for left value interval. */
     private static final String LEFT_VALUE = "left_value";
 
@@ -97,7 +97,7 @@ class PixelBins {
     /**
      * @param numBins number of bins
      */
-    public PixelBins(final int numBins) {
+    public IntensityBins(final int numBins) {
         m_numBins = numBins;
         m_binValues = new double[numBins];
         m_leftOpen = new boolean[numBins];
@@ -141,7 +141,7 @@ class PixelBins {
 
     /**
      *
-     * @param index the index of the bin, must be smaller than the given number of bins in the constructor ({@link #PixelBins(int)}!
+     * @param index the index of the bin, must be smaller than the given number of bins in the constructor ({@link #IntensityBins(int)}!
      * @param binValue
      * @param leftOpen
      * @param leftValue
@@ -233,7 +233,7 @@ class PixelBins {
      * @param bin read settings from
      * @throws InvalidSettingsException if bins could not be read
      */
-    public PixelBins(final NodeSettingsRO bins) throws InvalidSettingsException {
+    public IntensityBins(final NodeSettingsRO bins) throws InvalidSettingsException {
         this(bins.getInt("num_bins"));
         for (int i = 0; i < m_numBins; i++) {
             m_binValues[i] = bins.getDouble(BIN_VALUE + "_" + i);
