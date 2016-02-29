@@ -1,0 +1,65 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="binner.png" type="Manipulator">
+	<name>Intensity Binner</name>
+	<shortDescription>
+		This node allows to bin pixel intensities, i.e. re-assigning
+		pixel values depending
+		on
+		what interval the original pixel values belong
+		to. It is useful if,
+		for instance, multiple
+		thresholds need to be
+		applied.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			This node allows to bin pixel intensities, i.e. re-assigning pixel values
+			depending
+			on
+			what interval they belong to. It is useful if, for
+			instance, multiple
+			thresholds need to be applied.
+		</intro>
+		<tab name="Intervals">
+			<option name="Intervals">
+				Let one specify an arbitrary number of numeric intervals. One
+				interval is defined by
+				<ul>
+					<li>bin value - the pixel value to be set in the result image, if
+						the original pixel value falls into this interval
+					</li>
+					<li>interval borders - the left and right border of the interval
+					</li>
+					<li>interval border types - open ']' or closed '[' interval
+						borders. If an interval border is set to open ']', the specified
+						interval value will not be part of the interval, otherwise it will
+						be.
+					</li>
+				</ul>
+			</option>
+			<option name="Result Pixel Type">Just informational: tells the pixel type of the
+				result images. The result pixel type depends on the 'bin value' of
+				all specified intervals. If, for instance, only bin values of '0'
+				and '1' are used, the result pixel type will be 'BitType'. If
+				floating point values are used, the result pixel type will be
+				'FloatType'. If the bin values are within [0,255], the result pixel
+				type will be 'UnsignedByteType', etc.
+			</option>
+		</tab>
+
+	</fullDescription>
+
+
+
+	<ports>
+		<inPort index="0" name="Images">Images</inPort>
+		<outPort index="0" name="Binned Images">Images with binned pixel values
+		</outPort>
+	</ports>
+</knimeNode>

@@ -60,6 +60,7 @@ import org.knime.knip.base.nodes.misc.dimswap.DimensionSwapperNodeFactory;
 import org.knime.knip.base.nodes.misc.merger.MergerNodeFactory;
 import org.knime.knip.base.nodes.misc.splitter.SplitterNodeFactory;
 import org.knime.knip.base.nodes.misc.splitter.UCSplitterNodeFactory;
+import org.knime.knip.base.nodes.proc.binner.IntensityBinnerNodeFactory;
 import org.knime.knip.base.nodes.proc.clahe.ClaheNodeFactory;
 import org.knime.knip.base.nodes.proc.dogdetector.DoGDetectorNodeFactory;
 import org.knime.knip.base.nodes.proc.imgjep.ImgJEPNodeFactory;
@@ -169,6 +170,8 @@ public class ProcNodeSetFactory implements NodeSetFactory {
         m_nodeFactories.put(AlignerNodeFactory2.class.getCanonicalName(), "/community/knip/image/process");
 
         m_nodeFactories.put(ColorspaceConvertNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
+
+        m_nodeFactories.put(IntensityBinnerNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
 
         return m_nodeFactories.keySet();
     }
