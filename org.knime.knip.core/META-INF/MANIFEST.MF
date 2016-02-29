@@ -28,8 +28,8 @@ Require-Bundle: org.apache.log4j;bundle-version="1.2.15",
  scijava-cache;bundle-version="0.1.0",
  guava;bundle-version="18.0.0",
  knip-tmp-imglib2-ops;bundle-version="0.4.0",
- org.apache.commons.math3;bundle-version="3.4.1",
- org.knime.scijava.core;bundle-version="0.2.0"
+ org.knime.scijava.core;bundle-version="0.2.0",
+ commons-math3;bundle-version="3.5.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: org.knime.knip.core,
  org.knime.knip.core.algorithm,
