@@ -52,18 +52,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import net.imagej.ImgPlus;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.ops.operation.SubsetOperations;
-import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.AbstractRegionGrowing;
-import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.CCA;
-import net.imglib2.ops.types.ConnectedType;
-import net.imglib2.roi.labeling.ImgLabeling;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.type.numeric.integer.IntType;
-
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
@@ -84,6 +72,19 @@ import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
 import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.util.EnumUtils;
+
+import net.imagej.ImgPlus;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.AbstractRegionGrowing;
+import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.CCA;
+import net.imglib2.ops.types.ConnectedType;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.type.numeric.integer.IntType;
+import net.imglib2.view.Views;
 
 /**
  * Factory class to produce a Connected Component Analysis Node.
