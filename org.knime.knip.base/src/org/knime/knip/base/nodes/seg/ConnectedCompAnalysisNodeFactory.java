@@ -93,8 +93,8 @@ import net.imglib2.view.Views;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class ConnectedCompAnalysisNodeFactory<T extends RealType<T> & Comparable<T> & NativeType<T>> extends
-        ValueToCellNodeFactory<ImgPlusValue<T>> {
+public class ConnectedCompAnalysisNodeFactory<T extends RealType<T> & Comparable<T> & NativeType<T>>
+        extends ValueToCellNodeFactory<ImgPlusValue<T>> {
 
     private static NodeLogger LOGGER = NodeLogger.getLogger(ConnectedCompAnalysisNodeFactory.class);
 
@@ -123,18 +123,17 @@ public class ConnectedCompAnalysisNodeFactory<T extends RealType<T> & Comparable
 
             @Override
             public void addDialogComponents() {
-                addDialogComponent("Settings",
-                                   "Factory Selection",
-                                   new DialogComponentStringSelection(createFactoryModel(), "Factory Type", EnumUtils
-                                           .getStringListFromName(ImgFactoryTypes.values())));
+                addDialogComponent("Settings", "Factory Selection",
+                                   new DialogComponentStringSelection(createFactoryModel(), "Factory Type",
+                                           EnumUtils.getStringListFromName(ImgFactoryTypes.values())));
 
                 addDialogComponent("Options", "Settings", new DialogComponentStringSelection(createTypeModel(),
                         "Connection Type", EnumUtils.getStringListFromName(ConnectedType.values())));
-                addDialogComponent("Options", "Settings", new DialogComponentNumber(createBackgroundModel(),
-                        "Background", 1));
+                addDialogComponent("Options", "Settings",
+                                   new DialogComponentNumber(createBackgroundModel(), "Background", 1));
 
-                addDialogComponent("Options", "Dimensions", new DialogComponentDimSelection(createDimSelectionModel(),
-                        "Dimensions", 2, 5));
+                addDialogComponent("Options", "Dimensions",
+                                   new DialogComponentDimSelection(createDimSelectionModel(), "Dimensions", 2, 5));
             }
 
             /**
@@ -191,35 +190,31 @@ public class ConnectedCompAnalysisNodeFactory<T extends RealType<T> & Comparable
 
                 long[][] structuringElement;
                 if (m_type.getStringValue().equals(ConnectedType.EIGHT_CONNECTED.name())) {
-                    structuringElement =
-                            AbstractRegionGrowing
-                                    .get8ConStructuringElement(m_dimSelection.getSelectedDimIndices(img).length);
+                    structuringElement = AbstractRegionGrowing
+                            .get8ConStructuringElement(m_dimSelection.getSelectedDimIndices(img).length);
                 } else {
-                    structuringElement =
-                            AbstractRegionGrowing
-                                    .get4ConStructuringElement(m_dimSelection.getSelectedDimIndices(img).length);
+                    structuringElement = AbstractRegionGrowing
+                            .get4ConStructuringElement(m_dimSelection.getSelectedDimIndices(img).length);
                 }
 
                 final CCA<T> cca = new CCA<T>(structuringElement, background);
 
                 final RandomAccessibleInterval<LabelingType<Integer>> lab =
-                        new ImgLabeling<Integer, IntType>(KNIPGateway
-                                .ops()
-                                .create()
-                                .img(img, new IntType(),
+                        new ImgLabeling<Integer, IntType>(KNIPGateway.ops().create()
+                                .img(Views.zeroMin(img.getImg()), new IntType(),
                                      ImgFactoryTypes.getImgFactory(m_factory.getStringValue(), img.getImg())));
 
                 try {
-                    SubsetOperations.iterate(cca, m_dimSelection.getSelectedDimIndices(img), img, lab,
-                                             getExecutorService());
+                    SubsetOperations.iterate(cca, m_dimSelection.getSelectedDimIndices(img),
+                                             Views.zeroMin(img.getImg()), lab, getExecutorService());
                 } catch (InterruptedException e) {
                     LOGGER.warn("Thread execution interrupted", e);
                 } catch (ExecutionException e) {
                     LOGGER.warn("Couldn't retrieve results because thread execution was interrupted/aborted", e);
                 }
 
-                return m_labCellFactory.createCell(lab, new DefaultLabelingMetadata(img, img, img,
-                        new DefaultLabelingColorTable()));
+                return m_labCellFactory
+                        .createCell(lab, new DefaultLabelingMetadata(img, img, img, new DefaultLabelingColorTable()));
             }
 
             /**
