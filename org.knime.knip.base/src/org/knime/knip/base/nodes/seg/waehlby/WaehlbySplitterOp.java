@@ -187,9 +187,6 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
     /* image factory used in this op TODO: Should use the img factory of the input img */
     private final ArrayImgFactory<FloatType> m_floatFactory = new ArrayImgFactory<FloatType>();
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RandomAccessibleInterval<LabelingType<String>>
            compute(final RandomAccessibleInterval<LabelingType<L>> inLab, final RandomAccessibleInterval<T> img,
@@ -465,18 +462,12 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         return (a * a + b * b);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public BinaryObjectFactory<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<T>, RandomAccessibleInterval<LabelingType<String>>>
            bufferFactory() {
         return (lab, in) -> KNIPGateway.ops().create().imgLabeling(lab);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public BinaryOutputOperation<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<T>, RandomAccessibleInterval<LabelingType<String>>>
            copy() {
