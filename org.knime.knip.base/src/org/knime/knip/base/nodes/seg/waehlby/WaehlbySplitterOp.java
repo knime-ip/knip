@@ -411,6 +411,45 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
 
     }
 
+    /**
+     * Create an instance of the labeling type contained in <code>inLab</code> and clear it, resulting in an empty
+     * label.
+     *
+     * @param inLab labeling to get an empty label from.
+     * @return the empty label
+     */
+    private LabelingType<L> getEmptyLabel(final RandomAccessibleInterval<LabelingType<L>> inLab) {
+        final RandomAccess<LabelingType<L>> ra = inLab.randomAccess();
+        ra.fwd(1);
+        final LabelingType<L> labelingType = ra.get();
+        final LabelingType<L> empty = labelingType.copy();
+        empty.clear();
+        return empty;
+    }
+
+    /**
+     * Extend the given interval by 1 in every dimensions (assuming 2 dims).
+     *
+     * @param i interval to extend
+     * @return the extended interval
+     */
+    private FinalInterval extendBorderByOne(final Interval i) {
+        return new FinalInterval(new long[]{i.min(0) - 1, i.min(1) - 1}, new long[]{i.max(0) + 1, i.max(0) + 1});
+    }
+
+    /**
+     * Create an interval which has the same dimensions as the target Dimensions, but offset by 1 in dimensions 0 and 1
+     * to cut off a 1 pixel border.
+     *
+     * @param target size of the result interval.
+     * @return the created interval.
+     */
+    private FinalInterval cutOffBorder(final Dimensions target) {
+        final long[] dims = new long[2];
+        target.dimensions(dims);
+        return new FinalInterval(new long[]{1, 1}, dims);
+    }
+
     private final long[] add2D(final long[] a, final long[] b) {
         return new long[]{a[0] + b[0], a[1] + b[1]};
     }
