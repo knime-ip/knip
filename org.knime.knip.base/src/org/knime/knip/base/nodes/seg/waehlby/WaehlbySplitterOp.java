@@ -57,11 +57,16 @@ import java.util.HashSet;
 import org.knime.knip.base.nodes.io.kernel.structuring.SphereSetting;
 import org.knime.knip.base.nodes.proc.maxfinder.MaximumFinderOp;
 import org.knime.knip.core.KNIPGateway;
+import org.knime.knip.core.awt.AWTImageTools;
 import org.knime.knip.core.data.algebra.ExtendedPolygon;
+import org.knime.knip.core.ops.img.IterableIntervalNormalize;
 import org.knime.knip.core.ops.labeling.WatershedWithSheds;
 import org.knime.knip.core.util.Triple;
 
 import net.imglib2.Cursor;
+import net.imglib2.Dimensions;
+import net.imglib2.FinalInterval;
+import net.imglib2.Interval;
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
@@ -94,6 +99,7 @@ import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.ShortType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.util.Util;
+import net.imglib2.util.ValuePair;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 
@@ -187,24 +193,28 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
     /* image factory used in this op TODO: Should use the img factory of the input img */
     private final ArrayImgFactory<FloatType> m_floatFactory = new ArrayImgFactory<FloatType>();
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RandomAccessibleInterval<LabelingType<String>>
            compute(final RandomAccessibleInterval<LabelingType<L>> inLab, final RandomAccessibleInterval<T> img,
                    final RandomAccessibleInterval<LabelingType<String>> outLab) {
 
-        final Img<FloatType> imgAlice = m_floatFactory.create(img, new FloatType());
-        final Img<FloatType> imgBob = m_floatFactory.create(img, new FloatType());
+        /* interval of the image extended by 1 in every direction */
+        final FinalInterval extendedSize = extendBorderByOne(img);
+        /* interval of size of img offset by 1 in dimensions 0 and 1. */
+        final FinalInterval cutOffBorder = cutOffBorder(img);
 
-        final RandomAccessibleInterval<FloatType> imgAliceExt = Views.interval(Views.extendBorder(imgAlice), img);
-        final RandomAccessibleInterval<FloatType> imgBobExt = Views.interval(Views.extendBorder(imgBob), img);
+        final Img<FloatType> imgAlice = m_floatFactory.create(extendedSize, new FloatType());
+        final Img<FloatType> imgBob = m_floatFactory.create(extendedSize, new FloatType());
 
-        //Labeling converted to BitType
+        final RandomAccessibleInterval<FloatType> imgAliceExt =
+                Views.interval(Views.extendBorder(imgAlice), extendedSize);
+        final RandomAccessibleInterval<FloatType> imgBobExt = Views.interval(Views.extendBorder(imgBob), extendedSize);
+
+        // labeling converted to BitType (background where empty label, foreground where any label)
         final RandomAccessibleInterval<BitType> inLabMasked =
-                Views.interval(new ConvertedRandomAccessible<LabelingType<L>, BitType>(inLab,
-                        new LabelingToBitConverter<LabelingType<L>>(), new BitType()), inLab);
+                Views.interval(new ConvertedRandomAccessible<LabelingType<L>, BitType>(
+                        Views.extendValue(inLab, getEmptyLabel(inLab)), new LabelingToBitConverter<LabelingType<L>>(),
+                        new BitType()), extendedSize);
 
         final double[] sigmas = new double[inLab.numDimensions()];
         Arrays.fill(sigmas, m_gaussSize);
@@ -226,42 +236,43 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         new DilateGray<FloatType>(new SphereSetting(2, 3).get()[0],
                 new OutOfBoundsBorderFactory<FloatType, RandomAccessibleInterval<FloatType>>()).compute(imgAliceExt,
                                                                                                         imgBob);
+        final ImgLabeling<Integer, ShortType> seeds = new ImgLabeling<Integer, ShortType>(
+                new ArrayImgFactory<ShortType>().create(extendedSize, new ShortType()));
 
-        final ImgLabeling<Integer, ShortType> seeds =
-                new ImgLabeling<Integer, ShortType>(new ArrayImgFactory<ShortType>().create(img, new ShortType()));
-
-        final Img<BitType> imgChris = new ArrayImgFactory<BitType>().create(img, new BitType());
+        final Img<BitType> imgChris = new ArrayImgFactory<BitType>().create(extendedSize, new BitType());
         new MaximumFinderOp<FloatType>(0, 0).compute(imgBob, imgChris);
 
         m_cca.compute(imgChris, seeds);
 
-        final RandomAccessibleInterval<LabelingType<String>> watershedResult =
-                new ImgLabeling<String, ShortType>(new ArrayImgFactory<ShortType>().create(img, new ShortType()));
+        RandomAccessibleInterval<LabelingType<String>> watershedResult = new ImgLabeling<String, ShortType>(
+                new ArrayImgFactory<ShortType>().create(extendedSize, new ShortType()));
 
-        // seeded watershed
+        /* seeded watershed */
         m_watershed.compute(invertImg(imgAlice, new FloatType()), seeds, watershedResult);
+        watershedResult = Views.interval(watershedResult, cutOffBorder); // cut off border pixels
 
-        // use the sheds from the watershed to split the labeled objects
+        /* use the sheds from the watershed to split the labeled objects.
+           If we had kept the border pixels, this would later result in the
+           labels at the border being removed  */
         split("Watershed", watershedResult, inLabMasked);
 
         final MooreContourExtractionOp contourExtraction = new MooreContourExtractionOp(true);
-        final ArrayImgFactory<BitType> bitFactory = new ArrayImgFactory<BitType>();
         final ArrayList<LabeledObject> objects = new ArrayList<LabeledObject>();
 
         LabelRegions<String> regions = KNIPGateway.regions().regions(watershedResult);
         final ArrayList<String> labels = new ArrayList<String>(regions.getExistingLabels());
         Collections.sort(labels, (o1, o2) -> o1.compareTo(o2) * -1);
 
-        // get some more information about the objects. Contour, bounding box etc
+        /* get some more information about the objects. Contour, bounding box etc */
         for (final String label : labels) {
 
             final IterableInterval<LabelingType<String>> intervalOverSrc =
                     Regions.sample(regions.getLabelRegion(label), watershedResult);
 
-            // create individual images for every object
+            /* create individual images for every object */
             final ExtendedPolygon poly = new ExtendedPolygon();
 
-            // compute contour polygon
+            /* compute contour polygon */
             contourExtraction.compute(regions.getLabelRegion(label), poly);
 
             objects.add(new LabeledObject(poly, label, intervalOverSrc));
@@ -289,7 +300,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
                                                                                                                .createVariable()),
                                                                                      watershedResult));
 
-            // find two objects that are closer than rSize
+            /* find two objects that are closer than rSize */
             for (int i = 0; i < objects.size(); ++i) {
                 for (int j = i + 1; j < objects.size(); ++j) {
 
@@ -374,7 +385,6 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
 
         final RandomAccess<LabelingType<String>> raOut = outLab.randomAccess();
 
-        regions = KNIPGateway.regions().regions(watershedResult);
         // decide whether to merge objects using circularity and size
         for (final Triple<LabeledObject, LabeledObject, String> triple : mergedList) {
             final String label = triple.getThird();
@@ -414,8 +424,60 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
 
     }
 
-    private final long[] add2D(final long[] a, final long[] b) {
-        return new long[]{a[0] + b[0], a[1] + b[1]};
+    /**
+     * Create an instance of the labeling type contained in <code>inLab</code> and clear it, resulting in an empty
+     * label.
+     *
+     * @param inLab labeling to get an empty label from.
+     * @return the empty label
+     */
+    private LabelingType<L> getEmptyLabel(final RandomAccessibleInterval<LabelingType<L>> inLab) {
+        final RandomAccess<LabelingType<L>> ra = inLab.randomAccess();
+        ra.fwd(1);
+        final LabelingType<L> labelingType = ra.get();
+        final LabelingType<L> empty = labelingType.copy();
+        empty.clear();
+        return empty;
+    }
+
+    /**
+     * Extend the given interval by 1 in every dimensions (assuming 2 dims).
+     *
+     * @param i interval to extend
+     * @return the extended interval
+     */
+    private FinalInterval extendBorderByOne(final Interval i) {
+        return new FinalInterval(new long[]{i.min(0) - 1, i.min(1) - 1}, new long[]{i.max(0) + 1, i.max(0) + 1});
+    }
+
+    /**
+     * Create an interval which has the same dimensions as the target Dimensions, but offset by 1 in dimensions 0 and 1
+     * to cut off a 1 pixel border.
+     *
+     * @param target size of the result interval.
+     * @return the created interval.
+     */
+    private FinalInterval cutOffBorder(final Dimensions target) {
+        final long[] dims = new long[2];
+        target.dimensions(dims);
+        return new FinalInterval(new long[]{1, 1}, dims);
+    }
+
+    /**
+     * Display the given image for debugging.
+     *
+     * @param img the image to display
+     * @param title title of the window to display in
+     */
+    private void showImage(final Img<FloatType> img, final String title) {
+
+        final IterableIntervalNormalize<FloatType> normalize = new IterableIntervalNormalize<FloatType>(0,
+                new FloatType(), new ValuePair<FloatType, FloatType>(new FloatType(0), new FloatType(1)), false);
+
+        Img<FloatType> normalized = img.factory().create(img, new FloatType());
+        normalize.compute(img, normalized);
+
+        AWTImageTools.showInFrame(normalized, title);
     }
 
     private final double featureCircularity(final double perimeter, final double roisize) {
@@ -465,18 +527,12 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         return (a * a + b * b);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public BinaryObjectFactory<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<T>, RandomAccessibleInterval<LabelingType<String>>>
            bufferFactory() {
         return (lab, in) -> KNIPGateway.ops().create().imgLabeling(lab);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public BinaryOutputOperation<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<T>, RandomAccessibleInterval<LabelingType<String>>>
            copy() {
