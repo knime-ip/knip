@@ -198,7 +198,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         final RandomAccessibleInterval<FloatType> imgAliceExt = Views.interval(Views.extendBorder(imgAlice), img);
         final RandomAccessibleInterval<FloatType> imgBobExt = Views.interval(Views.extendBorder(imgBob), img);
 
-        //Labeling converted to BitType
+        // labeling converted to BitType (background where empty label, foreground where any label)
         final RandomAccessibleInterval<BitType> inLabMasked =
                 Views.interval(new ConvertedRandomAccessible<LabelingType<L>, BitType>(inLab,
                         new LabelingToBitConverter<LabelingType<L>>(), new BitType()), inLab);
@@ -235,7 +235,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         final RandomAccessibleInterval<LabelingType<String>> watershedResult =
                 new ImgLabeling<String, ShortType>(new ArrayImgFactory<ShortType>().create(img, new ShortType()));
 
-        // seeded watershed
+        /* seeded watershed */
         m_watershed.compute(invertImg(imgAlice, new FloatType()), seeds, watershedResult);
 
         // use the sheds from the watershed to split the labeled objects
@@ -248,16 +248,16 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         final ArrayList<String> labels = new ArrayList<String>(regions.getExistingLabels());
         Collections.sort(labels, (o1, o2) -> o1.compareTo(o2) * -1);
 
-        // get some more information about the objects. Contour, bounding box etc
+        /* get some more information about the objects. Contour, bounding box etc */
         for (final String label : labels) {
 
             final IterableInterval<LabelingType<String>> intervalOverSrc =
                     Regions.sample(regions.getLabelRegion(label), watershedResult);
 
-            // create individual images for every object
+            /* create individual images for every object */
             final ExtendedPolygon poly = new ExtendedPolygon();
 
-            // compute contour polygon
+            /* compute contour polygon */
             contourExtraction.compute(regions.getLabelRegion(label), poly);
 
             objects.add(new LabeledObject(poly, label, intervalOverSrc));
@@ -285,7 +285,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
                                                                                                                .createVariable()),
                                                                                      watershedResult));
 
-            // find two objects that are closer than rSize
+            /* find two objects that are closer than rSize */
             for (int i = 0; i < objects.size(); ++i) {
                 for (int j = i + 1; j < objects.size(); ++j) {
 
