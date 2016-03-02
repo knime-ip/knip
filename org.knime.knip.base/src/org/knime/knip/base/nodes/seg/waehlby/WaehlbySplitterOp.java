@@ -242,7 +242,6 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         split("Watershed", watershedResult, inLabMasked);
 
         final MooreContourExtractionOp contourExtraction = new MooreContourExtractionOp(true);
-        final ArrayImgFactory<BitType> bitFactory = new ArrayImgFactory<BitType>();
         final ArrayList<LabeledObject> objects = new ArrayList<LabeledObject>();
 
         LabelRegions<String> regions = KNIPGateway.regions().regions(watershedResult);
@@ -371,7 +370,6 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
 
         final RandomAccess<LabelingType<String>> raOut = outLab.randomAccess();
 
-        regions = KNIPGateway.regions().regions(watershedResult);
         // decide whether to merge objects using circularity and size
         for (final Triple<LabeledObject, LabeledObject, String> triple : mergedList) {
             final String label = triple.getThird();
@@ -450,9 +448,6 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         return new FinalInterval(new long[]{1, 1}, dims);
     }
 
-    private final long[] add2D(final long[] a, final long[] b) {
-        return new long[]{a[0] + b[0], a[1] + b[1]};
-    }
 
     private final double featureCircularity(final double perimeter, final double roisize) {
         return perimeter / (2.0 * Math.sqrt(Math.PI * roisize));
