@@ -448,6 +448,22 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         return new FinalInterval(new long[]{1, 1}, dims);
     }
 
+    /**
+     * Display the given image for debugging.
+     *
+     * @param img the image to display
+     * @param title title of the window to display in
+     */
+    private void showImage(final Img<FloatType> img, final String title) {
+
+        final IterableIntervalNormalize<FloatType> normalize = new IterableIntervalNormalize<FloatType>(0,
+                new FloatType(), new ValuePair<FloatType, FloatType>(new FloatType(0), new FloatType(1)), false);
+
+        Img<FloatType> normalized = img.factory().create(img, new FloatType());
+        normalize.compute(img, normalized);
+
+        AWTImageTools.showInFrame(normalized, title);
+    }
 
     private final double featureCircularity(final double perimeter, final double roisize) {
         return perimeter / (2.0 * Math.sqrt(Math.PI * roisize));
