@@ -57,11 +57,16 @@ import java.util.HashSet;
 import org.knime.knip.base.nodes.io.kernel.structuring.SphereSetting;
 import org.knime.knip.base.nodes.proc.maxfinder.MaximumFinderOp;
 import org.knime.knip.core.KNIPGateway;
+import org.knime.knip.core.awt.AWTImageTools;
 import org.knime.knip.core.data.algebra.ExtendedPolygon;
+import org.knime.knip.core.ops.img.IterableIntervalNormalize;
 import org.knime.knip.core.ops.labeling.WatershedWithSheds;
 import org.knime.knip.core.util.Triple;
 
 import net.imglib2.Cursor;
+import net.imglib2.Dimensions;
+import net.imglib2.FinalInterval;
+import net.imglib2.Interval;
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
@@ -94,6 +99,7 @@ import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.ShortType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.util.Util;
+import net.imglib2.util.ValuePair;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 
@@ -192,16 +198,23 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
            compute(final RandomAccessibleInterval<LabelingType<L>> inLab, final RandomAccessibleInterval<T> img,
                    final RandomAccessibleInterval<LabelingType<String>> outLab) {
 
-        final Img<FloatType> imgAlice = m_floatFactory.create(img, new FloatType());
-        final Img<FloatType> imgBob = m_floatFactory.create(img, new FloatType());
+        /* interval of the image extended by 1 in every direction */
+        final FinalInterval extendedSize = extendBorderByOne(img);
+        /* interval of size of img offset by 1 in dimensions 0 and 1. */
+        final FinalInterval cutOffBorder = cutOffBorder(img);
 
-        final RandomAccessibleInterval<FloatType> imgAliceExt = Views.interval(Views.extendBorder(imgAlice), img);
-        final RandomAccessibleInterval<FloatType> imgBobExt = Views.interval(Views.extendBorder(imgBob), img);
+        final Img<FloatType> imgAlice = m_floatFactory.create(extendedSize, new FloatType());
+        final Img<FloatType> imgBob = m_floatFactory.create(extendedSize, new FloatType());
+
+        final RandomAccessibleInterval<FloatType> imgAliceExt =
+                Views.interval(Views.extendBorder(imgAlice), extendedSize);
+        final RandomAccessibleInterval<FloatType> imgBobExt = Views.interval(Views.extendBorder(imgBob), extendedSize);
 
         // labeling converted to BitType (background where empty label, foreground where any label)
         final RandomAccessibleInterval<BitType> inLabMasked =
-                Views.interval(new ConvertedRandomAccessible<LabelingType<L>, BitType>(inLab,
-                        new LabelingToBitConverter<LabelingType<L>>(), new BitType()), inLab);
+                Views.interval(new ConvertedRandomAccessible<LabelingType<L>, BitType>(
+                        Views.extendValue(inLab, getEmptyLabel(inLab)), new LabelingToBitConverter<LabelingType<L>>(),
+                        new BitType()), extendedSize);
 
         final double[] sigmas = new double[inLab.numDimensions()];
         Arrays.fill(sigmas, m_gaussSize);
@@ -223,22 +236,24 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         new DilateGray<FloatType>(new SphereSetting(2, 3).get()[0],
                 new OutOfBoundsBorderFactory<FloatType, RandomAccessibleInterval<FloatType>>()).compute(imgAliceExt,
                                                                                                         imgBob);
+        final ImgLabeling<Integer, ShortType> seeds = new ImgLabeling<Integer, ShortType>(
+                new ArrayImgFactory<ShortType>().create(extendedSize, new ShortType()));
 
-        final ImgLabeling<Integer, ShortType> seeds =
-                new ImgLabeling<Integer, ShortType>(new ArrayImgFactory<ShortType>().create(img, new ShortType()));
-
-        final Img<BitType> imgChris = new ArrayImgFactory<BitType>().create(img, new BitType());
+        final Img<BitType> imgChris = new ArrayImgFactory<BitType>().create(extendedSize, new BitType());
         new MaximumFinderOp<FloatType>(0, 0).compute(imgBob, imgChris);
 
         m_cca.compute(imgChris, seeds);
 
-        final RandomAccessibleInterval<LabelingType<String>> watershedResult =
-                new ImgLabeling<String, ShortType>(new ArrayImgFactory<ShortType>().create(img, new ShortType()));
+        RandomAccessibleInterval<LabelingType<String>> watershedResult = new ImgLabeling<String, ShortType>(
+                new ArrayImgFactory<ShortType>().create(extendedSize, new ShortType()));
 
         /* seeded watershed */
         m_watershed.compute(invertImg(imgAlice, new FloatType()), seeds, watershedResult);
+        watershedResult = Views.interval(watershedResult, cutOffBorder); // cut off border pixels
 
-        // use the sheds from the watershed to split the labeled objects
+        /* use the sheds from the watershed to split the labeled objects.
+           If we had kept the border pixels, this would later result in the
+           labels at the border being removed  */
         split("Watershed", watershedResult, inLabMasked);
 
         final MooreContourExtractionOp contourExtraction = new MooreContourExtractionOp(true);
