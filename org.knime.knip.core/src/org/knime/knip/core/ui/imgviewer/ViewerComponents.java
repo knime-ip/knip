@@ -48,9 +48,9 @@
  */
 package org.knime.knip.core.ui.imgviewer;
 
+import org.knime.knip.core.ui.imgviewer.panels.BrightnessContrastPanel;
 import org.knime.knip.core.ui.imgviewer.panels.CaptureScreenshot;
 import org.knime.knip.core.ui.imgviewer.panels.ImagePropertiesPanel;
-import org.knime.knip.core.ui.imgviewer.panels.ImgNormalizationPanel;
 import org.knime.knip.core.ui.imgviewer.panels.LabelFilterPanel;
 import org.knime.knip.core.ui.imgviewer.panels.MinimapAndPlaneSelectionPanel;
 import org.knime.knip.core.ui.imgviewer.panels.MinimapPanel;
@@ -72,7 +72,7 @@ public enum ViewerComponents {
     IMAGE_ENHANCE() {
         @Override
         public ViewerComponent createInstance() {
-            return new ImgNormalizationPanel();
+            return new BrightnessContrastPanel();
         }
 
     },
