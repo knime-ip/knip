@@ -413,11 +413,10 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
 
             }
 
-            m_imgView.getEventService()
-                    .publish(new LabelingWithMetadataChgEvent<String>(displayedLabeling, labelingMetadata));
-
             m_imgView.getEventService().publish(new ImgAndLabelingChgEvent<T, String>(underlyingInterval,
                     displayedLabeling, labelingMetadata, labelingMetadata, labelingMetadata));
+            m_imgView.getEventService()
+                    .publish(new LabelingWithMetadataChgEvent<String>(displayedLabeling, labelingMetadata));
 
             m_imgView.getEventService().publish(new ImgRedrawEvent());
             m_eventService.publish(new TableOverviewDisableEvent(false, true));
