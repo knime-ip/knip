@@ -1,8 +1,8 @@
 package org.knime.knip.features.sets;
 
-import net.imagej.ops.image.cooccurrencematrix.MatrixOrientation;
-import net.imagej.ops.image.cooccurrencematrix.MatrixOrientation2D;
-import net.imagej.ops.image.cooccurrencematrix.MatrixOrientation3D;
+import net.imagej.ops.image.cooccurrenceMatrix.MatrixOrientation;
+import net.imagej.ops.image.cooccurrenceMatrix.MatrixOrientation2D;
+import net.imagej.ops.image.cooccurrenceMatrix.MatrixOrientation3D;
 
 import org.scijava.convert.AbstractConverter;
 import org.scijava.convert.ConversionRequest;
