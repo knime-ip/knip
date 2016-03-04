@@ -60,9 +60,9 @@ import org.knime.knip.core.awt.parametersupport.RendererWithLookupTable;
 import org.knime.knip.core.awt.parametersupport.RendererWithNormalization;
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorResetEvent;
+import org.knime.knip.core.ui.imgviewer.events.BrightnessContrastChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgAndLabelingChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
-import org.knime.knip.core.ui.imgviewer.events.NormalizationParametersChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 import org.knime.knip.core.ui.imgviewer.panels.transfunc.LookupTableChgEvent;
 
@@ -127,7 +127,7 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
 
     private LookupTable<T, ARGBType> m_lookupTable = new SimpleTable();
 
-    private NormalizationParametersChgEvent m_normalizationParameters = new NormalizationParametersChgEvent(0, false);
+    private BrightnessContrastChgEvent m_brightnessContrastParameters = new BrightnessContrastChgEvent();
 
     private ColorTable[] m_colorTables = new ColorTable[]{};
 
@@ -159,7 +159,7 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
         @SuppressWarnings("rawtypes")
         RandomAccessibleInterval convertedSrc = AWTImageProvider.convertIfDouble(m_src);
         final double[] normParams =
-                m_normalizationParameters.getNormalizationParameters(convertedSrc, m_planeSelection);
+                m_brightnessContrastParameters.getBrightnessContrastParameters();
 
         //set parameters of the renderer
         if (m_renderer instanceof RendererWithNormalization) {
@@ -194,7 +194,7 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
     public int generateHashCode() {
         int hash = super.generateHashCode();
         if (isActive()) {
-            hash += m_normalizationParameters.hashCode();
+            hash += m_brightnessContrastParameters.hashCode();
             hash *= 31;
             hash += m_src.hashCode();
             hash *= 31;
@@ -219,8 +219,8 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
      * @param normalizationParameters saturation ... used for rendering.
      */
     @EventListener
-    public void onUpdated(final NormalizationParametersChgEvent normalizationParameters) {
-        m_normalizationParameters = normalizationParameters;
+    public void onUpdated(final BrightnessContrastChgEvent brightnessContrastParameters) {
+        m_brightnessContrastParameters = brightnessContrastParameters;
     }
 
     /**
@@ -272,7 +272,7 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
         m_src = null;
         m_greyRenderer = new Real2GreyRenderer<T>();
         m_lookupTable = new SimpleTable();
-        m_normalizationParameters = new NormalizationParametersChgEvent(0, false);
+        m_brightnessContrastParameters = new BrightnessContrastChgEvent();
         m_colorTables = new ColorTable[]{};
     }
 

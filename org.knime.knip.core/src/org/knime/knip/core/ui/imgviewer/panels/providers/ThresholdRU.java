@@ -51,6 +51,15 @@ package org.knime.knip.core.ui.imgviewer.panels.providers;
 
 import java.awt.Image;
 
+import org.knime.knip.core.awt.AWTImageTools;
+import org.knime.knip.core.awt.parametersupport.RendererWithNormalization;
+import org.knime.knip.core.ui.event.EventListener;
+import org.knime.knip.core.ui.event.EventService;
+import org.knime.knip.core.ui.imgviewer.events.BrightnessContrastChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.ThresholdValChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
+
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.display.screenimage.awt.AWTScreenImage;
 import net.imglib2.img.array.ArrayImgFactory;
@@ -59,15 +68,6 @@ import net.imglib2.ops.relation.real.unary.RealGreaterThanConstant;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
-
-import org.knime.knip.core.awt.AWTImageTools;
-import org.knime.knip.core.awt.parametersupport.RendererWithNormalization;
-import org.knime.knip.core.ui.event.EventListener;
-import org.knime.knip.core.ui.event.EventService;
-import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
-import org.knime.knip.core.ui.imgviewer.events.NormalizationParametersChgEvent;
-import org.knime.knip.core.ui.imgviewer.events.ThresholdValChgEvent;
-import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 
 /**
  * Renders either the original image using a selected renderer or the thresholded image.
@@ -85,7 +85,7 @@ public class ThresholdRU<T extends RealType<T>> extends AbstractDefaultRU<BitTyp
 
     // event members
 
-    private NormalizationParametersChgEvent m_normalizationParameters = new NormalizationParametersChgEvent(0, false);
+    private BrightnessContrastChgEvent m_brightnessContrastParameters = new BrightnessContrastChgEvent();
 
     private RandomAccessibleInterval<T> m_src;
 
@@ -98,7 +98,7 @@ public class ThresholdRU<T extends RealType<T>> extends AbstractDefaultRU<BitTyp
             return m_imageRenderer.createImage();
         } else {
             //create a thresholded image
-            final double[] normParams = m_normalizationParameters.getNormalizationParameters(m_src, m_planeSelection);
+            final double[] normParams = m_brightnessContrastParameters.getBrightnessContrastParameters();
 
             if (m_renderer instanceof RendererWithNormalization) {
                 ((RendererWithNormalization)m_renderer).setNormalizationParameters(normParams[0], normParams[1]);
@@ -121,7 +121,7 @@ public class ThresholdRU<T extends RealType<T>> extends AbstractDefaultRU<BitTyp
     @Override
     public int generateHashCode() {
         int hash = super.generateHashCode();
-        hash += m_normalizationParameters.hashCode();
+        hash += m_brightnessContrastParameters.hashCode();
         hash *= 31;
         hash += (int)(m_thresholdVal * 100);
         hash *= 31;
@@ -157,8 +157,8 @@ public class ThresholdRU<T extends RealType<T>> extends AbstractDefaultRU<BitTyp
      * @param normalizationParameters update normalization parameters for saturation ...
      */
     @EventListener
-    public void onUpdated(final NormalizationParametersChgEvent normalizationParameters) {
-        m_normalizationParameters = normalizationParameters;
+    public void onUpdated(final BrightnessContrastChgEvent brightnessContrastParameters) {
+        m_brightnessContrastParameters = brightnessContrastParameters;
     }
 
     /**
@@ -170,7 +170,7 @@ public class ThresholdRU<T extends RealType<T>> extends AbstractDefaultRU<BitTyp
     public void onClose2(final ViewClosedEvent event) {
         m_src = null;
         m_imageRenderer = new ImageRU<T>();
-        m_normalizationParameters = new NormalizationParametersChgEvent(0, false);
+        m_brightnessContrastParameters = new BrightnessContrastChgEvent();
     }
 
     //standard methods
