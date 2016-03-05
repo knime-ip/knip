@@ -1,0 +1,122 @@
+<!-- Copyright (c) 2010 IBM Corporation and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	IBM Corporation - initial API and implementation -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="resizer.png" type="Manipulator">
+	<name>Labeling Resizer</name>
+	<shortDescription>
+		Resizes a labeling.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>Resizes the labeling in each dimension. The resulting values at
+			each position in the labeling are set according to the resizing
+			strategy. Please note, that the input values for each dimension can
+			be interpreted in several ways.
+		</intro>
+		<tab name="Options">
+			<option name="Resizing Strategy">
+				Determines the strategy, how to fill the resized
+				labeling.
+				<ol>
+					<li>
+						Nearest Neighbor Interpolation:
+
+						Pixel values are interpolated
+						according to their neighbors.
+					</li>
+					<li>
+						Periodical Extension:
+
+						Pixel values are repeated periodically.
+					</li>
+					<li>
+						Border Extension:
+
+						Pixel values on the border of the labeling are
+						repeated.
+					</li>
+					<li>
+						Fill with Zero Value:
+
+						Fill pixel values with zero value of the
+						input labeling.
+					</li>
+				</ol>
+				<p>
+					Remark:
+					Extensions and Filling Strategies are only useful in the
+					case that
+					the output labeling is larger than the input labeling.
+				</p>
+			</option>
+
+			<option name="New Dimension Sizes">
+				<p>
+					Specify here the size of the resulting labeling for each
+					dimension.
+					If a dimension doesn't exist in the labeling at hand the
+					according
+					dimension will be ignored.
+					There are three different ways
+					of how the
+					dimensions of the result labelings will be calculated
+					with respected
+					to the specified values for each dimension:
+				</p>
+
+				<ol>
+					<li>
+						Absolute Labeling Size:
+
+						Size of the resulting labeling for each
+						dimension. Output dimension =
+						specified value.
+					</li>
+					<li>
+						Scaling Factor:
+
+						Factor to scale dimensions of input labeling for
+						each dimension.
+						Output
+						dimensions = input dimension * specified
+						value.
+					</li>
+					<li>
+						Calibration:
+
+						Input values are interpreted as the new calibration
+						values. For
+						example, this is useful for arbitrarily calibrated
+						labelings, to
+						enforce, that the calibration in each dimension is
+						one.
+						Due to
+						rounding
+						errors, the resulting
+						calibration will only
+						approach
+						this
+						definition (depending on the
+						labeling size).
+						Output
+						dimensions =
+						((calibration of input labeling) / (specified value))
+						* (input
+						dimension).
+					</li>
+				</ol>
+			</option>
+
+
+		</tab>
+
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Labelings">Labelings</inPort>
+		<outPort index="0" name="Resized Labelings">Resized Labelings</outPort>
+	</ports>
+</knimeNode>
