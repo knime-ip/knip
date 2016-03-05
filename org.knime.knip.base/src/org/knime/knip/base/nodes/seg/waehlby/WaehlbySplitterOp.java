@@ -98,6 +98,7 @@ import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.ShortType;
 import net.imglib2.type.numeric.real.FloatType;
+import net.imglib2.util.Intervals;
 import net.imglib2.util.Util;
 import net.imglib2.util.ValuePair;
 import net.imglib2.view.IntervalView;
@@ -213,8 +214,8 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
         // labeling converted to BitType (background where empty label, foreground where any label)
         final RandomAccessibleInterval<BitType> inLabMasked =
                 Views.interval(new ConvertedRandomAccessible<LabelingType<L>, BitType>(
-                        Views.extendValue(inLab, getEmptyLabel(inLab)), new LabelingToBitConverter<LabelingType<L>>(),
-                        new BitType()), extendedSize);
+                        Views.translate(Views.extendValue(inLab, getEmptyLabel(inLab)), 1, 1),
+                        new LabelingToBitConverter<LabelingType<L>>(), new BitType()), extendedSize);
 
         final double[] sigmas = new double[inLab.numDimensions()];
         Arrays.fill(sigmas, m_gaussSize);
@@ -255,6 +256,7 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
            If we had kept the border pixels, this would later result in the
            labels at the border being removed  */
         split("Watershed", watershedResult, inLabMasked);
+        watershedResult = Views.zeroMin(watershedResult);
 
         final MooreContourExtractionOp contourExtraction = new MooreContourExtractionOp(true);
         final ArrayList<LabeledObject> objects = new ArrayList<LabeledObject>();
@@ -447,7 +449,11 @@ public class WaehlbySplitterOp<L extends Comparable<L>, T extends RealType<T>> i
      * @return the extended interval
      */
     private FinalInterval extendBorderByOne(final Interval i) {
-        return new FinalInterval(new long[]{i.min(0) - 1, i.min(1) - 1}, new long[]{i.max(0) + 1, i.max(0) + 1});
+        final long[] dims = Intervals.dimensionsAsLongArray(i);
+        for (int d = 0; d < dims.length; d++) {
+            dims[d] += 2;
+        }
+        return new FinalInterval(dims);
     }
 
     /**
