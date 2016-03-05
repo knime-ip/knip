@@ -64,6 +64,7 @@ import org.knime.knip.base.node.TwoValuesToCellNodeDialog;
 import org.knime.knip.base.node.TwoValuesToCellNodeFactory;
 import org.knime.knip.base.node.TwoValuesToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
+import org.knime.knip.base.node.dialog.DialogComponentSubsetSelection;
 import org.knime.knip.base.node.dialog.DialogComponentSubsetSelection2;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection2;
@@ -205,7 +206,7 @@ public class AlignerNodeFactory2<T extends RealType<T>, V extends RealType<V>>
             @Override
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValueA, final ImgPlusValue<V> cellValueB)
                     throws Exception {
-                final ImgPlus<T> imgPlus = cellValueA.getImgPlus();
+                final ImgPlus<T> imgPlus = cellValueA.getZeroMinImgPlus();
                 final int[] selectedDims1 = m_dimSelection1.getSelectedDimIndices(imgPlus);
                 final int[] selectedDims2 = m_dimSelection2.getSelectedDimIndices(imgPlus);
 

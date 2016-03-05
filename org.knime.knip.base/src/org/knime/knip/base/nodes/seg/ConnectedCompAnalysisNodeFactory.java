@@ -84,7 +84,6 @@ import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.IntType;
-import net.imglib2.view.Views;
 
 /**
  * Factory class to produce a Connected Component Analysis Node.
@@ -178,7 +177,7 @@ public class ConnectedCompAnalysisNodeFactory<T extends RealType<T> & Comparable
             @SuppressWarnings({"unchecked"})
             @Override
             protected LabelingCell<Integer> compute(final ImgPlusValue<T> cellValue) throws IOException {
-                final ImgPlus<T> img = cellValue.getImgPlus();
+                final ImgPlus<T> img = cellValue.getZeroMinImgPlus();
                 final T background = img.firstElement().createVariable();
                 background.setReal(m_background.getIntValue());
                 if (((int)background.getRealDouble()) != m_background.getIntValue()) {
@@ -201,12 +200,12 @@ public class ConnectedCompAnalysisNodeFactory<T extends RealType<T> & Comparable
 
                 final RandomAccessibleInterval<LabelingType<Integer>> lab =
                         new ImgLabeling<Integer, IntType>(KNIPGateway.ops().create()
-                                .img(Views.zeroMin(img.getImg()), new IntType(),
+                                .img(img.getImg(), new IntType(),
                                      ImgFactoryTypes.getImgFactory(m_factory.getStringValue(), img.getImg())));
 
                 try {
-                    SubsetOperations.iterate(cca, m_dimSelection.getSelectedDimIndices(img),
-                                             Views.zeroMin(img.getImg()), lab, getExecutorService());
+                    SubsetOperations.iterate(cca, m_dimSelection.getSelectedDimIndices(img), img.getImg(), lab,
+                                             getExecutorService());
                 } catch (InterruptedException e) {
                     LOGGER.warn("Thread execution interrupted", e);
                 } catch (ExecutionException e) {

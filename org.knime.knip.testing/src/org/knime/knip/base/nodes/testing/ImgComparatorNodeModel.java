@@ -50,14 +50,14 @@ package org.knime.knip.base.nodes.testing;
 
 import java.util.Arrays;
 
+import org.knime.core.data.DataRow;
+import org.knime.knip.base.data.img.ImgPlusValue;
+
 import net.imagej.ImgPlus;
 import net.imglib2.Cursor;
 import net.imglib2.img.ImgView;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
-
-import org.knime.core.data.DataRow;
-import org.knime.knip.base.data.img.ImgPlusValue;
 
 /**
  * Compares to {@link ImgPlus}
@@ -68,8 +68,8 @@ import org.knime.knip.base.data.img.ImgPlusValue;
  *
  * @param <T>
  */
-public class ImgComparatorNodeModel<T extends NativeType<T> & RealType<T>> extends
-        ComparatorNodeModel<ImgPlusValue<T>, ImgPlusValue<T>> {
+public class ImgComparatorNodeModel<T extends NativeType<T> & RealType<T>>
+        extends ComparatorNodeModel<ImgPlusValue<T>, ImgPlusValue<T>> {
 
     //TODO until ImgLib is able to create cursors from RandomAccessibleIntervals in certain iteration orders (e.g. CellIterationOrder) we need to check if there exists an ImgView
     @Override
@@ -87,14 +87,14 @@ public class ImgComparatorNodeModel<T extends NativeType<T> & RealType<T>> exten
         }
 
         if (img1.numDimensions() != img2.numDimensions()) {
-            throw new IllegalStateException("Number of dimensions of images is not the same! "
-                    + row.getKey().toString());
+            throw new IllegalStateException(
+                    "Number of dimensions of images is not the same! " + row.getKey().toString());
         }
 
         for (int d = 0; d < img1.numDimensions(); d++) {
             if (img1.dimension(d) != img2.dimension(d)) {
-                throw new IllegalStateException("Dimension " + d + " is not the same in the compared images!"
-                        + row.getKey().toString());
+                throw new IllegalStateException(
+                        "Dimension " + d + " is not the same in the compared images!" + row.getKey().toString());
             }
         }
 
@@ -125,8 +125,8 @@ public class ImgComparatorNodeModel<T extends NativeType<T> & RealType<T>> exten
 
         for (int d = 0; d < img1.numDimensions(); d++) {
             if (!img1.axis(d).type().getLabel().equalsIgnoreCase(img2.axis(d).type().getLabel())) {
-                throw new IllegalStateException("Label of Axis " + d + " is not the same in the compared images!"
-                        + row.getKey().toString());
+                throw new IllegalStateException(
+                        "Label of Axis " + d + " is not the same in the compared images!" + row.getKey().toString());
             }
         }
 

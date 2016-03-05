@@ -266,7 +266,7 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
     @SuppressWarnings("unchecked")
     @Override
     protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws KNIPException, IOException {
-        final ImgPlus<T> in = cellValue.getImgPlus();
+        final ImgPlus<T> in = cellValue.getZeroMinImgPlus();
 
         if ((m_structElement != null) && ((m_smDimensions.getSelectedDimIndices(in).length != m_structElement[0].length)
                 || (m_smDimensions.getSelectedDimIndices(in).length != m_structElement[0].length))) {

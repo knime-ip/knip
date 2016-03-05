@@ -154,7 +154,7 @@ public class ImgCropperNodeFactory2<T extends RealType<T> & NativeType<T>>
                     return m_imgCellFactory.createCell(cellValue.getImgPlusCopy());
                 } else {
 
-                    ImgPlus<T> img = cellValue.getImgPlus();
+                    ImgPlus<T> img = cellValue.getZeroMinImgPlus();
 
                     //if an offset is set, translate the img to the origin for now
                     long[] minimum = new long[img.numDimensions()];

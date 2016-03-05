@@ -50,10 +50,6 @@ package org.knime.knip.base.nodes.proc;
 
 import java.util.List;
 
-import net.imagej.ImgPlus;
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.knip.base.data.img.ImgPlusCell;
@@ -63,6 +59,10 @@ import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.core.util.MiscViews;
+
+import net.imagej.ImgPlus;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * Factory class to produce an image inverter node.
@@ -94,7 +94,7 @@ public class Remove1DimNodeFactory<T extends RealType<T> & NativeType<T>> extend
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
 
                 // Get the img
-                final ImgPlus<T> plus = cellValue.getImgPlus();
+                final ImgPlus<T> plus = cellValue.getZeroMinImgPlus();
                 ImgPlus<T> res;
 
                 if (plus.getImg().size() == 1) {

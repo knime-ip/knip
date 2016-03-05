@@ -53,15 +53,6 @@ import java.util.List;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.imagej.ImgPlus;
-import net.imglib2.Cursor;
-import net.imglib2.FinalInterval;
-import net.imglib2.img.Img;
-import net.imglib2.img.ImgView;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.util.Intervals;
-import net.imglib2.view.Views;
-
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
@@ -78,6 +69,15 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
+
+import net.imagej.ImgPlus;
+import net.imglib2.Cursor;
+import net.imglib2.FinalInterval;
+import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.Intervals;
+import net.imglib2.view.Views;
 
 /**
  * Automatically crops an image.
@@ -194,7 +194,7 @@ public class AutoCropNodeFactory<T extends RealType<T>> extends ValueToCellNodeF
             @Override
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
 
-                final ImgPlus<T> img = cellValue.getImgPlus();
+                final ImgPlus<T> img = cellValue.getZeroMinImgPlus();
                 final Cursor<T> cur = img.localizingCursor();
 
                 final long[] min = new long[img.numDimensions()];

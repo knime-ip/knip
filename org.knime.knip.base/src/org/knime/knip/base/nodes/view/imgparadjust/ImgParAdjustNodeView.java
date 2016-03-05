@@ -290,7 +290,7 @@ public class ImgParAdjustNodeView<T extends RealType<T>> extends NodeView<ImgPar
 
         if (m_tableContentView.getContentModel().getValueAt(row, col) instanceof ImgPlusValue) {
             final ImgPlus<T> imgPlus =
-                    ((ImgPlusValue<T>)m_tableContentView.getContentModel().getValueAt(row, col)).getImgPlus();
+                    ((ImgPlusValue<T>)m_tableContentView.getContentModel().getValueAt(row, col)).getZeroMinImgPlus();
 
             m_imgViewer.setImg(imgPlus);
 

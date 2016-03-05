@@ -50,11 +50,6 @@ package org.knime.knip.base.nodes.seg.waehlby;
 
 import java.util.List;
 
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.ops.operation.SubsetOperations;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumberEdit;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
@@ -70,6 +65,11 @@ import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.KNIPGateway;
 
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.numeric.RealType;
+
 /**
  * Waehlby Cell Clump Splitter node factory
  *
@@ -80,8 +80,8 @@ import org.knime.knip.core.KNIPGateway;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class WaehlbySplitterNodeFactory<T extends RealType<T>, L extends Comparable<L>> extends
-        TwoValuesToCellNodeFactory<LabelingValue<L>, ImgPlusValue<T>> {
+public class WaehlbySplitterNodeFactory<T extends RealType<T>, L extends Comparable<L>>
+        extends TwoValuesToCellNodeFactory<LabelingValue<L>, ImgPlusValue<T>> {
 
     private static SettingsModelDimSelection createDimSelectionModel() {
         return new SettingsModelDimSelection("dim_selection", "X", "Y");
@@ -110,13 +110,13 @@ public class WaehlbySplitterNodeFactory<T extends RealType<T>, L extends Compara
             public void addDialogComponents() {
                 addDialogComponent("Options", "General", new DialogComponentNumberEdit(createDistanceThresholdModel(),
                         "Distance Merge Threshold"));
-                addDialogComponent("Options", "General", new DialogComponentNumberEdit(createGaussSizeModel(),
-                        "Gauss Size"));
+                addDialogComponent("Options", "General",
+                                   new DialogComponentNumberEdit(createGaussSizeModel(), "Gauss Size"));
                 addDialogComponent("Options", "General", new DialogComponentNumberEdit(createMergeSizeThresholdModel(),
                         "Size Merge Threshold"));
 
-                addDialogComponent("Options", "Dimensions", new DialogComponentDimSelection(createDimSelectionModel(),
-                        "Dimensions", 2, 2)); //2, 5
+                addDialogComponent("Options", "Dimensions",
+                                   new DialogComponentDimSelection(createDimSelectionModel(), "Dimensions", 2, 2)); //2, 5
 
             }
         };
@@ -155,12 +155,11 @@ public class WaehlbySplitterNodeFactory<T extends RealType<T>, L extends Compara
                 int[] selectedDimIndices =
                         m_smDimSelection.getSelectedDimIndices(cellLabelingVal.getLabelingMetadata());
 
-                WaehlbySplitterOp<L, T> op =
-                        new WaehlbySplitterOp<L, T>(WaehlbySplitterOp.SEG_TYPE.SHAPE_BASED_SEGMENTATION,
-                                m_smDistanceThreshold.getIntValue(), m_smMergeThreshold.getIntValue(),
-                                m_smGaussSize.getIntValue());
+                WaehlbySplitterOp<L, T> op = new WaehlbySplitterOp<L, T>(
+                        WaehlbySplitterOp.SEG_TYPE.SHAPE_BASED_SEGMENTATION, m_smDistanceThreshold.getIntValue(),
+                        m_smMergeThreshold.getIntValue(), m_smGaussSize.getIntValue());
 
-                SubsetOperations.iterate(op, selectedDimIndices, labeling, imgValue.getImgPlus(), out,
+                SubsetOperations.iterate(op, selectedDimIndices, labeling, imgValue.getZeroMinImgPlus(), out,
                                          getExecutorService());
 
                 return m_labCellFactory.createCell(out, cellLabelingVal.getLabelingMetadata());

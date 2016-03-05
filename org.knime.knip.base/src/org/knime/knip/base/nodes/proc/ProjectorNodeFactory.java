@@ -51,13 +51,6 @@ package org.knime.knip.base.nodes.proc;
 import java.io.IOException;
 import java.util.List;
 
-import net.imagej.ImgPlus;
-import net.imglib2.FinalInterval;
-import net.imglib2.ops.operation.Operations;
-import net.imglib2.ops.operation.img.unary.ImgProject;
-import net.imglib2.ops.util.MetadataUtil;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
@@ -72,6 +65,13 @@ import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.util.EnumUtils;
+
+import net.imagej.ImgPlus;
+import net.imglib2.FinalInterval;
+import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.operation.img.unary.ImgProject;
+import net.imglib2.ops.util.MetadataUtil;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * Factory class to produce the image projector node.
@@ -146,7 +146,7 @@ public class ProjectorNodeFactory<T extends RealType<T>> extends ValueToCellNode
              */
             @Override
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws IOException {
-                final ImgPlus<T> img = cellValue.getImgPlus();
+                final ImgPlus<T> img = cellValue.getZeroMinImgPlus();
                 final int[] selectedDims = m_projectionDim.getSelectedDimIndices(img.numDimensions(), img);
                 if (selectedDims.length == 0) {
                     NodeLogger.getLogger(ProjectorNodeFactory.class)

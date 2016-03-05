@@ -53,9 +53,6 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 
-import net.imagej.axis.TypedAxis;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataType;
 import org.knime.core.data.collection.CollectionCellFactory;
@@ -72,6 +69,9 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.ValueToCellsNodeDialog;
 import org.knime.knip.base.node.ValueToCellsNodeFactory;
 import org.knime.knip.base.node.ValueToCellsNodeModel;
+
+import net.imagej.axis.TypedAxis;
+import net.imglib2.type.numeric.RealType;
 
 /**
  *

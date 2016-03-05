@@ -312,7 +312,7 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
     @Override
     protected ImgPlusCell<V> compute(final ImgPlusValue<T> cellValue) throws Exception {
 
-        ImgPlus<T> in = cellValue.getImgPlus();
+        ImgPlus<T> in = cellValue.getZeroMinImgPlus();
         ImgPlus<V> res = createResultImage(cellValue.getImgPlus());
 
         if (m_hasDimSelection && !m_dimSelectionModel.isContainedIn(cellValue.getMetadata())) {

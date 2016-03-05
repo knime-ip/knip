@@ -51,13 +51,6 @@ package org.knime.knip.base.nodes.proc;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.imagej.ImgPlus;
-import net.imglib2.RandomAccess;
-import net.imglib2.algorithm.math.PickImagePeaks;
-import net.imglib2.img.Img;
-import net.imglib2.type.logic.BitType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
@@ -70,6 +63,13 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
+
+import net.imagej.ImgPlus;
+import net.imglib2.RandomAccess;
+import net.imglib2.algorithm.math.PickImagePeaks;
+import net.imglib2.img.Img;
+import net.imglib2.type.logic.BitType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * TODO: Add Dimension Selection?
@@ -135,7 +135,7 @@ public class ImgPeaksNodeFactory<T extends RealType<T>> extends ValueToCellNodeF
 
             @Override
             protected ImgPlusCell<BitType> compute(final ImgPlusValue<T> cellValue) throws Exception {
-                final ImgPlus<T> imgPlus = cellValue.getImgPlus();
+                final ImgPlus<T> imgPlus = cellValue.getZeroMinImgPlus();
                 final PickImagePeaks<T> peakPicker = new PickImagePeaks<T>(imgPlus);
                 peakPicker.process();
                 final Img<BitType> res = peakPicker.getResult();

@@ -51,16 +51,6 @@ package org.knime.knip.base.nodes.proc;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.imagej.ImgPlus;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.Img;
-import net.imglib2.ops.operation.SubsetOperations;
-import net.imglib2.ops.operation.UnaryOperation;
-import net.imglib2.ops.operation.randomaccessibleinterval.unary.GrayscaleReconstructionByDilation;
-import net.imglib2.ops.operation.randomaccessibleinterval.unary.GrayscaleReconstructionByErosion;
-import net.imglib2.ops.types.ConnectedType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
@@ -75,6 +65,16 @@ import org.knime.knip.base.node.TwoValuesToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 
+import net.imagej.ImgPlus;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.Img;
+import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.ops.operation.UnaryOperation;
+import net.imglib2.ops.operation.randomaccessibleinterval.unary.GrayscaleReconstructionByDilation;
+import net.imglib2.ops.operation.randomaccessibleinterval.unary.GrayscaleReconstructionByErosion;
+import net.imglib2.ops.types.ConnectedType;
+import net.imglib2.type.numeric.RealType;
+
 /**
  * Grayscale Reconstruction NodeFactory
  *
@@ -84,8 +84,8 @@ import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
  *
  * @param <T>
  */
-public final class GrayscaleReconstructionNodeFactory<T extends RealType<T>> extends
-        TwoValuesToCellNodeFactory<ImgPlusValue<T>, ImgPlusValue<T>> {
+public final class GrayscaleReconstructionNodeFactory<T extends RealType<T>>
+        extends TwoValuesToCellNodeFactory<ImgPlusValue<T>, ImgPlusValue<T>> {
 
     /**
      * Operating type
@@ -95,10 +95,9 @@ public final class GrayscaleReconstructionNodeFactory<T extends RealType<T>> ext
         /**
          * dilate operator
          */
-        DILATE("By Dilation"),
-        /**
-         * erode operator
-         */
+        DILATE("By Dilation"), /**
+                                * erode operator
+                                */
         ERODE("By Erosion");
 
         /**
@@ -198,8 +197,8 @@ public final class GrayscaleReconstructionNodeFactory<T extends RealType<T>> ext
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue1, final ImgPlusValue<T> cellValue2)
                     throws Exception {
 
-                final ImgPlus<T> mask = cellValue1.getImgPlus();
-                final ImgPlus<T> marker = cellValue2.getImgPlus();
+                final ImgPlus<T> mask = cellValue1.getZeroMinImgPlus();
+                final ImgPlus<T> marker = cellValue2.getZeroMinImgPlus();
 
                 if (mask.numDimensions() == 1) {
                     throw new KNIPException("One dimensional images are not supported by GrayScaleReconstruction");

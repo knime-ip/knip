@@ -50,12 +50,6 @@ package org.knime.knip.base.nodes.proc;
 
 import java.util.List;
 
-import net.imagej.ImgPlus;
-import net.imglib2.FinalInterval;
-import net.imglib2.Interval;
-import net.imglib2.ops.operation.Operations;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
@@ -74,6 +68,12 @@ import org.knime.knip.base.node.dialog.DialogComponentSubsetSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
 import org.knime.knip.core.ops.img.algorithms.Aligner;
+
+import net.imagej.ImgPlus;
+import net.imglib2.FinalInterval;
+import net.imglib2.Interval;
+import net.imglib2.ops.operation.Operations;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * AlignerNodeFactory
@@ -205,7 +205,7 @@ public class AlignerNodeFactory<T extends RealType<T>, V extends RealType<V>> ex
             @Override
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValueA, final ImgPlusValue<V> cellValueB)
                     throws Exception {
-                final ImgPlus<T> imgPlus = cellValueA.getImgPlus();
+                final ImgPlus<T> imgPlus = cellValueA.getZeroMinImgPlus();
                 final int[] selectedDims1 = m_dimSelection1.getSelectedDimIndices(imgPlus);
                 final int[] selectedDims2 = m_dimSelection2.getSelectedDimIndices(imgPlus);
 

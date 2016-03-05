@@ -50,18 +50,6 @@ package org.knime.knip.base.nodes.proc.binary;
 
 import java.util.List;
 
-import net.imagej.ImgPlus;
-import net.imglib2.IterableInterval;
-import net.imglib2.img.Img;
-import net.imglib2.img.ImgView;
-import net.imglib2.ops.img.BinaryOperationAssignment;
-import net.imglib2.ops.operation.real.binary.RealAnd;
-import net.imglib2.ops.operation.real.binary.RealOr;
-import net.imglib2.ops.operation.real.binary.RealXor;
-import net.imglib2.type.logic.BitType;
-import net.imglib2.util.Util;
-import net.imglib2.view.Views;
-
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
@@ -79,13 +67,25 @@ import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.MiscViews;
 
+import net.imagej.ImgPlus;
+import net.imglib2.IterableInterval;
+import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
+import net.imglib2.ops.img.BinaryOperationAssignment;
+import net.imglib2.ops.operation.real.binary.RealAnd;
+import net.imglib2.ops.operation.real.binary.RealOr;
+import net.imglib2.ops.operation.real.binary.RealXor;
+import net.imglib2.type.logic.BitType;
+import net.imglib2.util.Util;
+import net.imglib2.view.Views;
+
 /**
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public final class BinaryArithmeticNodeFactory extends
-        TwoValuesToCellNodeFactory<ImgPlusValue<BitType>, ImgPlusValue<BitType>> {
+public final class BinaryArithmeticNodeFactory
+        extends TwoValuesToCellNodeFactory<ImgPlusValue<BitType>, ImgPlusValue<BitType>> {
 
     /**
      * Binary Operation Applied to BitType Images
@@ -94,14 +94,12 @@ public final class BinaryArithmeticNodeFactory extends
         /**
          * true, if both are true
          */
-        AND,
-        /**
-         * true, if one is true
-         */
-        OR,
-        /**
-         * true, if only one is true and the other false
-         */
+        AND, /**
+              * true, if one is true
+              */
+        OR, /**
+             * true, if only one is true and the other false
+             */
         XOR;
     }
 
@@ -118,19 +116,19 @@ public final class BinaryArithmeticNodeFactory extends
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("deprecation")
     @Override
     protected TwoValuesToCellNodeDialog<ImgPlusValue<BitType>, ImgPlusValue<BitType>> createNodeDialog() {
         return new TwoValuesToCellNodeDialog<ImgPlusValue<BitType>, ImgPlusValue<BitType>>() {
 
             @Override
             public void addDialogComponents() {
-                addDialogComponent("Options",
-                                   "Binary Operation",
-                                   new DialogComponentStringSelection(createMethodNameModel(), "Method", EnumUtils
-                                           .getStringListFromName(BinaryArithmeticNodeFactory.Method.values())));
+                addDialogComponent("Options", "Binary Operation", new DialogComponentStringSelection(
+                        createMethodNameModel(), "Method",
+                        EnumUtils.getStringListFromName(BinaryArithmeticNodeFactory.Method.values())));
 
-                addDialogComponent("Options", "", new DialogComponentBoolean(createVirtuallySynchronizeModel(),
-                        "Virtually Extend?"));
+                addDialogComponent("Options", "",
+                                   new DialogComponentBoolean(createVirtuallySynchronizeModel(), "Virtually Extend?"));
 
             }
 
@@ -151,7 +149,7 @@ public final class BinaryArithmeticNodeFactory extends
      */
     @Override
     public TwoValuesToCellNodeModel<ImgPlusValue<BitType>, ImgPlusValue<BitType>, ImgPlusCell<BitType>>
-            createNodeModel() {
+           createNodeModel() {
         return new TwoValuesToCellNodeModel<ImgPlusValue<BitType>, ImgPlusValue<BitType>, ImgPlusCell<BitType>>() {
 
             private ImgPlusCellFactory m_imgCellFactory;
@@ -186,10 +184,9 @@ public final class BinaryArithmeticNodeFactory extends
                 final Img<BitType> out = KNIPGateway.ops().create().img(cellValue1.getImgPlus());
 
                 if (m_synchronize.getBooleanValue()) {
-                    img2 =
-                            new ImgPlus<BitType>(new ImgView<BitType>(MiscViews.synchronizeDimensionality(img2, img2,
-                                                                                                          img1, img1),
-                                    img1.factory()), img1);
+                    img2 = new ImgPlus<BitType>(
+                            ImgView.wrap(MiscViews.synchronizeDimensionality(img2, img2, img1, img1), img1.factory()),
+                            img1);
                 }
 
                 IterableInterval<BitType> iiOut = out;
@@ -211,19 +208,16 @@ public final class BinaryArithmeticNodeFactory extends
             protected void prepareExecute(final ExecutionContext exec) {
                 switch (Method.valueOf(m_methodName.getStringValue())) {
                     case AND:
-                        m_op =
-                                new BinaryOperationAssignment<BitType, BitType, BitType>(
-                                        new RealAnd<BitType, BitType, BitType>());
+                        m_op = new BinaryOperationAssignment<BitType, BitType, BitType>(
+                                new RealAnd<BitType, BitType, BitType>());
                         break;
                     case OR:
-                        m_op =
-                                new BinaryOperationAssignment<BitType, BitType, BitType>(
-                                        new RealOr<BitType, BitType, BitType>());
+                        m_op = new BinaryOperationAssignment<BitType, BitType, BitType>(
+                                new RealOr<BitType, BitType, BitType>());
                         break;
                     case XOR:
-                        m_op =
-                                new BinaryOperationAssignment<BitType, BitType, BitType>(
-                                        new RealXor<BitType, BitType, BitType>());
+                        m_op = new BinaryOperationAssignment<BitType, BitType, BitType>(
+                                new RealXor<BitType, BitType, BitType>());
                         break;
                 }
                 m_imgCellFactory = new ImgPlusCellFactory(exec);

@@ -60,15 +60,6 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
-import net.imagej.ImgPlus;
-import net.imglib2.Interval;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.type.Type;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.type.numeric.real.DoubleType;
-import net.imglib2.util.Util;
-
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataType;
 import org.knime.core.data.collection.CollectionCellFactory;
@@ -98,6 +89,15 @@ import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableRenderer;
 import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableUtils;
 import org.knime.knip.core.awt.labelingcolortable.RandomMissingColorHandler;
 import org.knime.knip.core.awt.parametersupport.RendererWithLabels;
+
+import net.imagej.ImgPlus;
+import net.imglib2.Interval;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.Type;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.type.numeric.real.DoubleType;
+import net.imglib2.util.Util;
 
 /**
  *
@@ -165,7 +165,7 @@ public class LabelingToPNGValueNodeModel<T extends RealType<T>, L extends Compar
     protected ListCell compute(final ImgPlusValue<T> imgValue, final LabelingValue<L> labelingValue)
             throws IOException, KNIPException {
         final RandomAccessibleInterval<LabelingType<L>> lab = labelingValue.getLabeling();
-        final ImgPlus<T> imgPlus = imgValue.getImgPlus();
+        final ImgPlus<T> imgPlus = imgValue.getZeroMinImgPlus();
 
         //render with image first check dimensionality
         if (imgPlus.numDimensions() == lab.numDimensions()) {

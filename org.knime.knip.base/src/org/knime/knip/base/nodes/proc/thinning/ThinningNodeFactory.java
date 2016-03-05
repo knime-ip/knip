@@ -50,11 +50,6 @@ package org.knime.knip.base.nodes.proc.thinning;
 
 import java.util.List;
 
-import net.imagej.ImgPlus;
-import net.imglib2.ops.operation.ImgOperations;
-import net.imglib2.ops.operation.UnaryOutputOperation;
-import net.imglib2.type.logic.BitType;
-
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
@@ -67,6 +62,11 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
 import org.knime.knip.base.nodes.proc.thinning.strategies.ThinningStrategyFactory;
+
+import net.imagej.ImgPlus;
+import net.imglib2.ops.operation.ImgOperations;
+import net.imglib2.ops.operation.UnaryOutputOperation;
+import net.imglib2.type.logic.BitType;
 
 /**
  * Factory class to create {@link ThinningNodeFactory}
@@ -97,12 +97,12 @@ public class ThinningNodeFactory extends ImgPlusToImgPlusNodeFactory<BitType, Bi
             @Override
             public void addDialogComponents() {
 
-                addDialogComponent("Options", "Thinning Options", new DialogComponentStringSelection(
-                        createThinningAlgorithm(), "Thinning Algorithm: ", ThinningStrategyFactory.Strategy.getNames(),
-                        false));
+                addDialogComponent("Options", "Thinning Options",
+                                   new DialogComponentStringSelection(createThinningAlgorithm(), "Thinning Algorithm: ",
+                                           ThinningStrategyFactory.Strategy.getNames(), false));
 
-                addDialogComponent("Options", "Thinning Options", new DialogComponentBoolean(createForeground(),
-                        "Use white as foreground color? "));
+                addDialogComponent("Options", "Thinning Options",
+                                   new DialogComponentBoolean(createForeground(), "Use white as foreground color? "));
 
             }
         };
@@ -125,9 +125,8 @@ public class ThinningNodeFactory extends ImgPlusToImgPlusNodeFactory<BitType, Bi
 
                 ThinningStrategyFactory fac = new ThinningStrategyFactory(m_whiteForeground.getBooleanValue());
 
-                ThinningOp thinning =
-                        new ThinningOp(fac.getStrategy(m_thinningAlgorithm.getStringValue()),
-                                m_whiteForeground.getBooleanValue(), imgPlus.factory());
+                ThinningOp thinning = new ThinningOp(fac.getStrategy(m_thinningAlgorithm.getStringValue()),
+                        m_whiteForeground.getBooleanValue(), imgPlus.factory());
 
                 return ImgOperations.wrapRA(thinning, imgPlus.firstElement());
             }
@@ -135,11 +134,10 @@ public class ThinningNodeFactory extends ImgPlusToImgPlusNodeFactory<BitType, Bi
             /**
              * {@inheritDoc}
              */
-            @SuppressWarnings("cast")
             @Override
             protected ImgPlusCell<BitType> compute(final ImgPlusValue<BitType> cellValue) throws Exception {
                 // Overwritten to add additional (graceful) type checking
-                if (!(cellValue.getImgPlus().firstElement() instanceof BitType)) {
+                if (!(BitType.class.isAssignableFrom(cellValue.getPixelType()))) {
                     throw new KNIPException("Thinning is only possible on bit type images (=binary images)!");
                 }
 

@@ -164,7 +164,7 @@ public abstract class ImgPlusToImgPlusNodeModel<T extends RealType<T>, V extends
             throw new KNIPException("not enough selected dimensions provided by image.");
         }
 
-        final UnaryOutputOperation<ImgPlus<T>, ImgPlus<V>> op = op(cellValue.getImgPlus());
+        final UnaryOutputOperation<ImgPlus<T>, ImgPlus<V>> op = op(cellValue.getZeroMinImgPlus());
 
         final int[] selection = m_dimSelection.getSelectedDimIndices(cellValue.getMetadata());
 

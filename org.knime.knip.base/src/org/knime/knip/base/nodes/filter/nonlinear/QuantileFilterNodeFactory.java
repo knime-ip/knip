@@ -50,19 +50,6 @@ package org.knime.knip.base.nodes.filter.nonlinear;
 
 import java.util.List;
 
-import net.imagej.ImgPlus;
-import net.imagej.ops.MetadataUtil;
-import net.imglib2.converter.read.ConvertedRandomAccessibleInterval;
-import net.imglib2.img.Img;
-import net.imglib2.img.ImgView;
-import net.imglib2.ops.operation.ImgOperations;
-import net.imglib2.ops.operation.SubsetOperations;
-import net.imglib2.ops.operation.UnaryOutputOperation;
-import net.imglib2.ops.operation.real.unary.Convert;
-import net.imglib2.ops.operation.real.unary.Convert.TypeConversionTypes;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.type.numeric.integer.UnsignedByteType;
-
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
@@ -80,6 +67,19 @@ import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.dialog.DialogComponentSpanSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
+
+import net.imagej.ImgPlus;
+import net.imagej.ops.MetadataUtil;
+import net.imglib2.converter.read.ConvertedRandomAccessibleInterval;
+import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
+import net.imglib2.ops.operation.ImgOperations;
+import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.ops.operation.UnaryOutputOperation;
+import net.imglib2.ops.operation.real.unary.Convert;
+import net.imglib2.ops.operation.real.unary.Convert.TypeConversionTypes;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.type.numeric.integer.UnsignedByteType;
 
 /**
  *
@@ -184,8 +184,8 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
             @Override
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
 
-                final ImgPlus<T> inImg = cellValue.getImgPlus();
-                final T type = cellValue.getImgPlus().firstElement();
+                final ImgPlus<T> inImg = cellValue.getZeroMinImgPlus();
+                final T type = cellValue.getZeroMinImgPlus().firstElement();
                 int[] selectedDimIndices = m_smDimSel.getSelectedDimIndices(inImg);
 
                 if (selectedDimIndices.length == 1) {

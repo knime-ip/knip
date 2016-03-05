@@ -51,18 +51,6 @@ package org.knime.knip.base.nodes.proc;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.imagej.ImgPlus;
-import net.imagej.axis.CalibratedAxis;
-import net.imagej.space.DefaultCalibratedSpace;
-import net.imglib2.Interval;
-import net.imglib2.IterableInterval;
-import net.imglib2.img.Img;
-import net.imglib2.ops.operation.Operations;
-import net.imglib2.ops.operation.iterableinterval.unary.MergeIterableIntervals;
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.view.Views;
-
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
@@ -77,6 +65,18 @@ import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentSubsetSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
+
+import net.imagej.ImgPlus;
+import net.imagej.axis.CalibratedAxis;
+import net.imagej.space.DefaultCalibratedSpace;
+import net.imglib2.Interval;
+import net.imglib2.IterableInterval;
+import net.imglib2.img.Img;
+import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.operation.iterableinterval.unary.MergeIterableIntervals;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
 
 /**
  * ImgCropperNodeFactory
@@ -150,7 +150,7 @@ public class ImgCropperNodeFactory<T extends RealType<T> & NativeType<T>> extend
                     return m_imgCellFactory.createCell(cellValue.getImgPlusCopy());
                 } else {
 
-                    final ImgPlus<T> img = cellValue.getImgPlus();
+                    final ImgPlus<T> img = cellValue.getZeroMinImgPlus();
 
                     final long[] dimensions = new long[img.numDimensions()];
                     img.dimensions(dimensions);

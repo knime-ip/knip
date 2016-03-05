@@ -56,11 +56,6 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
-import net.imagej.ImgPlus;
-import net.imglib2.Interval;
-import net.imglib2.ops.operation.interval.binary.IntervalsFromDimSelection;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataType;
 import org.knime.core.data.collection.CollectionCellFactory;
@@ -80,9 +75,14 @@ import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.awt.AWTImageTools;
 import org.knime.knip.core.awt.Real2GreyColorRenderer;
 
+import net.imagej.ImgPlus;
+import net.imglib2.Interval;
+import net.imglib2.ops.operation.interval.binary.IntervalsFromDimSelection;
+import net.imglib2.type.numeric.RealType;
+
 /**
  * Converts ImgPlusValue<T> of any type to PNGImageCell
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -164,14 +164,14 @@ public class ImgPlusCellToPNGValueNodeFactory<T extends RealType<T>> extends Val
 
             /**
              * {@inheritDoc}
-             * 
+             *
              * @throws IllegalArgumentException
              */
             @Override
             protected ListCell compute(final ImgPlusValue<T> cellValue) throws IOException {
 
                 // Order of dimensions always X Y C
-                final ImgPlus<T> imgPlus = cellValue.getImgPlus();
+                final ImgPlus<T> imgPlus = cellValue.getZeroMinImgPlus();
 
                 final List<DataCell> cells = new ArrayList<DataCell>(0);
 

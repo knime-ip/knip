@@ -53,18 +53,6 @@ import java.util.List;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.imagej.ImgPlus;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.Img;
-import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.ops.operation.BinaryOperation;
-import net.imglib2.ops.operation.SubsetOperations;
-import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.AbstractRegionGrowing;
-import net.imglib2.roi.labeling.ImgLabeling;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.type.numeric.integer.IntType;
-
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
@@ -86,6 +74,18 @@ import org.knime.knip.core.ops.labeling.WatershedWithSheds;
 import org.knime.knip.core.ops.labeling.WatershedWithThreshold;
 import org.knime.knip.core.util.MiscViews;
 import org.knime.knip.core.util.NeighborhoodUtils;
+
+import net.imagej.ImgPlus;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.Img;
+import net.imglib2.img.array.ArrayImgFactory;
+import net.imglib2.ops.operation.BinaryOperation;
+import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.AbstractRegionGrowing;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.type.numeric.integer.IntType;
 
 /**
  *
@@ -243,7 +243,7 @@ public class WatershedNodeFactory<T extends RealType<T>, L> extends
             protected LabelingCell<?> compute(final ImgPlusValue<T> cellValue1, final LabelingValue<L> cellValue2)
                     throws Exception {
                 RandomAccessibleInterval<LabelingType<L>> lab = cellValue2.getLabeling();
-                final ImgPlus<T> img = cellValue1.getImgPlus();
+                final ImgPlus<T> img = cellValue1.getZeroMinImgPlus();
                 final ImgLabeling<?, ?> out;
 
                 if (m_virtualExtend.getBooleanValue()) {

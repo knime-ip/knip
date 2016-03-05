@@ -50,16 +50,6 @@ package org.knime.knip.base.nodes.proc.ucm;
 
 import java.util.List;
 
-import net.imagej.ImgPlus;
-import net.imagej.ops.MetadataUtil;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.Img;
-import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.ops.operation.SubsetOperations;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.type.numeric.real.FloatType;
-
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
@@ -72,6 +62,16 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.TwoValuesToCellNodeModel;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
+
+import net.imagej.ImgPlus;
+import net.imagej.ops.MetadataUtil;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.Img;
+import net.imglib2.img.array.ArrayImgFactory;
+import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.type.numeric.real.FloatType;
 
 /**
  * {@link NodeModel} for {@link UCMOp}
@@ -143,7 +143,7 @@ public class UCMNodeModel<T extends RealType<T>, L extends Comparable<L>> extend
 
         // containers to work on
         final RandomAccessibleInterval<LabelingType<L>> labeling = cellValue.getLabeling();
-        final ImgPlus<T> inImg = img.getImgPlus();
+        final ImgPlus<T> inImg = img.getZeroMinImgPlus();
         final Img<FloatType> result = new ArrayImgFactory<FloatType>().create(cellValue.getLabeling(), new FloatType());
 
         // create new UCMOp with parameters

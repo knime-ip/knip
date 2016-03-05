@@ -51,10 +51,6 @@ package org.knime.knip.base.nodes.misc;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.imglib2.Cursor;
-import net.imglib2.img.Img;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.data.DataType;
 import org.knime.core.data.collection.CollectionCellFactory;
 import org.knime.core.data.collection.ListCell;
@@ -64,6 +60,10 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
+
+import net.imglib2.Cursor;
+import net.imglib2.img.Img;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * Converts an {@link Img} to a Collection of {@link DoubleCell}s
@@ -82,7 +82,7 @@ public class ImgToDataRowNodeFactory<T extends RealType<T>> extends ValueToCellN
             @Override
             protected ListCell compute(final ImgPlusValue<T> cellValue) throws Exception {
 
-                Cursor<T> cursor = cellValue.getImgPlus().cursor();
+                Cursor<T> cursor = cellValue.getZeroMinImgPlus().cursor();
 
                 List<DoubleCell> list = new ArrayList<DoubleCell>();
                 while (cursor.hasNext()) {

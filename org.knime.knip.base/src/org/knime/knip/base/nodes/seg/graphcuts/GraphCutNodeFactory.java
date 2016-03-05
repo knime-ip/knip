@@ -53,13 +53,6 @@ import java.util.List;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.imagej.ImgPlus;
-import net.imglib2.img.Img;
-import net.imglib2.ops.operation.Operations;
-import net.imglib2.ops.operation.SubsetOperations;
-import net.imglib2.type.logic.BitType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
@@ -83,6 +76,13 @@ import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.ops.seg.GraphCut2D;
 import org.knime.knip.core.ops.seg.GraphCut2DLab;
+
+import net.imagej.ImgPlus;
+import net.imglib2.img.Img;
+import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.type.logic.BitType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  *
@@ -295,7 +295,7 @@ public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
             @Override
             protected ImgPlusCell<BitType> compute(final ImgPlusValue<T> cellValue1, final LabelingValue<L> cellValue2)
                     throws Exception {
-                final ImgPlus<T> imgPlus = cellValue1.getImgPlus();
+                final ImgPlus<T> imgPlus = cellValue1.getZeroMinImgPlus();
                 final int[] selectedDims = m_dimSelection.getSelectedDimIndices(imgPlus.numDimensions(), imgPlus);
                 final int[] selectedFeatDims =
                         m_featDimSelection.getSelectedDimIndices(imgPlus.numDimensions(), imgPlus);

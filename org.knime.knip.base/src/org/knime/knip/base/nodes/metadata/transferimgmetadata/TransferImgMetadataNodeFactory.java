@@ -50,10 +50,6 @@ package org.knime.knip.base.nodes.metadata.transferimgmetadata;
 
 import java.util.List;
 
-import net.imagej.ImgPlus;
-import net.imglib2.ops.util.MetadataUtil;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.knip.base.data.img.ImgPlusCell;
@@ -63,11 +59,16 @@ import org.knime.knip.base.node.TwoValuesToCellNodeDialog;
 import org.knime.knip.base.node.TwoValuesToCellNodeFactory;
 import org.knime.knip.base.node.TwoValuesToCellNodeModel;
 
+import net.imagej.ImgPlus;
+import net.imglib2.ops.util.MetadataUtil;
+import net.imglib2.type.numeric.RealType;
+
 /**
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @param <T>
  */
 public class TransferImgMetadataNodeFactory<T extends RealType<T>> extends
         TwoValuesToCellNodeFactory<ImgPlusValue<T>, ImgPlusValue<T>> {
@@ -75,6 +76,7 @@ public class TransferImgMetadataNodeFactory<T extends RealType<T>> extends
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("deprecation")
     @Override
     protected TwoValuesToCellNodeDialog<ImgPlusValue<T>, ImgPlusValue<T>> createNodeDialog() {
         return new TwoValuesToCellNodeDialog<ImgPlusValue<T>, ImgPlusValue<T>>() {

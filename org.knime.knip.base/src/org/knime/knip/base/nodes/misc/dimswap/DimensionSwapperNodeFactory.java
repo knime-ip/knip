@@ -50,12 +50,6 @@ package org.knime.knip.base.nodes.misc.dimswap;
 
 import java.util.List;
 
-import net.imagej.ImgPlus;
-import net.imagej.axis.TypedAxis;
-import net.imglib2.img.ImgView;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.view.Views;
-
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
@@ -68,6 +62,12 @@ import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.core.ops.metadata.DimSwapper;
+
+import net.imagej.ImgPlus;
+import net.imagej.axis.TypedAxis;
+import net.imglib2.img.ImgView;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
 
 /**
  *
@@ -128,7 +128,7 @@ public class DimensionSwapperNodeFactory<T extends RealType<T>> extends ValueToC
 
             @Override
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
-                final ImgPlus<T> img = cellValue.getImgPlus();
+                final ImgPlus<T> img = cellValue.getZeroMinImgPlus();
                 long[] minimum = new long[img.numDimensions()];
                 img.min(minimum);
 

@@ -333,7 +333,7 @@ public class SplitterNodeModel<T extends RealType<T>> extends NodeModel implemen
                 continue;
             }
 
-            final ImgPlus<T> img = ((ImgPlusValue<T>)row.getCell(m_colIndex)).getImgPlus();
+            final ImgPlus<T> img = ((ImgPlusValue<T>)row.getCell(m_colIndex)).getZeroMinImgPlus();
 
             final DataCell[] cells = new DataCell[splitIntervals.length];
 

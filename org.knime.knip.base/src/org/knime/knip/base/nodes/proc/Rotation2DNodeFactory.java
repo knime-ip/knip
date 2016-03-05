@@ -53,12 +53,6 @@ import java.util.List;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.imagej.ImgPlus;
-import net.imglib2.ops.operation.Operations;
-import net.imglib2.ops.operation.img.unary.ImgRotate2D;
-import net.imglib2.ops.operation.iterable.unary.Min;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
@@ -75,6 +69,12 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
+
+import net.imagej.ImgPlus;
+import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.operation.img.unary.ImgRotate2D;
+import net.imglib2.ops.operation.iterable.unary.Min;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * NodeFactory to rotate images in 2d
@@ -200,7 +200,7 @@ public class Rotation2DNodeFactory<T extends RealType<T>> extends ValueToCellNod
 
             @Override
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
-                final ImgPlus<T> srcImg = cellValue.getImgPlus();
+                final ImgPlus<T> srcImg = cellValue.getZeroMinImgPlus();
 
                 final int[] dimIndices = m_dimSelection.getSelectedDimIndices(srcImg);
                 if (dimIndices.length != 2) {

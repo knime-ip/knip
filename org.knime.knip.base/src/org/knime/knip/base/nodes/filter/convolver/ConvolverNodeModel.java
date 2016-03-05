@@ -52,16 +52,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import net.imagej.ImgPlus;
-import net.imglib2.img.Img;
-import net.imglib2.img.ImgView;
-import net.imglib2.ops.operation.Operations;
-import net.imglib2.ops.operation.SubsetOperations;
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.type.numeric.real.DoubleType;
-import net.imglib2.type.numeric.real.FloatType;
-
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataTable;
@@ -83,6 +73,16 @@ import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.algorithm.convolvers.KernelTools;
 import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
+
+import net.imagej.ImgPlus;
+import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
+import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.type.numeric.real.DoubleType;
+import net.imglib2.type.numeric.real.FloatType;
 
 /**
  * TODO Auto-generated
@@ -107,8 +107,8 @@ public class ConvolverNodeModel<T extends RealType<T>, O extends RealType<O>, K 
     }
 
     protected static SettingsModelString createImplementationModel() {
-        return new SettingsModelString("implementation", MultiKernelImageConvolverManager.getConvolverNames()
-                .iterator().next());
+        return new SettingsModelString("implementation",
+                MultiKernelImageConvolverManager.getConvolverNames().iterator().next());
     }
 
     protected static SettingsModelString createKernelColumnModel() {
@@ -172,9 +172,11 @@ public class ConvolverNodeModel<T extends RealType<T>, O extends RealType<O>, K 
     protected ImgPlusCell<O> compute(final ImgPlusValue<T> cellValue) throws Exception {
 
         final ImgPlus<T> in =
-                new ImgPlus<T>(new ImgView<T>(SubsetOperations.subsetview(cellValue.getImgPlus().getImg(),
-                                                                          cellValue.getImgPlus().getImg()), cellValue
-                        .getImgPlus().getImg().factory()), cellValue.getImgPlus());
+                new ImgPlus<T>(ImgView.wrap(
+                                            SubsetOperations.subsetview(cellValue.getZeroMinImgPlus().getImg(),
+                                                                        cellValue.getZeroMinImgPlus().getImg()),
+                                            cellValue.getZeroMinImgPlus().getImg().factory()),
+                        cellValue.getImgPlus());
 
         final Img<K>[] currentKernels = new Img[m_kernelList.length];
 
@@ -205,9 +207,8 @@ public class ConvolverNodeModel<T extends RealType<T>, O extends RealType<O>, K 
             m_kernelColumnIdx = ((DataTableSpec)inSpecs[1]).findColumnIndex(m_smKernelColumn.getStringValue());
         }
         if ((m_kernelColumnIdx == -1) && (inSpecs[1] != null)) {
-            if ((m_kernelColumnIdx =
-                    NodeUtils.autoOptionalColumnSelection((DataTableSpec)inSpecs[1], m_smKernelColumn,
-                                                          ImgPlusValue.class)) >= 0) {
+            if ((m_kernelColumnIdx = NodeUtils.autoOptionalColumnSelection((DataTableSpec)inSpecs[1], m_smKernelColumn,
+                                                                           ImgPlusValue.class)) >= 0) {
                 setWarningMessage("Auto-configure Column: " + m_smKernelColumn.getStringValue());
             } else {
                 throw new InvalidSettingsException("No column selected!");

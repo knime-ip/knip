@@ -54,13 +54,6 @@ import java.util.List;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.imagej.ImgPlus;
-import net.imglib2.Cursor;
-import net.imglib2.roi.labeling.ImgLabeling;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.IntegerType;
-
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
@@ -84,6 +77,13 @@ import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
 import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.util.EnumUtils;
+
+import net.imagej.ImgPlus;
+import net.imglib2.Cursor;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.IntegerType;
 
 /**
  * NodeFactory for the Lab2Table Node
@@ -208,7 +208,7 @@ public class ImgToLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>> 
             @Override
             protected LabelingCell<Integer> compute(final ImgPlusValue<T> cellValue) throws IOException {
 
-                final ImgPlus<T> img = cellValue.getImgPlus();
+                final ImgPlus<T> img = cellValue.getZeroMinImgPlus();
                 if (!(img.firstElement() instanceof IntegerType)) {
                     throw new KNIPRuntimeException(
                             "Only Images of type IntegerType can be converted into a Labeling. Use the converter to convert your Image e.g. to ShortType, IntType, ByteType or BitType.");

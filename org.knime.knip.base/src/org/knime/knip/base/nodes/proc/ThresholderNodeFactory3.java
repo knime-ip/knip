@@ -187,7 +187,7 @@ public class ThresholderNodeFactory3<T extends RealType<T>, L extends Comparable
             @SuppressWarnings("unchecked")
             @Override
             protected ImgPlusCell<BitType> compute(final ImgPlusValue<T> cellValue) throws Exception {
-                ImgPlus<T> img = cellValue.getImgPlus();
+                ImgPlus<T> img = cellValue.getZeroMinImgPlus();
                 if (img.firstElement() instanceof BitType) {
                     super.setWarningMessage("Image of type 'BitType' remain untouched.");
                     return m_cellFactory.createCell((ImgPlus<BitType>)img);

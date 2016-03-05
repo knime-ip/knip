@@ -50,6 +50,18 @@ package org.knime.knip.base.nodes.proc.resizer;
 
 import java.util.List;
 
+import org.knime.core.node.ExecutionContext;
+import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
+import org.knime.core.node.defaultnodesettings.SettingsModel;
+import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.knip.base.data.img.ImgPlusCell;
+import org.knime.knip.base.data.img.ImgPlusCellFactory;
+import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.base.node.ValueToCellNodeDialog;
+import org.knime.knip.base.node.ValueToCellNodeFactory;
+import org.knime.knip.base.node.ValueToCellNodeModel;
+import org.knime.knip.core.util.EnumUtils;
+
 import net.imagej.ImgPlus;
 import net.imagej.ImgPlusMetadata;
 import net.imagej.axis.DefaultLinearAxis;
@@ -65,18 +77,6 @@ import net.imglib2.realtransform.RealViews;
 import net.imglib2.realtransform.Scale;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
-
-import org.knime.core.node.ExecutionContext;
-import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
-import org.knime.core.node.defaultnodesettings.SettingsModel;
-import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.knime.knip.base.data.img.ImgPlusCell;
-import org.knime.knip.base.data.img.ImgPlusCellFactory;
-import org.knime.knip.base.data.img.ImgPlusValue;
-import org.knime.knip.base.node.ValueToCellNodeDialog;
-import org.knime.knip.base.node.ValueToCellNodeFactory;
-import org.knime.knip.base.node.ValueToCellNodeModel;
-import org.knime.knip.core.util.EnumUtils;
 
 /**
  * Resizer Node
@@ -189,7 +189,7 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
             @Override
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
 
-                ImgPlus<T> img = cellValue.getImgPlus();
+                ImgPlus<T> img = cellValue.getZeroMinImgPlus();
 
                 ImgPlusMetadata metadata = cellValue.getMetadata();
 

@@ -55,15 +55,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import net.imglib2.Interval;
-import net.imglib2.RandomAccess;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.Img;
-import net.imglib2.iterator.IntervalIterator;
-import net.imglib2.type.logic.BitType;
-import net.imglib2.util.Intervals;
-import net.imglib2.view.Views;
-
 import org.knime.base.node.parallel.appender.AppendColumn;
 import org.knime.base.node.parallel.appender.ColumnDestination;
 import org.knime.base.node.parallel.appender.ExtendedCellFactory;
@@ -89,6 +80,15 @@ import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.NodeUtils;
+
+import net.imglib2.Interval;
+import net.imglib2.RandomAccess;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.Img;
+import net.imglib2.iterator.IntervalIterator;
+import net.imglib2.type.logic.BitType;
+import net.imglib2.util.Intervals;
+import net.imglib2.view.Views;
 
 /**
  * Node to estimate the maximum relative pixel agreement of a list of segments according to a list of reference
@@ -287,7 +287,7 @@ public class CompareSegmentsNodeModel extends ThreadedColAppenderNodeModel {
 
     private int numPix(final ImgPlusValue<BitType> val) {
         int numPix = 0;
-        for (BitType t : val.getImgPlus()) {
+        for (BitType t : val.getZeroMinImgPlus()) {
             if (t.get()) {
                 numPix++;
             }

@@ -170,7 +170,7 @@ public class ColorspaceConvertNodeFactory<T extends RealType<T>> extends ValueTo
 
             @Override
             protected ImgPlusCell<FloatType> compute(final ImgPlusValue<T> cellValue) throws Exception {
-                ImgPlus<T> img = cellValue.getImgPlus();
+                ImgPlus<T> img = cellValue.getZeroMinImgPlus();
                 //create float image for convenience
                 Img<FloatType> res = KNIPGateway.ops().create().img(img, new FloatType());
                 int[] selDims = m_dimSel.getSelectedDimIndices(img);
