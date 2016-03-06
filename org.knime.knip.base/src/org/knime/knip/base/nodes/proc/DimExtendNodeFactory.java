@@ -147,6 +147,8 @@ public class DimExtendNodeFactory<T extends RealType<T>> extends ValueToCellNode
                 res = new ImgPlus<T>(ImgView.wrap(Views.translate(res, newMinimum), fromCell.factory()), res);
 
                 res.setName(cellValue.getMetadata().getName());
+                res.setSource(cellValue.getMetadata().getSource());
+
 
                 return m_imgCellFactory.createCell(res);
             }

@@ -105,6 +105,9 @@ public class Remove1DimNodeFactory<T extends RealType<T> & NativeType<T>> extend
                     res = MiscViews.cleanImgPlus(fromCell);
                 }
 
+                res.setSource(fromCell.getSource());
+                res.setName(fromCell.getName());
+
                 return m_imgCellFactory.createCell(res);
             }
 
