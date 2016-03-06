@@ -80,7 +80,9 @@ public abstract class IterableIntervalsNodeFactory<T extends RealType<T>, V exte
 
     /**
      * {@inheritDoc}
+     * @deprecated
      */
+    @Deprecated
     @Override
     protected abstract IterableIntervalsNodeDialog<T> createNodeDialog();
 

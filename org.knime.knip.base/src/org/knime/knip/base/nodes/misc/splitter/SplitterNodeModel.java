@@ -333,7 +333,7 @@ public class SplitterNodeModel<T extends RealType<T>> extends NodeModel implemen
                 continue;
             }
 
-            final ImgPlus<T> img = ((ImgPlusValue<T>)row.getCell(m_colIndex)).getZeroMinImgPlus();
+            final ImgPlus<T> fromCell = ((ImgPlusValue<T>)row.getCell(m_colIndex)).getImgPlus();
 
             final DataCell[] cells = new DataCell[splitIntervals.length];
 
@@ -345,25 +345,25 @@ public class SplitterNodeModel<T extends RealType<T>> extends NodeModel implemen
                 tmp.min(tmpMin);
                 tmp.max(tmpMax);
                 for (int j = 0; j < completelySelectedDims.length; j++) {
-                    tmpMin[completelySelectedDims[j]] = 0;
-                    tmpMax[completelySelectedDims[j]] = img.max(completelySelectedDims[j]);
+                    tmpMin[completelySelectedDims[j]] = fromCell.min(completelySelectedDims[j]);
+                    tmpMax[completelySelectedDims[j]] = fromCell.max(completelySelectedDims[j]);
                 }
                 final Interval interval = new FinalInterval(tmpMin, tmpMax);
 
                 // create subimg view
-                final Img<T> subImg = new ImgView<T>(SubsetOperations.subsetview(img, interval), img.factory());
+                final Img<T> subImg = ImgView.wrap(SubsetOperations.subsetview(fromCell, interval), fromCell.factory());
 
                 final CalibratedSpace<CalibratedAxis> typedSpace = new DefaultCalibratedSpace(subImg.numDimensions());
                 int d = 0;
                 //TODO: What about other CalibratedSpaces (not LinearSpace)?
                 for (int d0 = 0; d0 < axes.length; d0++) {
                     if (interval.dimension(d0) != 1) {
-                        typedSpace.setAxis(new DefaultLinearAxis(axes[d0].type(), img.axis(d0).averageScale(0, 1)),
+                        typedSpace.setAxis(new DefaultLinearAxis(axes[d0].type(), fromCell.axis(d0).averageScale(0, 1)),
                                            d++);
                     }
                 }
 
-                final ImgPlusMetadata metadata = new DefaultImgMetadata(typedSpace, img, img, img);
+                final ImgPlusMetadata metadata = new DefaultImgMetadata(typedSpace, fromCell, fromCell, fromCell);
                 cells[intervalIdx] = imgCellFactory.createCell(new ImgPlus(subImg, metadata));
             }
 

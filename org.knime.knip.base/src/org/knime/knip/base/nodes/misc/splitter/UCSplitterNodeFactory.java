@@ -52,18 +52,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import net.imagej.ImgPlus;
-import net.imagej.ImgPlusMetadata;
-import net.imagej.axis.CalibratedAxis;
-import net.imagej.space.CalibratedSpace;
-import net.imagej.space.DefaultCalibratedSpace;
-import net.imglib2.Interval;
-import net.imglib2.img.Img;
-import net.imglib2.img.ImgView;
-import net.imglib2.ops.operation.SubsetOperations;
-import net.imglib2.ops.operation.interval.binary.IntervalsFromDimSelection;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.data.DataType;
 import org.knime.core.data.collection.CollectionCellFactory;
 import org.knime.core.data.collection.ListCell;
@@ -79,14 +67,25 @@ import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
 
+import net.imagej.ImgPlus;
+import net.imagej.axis.CalibratedAxis;
+import net.imagej.space.CalibratedSpace;
+import net.imagej.space.DefaultCalibratedSpace;
+import net.imglib2.Interval;
+import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
+import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.ops.operation.interval.binary.IntervalsFromDimSelection;
+import net.imglib2.type.numeric.RealType;
+
 /**
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class UCSplitterNodeFactory<T extends RealType<T>> extends
-        GenericValueToCellNodeFactory<ImgPlusValue<T>, ValueToCellNodeModel<ImgPlusValue<T>, ListCell>> {
+public class UCSplitterNodeFactory<T extends RealType<T>>
+        extends GenericValueToCellNodeFactory<ImgPlusValue<T>, ValueToCellNodeModel<ImgPlusValue<T>, ListCell>> {
 
     private static SettingsModelDimSelection createDimSelectionModel() {
         return new SettingsModelDimSelection("dim_selection", "X", "Y");
@@ -101,8 +100,8 @@ public class UCSplitterNodeFactory<T extends RealType<T>> extends
 
             @Override
             public void addDialogComponents() {
-                addDialogComponent("Options", "", new DialogComponentDimSelection(createDimSelectionModel(),
-                        "Dimensions selection"));
+                addDialogComponent("Options", "",
+                                   new DialogComponentDimSelection(createDimSelectionModel(), "Dimensions selection"));
 
             }
         };
@@ -127,16 +126,15 @@ public class UCSplitterNodeFactory<T extends RealType<T>> extends
             @Override
             protected ListCell compute(final ImgPlusValue<T> cellValue) throws Exception {
                 final ImgPlus<T> img = cellValue.getImgPlus();
-                final Interval[] tmp =
-                        IntervalsFromDimSelection
-                                .compute(m_dimSelection.getSelectedDimIndices(img.numDimensions(), img), img);
+                final Interval[] tmp = IntervalsFromDimSelection
+                        .compute(m_dimSelection.getSelectedDimIndices(img.numDimensions(), img), img);
                 final Collection<ImgPlusCell<T>> cells = new ArrayList<ImgPlusCell<T>>(tmp.length);
 
                 for (int i = 0; i < tmp.length; i++) {
 
                     // TODO Test it here
                     final Img<T> subImg =
-                            new ImgView<T>(SubsetOperations.subsetview(img.getImg(), tmp[i]), img.factory());
+                            ImgView.wrap(SubsetOperations.subsetview(img.getImg(), tmp[i]), img.factory());
 
                     final CalibratedSpace<CalibratedAxis> cSpace = new DefaultCalibratedSpace(subImg.numDimensions());
                     final CalibratedAxis[] axes = new CalibratedAxis[img.numDimensions()];
@@ -148,9 +146,8 @@ public class UCSplitterNodeFactory<T extends RealType<T>> extends
                         }
                     }
 
-                    final ImgPlusMetadata metadata = new DefaultImgMetadata(cSpace, img, img, img);
-
-                    cells.add(m_imgCellFactory.createCell(new ImgPlus(subImg, metadata)));
+                    cells.add(m_imgCellFactory
+                            .createCell(new ImgPlus(subImg, new DefaultImgMetadata(cSpace, img, img, img))));
                 }
 
                 return CollectionCellFactory.createListCell(cells);

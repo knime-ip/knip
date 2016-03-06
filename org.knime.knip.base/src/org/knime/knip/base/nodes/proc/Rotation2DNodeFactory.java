@@ -69,6 +69,7 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
+import org.knime.knip.core.util.CellUtil;
 
 import net.imagej.ImgPlus;
 import net.imglib2.ops.operation.Operations;
@@ -134,8 +135,10 @@ public class Rotation2DNodeFactory<T extends RealType<T>> extends ValueToCellNod
                 addDialogComponent("Options", "", new DialogComponentDimSelection(createDimSelectionModel(),
                         "Rotation dimensions", 2, 2));
                 addDialogComponent("Options", "", new DialogComponentBoolean(createKeepSizeModel(), "Keep size"));
-                addDialogComponent("Options", "", new DialogComponentNumber(createCenterDim1Model(), "Center Dim 1", 1));
-                addDialogComponent("Options", "", new DialogComponentNumber(createCenterDim2Model(), "Center Dim 2", 1));
+                addDialogComponent("Options", "",
+                                   new DialogComponentNumber(createCenterDim1Model(), "Center Dim 1", 1));
+                addDialogComponent("Options", "",
+                                   new DialogComponentNumber(createCenterDim2Model(), "Center Dim 2", 1));
 
                 addDialogComponent("Options", "Background", useManualValue);
                 addDialogComponent("Options", "Background", manualNumber);
@@ -144,8 +147,8 @@ public class Rotation2DNodeFactory<T extends RealType<T>> extends ValueToCellNod
 
                     @Override
                     public void stateChanged(final ChangeEvent arg0) {
-                        manualNumber.getModel().setEnabled(((SettingsModelBoolean)useManualValue.getModel())
-                                                                   .getBooleanValue());
+                        manualNumber.getModel()
+                                .setEnabled(((SettingsModelBoolean)useManualValue.getModel()).getBooleanValue());
                     }
                 });
             }
@@ -200,7 +203,8 @@ public class Rotation2DNodeFactory<T extends RealType<T>> extends ValueToCellNod
 
             @Override
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
-                final ImgPlus<T> srcImg = cellValue.getZeroMinImgPlus();
+                //TODO: we should also rotate the minimum..
+                final ImgPlus<T> srcImg = CellUtil.getZeroMinImgPlus(cellValue.getImgPlus());
 
                 final int[] dimIndices = m_dimSelection.getSelectedDimIndices(srcImg);
                 if (dimIndices.length != 2) {
@@ -221,9 +225,8 @@ public class Rotation2DNodeFactory<T extends RealType<T>> extends ValueToCellNod
                 } else {
                     min.setReal(m_backgroundValue.getDoubleValue());
                 }
-                final ImgRotate2D<T> rot =
-                        new ImgRotate2D<T>(m_angle.getDoubleValue(), dimIndices[0], dimIndices[1],
-                                m_keepSize.getBooleanValue(), min, center);
+                final ImgRotate2D<T> rot = new ImgRotate2D<T>(m_angle.getDoubleValue(), dimIndices[0], dimIndices[1],
+                        m_keepSize.getBooleanValue(), min, center);
 
                 return m_imgCellFactory.createCell(new ImgPlus<>(Operations.compute(rot, srcImg), srcImg));
             }

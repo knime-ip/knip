@@ -52,15 +52,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import net.imagej.ImgPlus;
-import net.imglib2.Cursor;
-import net.imglib2.RandomAccess;
-import net.imglib2.roi.labeling.ImgLabeling;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.type.numeric.integer.IntType;
-import net.imglib2.view.Views;
-
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
@@ -82,8 +73,18 @@ import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.ops.labeling.ImgProbabilitySeeds;
 import org.knime.knip.core.ops.labeling.RandomSeeds;
 import org.knime.knip.core.ops.labeling.RegularGridSeeds;
+import org.knime.knip.core.util.CellUtil;
 import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.NeighborhoodUtils;
+
+import net.imagej.ImgPlus;
+import net.imglib2.Cursor;
+import net.imglib2.RandomAccess;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.type.numeric.integer.IntType;
+import net.imglib2.view.Views;
 
 /**
  * TODO Auto-generated
@@ -161,10 +162,13 @@ public class SeedGeneratorNodeFactory<T extends RealType<T>> extends ValueToCell
             }
 
             @Override
-            protected LabelingCell<Integer> compute(final ImgPlusValue<T> cell) throws Exception {
-                final ImgPlus<T> input = cell.getImgPlus();
+            protected LabelingCell<Integer> compute(final ImgPlusValue<T> cellValue) throws Exception {
+
+                final ImgPlus<T> fromCell = cellValue.getImgPlus();
+                final ImgPlus<T> zeroMinFromCell = CellUtil.getZeroMinImgPlus(fromCell);
+
                 final ImgLabeling<Integer, IntType> output =
-                        KNIPGateway.ops().create().imgLabeling(cell.getImgPlus(), new IntType());
+                        KNIPGateway.ops().create().imgLabeling(zeroMinFromCell, new IntType());
 
                 if (m_smSeedGenerator.getStringValue().equals(SeedGenerator.Image_Probability.name())) {
                     /*
@@ -176,7 +180,7 @@ public class SeedGeneratorNodeFactory<T extends RealType<T>> extends ValueToCell
                      * efficiency
                      */
                     new ImgProbabilitySeeds<T, Integer>(new IntegerLabelGenerator(), m_smDistance.getIntValue())
-                            .compute(input, output);
+                            .compute(zeroMinFromCell, output);
 
                 } else if (m_smSeedGenerator.getStringValue().equals(SeedGenerator.Random_Seeds.name())) {
 
@@ -184,21 +188,20 @@ public class SeedGeneratorNodeFactory<T extends RealType<T>> extends ValueToCell
                      * random seed with a certain average
                      * distance
                      */
-                    new RandomSeeds<Integer>(new IntegerLabelGenerator(), m_smDistance.getIntValue()).compute(input,
-                                                                                                              output);
+                    new RandomSeeds<Integer>(new IntegerLabelGenerator(), m_smDistance.getIntValue())
+                            .compute(zeroMinFromCell, output);
 
                 } else {
                     new RegularGridSeeds<Integer>(new IntegerLabelGenerator(), m_smDistance.getIntValue())
-                            .compute(input, output);
+                            .compute(zeroMinFromCell, output);
                 }
 
                 // move the seed to the minimum in its
                 // 8-neigborhood
                 if (m_smMoveToMin.getBooleanValue()) {
-                    final long[][] strelMoves =
-                            NeighborhoodUtils.reworkStructuringElement(NeighborhoodUtils
-                                    .get8ConStructuringElement(output.numDimensions()));
-                    final RandomAccess<T> ra = Views.extendBorder(input).randomAccess();
+                    final long[][] strelMoves = NeighborhoodUtils.reworkStructuringElement(NeighborhoodUtils
+                            .get8ConStructuringElement(output.numDimensions()));
+                    final RandomAccess<T> ra = Views.extendBorder(zeroMinFromCell).randomAccess();
                     final Cursor<LabelingType<Integer>> labCur = output.localizingCursor();
                     final RandomAccess<LabelingType<Integer>> labRA = Views.extendBorder(output).randomAccess();
 
@@ -240,8 +243,9 @@ public class SeedGeneratorNodeFactory<T extends RealType<T>> extends ValueToCell
 
                 }
 
-                return m_labCellFactory.createCell(output, new DefaultLabelingMetadata(input, input, input,
-                        new DefaultLabelingColorTable()));
+                return m_labCellFactory.createCell(CellUtil.getTranslatedLabeling(fromCell, output),
+                                                   new DefaultLabelingMetadata(zeroMinFromCell, zeroMinFromCell,
+                                                           zeroMinFromCell, new DefaultLabelingColorTable()));
             }
 
             /**

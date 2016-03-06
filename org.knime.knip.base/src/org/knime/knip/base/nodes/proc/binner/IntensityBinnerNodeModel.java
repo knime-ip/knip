@@ -62,6 +62,7 @@ import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.core.KNIPGateway;
+import org.knime.knip.core.util.CellUtil;
 
 import net.imagej.ImgPlus;
 import net.imglib2.Cursor;
@@ -118,14 +119,17 @@ public class IntensityBinnerNodeModel<T1 extends RealType<T1>, T2 extends RealTy
      */
     @Override
     protected ImgPlusCell<T2> compute(final ImgPlusValue<T1> cellValue) throws Exception {
-        ImgPlus<T1> img = cellValue.getImgPlus();
-        Img<T2> res = KNIPGateway.ops().create().img(img, m_resType);
+        final ImgPlus<T1> fromCell = cellValue.getImgPlus();
+        final ImgPlus<T1> zeroMinFromCell = CellUtil.getZeroMinImgPlus(fromCell);
+
+        Img<T2> res = KNIPGateway.ops().create().img(zeroMinFromCell, m_resType);
         Cursor<T2> resCur = res.cursor();
-        for (T1 type : img) {
+        for (T1 type : zeroMinFromCell) {
             resCur.fwd();
             m_bins.covers(type, resCur.get());
         }
-        return m_imgCellFactory.createCell(new ImgPlus<T2>(res, img));
+        return m_imgCellFactory
+                .createCell(CellUtil.getTranslatedImgPlus(fromCell, new ImgPlus<T2>(res, zeroMinFromCell)));
     }
 
     /**

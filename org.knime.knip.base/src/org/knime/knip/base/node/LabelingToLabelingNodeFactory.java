@@ -62,12 +62,15 @@ import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
  * @param <L1>
  * @param <L2>
  */
-public abstract class LabelingToLabelingNodeFactory<L1 extends Comparable<L1>, L2 extends Comparable<L2>> extends
-        ValueToCellNodeFactory<LabelingValue<L1>> {
+public abstract class LabelingToLabelingNodeFactory<L1 extends Comparable<L1>, L2 extends Comparable<L2>>
+        extends ValueToCellNodeFactory<LabelingValue<L1>> {
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated
      */
+    @Deprecated
     @Override
     protected LabelingToLabelingNodeDialog<L1> createNodeDialog() {
         return new LabelingToLabelingNodeDialog<L1>(2, 2, "X", "Y") {

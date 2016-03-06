@@ -59,7 +59,6 @@ import net.imagej.space.TypedSpace;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.ImgFactory;
 import net.imglib2.img.ImgView;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.util.MetadataUtil;
@@ -85,23 +84,29 @@ public class MiscViews {
      */
     public static <T extends Type<T>> ImgPlus<T> cleanImgPlus(final ImgPlus<T> ret) {
 
-        if (!hasSizeOneDims(ret)) {
+        final List<Integer> oneSizedDims = getOneSizeDims(ret);
+        if (oneSizedDims.size() == 0) {
             return ret;
         }
 
-        ImgPlus<T> imgPlusView =
-                new ImgPlus<T>(new ImgView<T>(SubsetOperations.subsetview(ret.getImg(), ret.getImg()), ret.factory()));
+        final ImgPlus<T> imgPlusView =
+                new ImgPlus<T>(ImgView.wrap(SubsetOperations.subsetview(ret.getImg(), ret.getImg()), ret.factory()));
         MetadataUtil.copyAndCleanImgPlusMetadata(ret, ret, imgPlusView);
-        return imgPlusView;
-    }
 
-    public static <T extends Type<T>> ImgView<T> imgView(final RandomAccessibleInterval<T> randAccessible,
-                                                         final ImgFactory<T> fac) {
-        if (randAccessible instanceof ImgView) {
-            return (ImgView<T>)randAccessible;
-        } else {
-            return new ImgView<T>(randAccessible, fac);
+        final long[] oldMin = Intervals.minAsLongArray(ret);
+        final long[] newMin = new long[oldMin.length];
+
+        int offset = 0;
+        for (int i = 0; i < oldMin.length; i++) {
+            if (oneSizedDims.contains(i)) {
+                offset++;
+            } else {
+                newMin[i - offset] = oldMin[i];
+            }
         }
+
+        return new ImgPlus<>(ImgView.wrap(Views.translate(imgPlusView.getImg(), newMin), imgPlusView.factory()),
+                imgPlusView);
     }
 
     /**
@@ -112,12 +117,12 @@ public class MiscViews {
      * @return Adjusted {@link RandomAccessibleInterval}
      */
     public static <T> RandomAccessibleInterval<T>
-            synchronizeDimensionality(RandomAccessibleInterval<T> src, final TypedSpace<? extends TypedAxis> srcSpace,
-                                      final Interval target, final TypedSpace<? extends TypedAxis> targetSpace) {
+           synchronizeDimensionality(RandomAccessibleInterval<T> src, final TypedSpace<? extends TypedAxis> srcSpace,
+                                     final Interval target, final TypedSpace<? extends TypedAxis> targetSpace) {
 
         // must hold, if not: most likely an implementation error
-        assert ((srcSpace.numDimensions() == src.numDimensions()) && (target.numDimensions() == targetSpace
-                .numDimensions()));
+        assert ((srcSpace.numDimensions() == src.numDimensions())
+                && (target.numDimensions() == targetSpace.numDimensions()));
 
         // Check direction of conversion
         if (Intervals.equals(src, target) && spaceEquals(srcSpace, targetSpace)) {
@@ -249,12 +254,14 @@ public class MiscViews {
     }
 
     // determine whether an interval has dimensions of size 1
-    private static boolean hasSizeOneDims(final Interval i) {
+    private static List<Integer> getOneSizeDims(final Interval i) {
+        final List<Integer> dims = new ArrayList<>();
+
         for (int d = 0; d < i.numDimensions(); d++) {
             if (i.dimension(d) == 1) {
-                return true;
+                dims.add(d);
             }
         }
-        return false;
+        return dims;
     }
 }

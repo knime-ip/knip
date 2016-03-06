@@ -64,6 +64,7 @@ import org.knime.knip.base.node.TwoValuesToCellNodeDialog;
 import org.knime.knip.base.node.TwoValuesToCellNodeFactory;
 import org.knime.knip.base.node.TwoValuesToCellNodeModel;
 import org.knime.knip.core.KNIPGateway;
+import org.knime.knip.core.util.CellUtil;
 import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.MiscViews;
 
@@ -179,28 +180,35 @@ public final class BinaryArithmeticNodeFactory
                     LOGGER.warn("Input images are not BitType. They will be processed anyway and treated as BitType images");
                 }
 
-                final ImgPlus<BitType> img1 = cellValue1.getImgPlus();
-                ImgPlus<BitType> img2 = cellValue2.getImgPlus();
+                final ImgPlus<BitType> fromCell1 = cellValue1.getImgPlus();
+                final ImgPlus<BitType> zeroMinFromCell1 = CellUtil.getZeroMinImgPlus(fromCell1);
+
+                final ImgPlus<BitType> fromCell2 = cellValue1.getImgPlus();
+                ImgPlus<BitType> zeroMinFromCell2 = CellUtil.getZeroMinImgPlus(fromCell2);
+
                 final Img<BitType> out = KNIPGateway.ops().create().img(cellValue1.getImgPlus());
 
                 if (m_synchronize.getBooleanValue()) {
-                    img2 = new ImgPlus<BitType>(
-                            ImgView.wrap(MiscViews.synchronizeDimensionality(img2, img2, img1, img1), img1.factory()),
-                            img1);
+                    zeroMinFromCell2 = new ImgPlus<BitType>(
+                            ImgView.wrap(MiscViews.synchronizeDimensionality(zeroMinFromCell2, zeroMinFromCell2,
+                                                                             zeroMinFromCell1, zeroMinFromCell1),
+                                         zeroMinFromCell1.factory()),
+                            zeroMinFromCell1);
                 }
 
                 IterableInterval<BitType> iiOut = out;
-                IterableInterval<BitType> iiIn1 = img1;
-                IterableInterval<BitType> iiIn2 = img2;
+                IterableInterval<BitType> iiIn1 = zeroMinFromCell1;
+                IterableInterval<BitType> iiIn2 = zeroMinFromCell2;
 
-                if (!Util.equalIterationOrder(img1, img2)) {
-                    iiIn1 = Views.flatIterable(img1);
-                    iiIn2 = Views.flatIterable(img2);
+                if (!Util.equalIterationOrder(zeroMinFromCell1, zeroMinFromCell2)) {
+                    iiIn1 = Views.flatIterable(zeroMinFromCell1);
+                    iiIn2 = Views.flatIterable(zeroMinFromCell2);
                     iiOut = Views.flatIterable(out);
                 }
                 m_op.compute(iiIn1, iiIn2, iiOut);
 
-                return m_imgCellFactory.createCell(new ImgPlus<>(out, cellValue1.getMetadata()));
+                return m_imgCellFactory.createCell(CellUtil
+                        .getTranslatedImgPlus(fromCell1, new ImgPlus<>(out, cellValue1.getMetadata())));
 
             }
 

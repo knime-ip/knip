@@ -77,6 +77,7 @@ import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
 import org.knime.knip.core.types.OutOfBoundsStrategyFactory;
+import org.knime.knip.core.util.CellUtil;
 
 import net.imagej.ImgPlus;
 import net.imagej.ops.MetadataUtil;
@@ -266,14 +267,16 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
     @SuppressWarnings("unchecked")
     @Override
     protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws KNIPException, IOException {
-        final ImgPlus<T> in = cellValue.getZeroMinImgPlus();
 
-        if ((m_structElement != null) && ((m_smDimensions.getSelectedDimIndices(in).length != m_structElement[0].length)
-                || (m_smDimensions.getSelectedDimIndices(in).length != m_structElement[0].length))) {
+        final ImgPlus<T> fromCell = cellValue.getImgPlus();
+        final ImgPlus<T> zeroMinFromCell = CellUtil.getZeroMinImgPlus(fromCell);
+
+        if ((m_structElement != null) && ((m_smDimensions.getSelectedDimIndices(zeroMinFromCell).length != m_structElement[0].length)
+                || (m_smDimensions.getSelectedDimIndices(zeroMinFromCell).length != m_structElement[0].length))) {
             throw new KNIPException("Structuring element must have the same dimensionality as the chosen dims");
         }
 
-        if (in.firstElement() instanceof BitType) {
+        if (zeroMinFromCell.firstElement() instanceof BitType) {
             try {
                 m_bitFac =
                         new UnaryObjectFactory<RandomAccessibleInterval<BitType>, RandomAccessibleInterval<BitType>>() {
@@ -282,7 +285,7 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
                             public Img<BitType> instantiate(final RandomAccessibleInterval<BitType> a) {
 
                                 try {
-                                    return in.factory().imgFactory(new BitType())
+                                    return zeroMinFromCell.factory().imgFactory(new BitType())
                                             .create(a, Views.iterable(a).firstElement().createVariable());
                                 } catch (IncompatibleTypeException e) {
                                     //TODO better error handling here
@@ -290,21 +293,21 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
                                 }
                             }
                         };
-                final Img<BitType> out = KNIPGateway.ops().create().img(in, new BitType());
+                final Img<BitType> out = KNIPGateway.ops().create().img(zeroMinFromCell, new BitType());
 
-                Img<BitType> inAsBitType = (Img<BitType>)in;
+                Img<BitType> inAsBitType = (Img<BitType>)zeroMinFromCell;
 
                 final UnaryOperation<RandomAccessibleInterval<BitType>, RandomAccessibleInterval<BitType>> op =
                         createOperationBit(m_structElement, OutOfBoundsStrategyFactory
                                 .getStrategy(m_smOutOfBoundsStrategy.getStringValue(), inAsBitType.firstElement()));
 
-                SubsetOperations.iterate(op, m_smDimensions.getSelectedDimIndices(in),
+                SubsetOperations.iterate(op, m_smDimensions.getSelectedDimIndices(zeroMinFromCell),
                                          new ImgView<BitType>(inAsBitType, inAsBitType.factory()), out,
                                          getExecutorService());
 
-                final ImgPlus res = new ImgPlus(out, in);
-                MetadataUtil.copySource(in, res);
-                return m_imgCellFactory.createCell(res);
+                final ImgPlus<T> res = new ImgPlus(out, zeroMinFromCell);
+                MetadataUtil.copySource(zeroMinFromCell, res);
+                return m_imgCellFactory.createCell(CellUtil.getTranslatedImgPlus(fromCell, res));
             } catch (final InterruptedException e) {
                 LOGGER.warn("Thread execution was interrupted", e);
                 throw new KNIPException(e.getMessage());
@@ -320,23 +323,23 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
                     @Override
                     public Img<T> instantiate(final RandomAccessibleInterval<T> a) {
 
-                        return in.factory().create(a, in.firstElement().createVariable());
+                        return zeroMinFromCell.factory().create(a, zeroMinFromCell.firstElement().createVariable());
                     }
                 };
 
-                final Img<T> out = (Img<T>)KNIPGateway.ops().run(CreateImgFromImg.class, in.getImg());
+                final Img<T> out = (Img<T>)KNIPGateway.ops().run(CreateImgFromImg.class, zeroMinFromCell.getImg());
                 final UnaryOperation<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> op =
-                        createOperationGray(m_structElement, m_smDimensions.getSelectedDimIndices(in).length,
+                        createOperationGray(m_structElement, m_smDimensions.getSelectedDimIndices(zeroMinFromCell).length,
                                             OutOfBoundsStrategyFactory.getStrategy(
                                                                                    m_smOutOfBoundsStrategy
                                                                                            .getStringValue(),
-                                                                                   in.firstElement()));
+                                                                                   zeroMinFromCell.firstElement()));
 
-                SubsetOperations.iterate(op, m_smDimensions.getSelectedDimIndices(in), new ImgView<T>(in, in.factory()),
+                SubsetOperations.iterate(op, m_smDimensions.getSelectedDimIndices(zeroMinFromCell), new ImgView<T>(zeroMinFromCell, zeroMinFromCell.factory()),
                                          out, getExecutorService());
-                final ImgPlus res = new ImgPlus(out, in);
-                MetadataUtil.copySource(in, res);
-                return m_imgCellFactory.createCell(res);
+                final ImgPlus<T> res = new ImgPlus(out, zeroMinFromCell);
+                MetadataUtil.copySource(zeroMinFromCell, res);
+                return m_imgCellFactory.createCell(CellUtil.getTranslatedImgPlus(fromCell, res));
             } catch (final InterruptedException e) {
                 LOGGER.warn("Thread execution was interrupted", e);
                 throw new KNIPException(e.getMessage());

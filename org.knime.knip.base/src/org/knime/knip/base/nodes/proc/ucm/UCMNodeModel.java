@@ -62,6 +62,7 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.TwoValuesToCellNodeModel;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
+import org.knime.knip.core.util.CellUtil;
 
 import net.imagej.ImgPlus;
 import net.imagej.ops.MetadataUtil;
@@ -82,8 +83,8 @@ import net.imglib2.type.numeric.real.FloatType;
  * @param <T>
  * @param <L>
  */
-public class UCMNodeModel<T extends RealType<T>, L extends Comparable<L>> extends
-        TwoValuesToCellNodeModel<LabelingValue<L>, ImgPlusValue<T>, ImgPlusCell<FloatType>> {
+public class UCMNodeModel<T extends RealType<T>, L extends Comparable<L>>
+        extends TwoValuesToCellNodeModel<LabelingValue<L>, ImgPlusValue<T>, ImgPlusCell<FloatType>> {
 
     /**
      * @return SettingsModel to store max number of faces
@@ -138,25 +139,29 @@ public class UCMNodeModel<T extends RealType<T>, L extends Comparable<L>> extend
     }
 
     @Override
-    protected ImgPlusCell<FloatType> compute(final LabelingValue<L> cellValue, final ImgPlusValue<T> img)
+    protected ImgPlusCell<FloatType> compute(final LabelingValue<L> labelingValue, final ImgPlusValue<T> imgValue)
             throws Exception {
 
         // containers to work on
-        final RandomAccessibleInterval<LabelingType<L>> labeling = cellValue.getLabeling();
-        final ImgPlus<T> inImg = img.getZeroMinImgPlus();
-        final Img<FloatType> result = new ArrayImgFactory<FloatType>().create(cellValue.getLabeling(), new FloatType());
+        final RandomAccessibleInterval<LabelingType<L>> fromCellLabeling = labelingValue.getLabeling();
+        final RandomAccessibleInterval<LabelingType<L>> zeroMinFromCellLabeling =
+                CellUtil.getZeroMinLabeling(fromCellLabeling);
+
+        final ImgPlus<T> fromCellImg = imgValue.getImgPlus();
+        final ImgPlus<T> zeroMinFromCellImg = CellUtil.getZeroMinImgPlus(fromCellImg);
+
+        final Img<FloatType> result = new ArrayImgFactory<FloatType>().create(zeroMinFromCellImg, new FloatType());
 
         // create new UCMOp with parameters
-        final UCMOp<L, T> ucmOp =
-                new UCMOp<L, T>(m_maxNumFaces.getIntValue(), m_maxFacePercent.getDoubleValue(),
-                        m_minBoundaryWeight.getIntValue(), m_boundaryLabel.getStringValue());
+        final UCMOp<L, T> ucmOp = new UCMOp<L, T>(m_maxNumFaces.getIntValue(), m_maxFacePercent.getDoubleValue(),
+                m_minBoundaryWeight.getIntValue(), m_boundaryLabel.getStringValue());
 
-        SubsetOperations.iterate(ucmOp, m_dimSelection.getSelectedDimIndices(inImg), labeling, inImg, result,
-                                 getExecutorService());
+        SubsetOperations.iterate(ucmOp, m_dimSelection.getSelectedDimIndices(zeroMinFromCellImg),
+                                 zeroMinFromCellLabeling, zeroMinFromCellImg, result, getExecutorService());
 
-        final ImgPlus res = new ImgPlus(result, img.getMetadata());
-        MetadataUtil.copySource(img.getMetadata(), res);
-        return m_imgCellFactory.createCell(res);
+        final ImgPlus<FloatType> res = new ImgPlus<>(result, imgValue.getMetadata());
+        MetadataUtil.copySource(imgValue.getMetadata(), res);
+        return m_imgCellFactory.createCell(CellUtil.getTranslatedImgPlus(fromCellImg, res));
     }
 
     @Override

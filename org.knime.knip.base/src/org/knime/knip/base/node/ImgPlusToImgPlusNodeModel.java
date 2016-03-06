@@ -56,6 +56,7 @@ import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
+import org.knime.knip.core.util.CellUtil;
 
 import net.imagej.ImgPlus;
 import net.imglib2.ops.operation.SubsetOperations;
@@ -72,8 +73,8 @@ import net.imglib2.type.numeric.RealType;
  * @param <T> type of the incoming {@link ImgPlus}
  * @param <V> type of the outgoing {@link ImgPlus}
  */
-public abstract class ImgPlusToImgPlusNodeModel<T extends RealType<T>, V extends RealType<V>> extends
-        ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<V>> {
+public abstract class ImgPlusToImgPlusNodeModel<T extends RealType<T>, V extends RealType<V>>
+        extends ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<V>> {
 
     /**
      * Global KNIME Logger
@@ -164,7 +165,8 @@ public abstract class ImgPlusToImgPlusNodeModel<T extends RealType<T>, V extends
             throw new KNIPException("not enough selected dimensions provided by image.");
         }
 
-        final UnaryOutputOperation<ImgPlus<T>, ImgPlus<V>> op = op(cellValue.getZeroMinImgPlus());
+        final ImgPlus<T> imgPlus = cellValue.getImgPlus();
+        final UnaryOutputOperation<ImgPlus<T>, ImgPlus<V>> op = op(CellUtil.getZeroMinImgPlus(imgPlus));
 
         final int[] selection = m_dimSelection.getSelectedDimIndices(cellValue.getMetadata());
 
@@ -175,8 +177,8 @@ public abstract class ImgPlusToImgPlusNodeModel<T extends RealType<T>, V extends
 
         final ImgPlus<V> out = op.bufferFactory().instantiate(cellValue.getImgPlus());
 
-        return m_imgCellFactory.createCell(SubsetOperations.iterate(op, selection, in, out, m_active
-                ? getExecutorService() : null));
+        return m_imgCellFactory.createCell(CellUtil.getTranslatedImgPlus(imgPlus, SubsetOperations
+                .iterate(op, selection, in, out, m_active ? getExecutorService() : null)));
     }
 
     /**

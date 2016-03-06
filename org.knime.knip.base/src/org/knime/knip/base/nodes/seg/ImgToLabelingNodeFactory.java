@@ -76,6 +76,7 @@ import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
 import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.types.ImgFactoryTypes;
+import org.knime.knip.core.util.CellUtil;
 import org.knime.knip.core.util.EnumUtils;
 
 import net.imagej.ImgPlus;
@@ -92,8 +93,8 @@ import net.imglib2.type.numeric.IntegerType;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class ImgToLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>> extends
-        ValueToCellNodeFactory<ImgPlusValue<T>> {
+public class ImgToLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>>
+        extends ValueToCellNodeFactory<ImgPlusValue<T>> {
 
     private static SettingsModelInteger createBackgroundValueModel() {
         return new SettingsModelInteger("background value", 0);
@@ -153,11 +154,11 @@ public class ImgToLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>> 
 
                     }
                 });
-                addDialogComponent("Options", "Background", new DialogComponentBoolean(setBackground,
-                        "Use background value as background?"));
+                addDialogComponent("Options", "Background",
+                                   new DialogComponentBoolean(setBackground, "Use background value as background?"));
 
-                addDialogComponent("Options", "Background", new DialogComponentNumber(backgroundValue,
-                        "Background value", 1));
+                addDialogComponent("Options", "Background",
+                                   new DialogComponentNumber(backgroundValue, "Background value", 1));
 
             }
         };
@@ -208,17 +209,20 @@ public class ImgToLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>> 
             @Override
             protected LabelingCell<Integer> compute(final ImgPlusValue<T> cellValue) throws IOException {
 
-                final ImgPlus<T> img = cellValue.getZeroMinImgPlus();
-                if (!(img.firstElement() instanceof IntegerType)) {
+                final ImgPlus<T> fromCell = cellValue.getImgPlus();
+
+                if (!(fromCell.firstElement() instanceof IntegerType)) {
                     throw new KNIPRuntimeException(
                             "Only Images of type IntegerType can be converted into a Labeling. Use the converter to convert your Image e.g. to ShortType, IntType, ByteType or BitType.");
                 }
 
-                final ImgLabeling<Integer, T> lab = KNIPGateway.ops().create().imgLabeling(img);
+                final ImgPlus<T> zeroMinFromCell = CellUtil.getZeroMinImgPlus(fromCell);
+
+                final ImgLabeling<Integer, T> res = KNIPGateway.ops().create().imgLabeling(zeroMinFromCell);
 
                 final boolean setBGValue = m_setBackground.getBooleanValue();
-                final Cursor<T> cursor = img.cursor();
-                final Cursor<LabelingType<Integer>> labType = lab.cursor();
+                final Cursor<T> cursor = zeroMinFromCell.cursor();
+                final Cursor<LabelingType<Integer>> labType = res.cursor();
                 while (cursor.hasNext()) {
                     int val = cursor.next().getInteger();
                     if (!setBGValue || val != m_background.getIntValue()) {
@@ -228,9 +232,9 @@ public class ImgToLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>> 
                     }
                 }
 
-                return m_labCellFactory.createCell(lab,
-                                                   new DefaultLabelingMetadata(cellValue.getMetadata(), cellValue
-                                                           .getMetadata(), cellValue.getMetadata(),
+                return m_labCellFactory.createCell(CellUtil.getTranslatedLabeling(fromCell, res),
+                                                   new DefaultLabelingMetadata(cellValue.getMetadata(),
+                                                           cellValue.getMetadata(), cellValue.getMetadata(),
                                                            new DefaultLabelingColorTable()));
             }
 

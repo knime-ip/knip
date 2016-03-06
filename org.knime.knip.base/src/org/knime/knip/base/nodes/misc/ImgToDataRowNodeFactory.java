@@ -82,7 +82,7 @@ public class ImgToDataRowNodeFactory<T extends RealType<T>> extends ValueToCellN
             @Override
             protected ListCell compute(final ImgPlusValue<T> cellValue) throws Exception {
 
-                Cursor<T> cursor = cellValue.getZeroMinImgPlus().cursor();
+                Cursor<T> cursor = cellValue.getImgPlus().cursor();
 
                 List<DoubleCell> list = new ArrayList<DoubleCell>();
                 while (cursor.hasNext()) {

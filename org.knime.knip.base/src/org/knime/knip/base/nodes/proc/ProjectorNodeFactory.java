@@ -64,14 +64,18 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
+import org.knime.knip.core.util.CellUtil;
 import org.knime.knip.core.util.EnumUtils;
 
 import net.imagej.ImgPlus;
 import net.imglib2.FinalInterval;
+import net.imglib2.img.ImgView;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.img.unary.ImgProject;
 import net.imglib2.ops.util.MetadataUtil;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.Intervals;
+import net.imglib2.view.Views;
 
 /**
  * Factory class to produce the image projector node.
@@ -102,12 +106,11 @@ public class ProjectorNodeFactory<T extends RealType<T>> extends ValueToCellNode
              */
             @Override
             public void addDialogComponents() {
-                addDialogComponent("Options",
-                                   "Projection Operation",
-                                   new DialogComponentStringSelection(createProjectionTypeModel(), "", EnumUtils
-                                           .getStringListFromName(ImgProject.ProjectionType.values())));
-                addDialogComponent("Options", "Projection Direction", new DialogComponentDimSelection(
-                        createDimSelectModel(), "", 1, 1));
+                addDialogComponent("Options", "Projection Operation",
+                                   new DialogComponentStringSelection(createProjectionTypeModel(), "",
+                                           EnumUtils.getStringListFromName(ImgProject.ProjectionType.values())));
+                addDialogComponent("Options", "Projection Direction",
+                                   new DialogComponentDimSelection(createDimSelectModel(), "", 1, 1));
             }
 
             /**
@@ -146,26 +149,47 @@ public class ProjectorNodeFactory<T extends RealType<T>> extends ValueToCellNode
              */
             @Override
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws IOException {
-                final ImgPlus<T> img = cellValue.getZeroMinImgPlus();
-                final int[] selectedDims = m_projectionDim.getSelectedDimIndices(img.numDimensions(), img);
+
+                final ImgPlus<T> fromCell = cellValue.getImgPlus();
+                final ImgPlus<T> zeroMinFromCell = CellUtil.getZeroMinImgPlus(fromCell);
+
+                final int[] selectedDims =
+                        m_projectionDim.getSelectedDimIndices(zeroMinFromCell.numDimensions(), zeroMinFromCell);
                 if (selectedDims.length == 0) {
-                    NodeLogger.getLogger(ProjectorNodeFactory.class)
-                            .warn("Image " + img.getName() + " remains unmodified (no projection dim selected)!");
+                    NodeLogger.getLogger(ProjectorNodeFactory.class).warn("Image " + zeroMinFromCell.getName()
+                            + " remains unmodified (no projection dim selected)!");
                     return m_imgCellFactory.createCell(cellValue.getImgPlus());
                 }
 
-                final ImgPlus<T> resImg = new ImgPlus<T>(Operations.compute(new ImgProject<T>(
+                final ImgPlus<T> resImg = new ImgPlus<T>(Operations
+                        .compute(new ImgProject<T>(ImgProject.ProjectionType.valueOf(m_projectionType.getStringValue()),
+                                selectedDims[0]), zeroMinFromCell));
 
-                ImgProject.ProjectionType.valueOf(m_projectionType.getStringValue()), selectedDims[0]), img));
-
-                final long[] dims = new long[img.numDimensions()];
-                img.dimensions(dims);
+                final long[] dims = new long[zeroMinFromCell.numDimensions()];
+                zeroMinFromCell.dimensions(dims);
                 dims[selectedDims[0]] = 1;
 
                 final FinalInterval resSizeInterval = new FinalInterval(dims);
-                MetadataUtil.copyAndCleanImgPlusMetadata(resSizeInterval, img, resImg);
+                MetadataUtil.copyAndCleanImgPlusMetadata(resSizeInterval, zeroMinFromCell, resImg);
 
-                return m_imgCellFactory.createCell(resImg);
+                final long[] oldMin = Intervals.minAsLongArray(fromCell);
+                final long[] newMin = new long[oldMin.length];
+
+                boolean hasNonZeroMin = false;
+                int offset = 0;
+                for (int i = 0; i < oldMin.length; i++) {
+                    if (i == selectedDims[0]) {
+                        offset++;
+                    } else {
+                        newMin[i - offset] = oldMin[i];
+                        if (newMin[i - offset] != 0) {
+                            hasNonZeroMin = true;
+                        }
+                    }
+                }
+                return m_imgCellFactory.createCell(hasNonZeroMin
+                        ? new ImgPlus<>(ImgView.wrap(Views.translate(resImg, newMin), resImg.factory()), resImg)
+                        : resImg);
             }
 
             /**

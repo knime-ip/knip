@@ -52,21 +52,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import net.imagej.ImgPlus;
-import net.imagej.ImgPlusMetadata;
-import net.imagej.axis.CalibratedAxis;
-import net.imagej.space.CalibratedSpace;
-import net.imglib2.FinalInterval;
-import net.imglib2.Interval;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.Img;
-import net.imglib2.img.ImgFactory;
-import net.imglib2.ops.util.MetadataUtil;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.util.Util;
-
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
@@ -94,6 +79,21 @@ import org.knime.knip.core.data.img.DefaultImgMetadata;
 import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.data.img.LabelingMetadata;
 
+import net.imagej.ImgPlus;
+import net.imagej.ImgPlusMetadata;
+import net.imagej.axis.CalibratedAxis;
+import net.imagej.space.CalibratedSpace;
+import net.imglib2.FinalInterval;
+import net.imglib2.Interval;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.Img;
+import net.imglib2.img.ImgFactory;
+import net.imglib2.ops.util.MetadataUtil;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.Util;
+
 /**
  *
  * @author Andreas Graumann, University of Konstanz
@@ -102,8 +102,8 @@ import org.knime.knip.core.data.img.LabelingMetadata;
  * @param <T>
  * @param <L>
  */
-public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>, L extends Comparable<L>> extends
-        NodeModel implements LoopEndNode, BufferedDataTableHolder {
+public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
+        extends NodeModel implements LoopEndNode, BufferedDataTableHolder {
 
     /**
      * List to store all incoming cells
@@ -258,9 +258,8 @@ public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>
                     final ImgFactory<T> fac = firstImgValue.getImgPlus().factory();
 
                     // create new output image
-                    final Img<T> res =
-                            fac.create(loopStartNode.getResDimensions(firstImgValue.getImgPlus(), count), firstImgValue
-                                    .getImgPlus().firstElement().createVariable());
+                    final Img<T> res = fac.create(loopStartNode.getResDimensions(firstImgValue.getImgPlus(), count),
+                                                  firstImgValue.getImgPlus().firstElement().createVariable());
 
                     // copy all image slices in new created output image
                     int i = 0;
@@ -291,13 +290,14 @@ public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>
 
                     // create new labeling
                     final RandomAccessibleInterval<LabelingType<L>> res =
-                            (RandomAccessibleInterval<LabelingType<L>>)KNIPGateway
-                                    .ops()
-                                    .create()
-                                    .imgLabeling(new FinalInterval(loopStartNode.getResDimensions(firstLabelingValue
-                                                         .getLabeling(), count)),
-                                                 Util.getTypeFromInterval(firstLabelingValue.getLabeling())
-                                                         .createVariable());
+                            (RandomAccessibleInterval<LabelingType<L>>)KNIPGateway.ops()
+                                    .create().imgLabeling(
+                                                          new FinalInterval(loopStartNode.getResDimensions(
+                                                                                                           firstLabelingValue
+                                                                                                                   .getLabeling(),
+                                                                                                           count)),
+                                                          Util.getTypeFromInterval(firstLabelingValue.getLabeling())
+                                                                  .createVariable());
 
                     // copy all labeling slices in new created labeling
                     int i = 0;
@@ -310,9 +310,8 @@ public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>
                     }
 
                     // copy meta data with right dimensions
-                    final LabelingMetadata outMetadata =
-                            new DefaultLabelingMetadata(res.numDimensions(), firstLabelingValue.getLabelingMetadata()
-                                    .getLabelingColorTable());
+                    final LabelingMetadata outMetadata = new DefaultLabelingMetadata(res.numDimensions(),
+                            firstLabelingValue.getLabelingMetadata().getLabelingColorTable());
 
                     MetadataUtil.copyName(firstLabelingValue.getLabelingMetadata(), outMetadata);
                     MetadataUtil.copySource(firstLabelingValue.getLabelingMetadata(), outMetadata);
@@ -367,8 +366,8 @@ public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>
      * {@inheritDoc}
      */
     @Override
-    protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
+    protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec)
+            throws IOException, CanceledExecutionException {
         // Nothing to do here
     }
 
@@ -377,8 +376,8 @@ public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>
      * {@inheritDoc}
      */
     @Override
-    protected void saveInternals(final File nodeInternDir, final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
+    protected void saveInternals(final File nodeInternDir, final ExecutionMonitor exec)
+            throws IOException, CanceledExecutionException {
         // Nothing to do here
     }
 

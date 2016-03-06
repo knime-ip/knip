@@ -51,12 +51,6 @@ package org.knime.knip.base.nodes.seg.cellclumpedsplitter;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.ops.operation.SubsetOperations;
-import net.imglib2.ops.operation.randomaccessibleinterval.unary.LocalMaximaForDistanceMap.NeighborhoodType;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
@@ -75,7 +69,14 @@ import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.ops.labeling.CellClumpedSplitter;
+import org.knime.knip.core.util.CellUtil;
 import org.knime.knip.core.util.EnumUtils;
+
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.ops.operation.randomaccessibleinterval.unary.LocalMaximaForDistanceMap.NeighborhoodType;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * Cell Clump Splitter.
@@ -90,8 +91,8 @@ import org.knime.knip.core.util.EnumUtils;
  */
 
 @Deprecated
-public class CellClumpedSplitterNodeFactory<T extends RealType<T>, L extends Comparable<L>> extends
-        ValueToCellNodeFactory<LabelingValue<L>> {
+public class CellClumpedSplitterNodeFactory<T extends RealType<T>, L extends Comparable<L>>
+        extends ValueToCellNodeFactory<LabelingValue<L>> {
 
     private static SettingsModelDimSelection createDimSelectionModel() {
         return new SettingsModelDimSelection("dim_selection", "X", "Y");
@@ -123,8 +124,8 @@ public class CellClumpedSplitterNodeFactory<T extends RealType<T>, L extends Com
             @Override
             public void addDialogComponents() {
 
-                addDialogComponent("Options", "Filter Options", new DialogComponentNumber(
-                        createMinimaMaximaSizeModel(), "Minimum Value of a Local Maxima:", 1));
+                addDialogComponent("Options", "Filter Options", new DialogComponentNumber(createMinimaMaximaSizeModel(),
+                        "Minimum Value of a Local Maxima:", 1));
 
                 addDialogComponent("Options", "Filter Options", new DialogComponentNumber(
                         createIgnoreValueBelowAvgPercent(), "Ignore Percentage:", 0.1));
@@ -135,8 +136,8 @@ public class CellClumpedSplitterNodeFactory<T extends RealType<T>, L extends Com
                 addDialogComponent("Options", "Splitter", new DialogComponentNumber(createMaxIterationsModel(),
                         "Maximum Number of Iterations:", 10));
 
-                addDialogComponent("Options", "Dimensions", new DialogComponentDimSelection(createDimSelectionModel(),
-                        "Dimensions", 2, 5));
+                addDialogComponent("Options", "Dimensions",
+                                   new DialogComponentDimSelection(createDimSelectionModel(), "Dimensions", 2, 5));
 
             }
 
@@ -180,9 +181,10 @@ public class CellClumpedSplitterNodeFactory<T extends RealType<T>, L extends Com
             }
 
             @Override
-            protected LabelingCell<Integer> compute(final LabelingValue<L> cellLabelingVal) throws Exception {
+            protected LabelingCell<Integer> compute(final LabelingValue<L> cellValue) throws Exception {
 
-                final RandomAccessibleInterval<LabelingType<L>> labeling = cellLabelingVal.getLabeling();
+                final RandomAccessibleInterval<LabelingType<L>> fromCell = cellValue.getLabeling();
+                final RandomAccessibleInterval<LabelingType<L>> zeroMinFromCell = CellUtil.getZeroMinLabeling(fromCell);
 
                 m_executor = getExecutorService();
                 final CellClumpedSplitter<L> op =
@@ -190,15 +192,15 @@ public class CellClumpedSplitterNodeFactory<T extends RealType<T>, L extends Com
                                 m_executor, m_smMinMaximaSize.getDoubleValue(),
                                 m_smIgnoreValueBelowAvgPrecent.getDoubleValue(), m_smMaxInterations.getIntValue());
 
-                final RandomAccessibleInterval<LabelingType<Integer>> out =
+                final RandomAccessibleInterval<LabelingType<Integer>> res =
                         (RandomAccessibleInterval<LabelingType<Integer>>)KNIPGateway.ops().create()
-                                .imgLabeling(cellLabelingVal.getLabeling(), Integer.class);
+                                .imgLabeling(zeroMinFromCell, Integer.class);
 
-                SubsetOperations.iterate(op,
-                                         m_smDimSelection.getSelectedDimIndices(cellLabelingVal.getLabelingMetadata()),
-                                         labeling, out);
+                SubsetOperations.iterate(op, m_smDimSelection.getSelectedDimIndices(cellValue.getLabelingMetadata()),
+                                         zeroMinFromCell, res);
 
-                return m_labCellFactory.createCell(out, cellLabelingVal.getLabelingMetadata());
+                return m_labCellFactory.createCell(CellUtil.getTranslatedLabeling(zeroMinFromCell, res),
+                                                   cellValue.getLabelingMetadata());
 
             }
 

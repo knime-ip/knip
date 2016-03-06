@@ -115,21 +115,24 @@ public class AutoCropNodeFactory<T extends RealType<T>> extends ValueToCellNodeF
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated
      */
+    @Deprecated
     @Override
     protected ValueToCellNodeDialog<ImgPlusValue<T>> createNodeDialog() {
         return new ValueToCellNodeDialog<ImgPlusValue<T>>() {
 
             @Override
             public void addDialogComponents() {
-                addDialogComponent("Options", "Pixel values", new DialogComponentNumber(createLowerPixelValueModel(),
-                        "Lower pixel value", 1.0));
+                addDialogComponent("Options", "Pixel values",
+                                   new DialogComponentNumber(createLowerPixelValueModel(), "Lower pixel value", 1.0));
 
-                addDialogComponent("Options", "Pixel values", new DialogComponentNumber(createUpperPixelValueModel(),
-                        "Upper pixel value", 1.0));
+                addDialogComponent("Options", "Pixel values",
+                                   new DialogComponentNumber(createUpperPixelValueModel(), "Upper pixel value", 1.0));
                 addDialogComponent("Margin", "", new DialogComponentNumber(createMarginModel(),
 
-                "Margin", 1));
+                        "Margin", 1));
 
                 addDialogComponent("Margin", "", new DialogComponentDimSelection(createMarginDimSelectionModel(),
                         "Respected dimensions"));
@@ -143,8 +146,8 @@ public class AutoCropNodeFactory<T extends RealType<T>> extends ValueToCellNodeF
                     }
                 });
 
-                addDialogComponent("Margin", "", new DialogComponentBoolean(keepImgBorders,
-                        "Keep result within image borders"));
+                addDialogComponent("Margin", "",
+                                   new DialogComponentBoolean(keepImgBorders, "Keep result within image borders"));
                 addDialogComponent("Margin", "", new DialogComponentNumber(outOfBoundsVal, "Out of bounds value", 1));
 
             }
@@ -194,7 +197,8 @@ public class AutoCropNodeFactory<T extends RealType<T>> extends ValueToCellNodeF
             @Override
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
 
-                final ImgPlus<T> img = cellValue.getZeroMinImgPlus();
+                final ImgPlus<T> img = cellValue.getImgPlus();
+
                 final Cursor<T> cur = img.localizingCursor();
 
                 final long[] min = new long[img.numDimensions()];
@@ -239,22 +243,14 @@ public class AutoCropNodeFactory<T extends RealType<T>> extends ValueToCellNodeF
                 }
                 Img<T> view;
                 if (m_smKeepWithinImgBorders.getBooleanValue()) {
-                    view = new ImgView<T>(Views.interval(img, interval), img.factory());
+                    view = ImgView.wrap(Views.interval(img, interval), img.factory());
                 } else {
                     final T val = img.firstElement().createVariable();
                     val.setReal(m_smOutOfBoundsValue.getDoubleValue());
-                    view = new ImgView<T>(Views.interval(Views.extendValue(img, val), interval), img.factory());
-                }
-                final Img<T> res = img.factory().create(view, img.firstElement().createVariable());
-                final Cursor<T> cur1 = view.cursor();
-                final Cursor<T> cur2 = Views.flatIterable(res).cursor();
-                while (cur1.hasNext()) {
-                    cur1.fwd();
-                    cur2.fwd();
-                    cur2.get().set(cur1.get());
+                    view = ImgView.wrap(Views.interval(Views.extendValue(img, val), interval), img.factory());
                 }
 
-                return m_imgCellFactory.createCell(new ImgPlus<>(res, img));
+                return m_imgCellFactory.createCell(new ImgPlus<>(view, img));
             }
 
             /**

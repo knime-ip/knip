@@ -69,6 +69,7 @@ import org.knime.knip.base.node.dialog.DialogComponentSubsetSelection2;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection2;
 import org.knime.knip.core.ops.img.algorithms.Aligner;
+import org.knime.knip.core.util.CellUtil;
 
 import net.imagej.ImgPlus;
 import net.imglib2.FinalInterval;
@@ -122,7 +123,10 @@ public class AlignerNodeFactory2<T extends RealType<T>, V extends RealType<V>>
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated
      */
+    @Deprecated
     @Override
     protected TwoValuesToCellNodeDialog<ImgPlusValue<T>, ImgPlusValue<V>> createNodeDialog() {
         return new TwoValuesToCellNodeDialog<ImgPlusValue<T>, ImgPlusValue<V>>() {
@@ -206,9 +210,11 @@ public class AlignerNodeFactory2<T extends RealType<T>, V extends RealType<V>>
             @Override
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValueA, final ImgPlusValue<V> cellValueB)
                     throws Exception {
-                final ImgPlus<T> imgPlus = cellValueA.getZeroMinImgPlus();
-                final int[] selectedDims1 = m_dimSelection1.getSelectedDimIndices(imgPlus);
-                final int[] selectedDims2 = m_dimSelection2.getSelectedDimIndices(imgPlus);
+                final ImgPlus<T> fromCell = cellValueA.getImgPlus();
+                final ImgPlus<T> zeroMinFromCell = CellUtil.getZeroMinImgPlus(fromCell);
+
+                final int[] selectedDims1 = m_dimSelection1.getSelectedDimIndices(zeroMinFromCell);
+                final int[] selectedDims2 = m_dimSelection2.getSelectedDimIndices(zeroMinFromCell);
 
                 if (selectedDims1.length != 2) {
                     throw new KNIPException("Wrong number of valid image dimensions: '" + selectedDims1.length
@@ -240,24 +246,28 @@ public class AlignerNodeFactory2<T extends RealType<T>, V extends RealType<V>>
                     alignmode = Aligner.ALIGNMODES.STEPWISE;
                 }
 
-                final long[] dims = new long[imgPlus.numDimensions()];
-                imgPlus.dimensions(dims);
-                Interval ivs[] = m_subsetSelect.createSelectedIntervals(dims, imgPlus);
+                final long[] dims = new long[zeroMinFromCell.numDimensions()];
+                zeroMinFromCell.dimensions(dims);
+                Interval ivs[] = m_subsetSelect.createSelectedIntervals(dims, zeroMinFromCell);
                 if ((ivs == null) || (ivs.length == 0)) {
                     ivs = new Interval[1];
-                    final long mins[] = new long[imgPlus.numDimensions()];
-                    final long maxs[] = new long[imgPlus.numDimensions()];
-                    imgPlus.min(mins);
-                    imgPlus.max(maxs);
+                    final long mins[] = new long[zeroMinFromCell.numDimensions()];
+                    final long maxs[] = new long[zeroMinFromCell.numDimensions()];
+                    zeroMinFromCell.min(mins);
+                    zeroMinFromCell.max(maxs);
                     ivs[0] = new FinalInterval(mins, maxs);
                 }
 
-                return m_imgCellFactory.createCell(new ImgPlus<>(
-                        Operations.compute(
-                                           new Aligner<T, V>(selectedDims1, selectedDim2, ivs[0], sizemode, alignmode,
-                                                   m_stepSize.getIntValue(), m_minPixOverlap.getIntValue()),
-                                           imgPlus, cellValueB.getImgPlus()),
-                        cellValueA.getMetadata()));
+                return m_imgCellFactory
+                        .createCell(CellUtil
+                                .getTranslatedImgPlus(fromCell, new ImgPlus<>(
+                                        Operations.compute(
+                                                           new Aligner<T, V>(selectedDims1, selectedDim2, ivs[0],
+                                                                   sizemode, alignmode, m_stepSize.getIntValue(),
+                                                                   m_minPixOverlap.getIntValue()),
+                                                           zeroMinFromCell,
+                                                           CellUtil.getZeroMinImgPlus(cellValueB.getImgPlus())),
+                                        cellValueA.getMetadata())));
             }
 
             /**

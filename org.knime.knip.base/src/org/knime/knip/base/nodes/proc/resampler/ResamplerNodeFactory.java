@@ -117,10 +117,10 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
             public void addDialogComponents() {
                 addDialogComponent("Options", "Interpolation Mode", new DialogComponentStringSelection(
                         createInterpolationModel(), "", EnumUtils.getStringListFromName(Mode.values())));
-                addDialogComponent("Options", "New Dimension Sizes", new DialogComponentScalingValues(
-                        createScalingModel()));
-                addDialogComponent("Options", "New Dimension Sizes", new DialogComponentBoolean(createRelDimsModel(),
-                        "Relative?"));
+                addDialogComponent("Options", "New Dimension Sizes",
+                                   new DialogComponentScalingValues(createScalingModel()));
+                addDialogComponent("Options", "New Dimension Sizes",
+                                   new DialogComponentBoolean(createRelDimsModel(), "Relative?"));
             }
 
             /**
@@ -176,8 +176,13 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
                     }
                 }
 
-                return m_imgCellFactory.createCell(new ImgPlus(resample(img, Mode.valueOf(m_interpolationSettings
-                        .getStringValue()), new FinalInterval(newDimensions), scaleFactors), cellValue.getMetadata()));
+                return m_imgCellFactory.createCell(
+                                                   new ImgPlus(
+                                                           resample(img,
+                                                                    Mode.valueOf(m_interpolationSettings
+                                                                            .getStringValue()),
+                                                                    new FinalInterval(newDimensions), scaleFactors),
+                                                           cellValue.getMetadata()));
             }
 
             /**
@@ -194,22 +199,28 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
         IntervalView<T> interval = null;
         switch (mode) {
             case LINEAR:
-                interval =
-                        Views.interval(Views.raster(RealViews.affineReal(Views.interpolate(Views.extendMirrorSingle(img),
-                                                                                           new NLinearInterpolatorFactory<T>()),
-                                                                         new Scale(scaleFactors))), newDims);
+                interval = Views
+                        .interval(Views.raster(RealViews.affineReal(
+                                                                    Views.interpolate(Views.extendMirrorSingle(img),
+                                                                                      new NLinearInterpolatorFactory<T>()),
+                                                                    new Scale(scaleFactors))),
+                                  newDims);
                 break;
             case NEAREST_NEIGHBOR:
-                interval =
-                        Views.interval(Views.raster(RealViews.affineReal(Views.interpolate(Views
-                                .extendMirrorSingle(img), new NearestNeighborInterpolatorFactory<T>()), new Scale(
-                                scaleFactors))), newDims);
+                interval = Views
+                        .interval(Views.raster(RealViews.affineReal(
+                                                                    Views.interpolate(Views.extendMirrorSingle(img),
+                                                                                      new NearestNeighborInterpolatorFactory<T>()),
+                                                                    new Scale(scaleFactors))),
+                                  newDims);
                 break;
             case LANCZOS:
-                interval =
-                        Views.interval(Views.raster(RealViews.affineReal(Views.interpolate(Views.extendMirrorSingle(img),
-                                                                                           new LanczosInterpolatorFactory<T>()),
-                                                                         new Scale(scaleFactors))), newDims);
+                interval = Views
+                        .interval(Views.raster(RealViews.affineReal(
+                                                                    Views.interpolate(Views.extendMirrorSingle(img),
+                                                                                      new LanczosInterpolatorFactory<T>()),
+                                                                    new Scale(scaleFactors))),
+                                  newDims);
                 break;
             case PERIODICAL:
                 interval = Views.interval(Views.extendPeriodic(img), newDims);
@@ -219,8 +230,8 @@ public class ResamplerNodeFactory<T extends RealType<T>> extends ValueToCellNode
         }
 
         // create copy of Img
-        return (Img<T>)new ImgCopyOperation<T>().compute(new ImgView<T>(interval, img.factory()),
-                                                         img.factory().create(interval,
-                                                                              img.firstElement().createVariable()));
+        return (Img<T>)new ImgCopyOperation<T>()
+                .compute(new ImgView<T>(interval, img.factory()),
+                         img.factory().create(interval, img.firstElement().createVariable()));
     }
 }

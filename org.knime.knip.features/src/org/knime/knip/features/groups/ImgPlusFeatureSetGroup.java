@@ -134,7 +134,7 @@ public class ImgPlusFeatureSetGroup<T extends RealType<T>, R extends RealType<R>
 				}
 
 				@SuppressWarnings("unchecked")
-				final ImgPlus<T> imgPlus = ((ImgPlusValue<T>) cell).getZeroMinImgPlus();
+				final ImgPlus<T> imgPlus = ((ImgPlusValue<T>) cell).getImgPlus();
 
 				final Hyperslice<T> slicer = new Hyperslice<T>(KNIPGateway.ops(), imgPlus,
 						dimSelection.getSelectedDimIndices(imgPlus), true);

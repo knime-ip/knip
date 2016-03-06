@@ -76,11 +76,14 @@ import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.ops.seg.GraphCut2D;
 import org.knime.knip.core.ops.seg.GraphCut2DLab;
+import org.knime.knip.core.util.CellUtil;
 
 import net.imagej.ImgPlus;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 
@@ -94,8 +97,8 @@ import net.imglib2.type.numeric.RealType;
  *
  * @param <L>
  */
-public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>> extends
-        TwoValuesToCellNodeFactory<ImgPlusValue<T>, LabelingValue<L>> {
+public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
+        extends TwoValuesToCellNodeFactory<ImgPlusValue<T>, LabelingValue<L>> {
 
     private static SettingsModelString createBGLabelModel() {
         return new SettingsModelString("bg_label", "bg");
@@ -182,11 +185,11 @@ public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
                 });
 
                 // General options
-                addDialogComponent("Options", "Dimension selection", new DialogComponentDimSelection(
-                        createDimSelectionModel(), "", 2, 2));
+                addDialogComponent("Options", "Dimension selection",
+                                   new DialogComponentDimSelection(createDimSelectionModel(), "", 2, 2));
 
-                addDialogComponent("Options", "Feature dimension (optional)", new DialogComponentDimSelection(
-                        createFeatDimSelectionModel(), "", 0, 1));
+                addDialogComponent("Options", "Feature dimension (optional)",
+                                   new DialogComponentDimSelection(createFeatDimSelectionModel(), "", 0, 1));
 
                 // Without labeling (init without)
 
@@ -200,17 +203,17 @@ public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
 
                 // Needed if no lab selected
 
-                addDialogComponent("Options (no labeling)", "", new DialogComponentNumber(pottWeightsModel,
-                        "Potts Weight", 0.05));
+                addDialogComponent("Options (no labeling)", "",
+                                   new DialogComponentNumber(pottWeightsModel, "Potts Weight", 0.05));
 
-                addDialogComponent("Options (no labeling)", "", new DialogComponentNumber(sourceValueModel,
-                        "Source Value", 0.05));
+                addDialogComponent("Options (no labeling)", "",
+                                   new DialogComponentNumber(sourceValueModel, "Source Value", 0.05));
 
-                addDialogComponent("Options (no labeling)", "", new DialogComponentNumber(sinkValueModel, "Sink Value",
-                        0.05));
+                addDialogComponent("Options (no labeling)", "",
+                                   new DialogComponentNumber(sinkValueModel, "Sink Value", 0.05));
 
-                addDialogComponent("Options (no labeling)", "", new DialogComponentBoolean(minMaxModel,
-                        "Use image's Min/Max as Source/Sink"));
+                addDialogComponent("Options (no labeling)", "",
+                                   new DialogComponentBoolean(minMaxModel, "Use image's Min/Max as Source/Sink"));
 
             }
 
@@ -295,76 +298,86 @@ public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
             @Override
             protected ImgPlusCell<BitType> compute(final ImgPlusValue<T> cellValue1, final LabelingValue<L> cellValue2)
                     throws Exception {
-                final ImgPlus<T> imgPlus = cellValue1.getZeroMinImgPlus();
-                final int[] selectedDims = m_dimSelection.getSelectedDimIndices(imgPlus.numDimensions(), imgPlus);
-                final int[] selectedFeatDims =
-                        m_featDimSelection.getSelectedDimIndices(imgPlus.numDimensions(), imgPlus);
+
+                final ImgPlus<T> fromCellImg = cellValue1.getImgPlus();
+                final ImgPlus<T> zeroMinFromCellImg = CellUtil.getZeroMinImgPlus(fromCellImg);
+
+                final int[] selectedDims =
+                        m_dimSelection.getSelectedDimIndices(zeroMinFromCellImg.numDimensions(), zeroMinFromCellImg);
+                final int[] selectedFeatDims = m_featDimSelection
+                        .getSelectedDimIndices(zeroMinFromCellImg.numDimensions(), zeroMinFromCellImg);
 
                 if (cellValue2 != null) {
+                    final RandomAccessibleInterval<LabelingType<L>> fromCellLabeling = cellValue2.getLabeling();
+                    final RandomAccessibleInterval<LabelingType<L>> zeroMinFromCellLabeling =
+                            CellUtil.getZeroMinLabeling(fromCellLabeling);
+
                     GraphCut2DLab<T, L> cutOp;
                     if (selectedFeatDims.length == 0) {
-                        cutOp =
-                                new GraphCut2DLab<T, L>(m_lambdaSelection.getDoubleValue(), m_fgLabel.getStringValue(),
-                                        m_bgLabel.getStringValue(), selectedDims[0], selectedDims[1]);
+                        cutOp = new GraphCut2DLab<T, L>(m_lambdaSelection.getDoubleValue(), m_fgLabel.getStringValue(),
+                                m_bgLabel.getStringValue(), selectedDims[0], selectedDims[1]);
 
                         // TODO: Logger
                         Img<BitType> out = null;
 
-                        out =
-                                SubsetOperations.iterate(cutOp,
-                                                         m_dimSelection.getSelectedDimIndices(imgPlus),
-                                                         cellValue1.getImgPlus(),
-                                                         cellValue2.getLabeling(),
-                                                         KNIPGateway.ops().create()
-                                                                 .img(cellValue1.getImgPlus(), new BitType()),
-                                                         getExecutorService());
+                        out = SubsetOperations.iterate(cutOp, m_dimSelection.getSelectedDimIndices(zeroMinFromCellImg),
+                                                       zeroMinFromCellImg, zeroMinFromCellLabeling,
+                                                       KNIPGateway.ops().create().img(zeroMinFromCellImg,
+                                                                                      new BitType()),
+                                                       getExecutorService());
 
-                        return m_imgCellFactory.createCell(new ImgPlus(out, cellValue1.getMetadata()));
+                        return m_imgCellFactory.createCell(CellUtil
+                                .getTranslatedImgPlus(fromCellImg, new ImgPlus<>(out, cellValue1.getMetadata())));
 
                     } else {
-                        cutOp =
-                                new GraphCut2DLab<T, L>(m_lambdaSelection.getDoubleValue(), m_fgLabel.getStringValue(),
-                                        m_bgLabel.getStringValue(), selectedDims[0], selectedDims[1],
-                                        selectedFeatDims[0]);
+                        cutOp = new GraphCut2DLab<T, L>(m_lambdaSelection.getDoubleValue(), m_fgLabel.getStringValue(),
+                                m_bgLabel.getStringValue(), selectedDims[0], selectedDims[1], selectedFeatDims[0]);
 
-                        return m_imgCellFactory.createCell(new ImgPlus(Operations.compute(cutOp, imgPlus,
-                                                                                          cellValue2.getLabeling()),
-                                cellValue1.getMetadata()));
+                        return m_imgCellFactory.createCell(CellUtil
+                                .getTranslatedImgPlus(fromCellImg,
+                                                      new ImgPlus<>(
+                                                              Operations.compute(cutOp, zeroMinFromCellImg,
+                                                                                 zeroMinFromCellLabeling),
+                                                              cellValue1.getMetadata())));
                     }
 
                 } else {
                     double sink;
                     double source;
                     if (m_useMinMax.getBooleanValue()) {
-                        sink = imgPlus.firstElement().getMaxValue();
-                        source = imgPlus.firstElement().getMinValue();
+                        sink = zeroMinFromCellImg.firstElement().getMaxValue();
+                        source = zeroMinFromCellImg.firstElement().getMinValue();
                     } else {
                         sink = m_sinkValue.getDoubleValue();
                         source = m_sourceValue.getDoubleValue();
                     }
 
                     if (selectedFeatDims.length == 0) {
-                        final GraphCut2D<T, Img<T>, Img<BitType>> cutOp =
-                                new GraphCut2D<T, Img<T>, Img<BitType>>(m_pottsWeight.getDoubleValue(),
-                                        selectedDims[0], selectedDims[1], sink, source);
+                        final GraphCut2D<T, Img<T>, Img<BitType>> cutOp = new GraphCut2D<T, Img<T>, Img<BitType>>(
+                                m_pottsWeight.getDoubleValue(), selectedDims[0], selectedDims[1], sink, source);
 
                         // TODO: Logger
                         Img<BitType> out = null;
 
-                        out =
-                                SubsetOperations.iterate(cutOp, m_dimSelection.getSelectedDimIndices(imgPlus),
-                                                         cellValue1.getImgPlus(), KNIPGateway.ops()
-                                                                 .create().img(cellValue1.getImgPlus(), new BitType()),
-                                                         getExecutorService());
+                        out = SubsetOperations.iterate(cutOp, m_dimSelection.getSelectedDimIndices(zeroMinFromCellImg),
+                                                       zeroMinFromCellImg,
+                                                       KNIPGateway.ops().create().img(zeroMinFromCellImg,
+                                                                                      new BitType()),
+                                                       getExecutorService());
 
-                        return m_imgCellFactory.createCell(new ImgPlus(out, cellValue1.getMetadata()));
+                        return m_imgCellFactory.createCell(CellUtil
+                                .getTranslatedImgPlus(fromCellImg, new ImgPlus<>(out, cellValue1.getMetadata())));
                     } else {
                         final GraphCut2D<T, Img<T>, Img<BitType>> cutOp =
-                                new GraphCut2D<T, Img<T>, Img<BitType>>(m_pottsWeight.getDoubleValue(),
-                                        selectedDims[0], selectedDims[1], selectedFeatDims[0], sink, source);
+                                new GraphCut2D<T, Img<T>, Img<BitType>>(m_pottsWeight.getDoubleValue(), selectedDims[0],
+                                        selectedDims[1], selectedFeatDims[0], sink, source);
 
-                        return m_imgCellFactory.createCell(new ImgPlus(Operations.compute(cutOp, imgPlus), cellValue1
-                                .getMetadata()));
+                        return m_imgCellFactory
+                                .createCell(CellUtil.getTranslatedImgPlus(fromCellImg,
+                                                                          new ImgPlus<>(
+                                                                                  Operations.compute(cutOp,
+                                                                                                     zeroMinFromCellImg),
+                                                                                  cellValue1.getMetadata())));
                     }
 
                 }

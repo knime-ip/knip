@@ -68,10 +68,10 @@ import org.knime.knip.base.node.TwoValuesToCellNodeFactory;
 import org.knime.knip.base.node.TwoValuesToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
-import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
 import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.ops.labeling.WatershedWithSheds;
 import org.knime.knip.core.ops.labeling.WatershedWithThreshold;
+import org.knime.knip.core.util.CellUtil;
 import org.knime.knip.core.util.MiscViews;
 import org.knime.knip.core.util.NeighborhoodUtils;
 
@@ -93,10 +93,11 @@ import net.imglib2.type.numeric.integer.IntType;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class WatershedNodeFactory<T extends RealType<T>, L> extends
-        TwoValuesToCellNodeFactory<ImgPlusValue<T>, LabelingValue<L>> {
+public class WatershedNodeFactory<T extends RealType<T>, L>
+        extends TwoValuesToCellNodeFactory<ImgPlusValue<T>, LabelingValue<L>> {
 
-    private final class WatershedOperationWrapper1 implements BinaryOperation<Img<T>, RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<L>>> {
+    private final class WatershedOperationWrapper1 implements
+            BinaryOperation<Img<T>, RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<L>>> {
 
         private final WatershedWithThreshold<T, L> m_ws;
 
@@ -108,7 +109,9 @@ public class WatershedNodeFactory<T extends RealType<T>, L> extends
          * {@inheritDoc}
          */
         @Override
-        public RandomAccessibleInterval<LabelingType<L>> compute(final Img<T> inputA, final RandomAccessibleInterval<LabelingType<L>> inputB, final RandomAccessibleInterval<LabelingType<L>> output) {
+        public RandomAccessibleInterval<LabelingType<L>>
+               compute(final Img<T> inputA, final RandomAccessibleInterval<LabelingType<L>> inputB,
+                       final RandomAccessibleInterval<LabelingType<L>> output) {
             m_ws.setSeeds(inputB);
             m_ws.setOutputLabeling(output);
             m_ws.setIntensityImage(inputA);
@@ -127,7 +130,8 @@ public class WatershedNodeFactory<T extends RealType<T>, L> extends
          * {@inheritDoc}
          */
         @Override
-        public BinaryOperation<Img<T>, RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<L>>> copy() {
+        public BinaryOperation<Img<T>, RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<L>>>
+               copy() {
             return new WatershedOperationWrapper1(m_ws);
         }
 
@@ -156,6 +160,7 @@ public class WatershedNodeFactory<T extends RealType<T>, L> extends
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("deprecation")
     @Override
     protected TwoValuesToCellNodeDialog<ImgPlusValue<T>, LabelingValue<L>> createNodeDialog() {
         return new TwoValuesToCellNodeDialog<ImgPlusValue<T>, LabelingValue<L>>() {
@@ -188,11 +193,11 @@ public class WatershedNodeFactory<T extends RealType<T>, L> extends
                     }
                 });
 
-                addDialogComponent("Options", "", new DialogComponentBoolean(createVirtualExtendModel(),
-                        "Virtually extend labeling"));
+                addDialogComponent("Options", "",
+                                   new DialogComponentBoolean(createVirtualExtendModel(), "Virtually extend labeling"));
 
-                addDialogComponent("Options", "", new DialogComponentDimSelection(createDimSelectionModel(),
-                        "Dimension selection"));
+                addDialogComponent("Options", "",
+                                   new DialogComponentDimSelection(createDimSelectionModel(), "Dimension selection"));
             }
 
             @Override
@@ -240,50 +245,56 @@ public class WatershedNodeFactory<T extends RealType<T>, L> extends
             }
 
             @Override
-            protected LabelingCell<?> compute(final ImgPlusValue<T> cellValue1, final LabelingValue<L> cellValue2)
+            protected LabelingCell<?> compute(final ImgPlusValue<T> imgValue, final LabelingValue<L> labelingValue)
                     throws Exception {
-                RandomAccessibleInterval<LabelingType<L>> lab = cellValue2.getLabeling();
-                final ImgPlus<T> img = cellValue1.getZeroMinImgPlus();
+                final RandomAccessibleInterval<LabelingType<L>> fromCellLabeling = labelingValue.getLabeling();
+                RandomAccessibleInterval<LabelingType<L>> zeroMinFromCellLabeling =
+                        CellUtil.getZeroMinLabeling(fromCellLabeling);
+
+                final ImgPlus<T> fromCellImg = imgValue.getImgPlus();
+                final ImgPlus<T> zeroMinFromCellImg = CellUtil.getZeroMinImgPlus(fromCellImg);
+
                 final ImgLabeling<?, ?> out;
 
                 if (m_virtualExtend.getBooleanValue()) {
-                    lab = MiscViews.synchronizeDimensionality(lab,
-                                                                                    cellValue2.getLabelingMetadata(),
-                                                                                    img, cellValue1.getMetadata());
-                } else if (lab.numDimensions() != img.numDimensions()) {
+                    zeroMinFromCellLabeling = MiscViews
+                            .synchronizeDimensionality(zeroMinFromCellLabeling, labelingValue.getLabelingMetadata(),
+                                                       zeroMinFromCellImg, imgValue.getMetadata());
+                } else if (zeroMinFromCellLabeling.numDimensions() != zeroMinFromCellImg.numDimensions()) {
                     throw new IllegalArgumentException("The dimensionality of the seed labeling ("
-                            + lab.numDimensions() + ") does not match that of the intensity image ("
-                            + img.numDimensions() + ")");
+                            + zeroMinFromCellLabeling.numDimensions() + ") does not match that of the intensity image ("
+                            + zeroMinFromCellImg.numDimensions() + ")");
                 }
 
                 if (m_withWatersheds.getBooleanValue()) {
-                    WatershedWithSheds<T, L> ws =
-                            new WatershedWithSheds<T, L>(NeighborhoodUtils.get4ConStructuringElement(img
-                                    .numDimensions()));
-                    ImgLabeling<String, IntType> tmp =
-                            new ImgLabeling<String, IntType>(new ArrayImgFactory<IntType>().create(img,
-                                                                                                         new IntType()));
-                    SubsetOperations.iterate(ws, m_dimSelection.getSelectedDimIndices(cellValue1.getMetadata()), img,
-                                             lab, tmp);
+                    WatershedWithSheds<T, L> ws = new WatershedWithSheds<T, L>(
+                            NeighborhoodUtils.get4ConStructuringElement(zeroMinFromCellImg.numDimensions()));
+                    ImgLabeling<String, IntType> tmp = new ImgLabeling<String, IntType>(
+                            new ArrayImgFactory<IntType>().create(zeroMinFromCellImg, new IntType()));
+                    SubsetOperations.iterate(ws, m_dimSelection.getSelectedDimIndices(imgValue.getMetadata()),
+                                             zeroMinFromCellImg, zeroMinFromCellLabeling, tmp);
                     out = tmp;
                 } else {
                     final WatershedWithThreshold<T, L> ws = new WatershedWithThreshold<T, L>();
 
-                    ImgLabeling<L, ?> tmp =
-                            new ImgLabeling<L, IntType>(new ArrayImgFactory<IntType>().create(img, new IntType()));
+                    ImgLabeling<L, ?> tmp = new ImgLabeling<L, IntType>(
+                            new ArrayImgFactory<IntType>().create(zeroMinFromCellImg, new IntType()));
                     if (m_useThreshold.getBooleanValue()) {
                         ws.setThreshold(m_thresholdValue.getDoubleValue());
                     }
 
                     final BinaryOperation<Img<T>, RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<L>>> operation =
                             new WatershedOperationWrapper1(ws);
-                    SubsetOperations.iterate(operation, m_dimSelection.getSelectedDimIndices(cellValue1.getMetadata()),
-                                             img, lab, tmp);
+                    SubsetOperations.iterate(operation, m_dimSelection.getSelectedDimIndices(imgValue.getMetadata()),
+                                             zeroMinFromCellImg, zeroMinFromCellLabeling, tmp);
                     out = tmp;
                 }
 
-                return m_labCellFactory.createCell(out, new DefaultLabelingMetadata(cellValue1.getMetadata(),
-                        cellValue1.getMetadata(), cellValue1.getMetadata(), new DefaultLabelingColorTable()));
+                return m_labCellFactory
+                        .createCell(CellUtil.getTranslatedLabeling(fromCellLabeling, out),
+                                    new DefaultLabelingMetadata(imgValue.getMetadata(), imgValue.getMetadata(),
+                                            imgValue.getMetadata(),
+                                            labelingValue.getLabelingMetadata().getLabelingColorTable()));
             }
 
             /**

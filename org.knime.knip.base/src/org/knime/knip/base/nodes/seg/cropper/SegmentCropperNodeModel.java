@@ -54,30 +54,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import net.imagej.ImgPlus;
-import net.imagej.ImgPlusMetadata;
-import net.imglib2.Cursor;
-import net.imglib2.FinalInterval;
-import net.imglib2.IterableInterval;
-import net.imglib2.RandomAccess;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.Img;
-import net.imglib2.img.ImgFactory;
-import net.imglib2.img.ImgView;
-import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.ops.operation.Operations;
-import net.imglib2.ops.operation.img.unary.ImgCopyOperation;
-import net.imglib2.ops.operation.iterable.unary.Fill;
-import net.imglib2.roi.IterableRegion;
-import net.imglib2.roi.Regions;
-import net.imglib2.roi.labeling.ImgLabeling;
-import net.imglib2.roi.labeling.LabelRegions;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.type.logic.BitType;
-import net.imglib2.type.logic.BoolType;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.view.Views;
-
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnProperties;
 import org.knime.core.data.DataColumnSpec;
@@ -116,6 +92,30 @@ import org.knime.knip.core.data.img.LabelingMetadata;
 import org.knime.knip.core.ops.misc.LabelingDependency;
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter;
 import org.knime.knip.core.util.MiscViews;
+
+import net.imagej.ImgPlus;
+import net.imagej.ImgPlusMetadata;
+import net.imglib2.Cursor;
+import net.imglib2.FinalInterval;
+import net.imglib2.IterableInterval;
+import net.imglib2.RandomAccess;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.Img;
+import net.imglib2.img.ImgFactory;
+import net.imglib2.img.ImgView;
+import net.imglib2.img.array.ArrayImgFactory;
+import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.operation.img.unary.ImgCopyOperation;
+import net.imglib2.ops.operation.iterable.unary.Fill;
+import net.imglib2.roi.IterableRegion;
+import net.imglib2.roi.Regions;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelRegions;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.logic.BitType;
+import net.imglib2.type.logic.BoolType;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
 
 /**
  * Crop BitMasks or parts of images according to a Labeling

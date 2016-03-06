@@ -68,6 +68,7 @@ import org.knime.knip.base.node.dialog.DialogComponentSubsetSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
 import org.knime.knip.core.ops.img.algorithms.Aligner;
+import org.knime.knip.core.util.CellUtil;
 
 import net.imagej.ImgPlus;
 import net.imglib2.FinalInterval;
@@ -84,8 +85,8 @@ import net.imglib2.type.numeric.RealType;
  * @param <T>
  * @param <V>
  */
-public class AlignerNodeFactory<T extends RealType<T>, V extends RealType<V>> extends
-        TwoValuesToCellNodeFactory<ImgPlusValue<T>, ImgPlusValue<V>> {
+public class AlignerNodeFactory<T extends RealType<T>, V extends RealType<V>>
+        extends TwoValuesToCellNodeFactory<ImgPlusValue<T>, ImgPlusValue<V>> {
 
     private static final String[] ALIGNMODES = new String[]{"First", "Last", "Pairwise", "Stepwise"};
 
@@ -121,7 +122,10 @@ public class AlignerNodeFactory<T extends RealType<T>, V extends RealType<V>> ex
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated
      */
+    @Deprecated
     @Override
     protected TwoValuesToCellNodeDialog<ImgPlusValue<T>, ImgPlusValue<V>> createNodeDialog() {
         return new TwoValuesToCellNodeDialog<ImgPlusValue<T>, ImgPlusValue<V>>() {
@@ -142,8 +146,8 @@ public class AlignerNodeFactory<T extends RealType<T>, V extends RealType<V>> ex
 
                 addDialogComponent("Options", "Options", new DialogComponentNumber(createStepSizeModel(),
                         "Step size for stepwise comparison", 1));
-                addDialogComponent("Options", "Options", new DialogComponentNumber(createMinPixOverlapModel(),
-                        "Minimum Pixel Overlap", 1));
+                addDialogComponent("Options", "Options",
+                                   new DialogComponentNumber(createMinPixOverlapModel(), "Minimum Pixel Overlap", 1));
 
             }
 
@@ -205,9 +209,11 @@ public class AlignerNodeFactory<T extends RealType<T>, V extends RealType<V>> ex
             @Override
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValueA, final ImgPlusValue<V> cellValueB)
                     throws Exception {
-                final ImgPlus<T> imgPlus = cellValueA.getZeroMinImgPlus();
-                final int[] selectedDims1 = m_dimSelection1.getSelectedDimIndices(imgPlus);
-                final int[] selectedDims2 = m_dimSelection2.getSelectedDimIndices(imgPlus);
+                final ImgPlus<T> fromCell = cellValueA.getImgPlus();
+                final ImgPlus<T> zeroMinFromCell = CellUtil.getZeroMinImgPlus(fromCell);
+
+                final int[] selectedDims1 = m_dimSelection1.getSelectedDimIndices(zeroMinFromCell);
+                final int[] selectedDims2 = m_dimSelection2.getSelectedDimIndices(zeroMinFromCell);
 
                 if (selectedDims1.length != 2) {
                     throw new KNIPException("Wrong number of valid image dimensions: '" + selectedDims1.length
@@ -239,26 +245,28 @@ public class AlignerNodeFactory<T extends RealType<T>, V extends RealType<V>> ex
                     alignmode = Aligner.ALIGNMODES.STEPWISE;
                 }
 
-                final long[] dims = new long[imgPlus.numDimensions()];
-                imgPlus.dimensions(dims);
-                Interval ivs[] = m_subsetSelect.createSelectedIntervals(dims, imgPlus);
+                final long[] dims = new long[zeroMinFromCell.numDimensions()];
+                zeroMinFromCell.dimensions(dims);
+                Interval ivs[] = m_subsetSelect.createSelectedIntervals(dims, zeroMinFromCell);
                 if ((ivs == null) || (ivs.length == 0)) {
                     ivs = new Interval[1];
-                    final long mins[] = new long[imgPlus.numDimensions()];
-                    final long maxs[] = new long[imgPlus.numDimensions()];
-                    imgPlus.min(mins);
-                    imgPlus.max(maxs);
+                    final long mins[] = new long[zeroMinFromCell.numDimensions()];
+                    final long maxs[] = new long[zeroMinFromCell.numDimensions()];
+                    zeroMinFromCell.min(mins);
+                    zeroMinFromCell.max(maxs);
                     ivs[0] = new FinalInterval(mins, maxs);
                 }
 
-                return m_imgCellFactory.createCell(new ImgPlus<>(Operations.compute(new Aligner<T, V>(selectedDims1,
-                                                                                            selectedDim2, ivs[0],
-                                                                                            sizemode, alignmode,
-                                                                                            m_stepSize.getIntValue(),
-                                                                                            m_minPixOverlap
-                                                                                                    .getIntValue()),
-                                                                                    imgPlus, cellValueB.getImgPlus()),
-                        cellValueA.getMetadata()));
+                return m_imgCellFactory
+                        .createCell(CellUtil
+                                .getTranslatedImgPlus(fromCell, new ImgPlus<>(
+                                        Operations.compute(
+                                                           new Aligner<T, V>(selectedDims1, selectedDim2, ivs[0],
+                                                                   sizemode, alignmode, m_stepSize.getIntValue(),
+                                                                   m_minPixOverlap.getIntValue()),
+                                                           zeroMinFromCell,
+                                                           CellUtil.getZeroMinImgPlus(cellValueB.getImgPlus())),
+                                        cellValueA.getMetadata())));
             }
 
             /**

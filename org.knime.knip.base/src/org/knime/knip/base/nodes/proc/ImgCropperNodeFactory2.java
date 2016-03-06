@@ -154,13 +154,13 @@ public class ImgCropperNodeFactory2<T extends RealType<T> & NativeType<T>>
                     return m_imgCellFactory.createCell(cellValue.getImgPlusCopy());
                 } else {
 
-                    ImgPlus<T> img = cellValue.getZeroMinImgPlus();
+                    ImgPlus<T> img = cellValue.getImgPlus();
 
                     //if an offset is set, translate the img to the origin for now
                     long[] minimum = new long[img.numDimensions()];
                     img.min(minimum);
                     long minSum = Arrays.stream(minimum).sum();
-                    if(minSum > 0) {
+                    if (minSum > 0) {
                         //if a minimum has been set (i.e. different from 0),
                         //translate the image to the origin
                         img = new ImgPlus<T>(ImgView.wrap(Views.translate(img, Arrays.stream(minimum).map(l -> {
@@ -220,7 +220,7 @@ public class ImgCropperNodeFactory2<T extends RealType<T> & NativeType<T>>
                     metadata.setName(img.getName());
 
                     //translate the result image to the given offset, if present
-                    if(minSum > 0) {
+                    if (minSum > 0) {
                         if (m_smAdjustDimensionality.getBooleanValue()) {
                             //remove the invalid dimensions (dim == 1) from the minimum as well
                             for (Integer i : mergeOp.getInvalidDims()) {

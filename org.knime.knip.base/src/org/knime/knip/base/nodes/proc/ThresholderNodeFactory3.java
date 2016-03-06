@@ -85,8 +85,8 @@ import net.imglib2.type.numeric.RealType;
  * @param <T>
  * @param <L>
  */
-public class ThresholderNodeFactory3<T extends RealType<T>, L extends Comparable<L>> extends
-        IterableIntervalsNodeFactory<T, BitType, L> {
+public class ThresholderNodeFactory3<T extends RealType<T>, L extends Comparable<L>>
+        extends IterableIntervalsNodeFactory<T, BitType, L> {
 
     private static SettingsModelDouble createManualThresholdModel() {
         return new SettingsModelDouble("manual_threshold", 0);
@@ -108,8 +108,8 @@ public class ThresholderNodeFactory3<T extends RealType<T>, L extends Comparable
             @Override
             public void addDialogComponents() {
                 final SettingsModelDouble settModManual = createManualThresholdModel();
-                addDialogComponent("Options", "Manual Threshold", new DialogComponentNumber(settModManual,
-                        "Threshold Value", .01));
+                addDialogComponent("Options", "Manual Threshold",
+                                   new DialogComponentNumber(settModManual, "Threshold Value", .01));
                 final SettingsModelString method = createThresholderSelectionModel();
                 addDialogComponent("Options", "Thresholding Method", new DialogComponentStringSelection(method,
                         "Method", EnumUtils.getStringListFromToString(ThresholdingType.values())));
@@ -119,7 +119,8 @@ public class ThresholderNodeFactory3<T extends RealType<T>, L extends Comparable
                     @Override
                     public void stateChanged(final ChangeEvent arg0) {
                         final String selectedMethod = method.getStringValue();
-                        if (EnumUtils.valueForName(selectedMethod, ThresholdingType.values()) == ThresholdingType.MANUAL) {
+                        if (EnumUtils.valueForName(selectedMethod,
+                                                   ThresholdingType.values()) == ThresholdingType.MANUAL) {
                             settModManual.setEnabled(true);
                             activeDimSelection = false;
                         } else {
@@ -187,10 +188,11 @@ public class ThresholderNodeFactory3<T extends RealType<T>, L extends Comparable
             @SuppressWarnings("unchecked")
             @Override
             protected ImgPlusCell<BitType> compute(final ImgPlusValue<T> cellValue) throws Exception {
-                ImgPlus<T> img = cellValue.getZeroMinImgPlus();
-                if (img.firstElement() instanceof BitType) {
+                final ImgPlus<T> fromCell = cellValue.getImgPlus();
+
+                if (fromCell.firstElement() instanceof BitType) {
                     super.setWarningMessage("Image of type 'BitType' remain untouched.");
-                    return m_cellFactory.createCell((ImgPlus<BitType>)img);
+                    return m_cellFactory.createCell((ImgPlus<BitType>)fromCell);
                 }
                 return super.compute(cellValue);
             }

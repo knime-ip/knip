@@ -135,7 +135,7 @@ public class ImgPeaksNodeFactory<T extends RealType<T>> extends ValueToCellNodeF
 
             @Override
             protected ImgPlusCell<BitType> compute(final ImgPlusValue<T> cellValue) throws Exception {
-                final ImgPlus<T> imgPlus = cellValue.getZeroMinImgPlus();
+                final ImgPlus<T> imgPlus = cellValue.getImgPlus();
                 final PickImagePeaks<T> peakPicker = new PickImagePeaks<T>(imgPlus);
                 peakPicker.process();
                 final Img<BitType> res = peakPicker.getResult();

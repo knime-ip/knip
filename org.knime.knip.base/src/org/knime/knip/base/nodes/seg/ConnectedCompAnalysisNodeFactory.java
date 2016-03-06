@@ -71,6 +71,7 @@ import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
 import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.types.ImgFactoryTypes;
+import org.knime.knip.core.util.CellUtil;
 import org.knime.knip.core.util.EnumUtils;
 
 import net.imagej.ImgPlus;
@@ -177,8 +178,11 @@ public class ConnectedCompAnalysisNodeFactory<T extends RealType<T> & Comparable
             @SuppressWarnings({"unchecked"})
             @Override
             protected LabelingCell<Integer> compute(final ImgPlusValue<T> cellValue) throws IOException {
-                final ImgPlus<T> img = cellValue.getZeroMinImgPlus();
-                final T background = img.firstElement().createVariable();
+
+                final ImgPlus<T> fromCell = cellValue.getImgPlus();
+                final ImgPlus<T> zeroMinFromCell = CellUtil.getZeroMinImgPlus(fromCell);
+
+                final T background = zeroMinFromCell.firstElement().createVariable();
                 background.setReal(m_background.getIntValue());
                 if (((int)background.getRealDouble()) != m_background.getIntValue()) {
                     background.setReal(Math.min(background.getMaxValue(),
@@ -190,30 +194,30 @@ public class ConnectedCompAnalysisNodeFactory<T extends RealType<T> & Comparable
                 long[][] structuringElement;
                 if (m_type.getStringValue().equals(ConnectedType.EIGHT_CONNECTED.name())) {
                     structuringElement = AbstractRegionGrowing
-                            .get8ConStructuringElement(m_dimSelection.getSelectedDimIndices(img).length);
+                            .get8ConStructuringElement(m_dimSelection.getSelectedDimIndices(zeroMinFromCell).length);
                 } else {
                     structuringElement = AbstractRegionGrowing
-                            .get4ConStructuringElement(m_dimSelection.getSelectedDimIndices(img).length);
+                            .get4ConStructuringElement(m_dimSelection.getSelectedDimIndices(zeroMinFromCell).length);
                 }
 
                 final CCA<T> cca = new CCA<T>(structuringElement, background);
 
-                final RandomAccessibleInterval<LabelingType<Integer>> lab =
-                        new ImgLabeling<Integer, IntType>(KNIPGateway.ops().create()
-                                .img(img.getImg(), new IntType(),
-                                     ImgFactoryTypes.getImgFactory(m_factory.getStringValue(), img.getImg())));
+                final RandomAccessibleInterval<LabelingType<Integer>> lab = new ImgLabeling<Integer, IntType>(
+                        KNIPGateway.ops().create().img(zeroMinFromCell.getImg(), new IntType(), ImgFactoryTypes
+                                .getImgFactory(m_factory.getStringValue(), zeroMinFromCell.getImg())));
 
                 try {
-                    SubsetOperations.iterate(cca, m_dimSelection.getSelectedDimIndices(img), img.getImg(), lab,
-                                             getExecutorService());
+                    SubsetOperations.iterate(cca, m_dimSelection.getSelectedDimIndices(zeroMinFromCell),
+                                             zeroMinFromCell.getImg(), lab, getExecutorService());
                 } catch (InterruptedException e) {
                     LOGGER.warn("Thread execution interrupted", e);
                 } catch (ExecutionException e) {
                     LOGGER.warn("Couldn't retrieve results because thread execution was interrupted/aborted", e);
                 }
 
-                return m_labCellFactory
-                        .createCell(lab, new DefaultLabelingMetadata(img, img, img, new DefaultLabelingColorTable()));
+                return m_labCellFactory.createCell(CellUtil.getTranslatedLabeling(fromCell, lab),
+                                                   new DefaultLabelingMetadata(zeroMinFromCell, zeroMinFromCell,
+                                                           zeroMinFromCell, new DefaultLabelingColorTable()));
             }
 
             /**

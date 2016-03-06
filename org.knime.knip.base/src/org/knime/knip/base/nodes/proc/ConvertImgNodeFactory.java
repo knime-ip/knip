@@ -51,6 +51,20 @@ package org.knime.knip.base.nodes.proc;
 import java.io.IOException;
 import java.util.List;
 
+import org.knime.core.node.ExecutionContext;
+import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
+import org.knime.core.node.defaultnodesettings.SettingsModel;
+import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.knip.base.data.img.ImgPlusCell;
+import org.knime.knip.base.data.img.ImgPlusCellFactory;
+import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.base.node.ValueToCellNodeDialog;
+import org.knime.knip.base.node.ValueToCellNodeFactory;
+import org.knime.knip.base.node.ValueToCellNodeModel;
+import org.knime.knip.core.types.ImgFactoryTypes;
+import org.knime.knip.core.types.NativeTypes;
+import org.knime.knip.core.util.EnumUtils;
+
 import net.imagej.ImgPlus;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.converter.read.ConvertedRandomAccessibleInterval;
@@ -78,20 +92,6 @@ import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.util.ValuePair;
 import net.imglib2.view.Views;
 
-import org.knime.core.node.ExecutionContext;
-import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
-import org.knime.core.node.defaultnodesettings.SettingsModel;
-import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.knime.knip.base.data.img.ImgPlusCell;
-import org.knime.knip.base.data.img.ImgPlusCellFactory;
-import org.knime.knip.base.data.img.ImgPlusValue;
-import org.knime.knip.base.node.ValueToCellNodeDialog;
-import org.knime.knip.base.node.ValueToCellNodeFactory;
-import org.knime.knip.base.node.ValueToCellNodeModel;
-import org.knime.knip.core.types.ImgFactoryTypes;
-import org.knime.knip.core.types.NativeTypes;
-import org.knime.knip.core.util.EnumUtils;
-
 /**
  * Factory class to produce the Histogram Operations Node.
  *
@@ -100,8 +100,8 @@ import org.knime.knip.core.util.EnumUtils;
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  */
-public class ConvertImgNodeFactory<T extends RealType<T> & NativeType<T>> extends
-        ValueToCellNodeFactory<ImgPlusValue<T>> {
+public class ConvertImgNodeFactory<T extends RealType<T> & NativeType<T>>
+        extends ValueToCellNodeFactory<ImgPlusValue<T>> {
 
     private static SettingsModelString createConversionTypeModel() {
         return new SettingsModelString("scaling", ImgConversionTypes.DIRECT.getLabel());
@@ -118,6 +118,7 @@ public class ConvertImgNodeFactory<T extends RealType<T> & NativeType<T>> extend
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("deprecation")
     @Override
     protected ValueToCellNodeDialog<ImgPlusValue<T>> createNodeDialog() {
         return new ValueToCellNodeDialog<ImgPlusValue<T>>() {
@@ -127,8 +128,8 @@ public class ConvertImgNodeFactory<T extends RealType<T> & NativeType<T>> extend
              */
             @Override
             public void addDialogComponents() {
-                addDialogComponent("Options", "Target Type", new DialogComponentStringSelection(
-                        createTargetTypeModel(), "Target type", EnumUtils.getStringListFromName(NativeTypes.values())));
+                addDialogComponent("Options", "Target Type", new DialogComponentStringSelection(createTargetTypeModel(),
+                        "Target type", EnumUtils.getStringListFromName(NativeTypes.values())));
                 addDialogComponent("Options", "Target Type", new DialogComponentStringSelection(
                         createConversionTypeModel(), "Conversion method", ImgConversionTypes.labelsAsStringArray()));
                 addDialogComponent("Options", "Factory Selection",
@@ -174,7 +175,7 @@ public class ConvertImgNodeFactory<T extends RealType<T> & NativeType<T>> extend
              *
              * @throws IllegalArgumentException
              */
-            @SuppressWarnings({"unchecked", "rawtypes", "deprecation"})
+            @SuppressWarnings({"unchecked", "rawtypes"})
             @Override
             protected ImgPlusCell compute(final ImgPlusValue<T> cellValue) throws IOException {
                 final ImgPlus<T> img = cellValue.getImgPlus();
@@ -224,20 +225,23 @@ public class ConvertImgNodeFactory<T extends RealType<T> & NativeType<T>> extend
                         throw new IllegalArgumentException("Unsupported conversion.");
                 }
 
-                final ImgPlus resImgPlus = new ImgPlus(new ImgView(res, img.factory()), img);
+                final ImgPlus resImgPlus = new ImgPlus(res, img);
                 resImgPlus.setSource(img.getSource());
-
+                resImgPlus.setName(img.getName());
                 return m_imgCellFactory.createCell(resImgPlus);
             }
 
-            public synchronized <O extends RealType<O> & NativeType<O>> Img<O> convert(final Img<T> img,
-                                                                                       final O outType,
-                                                                                       final ImgFactoryTypes facType,
-                                                                                       final ImgConversionTypes mode) {
+            @SuppressWarnings("unchecked")
+            public synchronized <O extends RealType<O> & NativeType<O>> Img<O>
+                   convert(final Img<T> img, final O outType, final ImgFactoryTypes facType,
+                           final ImgConversionTypes mode) {
 
-                return new ImgView<O>(new ConvertedRandomAccessibleInterval<T, O>(img, new ImgConvert<T, O>(img
-                        .firstElement().createVariable(), outType, mode).createOp(img), outType),
-                        ImgFactoryTypes.<T> getImgFactory(facType, img));
+                return ImgView.<O> wrap(
+                                        new ConvertedRandomAccessibleInterval<T, O>(img,
+                                                new ImgConvert<T, O>(img.firstElement().createVariable(), outType, mode)
+                                                        .createOp(img),
+                                                outType),
+                                        ImgFactoryTypes.<T> getImgFactory(facType, img));
             }
 
             /**
@@ -297,9 +301,8 @@ public class ConvertImgNodeFactory<T extends RealType<T> & NativeType<T>> extend
                     break;
                 case NORMALIZEDIRECT:
                     oldMinMax = Operations.compute(new MinMax<I>(), iterImg);
-                    factor =
-                            Normalize.normalizationFactor(oldMinMax.a.getRealDouble(), oldMinMax.b.getRealDouble(),
-                                                          m_inType.getMinValue(), m_inType.getMaxValue());
+                    factor = Normalize.normalizationFactor(oldMinMax.a.getRealDouble(), oldMinMax.b.getRealDouble(),
+                                                           m_inType.getMinValue(), m_inType.getMaxValue());
 
                     convertOp = new Convert<I, O>(m_inType, m_outType, TypeConversionTypes.SCALE);
 
@@ -309,9 +312,8 @@ public class ConvertImgNodeFactory<T extends RealType<T> & NativeType<T>> extend
                     break;
                 case NORMALIZESCALE:
                     oldMinMax = Operations.compute(new MinMax<I>(), iterImg);
-                    factor =
-                            Normalize.normalizationFactor(oldMinMax.a.getRealDouble(), oldMinMax.b.getRealDouble(),
-                                                          m_inType.getMinValue(), m_inType.getMaxValue());
+                    factor = Normalize.normalizationFactor(oldMinMax.a.getRealDouble(), oldMinMax.b.getRealDouble(),
+                                                           m_inType.getMinValue(), m_inType.getMaxValue());
 
                     convertOp = new Convert<I, O>(m_inType, m_outType, TypeConversionTypes.SCALE);
                     convertOp.setFactor(convertOp.getFactor() / factor);
@@ -319,9 +321,8 @@ public class ConvertImgNodeFactory<T extends RealType<T> & NativeType<T>> extend
                     break;
                 case NORMALIZEDIRECTCLIP:
                     oldMinMax = Operations.compute(new MinMax<I>(), iterImg);
-                    factor =
-                            Normalize.normalizationFactor(oldMinMax.a.getRealDouble(), oldMinMax.b.getRealDouble(),
-                                                          m_inType.getMinValue(), m_inType.getMaxValue());
+                    factor = Normalize.normalizationFactor(oldMinMax.a.getRealDouble(), oldMinMax.b.getRealDouble(),
+                                                           m_inType.getMinValue(), m_inType.getMaxValue());
 
                     convertOp = new Convert<I, O>(m_inType, m_outType, TypeConversionTypes.SCALECLIP);
                     convertOp.setFactor(convertOp.getFactor() / factor);

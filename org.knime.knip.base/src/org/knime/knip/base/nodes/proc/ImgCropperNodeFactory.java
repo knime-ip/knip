@@ -87,8 +87,8 @@ import net.imglib2.view.Views;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class ImgCropperNodeFactory<T extends RealType<T> & NativeType<T>> extends
-        ValueToCellNodeFactory<ImgPlusValue<T>> {
+public class ImgCropperNodeFactory<T extends RealType<T> & NativeType<T>>
+        extends ValueToCellNodeFactory<ImgPlusValue<T>> {
 
     private static SettingsModelBoolean createAdjustDimModel() {
         return new SettingsModelBoolean("cfg_adjust_dimensionality", true);
@@ -107,11 +107,11 @@ public class ImgCropperNodeFactory<T extends RealType<T> & NativeType<T>> extend
 
             @Override
             public void addDialogComponents() {
-                addDialogComponent("Options", "Subset Selection", new DialogComponentSubsetSelection(
-                        createSubsetSelectionModel(), true, true));
+                addDialogComponent("Options", "Subset Selection",
+                                   new DialogComponentSubsetSelection(createSubsetSelectionModel(), true, true));
 
-                addDialogComponent("Options", "Options", new DialogComponentBoolean(createAdjustDimModel(),
-                        "Adjust Dimensionality?"));
+                addDialogComponent("Options", "Options",
+                                   new DialogComponentBoolean(createAdjustDimModel(), "Adjust Dimensionality?"));
 
             }
 
@@ -150,7 +150,7 @@ public class ImgCropperNodeFactory<T extends RealType<T> & NativeType<T>> extend
                     return m_imgCellFactory.createCell(cellValue.getImgPlusCopy());
                 } else {
 
-                    final ImgPlus<T> img = cellValue.getZeroMinImgPlus();
+                    final ImgPlus<T> img = cellValue.getImgPlus();
 
                     final long[] dimensions = new long[img.numDimensions()];
                     img.dimensions(dimensions);

@@ -89,6 +89,7 @@ import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableRenderer;
 import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableUtils;
 import org.knime.knip.core.awt.labelingcolortable.RandomMissingColorHandler;
 import org.knime.knip.core.awt.parametersupport.RendererWithLabels;
+import org.knime.knip.core.util.CellUtil;
 
 import net.imagej.ImgPlus;
 import net.imglib2.Interval;
@@ -105,8 +106,8 @@ import net.imglib2.util.Util;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class LabelingToPNGValueNodeModel<T extends RealType<T>, L extends Comparable<L> & Type<L>> extends
-        TwoValuesToCellNodeModel<ImgPlusValue<T>, LabelingValue<L>, ListCell> {
+public class LabelingToPNGValueNodeModel<T extends RealType<T>, L extends Comparable<L> & Type<L>>
+        extends TwoValuesToCellNodeModel<ImgPlusValue<T>, LabelingValue<L>, ListCell> {
 
     final static String[] RENDERER_NAMES = new String[]{ColorLabelingRenderer.RENDERER_NAME,
             BoundingBoxLabelRenderer.RENDERER_NAME, BoundingBoxRandomColorLabelRenderer.RENDERER_NAME};
@@ -164,13 +165,20 @@ public class LabelingToPNGValueNodeModel<T extends RealType<T>, L extends Compar
     @Override
     protected ListCell compute(final ImgPlusValue<T> imgValue, final LabelingValue<L> labelingValue)
             throws IOException, KNIPException {
-        final RandomAccessibleInterval<LabelingType<L>> lab = labelingValue.getLabeling();
-        final ImgPlus<T> imgPlus = imgValue.getZeroMinImgPlus();
+
+        final RandomAccessibleInterval<LabelingType<L>> fromCellLabeling = labelingValue.getLabeling();
+        final RandomAccessibleInterval<LabelingType<L>> zeroMinFromCellLabeling =
+                CellUtil.getZeroMinLabeling(fromCellLabeling);
+
+        final ImgPlus<T> fromCellImg = imgValue.getImgPlus();
+        final ImgPlus<T> zeroMinFromCellImg = CellUtil.getZeroMinImgPlus(fromCellImg);
+
+        final ImgPlus<T> imgPlus = zeroMinFromCellImg;
 
         //render with image first check dimensionality
-        if (imgPlus.numDimensions() == lab.numDimensions()) {
+        if (imgPlus.numDimensions() == zeroMinFromCellLabeling.numDimensions()) {
             for (int i = 0; i < imgPlus.numDimensions(); i++) {
-                if (imgPlus.dimension(i) != lab.dimension(i)) {
+                if (imgPlus.dimension(i) != zeroMinFromCellLabeling.dimension(i)) {
                     throw new KNIPException(
                             "Incompatible dimension sizes: label dimension size != image dimension size for image axis "
                                     + imgPlus.axis(i).type().getLabel());
@@ -197,7 +205,8 @@ public class LabelingToPNGValueNodeModel<T extends RealType<T>, L extends Compar
 
             //create partial images
             BufferedImage label =
-                    createLabelImage(lab, labelingValue.getLabelingMetadata().getLabelingColorTable(), min, X, Y);
+                    createLabelImage(zeroMinFromCellLabeling,
+                                     labelingValue.getLabelingMetadata().getLabelingColorTable(), min, X, Y);
             BufferedImage grey = createGreyImage(imgPlus, min, X, Y);
             BufferedImage result = renderTogether(grey, label);
 
@@ -222,8 +231,8 @@ public class LabelingToPNGValueNodeModel<T extends RealType<T>, L extends Compar
         return res;
     }
 
-    private BufferedImage createLabelImage(final RandomAccessibleInterval<LabelingType<L>> lab, final LabelingColorTable table, final long[] min,
-                                           final int X, final int Y) {
+    private BufferedImage createLabelImage(final RandomAccessibleInterval<LabelingType<L>> lab,
+                                           final LabelingColorTable table, final long[] min, final int X, final int Y) {
         ImageRenderer<LabelingType<L>> labRenderer;
         LabelingColorTable extendedTable =
                 LabelingColorTableUtils.extendLabelingColorTable(table, new RandomMissingColorHandler());
@@ -243,8 +252,8 @@ public class LabelingToPNGValueNodeModel<T extends RealType<T>, L extends Compar
                 ((LabelingColorTableRenderer)labRenderer).setLabelingColorTable(extendedTable);
             }
             ((BoundingBoxLabelRenderer<L>)labRenderer).setBoxColor(m_boundingBoxColor.getColorValue());
-            ((BoundingBoxLabelRenderer<L>)labRenderer).setRenderingWithLabelStrings(m_showBoundingBoxNames
-                    .getBooleanValue());
+            ((BoundingBoxLabelRenderer<L>)labRenderer)
+                    .setRenderingWithLabelStrings(m_showBoundingBoxNames.getBooleanValue());
         }
 
         ((RendererWithLabels<L>)labRenderer).setLabelMapping(Util.getTypeFromInterval(lab).getMapping());

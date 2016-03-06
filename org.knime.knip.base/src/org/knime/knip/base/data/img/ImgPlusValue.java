@@ -62,9 +62,7 @@ import org.knime.knip.base.renderer.ThumbnailRenderer;
 
 import net.imagej.ImgPlus;
 import net.imagej.ImgPlusMetadata;
-import net.imglib2.img.ImgView;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.view.Views;
 
 /**
  * DataValue for image objects.
@@ -135,31 +133,6 @@ public interface ImgPlusValue<T extends RealType<T>> extends DataValue {
      * @return the image in this <code>DataCell</code>
      */
     public ImgPlus<T> getImgPlus();
-
-    /**
-     * Returns ImgPlus<T> with zeroMin
-     *
-     * @return {@link ImgPlus} with zeroMin
-     */
-
-    default ImgPlus<T> getZeroMinImgPlus() {
-        boolean hasZeroMin = false;
-
-        final long[] min = getMinimum();
-        for (int i = 0; i < getDimensions().length; i++) {
-            if (min[i] != 0) {
-                hasZeroMin = true;
-                break;
-            }
-        }
-
-        if (hasZeroMin) {
-            return new ImgPlus<T>(ImgView.wrap(Views.zeroMin(getImgPlus().getImg()), getImgPlus().factory()),
-                    getImgPlus());
-        } else {
-            return getImgPlus();
-        }
-    }
 
     /**
      * Provides a copy of the image.

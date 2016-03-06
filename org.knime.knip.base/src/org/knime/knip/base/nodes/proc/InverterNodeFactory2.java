@@ -170,14 +170,14 @@ public class InverterNodeFactory2<T extends RealType<T> & NativeType<T>, L exten
                     return super.compute(cellValue);
                 } else {
                     // this can be done faster
-                    ImgPlus<T> in = cellValue.getImgPlus();
-                    return m_cellFactory.createCell(
-                                                    new ImgPlus<T>(
-                                                            ImgView.wrap(new ConvertedRandomAccessibleInterval<T, T>(in,
-                                                                    new UnaryOperationBasedConverter<T, T>(createOp(in
-                                                                            .firstElement().createVariable())),
-                                                                    getOutType(in.firstElement())), in.factory()),
-                                                            in));
+                    final ImgPlus<T> fromCell = cellValue.getImgPlus();
+
+                    return m_cellFactory.createCell(new ImgPlus<T>(
+                            ImgView.wrap(new ConvertedRandomAccessibleInterval<T, T>(fromCell,
+                                    new UnaryOperationBasedConverter<T, T>(
+                                            createOp(fromCell.firstElement().createVariable())),
+                                    getOutType(fromCell.firstElement())), fromCell.factory()),
+                            fromCell));
                 }
             }
 

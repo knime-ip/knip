@@ -94,14 +94,15 @@ public class Remove1DimNodeFactory<T extends RealType<T> & NativeType<T>> extend
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
 
                 // Get the img
-                final ImgPlus<T> plus = cellValue.getZeroMinImgPlus();
+                final ImgPlus<T> fromCell = cellValue.getImgPlus();
+
                 ImgPlus<T> res;
 
-                if (plus.getImg().size() == 1) {
+                if (fromCell.getImg().size() == 1) {
                     // do not alter the image
-                    res = plus.copy();
+                    res = fromCell.copy();
                 } else {
-                    res = MiscViews.cleanImgPlus(plus);
+                    res = MiscViews.cleanImgPlus(fromCell);
                 }
 
                 return m_imgCellFactory.createCell(res);

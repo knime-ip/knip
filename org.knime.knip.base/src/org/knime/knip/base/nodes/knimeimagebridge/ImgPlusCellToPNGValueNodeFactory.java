@@ -74,6 +74,7 @@ import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.awt.AWTImageTools;
 import org.knime.knip.core.awt.Real2GreyColorRenderer;
+import org.knime.knip.core.util.CellUtil;
 
 import net.imagej.ImgPlus;
 import net.imglib2.Interval;
@@ -116,8 +117,8 @@ public class ImgPlusCellToPNGValueNodeFactory<T extends RealType<T>> extends Val
             @Override
             public void addDialogComponents() {
 
-                addDialogComponent("Options", "XY Dimension Selection", new DialogComponentDimSelection(m_xySelection =
-                        createXYDimSelectionModel(), "Dimensions Plane", 2, 2));
+                addDialogComponent("Options", "XY Dimension Selection", new DialogComponentDimSelection(
+                        m_xySelection = createXYDimSelectionModel(), "Dimensions Plane", 2, 2));
 
                 addDialogComponent("Options", "Channel Dimension Selection", new DialogComponentDimSelection(
                         m_channelSelection = createChannelDimSelectionModel(), "Dimensions Plane", 0, 1));
@@ -171,7 +172,7 @@ public class ImgPlusCellToPNGValueNodeFactory<T extends RealType<T>> extends Val
             protected ListCell compute(final ImgPlusValue<T> cellValue) throws IOException {
 
                 // Order of dimensions always X Y C
-                final ImgPlus<T> imgPlus = cellValue.getZeroMinImgPlus();
+                final ImgPlus<T> imgPlus = CellUtil.getZeroMinImgPlus(cellValue.getImgPlus());
 
                 final List<DataCell> cells = new ArrayList<DataCell>(0);
 
@@ -221,8 +222,8 @@ public class ImgPlusCellToPNGValueNodeFactory<T extends RealType<T>> extends Val
                             new Real2GreyColorRenderer<T>(channelSelected ? channelDim[0] : -1);
 
                     final ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    ImageIO.write(AWTImageTools.makeBuffered(renderer.render(imgPlus, planeDim[0], planeDim[1], min)
-                            .image()), "PNG", out);
+                    ImageIO.write(AWTImageTools
+                            .makeBuffered(renderer.render(imgPlus, planeDim[0], planeDim[1], min).image()), "PNG", out);
 
                     cells.add(new PNGImageContent(out.toByteArray()).toImageCell());
                 }

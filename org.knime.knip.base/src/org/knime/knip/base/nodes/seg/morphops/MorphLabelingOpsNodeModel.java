@@ -54,19 +54,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import net.imagej.ImgPlus;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.ops.img.UnaryObjectFactory;
-import net.imglib2.ops.operation.Operations;
-import net.imglib2.ops.operation.SubsetOperations;
-import net.imglib2.ops.operation.UnaryOperation;
-import net.imglib2.ops.operation.UnaryOutputOperation;
-import net.imglib2.ops.operation.labeling.unary.DilateLabeling;
-import net.imglib2.ops.operation.labeling.unary.ErodeLabeling;
-import net.imglib2.ops.operation.randomaccessibleinterval.unary.morph.StructuringElementCursor;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.type.logic.BitType;
-
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataTable;
@@ -89,6 +76,20 @@ import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.KNIPGateway;
+import org.knime.knip.core.util.CellUtil;
+
+import net.imagej.ImgPlus;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.ops.img.UnaryObjectFactory;
+import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.ops.operation.UnaryOperation;
+import net.imglib2.ops.operation.UnaryOutputOperation;
+import net.imglib2.ops.operation.labeling.unary.DilateLabeling;
+import net.imglib2.ops.operation.labeling.unary.ErodeLabeling;
+import net.imglib2.ops.operation.randomaccessibleinterval.unary.morph.StructuringElementCursor;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.logic.BitType;
 
 /**
  * {@link NodeModel} for Morphological Labeling Operations
@@ -99,8 +100,8 @@ import org.knime.knip.core.KNIPGateway;
  *
  * @param <L>
  */
-public class MorphLabelingOpsNodeModel<L extends Comparable<L>> extends
-        ValueToCellNodeModel<LabelingValue<L>, LabelingCell<L>> {
+public class MorphLabelingOpsNodeModel<L extends Comparable<L>>
+        extends ValueToCellNodeModel<LabelingValue<L>, LabelingCell<L>> {
 
     private static NodeLogger LOGGER = NodeLogger.getLogger(MorphLabelingOpsNodeModel.class);
 
@@ -258,19 +259,20 @@ public class MorphLabelingOpsNodeModel<L extends Comparable<L>> extends
     @Override
     protected LabelingCell<L> compute(final LabelingValue<L> cellValue) throws IOException {
 
-        m_fac =
-                new UnaryObjectFactory<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<L>>>() {
+        m_fac = new UnaryObjectFactory<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<L>>>() {
 
-                    @Override
-                    public RandomAccessibleInterval<LabelingType<L>>
-                            instantiate(final RandomAccessibleInterval<LabelingType<L>> a) {
+            @Override
+            public RandomAccessibleInterval<LabelingType<L>>
+                   instantiate(final RandomAccessibleInterval<LabelingType<L>> a) {
 
-                        return KNIPGateway.ops().create().imgLabeling(a);
-                    }
-                };
+                return KNIPGateway.ops().create().imgLabeling(a);
+            }
+        };
 
-        final RandomAccessibleInterval<LabelingType<L>> in = cellValue.getLabeling();
-        final RandomAccessibleInterval<LabelingType<L>> out = KNIPGateway.ops().create().imgLabeling(in);
+        final RandomAccessibleInterval<LabelingType<L>> fromCell = cellValue.getLabeling();
+        final RandomAccessibleInterval<LabelingType<L>> zeroMinFromCell = CellUtil.getZeroMinLabeling(fromCell);
+
+        final RandomAccessibleInterval<LabelingType<L>> res = KNIPGateway.ops().create().imgLabeling(zeroMinFromCell);
 
         if (m_currentStruct != null) {
             m_operation = createOperation(StructuringElementCursor.createElementFromImg(m_currentStruct));
@@ -279,16 +281,16 @@ public class MorphLabelingOpsNodeModel<L extends Comparable<L>> extends
         }
 
         try {
-            SubsetOperations.iterate(m_operation,
-                                     m_smDimensions.getSelectedDimIndices(cellValue.getLabelingMetadata()), in, out,
-                                     getExecutorService());
+            SubsetOperations.iterate(m_operation, m_smDimensions.getSelectedDimIndices(cellValue.getLabelingMetadata()),
+                                     zeroMinFromCell, res, getExecutorService());
         } catch (InterruptedException e) {
             LOGGER.warn("Thread execution interrupted", e);
         } catch (ExecutionException e) {
             LOGGER.warn("Couldn't retrieve results because thread execution was interrupted/aborted", e);
         }
 
-        return m_labCellFactory.createCell(out, cellValue.getLabelingMetadata());
+        return m_labCellFactory.createCell(CellUtil.getTranslatedLabeling(fromCell, res),
+                                           cellValue.getLabelingMetadata());
     }
 
     /**
@@ -299,8 +301,8 @@ public class MorphLabelingOpsNodeModel<L extends Comparable<L>> extends
         //Active structuring element on configure
         if (((DataTableSpec)inSpecs[1]) != null) {
             m_smConnectionType.setStringValue(ConnectedType.STRUCTURING_ELEMENT.toString());
-            NodeUtils
-                    .autoColumnSelection((DataTableSpec)inSpecs[1], m_smStructurColumn, ImgPlusValue.class, getClass());
+            NodeUtils.autoColumnSelection((DataTableSpec)inSpecs[1], m_smStructurColumn, ImgPlusValue.class,
+                                          getClass());
         } else {
             m_smConnectionType.setStringValue(ConnectedType.FOUR_CONNECTED.toString());
         }

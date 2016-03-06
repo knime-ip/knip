@@ -64,7 +64,9 @@ import org.knime.knip.base.node.TwoValuesToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.KNIPGateway;
+import org.knime.knip.core.util.CellUtil;
 
+import net.imagej.ImgPlus;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.roi.labeling.LabelingType;
@@ -145,24 +147,30 @@ public class WaehlbySplitterNodeFactory<T extends RealType<T>, L extends Compara
             }
 
             @Override
-            protected LabelingCell<String> compute(final LabelingValue<L> cellLabelingVal,
-                                                   final ImgPlusValue<T> imgValue) throws Exception {
+            protected LabelingCell<String> compute(final LabelingValue<L> labelingValue, final ImgPlusValue<T> imgValue)
+                    throws Exception {
 
-                final RandomAccessibleInterval<LabelingType<L>> labeling = cellLabelingVal.getLabeling();
+                final RandomAccessibleInterval<LabelingType<L>> fromCellLabeling = labelingValue.getLabeling();
+                final RandomAccessibleInterval<LabelingType<L>> zeroMinFromCellLabeling =
+                        CellUtil.getZeroMinLabeling(fromCellLabeling);
+
+                final ImgPlus<T> fromCellImg = imgValue.getImgPlus();
+                final ImgPlus<T> zeroMinFromCellImg = CellUtil.getZeroMinImgPlus(fromCellImg);
+
                 final RandomAccessibleInterval<LabelingType<String>> out =
-                        KNIPGateway.ops().create().imgLabeling(labeling);
+                        KNIPGateway.ops().create().imgLabeling(zeroMinFromCellLabeling);
 
-                int[] selectedDimIndices =
-                        m_smDimSelection.getSelectedDimIndices(cellLabelingVal.getLabelingMetadata());
+                int[] selectedDimIndices = m_smDimSelection.getSelectedDimIndices(labelingValue.getLabelingMetadata());
 
                 WaehlbySplitterOp<L, T> op = new WaehlbySplitterOp<L, T>(
                         WaehlbySplitterOp.SEG_TYPE.SHAPE_BASED_SEGMENTATION, m_smDistanceThreshold.getIntValue(),
                         m_smMergeThreshold.getIntValue(), m_smGaussSize.getIntValue());
 
-                SubsetOperations.iterate(op, selectedDimIndices, labeling, imgValue.getZeroMinImgPlus(), out,
+                SubsetOperations.iterate(op, selectedDimIndices, zeroMinFromCellLabeling, zeroMinFromCellImg, out,
                                          getExecutorService());
 
-                return m_labCellFactory.createCell(out, cellLabelingVal.getLabelingMetadata());
+                return m_labCellFactory.createCell(CellUtil.getTranslatedLabeling(fromCellLabeling, out),
+                                                   labelingValue.getLabelingMetadata());
 
             }
 

@@ -50,11 +50,6 @@ package org.knime.knip.base.nodes.misc;
 
 import java.util.List;
 
-import net.imglib2.Cursor;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.view.Views;
-
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.knip.base.data.labeling.LabelingCell;
@@ -64,12 +59,19 @@ import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.core.KNIPGateway;
+import org.knime.knip.core.util.CellUtil;
+
+import net.imglib2.Cursor;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.view.Views;
 
 /**
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @param <L>
  */
 public class LabToStringLabNodeFactory<L extends Comparable<L>> extends ValueToCellNodeFactory<LabelingValue<L>> {
 
@@ -90,11 +92,14 @@ public class LabToStringLabNodeFactory<L extends Comparable<L>> extends ValueToC
             @Override
             protected LabelingCell<String> compute(final LabelingValue<L> cellValue) throws Exception {
 
+                final RandomAccessibleInterval<LabelingType<L>> fromCell = cellValue.getLabeling();
+                final RandomAccessibleInterval<LabelingType<L>> zeroMinFromCell = CellUtil.getZeroMinLabeling(fromCell);
+
                 final RandomAccessibleInterval<LabelingType<String>> res =
-                        KNIPGateway.ops().create().imgLabeling(cellValue.getLabeling());
+                        KNIPGateway.ops().create().imgLabeling(fromCell);
 
                 final Cursor<LabelingType<String>> resC = Views.iterable(res).cursor();
-                final Cursor<LabelingType<L>> srcC = Views.iterable(cellValue.getLabeling()).cursor();
+                final Cursor<LabelingType<L>> srcC = Views.iterable(zeroMinFromCell).cursor();
 
                 while (srcC.hasNext()) {
                     resC.fwd();
@@ -102,7 +107,8 @@ public class LabToStringLabNodeFactory<L extends Comparable<L>> extends ValueToC
                         resC.get().add(label.toString());
                     }
                 }
-                return m_labCellFactory.createCell(res, cellValue.getLabelingMetadata());
+                return m_labCellFactory.createCell(CellUtil.getTranslatedLabeling(fromCell, res),
+                                                   cellValue.getLabelingMetadata());
             }
 
             /**

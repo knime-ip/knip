@@ -55,18 +55,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.imagej.ImgPlus;
-import net.imagej.ImgPlusMetadata;
-import net.imagej.axis.CalibratedAxis;
-import net.imagej.space.CalibratedSpace;
-import net.imglib2.Interval;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.Img;
-import net.imglib2.ops.util.MetadataUtil;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
@@ -96,6 +84,18 @@ import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
 import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.data.img.LabelingMetadata;
+
+import net.imagej.ImgPlus;
+import net.imagej.ImgPlusMetadata;
+import net.imagej.axis.CalibratedAxis;
+import net.imagej.space.CalibratedSpace;
+import net.imglib2.Interval;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.Img;
+import net.imglib2.ops.util.MetadataUtil;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  *

@@ -60,6 +60,7 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
+import org.knime.knip.core.util.CellUtil;
 import org.knime.knip.core.util.EnumUtils;
 
 import net.imagej.ImgPlus;
@@ -89,8 +90,8 @@ import net.imglib2.view.Views;
 public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFactory<ImgPlusValue<T>> {
 
     private enum ResizeStrategy {
-        LINEAR("Linear Interpolation"), NEAREST_NEIGHBOR("Nearest Neighbor Interpolation"), LANCZOS(
-                "Lanczos Interpolation"), PERIODICAL("Extend Periodical"), MIN_VALUE("Fill with Minimum Value"),
+        LINEAR("Linear Interpolation"), NEAREST_NEIGHBOR("Nearest Neighbor Interpolation"),
+        LANCZOS("Lanczos Interpolation"), PERIODICAL("Extend Periodical"), MIN_VALUE("Fill with Minimum Value"),
         MAX_VALUE("Fill with Maximum Value"), ZERO("Fill with Zero"), BORDER("Extend Border");
 
         private String displayedName;
@@ -147,10 +148,9 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
 
             @Override
             public void addDialogComponents() {
-                addDialogComponent("Options",
-                                   "Resize Strategy",
-                                   new DialogComponentStringSelection(createResizingStrategyModel(), "", EnumUtils
-                                           .getStringListFromToString(ResizeStrategy.values())));
+                addDialogComponent("Options", "Resize Strategy",
+                                   new DialogComponentStringSelection(createResizingStrategyModel(), "",
+                                           EnumUtils.getStringListFromToString(ResizeStrategy.values())));
 
                 addDialogComponent("Options", "New Dimension Sizes (will affect calibration)",
                                    new DialogComponentResizeInputValues(createInputFactorsModel()));
@@ -189,7 +189,8 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
             @Override
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
 
-                ImgPlus<T> img = cellValue.getZeroMinImgPlus();
+                final ImgPlus<T> fromCell = cellValue.getImgPlus();
+                final ImgPlus<T> zeroMinFromCell = CellUtil.getZeroMinImgPlus(fromCell);
 
                 ImgPlusMetadata metadata = cellValue.getMetadata();
 
@@ -210,12 +211,12 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
                         scaleFactors = new double[inputFactors.length];
                         for (int i = 0; i < inputFactors.length; i++) {
                             newDimensions[i] = Math.round(inputFactors[i]);
-                            scaleFactors[i] = inputFactors[i] / img.dimension(i);
+                            scaleFactors[i] = inputFactors[i] / zeroMinFromCell.dimension(i);
                         }
                         break;
                     case DIM_FACTOR:
                         for (int i = 0; i < inputFactors.length; i++) {
-                            newDimensions[i] = Math.round(img.dimension(i) * inputFactors[i]);
+                            newDimensions[i] = Math.round(zeroMinFromCell.dimension(i) * inputFactors[i]);
                         }
                         scaleFactors = inputFactors;
                         break;
@@ -223,7 +224,7 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
                         scaleFactors = new double[inputFactors.length];
                         for (int i = 0; i < inputFactors.length; i++) {
                             scaleFactors[i] = calibration[i] / inputFactors[i];
-                            newDimensions[i] = Math.round(img.dimension(i) * scaleFactors[i]);
+                            newDimensions[i] = Math.round(zeroMinFromCell.dimension(i) * scaleFactors[i]);
                         }
                         break;
                     default:
@@ -234,15 +235,20 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
                 // without rounding error the formula for the new scale would shorten to "calibration/scaleFactor"... use proportions instead, i.e. "oldCalib*oldDim = newCalib*newDim".
                 // TODO: Only LinearAxis support since now
                 for (int i = 0; i < metadata.numDimensions(); i++) {
-                    metadata.setAxis((new DefaultLinearAxis(metadata.axis(i).type(), (calibration[i] * img.getImg()
-                            .dimension(i)) / newDimensions[i])), i);
+                    metadata.setAxis((new DefaultLinearAxis(metadata.axis(i).type(),
+                            (calibration[i] * zeroMinFromCell.getImg().dimension(i)) / newDimensions[i])), i);
                 }
 
-                return m_imgCellFactory
-                        .createCell(new ImgPlus(resample(img, EnumUtils.valueForName(m_extensionTypeModel
-                                                                 .getStringValue(), ResizeStrategy.values()),
-                                                         new FinalInterval(newDimensions),
-                                                         scaleFactors), metadata));
+                return m_imgCellFactory.createCell(CellUtil
+                        .getTranslatedImgPlus(fromCell,
+                                              new ImgPlus<T>(
+                                                      resample(zeroMinFromCell,
+                                                               EnumUtils.valueForName(
+                                                                                      m_extensionTypeModel
+                                                                                              .getStringValue(),
+                                                                                      ResizeStrategy.values()),
+                                                               new FinalInterval(newDimensions), scaleFactors),
+                                                      metadata)));
             }
 
             /**
@@ -261,31 +267,35 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
         switch (mode) {
             case LINEAR:
                 // create copy of Img
-                return (Img<T>)new ImgCopyOperation<T>()
-                        .compute(new ImgView<T>(
-                                         Views.interval(Views.raster(RealViews.affineReal(Views.interpolate(Views
-                                                 .extendBorder(img), new NLinearInterpolatorFactory<T>()), new Scale(
-                                                 scaleFactors))), resultingInterval), img.factory()), img.factory()
-                                         .create(resultingInterval, img.firstElement().createVariable()));
+                return (Img<T>)new ImgCopyOperation<T>().compute(new ImgView<T>(
+                        Views.interval(Views.raster(RealViews.affineReal(
+                                                                         Views.interpolate(Views.extendBorder(img),
+                                                                                           new NLinearInterpolatorFactory<T>()),
+                                                                         new Scale(scaleFactors))),
+                                       resultingInterval),
+                        img.factory()), img.factory().create(resultingInterval, img.firstElement().createVariable()));
             case NEAREST_NEIGHBOR:
-                return (Img<T>)new ImgCopyOperation<T>()
-                        .compute(new ImgView<T>(Views.interval(Views.raster(RealViews.affineReal(Views
-                                         .interpolate(Views.extendBorder(img),
-                                                      new NearestNeighborInterpolatorFactory<T>()), new Scale(
-                                         scaleFactors))), resultingInterval), img.factory()),
-                                 img.factory().create(resultingInterval, img.firstElement().createVariable()));
+                return (Img<T>)new ImgCopyOperation<T>().compute(new ImgView<T>(
+                        Views.interval(Views.raster(RealViews.affineReal(
+                                                                         Views.interpolate(Views.extendBorder(img),
+                                                                                           new NearestNeighborInterpolatorFactory<T>()),
+                                                                         new Scale(scaleFactors))),
+                                       resultingInterval),
+                        img.factory()), img.factory().create(resultingInterval, img.firstElement().createVariable()));
             case LANCZOS:
-                return (Img<T>)new ImgCopyOperation<T>()
-                        .compute(new ImgView<T>(
-                                         Views.interval(Views.raster(RealViews.affineReal(Views.interpolate(Views
-                                                 .extendBorder(img), new LanczosInterpolatorFactory<T>()), new Scale(
-                                                 scaleFactors))), resultingInterval), img.factory()), img.factory()
-                                         .create(resultingInterval, img.firstElement().createVariable()));
+                return (Img<T>)new ImgCopyOperation<T>().compute(new ImgView<T>(
+                        Views.interval(Views.raster(RealViews.affineReal(
+                                                                         Views.interpolate(Views.extendBorder(img),
+                                                                                           new LanczosInterpolatorFactory<T>()),
+                                                                         new Scale(scaleFactors))),
+                                       resultingInterval),
+                        img.factory()), img.factory().create(resultingInterval, img.firstElement().createVariable()));
             case PERIODICAL:
                 return new ImgView<T>(Views.interval(Views.extendPeriodic(img), resultingInterval), img.factory());
             case ZERO:
-                return new ImgView<T>(Views.interval(Views.extendValue(img, img.firstElement().createVariable()),
-                                                     resultingInterval), img.factory());
+                return new ImgView<T>(
+                        Views.interval(Views.extendValue(img, img.firstElement().createVariable()), resultingInterval),
+                        img.factory());
             case MIN_VALUE:
                 T min = img.firstElement().createVariable();
                 min.setReal(min.getMinValue());

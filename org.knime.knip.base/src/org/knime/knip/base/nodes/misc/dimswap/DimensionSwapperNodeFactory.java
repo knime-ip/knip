@@ -95,8 +95,8 @@ public class DimensionSwapperNodeFactory<T extends RealType<T>> extends ValueToC
 
             @Override
             public void addDialogComponents() {
-                addDialogComponent("Options", "Mapping", new DialogComponentDimensionSwappingSelect(
-                        createMappingModel()));
+                addDialogComponent("Options", "Mapping",
+                                   new DialogComponentDimensionSwappingSelect(createMappingModel()));
 
             }
 
@@ -128,7 +128,7 @@ public class DimensionSwapperNodeFactory<T extends RealType<T>> extends ValueToC
 
             @Override
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
-                final ImgPlus<T> img = cellValue.getZeroMinImgPlus();
+                final ImgPlus<T> img = cellValue.getImgPlus();
                 long[] minimum = new long[img.numDimensions()];
                 img.min(minimum);
 
@@ -141,7 +141,7 @@ public class DimensionSwapperNodeFactory<T extends RealType<T>> extends ValueToC
 
                 try {
                     final ImgPlus<T> res =
-                            new ImgPlus<T>(new ImgView<T>(DimSwapper.swap(img, mapping), img.factory()), img);
+                            new ImgPlus<T>(ImgView.wrap(DimSwapper.swap(img, mapping), img.factory()), img);
 
                     // swap metadata
                     for (int i = 0; i < img.numDimensions(); i++) {

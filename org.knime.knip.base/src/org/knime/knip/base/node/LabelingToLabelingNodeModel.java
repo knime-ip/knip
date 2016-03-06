@@ -48,20 +48,22 @@
  */
 package org.knime.knip.base.node;
 
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.ops.operation.SubsetOperations;
-import net.imglib2.ops.operation.UnaryOutputOperation;
-import net.imglib2.roi.labeling.LabelingType;
-
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.NodeModel;
 import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingCellFactory;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
+import org.knime.knip.core.util.CellUtil;
+
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.ops.operation.UnaryOutputOperation;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelingType;
 
 /**
- * Use this {@link NodeModel}, if you want to map one {@link Labeling} on another {@link Labeling} row-wise
+ * Use this {@link NodeModel}, if you want to map one {@link ImgLabeling} on another {@link ImgLabeling} row-wise
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
@@ -69,8 +71,8 @@ import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
  * @param <L>
  * @param <M>
  */
-public abstract class LabelingToLabelingNodeModel<L extends Comparable<L>, M extends Comparable<M>> extends
-        ValueToCellNodeModel<LabelingValue<L>, LabelingCell<M>> {
+public abstract class LabelingToLabelingNodeModel<L extends Comparable<L>, M extends Comparable<M>>
+        extends ValueToCellNodeModel<LabelingValue<L>, LabelingCell<M>> {
 
     /**
      * Create {@link SettingsModelDimSelection}
@@ -143,20 +145,31 @@ public abstract class LabelingToLabelingNodeModel<L extends Comparable<L>, M ext
     @Override
     protected LabelingCell<M> compute(final LabelingValue<L> cellValue) throws Exception {
 
-        final UnaryOutputOperation<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<M>>> op = op(cellValue.getLabeling());
+        final RandomAccessibleInterval<LabelingType<L>> fromCell = cellValue.getLabeling();
+        final RandomAccessibleInterval<LabelingType<L>> zeroMinFromCell = CellUtil.getZeroMinLabeling(fromCell);
+        final UnaryOutputOperation<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<M>>> op =
+                op(zeroMinFromCell);
 
-        return m_labelingCellFactory.createCell(SubsetOperations.iterate(op, m_dimSelection
-                .getSelectedDimIndices(cellValue.getLabelingMetadata()), cellValue.getLabeling(), op.bufferFactory()
-                .instantiate(cellValue.getLabeling()), getExecutorService()), cellValue.getLabelingMetadata());
+        return m_labelingCellFactory.createCell(
+                                                CellUtil.getTranslatedLabeling(fromCell, SubsetOperations
+                                                        .iterate(op,
+                                                                 m_dimSelection.getSelectedDimIndices(cellValue
+                                                                         .getLabelingMetadata()),
+                                                                 zeroMinFromCell,
+                                                                 op.bufferFactory().instantiate(zeroMinFromCell),
+                                                                 getExecutorService())),
+                                                cellValue.getLabelingMetadata());
     }
 
     /**
-     * Create {@link UnaryOutputOperation} to map from one {@link Labeling} to another {@link Labeling}.
+     * Create {@link UnaryOutputOperation} to map from one {@link ImgLabeling} to another {@link ImgLabeling}.
      *
-     * @param labeling The incoming {@link Labeling}
-     * @return Operation which will be used to map from {@link Labeling} to another {@link Labeling}
+     * @param labeling The incoming {@link ImgLabeling}
+     * @return Operation which will be used to map from {@link ImgLabeling} to another {@link ImgLabeling}
      */
-    protected abstract UnaryOutputOperation<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<M>>> op(RandomAccessibleInterval<LabelingType<L>> labeling);
+    protected abstract
+              UnaryOutputOperation<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<M>>>
+              op(RandomAccessibleInterval<LabelingType<L>> labeling);
 
     /**
      * {@inheritDoc}

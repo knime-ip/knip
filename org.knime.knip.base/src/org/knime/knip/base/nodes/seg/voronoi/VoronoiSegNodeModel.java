@@ -55,17 +55,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import net.imagej.ImgPlus;
-import net.imglib2.Cursor;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.Img;
-import net.imglib2.ops.operation.BinaryOperation;
-import net.imglib2.ops.operation.SubsetOperations;
-import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.VoronoiLikeRegionGrowing;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.view.Views;
-
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -95,6 +84,18 @@ import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.KNIPGateway;
+import org.knime.knip.core.util.CellUtil;
+
+import net.imagej.ImgPlus;
+import net.imglib2.Cursor;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.Img;
+import net.imglib2.ops.operation.BinaryOperation;
+import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.ops.operation.randomaccessibleinterval.unary.regiongrowing.VoronoiLikeRegionGrowing;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
 
 /**
  *
@@ -103,16 +104,16 @@ import org.knime.knip.core.KNIPGateway;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>> extends NodeModel implements
-        BufferedDataTableHolder {
+public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>> extends NodeModel
+        implements BufferedDataTableHolder {
 
     /** the default value for the threshold. */
     private static final int DEFAULT_THRESHOLD = 0;
 
     private static final NodeLogger LOGGER = NodeLogger.getLogger(VoronoiSegNodeModel.class);
 
-    public static final String[] RESULT_COLUMNS = new String[]{"Complete segmentation", "Segmentation without seeds",
-            "Both, complete and without seeds"};
+    public static final String[] RESULT_COLUMNS =
+            new String[]{"Complete segmentation", "Segmentation without seeds", "Both, complete and without seeds"};
 
     static SettingsModelBoolean createFillHolesModel() {
         return new SettingsModelBoolean("fill_holes", true);
@@ -194,15 +195,20 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
 
             @Override
             public DataCell[] getCells(final DataRow row) {
+                final ImgPlusValue<T> imgValue = ((ImgPlusValue<T>)row.getCell(imgColIdx));
+                final LabelingValue<L> labelingValue = ((LabelingValue<L>)row.getCell(seedColIdx));
 
-                final ImgPlusValue<T> cellValue = ((ImgPlusValue<T>)row.getCell(imgColIdx));
-                final ImgPlus<T> img = cellValue.getImgPlus();
-                final RandomAccessibleInterval<LabelingType<L>> seed =
-                        ((LabelingValue<L>)row.getCell(seedColIdx)).getLabeling();
-                final long[] imgDims = new long[img.numDimensions()];
-                final long[] labDims = new long[seed.numDimensions()];
-                img.dimensions(imgDims);
-                seed.dimensions(labDims);
+                final RandomAccessibleInterval<LabelingType<L>> fromCellLabeling = labelingValue.getLabeling();
+                final RandomAccessibleInterval<LabelingType<L>> zeroMinFromCellLabeling =
+                        CellUtil.getZeroMinLabeling(fromCellLabeling);
+
+                final ImgPlus<T> fromCellImg = imgValue.getImgPlus();
+                final ImgPlus<T> zeroMinFromCellImg = CellUtil.getZeroMinImgPlus(fromCellImg);
+
+                final long[] imgDims = new long[zeroMinFromCellImg.numDimensions()];
+                final long[] labDims = new long[zeroMinFromCellLabeling.numDimensions()];
+                zeroMinFromCellImg.dimensions(imgDims);
+                zeroMinFromCellLabeling.dimensions(labDims);
 
                 if (!Arrays.equals(imgDims, labDims)) {
                     setWarningMessage("Labeling and Image dimensions in row " + row.getKey() + " are not compatible.");
@@ -217,12 +223,14 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
                 }
 
                 // prepare for the segmentation (ready to take off)
-                WrappedVoronoi voro = new WrappedVoronoi(img.firstElement());
+                WrappedVoronoi voro = new WrappedVoronoi(zeroMinFromCellImg.firstElement());
 
-                final RandomAccessibleInterval<LabelingType<L>> out = KNIPGateway.ops().create().imgLabeling(seed);
+                final RandomAccessibleInterval<LabelingType<L>> out =
+                        KNIPGateway.ops().create().imgLabeling(zeroMinFromCellLabeling);
 
                 try {
-                    SubsetOperations.iterate(voro, m_dimSelectionModel.getSelectedDimIndices(img), img, seed, out);
+                    SubsetOperations.iterate(voro, m_dimSelectionModel.getSelectedDimIndices(zeroMinFromCellImg),
+                                             zeroMinFromCellImg, zeroMinFromCellLabeling, out);
                 } catch (InterruptedException e1) {
                     throw new RuntimeException(e1);
                 } catch (ExecutionException e1) {
@@ -232,16 +240,16 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
                 DataCell[] cells;
                 if (m_resultCols.getStringValue().equals(RESULT_COLUMNS[0])) {
                     try {
-                        cells =
-                                new DataCell[]{m_labCellFactory.createCell(out, ((LabelingValue<L>)row
-                                        .getCell(seedColIdx)).getLabelingMetadata())};
+                        cells = new DataCell[]{
+                                m_labCellFactory.createCell(CellUtil.getTranslatedLabeling(fromCellLabeling, out),
+                                                            labelingValue.getLabelingMetadata())};
                     } catch (final IOException e) {
                         throw new RuntimeException(e);
                     }
                 } else {
                     final RandomAccessibleInterval<LabelingType<L>> resSeedless =
                             KNIPGateway.ops().create().imgLabeling(out);
-                    final Cursor<LabelingType<L>> srcCur = Views.iterable(seed).cursor();
+                    final Cursor<LabelingType<L>> srcCur = Views.iterable(zeroMinFromCellLabeling).cursor();
                     final Cursor<LabelingType<L>> resCur = Views.iterable(out).cursor();
                     final Cursor<LabelingType<L>> resSeedlessCur = Views.iterable(resSeedless).cursor();
                     while (srcCur.hasNext()) {
@@ -255,18 +263,19 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
                     try {
                         if (m_resultCols.getStringValue().equals(RESULT_COLUMNS[1])) {
 
-                            cells =
-                                    new DataCell[]{m_labCellFactory.createCell(resSeedless, ((LabelingValue<L>)row
-                                            .getCell(seedColIdx)).getLabelingMetadata())};
+                            cells = new DataCell[]{m_labCellFactory.createCell(
+                                                                               CellUtil.getTranslatedLabeling(fromCellLabeling,
+                                                                                                              resSeedless),
+                                                                               labelingValue.getLabelingMetadata())};
 
                         } else {
-                            cells =
-                                    new DataCell[]{
-                                            m_labCellFactory.createCell(out,
-                                                                        ((LabelingValue<L>)row.getCell(seedColIdx))
-                                                                                .getLabelingMetadata()),
-                                            m_labCellFactory.createCell(resSeedless, ((LabelingValue<L>)row
-                                                    .getCell(seedColIdx)).getLabelingMetadata())};
+                            cells = new DataCell[]{
+                                    m_labCellFactory.createCell(CellUtil.getTranslatedLabeling(fromCellLabeling, out),
+                                                                labelingValue.getLabelingMetadata()),
+                                    m_labCellFactory.createCell(
+                                                                CellUtil.getTranslatedLabeling(fromCellLabeling,
+                                                                                               resSeedless),
+                                                                labelingValue.getLabelingMetadata())};
                         }
                     } catch (final IOException e) {
                         throw new RuntimeException(e);
@@ -293,6 +302,7 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
                 return specs.toArray(new DataColumnSpec[specs.size()]);
             }
 
+            @SuppressWarnings("deprecation")
             @Override
             public void setProgress(final int curRowNr, final int rowCount, final RowKey lastKey,
                                     final ExecutionMonitor exec) {
@@ -364,8 +374,8 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
      * @see org.knime.core.node.NodeModel# loadInternals(java.io.File, org.knime.core.node.ExecutionMonitor)
      */
     @Override
-    protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
+    protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec)
+            throws IOException, CanceledExecutionException {
         // no internals to load
     }
 
@@ -407,8 +417,8 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
      * @see org.knime.core.node.NodeModel# saveInternals(java.io.File, org.knime.core.node.ExecutionMonitor)
      */
     @Override
-    protected void saveInternals(final File nodeInternDir, final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
+    protected void saveInternals(final File nodeInternDir, final ExecutionMonitor exec)
+            throws IOException, CanceledExecutionException {
         // no internals to save
     }
 
@@ -460,8 +470,7 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
 
     }
 
-    class WrappedVoronoi
-            implements
+    class WrappedVoronoi implements
             BinaryOperation<Img<T>, RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<L>>> {
 
         private T type;
@@ -479,8 +488,8 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
          */
         @Override
         public RandomAccessibleInterval<LabelingType<L>>
-                compute(final Img<T> img, final RandomAccessibleInterval<LabelingType<L>> seed,
-                        final RandomAccessibleInterval<LabelingType<L>> output) {
+               compute(final Img<T> img, final RandomAccessibleInterval<LabelingType<L>> seed,
+                       final RandomAccessibleInterval<LabelingType<L>> output) {
 
             return new VoronoiLikeRegionGrowing<L, T>(img, type, fillHoles).compute(seed, output);
         }
@@ -489,9 +498,8 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
          * {@inheritDoc}
          */
         @Override
-        public
-                BinaryOperation<Img<T>, RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<L>>>
-                copy() {
+        public BinaryOperation<Img<T>, RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<L>>>
+               copy() {
             return new WrappedVoronoi(type);
         }
 

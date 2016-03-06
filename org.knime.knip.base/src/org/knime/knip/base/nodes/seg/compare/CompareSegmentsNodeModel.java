@@ -287,7 +287,7 @@ public class CompareSegmentsNodeModel extends ThreadedColAppenderNodeModel {
 
     private int numPix(final ImgPlusValue<BitType> val) {
         int numPix = 0;
-        for (BitType t : val.getZeroMinImgPlus()) {
+        for (BitType t : val.getImgPlus()) {
             if (t.get()) {
                 numPix++;
             }

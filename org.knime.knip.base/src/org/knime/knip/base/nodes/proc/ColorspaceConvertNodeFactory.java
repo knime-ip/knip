@@ -66,6 +66,7 @@ import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.KNIPGateway;
+import org.knime.knip.core.util.CellUtil;
 import org.knime.knip.core.util.EnumUtils;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 
@@ -170,25 +171,29 @@ public class ColorspaceConvertNodeFactory<T extends RealType<T>> extends ValueTo
 
             @Override
             protected ImgPlusCell<FloatType> compute(final ImgPlusValue<T> cellValue) throws Exception {
-                ImgPlus<T> img = cellValue.getZeroMinImgPlus();
+
+                final ImgPlus<T> fromCell = cellValue.getImgPlus();
+                final ImgPlus<T> zeroMinFromCell = CellUtil.getZeroMinImgPlus(fromCell);
+
                 //create float image for convenience
-                Img<FloatType> res = KNIPGateway.ops().create().img(img, new FloatType());
-                int[] selDims = m_dimSel.getSelectedDimIndices(img);
+                Img<FloatType> res = KNIPGateway.ops().create().img(zeroMinFromCell, new FloatType());
+                int[] selDims = m_dimSel.getSelectedDimIndices(zeroMinFromCell);
                 if (selDims.length == 0) {
                     throw new KNIPRuntimeException("Selected dimension not present in image.");
                 }
-                if (img.dimension(selDims[0]) != 3) {
+                if (zeroMinFromCell.dimension(selDims[0]) != 3) {
                     throw new KNIPRuntimeException("Image must have exactly be of size 3 in the selected dimension!");
                 }
 
                 IterableInterval[] in = new IterableInterval[3];
                 IterableInterval[] out = new IterableInterval[3];
                 for (int i = 0; i < in.length; i++) {
-                    in[i] = Views.flatIterable(Views.hyperSlice(img, selDims[0], i));
+                    in[i] = Views.flatIterable(Views.hyperSlice(zeroMinFromCell, selDims[0], i));
                     out[i] = Views.flatIterable(Views.hyperSlice(res, selDims[0], i));
                 }
                 m_converter.convert(in, out);
-                return m_imgCellFac.createCell(new ImgPlus<FloatType>(res, img));
+                return m_imgCellFac.createCell(CellUtil
+                        .getTranslatedImgPlus(fromCell, new ImgPlus<FloatType>(res, zeroMinFromCell)));
             }
         };
     }

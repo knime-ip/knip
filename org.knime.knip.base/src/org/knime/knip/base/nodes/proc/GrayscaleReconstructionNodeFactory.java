@@ -64,6 +64,7 @@ import org.knime.knip.base.node.TwoValuesToCellNodeFactory;
 import org.knime.knip.base.node.TwoValuesToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
+import org.knime.knip.core.util.CellUtil;
 
 import net.imagej.ImgPlus;
 import net.imglib2.RandomAccessibleInterval;
@@ -197,15 +198,19 @@ public final class GrayscaleReconstructionNodeFactory<T extends RealType<T>>
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue1, final ImgPlusValue<T> cellValue2)
                     throws Exception {
 
-                final ImgPlus<T> mask = cellValue1.getZeroMinImgPlus();
-                final ImgPlus<T> marker = cellValue2.getZeroMinImgPlus();
+                final ImgPlus<T> fromCellA = cellValue1.getImgPlus();
+                final ImgPlus<T> mask = CellUtil.getZeroMinImgPlus(fromCellA);
+
+                final ImgPlus<T> fromCellB = cellValue2.getImgPlus();
+                final ImgPlus<T> marker = CellUtil.getZeroMinImgPlus(fromCellB);
+
+                if (!fromCellA.iterationOrder().equals(fromCellB.iterationOrder())) {
+                    throw new KNIPException(
+                            "Marker and mask don't have same iteration order. Reasons: Either min/max or dimensionality are not the same or the underlying data structures (e.g. ArrayImg vs CellImg) differ.");
+                }
 
                 if (mask.numDimensions() == 1) {
                     throw new KNIPException("One dimensional images are not supported by GrayScaleReconstruction");
-                }
-                if (mask.numDimensions() != marker.numDimensions()) {
-                    throw new KNIPException(
-                            "Dimensions of image in column one does not fit to dimension of image in column two!");
                 }
 
                 final int[] selectedDimIndices = m_dimSelection.getSelectedDimIndices(mask);

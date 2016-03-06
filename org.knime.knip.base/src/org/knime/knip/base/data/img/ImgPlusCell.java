@@ -75,6 +75,7 @@ import org.knime.knip.core.awt.Real2GreyColorRenderer;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
 import org.knime.knip.core.io.externalization.BufferedDataInputStream;
 import org.knime.knip.core.io.externalization.ExternalizerManager;
+import org.knime.knip.core.util.CellUtil;
 import org.scijava.Named;
 import org.scijava.cache.CacheService;
 
@@ -302,7 +303,7 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
 
         MetadataUtil.copyImgPlusMetadata(source, dest);
 
-        return dest;
+        return CellUtil.getTranslatedImgPlus(source, dest);
     }
 
     /**

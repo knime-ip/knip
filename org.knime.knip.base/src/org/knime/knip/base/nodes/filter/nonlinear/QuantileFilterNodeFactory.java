@@ -66,6 +66,7 @@ import org.knime.knip.base.node.dialog.DescriptionHelper;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.dialog.DialogComponentSpanSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
+import org.knime.knip.core.util.CellUtil;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 
 import net.imagej.ImgPlus;
@@ -184,9 +185,11 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
             @Override
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
 
-                final ImgPlus<T> inImg = cellValue.getZeroMinImgPlus();
-                final T type = cellValue.getZeroMinImgPlus().firstElement();
-                int[] selectedDimIndices = m_smDimSel.getSelectedDimIndices(inImg);
+                final ImgPlus<T> fromCell = cellValue.getImgPlus();
+                final ImgPlus<T> zeroMinFromCell = CellUtil.getZeroMinImgPlus(fromCell);
+
+                final T type = zeroMinFromCell.firstElement();
+                int[] selectedDimIndices = m_smDimSel.getSelectedDimIndices(zeroMinFromCell);
 
                 if (selectedDimIndices.length == 1) {
                     throw new KNIPException("One dimensional images can't be processed with the Quantil Filter.");
@@ -194,7 +197,7 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
 
                 int dim1 = 0;
                 for (int idx : selectedDimIndices) {
-                    if (inImg.dimension(idx) <= 1) {
+                    if (zeroMinFromCell.dimension(idx) <= 1) {
                         dim1++;
                     }
                 }
@@ -210,26 +213,30 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
                             new Convert<T, UnsignedByteType>(type, new UnsignedByteType(), TypeConversionTypes.SCALE);
 
                     final ConvertedRandomAccessibleInterval<T, UnsignedByteType> randomAccessibleInterval =
-                            new ConvertedRandomAccessibleInterval<T, UnsignedByteType>(inImg, convertOp,
+                            new ConvertedRandomAccessibleInterval<T, UnsignedByteType>(zeroMinFromCell, convertOp,
                                     new UnsignedByteType());
 
                     unsignedByteTypeImg =
-                            new ImgPlus<UnsignedByteType>(new ImgView<UnsignedByteType>(randomAccessibleInterval, inImg
-                                    .factory().imgFactory(new UnsignedByteType())), inImg);
+                            new ImgPlus<UnsignedByteType>(
+                                    new ImgView<UnsignedByteType>(randomAccessibleInterval,
+                                            zeroMinFromCell.factory().imgFactory(new UnsignedByteType())),
+                                    zeroMinFromCell);
                 } else {
-                    unsignedByteTypeImg = (ImgPlus<UnsignedByteType>)inImg;
+                    unsignedByteTypeImg = (ImgPlus<UnsignedByteType>)zeroMinFromCell;
                 }
 
-                ImgPlus<UnsignedByteType> wrappedImgPlus = new ImgPlus<UnsignedByteType>(unsignedByteTypeImg, inImg);
+                ImgPlus<UnsignedByteType> wrappedImgPlus =
+                        new ImgPlus<UnsignedByteType>(unsignedByteTypeImg, zeroMinFromCell);
 
                 UnaryOutputOperation<ImgPlus<UnsignedByteType>, ImgPlus<UnsignedByteType>> wrappedOp =
                         ImgOperations.wrapRA(new QuantileFilter<UnsignedByteType>(m_smRadius.getIntValue(),
                                 m_smQuantile.getIntValue()), new UnsignedByteType());
 
                 final Img<UnsignedByteType> unsignedByteTypeResImg =
-                        SubsetOperations.iterate(wrappedOp, m_smDimSel.getSelectedDimIndices(inImg), wrappedImgPlus,
-                                                 wrappedOp.bufferFactory().instantiate(wrappedImgPlus),
-                                                 getExecutorService()).getImg();
+                        SubsetOperations
+                                .iterate(wrappedOp, m_smDimSel.getSelectedDimIndices(zeroMinFromCell), wrappedImgPlus,
+                                         wrappedOp.bufferFactory().instantiate(wrappedImgPlus), getExecutorService())
+                                .getImg();
 
                 Img<T> resImg = null;
                 if (!(type instanceof UnsignedByteType)) {
@@ -240,14 +247,15 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
                             new ConvertedRandomAccessibleInterval<UnsignedByteType, T>(unsignedByteTypeResImg,
                                     convertOp, type);
 
-                    resImg = new ImgPlus<T>(new ImgView<T>(randomAccessibleInterval, inImg.factory()), inImg);
+                    resImg = new ImgPlus<T>(new ImgView<T>(randomAccessibleInterval, zeroMinFromCell.factory()),
+                            zeroMinFromCell);
                 } else {
                     resImg = (Img<T>)unsignedByteTypeResImg;
                 }
 
-                final ImgPlus res = new ImgPlus(resImg, cellValue.getMetadata());
+                final ImgPlus<T> res = new ImgPlus<T>(resImg, cellValue.getMetadata());
                 MetadataUtil.copySource(cellValue.getMetadata(), res);
-                return m_imgCellFactory.createCell(res);
+                return m_imgCellFactory.createCell(CellUtil.getTranslatedImgPlus(fromCell, res));
             }
 
             /**
