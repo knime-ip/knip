@@ -190,8 +190,8 @@ public final class BinaryArithmeticNodeFactory
 
                 if (m_synchronize.getBooleanValue()) {
                     zeroMinFromCell2 = new ImgPlus<BitType>(
-                            ImgView.wrap(MiscViews.synchronizeDimensionality(zeroMinFromCell1, zeroMinFromCell1,
-                                                                             zeroMinFromCell2, zeroMinFromCell2),
+                            ImgView.wrap(MiscViews.synchronizeDimensionality(zeroMinFromCell2, zeroMinFromCell2,
+                                                                             zeroMinFromCell1, zeroMinFromCell1),
                                          zeroMinFromCell1.factory()),
                             zeroMinFromCell1);
                 }
