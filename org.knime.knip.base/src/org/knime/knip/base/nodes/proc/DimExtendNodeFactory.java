@@ -61,7 +61,6 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
-import org.knime.knip.core.util.CellUtil;
 
 import net.imagej.ImgPlus;
 import net.imglib2.img.ImgView;
@@ -129,11 +128,10 @@ public class DimExtendNodeFactory<T extends RealType<T>> extends ValueToCellNode
             @Override
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
 
-                final ImgPlus<T> fromCell = cellValue.getImgPlus();
-                ImgPlus<T> zeroMinFromCell = CellUtil.getZeroMinImgPlus(fromCell);
+                ImgPlus<T> fromCell = cellValue.getImgPlus();
 
                 long[] minimum = new long[cellValue.getDimensions().length];
-                zeroMinFromCell.min(minimum);
+                fromCell.min(minimum);
 
                 long[] newMinimum = new long[minimum.length + 1];
                 System.arraycopy(minimum, 0, newMinimum, 0, minimum.length);
@@ -141,19 +139,16 @@ public class DimExtendNodeFactory<T extends RealType<T>> extends ValueToCellNode
                 if (Arrays.stream(minimum).sum() > 0) {
                     //if a minimum has been set (i.e. different from 0),
                     //translate the image to the origin
-                    zeroMinFromCell = new ImgPlus<T>(
-                            ImgView.wrap(Views.translate(zeroMinFromCell, Arrays.stream(minimum).map(l -> {
+                    fromCell = new ImgPlus<T>(ImgView.wrap(Views.translate(fromCell, Arrays.stream(minimum).map(l -> {
                         return -l;
-                    }).toArray()), zeroMinFromCell.factory()), zeroMinFromCell);
+                    }).toArray()), fromCell.factory()), fromCell);
                 }
-                ImgPlus<T> res = Operations.compute(m_ext, zeroMinFromCell);
-                res = new ImgPlus<T>(ImgView.wrap(Views.translate(res, newMinimum), zeroMinFromCell.factory()),
-                        res);
+                ImgPlus<T> res = Operations.compute(m_ext, fromCell);
+                res = new ImgPlus<T>(ImgView.wrap(Views.translate(res, newMinimum), fromCell.factory()), res);
 
                 res.setName(cellValue.getMetadata().getName());
-                res.setSource(cellValue.getMetadata().getSource());
 
-                return m_imgCellFactory.createCell(CellUtil.getTranslatedImgPlus(fromCell, res));
+                return m_imgCellFactory.createCell(res);
             }
 
             @Override

@@ -183,15 +183,15 @@ public final class BinaryArithmeticNodeFactory
                 final ImgPlus<BitType> fromCell1 = cellValue1.getImgPlus();
                 final ImgPlus<BitType> zeroMinFromCell1 = CellUtil.getZeroMinImgPlus(fromCell1);
 
-                final ImgPlus<BitType> fromCell2 = cellValue1.getImgPlus();
+                final ImgPlus<BitType> fromCell2 = cellValue2.getImgPlus();
                 ImgPlus<BitType> zeroMinFromCell2 = CellUtil.getZeroMinImgPlus(fromCell2);
 
                 final Img<BitType> out = KNIPGateway.ops().create().img(cellValue1.getImgPlus());
 
                 if (m_synchronize.getBooleanValue()) {
                     zeroMinFromCell2 = new ImgPlus<BitType>(
-                            ImgView.wrap(MiscViews.synchronizeDimensionality(zeroMinFromCell2, zeroMinFromCell2,
-                                                                             zeroMinFromCell1, zeroMinFromCell1),
+                            ImgView.wrap(MiscViews.synchronizeDimensionality(zeroMinFromCell1, zeroMinFromCell1,
+                                                                             zeroMinFromCell2, zeroMinFromCell2),
                                          zeroMinFromCell1.factory()),
                             zeroMinFromCell1);
                 }
