@@ -96,16 +96,21 @@ public class MiscViews {
         final long[] oldMin = Intervals.minAsLongArray(ret);
         final long[] newMin = new long[oldMin.length];
 
+        boolean hasNonZeroMin = false;
         int offset = 0;
         for (int i = 0; i < oldMin.length; i++) {
             if (oneSizedDims.contains(i)) {
                 offset++;
             } else {
                 newMin[i - offset] = oldMin[i];
+                if (newMin[i - offset] != 0) {
+                    hasNonZeroMin = true;
+                }
             }
         }
 
-        return new ImgPlus<>(ImgView.wrap(Views.translate(imgPlusView.getImg(), newMin), imgPlusView.factory()),
+        return new ImgPlus<>(hasNonZeroMin
+                ? ImgView.wrap(Views.translate(imgPlusView.getImg(), newMin), imgPlusView.factory()) : imgPlusView,
                 imgPlusView);
     }
 
