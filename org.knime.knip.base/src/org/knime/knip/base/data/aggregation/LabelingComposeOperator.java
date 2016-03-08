@@ -59,24 +59,6 @@ import java.util.List;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
-import net.imagej.space.DefaultCalibratedSpace;
-import net.imglib2.Cursor;
-import net.imglib2.FinalInterval;
-import net.imglib2.Interval;
-import net.imglib2.RandomAccess;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.Img;
-import net.imglib2.img.ImgFactory;
-import net.imglib2.iterator.IntervalIterator;
-import net.imglib2.roi.labeling.ImgLabeling;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.type.NativeType;
-import net.imglib2.type.logic.BitType;
-import net.imglib2.type.numeric.IntegerType;
-import net.imglib2.util.Intervals;
-import net.imglib2.util.Util;
-import net.imglib2.view.Views;
-
 import org.knime.base.data.aggregation.AggregationOperator;
 import org.knime.base.data.aggregation.GlobalSettings;
 import org.knime.base.data.aggregation.OperatorColumnSettings;
@@ -111,6 +93,24 @@ import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.types.NativeTypes;
 import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.Triple;
+
+import net.imagej.space.DefaultCalibratedSpace;
+import net.imglib2.Cursor;
+import net.imglib2.FinalInterval;
+import net.imglib2.Interval;
+import net.imglib2.RandomAccess;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.Img;
+import net.imglib2.img.ImgFactory;
+import net.imglib2.iterator.IntervalIterator;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.logic.BitType;
+import net.imglib2.type.numeric.IntegerType;
+import net.imglib2.util.Intervals;
+import net.imglib2.util.Util;
+import net.imglib2.view.Views;
 
 /**
  *
@@ -274,6 +274,10 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>, L
      */
     @Override
     protected boolean computeInternal(final DataRow row, final DataCell cell) {
+
+        if(cell.isMissing()) {
+            return false;
+        }
 
         // check correct pixel type
         if (!(((ImgPlusValue)cell).getImgPlus().firstElement() instanceof BitType)) {

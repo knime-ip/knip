@@ -223,6 +223,10 @@ public class ImgComposeOperator<T1 extends RealType<T1>, T2 extends RealType<T2>
     @Override
     protected boolean computeInternal(final DataRow row, final DataCell cell) {
 
+        if(cell.isMissing()) {
+            return false;
+        }
+
         final int intervalColIdx = getGlobalSettings().findColumnIndex(m_intervalCol);
 
         // if no column index is there, collect all tiles and put them
