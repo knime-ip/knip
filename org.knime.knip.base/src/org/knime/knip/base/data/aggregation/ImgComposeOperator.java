@@ -57,19 +57,6 @@ import java.util.List;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
-import net.imagej.ImgPlus;
-import net.imagej.ImgPlusMetadata;
-import net.imagej.space.DefaultCalibratedSpace;
-import net.imglib2.Cursor;
-import net.imglib2.FinalInterval;
-import net.imglib2.Interval;
-import net.imglib2.RandomAccess;
-import net.imglib2.img.Img;
-import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.view.Views;
-
 import org.knime.base.data.aggregation.AggregationOperator;
 import org.knime.base.data.aggregation.GlobalSettings;
 import org.knime.base.data.aggregation.OperatorColumnSettings;
@@ -95,6 +82,19 @@ import org.knime.knip.core.data.img.DefaultImageMetadata;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
 import org.knime.knip.core.types.NativeTypes;
 import org.knime.knip.core.util.EnumUtils;
+
+import net.imagej.ImgPlus;
+import net.imagej.ImgPlusMetadata;
+import net.imagej.space.DefaultCalibratedSpace;
+import net.imglib2.Cursor;
+import net.imglib2.FinalInterval;
+import net.imglib2.Interval;
+import net.imglib2.RandomAccess;
+import net.imglib2.img.Img;
+import net.imglib2.img.array.ArrayImgFactory;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
 
 /**
  *
@@ -182,8 +182,6 @@ public class ImgComposeOperator<T1 extends RealType<T1>, T2 extends RealType<T2>
      */
     private boolean addToImage(final ImgPlusValue<T1> val) {
         final Img<T1> patch = val.getImgPlus();
-        final long[] min = new long[patch.numDimensions()];
-        patch.min(min);
 
         if (patch.numDimensions() != m_resultImg.numDimensions()) {
             return false;
@@ -201,7 +199,7 @@ public class ImgComposeOperator<T1 extends RealType<T1>, T2 extends RealType<T2>
             final double curr = patchCursor.get().getRealDouble();
 
             for (int d = 0; d < Math.min(patchCursor.numDimensions(), m_resAccess.numDimensions()); d++) {
-                m_resAccess.setPosition(min[d] + patchCursor.getLongPosition(d), d);
+                m_resAccess.setPosition(patchCursor.getLongPosition(d), d);
             }
 
             m_resAccess.get().setReal(curr);
