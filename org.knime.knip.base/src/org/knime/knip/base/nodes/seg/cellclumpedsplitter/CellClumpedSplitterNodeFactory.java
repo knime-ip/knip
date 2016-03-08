@@ -187,7 +187,6 @@ public class CellClumpedSplitterNodeFactory<T extends RealType<T>, L extends Com
                 final RandomAccessibleInterval<LabelingType<L>> fromCell = cellValue.getLabeling();
                 final RandomAccessibleInterval<LabelingType<L>> zeroMinFromCell =
                         MinimaUtils.getZeroMinLabeling(fromCell);
-
                 m_executor = getExecutorService();
                 final CellClumpedSplitter<L> op =
                         new CellClumpedSplitter<L>(NeighborhoodType.valueOf(m_smNeighborhood.getStringValue()),
