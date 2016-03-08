@@ -89,7 +89,7 @@ import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableRenderer;
 import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableUtils;
 import org.knime.knip.core.awt.labelingcolortable.RandomMissingColorHandler;
 import org.knime.knip.core.awt.parametersupport.RendererWithLabels;
-import org.knime.knip.core.util.CellUtil;
+import org.knime.knip.core.util.MinimaUtils;
 
 import net.imagej.ImgPlus;
 import net.imglib2.Interval;
@@ -168,10 +168,10 @@ public class LabelingToPNGValueNodeModel<T extends RealType<T>, L extends Compar
 
         final RandomAccessibleInterval<LabelingType<L>> fromCellLabeling = labelingValue.getLabeling();
         final RandomAccessibleInterval<LabelingType<L>> zeroMinFromCellLabeling =
-                CellUtil.getZeroMinLabeling(fromCellLabeling);
+                MinimaUtils.getZeroMinLabeling(fromCellLabeling);
 
         final ImgPlus<T> fromCellImg = imgValue.getImgPlus();
-        final ImgPlus<T> zeroMinFromCellImg = CellUtil.getZeroMinImgPlus(fromCellImg);
+        final ImgPlus<T> zeroMinFromCellImg = MinimaUtils.getZeroMinImgPlus(fromCellImg);
 
         final ImgPlus<T> imgPlus = zeroMinFromCellImg;
 

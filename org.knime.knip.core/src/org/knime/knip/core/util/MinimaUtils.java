@@ -55,15 +55,19 @@ import net.imagej.ImgPlus;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.ImgView;
+import net.imglib2.labeling.Labeling;
 import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Intervals;
 import net.imglib2.view.Views;
 
 /**
+ * Utility functions mainly used to work with the minima of {@link ImgPlus}' or {@link Labeling}s. It mainly provides
+ * convenience methods to translate imgs or labelings with respect to their minima.
+ *
  * @author Christian Dietz, University of Konstanz
  */
-public class CellUtil {
+public class MinimaUtils {
 
     /**
      * @param imgPlus

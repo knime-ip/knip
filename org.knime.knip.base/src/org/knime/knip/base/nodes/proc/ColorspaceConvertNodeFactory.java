@@ -66,7 +66,7 @@ import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.KNIPGateway;
-import org.knime.knip.core.util.CellUtil;
+import org.knime.knip.core.util.MinimaUtils;
 import org.knime.knip.core.util.EnumUtils;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 
@@ -173,7 +173,7 @@ public class ColorspaceConvertNodeFactory<T extends RealType<T>> extends ValueTo
             protected ImgPlusCell<FloatType> compute(final ImgPlusValue<T> cellValue) throws Exception {
 
                 final ImgPlus<T> fromCell = cellValue.getImgPlus();
-                final ImgPlus<T> zeroMinFromCell = CellUtil.getZeroMinImgPlus(fromCell);
+                final ImgPlus<T> zeroMinFromCell = MinimaUtils.getZeroMinImgPlus(fromCell);
 
                 //create float image for convenience
                 Img<FloatType> res = KNIPGateway.ops().create().img(zeroMinFromCell, new FloatType());
@@ -192,7 +192,7 @@ public class ColorspaceConvertNodeFactory<T extends RealType<T>> extends ValueTo
                     out[i] = Views.flatIterable(Views.hyperSlice(res, selDims[0], i));
                 }
                 m_converter.convert(in, out);
-                return m_imgCellFac.createCell(CellUtil
+                return m_imgCellFac.createCell(MinimaUtils
                         .getTranslatedImgPlus(fromCell, new ImgPlus<FloatType>(res, zeroMinFromCell)));
             }
         };

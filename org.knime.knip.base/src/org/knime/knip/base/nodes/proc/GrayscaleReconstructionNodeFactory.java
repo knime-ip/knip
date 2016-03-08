@@ -64,7 +64,7 @@ import org.knime.knip.base.node.TwoValuesToCellNodeFactory;
 import org.knime.knip.base.node.TwoValuesToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
-import org.knime.knip.core.util.CellUtil;
+import org.knime.knip.core.util.MinimaUtils;
 
 import net.imagej.ImgPlus;
 import net.imglib2.RandomAccessibleInterval;
@@ -199,10 +199,10 @@ public final class GrayscaleReconstructionNodeFactory<T extends RealType<T>>
                     throws Exception {
 
                 final ImgPlus<T> fromCellA = cellValue1.getImgPlus();
-                final ImgPlus<T> mask = CellUtil.getZeroMinImgPlus(fromCellA);
+                final ImgPlus<T> mask = MinimaUtils.getZeroMinImgPlus(fromCellA);
 
                 final ImgPlus<T> fromCellB = cellValue2.getImgPlus();
-                final ImgPlus<T> marker = CellUtil.getZeroMinImgPlus(fromCellB);
+                final ImgPlus<T> marker = MinimaUtils.getZeroMinImgPlus(fromCellB);
 
                 if (!fromCellA.iterationOrder().equals(fromCellB.iterationOrder())) {
                     throw new KNIPException(

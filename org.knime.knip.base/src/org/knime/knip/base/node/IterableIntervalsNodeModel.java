@@ -65,7 +65,7 @@ import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.KNIPGateway;
-import org.knime.knip.core.util.CellUtil;
+import org.knime.knip.core.util.MinimaUtils;
 import org.knime.knip.core.util.EnumUtils;
 
 import net.imagej.ImgPlus;
@@ -314,7 +314,7 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
     protected ImgPlusCell<V> compute(final ImgPlusValue<T> cellValue) throws Exception {
 
         ImgPlus<T> imgPlus = cellValue.getImgPlus();
-        ImgPlus<T> in = CellUtil.getZeroMinImgPlus(imgPlus);
+        ImgPlus<T> in = MinimaUtils.getZeroMinImgPlus(imgPlus);
         ImgPlus<V> res = createResultImage(cellValue.getImgPlus());
 
         if (m_hasDimSelection && !m_dimSelectionModel.isContainedIn(cellValue.getMetadata())) {
@@ -396,7 +396,7 @@ public abstract class IterableIntervalsNodeModel<T extends RealType<T>, V extend
 
         postExecute();
         m_currentLabeling = null;
-        return m_cellFactory.createCell(CellUtil.getTranslatedImgPlus(imgPlus, res));
+        return m_cellFactory.createCell(MinimaUtils.getTranslatedImgPlus(imgPlus, res));
     }
 
     /**

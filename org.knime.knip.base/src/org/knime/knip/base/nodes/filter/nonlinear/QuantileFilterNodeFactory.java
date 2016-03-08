@@ -66,7 +66,7 @@ import org.knime.knip.base.node.dialog.DescriptionHelper;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.dialog.DialogComponentSpanSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
-import org.knime.knip.core.util.CellUtil;
+import org.knime.knip.core.util.MinimaUtils;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 
 import net.imagej.ImgPlus;
@@ -186,7 +186,7 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
 
                 final ImgPlus<T> fromCell = cellValue.getImgPlus();
-                final ImgPlus<T> zeroMinFromCell = CellUtil.getZeroMinImgPlus(fromCell);
+                final ImgPlus<T> zeroMinFromCell = MinimaUtils.getZeroMinImgPlus(fromCell);
 
                 final T type = zeroMinFromCell.firstElement();
                 int[] selectedDimIndices = m_smDimSel.getSelectedDimIndices(zeroMinFromCell);
@@ -255,7 +255,7 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
 
                 final ImgPlus<T> res = new ImgPlus<T>(resImg, cellValue.getMetadata());
                 MetadataUtil.copySource(cellValue.getMetadata(), res);
-                return m_imgCellFactory.createCell(CellUtil.getTranslatedImgPlus(fromCell, res));
+                return m_imgCellFactory.createCell(MinimaUtils.getTranslatedImgPlus(fromCell, res));
             }
 
             /**

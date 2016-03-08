@@ -71,7 +71,7 @@ import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
 import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.types.ImgFactoryTypes;
-import org.knime.knip.core.util.CellUtil;
+import org.knime.knip.core.util.MinimaUtils;
 import org.knime.knip.core.util.EnumUtils;
 
 import net.imagej.ImgPlus;
@@ -180,7 +180,7 @@ public class ConnectedCompAnalysisNodeFactory<T extends RealType<T> & Comparable
             protected LabelingCell<Integer> compute(final ImgPlusValue<T> cellValue) throws IOException {
 
                 final ImgPlus<T> fromCell = cellValue.getImgPlus();
-                final ImgPlus<T> zeroMinFromCell = CellUtil.getZeroMinImgPlus(fromCell);
+                final ImgPlus<T> zeroMinFromCell = MinimaUtils.getZeroMinImgPlus(fromCell);
 
                 final T background = zeroMinFromCell.firstElement().createVariable();
                 background.setReal(m_background.getIntValue());
@@ -215,7 +215,7 @@ public class ConnectedCompAnalysisNodeFactory<T extends RealType<T> & Comparable
                     LOGGER.warn("Couldn't retrieve results because thread execution was interrupted/aborted", e);
                 }
 
-                return m_labCellFactory.createCell(CellUtil.getTranslatedLabeling(fromCell, lab),
+                return m_labCellFactory.createCell(MinimaUtils.getTranslatedLabeling(fromCell, lab),
                                                    new DefaultLabelingMetadata(zeroMinFromCell, zeroMinFromCell,
                                                            zeroMinFromCell, new DefaultLabelingColorTable()));
             }

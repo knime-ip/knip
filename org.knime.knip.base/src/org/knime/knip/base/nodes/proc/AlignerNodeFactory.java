@@ -68,7 +68,7 @@ import org.knime.knip.base.node.dialog.DialogComponentSubsetSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
 import org.knime.knip.core.ops.img.algorithms.Aligner;
-import org.knime.knip.core.util.CellUtil;
+import org.knime.knip.core.util.MinimaUtils;
 
 import net.imagej.ImgPlus;
 import net.imglib2.FinalInterval;
@@ -210,7 +210,7 @@ public class AlignerNodeFactory<T extends RealType<T>, V extends RealType<V>>
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValueA, final ImgPlusValue<V> cellValueB)
                     throws Exception {
                 final ImgPlus<T> fromCell = cellValueA.getImgPlus();
-                final ImgPlus<T> zeroMinFromCell = CellUtil.getZeroMinImgPlus(fromCell);
+                final ImgPlus<T> zeroMinFromCell = MinimaUtils.getZeroMinImgPlus(fromCell);
 
                 final int[] selectedDims1 = m_dimSelection1.getSelectedDimIndices(zeroMinFromCell);
                 final int[] selectedDims2 = m_dimSelection2.getSelectedDimIndices(zeroMinFromCell);
@@ -258,14 +258,14 @@ public class AlignerNodeFactory<T extends RealType<T>, V extends RealType<V>>
                 }
 
                 return m_imgCellFactory
-                        .createCell(CellUtil
+                        .createCell(MinimaUtils
                                 .getTranslatedImgPlus(fromCell, new ImgPlus<>(
                                         Operations.compute(
                                                            new Aligner<T, V>(selectedDims1, selectedDim2, ivs[0],
                                                                    sizemode, alignmode, m_stepSize.getIntValue(),
                                                                    m_minPixOverlap.getIntValue()),
                                                            zeroMinFromCell,
-                                                           CellUtil.getZeroMinImgPlus(cellValueB.getImgPlus())),
+                                                           MinimaUtils.getZeroMinImgPlus(cellValueB.getImgPlus())),
                                         cellValueA.getMetadata())));
             }
 

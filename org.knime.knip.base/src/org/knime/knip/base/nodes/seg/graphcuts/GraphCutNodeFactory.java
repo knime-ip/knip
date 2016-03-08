@@ -76,7 +76,7 @@ import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.ops.seg.GraphCut2D;
 import org.knime.knip.core.ops.seg.GraphCut2DLab;
-import org.knime.knip.core.util.CellUtil;
+import org.knime.knip.core.util.MinimaUtils;
 
 import net.imagej.ImgPlus;
 import net.imglib2.RandomAccessibleInterval;
@@ -300,7 +300,7 @@ public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
                     throws Exception {
 
                 final ImgPlus<T> fromCellImg = cellValue1.getImgPlus();
-                final ImgPlus<T> zeroMinFromCellImg = CellUtil.getZeroMinImgPlus(fromCellImg);
+                final ImgPlus<T> zeroMinFromCellImg = MinimaUtils.getZeroMinImgPlus(fromCellImg);
 
                 final int[] selectedDims =
                         m_dimSelection.getSelectedDimIndices(zeroMinFromCellImg.numDimensions(), zeroMinFromCellImg);
@@ -310,7 +310,7 @@ public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
                 if (cellValue2 != null) {
                     final RandomAccessibleInterval<LabelingType<L>> fromCellLabeling = cellValue2.getLabeling();
                     final RandomAccessibleInterval<LabelingType<L>> zeroMinFromCellLabeling =
-                            CellUtil.getZeroMinLabeling(fromCellLabeling);
+                            MinimaUtils.getZeroMinLabeling(fromCellLabeling);
 
                     GraphCut2DLab<T, L> cutOp;
                     if (selectedFeatDims.length == 0) {
@@ -326,14 +326,14 @@ public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
                                                                                       new BitType()),
                                                        getExecutorService());
 
-                        return m_imgCellFactory.createCell(CellUtil
+                        return m_imgCellFactory.createCell(MinimaUtils
                                 .getTranslatedImgPlus(fromCellImg, new ImgPlus<>(out, cellValue1.getMetadata())));
 
                     } else {
                         cutOp = new GraphCut2DLab<T, L>(m_lambdaSelection.getDoubleValue(), m_fgLabel.getStringValue(),
                                 m_bgLabel.getStringValue(), selectedDims[0], selectedDims[1], selectedFeatDims[0]);
 
-                        return m_imgCellFactory.createCell(CellUtil
+                        return m_imgCellFactory.createCell(MinimaUtils
                                 .getTranslatedImgPlus(fromCellImg,
                                                       new ImgPlus<>(
                                                               Operations.compute(cutOp, zeroMinFromCellImg,
@@ -365,7 +365,7 @@ public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
                                                                                       new BitType()),
                                                        getExecutorService());
 
-                        return m_imgCellFactory.createCell(CellUtil
+                        return m_imgCellFactory.createCell(MinimaUtils
                                 .getTranslatedImgPlus(fromCellImg, new ImgPlus<>(out, cellValue1.getMetadata())));
                     } else {
                         final GraphCut2D<T, Img<T>, Img<BitType>> cutOp =
@@ -373,7 +373,7 @@ public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
                                         selectedDims[1], selectedFeatDims[0], sink, source);
 
                         return m_imgCellFactory
-                                .createCell(CellUtil.getTranslatedImgPlus(fromCellImg,
+                                .createCell(MinimaUtils.getTranslatedImgPlus(fromCellImg,
                                                                           new ImgPlus<>(
                                                                                   Operations.compute(cutOp,
                                                                                                      zeroMinFromCellImg),

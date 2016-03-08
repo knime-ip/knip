@@ -92,7 +92,7 @@ import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
 import org.knime.knip.core.types.NativeTypes;
-import org.knime.knip.core.util.CellUtil;
+import org.knime.knip.core.util.MinimaUtils;
 import org.knime.knip.core.util.MiscViews;
 import org.nfunk.jep.Variable;
 
@@ -235,7 +235,7 @@ public class ImgJEPNodeModel extends NodeModel implements BufferedDataTableHolde
                         // row)
                         useAutoGuess = false;
                         final ImgPlus tmpImg =
-                                CellUtil.getZeroMinImgPlus(((ImgPlusValue)row.getCell(index)).getImgPlus());
+                                MinimaUtils.getZeroMinImgPlus(((ImgPlusValue)row.getCell(index)).getImgPlus());
 
                         referenceDims = new long[tmpImg.numDimensions()];
                         tmpImg.dimensions(referenceDims);
@@ -258,7 +258,7 @@ public class ImgJEPNodeModel extends NodeModel implements BufferedDataTableHolde
                         if (c.isMissing()) {
                             return DataType.getMissingCell();
                         } else if (c instanceof ImgPlusValue) {
-                            img = CellUtil.getZeroMinImgPlus(((ImgPlusValue)c).getImgPlus());
+                            img = MinimaUtils.getZeroMinImgPlus(((ImgPlusValue)c).getImgPlus());
                         } else if (c instanceof DoubleValue) {
                             num = ((DoubleValue)c).getDoubleValue();
                         } else if (c instanceof IntValue) {

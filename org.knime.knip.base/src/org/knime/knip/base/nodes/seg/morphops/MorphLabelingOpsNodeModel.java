@@ -76,7 +76,7 @@ import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.KNIPGateway;
-import org.knime.knip.core.util.CellUtil;
+import org.knime.knip.core.util.MinimaUtils;
 
 import net.imagej.ImgPlus;
 import net.imglib2.RandomAccessibleInterval;
@@ -270,7 +270,7 @@ public class MorphLabelingOpsNodeModel<L extends Comparable<L>>
         };
 
         final RandomAccessibleInterval<LabelingType<L>> fromCell = cellValue.getLabeling();
-        final RandomAccessibleInterval<LabelingType<L>> zeroMinFromCell = CellUtil.getZeroMinLabeling(fromCell);
+        final RandomAccessibleInterval<LabelingType<L>> zeroMinFromCell = MinimaUtils.getZeroMinLabeling(fromCell);
 
         final RandomAccessibleInterval<LabelingType<L>> res = KNIPGateway.ops().create().imgLabeling(zeroMinFromCell);
 
@@ -289,7 +289,7 @@ public class MorphLabelingOpsNodeModel<L extends Comparable<L>>
             LOGGER.warn("Couldn't retrieve results because thread execution was interrupted/aborted", e);
         }
 
-        return m_labCellFactory.createCell(CellUtil.getTranslatedLabeling(fromCell, res),
+        return m_labCellFactory.createCell(MinimaUtils.getTranslatedLabeling(fromCell, res),
                                            cellValue.getLabelingMetadata());
     }
 

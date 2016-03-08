@@ -54,7 +54,7 @@ import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingCellFactory;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
-import org.knime.knip.core.util.CellUtil;
+import org.knime.knip.core.util.MinimaUtils;
 
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.ops.operation.SubsetOperations;
@@ -146,12 +146,12 @@ public abstract class LabelingToLabelingNodeModel<L extends Comparable<L>, M ext
     protected LabelingCell<M> compute(final LabelingValue<L> cellValue) throws Exception {
 
         final RandomAccessibleInterval<LabelingType<L>> fromCell = cellValue.getLabeling();
-        final RandomAccessibleInterval<LabelingType<L>> zeroMinFromCell = CellUtil.getZeroMinLabeling(fromCell);
+        final RandomAccessibleInterval<LabelingType<L>> zeroMinFromCell = MinimaUtils.getZeroMinLabeling(fromCell);
         final UnaryOutputOperation<RandomAccessibleInterval<LabelingType<L>>, RandomAccessibleInterval<LabelingType<M>>> op =
                 op(zeroMinFromCell);
 
         return m_labelingCellFactory.createCell(
-                                                CellUtil.getTranslatedLabeling(fromCell, SubsetOperations
+                                                MinimaUtils.getTranslatedLabeling(fromCell, SubsetOperations
                                                         .iterate(op,
                                                                  m_dimSelection.getSelectedDimIndices(cellValue
                                                                          .getLabelingMetadata()),
