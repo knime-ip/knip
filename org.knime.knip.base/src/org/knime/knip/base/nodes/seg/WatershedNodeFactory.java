@@ -71,7 +71,7 @@ import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.ops.labeling.WatershedWithSheds;
 import org.knime.knip.core.ops.labeling.WatershedWithThreshold;
-import org.knime.knip.core.util.CellUtil;
+import org.knime.knip.core.util.MinimaUtils;
 import org.knime.knip.core.util.MiscViews;
 import org.knime.knip.core.util.NeighborhoodUtils;
 
@@ -249,10 +249,10 @@ public class WatershedNodeFactory<T extends RealType<T>, L>
                     throws Exception {
                 final RandomAccessibleInterval<LabelingType<L>> fromCellLabeling = labelingValue.getLabeling();
                 RandomAccessibleInterval<LabelingType<L>> zeroMinFromCellLabeling =
-                        CellUtil.getZeroMinLabeling(fromCellLabeling);
+                        MinimaUtils.getZeroMinLabeling(fromCellLabeling);
 
                 final ImgPlus<T> fromCellImg = imgValue.getImgPlus();
-                final ImgPlus<T> zeroMinFromCellImg = CellUtil.getZeroMinImgPlus(fromCellImg);
+                final ImgPlus<T> zeroMinFromCellImg = MinimaUtils.getZeroMinImgPlus(fromCellImg);
 
                 final ImgLabeling<?, ?> out;
 
@@ -291,7 +291,7 @@ public class WatershedNodeFactory<T extends RealType<T>, L>
                 }
 
                 return m_labCellFactory
-                        .createCell(CellUtil.getTranslatedLabeling(fromCellLabeling, out),
+                        .createCell(MinimaUtils.getTranslatedLabeling(fromCellLabeling, out),
                                     new DefaultLabelingMetadata(imgValue.getMetadata(), imgValue.getMetadata(),
                                             imgValue.getMetadata(),
                                             labelingValue.getLabelingMetadata().getLabelingColorTable()));

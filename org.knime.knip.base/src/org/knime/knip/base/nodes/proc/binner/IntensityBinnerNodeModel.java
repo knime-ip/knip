@@ -62,7 +62,7 @@ import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.core.KNIPGateway;
-import org.knime.knip.core.util.CellUtil;
+import org.knime.knip.core.util.MinimaUtils;
 
 import net.imagej.ImgPlus;
 import net.imglib2.Cursor;
@@ -120,7 +120,7 @@ public class IntensityBinnerNodeModel<T1 extends RealType<T1>, T2 extends RealTy
     @Override
     protected ImgPlusCell<T2> compute(final ImgPlusValue<T1> cellValue) throws Exception {
         final ImgPlus<T1> fromCell = cellValue.getImgPlus();
-        final ImgPlus<T1> zeroMinFromCell = CellUtil.getZeroMinImgPlus(fromCell);
+        final ImgPlus<T1> zeroMinFromCell = MinimaUtils.getZeroMinImgPlus(fromCell);
 
         Img<T2> res = KNIPGateway.ops().create().img(zeroMinFromCell, m_resType);
         Cursor<T2> resCur = res.cursor();
@@ -129,7 +129,7 @@ public class IntensityBinnerNodeModel<T1 extends RealType<T1>, T2 extends RealTy
             m_bins.covers(type, resCur.get());
         }
         return m_imgCellFactory
-                .createCell(CellUtil.getTranslatedImgPlus(fromCell, new ImgPlus<T2>(res, zeroMinFromCell)));
+                .createCell(MinimaUtils.getTranslatedImgPlus(fromCell, new ImgPlus<T2>(res, zeroMinFromCell)));
     }
 
     /**

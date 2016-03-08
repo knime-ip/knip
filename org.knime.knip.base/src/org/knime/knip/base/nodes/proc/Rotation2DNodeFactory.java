@@ -69,7 +69,7 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
-import org.knime.knip.core.util.CellUtil;
+import org.knime.knip.core.util.MinimaUtils;
 
 import net.imagej.ImgPlus;
 import net.imglib2.ops.operation.Operations;
@@ -204,7 +204,7 @@ public class Rotation2DNodeFactory<T extends RealType<T>> extends ValueToCellNod
             @Override
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
                 //TODO: we should also rotate the minimum..
-                final ImgPlus<T> srcImg = CellUtil.getZeroMinImgPlus(cellValue.getImgPlus());
+                final ImgPlus<T> srcImg = MinimaUtils.getZeroMinImgPlus(cellValue.getImgPlus());
 
                 final int[] dimIndices = m_dimSelection.getSelectedDimIndices(srcImg);
                 if (dimIndices.length != 2) {

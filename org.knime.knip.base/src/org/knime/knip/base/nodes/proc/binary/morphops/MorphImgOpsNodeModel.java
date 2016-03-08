@@ -77,7 +77,7 @@ import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
 import org.knime.knip.core.types.OutOfBoundsStrategyFactory;
-import org.knime.knip.core.util.CellUtil;
+import org.knime.knip.core.util.MinimaUtils;
 
 import net.imagej.ImgPlus;
 import net.imagej.ops.MetadataUtil;
@@ -269,7 +269,7 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
     protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws KNIPException, IOException {
 
         final ImgPlus<T> fromCell = cellValue.getImgPlus();
-        final ImgPlus<T> zeroMinFromCell = CellUtil.getZeroMinImgPlus(fromCell);
+        final ImgPlus<T> zeroMinFromCell = MinimaUtils.getZeroMinImgPlus(fromCell);
 
         if ((m_structElement != null) && ((m_smDimensions.getSelectedDimIndices(zeroMinFromCell).length != m_structElement[0].length)
                 || (m_smDimensions.getSelectedDimIndices(zeroMinFromCell).length != m_structElement[0].length))) {
@@ -307,7 +307,7 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
 
                 final ImgPlus<T> res = new ImgPlus(out, zeroMinFromCell);
                 MetadataUtil.copySource(zeroMinFromCell, res);
-                return m_imgCellFactory.createCell(CellUtil.getTranslatedImgPlus(fromCell, res));
+                return m_imgCellFactory.createCell(MinimaUtils.getTranslatedImgPlus(fromCell, res));
             } catch (final InterruptedException e) {
                 LOGGER.warn("Thread execution was interrupted", e);
                 throw new KNIPException(e.getMessage());
@@ -339,7 +339,7 @@ public class MorphImgOpsNodeModel<T extends RealType<T>> extends ValueToCellNode
                                          out, getExecutorService());
                 final ImgPlus<T> res = new ImgPlus(out, zeroMinFromCell);
                 MetadataUtil.copySource(zeroMinFromCell, res);
-                return m_imgCellFactory.createCell(CellUtil.getTranslatedImgPlus(fromCell, res));
+                return m_imgCellFactory.createCell(MinimaUtils.getTranslatedImgPlus(fromCell, res));
             } catch (final InterruptedException e) {
                 LOGGER.warn("Thread execution was interrupted", e);
                 throw new KNIPException(e.getMessage());

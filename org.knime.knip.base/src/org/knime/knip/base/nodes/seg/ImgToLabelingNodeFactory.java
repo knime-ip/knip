@@ -76,7 +76,7 @@ import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
 import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.types.ImgFactoryTypes;
-import org.knime.knip.core.util.CellUtil;
+import org.knime.knip.core.util.MinimaUtils;
 import org.knime.knip.core.util.EnumUtils;
 
 import net.imagej.ImgPlus;
@@ -216,7 +216,7 @@ public class ImgToLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>>
                             "Only Images of type IntegerType can be converted into a Labeling. Use the converter to convert your Image e.g. to ShortType, IntType, ByteType or BitType.");
                 }
 
-                final ImgPlus<T> zeroMinFromCell = CellUtil.getZeroMinImgPlus(fromCell);
+                final ImgPlus<T> zeroMinFromCell = MinimaUtils.getZeroMinImgPlus(fromCell);
 
                 final ImgLabeling<Integer, T> res = KNIPGateway.ops().create().imgLabeling(zeroMinFromCell);
 
@@ -232,7 +232,7 @@ public class ImgToLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>>
                     }
                 }
 
-                return m_labCellFactory.createCell(CellUtil.getTranslatedLabeling(fromCell, res),
+                return m_labCellFactory.createCell(MinimaUtils.getTranslatedLabeling(fromCell, res),
                                                    new DefaultLabelingMetadata(cellValue.getMetadata(),
                                                            cellValue.getMetadata(), cellValue.getMetadata(),
                                                            new DefaultLabelingColorTable()));

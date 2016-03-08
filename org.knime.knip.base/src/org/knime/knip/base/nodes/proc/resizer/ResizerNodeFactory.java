@@ -60,7 +60,7 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
-import org.knime.knip.core.util.CellUtil;
+import org.knime.knip.core.util.MinimaUtils;
 import org.knime.knip.core.util.EnumUtils;
 
 import net.imagej.ImgPlus;
@@ -190,7 +190,7 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
 
                 final ImgPlus<T> fromCell = cellValue.getImgPlus();
-                final ImgPlus<T> zeroMinFromCell = CellUtil.getZeroMinImgPlus(fromCell);
+                final ImgPlus<T> zeroMinFromCell = MinimaUtils.getZeroMinImgPlus(fromCell);
 
                 ImgPlusMetadata metadata = cellValue.getMetadata();
 
@@ -239,7 +239,7 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
                             (calibration[i] * zeroMinFromCell.getImg().dimension(i)) / newDimensions[i])), i);
                 }
 
-                return m_imgCellFactory.createCell(CellUtil
+                return m_imgCellFactory.createCell(MinimaUtils
                         .getTranslatedImgPlus(fromCell,
                                               new ImgPlus<T>(
                                                       resample(zeroMinFromCell,

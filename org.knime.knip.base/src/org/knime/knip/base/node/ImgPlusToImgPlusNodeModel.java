@@ -56,7 +56,7 @@ import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
-import org.knime.knip.core.util.CellUtil;
+import org.knime.knip.core.util.MinimaUtils;
 
 import net.imagej.ImgPlus;
 import net.imglib2.ops.operation.SubsetOperations;
@@ -166,7 +166,7 @@ public abstract class ImgPlusToImgPlusNodeModel<T extends RealType<T>, V extends
         }
 
         final ImgPlus<T> imgPlus = cellValue.getImgPlus();
-        final UnaryOutputOperation<ImgPlus<T>, ImgPlus<V>> op = op(CellUtil.getZeroMinImgPlus(imgPlus));
+        final UnaryOutputOperation<ImgPlus<T>, ImgPlus<V>> op = op(MinimaUtils.getZeroMinImgPlus(imgPlus));
 
         final int[] selection = m_dimSelection.getSelectedDimIndices(cellValue.getMetadata());
 
@@ -177,7 +177,7 @@ public abstract class ImgPlusToImgPlusNodeModel<T extends RealType<T>, V extends
 
         final ImgPlus<V> out = op.bufferFactory().instantiate(cellValue.getImgPlus());
 
-        return m_imgCellFactory.createCell(CellUtil.getTranslatedImgPlus(imgPlus, SubsetOperations
+        return m_imgCellFactory.createCell(MinimaUtils.getTranslatedImgPlus(imgPlus, SubsetOperations
                 .iterate(op, selection, in, out, m_active ? getExecutorService() : null)));
     }
 

@@ -62,7 +62,7 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.TwoValuesToCellNodeModel;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
-import org.knime.knip.core.util.CellUtil;
+import org.knime.knip.core.util.MinimaUtils;
 
 import net.imagej.ImgPlus;
 import net.imagej.ops.MetadataUtil;
@@ -145,10 +145,10 @@ public class UCMNodeModel<T extends RealType<T>, L extends Comparable<L>>
         // containers to work on
         final RandomAccessibleInterval<LabelingType<L>> fromCellLabeling = labelingValue.getLabeling();
         final RandomAccessibleInterval<LabelingType<L>> zeroMinFromCellLabeling =
-                CellUtil.getZeroMinLabeling(fromCellLabeling);
+                MinimaUtils.getZeroMinLabeling(fromCellLabeling);
 
         final ImgPlus<T> fromCellImg = imgValue.getImgPlus();
-        final ImgPlus<T> zeroMinFromCellImg = CellUtil.getZeroMinImgPlus(fromCellImg);
+        final ImgPlus<T> zeroMinFromCellImg = MinimaUtils.getZeroMinImgPlus(fromCellImg);
 
         final Img<FloatType> result = new ArrayImgFactory<FloatType>().create(zeroMinFromCellImg, new FloatType());
 
@@ -161,7 +161,7 @@ public class UCMNodeModel<T extends RealType<T>, L extends Comparable<L>>
 
         final ImgPlus<FloatType> res = new ImgPlus<>(result, imgValue.getMetadata());
         MetadataUtil.copySource(imgValue.getMetadata(), res);
-        return m_imgCellFactory.createCell(CellUtil.getTranslatedImgPlus(fromCellImg, res));
+        return m_imgCellFactory.createCell(MinimaUtils.getTranslatedImgPlus(fromCellImg, res));
     }
 
     @Override

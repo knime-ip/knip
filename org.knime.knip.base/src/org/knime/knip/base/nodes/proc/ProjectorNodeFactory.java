@@ -64,7 +64,7 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
-import org.knime.knip.core.util.CellUtil;
+import org.knime.knip.core.util.MinimaUtils;
 import org.knime.knip.core.util.EnumUtils;
 
 import net.imagej.ImgPlus;
@@ -151,7 +151,7 @@ public class ProjectorNodeFactory<T extends RealType<T>> extends ValueToCellNode
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws IOException {
 
                 final ImgPlus<T> fromCell = cellValue.getImgPlus();
-                final ImgPlus<T> zeroMinFromCell = CellUtil.getZeroMinImgPlus(fromCell);
+                final ImgPlus<T> zeroMinFromCell = MinimaUtils.getZeroMinImgPlus(fromCell);
 
                 final int[] selectedDims =
                         m_projectionDim.getSelectedDimIndices(zeroMinFromCell.numDimensions(), zeroMinFromCell);

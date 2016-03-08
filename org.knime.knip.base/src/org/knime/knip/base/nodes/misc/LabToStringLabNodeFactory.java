@@ -59,7 +59,7 @@ import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.core.KNIPGateway;
-import org.knime.knip.core.util.CellUtil;
+import org.knime.knip.core.util.MinimaUtils;
 
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccessibleInterval;
@@ -93,7 +93,7 @@ public class LabToStringLabNodeFactory<L extends Comparable<L>> extends ValueToC
             protected LabelingCell<String> compute(final LabelingValue<L> cellValue) throws Exception {
 
                 final RandomAccessibleInterval<LabelingType<L>> fromCell = cellValue.getLabeling();
-                final RandomAccessibleInterval<LabelingType<L>> zeroMinFromCell = CellUtil.getZeroMinLabeling(fromCell);
+                final RandomAccessibleInterval<LabelingType<L>> zeroMinFromCell = MinimaUtils.getZeroMinLabeling(fromCell);
 
                 final RandomAccessibleInterval<LabelingType<String>> res =
                         KNIPGateway.ops().create().imgLabeling(fromCell);
@@ -107,7 +107,7 @@ public class LabToStringLabNodeFactory<L extends Comparable<L>> extends ValueToC
                         resC.get().add(label.toString());
                     }
                 }
-                return m_labCellFactory.createCell(CellUtil.getTranslatedLabeling(fromCell, res),
+                return m_labCellFactory.createCell(MinimaUtils.getTranslatedLabeling(fromCell, res),
                                                    cellValue.getLabelingMetadata());
             }
 

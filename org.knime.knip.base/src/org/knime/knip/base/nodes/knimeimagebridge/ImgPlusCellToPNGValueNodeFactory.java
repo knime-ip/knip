@@ -74,7 +74,7 @@ import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.awt.AWTImageTools;
 import org.knime.knip.core.awt.Real2GreyColorRenderer;
-import org.knime.knip.core.util.CellUtil;
+import org.knime.knip.core.util.MinimaUtils;
 
 import net.imagej.ImgPlus;
 import net.imglib2.Interval;
@@ -172,7 +172,7 @@ public class ImgPlusCellToPNGValueNodeFactory<T extends RealType<T>> extends Val
             protected ListCell compute(final ImgPlusValue<T> cellValue) throws IOException {
 
                 // Order of dimensions always X Y C
-                final ImgPlus<T> imgPlus = CellUtil.getZeroMinImgPlus(cellValue.getImgPlus());
+                final ImgPlus<T> imgPlus = MinimaUtils.getZeroMinImgPlus(cellValue.getImgPlus());
 
                 final List<DataCell> cells = new ArrayList<DataCell>(0);
 

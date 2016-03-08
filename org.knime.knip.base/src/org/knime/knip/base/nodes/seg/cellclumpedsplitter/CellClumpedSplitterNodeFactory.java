@@ -69,7 +69,7 @@ import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.ops.labeling.CellClumpedSplitter;
-import org.knime.knip.core.util.CellUtil;
+import org.knime.knip.core.util.MinimaUtils;
 import org.knime.knip.core.util.EnumUtils;
 
 import net.imglib2.RandomAccessibleInterval;
@@ -184,7 +184,7 @@ public class CellClumpedSplitterNodeFactory<T extends RealType<T>, L extends Com
             protected LabelingCell<Integer> compute(final LabelingValue<L> cellValue) throws Exception {
 
                 final RandomAccessibleInterval<LabelingType<L>> fromCell = cellValue.getLabeling();
-                final RandomAccessibleInterval<LabelingType<L>> zeroMinFromCell = CellUtil.getZeroMinLabeling(fromCell);
+                final RandomAccessibleInterval<LabelingType<L>> zeroMinFromCell = MinimaUtils.getZeroMinLabeling(fromCell);
 
                 m_executor = getExecutorService();
                 final CellClumpedSplitter<L> op =
@@ -199,7 +199,7 @@ public class CellClumpedSplitterNodeFactory<T extends RealType<T>, L extends Com
                 SubsetOperations.iterate(op, m_smDimSelection.getSelectedDimIndices(cellValue.getLabelingMetadata()),
                                          zeroMinFromCell, res);
 
-                return m_labCellFactory.createCell(CellUtil.getTranslatedLabeling(zeroMinFromCell, res),
+                return m_labCellFactory.createCell(MinimaUtils.getTranslatedLabeling(zeroMinFromCell, res),
                                                    cellValue.getLabelingMetadata());
 
             }

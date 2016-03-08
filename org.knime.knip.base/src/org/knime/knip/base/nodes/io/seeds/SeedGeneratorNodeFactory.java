@@ -73,7 +73,7 @@ import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.ops.labeling.ImgProbabilitySeeds;
 import org.knime.knip.core.ops.labeling.RandomSeeds;
 import org.knime.knip.core.ops.labeling.RegularGridSeeds;
-import org.knime.knip.core.util.CellUtil;
+import org.knime.knip.core.util.MinimaUtils;
 import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.NeighborhoodUtils;
 
@@ -165,7 +165,7 @@ public class SeedGeneratorNodeFactory<T extends RealType<T>> extends ValueToCell
             protected LabelingCell<Integer> compute(final ImgPlusValue<T> cellValue) throws Exception {
 
                 final ImgPlus<T> fromCell = cellValue.getImgPlus();
-                final ImgPlus<T> zeroMinFromCell = CellUtil.getZeroMinImgPlus(fromCell);
+                final ImgPlus<T> zeroMinFromCell = MinimaUtils.getZeroMinImgPlus(fromCell);
 
                 final ImgLabeling<Integer, IntType> output =
                         KNIPGateway.ops().create().imgLabeling(zeroMinFromCell, new IntType());
@@ -243,7 +243,7 @@ public class SeedGeneratorNodeFactory<T extends RealType<T>> extends ValueToCell
 
                 }
 
-                return m_labCellFactory.createCell(CellUtil.getTranslatedLabeling(fromCell, output),
+                return m_labCellFactory.createCell(MinimaUtils.getTranslatedLabeling(fromCell, output),
                                                    new DefaultLabelingMetadata(zeroMinFromCell, zeroMinFromCell,
                                                            zeroMinFromCell, new DefaultLabelingColorTable()));
             }

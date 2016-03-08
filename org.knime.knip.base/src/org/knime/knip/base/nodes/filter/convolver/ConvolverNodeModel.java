@@ -73,7 +73,7 @@ import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.algorithm.convolvers.KernelTools;
 import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
-import org.knime.knip.core.util.CellUtil;
+import org.knime.knip.core.util.MinimaUtils;
 
 import net.imagej.ImgPlus;
 import net.imglib2.img.Img;
@@ -173,7 +173,7 @@ public class ConvolverNodeModel<T extends RealType<T>, O extends RealType<O>, K 
     protected ImgPlusCell<O> compute(final ImgPlusValue<T> cellValue) throws Exception {
 
         final ImgPlus<T> fromCell = cellValue.getImgPlus();
-        final ImgPlus<T> zeroMinFromCell = CellUtil.getZeroMinImgPlus(fromCell);
+        final ImgPlus<T> zeroMinFromCell = MinimaUtils.getZeroMinImgPlus(fromCell);
 
         final ImgPlus<T> in = new ImgPlus<T>(
                 ImgView.wrap(SubsetOperations.subsetview(zeroMinFromCell.getImg(), zeroMinFromCell.getImg()),
@@ -196,7 +196,7 @@ public class ConvolverNodeModel<T extends RealType<T>, O extends RealType<O>, K 
             m_convolver.setResultType(inType);
         }
         try {
-            return m_imgCellFactory.createCell(CellUtil
+            return m_imgCellFactory.createCell(MinimaUtils
                     .getTranslatedImgPlus(fromCell, (ImgPlus<O>)Operations.compute(m_convolver, in, currentKernels)));
         } catch (IllegalStateException e) {
             throw new KNIPException(e.getMessage());

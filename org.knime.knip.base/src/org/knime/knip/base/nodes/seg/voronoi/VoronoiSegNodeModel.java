@@ -84,7 +84,7 @@ import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.KNIPGateway;
-import org.knime.knip.core.util.CellUtil;
+import org.knime.knip.core.util.MinimaUtils;
 
 import net.imagej.ImgPlus;
 import net.imglib2.Cursor;
@@ -200,10 +200,10 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
 
                 final RandomAccessibleInterval<LabelingType<L>> fromCellLabeling = labelingValue.getLabeling();
                 final RandomAccessibleInterval<LabelingType<L>> zeroMinFromCellLabeling =
-                        CellUtil.getZeroMinLabeling(fromCellLabeling);
+                        MinimaUtils.getZeroMinLabeling(fromCellLabeling);
 
                 final ImgPlus<T> fromCellImg = imgValue.getImgPlus();
-                final ImgPlus<T> zeroMinFromCellImg = CellUtil.getZeroMinImgPlus(fromCellImg);
+                final ImgPlus<T> zeroMinFromCellImg = MinimaUtils.getZeroMinImgPlus(fromCellImg);
 
                 final long[] imgDims = new long[zeroMinFromCellImg.numDimensions()];
                 final long[] labDims = new long[zeroMinFromCellLabeling.numDimensions()];
@@ -241,7 +241,7 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
                 if (m_resultCols.getStringValue().equals(RESULT_COLUMNS[0])) {
                     try {
                         cells = new DataCell[]{
-                                m_labCellFactory.createCell(CellUtil.getTranslatedLabeling(fromCellLabeling, out),
+                                m_labCellFactory.createCell(MinimaUtils.getTranslatedLabeling(fromCellLabeling, out),
                                                             labelingValue.getLabelingMetadata())};
                     } catch (final IOException e) {
                         throw new RuntimeException(e);
@@ -264,16 +264,16 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
                         if (m_resultCols.getStringValue().equals(RESULT_COLUMNS[1])) {
 
                             cells = new DataCell[]{m_labCellFactory.createCell(
-                                                                               CellUtil.getTranslatedLabeling(fromCellLabeling,
+                                                                               MinimaUtils.getTranslatedLabeling(fromCellLabeling,
                                                                                                               resSeedless),
                                                                                labelingValue.getLabelingMetadata())};
 
                         } else {
                             cells = new DataCell[]{
-                                    m_labCellFactory.createCell(CellUtil.getTranslatedLabeling(fromCellLabeling, out),
+                                    m_labCellFactory.createCell(MinimaUtils.getTranslatedLabeling(fromCellLabeling, out),
                                                                 labelingValue.getLabelingMetadata()),
                                     m_labCellFactory.createCell(
-                                                                CellUtil.getTranslatedLabeling(fromCellLabeling,
+                                                                MinimaUtils.getTranslatedLabeling(fromCellLabeling,
                                                                                                resSeedless),
                                                                 labelingValue.getLabelingMetadata())};
                         }

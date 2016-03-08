@@ -64,7 +64,7 @@ import org.knime.knip.base.node.TwoValuesToCellNodeDialog;
 import org.knime.knip.base.node.TwoValuesToCellNodeFactory;
 import org.knime.knip.base.node.TwoValuesToCellNodeModel;
 import org.knime.knip.core.KNIPGateway;
-import org.knime.knip.core.util.CellUtil;
+import org.knime.knip.core.util.MinimaUtils;
 import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.MiscViews;
 
@@ -181,10 +181,10 @@ public final class BinaryArithmeticNodeFactory
                 }
 
                 final ImgPlus<BitType> fromCell1 = cellValue1.getImgPlus();
-                final ImgPlus<BitType> zeroMinFromCell1 = CellUtil.getZeroMinImgPlus(fromCell1);
+                final ImgPlus<BitType> zeroMinFromCell1 = MinimaUtils.getZeroMinImgPlus(fromCell1);
 
                 final ImgPlus<BitType> fromCell2 = cellValue2.getImgPlus();
-                ImgPlus<BitType> zeroMinFromCell2 = CellUtil.getZeroMinImgPlus(fromCell2);
+                ImgPlus<BitType> zeroMinFromCell2 = MinimaUtils.getZeroMinImgPlus(fromCell2);
 
                 final Img<BitType> out = KNIPGateway.ops().create().img(cellValue1.getImgPlus());
 
@@ -207,7 +207,7 @@ public final class BinaryArithmeticNodeFactory
                 }
                 m_op.compute(iiIn1, iiIn2, iiOut);
 
-                return m_imgCellFactory.createCell(CellUtil
+                return m_imgCellFactory.createCell(MinimaUtils
                         .getTranslatedImgPlus(fromCell1, new ImgPlus<>(out, cellValue1.getMetadata())));
 
             }
