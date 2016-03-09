@@ -271,4 +271,21 @@
            </serializer>
         </DataType>
      </extension>
+     <extension
+           point="org.knime.core.DataValueRenderer">
+        <dataValue
+              valueClass="org.knime.knip.base.data.img.ImgPlusValue">
+           <renderer
+                 rendererFactoryClass="org.knime.knip.base.renderer.KNIPThumbnailRendererFactory"
+                 suggestAsDefault="false">
+           </renderer>
+        </dataValue>
+        <dataValue
+              valueClass="org.knime.knip.base.data.labeling.LabelingValue">
+           <renderer
+                 rendererFactoryClass="org.knime.knip.base.renderer.KNIPThumbnailRendererFactory"
+                 suggestAsDefault="true">
+           </renderer>
+        </dataValue>
+     </extension>
 </plugin>

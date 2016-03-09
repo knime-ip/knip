@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2015
+ *  Copyright (C) 2003 - 2016
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -45,38 +45,42 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ---------------------------------------------------------------------
  *
- * Created on Sep 6, 2015 by dietzc
+ * Created on Mar 9, 2016 by dietzc
  */
-package org.knime.knip.base.data.labeling;
+package org.knime.knip.base.renderer;
 
-import java.io.IOException;
-
-import org.knime.core.data.DataCellDataInput;
-import org.knime.core.data.DataCellDataOutput;
-import org.knime.core.data.DataCellSerializer;
+import org.knime.core.data.DataColumnSpec;
+import org.knime.core.data.renderer.DataValueRenderer;
+import org.knime.core.data.renderer.DataValueRendererFactory;
 
 /**
- * @author Christian Dietz
- * @param <L>
+ *
+ * @author dietzc
  */
-public class LabelingCellSerializer<L extends Comparable<L>> implements DataCellSerializer<LabelingCell<L>> {
+public class KNIPThumbnailRendererFactory implements DataValueRendererFactory {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void serialize(final LabelingCell<L> cell, final DataCellDataOutput output) throws IOException {
-        cell.save(output);
+    public String getDescription() {
+        return "Renders thumbnails and metadata from KNIP values.";
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public LabelingCell<L> deserialize(final DataCellDataInput input) throws IOException {
-        final LabelingCell<L> cell = new LabelingCell<>();
-        cell.load(input);
-        return cell;
+    public String getId() {
+        return KNIPThumbnailRendererFactory.class.getSimpleName();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DataValueRenderer createRenderer(final DataColumnSpec colSpec) {
+        return new ThumbnailRenderer();
     }
 
 }

@@ -31,5 +31,6 @@ Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.knime.knip.features,
+ org.knime.knip.features.sets,
  org.knime.knip.features.sets.optimizedfeatures
 
