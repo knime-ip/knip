@@ -53,16 +53,13 @@ import java.awt.RenderingHints;
 
 import javax.swing.Icon;
 
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.roi.labeling.LabelingType;
-
-import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataValue;
 import org.knime.core.data.DataValueComparator;
-import org.knime.core.data.renderer.DataValueRendererFamily;
-import org.knime.core.data.renderer.DefaultDataValueRendererFamily;
-import org.knime.knip.base.renderer.ThumbnailRenderer;
+import org.knime.core.data.ExtensibleUtilityFactory;
 import org.knime.knip.core.data.img.LabelingMetadata;
+
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.roi.labeling.LabelingType;
 
 /**
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
@@ -74,7 +71,7 @@ import org.knime.knip.core.data.img.LabelingMetadata;
 public interface LabelingValue<L> extends DataValue {
 
     /** Gathers meta information to this type. */
-    public static final class LabelingUtilityFactory extends UtilityFactory {
+    public static final class LabelingUtilityFactory extends ExtensibleUtilityFactory {
 
         private static final LabelingValueComparator COMPARATOR = new LabelingValueComparator();
 
@@ -82,7 +79,7 @@ public interface LabelingValue<L> extends DataValue {
 
         /** Limits scope of constructor, does nothing. */
         protected LabelingUtilityFactory() {
-            //
+            super(LabelingValue.class);
         }
 
         /**
@@ -105,9 +102,8 @@ public interface LabelingValue<L> extends DataValue {
          * {@inheritDoc}
          */
         @Override
-        protected DataValueRendererFamily getRendererFamily(final DataColumnSpec spec) {
-            return new DefaultDataValueRendererFamily(ThumbnailRenderer.THUMBNAIL_RENDERER);
-
+        public String getName() {
+            return "Labeling";
         }
 
     }

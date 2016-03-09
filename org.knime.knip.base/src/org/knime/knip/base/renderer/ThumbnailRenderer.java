@@ -63,6 +63,7 @@ import javax.swing.JTable;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.renderer.AbstractPainterDataValueRenderer;
+import org.knime.core.data.renderer.DataValueRenderer;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
 
@@ -78,6 +79,8 @@ import net.imglib2.type.numeric.RealType;
 @SuppressWarnings("serial")
 public class ThumbnailRenderer<T extends RealType<T>> extends AbstractPainterDataValueRenderer {
 
+    public static final DataValueRenderer THUMBNAIL_RENDERER = new ThumbnailRenderer<>();
+
     public static Key RENDERING_HINT_KEY_METADATA = new Key(1) {
         @Override
         public boolean isCompatibleValue(final Object val) {
@@ -85,22 +88,6 @@ public class ThumbnailRenderer<T extends RealType<T>> extends AbstractPainterDat
         }
 
     };
-
-    /**
-     * Singleton to render metadata
-     */
-    public static final ThumbnailRenderer METADATA_RENDERER = new ThumbnailRenderer(new RenderingHints(
-            RENDERING_HINT_KEY_METADATA, true)) {
-        @Override
-        public String getDescription() {
-            return "Metadata";
-        }
-    };
-
-    /**
-     * Singleton for the thumbanil rendering.
-     */
-    public static final ThumbnailRenderer THUMBNAIL_RENDERER = new ThumbnailRenderer();
 
     private Image m_image = null;
 
@@ -153,13 +140,13 @@ public class ThumbnailRenderer<T extends RealType<T>> extends AbstractPainterDat
      * {@inheritDoc}
      */
     @Override
-    public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus,
-                                                   final int row, final int column) {
-        Component result =  super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+    public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected,
+                                                   final boolean hasFocus, final int row, final int column) {
+        Component result = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
         JPanel cellPanel = new JPanel();
-        cellPanel.setLayout(new GridLayout(0,1));
+        cellPanel.setLayout(new GridLayout(0, 1));
         cellPanel.add(result);
-        if(isSelected) {
+        if (isSelected) {
 
             cellPanel.setBorder(BorderFactory.createLineBorder(Color.blue));
         }

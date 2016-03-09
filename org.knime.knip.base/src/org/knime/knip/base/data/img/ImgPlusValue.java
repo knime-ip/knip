@@ -53,12 +53,9 @@ import java.awt.RenderingHints;
 
 import javax.swing.Icon;
 
-import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataValue;
 import org.knime.core.data.DataValueComparator;
-import org.knime.core.data.renderer.DataValueRendererFamily;
-import org.knime.core.data.renderer.DefaultDataValueRendererFamily;
-import org.knime.knip.base.renderer.ThumbnailRenderer;
+import org.knime.core.data.ExtensibleUtilityFactory;
 
 import net.imagej.ImgPlus;
 import net.imagej.ImgPlusMetadata;
@@ -75,7 +72,7 @@ import net.imglib2.type.numeric.RealType;
 public interface ImgPlusValue<T extends RealType<T>> extends DataValue {
 
     /** Gathers meta information to this type. */
-    public static final class ImgPlusUtilityFactory extends UtilityFactory {
+    public static final class ImgPlusUtilityFactory extends ExtensibleUtilityFactory {
 
         private static final ImgPlusValueComparator COMPARATOR = new ImgPlusValueComparator();
 
@@ -83,7 +80,7 @@ public interface ImgPlusValue<T extends RealType<T>> extends DataValue {
 
         /** Limits scope of constructor, does nothing. */
         protected ImgPlusUtilityFactory() {
-            //
+            super(ImgPlusValue.class);
         }
 
         /**
@@ -106,8 +103,8 @@ public interface ImgPlusValue<T extends RealType<T>> extends DataValue {
          * {@inheritDoc}
          */
         @Override
-        protected DataValueRendererFamily getRendererFamily(final DataColumnSpec spec) {
-            return new DefaultDataValueRendererFamily(ThumbnailRenderer.THUMBNAIL_RENDERER);
+        public String getName() {
+            return "Image";
         }
     }
 
