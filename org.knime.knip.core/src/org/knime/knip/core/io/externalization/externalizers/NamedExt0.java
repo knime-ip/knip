@@ -102,7 +102,12 @@ public class NamedExt0 implements Externalizer<Named> {
      */
     @Override
     public void write(final BufferedDataOutputStream out, final Named obj) throws Exception {
-        final char[] name = obj.getName().toCharArray();
+        final char[] name;
+        if (obj.getName() == null) {
+            name = new char[0];
+        } else {
+            name = obj.getName().toCharArray();
+        }
         out.writeInt(name.length);
         out.write(name);
 
