@@ -216,11 +216,16 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
             }
         }
 
-        final RandomAccessibleInterval<T> toRender;
+        RandomAccessibleInterval<T> toRender;
         if (img2d == tmpImg) {
             toRender = SubsetOperations.subsetview(tmpImg, new FinalInterval(min, max));
         } else {
             toRender = img2d;
+        }
+
+        // Workaround
+        if (toRender.numDimensions() == 1 && toRender.dimension(0) < 3) {
+            toRender = tmpImg.factory().create(toRender, tmpImg.firstElement().createVariable());
         }
 
         return AWTImageTools.renderScaledStandardColorImg(toRender, new Real2GreyColorRenderer<T>(2), factor,
