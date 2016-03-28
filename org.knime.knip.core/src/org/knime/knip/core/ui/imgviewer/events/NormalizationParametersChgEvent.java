@@ -69,11 +69,12 @@ import net.imglib2.view.Views;
  * Event message object providing the information weather an {@link Img} of {@link RealType} should be normalized and if
  * the number of the saturation in %
  *
- *
+ * @deprecated replaced by BrightnessContrastChgEvent
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
+@Deprecated
 public class NormalizationParametersChgEvent implements Externalizable, KNIPEvent {
 
     /* Value of the saturation in % */
