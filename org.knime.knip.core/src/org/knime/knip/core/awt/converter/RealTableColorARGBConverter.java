@@ -101,15 +101,9 @@ public class RealTableColorARGBConverter<R extends RealType<R>> implements Conve
         int intVal;
         double val;
 
-        // Not used for BrightnessContrast
-//        if (m_normalizationFactor == 1) {
-//            val = ((input.getRealDouble() - input.getMinValue()) / (input.getMaxValue() - input.getMinValue()));
-//
-//        } else {
-            val =
-                    (((input.getRealDouble() - m_localMin) / (input.getMaxValue() - input.getMinValue())) * m_normalizationFactor);
 
-//        }
+        val =
+             (((input.getRealDouble() - m_localMin) / (input.getMaxValue() - input.getMinValue())) * m_normalizationFactor);
 
         intVal = (int)Math.round(val * m_rangeFactor);
 
