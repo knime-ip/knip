@@ -76,12 +76,14 @@ import net.imglib2.type.numeric.RealType;
  *
  * Publishes {@link NormalizationParametersChgEvent}.
  *
+ * @deprecated Replaced by replaced by BrightnessContrastPanel
  * @param <T>
  * @param <I>
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
+@Deprecated
 public class ImgNormalizationPanel<T extends RealType<T>, I extends Img<T>> extends ViewerComponent {
 
     // 0..400 with steps of 1 <=> (0..50 with steps of 0.125) * 8
