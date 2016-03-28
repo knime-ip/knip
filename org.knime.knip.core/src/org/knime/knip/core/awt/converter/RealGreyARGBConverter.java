@@ -76,15 +76,10 @@ public class RealGreyARGBConverter<R extends RealType<R>> implements Converter<R
         int b;
         double val;
 
-        // Not used for BrightnesContrast
-//        if (m_normalizationFactor == 1) {
-//            val = ((input.getRealDouble() - input.getMinValue()) / (input.getMaxValue() - input.getMinValue()));
-//
-//        } else {
-            val =
-                    (((input.getRealDouble() - m_localMin) / (input.getMaxValue() - input.getMinValue())) * m_normalizationFactor);
 
-//        }
+        val =
+           (((input.getRealDouble() - m_localMin) / (input.getMaxValue() - input.getMinValue())) * m_normalizationFactor);
+
 
         b = (int)Math.round(val * 255.0);
 
