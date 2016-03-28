@@ -115,7 +115,7 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
     private JButton m_resetButton;
 
     /* checkbox */
-    private JCheckBox m_autoSelect;
+    private JCheckBox m_autoSelectBox;
     private JCheckBox m_planeSelect;
 
     /* labels */
@@ -127,16 +127,16 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
     private JLabel w_maxLabel;
 
     /* initial min max values */
-    private double initialMin;
-    private double initialMax;
+    private double m_initialMin;
+    private double m_initialMax;
 
     /* data element min max values */
-    private double elementMin;
-    private double elementMax;
+    private double m_elementMin;
+    private double m_elementMax;
 
     /* min max used for normalization */
-    private double normMin;
-    private double normMax;
+    private double m_normMin;
+    private double m_normMax;
 
     /* working values */
     private double w_min;
@@ -146,26 +146,26 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
     private double w_factor;
 
     /* drawing check */
-    private boolean isDrawn = false;
+    private boolean m_isDrawn = false;
     /* adjust check */
-    private boolean isAdjusting = false;
+    private boolean m_isAdjusting = false;
     /* plane selected */
-    private boolean planeSelected = true;
+    private boolean m_planeSelected = true;
     /* auto selected */
-    private boolean autoSelect = true;
+    private boolean m_autoSelect = true;
     /* eventservice to publish events */
     private EventService m_eventService;
 
     /* image and selected plane */
-    private RandomAccessibleInterval<T> img;
-    private IterableInterval<T> imgIt;
-    private RandomAccessibleInterval<T> planeSelection;
-    private long[] planeSelectionPos;
-    private int[] planeSelectionIndices;
-    private int bitDepth;
-    private T element;
+    private RandomAccessibleInterval<T> m_img;
+    private IterableInterval<T> m_imgIt;
+    private RandomAccessibleInterval<T> m_planeSelection;
+    private long[] m_planeSelectionPos;
+    private int[] m_planeSelectionIndices;
+    private int m_bitDepth;
+    private T m_element;
     /* ops */
-    private OpService ops = KNIPGateway.ops();
+    private OpService m_ops = KNIPGateway.ops();
 
     /* histogram */
     private HistogramBC m_histoWidget;
@@ -219,14 +219,14 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
         m_minimumSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(final ChangeEvent e) {
-                if (!isAdjusting) {
-                    isAdjusting = true;
-                    w_min = elementMin + m_minimumSlider.getValue() * (elementMax - elementMin)
+                if (!m_isAdjusting) {
+                    m_isAdjusting = true;
+                    w_min = m_elementMin + m_minimumSlider.getValue() * (m_elementMax - m_elementMin)
                             / ((SLIDER_MAX - SLIDER_MIN) - 1.0);
                     if (w_min >= w_max) {
                         w_max = w_min;
-                        m_maximumSlider.setValue((int)((w_max - elementMin) * ((SLIDER_MAX - SLIDER_MIN) - 1.0)
-                                / (elementMax - elementMin)));
+                        m_maximumSlider.setValue((int)((w_max - m_elementMin) * ((SLIDER_MAX - SLIDER_MIN) - 1.0)
+                                / (m_elementMax - m_elementMin)));
                     }
 
                     // update min label
@@ -235,7 +235,7 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
                     setBrightnessContrast();
 
                     publishFactor();
-                    isAdjusting = false;
+                    m_isAdjusting = false;
                 }
 
             }
@@ -256,14 +256,14 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
         m_maximumSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(final ChangeEvent e) {
-                if (!isAdjusting) {
-                    isAdjusting = true;
-                    w_max = elementMin + m_maximumSlider.getValue() * (elementMax - elementMin)
+                if (!m_isAdjusting) {
+                    m_isAdjusting = true;
+                    w_max = m_elementMin + m_maximumSlider.getValue() * (m_elementMax - m_elementMin)
                             / ((SLIDER_MAX - SLIDER_MIN) - 1.0);
                     if (w_min >= w_max) {
                         w_min = w_max;
-                        m_minimumSlider.setValue((int)((w_min - elementMin) * ((SLIDER_MAX - SLIDER_MIN) - 1.0)
-                                / (elementMax - elementMin)));
+                        m_minimumSlider.setValue((int)((w_min - m_elementMin) * ((SLIDER_MAX - SLIDER_MIN) - 1.0)
+                                / (m_elementMax - m_elementMin)));
                     }
 
                     // update max label
@@ -272,7 +272,7 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
                     setBrightnessContrast();
 
                     publishFactor();
-                    isAdjusting = false;
+                    m_isAdjusting = false;
                 }
             }
         });
@@ -292,8 +292,8 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
         m_brightnessSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(final ChangeEvent e) {
-                if (!isAdjusting) {
-                    isAdjusting = true;
+                if (!m_isAdjusting) {
+                    m_isAdjusting = true;
                     w_brightness = m_brightnessSlider.getValue();
 
                     brightnessSetMinMax();
@@ -301,7 +301,7 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
                     updateLabelMinMax();
 
                     publishFactor();
-                    isAdjusting = false;
+                    m_isAdjusting = false;
                 }
             }
         });
@@ -321,8 +321,8 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
         m_contrastSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(final ChangeEvent e) {
-                if (!isAdjusting) {
-                    isAdjusting = true;
+                if (!m_isAdjusting) {
+                    m_isAdjusting = true;
                     w_contrast = m_contrastSlider.getValue();
 
                     contrastSetMinMax();
@@ -330,7 +330,7 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
                     updateLabelMinMax();
 
                     publishFactor();
-                    isAdjusting = false;
+                    m_isAdjusting = false;
                 }
             }
         });
@@ -341,42 +341,42 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
         c6.gridwidth = 2;
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
-        m_autoSelect = new JCheckBox();
-        m_autoSelect.setSelected(autoSelect);
-        m_autoSelect.setToolTipText("Always do automatic adjustment.");
-        m_autoSelect.addActionListener(new ActionListener() {
+        m_autoSelectBox = new JCheckBox();
+        m_autoSelectBox.setSelected(m_autoSelect);
+        m_autoSelectBox.setToolTipText("Always do automatic adjustment.");
+        m_autoSelectBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                if (!isAdjusting) {
-                    isAdjusting = true;
-                    autoSelect = m_autoSelect.isSelected();
-                    if (autoSelect) {
+                if (!m_isAdjusting) {
+                    m_isAdjusting = true;
+                    m_autoSelect = m_autoSelectBox.isSelected();
+                    if (m_autoSelect) {
                         autoAdjust();
                         publishFactor();
                     } else {
-                        w_min = initialMin;
-                        w_max = initialMax;
+                        w_min = m_initialMin;
+                        w_max = m_initialMax;
                         updateLabelMinMax();
                         updateSliderMinMax();
                         setBrightnessContrast();
                         publishFactor();
                     }
-                    isAdjusting = false;
+                    m_isAdjusting = false;
                 }
             }
         });
-        buttonPanel.add(m_autoSelect);
+        buttonPanel.add(m_autoSelectBox);
 
         m_automaticSaturationButton = new JButton("Auto");
         m_automaticSaturationButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                if (!isAdjusting) {
-                    isAdjusting = true;
+                if (!m_isAdjusting) {
+                    m_isAdjusting = true;
                     autoAdjust();
 
                     publishFactor();
-                    isAdjusting = false;
+                    m_isAdjusting = false;
                 }
             }
         });
@@ -386,22 +386,22 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
         m_resetButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                if (!isAdjusting) {
-                    isAdjusting = true;
-                    if (autoSelect) {
-                        m_autoSelect.setSelected(autoSelect);
+                if (!m_isAdjusting) {
+                    m_isAdjusting = true;
+                    if (m_autoSelect) {
+                        m_autoSelectBox.setSelected(m_autoSelect);
                         autoAdjust();
                     }
                     else {
-                        w_min = initialMin;
-                        w_max = initialMax;
+                        w_min = m_initialMin;
+                        w_max = m_initialMax;
                     }
                     updateLabelMinMax();
                     updateSliderMinMax();
                     setBrightnessContrast();
 
                     publishFactor();
-                    isAdjusting=false;
+                    m_isAdjusting=false;
                 }
             }
         });
@@ -409,41 +409,41 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
 
 
         m_planeSelect = new JCheckBox("Plane");
-        m_planeSelect.setSelected(planeSelected);
+        m_planeSelect.setSelected(m_planeSelected);
         m_planeSelect.setToolTipText("Planewise?");
         m_planeSelect.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                if (!isAdjusting) {
-                    isAdjusting=true;
-                    planeSelected = m_planeSelect.isSelected();
-                    if (planeSelected && planeSelection == null) {
+                if (!m_isAdjusting) {
+                    m_isAdjusting=true;
+                    m_planeSelected = m_planeSelect.isSelected();
+                    if (m_planeSelected && m_planeSelection == null) {
                         getSelectedPlane();
                     }
                     computeInitialMinMax();
-                    if (bitDepth == 16 || bitDepth == 32) {
-                        elementMin = initialMin;
-                        elementMax = initialMax;
+                    if (m_bitDepth == 16 || m_bitDepth == 32) {
+                        m_elementMin = m_initialMin;
+                        m_elementMax = m_initialMax;
                     }
-                    w_min = elementMin;
-                    w_max = elementMax;
+                    w_min = m_elementMin;
+                    w_max = m_elementMax;
                     setBrightnessContrast();
-                    m_bundle.setDataMinMax(elementMin, elementMax);
-                    m_bundle.setTheoreticalMinMax(elementMin, elementMax);
+                    m_bundle.setDataMinMax(m_elementMin, m_elementMax);
+                    m_bundle.setTheoreticalMinMax(m_elementMin, m_elementMax);
                     m_histoWidget.refreshChart(m_bundle);
 
-                    if (autoSelect) {
+                    if (m_autoSelect) {
                         autoAdjust();
                     }
                     publishFactor();
-                    isAdjusting=false;
+                    m_isAdjusting=false;
                 }
             }
         });
         buttonPanel.add(m_planeSelect);
 
         add(buttonPanel, c6);
-        isDrawn = true;
+        m_isDrawn = true;
     }
 
     /**
@@ -452,17 +452,17 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
     private void getSelectedPlane() {
         // get interval
 
-        final long[] min = planeSelectionPos.clone();
-        final long[] max = planeSelectionPos.clone();
+        final long[] min = m_planeSelectionPos.clone();
+        final long[] max = m_planeSelectionPos.clone();
 
-        min[planeSelectionIndices[0]] = img.min(planeSelectionIndices[0]);
-        min[planeSelectionIndices[1]] = img.min(planeSelectionIndices[1]);
+        min[m_planeSelectionIndices[0]] = m_img.min(m_planeSelectionIndices[0]);
+        min[m_planeSelectionIndices[1]] = m_img.min(m_planeSelectionIndices[1]);
 
-        max[planeSelectionIndices[0]] = img.max(planeSelectionIndices[0]);
-        max[planeSelectionIndices[1]] = img.max(planeSelectionIndices[1]);
+        max[m_planeSelectionIndices[0]] = m_img.max(m_planeSelectionIndices[0]);
+        max[m_planeSelectionIndices[1]] = m_img.max(m_planeSelectionIndices[1]);
 
         FinalInterval interval =  new FinalInterval(min, max);
-        planeSelection = (RandomAccessibleInterval<T>)Views.iterable(Views.interval(img, interval));
+        m_planeSelection = (RandomAccessibleInterval<T>)Views.iterable(Views.interval(m_img, interval));
     }
 
     /**
@@ -470,8 +470,8 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
      */
     protected void brightnessSetMinMax() {
 
-        final double center = elementMin
-                + (elementMax - elementMin) * (((SLIDER_MAX - SLIDER_MIN) - w_brightness) / (SLIDER_MAX - SLIDER_MIN));
+        final double center = m_elementMin
+                + (m_elementMax - m_elementMin) * (((SLIDER_MAX - SLIDER_MIN) - w_brightness) / (SLIDER_MAX - SLIDER_MIN));
         final double width = w_max - w_min;
         w_min = center - width / 2.0;
         w_max = center + width / 2.0;
@@ -492,7 +492,7 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
         final double slope;
         final double center = w_min + (w_max - w_min) / 2.0;
 
-        final double range = elementMax - elementMin;
+        final double range = m_elementMax - m_elementMin;
 
         final double mid = (SLIDER_MAX - SLIDER_MIN) / 2;
         if (w_contrast <= mid) {
@@ -520,17 +520,17 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
     protected void setBrightnessContrast() {
         final double level = w_min + (w_max - w_min) / 2.0;
 
-        final double normalizedLevel = 1.0 - (level - elementMin) / (elementMax - elementMin);
+        final double normalizedLevel = 1.0 - (level - m_elementMin) / (m_elementMax - m_elementMin);
         w_brightness = (int)(normalizedLevel * (SLIDER_MAX - SLIDER_MIN));
 
         final double mid = (SLIDER_MAX - SLIDER_MIN) / 2;
-        double c = ((elementMax - elementMin) / (w_max - w_min)) * mid;
+        double c = ((m_elementMax - m_elementMin) / (w_max - w_min)) * mid;
         if (c > mid) {
-            c = (SLIDER_MAX - SLIDER_MIN) - ((w_max - w_min) / (elementMax - elementMin)) * mid;
+            c = (SLIDER_MAX - SLIDER_MIN) - ((w_max - w_min) / (m_elementMax - m_elementMin)) * mid;
         }
         w_contrast = (int)c;
 
-        if (isDrawn) {
+        if (m_isDrawn) {
             m_brightnessSlider.setValue((int)w_brightness);
             m_contrastSlider.setValue((int)w_contrast);
             m_bundle.setTheoreticalMinMax(w_min, w_max);
@@ -542,16 +542,16 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
      * Automatically adjust contrast for actual instance.
      */
     protected void autoAdjust() {
-        isAdjusting = true;
+        m_isAdjusting = true;
         Iterable<T> iterable = null;
-        if (planeSelected) {
-            iterable = Views.iterable(planeSelection);
+        if (m_planeSelected) {
+            iterable = Views.iterable(m_planeSelection);
         } else {
-            iterable = imgIt;
+            iterable = m_imgIt;
         }
 
-        double lper = ops.stats().percentile(iterable, 5).getRealDouble();
-        double uper = ops.stats().percentile(iterable, 95).getRealDouble();
+        double lper = m_ops.stats().percentile(iterable, 5).getRealDouble();
+        double uper = m_ops.stats().percentile(iterable, 95).getRealDouble();
 
         w_min = lper;
         w_max = uper;
@@ -559,39 +559,39 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
         updateSliderMinMax();
         updateLabelMinMax();
         setBrightnessContrast();
-        isAdjusting = false;
+        m_isAdjusting = false;
     }
 
     /**
      * Compute the datatype's min and max.
      */
     private void computeDataMinMax() {
-        initialMin = ops.stats().min(imgIt).getRealDouble();
-        initialMax = ops.stats().max(imgIt).getRealDouble();
-        if (bitDepth == 1){
-            elementMin = element.getMinValue();
-            elementMax = element.getMaxValue();
-            normMin = elementMin;
-            normMax = elementMax;
-            autoSelect = false;
+        m_initialMin = m_ops.stats().min(m_imgIt).getRealDouble();
+        m_initialMax = m_ops.stats().max(m_imgIt).getRealDouble();
+        if (m_bitDepth == 1){
+            m_elementMin = m_element.getMinValue();
+            m_elementMax = m_element.getMaxValue();
+            m_normMin = m_elementMin;
+            m_normMax = m_elementMax;
+            m_autoSelect = false;
         } else {
             // use initialMin/Max as boundaries
-            normMin = element.getMinValue();
-            normMax = element.getMaxValue();
-            elementMin = initialMin;
-            elementMax = initialMax;
+            m_normMin = m_element.getMinValue();
+            m_normMax = m_element.getMaxValue();
+            m_elementMin = m_initialMin;
+            m_elementMax = m_initialMax;
         }
-        w_min = initialMin;
-        w_max = initialMax;
-        if (isDrawn) {
+        w_min = m_initialMin;
+        w_max = m_initialMax;
+        if (m_isDrawn) {
             updateSliderMinMax();
             updateLabelMinMax();
         }
         setBrightnessContrast();
         createNewHistogram();
 
-        m_bundle.setDataMinMax(elementMin, elementMax);
-        m_bundle.setTheoreticalMinMax(elementMin, elementMax);
+        m_bundle.setDataMinMax(m_elementMin, m_elementMax);
+        m_bundle.setTheoreticalMinMax(m_elementMin, m_elementMax);
     }
 
     /**
@@ -600,7 +600,7 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
     private void computeInitialMinMax() {
         createNewHistogram();
 
-        if (isDrawn) {
+        if (m_isDrawn) {
             updateSliderMinMax();
             updateLabelMinMax();
         }
@@ -613,18 +613,18 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
     private void createNewHistogram() {
         Iterable<T> iterable = null;
 
-        if (planeSelected) {
-            Iterable<T> planeSelIt = (Iterable<T>)planeSelection;
-            initialMin = ops.stats().min(planeSelIt).getRealDouble();
-            initialMax = ops.stats().max(planeSelIt).getRealDouble();
+        if (m_planeSelected) {
+            Iterable<T> planeSelIt = (Iterable<T>)m_planeSelection;
+            m_initialMin = m_ops.stats().min(planeSelIt).getRealDouble();
+            m_initialMax = m_ops.stats().max(planeSelIt).getRealDouble();
             iterable = planeSelIt;
         } else {
-            initialMin = ops.stats().min(imgIt).getRealDouble();
-            initialMax = ops.stats().max(imgIt).getRealDouble();
-            iterable = imgIt;
+            m_initialMin = m_ops.stats().min(m_imgIt).getRealDouble();
+            m_initialMax = m_ops.stats().max(m_imgIt).getRealDouble();
+            iterable = m_imgIt;
         }
 
-        BinMapper1d<T> mapper = new Real1dBinMapper<T>(initialMin, initialMax, 256, false);
+        BinMapper1d<T> mapper = new Real1dBinMapper<T>(m_initialMin, m_initialMax, 256, false);
         Histogram1d<T> histogram = new Histogram1d<T>(iterable, mapper);
         if (m_bundle == null) {
             m_bundle = new HistogramBundle(histogram);
@@ -638,9 +638,9 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
      */
     private void updateSliderMinMax() {
         m_minimumSlider
-                .setValue((int)((w_min - elementMin) * ((SLIDER_MAX - SLIDER_MIN) - 1.0) / (elementMax - elementMin)));
+                .setValue((int)((w_min - m_elementMin) * ((SLIDER_MAX - SLIDER_MIN) - 1.0) / (m_elementMax - m_elementMin)));
         m_maximumSlider
-                .setValue((int)((w_max - elementMin) * ((SLIDER_MAX - SLIDER_MIN) - 1.0) / (elementMax - elementMin)));
+                .setValue((int)((w_max - m_elementMin) * ((SLIDER_MAX - SLIDER_MIN) - 1.0) / (m_elementMax - m_elementMin)));
     }
 
     /**
@@ -655,7 +655,7 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
      * Publish the normalization values and redraw the image.
      */
     private void publishFactor() {
-        w_factor = Normalize.normalizationFactor(w_min, w_max, normMin, normMax);
+        w_factor = Normalize.normalizationFactor(w_min, w_max, m_normMin, m_normMax);
         m_eventService.publish(new BrightnessContrastChgEvent(w_factor, w_min));
         m_eventService.publish(new ImgRedrawEvent());
     }
@@ -668,40 +668,40 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
     @EventListener
     public void onImgUpdated(final ImgWithMetadataChgEvent<T> event) {
         RandomAccessibleInterval convertedImg = AWTImageProvider.convertIfDouble(event.getRandomAccessibleInterval());
-        img = convertedImg;
-        imgIt = Views.iterable(img);
-        element = img.randomAccess().get().createVariable();
-        bitDepth = element.getBitsPerPixel();
-        if (imgIt != null && planeSelection != null) {
-            if (!isDrawn) {
+        m_img = convertedImg;
+        m_imgIt = Views.iterable(m_img);
+        m_element = m_img.randomAccess().get().createVariable();
+        m_bitDepth = m_element.getBitsPerPixel();
+        if (m_imgIt != null && m_planeSelection != null) {
+            if (!m_isDrawn) {
                 // analyze data
                 computeDataMinMax();
                 m_histoWidget = new HistogramBC(m_bundle);
 
                 //computeInitialMinMax();
                 draw();
-                if (autoSelect) {
+                if (m_autoSelect) {
                     autoAdjust();
                 }
                 publishFactor();
 
-            } else if (planeSelected) {
-                isAdjusting = true;
+            } else if (m_planeSelected) {
+                m_isAdjusting = true;
                 computeDataMinMax();
-                if (autoSelect) {
+                if (m_autoSelect) {
                     autoAdjust();
                 }
-                isAdjusting = false;
+                m_isAdjusting = false;
             } else {
-                isAdjusting = true;
+                m_isAdjusting = true;
                 computeDataMinMax();
                 m_histoWidget.refreshChart(m_bundle);
                 //computeInitialMinMax();
-                if (autoSelect) {
+                if (m_autoSelect) {
                     autoAdjust();
                 }
                 publishFactor();
-                isAdjusting = false;
+                m_isAdjusting = false;
             }
         }
     }
@@ -713,29 +713,29 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
      */
     @EventListener
     public void onPlaneUpdated(final PlaneSelectionEvent event) {
-        planeSelectionPos = event.getPlanePos();
-        planeSelectionIndices = event.getDimIndices();
-        if (imgIt != null) {
+        m_planeSelectionPos = event.getPlanePos();
+        m_planeSelectionIndices = event.getDimIndices();
+        if (m_imgIt != null) {
             try {
-            planeSelection = (RandomAccessibleInterval<T>)Views.iterable(Views.interval(img, event.getInterval(img)));
+                m_planeSelection = (RandomAccessibleInterval<T>)Views.iterable(Views.interval(m_img, event.getInterval(m_img)));
             } catch (AssertionError e) {
 
             }
-            if (planeSelected) {
-                isAdjusting = true;
+            if (m_planeSelected) {
+                m_isAdjusting = true;
                 computeInitialMinMax();
 
-                int bitDepth = imgIt.firstElement().getBitsPerPixel();
+                int bitDepth = m_imgIt.firstElement().getBitsPerPixel();
                 if (bitDepth == 16 || bitDepth == 32 || bitDepth == 64) {
-                    elementMin = initialMin;
-                    elementMax = initialMax;
+                    m_elementMin = m_initialMin;
+                    m_elementMax = m_initialMax;
                 }
 
-                w_min = initialMin;
-                w_max = initialMax;
+                w_min = m_initialMin;
+                w_max = m_initialMax;
                 createNewHistogram();
 
-                if (!isDrawn) {
+                if (!m_isDrawn) {
                     computeDataMinMax();
                     m_histoWidget = new HistogramBC(m_bundle);
                     draw();
@@ -745,14 +745,14 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
 
                 setBrightnessContrast();
 
-                m_bundle.setDataMinMax(elementMin, elementMax);
-                m_bundle.setTheoreticalMinMax(elementMin, elementMax);
+                m_bundle.setDataMinMax(m_elementMin, m_elementMax);
+                m_bundle.setTheoreticalMinMax(m_elementMin, m_elementMax);
                 m_histoWidget.refreshChart(m_bundle);
-                if (autoSelect) {
+                if (m_autoSelect) {
                     autoAdjust();
                 }
                 publishFactor();
-                isAdjusting = false;
+                m_isAdjusting = false;
             }
         }
     }
@@ -765,37 +765,37 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
     @EventListener
     public void onImgAndLabelingUpdated(final ImgAndLabelingChgEvent<T, ?> event) {
         RandomAccessibleInterval convertedImg = AWTImageProvider.convertIfDouble(event.getRandomAccessibleInterval());
-        img = convertedImg;
-        imgIt = Views.iterable(img);
-        element = img.randomAccess().get().createVariable();
-        bitDepth = element.getBitsPerPixel();
-        if (imgIt != null && planeSelection != null) {
-            if (!isDrawn) {
+        m_img = convertedImg;
+        m_imgIt = Views.iterable(m_img);
+        m_element = m_img.randomAccess().get().createVariable();
+        m_bitDepth = m_element.getBitsPerPixel();
+        if (m_imgIt != null && m_planeSelection != null) {
+            if (!m_isDrawn) {
                 // analyze data
                 computeDataMinMax();
                 m_histoWidget = new HistogramBC(m_bundle);
                 //computeInitialMinMax();
 
                 draw();
-                isDrawn = !isDrawn;
-                if (autoSelect) {
+                m_isDrawn = !m_isDrawn;
+                if (m_autoSelect) {
                     autoAdjust();
                 }
                 publishFactor();
 
             } else {
-                isAdjusting = true;
-                planeSelected = false;
-                m_planeSelect.setSelected(planeSelected);
+                m_isAdjusting = true;
+                m_planeSelected = false;
+                m_planeSelect.setSelected(m_planeSelected);
                 computeDataMinMax();
                 m_histoWidget.refreshChart(m_bundle);
 
                 //computeInitialMinMax();
-                if (autoSelect) {
+                if (m_autoSelect) {
                     autoAdjust();
                 }
                 publishFactor();
-                isAdjusting = false;
+                m_isAdjusting = false;
             }
         }
     }
@@ -831,8 +831,8 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
         out.writeInt(m_brightnessSlider.getValue());
         out.writeInt(m_contrastSlider.getValue());
         out.writeBoolean(m_planeSelect.isSelected());
-        out.writeBoolean(planeSelected);
-        out.writeBoolean(autoSelect);
+        out.writeBoolean(m_planeSelected);
+        out.writeBoolean(m_autoSelect);
     }
 
     /**
@@ -845,7 +845,7 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
         m_brightnessSlider.setValue(in.readInt());
         m_contrastSlider.setValue(in.readInt());
         m_planeSelect.setSelected(in.readBoolean());
-        planeSelected = in.readBoolean();
-        autoSelect = in.readBoolean();
+        m_planeSelected = in.readBoolean();
+        m_autoSelect = in.readBoolean();
     }
 }
