@@ -166,7 +166,7 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
     private int bitDepth;
     private T element;
     /* ops */
-    OpService ops = KNIPGateway.ops();
+    private OpService ops = KNIPGateway.ops();
 
     /* histogram */
     private HistogramBC m_histoWidget;
