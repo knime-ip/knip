@@ -59,7 +59,6 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -92,7 +91,7 @@ public class LabelOptionPanel extends ViewerComponent {
             final Color newColor = LabelOptionPanel.this.m_colorChooser.getColor();
             LabelingColorTableUtils.setBoundingBoxColor(newColor);
 
-            m_eventService.publish(new LabelOptionsChangeEvent(true));
+            m_eventService.publish(new LabelOptionsChangeEvent(m_renderLabelString.isSelected()));
 
             m_eventService.publish(new LabelColoringChangeEvent(newColor, RandomMissingColorHandler.getGeneration()));
             m_eventService.publish(new ImgRedrawEvent());
@@ -135,7 +134,16 @@ public class LabelOptionPanel extends ViewerComponent {
         setMinimumSize(new Dimension(240, 80));
         setPreferredSize(new Dimension(240, 80));
         setMaximumSize(new Dimension(240, this.getMaximumSize().height));
-        setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+        setLayout(new GridBagLayout());
+
+        final GridBagConstraints gc = new GridBagConstraints();
+        int y = 0;
+        gc.fill = GridBagConstraints.HORIZONTAL;
+
+        // first col
+//        gc.anchor = GridBagConstraints.LINE_START;
+        gc.weightx = 1.0;
+
 
         // Buttons for changing BoundingBox color and reset color
         m_boundingBoxColor = new JButton(new ImageIcon(getClass().getResource("ColorIcon.png")));
@@ -174,7 +182,7 @@ public class LabelOptionPanel extends ViewerComponent {
             }
         });
 
-        add(createComponentPanel());
+        add(createComponentPanel(), gc);
     }
 
     private JPanel createComponentPanel() {
@@ -188,17 +196,17 @@ public class LabelOptionPanel extends ViewerComponent {
         gc.fill = GridBagConstraints.HORIZONTAL;
 
         // first col
-        gc.anchor = GridBagConstraints.LINE_START;
+//        gc.anchor = GridBagConstraints.LINE_START;
         gc.weightx = 1.0;
 
         gc.gridy = y;
         gc.insets = new Insets(5, 5, 0, 5);
-        ret.add(new JLabel("Set BoundingBox Color"), gc);
+        ret.add(new JLabel("Set Bounding Box Colors"), gc);
 
         y++;
         gc.gridy = y;
         gc.insets = new Insets(0, 5, 0, 5);
-        ret.add(new JLabel("Change Random Label Colors"), gc);
+        ret.add(new JLabel("Randomize Label Colors"), gc);
 
         y++;
         gc.gridy = y;
@@ -208,7 +216,6 @@ public class LabelOptionPanel extends ViewerComponent {
         // 2nd col
         gc.anchor = GridBagConstraints.CENTER;
         gc.weightx = 0.0;
-
         y = 0;
         gc.gridy = y;
         gc.insets = new Insets(5, 5, 0, 5);
@@ -223,7 +230,6 @@ public class LabelOptionPanel extends ViewerComponent {
         gc.gridy = y;
         gc.insets = new Insets(5, 5, 0, 5);
         ret.add(m_renderLabelString, gc);
-
         return ret;
     }
 

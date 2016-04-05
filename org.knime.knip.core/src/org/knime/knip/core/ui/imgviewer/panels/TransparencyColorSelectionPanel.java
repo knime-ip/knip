@@ -60,8 +60,8 @@ import org.knime.knip.core.ui.imgviewer.ViewerComponent;
 
 /**
  * composite of a {@link TransparencyPanel} and a {@link LabelOptionPanel}.
- * 
- * 
+ *
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -82,6 +82,7 @@ public class TransparencyColorSelectionPanel extends ViewerComponent {
         final GridBagConstraints gc = new GridBagConstraints();
 
         gc.fill = GridBagConstraints.HORIZONTAL;
+        gc.weightx = 1;
         gc.gridx = 0;
         gc.gridy = 0;
 
@@ -92,7 +93,7 @@ public class TransparencyColorSelectionPanel extends ViewerComponent {
 
         setMinimumSize(new Dimension(250, 150));
         setPreferredSize(new Dimension(250, 150));
-        setMaximumSize(new Dimension(250, 150));
+//        setMaximumSize(new Dimension(250, 150));
 
     }
 
