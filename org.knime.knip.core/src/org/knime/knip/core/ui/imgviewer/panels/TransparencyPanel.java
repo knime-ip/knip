@@ -144,13 +144,14 @@ public class TransparencyPanel extends ViewerComponent {
         }
 
         // content row
-        gc.weightx = 0.0;
+        gc.weightx = 1.0;
         gc.gridx = x;
         gc.gridy = y;
         gc.insets = new Insets(0, 5, 0, 0);
         add(m_slider, gc);
 
         x++;
+        gc.weightx = 0.0;
         gc.insets = new Insets(0, 10, 0, 0);
         gc.weightx = 1.0;
         gc.gridx = x;
