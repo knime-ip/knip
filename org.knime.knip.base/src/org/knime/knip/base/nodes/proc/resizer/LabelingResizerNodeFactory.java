@@ -65,6 +65,7 @@ import org.knime.knip.core.data.img.LabelingMetadata;
 import org.knime.knip.core.util.EnumUtils;
 
 import net.imagej.axis.DefaultLinearAxis;
+import net.imglib2.Cursor;
 import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccessibleInterval;
@@ -74,8 +75,10 @@ import net.imglib2.realtransform.AffineGet;
 import net.imglib2.realtransform.AffineRealRandomAccessible;
 import net.imglib2.realtransform.RealViews;
 import net.imglib2.realtransform.Scale;
+import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.util.Util;
+import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 
 /**
@@ -268,7 +271,14 @@ public class LabelingResizerNodeFactory<L> extends ValueToCellNodeFactory<Labeli
 
                 AffineRealRandomAccessible<LabelingType<L>, AffineGet> affineReal =
                         RealViews.affineReal(interpolate, new Scale(scaleFactors));
-                return KNIPGateway.ops().copy().rai(Views.interval(Views.raster(affineReal), resultingInterval));
+
+                IntervalView<LabelingType<L>> interval = Views.interval(Views.raster(affineReal), resultingInterval);
+                ImgLabeling<L, ?> res = KNIPGateway.ops().create().imgLabeling(interval);
+                Cursor<LabelingType<L>> cursor = res.cursor();
+                for (LabelingType<L> lab : Views.iterable(interval)) {
+                    cursor.next().set(lab);
+                }
+                return res;
             case PERIODICAL:
                 return Views.interval(Views.extendPeriodic(rai), resultingInterval);
             case ZERO:
