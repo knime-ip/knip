@@ -50,7 +50,7 @@ class ReadImg2Function<T extends RealType<T> & NativeType<T>> extends AbstractRe
 		String path;
 		int numSeries;
 		try {
-			path = FileUtil.resolveToPath(FileUtil.toURL(t)).toString();
+			path = FileUtil.getFileFromURL(FileUtil.toURL(t)).getAbsolutePath();
 			numSeries = m_imgSource.getSeriesCount(path);
 		} catch (InvalidPathException | IOException | URISyntaxException exc) {
 			m_exec.setProgress(Double.valueOf(m_currentFile.incrementAndGet()) / m_numberOfFiles);

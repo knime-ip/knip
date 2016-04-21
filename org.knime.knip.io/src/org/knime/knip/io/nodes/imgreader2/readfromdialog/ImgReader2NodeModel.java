@@ -46,6 +46,10 @@
  */
 package org.knime.knip.io.nodes.imgreader2.readfromdialog;
 
+import java.net.URISyntaxException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -126,8 +130,13 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 
 	public ImgReader2NodeModel(NodeCreationContext context) {
 		super(0, 1);
-		m_files.setStringArrayValue(new String[] { context.getUrl().getPath().toString() });
-		addSettingsModels(m_files, m_completePathRowKey);
+
+		try {
+			m_files.setStringArrayValue(new String[] { context.getUrl().toURI().toString() });
+			addSettingsModels(m_files, m_completePathRowKey);
+		} catch (URISyntaxException e) {
+			throw new IllegalArgumentException(e);
+		}
 	}
 
 	/**
@@ -184,7 +193,7 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 		rifp.close();
 
 		bdc.close();
-		
+
 		// data table for the table cell viewer
 		m_data = bdc.getTable();
 
