@@ -55,18 +55,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import net.imagej.ops.slicewise.Hyperslice;
-import net.imagej.ops.special.computer.UnaryComputerOp;
-import net.imglib2.Cursor;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.ops.operation.Operations;
-import net.imglib2.roi.labeling.LabelRegion;
-import net.imglib2.roi.labeling.LabelRegions;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.util.Pair;
-import net.imglib2.util.ValuePair;
-
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
@@ -85,6 +73,18 @@ import org.knime.knip.features.DataRowUtil;
 import org.knime.knip.features.FeaturesGateway;
 import org.knime.knip.features.node.model.FeatureSetInfo;
 import org.knime.knip.features.sets.FeatureSet;
+
+import net.imagej.ops.slice.SlicesII;
+import net.imagej.ops.special.computer.UnaryComputerOp;
+import net.imglib2.Cursor;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.ops.operation.Operations;
+import net.imglib2.roi.labeling.LabelRegion;
+import net.imglib2.roi.labeling.LabelRegions;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.Pair;
+import net.imglib2.util.ValuePair;
 
 /**
  * FIXME: Design of FeatureGroups is really weak. However, we can redesign it
@@ -187,7 +187,7 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 				final RandomAccessibleInterval<LabelingType<L>> labeling = labValue.getLabeling();
 				// here we have to loop!!!
 
-				final Hyperslice<LabelingType<L>> slicer = new Hyperslice<LabelingType<L>>(KNIPGateway.ops(), labeling,
+				final SlicesII<LabelingType<L>> slicer = new SlicesII<LabelingType<L>>(labeling,
 						dimSelection.getSelectedDimIndices(labValue.getLabelingMetadata()), true);
 
 				final Cursor<RandomAccessibleInterval<LabelingType<L>>> slicingCursor = slicer.cursor();
