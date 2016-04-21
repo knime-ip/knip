@@ -52,7 +52,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import net.imagej.ImgPlus;
-import net.imagej.ops.slicewise.Hyperslice;
+import net.imagej.ops.slice.SlicesII;
 import net.imagej.ops.special.computer.UnaryComputerOp;
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccessibleInterval;
@@ -136,8 +136,7 @@ public class ImgPlusFeatureSetGroup<T extends RealType<T>, R extends RealType<R>
 				@SuppressWarnings("unchecked")
 				final ImgPlus<T> imgPlus = ((ImgPlusValue<T>) cell).getImgPlus();
 
-				final Hyperslice<T> slicer = new Hyperslice<T>(KNIPGateway.ops(), imgPlus,
-						dimSelection.getSelectedDimIndices(imgPlus), true);
+				final SlicesII<T> slicer = new SlicesII<T>(imgPlus, dimSelection.getSelectedDimIndices(imgPlus), true);
 				final Cursor<RandomAccessibleInterval<T>> slicingCursor = slicer.cursor();
 
 				boolean slicingActive = (slicer.size() == 1);
