@@ -69,13 +69,14 @@ import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.ops.labeling.CellClumpedSplitter;
-import org.knime.knip.core.util.MinimaUtils;
 import org.knime.knip.core.util.EnumUtils;
+import org.knime.knip.core.util.MinimaUtils;
 
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.LocalMaximaForDistanceMap.NeighborhoodType;
 import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.type.numeric.RealType;
 
 /**
@@ -184,7 +185,8 @@ public class CellClumpedSplitterNodeFactory<T extends RealType<T>, L extends Com
             protected LabelingCell<Integer> compute(final LabelingValue<L> cellValue) throws Exception {
 
                 final RandomAccessibleInterval<LabelingType<L>> fromCell = cellValue.getLabeling();
-                final RandomAccessibleInterval<LabelingType<L>> zeroMinFromCell = MinimaUtils.getZeroMinLabeling(fromCell);
+                final RandomAccessibleInterval<LabelingType<L>> zeroMinFromCell =
+                        MinimaUtils.getZeroMinLabeling(fromCell);
 
                 m_executor = getExecutorService();
                 final CellClumpedSplitter<L> op =
@@ -192,9 +194,9 @@ public class CellClumpedSplitterNodeFactory<T extends RealType<T>, L extends Com
                                 m_executor, m_smMinMaximaSize.getDoubleValue(),
                                 m_smIgnoreValueBelowAvgPrecent.getDoubleValue(), m_smMaxInterations.getIntValue());
 
+                @SuppressWarnings({"rawtypes", "unchecked"})
                 final RandomAccessibleInterval<LabelingType<Integer>> res =
-                        (RandomAccessibleInterval<LabelingType<Integer>>)KNIPGateway.ops().create()
-                                .imgLabeling(zeroMinFromCell, Integer.class);
+                        KNIPGateway.ops().create().<Integer, IntegerType> imgLabeling(zeroMinFromCell);
 
                 SubsetOperations.iterate(op, m_smDimSelection.getSelectedDimIndices(cellValue.getLabelingMetadata()),
                                          zeroMinFromCell, res);

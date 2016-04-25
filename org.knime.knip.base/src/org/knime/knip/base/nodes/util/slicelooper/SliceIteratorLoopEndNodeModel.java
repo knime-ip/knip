@@ -91,8 +91,8 @@ import net.imglib2.img.ImgFactory;
 import net.imglib2.ops.util.MetadataUtil;
 import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.util.Util;
 
 /**
  *
@@ -289,15 +289,10 @@ public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>
                     final LabelingValue<L> firstLabelingValue = (LabelingValue<L>)firstValue;
 
                     // create new labeling
+                    @SuppressWarnings("rawtypes")
                     final RandomAccessibleInterval<LabelingType<L>> res =
-                            (RandomAccessibleInterval<LabelingType<L>>)KNIPGateway.ops()
-                                    .create().imgLabeling(
-                                                          new FinalInterval(loopStartNode.getResDimensions(
-                                                                                                           firstLabelingValue
-                                                                                                                   .getLabeling(),
-                                                                                                           count)),
-                                                          Util.getTypeFromInterval(firstLabelingValue.getLabeling())
-                                                                  .createVariable());
+                            KNIPGateway.ops().create().<L, IntegerType> imgLabeling(new FinalInterval(
+                                    loopStartNode.getResDimensions(firstLabelingValue.getLabeling(), count)));
 
                     // copy all labeling slices in new created labeling
                     int i = 0;
