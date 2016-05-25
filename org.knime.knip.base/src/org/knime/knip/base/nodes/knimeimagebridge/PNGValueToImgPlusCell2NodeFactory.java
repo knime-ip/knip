@@ -53,9 +53,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
 import org.knime.core.data.image.png.PNGImageValue;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
@@ -91,10 +88,12 @@ import net.imglib2.view.Views;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @author <a href="mailto:danielseebacher@t-online.de">Daniel Seebacher</a>
- * @deprecated
+ * @author <a href="mailto:gabriel.einsdorf@uni-konstanz.de">Gabriel Einsdorf</a>
  */
-@Deprecated
-public class PNGValueToImgPlusCellNodeFactory extends ValueToCellNodeFactory<PNGImageValue> {
+@SuppressWarnings("deprecation")
+public class PNGValueToImgPlusCell2NodeFactory extends ValueToCellNodeFactory<PNGImageValue> {
+
+    private static final String SETTINGS_TAB = "Settings";
 
     private static SettingsModelString createFactoryModel() {
         return new SettingsModelString("factoryselection", ImgFactoryTypes.ARRAY_IMG_FACTORY.toString());
@@ -117,7 +116,7 @@ public class PNGValueToImgPlusCellNodeFactory extends ValueToCellNodeFactory<PNG
 
             @Override
             public void addDialogComponents() {
-                addDialogComponent("Settings", "Factory Selection",
+                addDialogComponent(SETTINGS_TAB, "Factory Selection",
                                    new DialogComponentStringSelection(createFactoryModel(), "Factory Type",
                                            EnumUtils.getStringListFromName(ImgFactoryTypes.ARRAY_IMG_FACTORY,
                                                                            ImgFactoryTypes.PLANAR_IMG_FACTORY,
@@ -126,17 +125,12 @@ public class PNGValueToImgPlusCellNodeFactory extends ValueToCellNodeFactory<PNG
                 SettingsModelBoolean replace = createReplaceAlphaValueWithConstantModel();
                 SettingsModelIntegerBounded alphval = createConstantAlphaValueModel();
 
-                addDialogComponent("Settings", "Color Handling", new DialogComponentBoolean(replace,
+                addDialogComponent(SETTINGS_TAB, "Color Handling", new DialogComponentBoolean(replace,
                         "Replace Transparent Alpha Values With Constant?"));
-                addDialogComponent("Settings", "Color Handling",
+                addDialogComponent(SETTINGS_TAB, "Color Handling",
                                    new DialogComponentNumber(alphval, "Constant Alpha Replacement Value", 1));
 
-                replace.addChangeListener(new ChangeListener() {
-                    @Override
-                    public void stateChanged(final ChangeEvent e) {
-                        alphval.setEnabled(replace.getBooleanValue());
-                    }
-                });
+                replace.addChangeListener(e -> alphval.setEnabled(replace.getBooleanValue()));
             }
         };
     }
@@ -175,8 +169,6 @@ public class PNGValueToImgPlusCellNodeFactory extends ValueToCellNodeFactory<PNG
 
                 final BufferedImage image = (BufferedImage)cellValue.getImageContent().getImage();
 
-                // check if the png image has an alpha channel
-                //                boolean hasAlphaChannel = m_hasAlphaChannel.getBooleanValue();
                 final ImgFactory imgFactory = ImgFactoryTypes.getImgFactory(m_factory.getStringValue(), null);
 
                 // always create rgb image with alpha channel, slice the alpha channel if nothing was written to it
@@ -187,7 +179,11 @@ public class PNGValueToImgPlusCellNodeFactory extends ValueToCellNodeFactory<PNG
                         new LocalizingIntervalIterator(new long[]{image.getWidth(), image.getHeight()});
                 final RandomAccess<UnsignedByteType> access = img.randomAccess();
 
-                boolean hasAlphaValues = false;
+                // if we replace with a transparent
+                boolean settingTransparentAlphaValue = m_replaceTransparentAlphaWithConstant.getBooleanValue()
+                        && m_alphaReplacementValue.getIntValue() < 255;
+
+                boolean hasTransparentInputAlphaValues = false;
                 while (iter.hasNext()) {
                     // Set position
                     iter.fwd();
@@ -209,25 +205,31 @@ public class PNGValueToImgPlusCellNodeFactory extends ValueToCellNodeFactory<PNG
 
                     // set alpha value
                     access.move(1, 2);
-                    if (255 == alpha && m_replaceTransparentAlphaWithConstant.getBooleanValue()) {
+
+                    if (m_replaceTransparentAlphaWithConstant.getBooleanValue()) {
                         access.get().set(m_alphaReplacementValue.getIntValue());
                     } else {
-                        // important, check if there is any value that isn't 0.
-                        hasAlphaValues = true;
                         access.get().set(alpha);
+                    }
+
+                    // detect if we are setting are any transparent pixels
+                    if (alpha < 255) {
+                        hasTransparentInputAlphaValues = true;
                     }
                 }
 
                 final ImgPlus<UnsignedByteType> imgPlus;
 
                 // if the image has alpha values, just create the imgplus from the img
-                if (hasAlphaValues) {
-                    imgPlus = new ImgPlus<UnsignedByteType>(img);
+                // NB: the second condition ensures that we only add an alpha channel if we are not setting the alpha channel to 255 everywhere.
+                if (settingTransparentAlphaValue
+                        || hasTransparentInputAlphaValues && !m_replaceTransparentAlphaWithConstant.getBooleanValue()) {
+                    imgPlus = new ImgPlus<>(img);
                 }
                 // if the image has NO alpha values, we can remove the alpha channel
                 else {
                     imgPlus =
-                            new ImgPlus<UnsignedByteType>(new ImgView<UnsignedByteType>(
+                            new ImgPlus<>(new ImgView<UnsignedByteType>(
                                     Views.interval(img, new long[]{0, 0, 0},
                                                    new long[]{image.getWidth() - 1, image.getHeight() - 1, 2}),
                                     imgFactory));
@@ -250,68 +252,4 @@ public class PNGValueToImgPlusCellNodeFactory extends ValueToCellNodeFactory<PNG
             }
         };
     }
-
-    //    /**
-    //     * Dialog for the {@link PNGValueToImgPlusCellNodeFactory}.
-    //     *
-    //     * @author <a href="mailto:danielseebacher@t-online.de">Daniel Seebacher</a>
-    //     */
-    //    private class PNGValueToImgPlusCellNodeDialog extends ValueToCellNodeDialog<PNGImageValue> {
-    //
-    //        private SettingsModelString m_factoryType;
-    //
-    //        private SettingsModelBoolean m_replaceAlphaValueWithConstant;
-    //
-    //        private SettingsModelNumber m_createConstantAlphaValueModel;
-    //
-    //        /**
-    //         * @param factoryType the factory type model
-    //         * @param replaceAlphaValueWithConstant the alpha replacement model
-    //         * @param createConstantAlphaValueModel the alpha replacement value model
-    //         *
-    //         */
-    //        public PNGValueToImgPlusCellNodeDialog(final SettingsModelString factoryType,
-    //                                               final SettingsModelBoolean replaceAlphaValueWithConstant,
-    //                                               final SettingsModelNumber createConstantAlphaValueModel) {
-    //            super(true);
-    //            this.m_factoryType = factoryType;
-    //            this.m_replaceAlphaValueWithConstant = replaceAlphaValueWithConstant;
-    //            this.m_createConstantAlphaValueModel = createConstantAlphaValueModel;
-    //
-    //            replaceAlphaValueWithConstant.addChangeListener(new ChangeListener() {
-    //                @Override
-    //                public void stateChanged(final ChangeEvent e) {
-    //                    createConstantAlphaValueModel.setEnabled(replaceAlphaValueWithConstant.getBooleanValue());
-    //                }
-    //            });
-    //
-    //            addDialogComponents();
-    //            buildDialog();
-    //        }
-    //
-    //        /**
-    //         * {@inheritDoc}
-    //         */
-    //        @Override
-    //        public void addDialogComponents() {
-    //            addDialogComponent("Settings", "Factory Selection",
-    //                               new DialogComponentStringSelection(m_factoryType, "Factory Type",
-    //                                       EnumUtils.getStringListFromName(ImgFactoryTypes.ARRAY_IMG_FACTORY,
-    //                                                                       ImgFactoryTypes.PLANAR_IMG_FACTORY,
-    //                                                                       ImgFactoryTypes.CELL_IMG_FACTORY)));
-    //
-    //            addDialogComponent("Settings", "Color Handling", new DialogComponentBoolean(m_replaceAlphaValueWithConstant,
-    //                    "Replace Transparent Alpha Values With Constant?"));
-    //            addDialogComponent("Settings", "Color Handling", new DialogComponentNumber(m_createConstantAlphaValueModel,
-    //                    "Constant Alpha Replacement Value", 1));
-    //
-    //            replaceAlphaValueWithConstant.addChangeListener(new ChangeListener() {
-    //                @Override
-    //                public void stateChanged(final ChangeEvent e) {
-    //                    createConstantAlphaValueModel.setEnabled(replaceAlphaValueWithConstant.getBooleanValue());
-    //                }
-    //            });
-    //        }
-    //
-    //    }
 }
