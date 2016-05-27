@@ -65,7 +65,7 @@ import org.knime.core.node.config.ConfigRO;
  */
 public class ConversionNodeSetFactory implements NodeSetFactory {
 
-    private final Map<String, String> m_nodeFactories = new HashMap<String, String>();
+    private final Map<String, String> m_nodeFactories = new HashMap<>();
 
     /**
      * {@inheritDoc}
@@ -110,7 +110,7 @@ public class ConversionNodeSetFactory implements NodeSetFactory {
     @Override
     public Collection<String> getNodeFactoryIds() {
 
-        m_nodeFactories.put(PNGValueToImgPlusCellNodeFactory.class.getCanonicalName(), "/community/knip/image");
+        m_nodeFactories.put(PNGValueToImgPlusCell2NodeFactory.class.getCanonicalName(), "/community/knip/image");
 
         m_nodeFactories.put(ImgPlusCellToPNGValueNodeFactory.class.getCanonicalName(), "/community/knip/image");
 

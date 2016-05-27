@@ -1,5 +1,5 @@
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
-<knimeNode icon="PngToImg.png" type="Manipulator" deprecated="true">
+<knimeNode icon="PngToImg.png" type="Manipulator">
 	<name>PNG Image to ImgPlus</name>
 
 	<shortDescription>
@@ -15,12 +15,19 @@
 		<tab name="Settings">
 			<option name="Factory Type">The Factory Type of the resulting ImgPlus.
 			</option>
-			<option name="Replace Transparent Alpha Values With Constant?">If this option is checked transparent alpha
-				values will be replaced by the constant defined in the 'Constant
-				Alpha Replacement Value' Number Selection.
+			<option name="Replace Transparent Alpha Values With Constant?">If this option is checked, the transparency of
+				already transparent pixels will be replaced by the constant
+				defined in the 'Constant Alpha Replacement Value' Number Selection.
 			</option>
 			<option name="Constant Alpha Replacement Value">The replacement value for transparent alpha
-				values.
+				values. Setting this value to 255 will remove the alpha channel from the image.
+			</option>
+		</tab>
+		<tab name="Notes">
+			<option name="Alpha Channel">
+				This node will create an ImgPlus with 4 color channels only if there are
+				transparent pixels in the png's alpha channel. Otherwise the
+				resulting PNG will only have the 3 color channels.
 			</option>
 		</tab>
 	</fullDescription>
