@@ -83,7 +83,10 @@ public final class EnumUtils {
     }
 
     /**
-     * Provide readable names and use toString methods.
+     * @deprecated
+     * Please provide readable names and use the toString methods instead:
+     * {@link #getStringListFromToString(Enum...)}
+     * {@link #getStringCollectionFromToString(Enum...)}
      *
      * @param enums
      * @return enum as String[] array based on names()
@@ -102,7 +105,10 @@ public final class EnumUtils {
     }
 
     /**
-     * Provide readable names and use toString methods.
+     * @deprecated
+     * Please provide readable names and use the toString based methods instead:
+     * {@link #getStringListFromToString(Enum...)} or
+     * {@link #getStringCollectionFromToString(Enum...)}
      *
      * @param enums
      * @return Collection<String> based on name()
