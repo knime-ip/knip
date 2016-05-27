@@ -103,52 +103,42 @@
      <extension
            point="org.knime.workbench.repository.nodesets">
         <nodeset
-              expert-flag="false"
               factory-class="org.knime.knip.base.nodes.proc.ProcNodeSetFactory"
               id="org.knime.knip.base.nodes.proc.ProcNodeSetFactory">
         </nodeset>
         <nodeset
-              expert-flag="false"
               factory-class="org.knime.knip.base.nodes.seg.LabNodeSetFactory"
               id="org.knime.knip.base.nodes.seg.LabNodeSetFactory">
         </nodeset>
         <nodeset
-              expert-flag="false"
               factory-class="org.knime.knip.base.nodes.view.ViewsNodeSetFactory"
               id="org.knime.knip.base.nodes.view.ViewsNodeSetFactory">
         </nodeset>
         <nodeset
-              expert-flag="false"
               factory-class="org.knime.knip.base.nodes.features.FeatureNodeSetFactory"
               id="org.knime.knip.base.nodes.features.FeatureNodeSetFactory">
         </nodeset>
         <nodeset
-              expert-flag="false"
               factory-class="org.knime.knip.base.nodes.proc.binary.BinaryProcNodeSetFactory"
               id="org.knime.knip.base.nodes.proc.binary.BinaryProcNodeSetFactory">
         </nodeset>
         <nodeset
-              expert-flag="false"
               factory-class="org.knime.knip.base.nodes.filter.FilterNodeSetFactory"
               id="org.knime.knip.base.nodes.filter.FilterNodeSetFactory">
         </nodeset>
         <nodeset
-              expert-flag="false"
               factory-class="org.knime.knip.base.nodes.metadata.MetadataNodeSetFactory"
               id="org.knime.knip.base.nodes.metadata.MetadataNodeSetFactory">
         </nodeset>
         <nodeset
-              expert-flag="false"
               factory-class="org.knime.knip.base.nodes.knimeimagebridge.ConversionNodeSetFactory"
               id="org.knime.knip.base.nodes.knimeimagebridge.ConversionNodeSetFactory">
         </nodeset>
         <nodeset
-              expert-flag="false"
               factory-class="org.knime.knip.base.nodes.misc.MiscNodeSetFactory"
               id="org.knime.knip.base.nodes.misc.MiscNodeSetFactory">
         </nodeset>
         <nodeset
-              expert-flag="false"
               factory-class="org.knime.knip.base.nodes.io.IONodeSetFactory"
               id="org.knime.knip.base.nodes.io.IONodeSetFactory">
         </nodeset>
@@ -229,25 +219,21 @@
            point="org.knime.workbench.repository.nodes">
         <node
               category-path="/community/knip/image/misc"
-              expert-flag="false"
               factory-class="org.knime.knip.base.nodes.util.slicelooper.SliceIteratorLoopStartNodeFactory"
               id="org.knime.knip.base.nodes.util.slicelooper.SliceIteratorNodeFactory">
         </node>
         <node
               category-path="/community/knip/image/misc"
-              expert-flag="false"
               factory-class="org.knime.knip.base.nodes.util.slicelooper.SliceIteratorLoopEndNodeFactory"
               id="org.knime.knip.base.nodes.util.slicelooper.CollectSlicesNodeFactory">
         </node>
         <node
               category-path="/community/knip/image/misc"
-              expert-flag="false"
               factory-class="org.knime.knip.base.nodes.util.dontsave.DontSaveStartNodeFactory"
               id="org.knime.knip.base.nodes.util.dontsave.DontSaveStartNodeFactory">
         </node>
         <node
               category-path="/community/knip/image/misc"
-              expert-flag="false"
               factory-class="org.knime.knip.base.nodes.util.dontsave.DontSaveEndNodeFactory"
               id="org.knime.knip.base.nodes.util.dontsave.DontSaveEndNodeFactory">
         </node>
