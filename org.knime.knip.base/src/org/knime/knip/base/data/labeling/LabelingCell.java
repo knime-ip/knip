@@ -166,10 +166,10 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
     private BufferedImage createThumbnail(final double factor) {
         // make sure that at least two dimensions exist
         RandomAccessibleInterval<LabelingType<L>> lab2d;
-        if (m_labelingAccess.get().getSrc().numDimensions() > 1) {
-            lab2d = m_labelingAccess.get().getSrc();
+        if (getLabeling().numDimensions() > 1) {
+            lab2d = getLabeling();
         } else {
-            lab2d = Views.addDimension(m_labelingAccess.get().getSrc(), 0, 0);
+            lab2d = Views.addDimension(getLabeling(), 0, 0);
         }
 
         // set the labeling mapping
@@ -186,7 +186,7 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
             }
         }
         final RandomAccessibleInterval<LabelingType<L>> toRender;
-        if (m_labelingAccess.get() == lab2d) {
+        if (getLabeling() == lab2d) {
             toRender = getSubInterval(new FinalInterval(Intervals.minAsLongArray(lab2d), max));
         } else {
             toRender = lab2d;
@@ -226,7 +226,12 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
      */
     @Override
     public synchronized RandomAccessibleInterval<LabelingType<L>> getLabeling() {
-        return m_labelingAccess.get().getSrc();
+        final Object o = m_labelingAccess.get();
+        if (o instanceof LabelingView) {
+            return ((LabelingView)o).getSrc();
+        } else {
+            return (RandomAccessibleInterval<LabelingType<L>>)o;
+        }
     }
 
     /**
@@ -321,7 +326,7 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
     }
 
     private RandomAccessibleInterval<LabelingType<L>> getSubInterval(final Interval interval) {
-        return SubsetOperations.subsetview(m_labelingAccess.get().getSrc(), interval);
+        return SubsetOperations.subsetview(getLabeling(), interval);
     }
 
     /**
