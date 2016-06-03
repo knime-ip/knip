@@ -373,29 +373,28 @@ public final class AWTImageTools {
                                         final double factor, final long[] startPos) {
 
         long width;
-        long height;
 
         FinalInterval interval;
         AffineGet transform;
 
         if (img.numDimensions() == 1) {
-            width = Math.max(1, (int)(img.dimension(0) * factor));
 
             transform = new AffineTransform2D();
             ((AffineTransform2D)transform).scale(factor);
-            interval = new FinalInterval(scale(Intervals.minAsLongArray(img), factor), scale(Intervals.maxAsLongArray(img), factor));
+            interval = new FinalInterval(scale(new long[]{img.min(0), 0}, factor),
+                    scale(new long[]{img.max(0), 0}, factor));
             img = MiscViews.synchronizeDimensionality(img, interval);
         } else if (img.numDimensions() == 2) {
             transform = new AffineTransform2D();
             ((AffineTransform2D)transform).scale(factor);
-            interval = new FinalInterval(scale(Intervals.minAsLongArray(img), factor), scale(Intervals.maxAsLongArray(img), factor));
+            interval = new FinalInterval(scale(Intervals.minAsLongArray(img), factor),
+                    scale(Intervals.maxAsLongArray(img), factor));
         } else if (img.numDimensions() == 3) {
-            width = Math.max(1, (int)(img.dimension(0) * factor));
-            height = Math.max(1, (int)(img.dimension(1) * factor));
             transform = new AffineTransform3D();
             ((AffineTransform3D)transform).set(factor, 0.0, 0.0, 0.0, 0.0, factor, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
-            interval = new FinalInterval(scale(Intervals.minAsLongArray(img), factor), scale(Intervals.maxAsLongArray(img), factor));
+            interval = new FinalInterval(scale(Intervals.minAsLongArray(img), factor),
+                    scale(Intervals.maxAsLongArray(img), factor));
 
         } else {
             throw new IllegalArgumentException("Images with more than 3 dimensions are not supported!");
