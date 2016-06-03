@@ -73,6 +73,7 @@ import org.knime.knip.core.awt.AWTImageTools;
 import org.knime.knip.core.awt.ColorLabelingRenderer;
 import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableUtils;
 import org.knime.knip.core.awt.labelingcolortable.RandomMissingColorHandler;
+import org.knime.knip.core.data.LabelingView;
 import org.knime.knip.core.data.img.LabelingMetadata;
 import org.knime.knip.core.io.externalization.BufferedDataInputStream;
 import org.knime.knip.core.io.externalization.ExternalizerManager;
@@ -87,6 +88,7 @@ import net.imglib2.Interval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.util.Intervals;
 import net.imglib2.view.Views;
 
 /**
@@ -126,7 +128,7 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
     private FileStoreCellMetadata m_fileMetadata;
 
     /* the labeling object */
-    private CachedObjectAccess<RandomAccessibleInterval<LabelingType<L>>> m_labelingAccess;
+    private CachedObjectAccess<LabelingView<L>> m_labelingAccess;
 
     /* metadata of the labeling */
     private CachedObjectAccess<LabelingCellMetadata> m_metadataAccess;
@@ -154,7 +156,7 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
         labeling.dimensions(dimensions);
         m_metadataAccess = new CachedObjectAccess<LabelingCellMetadata>(fileStore,
                 new LabelingCellMetadata(metadata, Views.iterable(labeling).size(), dimensions, null));
-        m_labelingAccess = new CachedObjectAccess<>(fileStore, labeling);
+        m_labelingAccess = new CachedObjectAccess<>(fileStore, new LabelingView<L>(labeling));
         m_fileMetadata = new FileStoreCellMetadata(-1, false, null);
 
         CACHE.put(this, this);
@@ -164,10 +166,10 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
     private BufferedImage createThumbnail(final double factor) {
         // make sure that at least two dimensions exist
         RandomAccessibleInterval<LabelingType<L>> lab2d;
-        if (m_labelingAccess.get().numDimensions() > 1) {
-            lab2d = m_labelingAccess.get();
+        if (m_labelingAccess.get().getSrc().numDimensions() > 1) {
+            lab2d = m_labelingAccess.get().getSrc();
         } else {
-            lab2d = Views.addDimension(m_labelingAccess.get(), 0, 0);
+            lab2d = Views.addDimension(m_labelingAccess.get().getSrc(), 0, 0);
         }
 
         // set the labeling mapping
@@ -185,7 +187,7 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
         }
         final RandomAccessibleInterval<LabelingType<L>> toRender;
         if (m_labelingAccess.get() == lab2d) {
-            toRender = getSubInterval(new FinalInterval(new long[lab2d.numDimensions()], max));
+            toRender = getSubInterval(new FinalInterval(Intervals.minAsLongArray(lab2d), max));
         } else {
             toRender = lab2d;
         }
@@ -224,7 +226,7 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
      */
     @Override
     public synchronized RandomAccessibleInterval<LabelingType<L>> getLabeling() {
-        return m_labelingAccess.get();
+        return m_labelingAccess.get().getSrc();
     }
 
     /**
@@ -319,7 +321,7 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
     }
 
     private RandomAccessibleInterval<LabelingType<L>> getSubInterval(final Interval interval) {
-        return SubsetOperations.subsetview(m_labelingAccess.get(), interval);
+        return SubsetOperations.subsetview(m_labelingAccess.get().getSrc(), interval);
     }
 
     /**
