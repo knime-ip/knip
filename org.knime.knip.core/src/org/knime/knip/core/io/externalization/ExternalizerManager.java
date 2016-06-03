@@ -81,6 +81,7 @@ import org.knime.knip.core.io.externalization.externalizers.LabelingMappingExt0;
 import org.knime.knip.core.io.externalization.externalizers.LabelingMetadataExt0;
 import org.knime.knip.core.io.externalization.externalizers.LabelingViewExt0;
 import org.knime.knip.core.io.externalization.externalizers.LabelingViewExt1;
+import org.knime.knip.core.io.externalization.externalizers.LabelingViewExt2;
 import org.knime.knip.core.io.externalization.externalizers.NamedExt0;
 import org.knime.knip.core.io.externalization.externalizers.NativeImgLabelingExt0;
 import org.knime.knip.core.io.externalization.externalizers.NtreeImgExt0;
@@ -165,6 +166,7 @@ public final class ExternalizerManager {
         registerExternalizer(new NativeImgLabelingExt0());
         registerExternalizer(new LabelingViewExt0());
         registerExternalizer(new LabelingViewExt1());
+        registerExternalizer(new LabelingViewExt2());
         registerExternalizer(new LabelingExt0());
         registerExternalizer(new LabelingMappingExt0());
 
