@@ -76,6 +76,8 @@ import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
+import org.knime.knip.core.util.MiscViews;
+
 import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
@@ -88,9 +90,8 @@ import net.imglib2.realtransform.RealViews;
 import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.Type;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.Intervals;
 import net.imglib2.view.Views;
-
-import org.knime.knip.core.util.MiscViews;
 
 /**
  *
@@ -107,9 +108,9 @@ public final class AWTImageTools {
     }
 
     /** Creates an image with the given DataBuffer. */
-    public static BufferedImage
-            constructImage(final int c, final int type, final int w, final int h, final boolean interleaved,
-                           final boolean banded, final DataBuffer buffer) {
+    public static BufferedImage constructImage(final int c, final int type, final int w, final int h,
+                                               final boolean interleaved, final boolean banded,
+                                               final DataBuffer buffer) {
         if (c > 4) {
             throw new IllegalArgumentException("Cannot construct image with " + c + " channels");
         }
@@ -278,7 +279,8 @@ public final class AWTImageTools {
      * @param ip the image plane
      * @param factor the scaling factor
      */
-    public static <T extends RealType<T>> JFrame showInFrame(final Img<T> img, final String title, final double factor) {
+    public static <T extends RealType<T>> JFrame showInFrame(final Img<T> img, final String title,
+                                                             final double factor) {
         return showInFrame(img, 0, 1, new long[img.numDimensions()], title, factor);
     }
 
@@ -306,8 +308,7 @@ public final class AWTImageTools {
         final Real2GreyRenderer<T> renderer = new Real2GreyRenderer<T>();
 
         final java.awt.Image awtImage = renderer.render(img, dimX, dimY, pos).image();
-        label.setIcon(new ImageIcon(awtImage.getScaledInstance((int)Math.round(w * factor),
-                                                               (int)Math.round(h * factor),
+        label.setIcon(new ImageIcon(awtImage.getScaledInstance((int)Math.round(w * factor), (int)Math.round(h * factor),
                                                                java.awt.Image.SCALE_DEFAULT)));
 
         frame.pack();
@@ -367,10 +368,9 @@ public final class AWTImageTools {
         frame.setVisible(true);
     }
 
-    public static <T extends Type<T>> BufferedImage renderScaledStandardColorImg(RandomAccessibleInterval<T> img,
-                                                                                 final ImageRenderer<T> renderer,
-                                                                                 final double factor,
-                                                                                 final long[] startPos) {
+    public static <T extends Type<T>> BufferedImage
+           renderScaledStandardColorImg(RandomAccessibleInterval<T> img, final ImageRenderer<T> renderer,
+                                        final double factor, final long[] startPos) {
 
         long width;
         long height;
@@ -378,29 +378,24 @@ public final class AWTImageTools {
         FinalInterval interval;
         AffineGet transform;
 
-        long[] min = new long[img.numDimensions()];
-        img.min(min);
-
         if (img.numDimensions() == 1) {
-            width = min[0] + Math.max(1, (int)(img.dimension(0) * factor));
+            width = Math.max(1, (int)(img.dimension(0) * factor));
 
             transform = new AffineTransform2D();
             ((AffineTransform2D)transform).scale(factor);
-            interval = new FinalInterval(new long[]{min[0], 0}, new long[]{width - 1, 0});
+            interval = new FinalInterval(scale(Intervals.minAsLongArray(img), factor), scale(Intervals.maxAsLongArray(img), factor));
             img = MiscViews.synchronizeDimensionality(img, interval);
         } else if (img.numDimensions() == 2) {
-            width = min[0] + Math.max(1, (int)(img.dimension(0) * factor));
-            height = min[1] + Math.max(1, (int)(img.dimension(1) * factor));
             transform = new AffineTransform2D();
             ((AffineTransform2D)transform).scale(factor);
-            interval = new FinalInterval(min, new long[]{width - 1, height - 1});
+            interval = new FinalInterval(scale(Intervals.minAsLongArray(img), factor), scale(Intervals.maxAsLongArray(img), factor));
         } else if (img.numDimensions() == 3) {
-            width = min[0] + Math.max(1, (int)(img.dimension(0) * factor));
-            height = min[1] + Math.max(1, (int)(img.dimension(1) * factor));
+            width = Math.max(1, (int)(img.dimension(0) * factor));
+            height = Math.max(1, (int)(img.dimension(1) * factor));
             transform = new AffineTransform3D();
             ((AffineTransform3D)transform).set(factor, 0.0, 0.0, 0.0, 0.0, factor, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
-            interval = new FinalInterval(min, new long[]{width, height, img.max(2)});
+            interval = new FinalInterval(scale(Intervals.minAsLongArray(img), factor), scale(Intervals.maxAsLongArray(img), factor));
 
         } else {
             throw new IllegalArgumentException("Images with more than 3 dimensions are not supported!");
@@ -408,11 +403,30 @@ public final class AWTImageTools {
 
         return AWTImageTools
                 .makeBuffered(renderer
-                        .render(Views.interval(RealViews.affine(Views.interpolate(Views.extend(img,
+                        .render(Views.interval(RealViews.affine(
+                                                                Views.interpolate(Views.extend(img,
                                                                                                new OutOfBoundsBorderFactory<T, RandomAccessibleInterval<T>>()),
                                                                                   new NearestNeighborInterpolatorFactory<T>()),
-                                                                transform), interval), 0, 1, startPos).image());
+                                                                transform),
+                                               interval),
+                                0, 1, startPos)
+                        .image());
 
+    }
+
+    /**
+     * @param minAsLongArray
+     * @param factor
+     * @return
+     */
+    private static long[] scale(final long[] in, final double factor) {
+        long[] res = new long[in.length];
+
+        for (int d = 0; d < in.length; d++) {
+            res[d] = (long)(in[d] * factor);
+        }
+
+        return res;
     }
 
     //    code inside the block is from loci.formats.gui.AWTImageTools
