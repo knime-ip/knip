@@ -170,7 +170,7 @@ public abstract class ImgPlusToImgPlusNodeModel<T extends RealType<T>, V extends
 
         final int[] selection = m_dimSelection.getSelectedDimIndices(cellValue.getMetadata());
 
-        ImgPlus<T> in = cellValue.getImgPlus();
+        ImgPlus<T> in = MinimaUtils.getZeroMinImgPlus(imgPlus);
 
         final long[] inMin = new long[in.numDimensions()];
         in.min(inMin);
