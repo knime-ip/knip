@@ -150,7 +150,7 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
     private CalibratedSpace<? extends CalibratedAxis> m_calibratedSpace;
 
     public PlaneSelectionPanel() {
-//        super("Plane selection", false);
+        //        super("Plane selection", false);
         super("", true);
         setLayout(new GridBagLayout());
 
@@ -266,8 +266,8 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
                 m_coordinateTextFields[i].setValue(m_scrollBars[i].getValue() + 1);
             }
 
-            m_eventService.publish(new PlaneSelectionEvent(Math.min(m_dim1, m_dim2), Math.max(m_dim2, m_dim1),
-                    imgCoords));
+            m_eventService
+                    .publish(new PlaneSelectionEvent(Math.min(m_dim1, m_dim2), Math.max(m_dim2, m_dim1), imgCoords));
             fireCalibrationEvent();
             m_eventService.publish(new ImgRedrawEvent());
         }
@@ -392,8 +392,8 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
             }
         }
 
-        m_eventService.publish(new CalibrationUpdateEvent(scaleFactors, new int[]{Math.min(m_dim1, m_dim2),
-                Math.max(m_dim1, m_dim2)}));
+        m_eventService.publish(new CalibrationUpdateEvent(scaleFactors,
+                new int[]{Math.min(m_dim1, m_dim2), Math.max(m_dim1, m_dim2)}));
     }
 
     /**
@@ -416,28 +416,26 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
      */
     @EventListener
     public void onImgUpdated(final IntervalWithMetadataChgEvent<?, ?> e) {
+        boolean newDims = false;
+        boolean newAxes = false;
 
-        if (m_dims == null) {
+        if (m_dims == null || m_dims.length != e.getTypedSpace().numDimensions()) {
+            newDims = true;
             m_dims = new long[e.getTypedSpace().numDimensions()];
+            e.getRandomAccessibleInterval().dimensions(m_dims);
         }
 
-        if ((m_axes == null) || (m_axes.length != e.getTypedSpace().numDimensions())) {
-            m_axes = new TypedAxis[e.getTypedSpace().numDimensions()];
-        }
-
-        final long[] oldDims = m_dims.clone();
-        final TypedAxis[] oldAxes = m_axes.clone();
+        final TypedAxis[] inAxes = new TypedAxis[e.getTypedSpace().numDimensions()];
 
         // local dims //axes labels
         for (int d = 0; d < e.getTypedSpace().numDimensions(); d++) {
-            m_axes[d] = e.getTypedSpace().axis(d);
+            inAxes[d] = e.getTypedSpace().axis(d);
         }
 
-        m_dims = new long[e.getRandomAccessibleInterval().numDimensions()];
-        e.getRandomAccessibleInterval().dimensions(m_dims);
+        if ((m_axes == null) || newDims || !Arrays.equals(m_axes, inAxes)) {
+            newAxes = true;
+            m_axes = inAxes;
 
-        if (!Arrays.equals(m_axes, oldAxes)) {
-            // reset m_dim1, m_dim2 before calibration
             m_dim1 = DEFAULT_X;
             m_dim2 = DEFAULT_Y;
         }
@@ -445,7 +443,7 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
         m_calibratedSpace = e.getTypedSpace();
         fireCalibrationEvent(); // update to new calibration values
 
-        if (!Arrays.equals(oldDims, m_dims) || !Arrays.equals(m_axes, oldAxes)) {
+        if (newDims || newAxes) {
             draw();
             setMaximumSize(getPreferredSize());
             setMinimumSize(getPreferredSize());
@@ -479,6 +477,7 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
             m_steps = new int[m_dims.length];
 
             removeAll();
+
             GridBagConstraints gbc = new GridBagConstraints();
 
             gbc.gridx = 0;
@@ -486,7 +485,6 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
             gbc.fill = GridBagConstraints.HORIZONTAL;
             gbc.gridheight = 1;
             gbc.gridwidth = GridBagConstraints.REMAINDER;
-
 
             final JPanel nPanel = new JPanel();
             nPanel.setLayout(new BoxLayout(nPanel, BoxLayout.X_AXIS));
@@ -604,9 +602,9 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
             m_eventService.publish(new PlaneSelectionEvent(Math.min(m_dim1, m_dim2), Math.max(m_dim2, m_dim1),
                     getImageCoordinate()));
             fireCalibrationEvent();
-        }
 
-        updateUI();
+            nPanel.updateUI();
+        }
     }
 
     private void textCoordinatesChanged(final int fieldIndex) {
