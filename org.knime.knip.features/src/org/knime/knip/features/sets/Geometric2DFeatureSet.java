@@ -48,7 +48,17 @@
 
 package org.knime.knip.features.sets;
 
+import org.knime.knip.core.KNIPGateway;
+import org.knime.knip.features.sets.optimizedfeatures.KNIPCachedOpEnvironment;
+import org.scijava.plugin.Attr;
+import org.scijava.plugin.Parameter;
+import org.scijava.plugin.Plugin;
+
 import net.imagej.ops.Ops.Geometric.Contour;
+import net.imagej.ops.Ops.Geometric.MainElongation;
+import net.imagej.ops.Ops.Geometric.MedianElongation;
+import net.imagej.ops.Ops.Geometric.Size;
+import net.imagej.ops.Ops.Geometric.Spareness;
 import net.imagej.ops.geom.geom2d.DefaultSizePolygon;
 import net.imagej.ops.special.function.Functions;
 import net.imagej.ops.special.function.UnaryFunctionOp;
@@ -56,11 +66,6 @@ import net.imglib2.roi.geometric.Polygon;
 import net.imglib2.roi.labeling.LabelRegion;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.DoubleType;
-
-import org.knime.knip.core.KNIPGateway;
-import org.scijava.plugin.Attr;
-import org.scijava.plugin.Parameter;
-import org.scijava.plugin.Plugin;
 
 /**
  * {@link FeatureSet} to calculate Geometric2DFeatureSet
@@ -132,6 +137,8 @@ public class Geometric2DFeatureSet<L, O extends RealType<O>> extends AbstractOpR
 
 	private UnaryFunctionOp<LabelRegion<L>, Polygon> converter;
 
+	private UnaryFunctionOp<Polygon, DoubleType> polygonSize;
+
 	@SuppressWarnings("unchecked")
 	public Geometric2DFeatureSet() {
 		prioritizedOps = new Class[] { DefaultSizePolygon.class };
@@ -140,8 +147,8 @@ public class Geometric2DFeatureSet<L, O extends RealType<O>> extends AbstractOpR
 	@Override
 	public void initialize() {
 		super.initialize();
-
 		converter = Functions.unary(ops(), Contour.class, Polygon.class, in(), true, true);
+		polygonSize = Functions.unary(ops(), Size.class, DoubleType.class, Polygon.class);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -154,7 +161,14 @@ public class Geometric2DFeatureSet<L, O extends RealType<O>> extends AbstractOpR
 			return (O) new DoubleType(Double.NaN);
 		}
 
-		return func.compute1(converter.compute1(input));
+		// FIXME: REMOVE THIS HACK ASAP. We have to fix converter matching in
+		// ops
+		Class<?> funcClass = ((KNIPCachedOpEnvironment.CachedFunctionOp<?, ?>) func).getDelegateType();
+		if (Size.class.isAssignableFrom(funcClass)) {
+			return (O) polygonSize.compute1(converter.compute1(input));
+		} else {
+			return func.compute1(converter.compute1(input));
+		}
 	}
 
 	@Override
