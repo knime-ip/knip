@@ -158,8 +158,8 @@ public class NormalizationParametersChgEvent implements Externalizable, KNIPEven
         } else {
             final T element = src.randomAccess().get().createVariable();
             final ValuePair<T, T> oldMinMax =
-                    Operations.compute(new MinMaxWithSaturation<T>(m_saturation, element),
-                                       Views.iterable(Views.interval(src, sel.getInterval(src))));
+                    Operations.compute(new MinMaxWithSaturation<T>(m_saturation, element), Views
+                            .iterable(Views.offsetInterval(Views.zeroMin(src), sel.getInterval(Views.zeroMin(src)))));
             return new double[]{
                     Normalize.normalizationFactor(oldMinMax.a.getRealDouble(), oldMinMax.b.getRealDouble(),
                                                   element.getMinValue(), element.getMaxValue()),
