@@ -94,6 +94,7 @@ import net.imagej.axis.TypedAxis;
 import net.imagej.space.CalibratedSpace;
 import net.imglib2.Interval;
 import net.imglib2.type.Type;
+import net.imglib2.util.Intervals;
 
 /**
  * Allows the user to select a plane in a multdimensional space.
@@ -419,10 +420,11 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
         boolean newDims = false;
         boolean newAxes = false;
 
-        if (m_dims == null || m_dims.length != e.getTypedSpace().numDimensions()) {
+        final long[] inDims = Intervals.dimensionsAsLongArray(e.getRandomAccessibleInterval());
+
+        if (m_dims == null || !Arrays.equals(inDims, m_dims)) {
             newDims = true;
-            m_dims = new long[e.getTypedSpace().numDimensions()];
-            e.getRandomAccessibleInterval().dimensions(m_dims);
+            m_dims = inDims;
         }
 
         final TypedAxis[] inAxes = new TypedAxis[e.getTypedSpace().numDimensions()];
