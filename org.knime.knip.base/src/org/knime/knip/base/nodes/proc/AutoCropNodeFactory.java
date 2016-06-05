@@ -202,16 +202,15 @@ public class AutoCropNodeFactory<T extends RealType<T>> extends ValueToCellNodeF
                 final Cursor<T> cur = img.localizingCursor();
 
                 final long[] min = new long[img.numDimensions()];
-                img.min(min);
+                img.max(min);
                 final long[] max = new long[img.numDimensions()];
-                img.max(max);
+                img.min(max);
 
                 while (cur.hasNext()) {
                     cur.fwd();
                     if ((cur.get().getRealDouble() >= m_smLowerPixelValue.getDoubleValue())
                             && (cur.get().getRealDouble() <= m_smUpperPixelValue.getDoubleValue())) {
                         for (int i = 0; i < img.numDimensions(); i++) {
-
                             min[i] = Math.min(min[i], cur.getIntPosition(i));
                             max[i] = Math.max(max[i], cur.getIntPosition(i));
                         }
