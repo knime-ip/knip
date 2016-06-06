@@ -234,11 +234,11 @@ public class AutoCropNodeFactory<T extends RealType<T>> extends ValueToCellNodeF
                 final FinalInterval interval = new FinalInterval(min, max);
                 for (int i = 0; i < max.length; i++) {
                     if (min[i] > max[i]) {
-                        throw new KNIPRuntimeException("Illegal bounding box size.");
+                        throw new KNIPRuntimeException("Illegal bounding box size. Most likely, the image didn't contain a pixel-value within the selected range.");
                     }
                 }
                 if (Intervals.numElements(interval) <= 0) {
-                    throw new KNIPRuntimeException("Illegal bounding box size.");
+                    throw new KNIPRuntimeException("Illegal bounding box size. Most likely, the image didn't contain a pixel-value within the selected range.");
                 }
                 Img<T> view;
                 if (m_smKeepWithinImgBorders.getBooleanValue()) {
