@@ -93,7 +93,7 @@ public class MiscViews {
                 new ImgPlus<T>(ImgView.wrap(SubsetOperations.subsetview(ret.getImg(), ret.getImg()), ret.factory()));
         MetadataUtil.copyAndCleanImgPlusMetadata(ret, ret, imgPlusView);
 
-        final long[] oldMin = Intervals.minAsLongArray(ret);
+        final long[] oldMin = Intervals.minAsLongArray(imgPlusView);
         final long[] newMin = new long[oldMin.length];
 
         boolean hasNonZeroMin = false;
