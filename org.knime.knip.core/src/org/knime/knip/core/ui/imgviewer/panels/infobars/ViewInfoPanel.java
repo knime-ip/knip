@@ -188,10 +188,10 @@ public abstract class ViewInfoPanel<T extends Type<T>> extends ViewerComponent {
      */
     @EventListener
     public void onImgChanged(final IntervalWithMetadataChgEvent<T, ?> e) {
-        m_randomAccessible = e.getRandomAccessibleInterval();
+        m_randomAccessible = Views.zeroMin(e.getRandomAccessibleInterval());
         m_iterable = Views.iterable(m_randomAccessible);
 
-        m_dims = new long[e.getRandomAccessibleInterval().numDimensions()];
+        m_dims = new long[m_randomAccessible.numDimensions()];
 
         m_randomAccessible.dimensions(m_dims);
         m_imgAxes = e.getTypedSpace();
