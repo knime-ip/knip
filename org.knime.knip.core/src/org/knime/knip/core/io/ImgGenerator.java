@@ -51,6 +51,9 @@ package org.knime.knip.core.io;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.knime.knip.core.types.ImgFactoryTypes;
+import org.knime.knip.core.types.NativeTypes;
+
 import net.imagej.ImgPlus;
 import net.imagej.axis.Axes;
 import net.imagej.axis.AxisType;
@@ -58,11 +61,10 @@ import net.imagej.axis.DefaultLinearAxis;
 import net.imglib2.Cursor;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
+import net.imglib2.img.ImgView;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
-
-import org.knime.knip.core.types.ImgFactoryTypes;
-import org.knime.knip.core.types.NativeTypes;
+import net.imglib2.view.Views;
 
 /**
  * This class generates random Images.
@@ -268,7 +270,13 @@ public class ImgGenerator {
             cursor.get().setReal(result);
         }
 
-        final ImgPlus<T> imgPlus = new ImgPlus<T>(img);
+        long[] trans = new long[img.numDimensions()];
+
+        for (int i = 0; i < trans.length; i++) {
+            trans[i] = i;
+        }
+
+        final ImgPlus<T> imgPlus = new ImgPlus<T>(ImgView.wrap(Views.translate(img, trans), imgFac));
 
         int d = 0;
         for (final AxisType a : m_axisList) {

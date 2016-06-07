@@ -205,11 +205,12 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
         max[1] = img2d.max(1);
         min[0] = img2d.min(0);
         min[1] = img2d.min(1);
+        boolean thirdActive = false;
         for (i = 2; i < img2d.numDimensions(); i++) {
-            if ((img2d.dimension(i) == 2) || (img2d.dimension(i) == 3)) {
+            if (((img2d.dimension(i) == 2) || (img2d.dimension(i) == 3)) && !thirdActive) {
                 max[i] = img2d.max(i);
                 min[i] = img2d.min(i);
-                break;
+                thirdActive = true;
             } else {
                 min[i] = img2d.min(i);
                 max[i] = img2d.min(i);
