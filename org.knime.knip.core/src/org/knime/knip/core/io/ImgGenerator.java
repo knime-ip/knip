@@ -64,7 +64,6 @@ import net.imglib2.img.ImgFactory;
 import net.imglib2.img.ImgView;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.view.Views;
 
 /**
  * This class generates random Images.
@@ -270,13 +269,7 @@ public class ImgGenerator {
             cursor.get().setReal(result);
         }
 
-        long[] trans = new long[img.numDimensions()];
-
-        for (int i = 0; i < trans.length; i++) {
-            trans[i] = i;
-        }
-
-        final ImgPlus<T> imgPlus = new ImgPlus<T>(ImgView.wrap(Views.translate(img, trans), imgFac));
+        final ImgPlus<T> imgPlus = new ImgPlus<T>(ImgView.wrap(img, imgFac));
 
         int d = 0;
         for (final AxisType a : m_axisList) {
