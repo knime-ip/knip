@@ -70,6 +70,13 @@ import net.imglib2.type.numeric.RealType;
 public final class ImgPlusCellFactory extends KNIPCellFactory {
 
     /**
+     * {@inheritDoc}
+     */
+    public ImgPlusCellFactory() {
+        super();
+    }
+
+    /**
      * @param exec
      */
     public ImgPlusCellFactory(final ExecutionContext exec) {

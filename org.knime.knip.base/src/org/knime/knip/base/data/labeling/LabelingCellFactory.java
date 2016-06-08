@@ -72,6 +72,13 @@ import net.imglib2.view.Views;
 public class LabelingCellFactory extends KNIPCellFactory {
 
     /**
+     * {@inheritDoc}
+     */
+    public LabelingCellFactory() {
+        // NB: don't call.
+    }
+
+    /**
      * @param exec
      */
     public LabelingCellFactory(final ExecutionContext exec) {

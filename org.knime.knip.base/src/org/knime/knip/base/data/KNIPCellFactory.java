@@ -78,9 +78,17 @@ public abstract class KNIPCellFactory implements DataCellFactory {
 
     private FileStore m_currentFileStore = null;
 
-    private final ExecutionContext m_exec;
+    private ExecutionContext m_exec;
 
-    private final FileStoreFactory m_fsFactory;
+    private FileStoreFactory m_fsFactory;
+
+    /**
+     * NB: Not to be used from out-side. This constructor is just needed to fulfill requirements of
+     * DataTypeRegistry.availableDataTypes();
+     */
+    public KNIPCellFactory() {
+        // NB: This constructor should never be used!
+    }
 
     /**
      * @param exec
