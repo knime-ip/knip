@@ -165,20 +165,18 @@ public abstract class ImgPlusToImgPlusNodeModel<T extends RealType<T>, V extends
             throw new KNIPException("not enough selected dimensions provided by image.");
         }
 
-        final ImgPlus<T> imgPlus = cellValue.getImgPlus();
-        final UnaryOutputOperation<ImgPlus<T>, ImgPlus<V>> op = op(MinimaUtils.getZeroMinImgPlus(imgPlus));
+        final ImgPlus<T> imgPlus = MinimaUtils.getZeroMinImgPlus(cellValue.getImgPlus());
+        final UnaryOutputOperation<ImgPlus<T>, ImgPlus<V>> op = op(imgPlus);
 
         final int[] selection = m_dimSelection.getSelectedDimIndices(cellValue.getMetadata());
 
-        ImgPlus<T> in = MinimaUtils.getZeroMinImgPlus(imgPlus);
+        final long[] inMin = new long[imgPlus.numDimensions()];
+        cellValue.getImgPlus().min(inMin);
 
-        final long[] inMin = new long[in.numDimensions()];
-        in.min(inMin);
-
-        final ImgPlus<V> out = op.bufferFactory().instantiate(cellValue.getImgPlus());
+        final ImgPlus<V> out = op.bufferFactory().instantiate(imgPlus);
 
         return m_imgCellFactory.createCell(MinimaUtils.getTranslatedImgPlus(imgPlus, SubsetOperations
-                .iterate(op, selection, in, out, m_active ? getExecutorService() : null)));
+                .iterate(op, selection, imgPlus, out, m_active ? getExecutorService() : null)));
     }
 
     /**
