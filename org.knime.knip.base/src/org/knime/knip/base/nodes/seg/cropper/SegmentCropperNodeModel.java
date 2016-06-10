@@ -126,15 +126,15 @@ import net.imglib2.view.Views;
  * @param <L>
  * @param <T>
  */
-public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType<T>> extends NodeModel implements
-        BufferedDataTableHolder {
+public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType<T>> extends NodeModel
+        implements BufferedDataTableHolder {
 
     private static enum BACKGROUND {
         MIN, MAX, ZERO, SOURCE;
     }
 
-    static final String[] BACKGROUND_OPTIONS = new String[]{"Min Value of Result", "Max Value of Result", "Zero",
-            "Source"};
+    static final String[] BACKGROUND_OPTIONS =
+            new String[]{"Min Value of Result", "Max Value of Result", "Zero", "Source"};
 
     /**
      * Helper
@@ -182,7 +182,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
      * @return SettingsModelFilterSelection to store right filter selection
      */
     static <LL extends Comparable<LL>> SettingsModelFilterSelection<LL>
-            createOverlappingLabelFilterModel(final boolean isEnabled) {
+           createOverlappingLabelFilterModel(final boolean isEnabled) {
         final SettingsModelFilterSelection<LL> sm = new SettingsModelFilterSelection<LL>("cfg_label_filter_right");
         sm.setEnabled(isEnabled);
         return sm;
@@ -239,7 +239,8 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
         int labColIndex = inSpecs[0].findColumnIndex(m_labelingColumn.getStringValue());
         if (labColIndex == -1) {
-            if ((labColIndex = NodeUtils.autoOptionalColumnSelection(inSpecs[0], m_labelingColumn, LabelingValue.class)) >= 0) {
+            if ((labColIndex =
+                    NodeUtils.autoOptionalColumnSelection(inSpecs[0], m_labelingColumn, LabelingValue.class)) >= 0) {
                 setWarningMessage("Auto-configure Label Column: " + m_labelingColumn.getStringValue());
             } else {
                 throw new InvalidSettingsException("No column selected!");
@@ -253,14 +254,14 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
         int imgColIndex = inSpecs[0].findColumnIndex(m_imgColumn.getStringValue());
         if (imgColIndex != -1) {
             colspecCreator = new DataColumnSpecCreator("Source Image", ImgPlusCell.TYPE);
-            colspecCreator.setProperties(new DataColumnProperties(Collections
-                    .singletonMap(DataValueRenderer.PROPERTY_PREFERRED_RENDERER, "String")));
+            colspecCreator.setProperties(new DataColumnProperties(
+                    Collections.singletonMap(DataValueRenderer.PROPERTY_PREFERRED_RENDERER, "String")));
             specs.add(colspecCreator.createSpec());
         }
 
         colspecCreator = new DataColumnSpecCreator("Source Labeling", LabelingCell.TYPE);
-        colspecCreator.setProperties(new DataColumnProperties(Collections
-                .singletonMap(DataValueRenderer.PROPERTY_PREFERRED_RENDERER, "String")));
+        colspecCreator.setProperties(new DataColumnProperties(
+                Collections.singletonMap(DataValueRenderer.PROPERTY_PREFERRED_RENDERER, "String")));
         specs.add(colspecCreator.createSpec());
         specs.add(new DataColumnSpecCreator("Label", StringCell.TYPE).createSpec());
 
@@ -283,9 +284,8 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
         //retrieve column indices
         int labColIndex = inData[0].getDataTableSpec().findColumnIndex(m_labelingColumn.getStringValue());
         if (labColIndex == -1) {
-            if ((labColIndex =
-                    NodeUtils.autoOptionalColumnSelection(inData[0].getDataTableSpec(), m_labelingColumn,
-                                                          LabelingValue.class)) >= 0) {
+            if ((labColIndex = NodeUtils.autoOptionalColumnSelection(inData[0].getDataTableSpec(), m_labelingColumn,
+                                                                     LabelingValue.class)) >= 0) {
                 setWarningMessage("Auto-configure Label Column: " + m_labelingColumn.getStringValue());
             } else {
                 throw new InvalidSettingsException("No column selected!");
@@ -329,9 +329,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
             RandomAccessibleInterval<LabelingType<L>> labeling = labelingValue.getLabeling();
             if (img != null) {
-                labeling =
-                        MiscViews.synchronizeDimensionality(labelingValue.getLabeling(),
-                                                            labelingValue.getLabelingMetadata(), img, img);
+                labeling = MiscViews.synchronizeDimensionality(labeling, labelingValue.getLabelingMetadata(), img, img);
             }
 
             ImgFactory<T> fac = null;
@@ -378,15 +376,15 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
                             fill.compute(minType, res.iterator());
                         }
                         writeInRes(res, img, roi);
-                    } else if (m_backgroundSelection.getStringValue().equals(BACKGROUND_OPTIONS[BACKGROUND.MAX
-                                                                                     .ordinal()])) {
+                    } else if (m_backgroundSelection.getStringValue()
+                            .equals(BACKGROUND_OPTIONS[BACKGROUND.MAX.ordinal()])) {
                         T maxType = type.createVariable();
                         maxType.setReal(type.getMaxValue());
                         res = fac.create(new FinalInterval(min, max), type.createVariable());
                         fill.compute(maxType, res.iterator());
                         writeInRes(res, img, roi);
-                    } else if (m_backgroundSelection.getStringValue().equals(BACKGROUND_OPTIONS[BACKGROUND.ZERO
-                                                                                     .ordinal()])) {
+                    } else if (m_backgroundSelection.getStringValue()
+                            .equals(BACKGROUND_OPTIONS[BACKGROUND.ZERO.ordinal()])) {
                         res = fac.create(new FinalInterval(min, max), type.createVariable());
                         writeInRes(res, img, roi);
                     } else {
@@ -398,8 +396,9 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
                 } else {
                     res = (Img<T>)fac.imgFactory(new BitType()).create(new FinalInterval(min, max), new BitType());
-                    copy((ImgView<BoolType>)new ImgView<T>(Views.zeroMin((RandomAccessibleInterval<T>)Views
-                                 .interval(roi, new FinalInterval(min, max))), fac),
+                    copy((ImgView<BoolType>)new ImgView<T>(Views
+                            .zeroMin((RandomAccessibleInterval<T>)Views.interval(roi, new FinalInterval(min, max))),
+                            fac),
                          (IterableInterval<BitType>)Views.flatIterable(res));
                 }
 
@@ -407,9 +406,8 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
 
                 // TODO: What about color tables?
                 final LabelingMetadata lmdata = labelingValue.getLabelingMetadata();
-                final ImgPlusMetadata metadata =
-                        new DefaultImgMetadata(lmdata, new DefaultNamed(l.toString()), new DefaultSourced(
-                                lmdata.getSource()), new DefaultImageMetadata());
+                final ImgPlusMetadata metadata = new DefaultImgMetadata(img == null ? lmdata : img, new DefaultNamed(l.toString()),
+                        new DefaultSourced(lmdata.getSource()), new DefaultImageMetadata());
 
                 ImgPlus<T> resImgPlus = new ImgPlus<>(ImgView.wrap(Views.translate(res, min), res.factory()), metadata);
                 resImgPlus.setSource(metadata.getSource());
@@ -438,8 +436,9 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
                     }
                 }
 
-                con.addRowToTable(new DefaultRow(row.getKey().toString() + KNIPConstants.IMGID_LABEL_DELIMITER
-                        + l.toString(), cells.toArray(new DataCell[cells.size()])));
+                con.addRowToTable(new DefaultRow(
+                        row.getKey().toString() + KNIPConstants.IMGID_LABEL_DELIMITER + l.toString(),
+                        cells.toArray(new DataCell[cells.size()])));
             }
 
             exec.checkCanceled();
