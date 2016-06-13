@@ -62,10 +62,15 @@ import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
+import org.knime.knip.base.node.dialog.DialogComponentSubsetSelection;
 import org.knime.knip.base.node.dialog.DialogComponentSubsetSelection2;
 import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection2;
+import org.knime.knip.core.data.DefaultNamed;
+import org.knime.knip.core.data.DefaultSourced;
+import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 
 import net.imagej.axis.CalibratedAxis;
+import net.imagej.space.DefaultCalibratedSpace;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.ops.operation.Operations;
@@ -196,7 +201,14 @@ public class LabelingOrthoCropperNodeFactory2<L extends Comparable<L>>
 
                     }
 
-                    return m_labCellFactory.createCell(res, cellValue.getLabelingMetadata());
+                    return m_labCellFactory
+                            .createCell(res,
+                                        new DefaultLabelingMetadata(
+                                                new DefaultCalibratedSpace(
+                                                        validAxes.toArray(new CalibratedAxis[validAxes.size()])),
+                                                new DefaultNamed(cellValue.getLabelingMetadata().getName()),
+                                                new DefaultSourced(cellValue.getLabelingMetadata().getSource()),
+                                                cellValue.getLabelingMetadata().getLabelingColorTable()));
                 }
             }
 
