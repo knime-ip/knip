@@ -71,8 +71,8 @@ import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
 import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.types.ImgFactoryTypes;
-import org.knime.knip.core.util.MinimaUtils;
 import org.knime.knip.core.util.EnumUtils;
+import org.knime.knip.core.util.MinimaUtils;
 
 import net.imagej.ImgPlus;
 import net.imglib2.RandomAccessibleInterval;
@@ -133,7 +133,7 @@ public class ConnectedCompAnalysisNodeFactory<T extends RealType<T> & Comparable
                                    new DialogComponentNumber(createBackgroundModel(), "Background", 1));
 
                 addDialogComponent("Options", "Dimensions",
-                                   new DialogComponentDimSelection(createDimSelectionModel(), "Dimensions", 2, 5));
+                                   new DialogComponentDimSelection(createDimSelectionModel(), "Dimensions", 0, 5));
             }
 
             /**
