@@ -354,7 +354,9 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
 
         for (int i = 0; i < colIndices.length; i++) {
             final DataColumnSpec cs = inSpec.getColumnSpec(colIndices[i]);
-            cspecs[i] = new DataColumnSpecCreator(cs.getName() + m_colSuffix.getStringValue(), dt).createSpec();
+            cspecs[i] = new DataColumnSpecCreator(
+                    DataTableSpec.getUniqueColumnName(inSpec, cs.getName() + m_colSuffix.getStringValue()), dt)
+                            .createSpec();
         }
 
         return new CellFactory() {
