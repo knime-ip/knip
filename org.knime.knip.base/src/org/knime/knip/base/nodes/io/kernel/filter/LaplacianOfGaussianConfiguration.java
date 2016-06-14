@@ -56,14 +56,14 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import net.imglib2.img.Img;
-import net.imglib2.type.numeric.real.DoubleType;
-
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.knip.base.nodes.io.kernel.ImgConfiguration;
 import org.knime.knip.base.nodes.io.kernel.SerializableConfiguration;
 import org.knime.knip.base.nodes.io.kernel.SerializableSetting;
 import org.knime.knip.core.algorithm.convolvers.filter.linear.LaplacianOfGaussian;
+
+import net.imglib2.img.Img;
+import net.imglib2.type.numeric.real.DoubleType;
 
 /**
  * TODO Auto-generated
@@ -77,6 +77,8 @@ public class LaplacianOfGaussianConfiguration extends ImgConfiguration<DoubleTyp
     private JFormattedTextField m_jtfSigma;
 
     private JFormattedTextField m_jtfSupportRadius;
+
+    private JFormattedTextField m_jtfNumDims;
 
     private JPanel m_panel;
 
@@ -133,11 +135,20 @@ public class LaplacianOfGaussianConfiguration extends ImgConfiguration<DoubleTyp
         m_jtfSigma.setValue(1.6);
         m_jtfSigma.setColumns(STANDARD_TEXTFIELD_COLUMNS);
         m_panel.add(m_jtfSigma, gbc);
+        gbc.gridy++;
+        gbc.gridx = 0;
+        m_panel.add(new JLabel("Number of Dimensions"), gbc);
+        gbc.gridx++;
+        m_jtfNumDims = new JFormattedTextField();
+        m_jtfNumDims.setValue(2);
+        m_jtfNumDims.setColumns(STANDARD_TEXTFIELD_COLUMNS);
+        m_panel.add(m_jtfNumDims, gbc);
     }
 
     private void loadFromSetting(final LaplacianOfGaussianSetting setting) {
         m_jtfSupportRadius.setValue(setting.m_supportRadius);
         m_jtfSigma.setValue(setting.m_sigma);
+        m_jtfNumDims.setValue(setting.m_numDims);
     }
 
     @Override
@@ -145,9 +156,9 @@ public class LaplacianOfGaussianConfiguration extends ImgConfiguration<DoubleTyp
         try {
             m_jtfSupportRadius.commitEdit();
             m_jtfSigma.commitEdit();
-            m_setting =
-                    new LaplacianOfGaussianSetting(((Number)m_jtfSupportRadius.getValue()).intValue(),
-                            ((Number)m_jtfSigma.getValue()).doubleValue());
+            m_jtfNumDims.commitEdit();
+            m_setting = new LaplacianOfGaussianSetting(((Number)m_jtfSupportRadius.getValue()).intValue(),
+                    ((Number)m_jtfSigma.getValue()).doubleValue(), ((Number)m_jtfNumDims.getValue()).intValue());
         } catch (final Exception e) {
             throw new InvalidSettingsException(e);
         }
@@ -166,9 +177,12 @@ class LaplacianOfGaussianSetting extends SerializableSetting<Img<DoubleType>[]> 
 
     final int m_supportRadius;
 
-    public LaplacianOfGaussianSetting(final int supportRadius, final double sigma) {
+    final int m_numDims;
+
+    public LaplacianOfGaussianSetting(final int supportRadius, final double sigma, final int numDims) {
         this.m_supportRadius = supportRadius;
         this.m_sigma = sigma;
+        this.m_numDims = numDims;
     }
 
     @Override
@@ -179,7 +193,7 @@ class LaplacianOfGaussianSetting extends SerializableSetting<Img<DoubleType>[]> 
     @Override
     public Img<DoubleType>[] get() {
         // Arguments are supportRadius, Sigma, and number of dimensions.
-        return new Img[]{LaplacianOfGaussian.create(m_supportRadius, m_sigma, 4)};
+        return new Img[]{LaplacianOfGaussian.create(m_supportRadius, m_sigma, m_numDims)};
     }
 
 }
