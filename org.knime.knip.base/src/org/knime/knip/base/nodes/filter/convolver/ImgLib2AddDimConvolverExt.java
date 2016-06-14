@@ -49,19 +49,19 @@
 package org.knime.knip.base.nodes.filter.convolver;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+
+import org.knime.knip.core.KNIPGateway;
+import org.knime.knip.core.algorithm.convolvers.AdditionDimImgConvolver;
+import org.knime.knip.core.algorithm.convolvers.ImgLib2FourierConvolver;
+import org.knime.knip.core.types.OutOfBoundsStrategyFactory;
+import org.knime.node.v210.OptionDocument.Option;
+import org.knime.node.v210.TabDocument.Tab;
 
 import net.imagej.ImgPlus;
 import net.imglib2.img.Img;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
-
-import org.knime.knip.core.algorithm.convolvers.AdditionDimImgConvolver;
-import org.knime.knip.core.algorithm.convolvers.ImgLib2FourierConvolver;
-import org.knime.knip.core.types.OutOfBoundsStrategyFactory;
-import org.knime.node.v210.OptionDocument.Option;
-import org.knime.node.v210.TabDocument.Tab;
 
 /**
  * TODO Auto-generated
