@@ -121,7 +121,7 @@ public class ImgLib2AddDimConvolverExt<T extends RealType<T>, K extends RealType
      */
     @Override
     public ExecutorService getExecutorService() {
-        return service != null ? service : Executors.newSingleThreadExecutor();
+        return service != null ? service : KNIPGateway.threads().getExecutorService();
     }
 
 }
