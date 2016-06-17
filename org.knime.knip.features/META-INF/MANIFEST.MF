@@ -26,7 +26,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.base;bundle-version="3.0.0",
  org.knime.workbench.repository;bundle-version="3.0.0",
  org.knime.workbench.core;bundle-version="3.0.0",
- commons-math3;bundle-version="3.5.0"
+ commons-math3;bundle-version="3.5.0",
+ miglayout;bundle-version="3.7.4"
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
