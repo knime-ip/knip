@@ -56,6 +56,7 @@ import javax.swing.Icon;
 import org.knime.core.data.DataValue;
 import org.knime.core.data.DataValueComparator;
 import org.knime.core.data.ExtensibleUtilityFactory;
+import org.knime.core.data.convert.DataValueAccessMethod;
 
 import net.imagej.ImgPlus;
 import net.imagej.ImgPlusMetadata;
@@ -129,6 +130,7 @@ public interface ImgPlusValue<T extends RealType<T>> extends DataValue {
      *
      * @return the image in this <code>DataCell</code>
      */
+    @DataValueAccessMethod
     public ImgPlus<T> getImgPlus();
 
     /**
