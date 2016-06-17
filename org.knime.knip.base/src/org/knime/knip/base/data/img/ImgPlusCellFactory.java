@@ -51,6 +51,7 @@ package org.knime.knip.base.data.img;
 import java.io.IOException;
 
 import org.knime.core.data.DataType;
+import org.knime.core.data.convert.DataCellFactoryMethod;
 import org.knime.core.data.filestore.FileStoreFactory;
 import org.knime.core.node.ExecutionContext;
 import org.knime.knip.base.data.KNIPCellFactory;
@@ -97,6 +98,7 @@ public final class ImgPlusCellFactory extends KNIPCellFactory {
      * @return {@link ImgPlusCell}
      * @throws IOException
      */
+    @DataCellFactoryMethod
     public final <T extends RealType<T>> ImgPlusCell<T> createCell(final ImgPlus<T> imgPlus) throws IOException {
         return new ImgPlusCell<T>(imgPlus.getImg(), imgPlus, getFileStore(getImgSize(imgPlus.getImg())));
     }
