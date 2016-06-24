@@ -364,7 +364,9 @@ public class SplitterNodeModel<T extends RealType<T>> extends NodeModel implemen
                 }
 
                 final ImgPlusMetadata metadata = new DefaultImgMetadata(typedSpace, fromCell, fromCell, fromCell);
-                cells[intervalIdx] = imgCellFactory.createCell(new ImgPlus(subImg, metadata));
+                final ImgPlus out = new ImgPlus(subImg, metadata);
+                out.setSource(fromCell.getSource());
+                cells[intervalIdx] = imgCellFactory.createCell(out);
             }
 
             con.addRowToTable(new DefaultRow(row.getKey(), cells));
