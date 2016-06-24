@@ -48,13 +48,13 @@
  */
 package org.knime.knip.base.nodes.proc.multilvlthresholding;
 
-import net.imglib2.ops.operation.iterableinterval.unary.multilevelthresholder.MultilevelThresholderType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.core.util.EnumUtils;
+
+import net.imglib2.ops.operation.iterableinterval.unary.multilevelthresholder.MultilevelThresholderType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * NodeDialog
@@ -86,5 +86,13 @@ public class MultilevelThresholderNodeDialog<T extends RealType<T>> extends ImgP
         addDialogComponent("Options", "Parameters",
                            new DialogComponentNumber(MultilevelThresholderNodeModel.createNumberOfIntensities(),
                                    "Number of intensities", 8));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String getDefaultSuffixForAppend() {
+        return "_mlt";
     }
 }
