@@ -52,15 +52,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import net.imagej.ImgPlus;
-import net.imagej.axis.Axes;
-import net.imagej.axis.AxisType;
-import net.imglib2.Cursor;
-import net.imglib2.img.Img;
-import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.collection.CollectionDataValue;
@@ -81,6 +72,15 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.core.types.NativeTypes;
 import org.knime.knip.core.util.EnumUtils;
+
+import net.imagej.ImgPlus;
+import net.imagej.axis.Axes;
+import net.imagej.axis.AxisType;
+import net.imglib2.Cursor;
+import net.imglib2.img.Img;
+import net.imglib2.img.array.ArrayImgFactory;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * Converts a Collection of {@link DoubleCell}s to {@link Img}
@@ -234,6 +234,14 @@ public class DataRowToImgNodeFactory<T extends RealType<T> & NativeType<T>> exte
                     throw new InvalidSettingsException(
                             "Number of dimensions must be equal to the number of labels (or one less).");
                 }
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_drti";
             }
 
         };
