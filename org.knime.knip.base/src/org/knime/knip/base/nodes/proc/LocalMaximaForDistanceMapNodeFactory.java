@@ -51,16 +51,6 @@ package org.knime.knip.base.nodes.proc;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.imagej.ImgPlus;
-import net.imglib2.exception.IncompatibleTypeException;
-import net.imglib2.ops.img.UnaryObjectFactory;
-import net.imglib2.ops.operation.Operations;
-import net.imglib2.ops.operation.UnaryOutputOperation;
-import net.imglib2.ops.operation.randomaccessibleinterval.unary.LocalMaximaForDistanceMap;
-import net.imglib2.ops.operation.randomaccessibleinterval.unary.LocalMaximaForDistanceMap.NeighborhoodType;
-import net.imglib2.type.logic.BitType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
@@ -71,6 +61,16 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
 import org.knime.knip.core.ops.bittype.PositionsToBitTypeImage;
 import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgPlusFactory;
+
+import net.imagej.ImgPlus;
+import net.imglib2.exception.IncompatibleTypeException;
+import net.imglib2.ops.img.UnaryObjectFactory;
+import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.operation.UnaryOutputOperation;
+import net.imglib2.ops.operation.randomaccessibleinterval.unary.LocalMaximaForDistanceMap;
+import net.imglib2.ops.operation.randomaccessibleinterval.unary.LocalMaximaForDistanceMap.NeighborhoodType;
+import net.imglib2.type.logic.BitType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * {@link NodeFactory} for {@link LocalMaximaForDistanceMap}
@@ -144,6 +144,14 @@ public class LocalMaximaForDistanceMapNodeFactory<T extends RealType<T>> extends
                 addDialogComponent("Options", "Options", new DialogComponentStringSelection(createNeighborhoodModel(),
                         "Neighboorhood", EnumUtils.getStringListFromName(NeighborhoodType.values())));
 
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_lmfdm";
             }
         };
     }
