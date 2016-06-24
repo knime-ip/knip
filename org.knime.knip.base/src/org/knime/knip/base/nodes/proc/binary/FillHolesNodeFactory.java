@@ -50,16 +50,6 @@ package org.knime.knip.base.nodes.proc.binary;
 
 import java.util.List;
 
-import net.imagej.ImgPlus;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.ops.operation.ImgOperations;
-import net.imglib2.ops.operation.Operations;
-import net.imglib2.ops.operation.UnaryOperation;
-import net.imglib2.ops.operation.UnaryOutputOperation;
-import net.imglib2.ops.operation.randomaccessible.unary.FillHoles;
-import net.imglib2.ops.types.ConnectedType;
-import net.imglib2.type.logic.BitType;
-
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
@@ -70,6 +60,16 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
 import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.ImgPlusFactory;
+
+import net.imagej.ImgPlus;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.ops.operation.ImgOperations;
+import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.operation.UnaryOperation;
+import net.imglib2.ops.operation.UnaryOutputOperation;
+import net.imglib2.ops.operation.randomaccessible.unary.FillHoles;
+import net.imglib2.ops.types.ConnectedType;
+import net.imglib2.type.logic.BitType;
 
 /**
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
@@ -93,6 +93,14 @@ public final class FillHolesNodeFactory extends ImgPlusToImgPlusNodeFactory<BitT
             public void addDialogComponents() {
                 addDialogComponent("Options", "Settings", new DialogComponentStringSelection(createTypeModel(),
                         "Connection Type", EnumUtils.getStringListFromToString(ConnectedType.values())));
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_fh";
             }
         };
     }
