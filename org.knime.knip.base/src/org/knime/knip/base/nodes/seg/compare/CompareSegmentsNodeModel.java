@@ -138,7 +138,7 @@ public class CompareSegmentsNodeModel extends ThreadedColAppenderNodeModel {
         NodeUtils.autoColumnSelection(inSpecs[1], m_smRefCol, ImgPlusValue.class, this.getClass());
         NodeUtils.autoColumnSelection(inSpecs[0], m_smTarCol, ImgPlusValue.class, this.getClass());
 
-        return new DataTableSpec[]{createOutputSpec(inSpecs[0], createCellFactory(null, null, null, -1))};
+        return new DataTableSpec[]{createOutputSpec(inSpecs[0], createCellFactory(inSpecs[0], null, null, null, -1))};
     }
 
     /**
@@ -171,17 +171,17 @@ public class CompareSegmentsNodeModel extends ThreadedColAppenderNodeModel {
             i++;
         }
 
-        return new ExtendedCellFactory[]{createCellFactory(refSegs, refKeys, numPix, tarColIdx)};
+        return new ExtendedCellFactory[]{createCellFactory(inData[0].getDataTableSpec(), refSegs, refKeys, numPix, tarColIdx)};
     }
 
-    private ExtendedCellFactory createCellFactory(final ImgPlusValue<BitType>[] refSegs, final String[] refKeys,
+    private ExtendedCellFactory createCellFactory(final DataTableSpec inSpec, final ImgPlusValue<BitType>[] refSegs, final String[] refKeys,
                                                   final int[] numPix, final int tarColIdx) {
         return new ExtendedCellFactory() {
 
             @Override
             public DataColumnSpec[] getColumnSpecs() {
                 ArrayList<DataColumnSpec> colSpecs = new ArrayList<DataColumnSpec>(3);
-                colSpecs.add(new DataColumnSpecCreator("maximum relative pixel agreement", DoubleCell.TYPE)
+                colSpecs.add(new DataColumnSpecCreator(DataTableSpec.getUniqueColumnName(inSpec, "maximum relative pixel agreement"), DoubleCell.TYPE)
                         .createSpec());
                 if (m_smAppendNumOverlaps.getBooleanValue()) {
                     colSpecs.add(new DataColumnSpecCreator("number of overlaps", IntCell.TYPE).createSpec());
