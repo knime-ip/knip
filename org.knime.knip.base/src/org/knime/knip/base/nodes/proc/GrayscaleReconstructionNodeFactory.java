@@ -172,6 +172,14 @@ public final class GrayscaleReconstructionNodeFactory<T extends RealType<T>>
             protected String getSecondColumnSelectionLabel() {
                 return "Column of Marker Image (BitType)";
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_gr";
+            }
         };
     }
 
