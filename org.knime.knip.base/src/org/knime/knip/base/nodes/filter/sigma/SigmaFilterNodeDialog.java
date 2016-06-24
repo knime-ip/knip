@@ -48,8 +48,6 @@
  */
 package org.knime.knip.base.nodes.filter.sigma;
 
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
@@ -58,6 +56,8 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.dialog.DialogComponentOutOfBoundsSelection;
 import org.knime.knip.core.types.NeighborhoodType;
 import org.knime.knip.core.util.EnumUtils;
+
+import net.imglib2.type.numeric.RealType;
 
 /**
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
@@ -101,4 +101,11 @@ public class SigmaFilterNodeDialog<T extends RealType<T>> extends ImgPlusToImgPl
                                    "Outlier Detection"));
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String getDefaultSuffixForAppend() {
+        return "_sf";
+    }
 }
