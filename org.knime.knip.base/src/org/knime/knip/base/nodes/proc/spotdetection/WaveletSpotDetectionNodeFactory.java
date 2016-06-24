@@ -60,6 +60,9 @@ import org.knime.knip.cellviewer.CellNodeView;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 
+import net.imglib2.type.logic.BitType;
+import net.imglib2.type.numeric.RealType;
+
 /**
  * NodeFactory for Wavelet SpotDetection
  *
