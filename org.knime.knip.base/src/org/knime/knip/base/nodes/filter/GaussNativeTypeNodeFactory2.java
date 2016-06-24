@@ -115,6 +115,14 @@ public class GaussNativeTypeNodeFactory2<T extends NumericType<T> & RealType<T> 
                                    new DialogComponentOutOfBoundsSelection(createOutOfBoundsModel()));
 
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_gc";
+            }
         };
 
     }
