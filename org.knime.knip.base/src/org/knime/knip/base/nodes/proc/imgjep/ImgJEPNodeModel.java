@@ -365,10 +365,7 @@ public class ImgJEPNodeModel extends NodeModel implements BufferedDataTableHolde
             clone.setDomain(null);
             newColSpec = clone.createSpec();
         } else if (m_tableCreationMode == APPEND_COLUMN) {
-            if (inSpec.containsName(m_colName)) {
-                throw new InvalidSettingsException("Column already exists: " + m_colName);
-            }
-            newColSpec = new DataColumnSpecCreator(m_colName, ImgPlusCell.TYPE).createSpec();
+            newColSpec = new DataColumnSpecCreator(DataTableSpec.getUniqueColumnName(inSpec, m_colName), ImgPlusCell.TYPE).createSpec();
         } else {
             newColSpec = new DataColumnSpecCreator(m_colName, ImgPlusCell.TYPE).createSpec();
         }
