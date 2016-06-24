@@ -48,13 +48,13 @@
  */
 package org.knime.knip.base.nodes.filter.anisotropicdiffusion;
 
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.core.util.EnumUtils;
+
+import net.imglib2.type.numeric.RealType;
 
 /**
  *
@@ -99,5 +99,13 @@ public class AnisotropicDiffusionNodeDialog<T extends RealType<T>> extends ImgPl
 
         addDialogComponent("Options", "Execution Parameters", deltat);
         addDialogComponent("Options", "Execution Parameters", n);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String getDefaultSuffixForAppend() {
+        return "_ad";
     }
 }
