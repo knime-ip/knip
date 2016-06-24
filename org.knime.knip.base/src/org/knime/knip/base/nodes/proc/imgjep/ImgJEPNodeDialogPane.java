@@ -99,7 +99,7 @@ import org.knime.knip.core.util.EnumUtils;
 /**
  * Dialog for Mathematical Formula node. Shows expression text field, and three list containing variables, functions,
  * and constants.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -447,8 +447,8 @@ public class ImgJEPNodeDialogPane extends NodeDialogPane {
         final String newColName = settings.getString(ImgJEPNodeModel.CFG_COLUMN_NAME, defaultColName);
         final int tableCreationMode =
                 settings.getInt(ImgJEPNodeModel.CFG_TABLE_CREATION_MODE, ImgJEPNodeModel.REPLACE_COLUMN);
-        m_newColNameField.setText("");
-        m_newTableColNameField.setText("");
+        m_newColNameField.setText("Img Calc");
+        m_newTableColNameField.setText("Img Calc");
         // will select newColName only if it is in the spec list
         m_replaceCombo.update(specs[0], newColName);
         m_currenteSpec = specs[0];
