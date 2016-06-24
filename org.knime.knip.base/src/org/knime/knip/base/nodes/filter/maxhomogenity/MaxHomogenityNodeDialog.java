@@ -48,14 +48,14 @@
  */
 package org.knime.knip.base.nodes.filter.maxhomogenity;
 
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.dialog.DialogComponentOutOfBoundsSelection;
+
+import net.imglib2.type.numeric.RealType;
 
 /**
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
@@ -97,5 +97,13 @@ public class MaxHomogenityNodeDialog<T extends RealType<T>> extends ImgPlusToImg
         if ((m_windowSize.getIntValue() % 2) == 0) {
             throw new InvalidSettingsException("Only odd numbers are allowed");
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String getDefaultSuffixForAppend() {
+        return "_mh";
     }
 }
