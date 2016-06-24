@@ -88,7 +88,15 @@ public class VarianceFilterNodeFactory<T extends RealType<T> & NativeType<T>>
 
     @Override
     protected SlidingWindowOperationNodeDialog<T> createNodeDialog() {
-        return new SlidingWindowOperationNodeDialog<T>();
+        return new SlidingWindowOperationNodeDialog<T>(){
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_vf";
+            }
+        };
     }
 
     @Override
