@@ -50,6 +50,13 @@ package org.knime.knip.base.nodes.proc.binary;
 
 import java.util.List;
 
+import org.knime.core.node.NodeDialog;
+import org.knime.core.node.defaultnodesettings.SettingsModel;
+import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
+import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
+import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
+import org.knime.knip.core.util.ImgPlusFactory;
+
 import net.imagej.ImgPlus;
 import net.imglib2.ops.operation.ImgOperations;
 import net.imglib2.ops.operation.Operations;
@@ -57,13 +64,6 @@ import net.imglib2.ops.operation.UnaryOutputOperation;
 import net.imglib2.ops.operation.randomaccessibleinterval.unary.DistanceMap;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.FloatType;
-
-import org.knime.core.node.NodeDialog;
-import org.knime.core.node.defaultnodesettings.SettingsModel;
-import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
-import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
-import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
-import org.knime.knip.core.util.ImgPlusFactory;
 
 /**
  * {@link NodeDialog} for {@link DistanceMap}
@@ -85,6 +85,14 @@ public class DistanceMapNodeFactory<T extends RealType<T>> extends ImgPlusToImgP
             @Override
             public void addDialogComponents() {
 
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_dm";
             }
         };
     }
