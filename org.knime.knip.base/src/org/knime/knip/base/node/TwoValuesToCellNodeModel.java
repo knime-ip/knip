@@ -362,8 +362,8 @@ public abstract class TwoValuesToCellNodeModel<VIN1 extends DataValue, VIN2 exte
             cs2Name = cs2.getName();
         }
 
-        final DataColumnSpec csRes = new DataColumnSpecCreator((cs1Name != null ? cs1Name : "")
-                + (cs2Name != null ? "_" + cs2Name : "") + m_colSuffix.getStringValue(), dt).createSpec();
+        final DataColumnSpec csRes = new DataColumnSpecCreator(DataTableSpec.getUniqueColumnName(inSpec, (cs1Name != null ? cs1Name : "")
+                + (cs2Name != null ? "_" + cs2Name : "") + m_colSuffix.getStringValue()), dt).createSpec();
 
         return new CellFactory() {
             @Override
