@@ -54,11 +54,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import net.imglib2.Cursor;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.view.Views;
-
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
@@ -76,6 +71,11 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.util.StringTransformer;
+
+import net.imglib2.Cursor;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.view.Views;
 
 /**
  * Label Transformer Node Model
@@ -111,6 +111,14 @@ public class LabelTransformerNodeFactory<L extends Comparable<L>> extends ValueT
                                 LABEL_VAR, ROW_VAR});
                 addDialogComponent("Options", "", dc);
 
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_lt";
             }
 
         };
