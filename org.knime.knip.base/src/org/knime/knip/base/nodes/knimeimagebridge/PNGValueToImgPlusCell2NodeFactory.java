@@ -132,6 +132,14 @@ public class PNGValueToImgPlusCell2NodeFactory extends ValueToCellNodeFactory<PN
 
                 replace.addChangeListener(e -> alphval.setEnabled(replace.getBooleanValue()));
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_PNGtoIP";
+            }
         };
     }
 
