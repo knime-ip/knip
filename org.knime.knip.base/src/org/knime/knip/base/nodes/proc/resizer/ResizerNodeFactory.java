@@ -60,8 +60,8 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
-import org.knime.knip.core.util.MinimaUtils;
 import org.knime.knip.core.util.EnumUtils;
+import org.knime.knip.core.util.MinimaUtils;
 
 import net.imagej.ImgPlus;
 import net.imagej.ImgPlusMetadata;
@@ -159,6 +159,14 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
                                    new DialogComponentStringSelection(createInputFactorInterpretationModel(), "",
                                            EnumUtils.getStringListFromToString(InputFactors.values())));
 
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_resized";
             }
         };
     }
