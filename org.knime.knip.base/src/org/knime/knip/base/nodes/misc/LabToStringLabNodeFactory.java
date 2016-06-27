@@ -134,6 +134,14 @@ public class LabToStringLabNodeFactory<L extends Comparable<L>> extends ValueToC
                 //
 
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_ltsbl";
+            }
         };
     }
 }
