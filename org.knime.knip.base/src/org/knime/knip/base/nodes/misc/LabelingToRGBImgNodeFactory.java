@@ -52,22 +52,6 @@ import java.awt.Color;
 import java.util.List;
 import java.util.Set;
 
-import net.imagej.ImgPlus;
-import net.imagej.axis.Axes;
-import net.imagej.axis.CalibratedAxis;
-import net.imagej.axis.DefaultLinearAxis;
-import net.imglib2.Cursor;
-import net.imglib2.RandomAccess;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.Img;
-import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.type.numeric.ARGBType;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.type.numeric.integer.UnsignedByteType;
-import net.imglib2.type.numeric.real.DoubleType;
-import net.imglib2.view.Views;
-
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.ExecutionContext;
@@ -91,6 +75,22 @@ import org.knime.knip.core.awt.labelingcolortable.ExtendedLabelingColorTable;
 import org.knime.knip.core.awt.labelingcolortable.LabelingColorTable;
 import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableUtils;
 import org.knime.knip.core.awt.labelingcolortable.RandomMissingColorHandler;
+
+import net.imagej.ImgPlus;
+import net.imagej.axis.Axes;
+import net.imagej.axis.CalibratedAxis;
+import net.imagej.axis.DefaultLinearAxis;
+import net.imglib2.Cursor;
+import net.imglib2.RandomAccess;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.Img;
+import net.imglib2.img.array.ArrayImgFactory;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.numeric.ARGBType;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.type.numeric.integer.UnsignedByteType;
+import net.imglib2.type.numeric.real.DoubleType;
+import net.imglib2.view.Views;
 
 /**
  * Convert Labeling to a RGB based Img, i.e. extend the image with a channel if not already existing.
@@ -326,6 +326,14 @@ public class LabelingToRGBImgNodeFactory<T extends RealType<T>, L extends Compar
 
                 addDialogComponent("Background Image", "", imgCol);
                 addDialogComponent("Background Image", "", transparency);
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_ltRGB";
             }
 
         };
