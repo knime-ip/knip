@@ -236,7 +236,7 @@ public abstract class ValueToCellsNodeModel<VIN extends DataValue> extends NodeM
 
         final int colIndex = NodeUtils.getColumnIndex(m_column, inSpecs[0], m_inValueClass, this.getClass());
 
-        final CellFactory cellFac = createCellFactory(colIndex);
+        final CellFactory cellFac = createCellFactory(inSpecs[0], colIndex);
         ColumnRearranger colRearranger;
 
         if (m_colCreationMode.getStringValue().equals(COL_CREATION_MODES[0])) {
@@ -251,7 +251,7 @@ public abstract class ValueToCellsNodeModel<VIN extends DataValue> extends NodeM
     /*
      * Creates the cell factory.
      */
-    private CellFactory createCellFactory(final int colIdx) {
+    private CellFactory createCellFactory(final DataTableSpec inSpec, final int colIdx) {
 
         // New spec is created
         final Pair<DataType[], String[]> Pair = getDataOutTypeAndName();
@@ -260,7 +260,7 @@ public abstract class ValueToCellsNodeModel<VIN extends DataValue> extends NodeM
         final DataColumnSpec[] cspecs = new DataColumnSpec[dt.length];
 
         for (int i = 0; i < dt.length; i++) {
-            cspecs[i] = new DataColumnSpecCreator(dataOutTypeNames[i], dt[i]).createSpec();
+            cspecs[i] = new DataColumnSpecCreator(DataTableSpec.getUniqueColumnName(inSpec, dataOutTypeNames[i]), dt[i]).createSpec();
         }
 
         return new CellFactory() {
@@ -348,7 +348,7 @@ public abstract class ValueToCellsNodeModel<VIN extends DataValue> extends NodeM
         final int selectedColIndices =
                 NodeUtils.getColumnIndex(m_column, inTable.getDataTableSpec(), m_inValueClass, this.getClass());
 
-        final CellFactory cellFac = createCellFactory(selectedColIndices);
+        final CellFactory cellFac = createCellFactory(inObjects[0].getDataTableSpec(), selectedColIndices);
 
         exec.setProgress("Processing ...");
         if (m_colCreationMode.getStringValue().equals(COL_CREATION_MODES[0])) {
@@ -537,7 +537,7 @@ public abstract class ValueToCellsNodeModel<VIN extends DataValue> extends NodeM
 
         final int colIndex = NodeUtils.getColumnIndex(m_column, inSpec, m_inValueClass, this.getClass());
 
-        final CellFactory cellFac = createCellFactory(colIndex);
+        final CellFactory cellFac = createCellFactory(inSpec, colIndex);
 
         if (m_colCreationMode.getStringValue().equals(COL_CREATION_MODES[0])) {
             return new StreamableFunction() {
