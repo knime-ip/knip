@@ -50,21 +50,6 @@ package org.knime.knip.base.nodes.seg;
 
 import java.util.List;
 
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.converter.Converter;
-import net.imglib2.converter.Converters;
-import net.imglib2.ops.img.BinaryOperationAssignment;
-import net.imglib2.ops.operation.labeling.binary.LabelingTypeAnd;
-import net.imglib2.ops.operation.labeling.binary.LabelingTypeCongruent;
-import net.imglib2.ops.operation.labeling.binary.LabelingTypeDifference;
-import net.imglib2.ops.operation.labeling.binary.LabelingTypeIntersect;
-import net.imglib2.ops.operation.labeling.binary.LabelingTypeMerge;
-import net.imglib2.ops.operation.labeling.binary.LabelingTypeXOR;
-import net.imglib2.roi.labeling.LabelRegions;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.util.Util;
-import net.imglib2.view.Views;
-
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
@@ -81,6 +66,21 @@ import org.knime.knip.base.node.TwoValuesToCellNodeModel;
 import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.MiscViews;
+
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.converter.Converter;
+import net.imglib2.converter.Converters;
+import net.imglib2.ops.img.BinaryOperationAssignment;
+import net.imglib2.ops.operation.labeling.binary.LabelingTypeAnd;
+import net.imglib2.ops.operation.labeling.binary.LabelingTypeCongruent;
+import net.imglib2.ops.operation.labeling.binary.LabelingTypeDifference;
+import net.imglib2.ops.operation.labeling.binary.LabelingTypeIntersect;
+import net.imglib2.ops.operation.labeling.binary.LabelingTypeMerge;
+import net.imglib2.ops.operation.labeling.binary.LabelingTypeXOR;
+import net.imglib2.roi.labeling.LabelRegions;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.util.Util;
+import net.imglib2.view.Views;
 
 /**
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
@@ -140,6 +140,14 @@ public final class LabelingArithmeticNodeFactory<I1, I2, O extends Comparable<O>
             @Override
             protected String getSecondColumnSelectionLabel() {
                 return "Second Labeling";
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_la";
             }
         };
     }
