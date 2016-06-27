@@ -236,6 +236,14 @@ public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
             public boolean isSecondColumnRequired() {
                 return false;
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_gc2D";
+            }
         };
 
     }
