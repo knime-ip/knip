@@ -121,6 +121,14 @@ public class WaehlbySplitterNodeFactory<T extends RealType<T>, L extends Compara
                                    new DialogComponentDimSelection(createDimSelectionModel(), "Dimensions", 2, 2)); //2, 5
 
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_wbcs";
+            }
         };
     }
 
