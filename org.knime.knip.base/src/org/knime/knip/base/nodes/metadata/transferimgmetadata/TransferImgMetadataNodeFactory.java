@@ -101,6 +101,15 @@ public class TransferImgMetadataNodeFactory<T extends RealType<T>> extends
             protected String getSecondColumnSelectionLabel() {
                 return "Image Metadata Target";
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return  "_timd";
+            }
+
         };
 
     }
