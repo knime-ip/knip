@@ -104,6 +104,14 @@ public class UCSplitterNodeFactory<T extends RealType<T>>
                                    new DialogComponentDimSelection(createDimSelectionModel(), "Dimensions selection"));
 
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_splitted(uc)";
+            }
         };
     }
 
