@@ -76,8 +76,8 @@ import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
 import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.types.ImgFactoryTypes;
-import org.knime.knip.core.util.MinimaUtils;
 import org.knime.knip.core.util.EnumUtils;
+import org.knime.knip.core.util.MinimaUtils;
 
 import net.imagej.ImgPlus;
 import net.imglib2.Cursor;
@@ -154,12 +154,20 @@ public class ImgToLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>>
 
                     }
                 });
+
                 addDialogComponent("Options", "Background",
                                    new DialogComponentBoolean(setBackground, "Use background value as background?"));
 
                 addDialogComponent("Options", "Background",
                                    new DialogComponentNumber(backgroundValue, "Background value", 1));
+            }
 
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_itl";
             }
         };
     }
