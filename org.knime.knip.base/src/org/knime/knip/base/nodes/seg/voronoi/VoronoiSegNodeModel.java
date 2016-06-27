@@ -288,10 +288,9 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
             @Override
             public DataColumnSpec[] getColumnSpecs() {
                 final List<DataColumnSpec> specs = new ArrayList<DataColumnSpec>(2);
-                final DataColumnSpecCreator creator = new DataColumnSpecCreator("Foo", LabelingCell.TYPE);
+                final DataColumnSpecCreator creator = new DataColumnSpecCreator(DataTableSpec.getUniqueColumnName(inSpec, "Segmentation"), LabelingCell.TYPE);
                 if (m_resultCols.getStringValue().equals(RESULT_COLUMNS[0])
                         || m_resultCols.getStringValue().equals(RESULT_COLUMNS[2])) {
-                    creator.setName("Segmentation");
                     specs.add(creator.createSpec());
                 }
                 if (m_resultCols.getStringValue().equals(RESULT_COLUMNS[1])
