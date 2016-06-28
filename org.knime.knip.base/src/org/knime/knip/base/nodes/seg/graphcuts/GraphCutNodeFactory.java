@@ -64,6 +64,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
 import org.knime.core.node.defaultnodesettings.SettingsModelDoubleBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.node.port.PortObjectSpec;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
@@ -174,13 +175,9 @@ public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
 
                     @Override
                     public void stateChanged(final ChangeEvent arg0) {
-                        if (getSecondColumnSettingsModel().getStringValue() == null) {
-                            setLabelingSettings(false);
-                            setNoLabelingSettings(true);
-                        } else {
-                            setLabelingSettings(true);
-                            setNoLabelingSettings(false);
-                        }
+                        final boolean state = getSecondColumnSettingsModel().getStringValue() == null;
+                        setLabelingSettings(!state);
+                        setNoLabelingSettings(state);
                     }
                 });
 
@@ -269,19 +266,10 @@ public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
 
             private int m_secondColIdx;
 
+
+
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
-
-                if (m_firstColIdx == -1 || m_secondColIdx == -1) {
-                    m_fgLabel.setEnabled(false);
-                    m_bgLabel.setEnabled(false);
-                    m_lambdaSelection.setEnabled(false);
-                } else {
-                    m_pottsWeight.setEnabled(false);
-                    m_sourceValue.setEnabled(false);
-                    m_useMinMax.setEnabled(false);
-                    m_sinkValue.setEnabled(false);
-                }
 
                 settingsModels.add(m_dimSelection);
                 settingsModels.add(m_fgLabel);
@@ -384,12 +372,27 @@ public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
             }
 
             @Override
-            protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
+            protected int getSecondColumnIdx(final DataTableSpec spec, final Integer... except) {
+                try {
+                    return super.getSecondColumnIdx(spec, except);
+                } catch (Exception exc) {
+                    return -1;
+                }
+            }
 
-                m_firstColIdx = getFirstColumnIdx(inSpecs[0]);
-                m_secondColIdx = getSecondColumnIdx(inSpecs[1], m_firstColIdx);
+            @Override
+            protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
+
+                DataTableSpec[] res = (DataTableSpec[])super.configure(inSpecs);
+                final DataTableSpec inSpec = (DataTableSpec)inSpecs[0];
+                m_firstColIdx = getFirstColumnIdx(inSpec);
+                m_secondColIdx = getSecondColumnIdx(inSpec, m_firstColIdx);
 
                 if (m_secondColIdx == -1) {
+                    m_pottsWeight.setEnabled(true);
+                    m_sourceValue.setEnabled(true);
+                    m_useMinMax.setEnabled(true);
+                    m_sinkValue.setEnabled(true);
                     m_fgLabel.setEnabled(false);
                     m_bgLabel.setEnabled(false);
                     m_lambdaSelection.setEnabled(false);
@@ -398,9 +401,12 @@ public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
                     m_sourceValue.setEnabled(false);
                     m_useMinMax.setEnabled(false);
                     m_sinkValue.setEnabled(false);
+                    m_fgLabel.setEnabled(true);
+                    m_bgLabel.setEnabled(true);
+                    m_lambdaSelection.setEnabled(true);
                 }
 
-                return super.configure(inSpecs);
+                return res;
             }
 
             /**
