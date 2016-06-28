@@ -53,19 +53,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
-import net.imagej.ImgPlus;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.Img;
-import net.imglib2.ops.img.BinaryOperationAssignment;
-import net.imglib2.ops.img.UnaryObjectFactory;
-import net.imglib2.ops.operation.BinaryOperation;
-import net.imglib2.ops.operation.UnaryOutputOperation;
-import net.imglib2.outofbounds.OutOfBoundsFactory;
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.type.numeric.real.DoubleType;
-import net.imglib2.view.Views;
-
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.KNIMEConstants;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
@@ -87,6 +74,19 @@ import org.knime.knip.core.algorithm.convolvers.filter.linear.ConstantFilter;
 import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
 import org.knime.knip.core.types.OutOfBoundsStrategyFactory;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
+
+import net.imagej.ImgPlus;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.Img;
+import net.imglib2.ops.img.BinaryOperationAssignment;
+import net.imglib2.ops.img.UnaryObjectFactory;
+import net.imglib2.ops.operation.BinaryOperation;
+import net.imglib2.ops.operation.UnaryOutputOperation;
+import net.imglib2.outofbounds.OutOfBoundsFactory;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.type.numeric.real.DoubleType;
+import net.imglib2.view.Views;
 
 /**
  * TODO Auto-generated
@@ -143,6 +143,14 @@ public class SobelNodeFactory<T extends RealType<T> & NativeType<T>> extends Img
                 addDialogComponent("Options", "Convolution Selection", new DialogComponentStringSelection(
                         createConvolverSelectionModel(), "Convolution Method: ", getConvolverNames()));
 
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_sf";
             }
 
         };

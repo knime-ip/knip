@@ -50,14 +50,6 @@ package org.knime.knip.base.nodes.proc.dogdetector;
 
 import java.util.List;
 
-import net.imagej.ImgPlus;
-import net.imglib2.algorithm.dog.DogDetection;
-import net.imglib2.algorithm.dog.DogDetection.ExtremaType;
-import net.imglib2.ops.operation.UnaryOutputOperation;
-import net.imglib2.type.NativeType;
-import net.imglib2.type.logic.BitType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
@@ -74,6 +66,14 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
 import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
 import org.knime.knip.core.types.OutOfBoundsStrategyFactory;
 import org.knime.knip.core.util.EnumUtils;
+
+import net.imagej.ImgPlus;
+import net.imglib2.algorithm.dog.DogDetection;
+import net.imglib2.algorithm.dog.DogDetection.ExtremaType;
+import net.imglib2.ops.operation.UnaryOutputOperation;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.logic.BitType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * {@link NodeFactory} for {@link DoGDetectorNodeFactory} wrapping the {@link DogDetection}
@@ -133,6 +133,14 @@ public class DoGDetectorNodeFactory<T extends RealType<T> & NativeType<T>> exten
                                            "Out of Bounds Strategy", EnumUtils
                                                    .getStringCollectionFromToString(OutOfBoundsStrategyEnum.values())));
 
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_DoG";
             }
         };
     }

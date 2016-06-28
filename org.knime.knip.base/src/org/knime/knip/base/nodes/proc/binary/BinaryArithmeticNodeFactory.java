@@ -64,8 +64,8 @@ import org.knime.knip.base.node.TwoValuesToCellNodeDialog;
 import org.knime.knip.base.node.TwoValuesToCellNodeFactory;
 import org.knime.knip.base.node.TwoValuesToCellNodeModel;
 import org.knime.knip.core.KNIPGateway;
-import org.knime.knip.core.util.MinimaUtils;
 import org.knime.knip.core.util.EnumUtils;
+import org.knime.knip.core.util.MinimaUtils;
 import org.knime.knip.core.util.MiscViews;
 
 import net.imagej.ImgPlus;
@@ -141,6 +141,14 @@ public final class BinaryArithmeticNodeFactory
             @Override
             protected String getSecondColumnSelectionLabel() {
                 return "Second BitType Image";
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_bio";
             }
         };
     }

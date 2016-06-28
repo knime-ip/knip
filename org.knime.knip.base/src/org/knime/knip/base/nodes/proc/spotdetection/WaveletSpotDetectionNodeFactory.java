@@ -48,9 +48,6 @@
  */
 package org.knime.knip.base.nodes.proc.spotdetection;
 
-import net.imglib2.type.logic.BitType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
@@ -59,6 +56,9 @@ import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
 import org.knime.knip.base.nodes.view.TableCellViewNodeView;
+
+import net.imglib2.type.logic.BitType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * NodeFactory for Wavelet SpotDetection
@@ -91,6 +91,14 @@ public class WaveletSpotDetectionNodeFactory<T extends RealType<T>> extends
 
                 addDialogComponent("Options", "Background signal estimation", dcMeanChooser);
                 addDialogComponent("Options", "Wavelet level parameters", scaleConfig);
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_sd";
             }
         };
     }

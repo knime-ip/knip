@@ -121,6 +121,14 @@ public class ImgToDataRowNodeFactory<T extends RealType<T>> extends ValueToCellN
             public void addDialogComponents() {
                 // Nothing to do here
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_itdr";
+            }
         };
     }
 }

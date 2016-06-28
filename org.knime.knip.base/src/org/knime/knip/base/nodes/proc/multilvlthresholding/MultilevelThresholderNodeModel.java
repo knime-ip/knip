@@ -54,7 +54,6 @@ import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
-import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.util.ImgPlusFactory;
 
 import net.imagej.ImgPlus;
@@ -80,10 +79,6 @@ import net.imglib2.type.numeric.RealType;
 public class MultilevelThresholderNodeModel<T extends RealType<T> & NativeType<T>>
         extends ImgPlusToImgPlusNodeModel<T, T> {
 
-    static SettingsModelDimSelection createDimSelectionModel() {
-        return new SettingsModelDimSelection("dimselection", "X", "Y");
-    }
-
     static SettingsModelIntegerBounded createNumberOfIntensities() {
         return new SettingsModelIntegerBounded("number_of_intensities", 256, 2, Integer.MAX_VALUE);
     }
@@ -106,7 +101,7 @@ public class MultilevelThresholderNodeModel<T extends RealType<T> & NativeType<T
      * Constructor
      */
     protected MultilevelThresholderNodeModel() {
-        super(createDimSelectionModel());
+        super("X", "Y");
     }
 
     @Override

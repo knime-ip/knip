@@ -209,6 +209,14 @@ public class WatershedNodeFactory<T extends RealType<T>, L>
             protected String getSecondColumnSelectionLabel() {
                 return "Column of Labeling with Seeds";
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_sw";
+            }
         };
     }
 

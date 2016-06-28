@@ -120,6 +120,14 @@ public class HDomeNodeFactory<T extends RealType<T> & NativeType<T>, TMP extends
                 addDialogComponent("Options", "Regional Maxima Options",
                                    new DialogComponentNumber(createHeightModel(), "Height of Domes", 1));
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_hd";
+            }
         };
     }
 

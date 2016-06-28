@@ -50,11 +50,6 @@ package org.knime.knip.base.nodes.proc.clahe;
 
 import java.util.List;
 
-import net.imagej.ImgPlus;
-import net.imglib2.ops.operation.ImgOperations;
-import net.imglib2.ops.operation.UnaryOutputOperation;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelDoubleBounded;
@@ -62,6 +57,11 @@ import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
+
+import net.imagej.ImgPlus;
+import net.imglib2.ops.operation.ImgOperations;
+import net.imglib2.ops.operation.UnaryOutputOperation;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * Factory class to create {@link ClaheNodeFactory}
@@ -106,6 +106,14 @@ public class ClaheNodeFactory<T extends RealType<T>> extends ImgPlusToImgPlusNod
 
                 addDialogComponent("Options", "CLAHE Options",
                                    new DialogComponentNumber(createCtxSlope(), "Slope", 0.1));
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_clahe";
             }
         };
     }

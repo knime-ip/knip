@@ -143,6 +143,13 @@ public class ImgPlusCellToPNGValueNodeFactory<T extends RealType<T>> extends Val
                 }
             }
 
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_IPtoPNG";
+            }
         };
     }
 

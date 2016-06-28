@@ -109,6 +109,14 @@ public class LabelingToImgNodeFactory<L extends Comparable<L>, V extends Integer
                 addDialogComponent("Options", "", new DialogComponentStringSelection(createOutputImgModel(),
                         "Img Output Type Selection", EnumUtils.getStringListFromName(NativeTypes.values())));
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_lti";
+            }
         };
     }
 

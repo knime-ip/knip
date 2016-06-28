@@ -134,6 +134,14 @@ public class ImgNormalizerNodeFactory<T extends RealType<T> & NativeType<T>, L e
              * {@inheritDoc}
              */
             @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_in";
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
             public void addDialogComponents() {
 
                 type = createModeModel();

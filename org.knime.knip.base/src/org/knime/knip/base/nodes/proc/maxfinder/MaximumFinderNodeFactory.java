@@ -50,13 +50,6 @@ package org.knime.knip.base.nodes.proc.maxfinder;
 
 import java.util.List;
 
-import net.imagej.ImgPlus;
-import net.imglib2.ops.operation.ImgOperations;
-import net.imglib2.ops.operation.UnaryOutputOperation;
-import net.imglib2.type.NativeType;
-import net.imglib2.type.logic.BitType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.NodeDialog;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeModel;
@@ -70,6 +63,13 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
+
+import net.imagej.ImgPlus;
+import net.imglib2.ops.operation.ImgOperations;
+import net.imglib2.ops.operation.UnaryOutputOperation;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.logic.BitType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * {@link NodeFactory} containint {@link NodeModel} and {@link NodeDialog} for {@link MaximumFinderOp}
@@ -101,7 +101,7 @@ public class MaximumFinderNodeFactory<T extends RealType<T> & NativeType<T>> ext
      */
     @Override
     public ImgPlusToImgPlusNodeModel<T, BitType> createNodeModel() {
-        return new ImgPlusToImgPlusNodeModel<T, BitType>() {
+        return new ImgPlusToImgPlusNodeModel<T, BitType>("X", "Y") {
 
             private SettingsModelDouble m_toleranceModel = createToleranceModel();
 
@@ -147,6 +147,14 @@ public class MaximumFinderNodeFactory<T extends RealType<T> & NativeType<T>> ext
                 addDialogComponent("Options", "Options", new DialogComponentNumber(createSuppressionModel(),
                         "Supression", 0.5));
                 addDialogComponent(new DialogComponentBoolean(createMaxAreaModel(), "Output with Tolerance Areas"));
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_mf";
             }
         };
     }

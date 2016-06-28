@@ -105,6 +105,14 @@ public class ThinningNodeFactory extends ImgPlusToImgPlusNodeFactory<BitType, Bi
                                    new DialogComponentBoolean(createForeground(), "Use white as foreground color? "));
 
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_thinned";
+            }
         };
     }
 

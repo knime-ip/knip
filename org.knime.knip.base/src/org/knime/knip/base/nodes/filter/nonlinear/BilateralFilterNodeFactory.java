@@ -120,6 +120,14 @@ public class BilateralFilterNodeFactory<T extends RealType<T> & NativeType<T>>
                 addDialogComponent("Options", "Parameters",
                                    new DialogComponentSpanSelection(BilateralFilterNodeFactory.createRadiusModel()));
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_bf";
+            }
         };
     }
 

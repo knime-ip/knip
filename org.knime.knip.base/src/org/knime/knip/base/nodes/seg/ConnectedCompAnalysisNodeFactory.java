@@ -99,7 +99,7 @@ public class ConnectedCompAnalysisNodeFactory<T extends RealType<T> & Comparable
     private static NodeLogger LOGGER = NodeLogger.getLogger(ConnectedCompAnalysisNodeFactory.class);
 
     private static SettingsModelInteger createBackgroundModel() {
-        return new SettingsModelInteger("background", -128);
+        return new SettingsModelInteger("background", 0);
     }
 
     private static SettingsModelDimSelection createDimSelectionModel() {

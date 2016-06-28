@@ -140,6 +140,14 @@ public class ThresholderNodeFactory3<T extends RealType<T>, L extends Comparable
                 return activeDimSelection;
             }
 
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_ts";
+            }
+
         };
 
     }

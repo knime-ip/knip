@@ -52,9 +52,6 @@ import java.util.Arrays;
 
 import javax.swing.ListSelectionModel;
 
-import net.imglib2.type.Type;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.data.collection.ListCell;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentColorChooser;
@@ -67,9 +64,12 @@ import org.knime.knip.base.node.TwoValuesToCellNodeFactory;
 import org.knime.knip.base.node.TwoValuesToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 
+import net.imglib2.type.Type;
+import net.imglib2.type.numeric.RealType;
+
 /**
  * Converts Labelings with (optional) background images to PNGImageCell using the view renderes
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -113,6 +113,14 @@ public class LabelingToPNGValueNodeFactory<T extends RealType<T>, L extends Comp
                 addDialogComponent("Options", "Dimension selection", new DialogComponentDimSelection(
                         LabelingToPNGValueNodeModel.createDimSelectionModelPlane(), "Dimensions Plane", 2, 2));
 
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_ltPNG";
             }
         };
     }
