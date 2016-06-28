@@ -389,9 +389,21 @@ public class GraphCutNodeFactory<T extends RealType<T>, L extends Comparable<L>>
                 m_secondColIdx = getSecondColumnIdx(inSpec, m_firstColIdx);
 
                 if (m_secondColIdx == -1) {
+                    m_pottsWeight.setEnabled(true);
+                    m_sourceValue.setEnabled(true);
+                    m_useMinMax.setEnabled(true);
+                    m_sinkValue.setEnabled(true);
                     m_fgLabel.setEnabled(false);
                     m_bgLabel.setEnabled(false);
                     m_lambdaSelection.setEnabled(false);
+                } else {
+                    m_pottsWeight.setEnabled(false);
+                    m_sourceValue.setEnabled(false);
+                    m_useMinMax.setEnabled(false);
+                    m_sinkValue.setEnabled(false);
+                    m_fgLabel.setEnabled(true);
+                    m_bgLabel.setEnabled(true);
+                    m_lambdaSelection.setEnabled(true);
                 }
 
                 return res;
