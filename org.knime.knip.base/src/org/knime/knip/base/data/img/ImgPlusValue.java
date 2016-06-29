@@ -130,7 +130,7 @@ public interface ImgPlusValue<T extends RealType<T>> extends DataValue {
      *
      * @return the image in this <code>DataCell</code>
      */
-    @DataValueAccessMethod
+    @DataValueAccessMethod(name = "ImgPlus Image")
     public ImgPlus<T> getImgPlus();
 
     /**

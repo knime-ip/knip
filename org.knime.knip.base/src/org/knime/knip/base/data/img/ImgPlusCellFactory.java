@@ -98,7 +98,7 @@ public final class ImgPlusCellFactory extends KNIPCellFactory {
      * @return {@link ImgPlusCell}
      * @throws IOException
      */
-    @DataCellFactoryMethod
+    @DataCellFactoryMethod(name = "ImgPlus Image")
     public final <T extends RealType<T>> ImgPlusCell<T> createCell(final ImgPlus<T> imgPlus) throws IOException {
         return new ImgPlusCell<T>(imgPlus.getImg(), imgPlus, getFileStore(getImgSize(imgPlus.getImg())));
     }
