@@ -806,7 +806,6 @@ public class FileChooserPanel extends JPanel {
 		}
 
 		m_selectedFileListModel.addFiles(m_fileChooser.getSelectedFiles(), ff);
-
 		m_filePref.put("Path", m_fileChooser.getCurrentDirectory().toString());
 		fireSelectionChangedEvent();
 
