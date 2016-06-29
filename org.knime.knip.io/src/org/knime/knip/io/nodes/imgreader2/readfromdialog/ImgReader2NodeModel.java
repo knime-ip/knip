@@ -167,7 +167,7 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 
 				if (dataRow.getSecond().isPresent()) {
 					encounteredExceptions.set(true);
-					LOGGER.debug("Encountered exception while reading image " + dataRow.getFirst().getKey()
+					LOGGER.error("Encountered exception while reading image " + dataRow.getFirst().getKey()
 							+ "! Caught Exception: " + dataRow.getSecond().get().getMessage());
 					LOGGER.debug(dataRow.getSecond().get());
 				}
@@ -213,7 +213,7 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 
 					if (dataRow.getSecond().isPresent()) {
 						encounteredExceptions.set(true);
-						LOGGER.debug("Encountered exception while reading image " + dataRow.getFirst().getKey()
+						LOGGER.warn("Encountered exception while reading image " + dataRow.getFirst().getKey()
 								+ "! Caught Exception: " + dataRow.getSecond().get().getMessage());
 						LOGGER.debug(dataRow.getSecond().get());
 					}
@@ -232,7 +232,6 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 				rifp.close();
 				out.close();
 			}
-
 		};
 	}
 
@@ -249,10 +248,9 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 	protected DataTableSpec getOutspec() {
 		MetadataMode metadataMode = EnumUtils.valueForName(m_metadataModeModel.getStringValue(), MetadataMode.values());
 
-		boolean readImage = (metadataMode == MetadataMode.NO_METADATA || metadataMode == MetadataMode.APPEND_METADATA)
-				? true : false;
-		boolean readMetadata = (metadataMode == MetadataMode.APPEND_METADATA
-				|| metadataMode == MetadataMode.METADATA_ONLY) ? true : false;
+		boolean readImage = metadataMode == MetadataMode.NO_METADATA || metadataMode == MetadataMode.APPEND_METADATA;
+		boolean readMetadata = metadataMode == MetadataMode.APPEND_METADATA
+				|| metadataMode == MetadataMode.METADATA_ONLY;
 
 		DataColumnSpecCreator creator;
 		// size of spec from on the reader settings.
