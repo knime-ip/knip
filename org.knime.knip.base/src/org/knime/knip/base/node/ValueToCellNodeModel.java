@@ -356,8 +356,7 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
                 || m_colCreationMode.getStringValue().equals(COL_CREATION_MODES[2])) {
             for (int i = 0; i < colIndices.length; i++) {
                 final DataColumnSpec cs = inSpec.getColumnSpec(colIndices[i]);
-                cspecs[i] = new DataColumnSpecCreator(cs.getName() + m_colSuffix.getStringValue(), dt)
-                                .createSpec();
+                cspecs[i] = new DataColumnSpecCreator(cs.getName() + m_colSuffix.getStringValue(), dt).createSpec();
             }
         } else {
             for (int i = 0; i < colIndices.length; i++) {
@@ -592,7 +591,16 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
 
     @Override
     public InputPortRole[] getInputPortRoles() {
-        return new InputPortRole[]{InputPortRole.DISTRIBUTED_STREAMABLE};
+        final InputPortRole[] roles = new InputPortRole[getNrInPorts()];
+
+        roles[0] = InputPortRole.DISTRIBUTED_STREAMABLE;
+
+        // TODO this is a pretty strict assumption. The implementor can override as needed.
+        for (int i = 1; i < roles.length; i++) {
+            roles[i] = InputPortRole.NONDISTRIBUTED_NONSTREAMABLE;
+        }
+
+        return roles;
     }
 
     @Override
