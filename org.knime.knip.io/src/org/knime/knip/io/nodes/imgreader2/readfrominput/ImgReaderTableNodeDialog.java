@@ -55,6 +55,7 @@ import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.io.nodes.imgreader2.AbstractImgReaderNodeDialog;
+import org.knime.knip.io.nodes.imgreader2.ColumnCreationMode;
 
 /**
  * Dialog for the ImageReader to select the files and choose some additional
@@ -87,7 +88,7 @@ public class ImgReaderTableNodeDialog extends AbstractImgReaderNodeDialog {
 		createNewTab("Column Settings");
 		SettingsModelString m_smColCreationMode = ImgReaderTableNodeModel.createColCreationModeModel();
 		addDialogComponent(new DialogComponentStringSelection(m_smColCreationMode, "Column Creation Mode",
-				ValueToCellNodeModel.COL_CREATION_MODES));
+				ColumnCreationMode.getModes()));
 
 		SettingsModelString m_smColumnSuffix = ImgReaderTableNodeModel.createColSuffixNodeModel();
 		addDialogComponent(new DialogComponentString(m_smColumnSuffix, "Column Suffix"));
