@@ -1,7 +1,6 @@
 package org.knime.knip.io.nodes.imgreader2.readfromdialog;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
