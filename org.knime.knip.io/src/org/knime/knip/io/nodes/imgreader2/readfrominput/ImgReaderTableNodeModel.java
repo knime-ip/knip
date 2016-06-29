@@ -156,9 +156,8 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 
 				if (dataRow.getSecond().isPresent()) {
 					encounteredExceptions.set(true);
-					LOGGER.debug("Encountered exception while reading image " + dataRow.getFirst().getKey()
-							+ "! Caught Exception: " + dataRow.getSecond().get().getMessage());
-					LOGGER.debug(dataRow.getSecond().get());
+					LOGGER.warn("Encountered exception while reading image " + dataRow.getFirst().getKey()
+							+ "! Caught Exception: " + dataRow.getSecond().get());
 				}
 
 				bdc.addRowToTable(dataRow.getFirst());
@@ -201,7 +200,7 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 					readImgFunction.apply(row).forEachOrdered(result -> {
 						if (result.getSecond().isPresent()) {
 							encounteredExceptions.set(true);
-							LOGGER.debug("Encountered exception while reading image " + result.getFirst().getKey()
+							LOGGER.warn("Encountered exception while reading image " + result.getFirst().getKey()
 									+ "! Caught Exception: " + result.getSecond().get().getMessage());
 							LOGGER.debug(result.getSecond().get());
 						}
