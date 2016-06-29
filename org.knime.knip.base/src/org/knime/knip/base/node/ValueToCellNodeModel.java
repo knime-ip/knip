@@ -352,7 +352,8 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
             dt = DataType.getType(m_outCellClass);
         }
 
-        if (m_colCreationMode.getStringValue().equals(COL_CREATION_MODES[0])) {
+        if (m_colCreationMode.getStringValue().equals(COL_CREATION_MODES[0])
+                || m_colCreationMode.getStringValue().equals(COL_CREATION_MODES[2])) {
             for (int i = 0; i < colIndices.length; i++) {
                 final DataColumnSpec cs = inSpec.getColumnSpec(colIndices[i]);
                 cspecs[i] = new DataColumnSpecCreator(cs.getName() + m_colSuffix.getStringValue(), dt)
