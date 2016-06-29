@@ -46,12 +46,8 @@
  */
 package org.knime.knip.io.nodes.imgreader2.readfromdialog;
 
-import java.net.URISyntaxException;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.URI;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.knime.core.data.DataColumnSpec;
@@ -130,13 +126,8 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 
 	public ImgReader2NodeModel(NodeCreationContext context) {
 		super(0, 1);
-
-		try {
-			m_files.setStringArrayValue(new String[] { context.getUrl().toURI().toString() });
-			addSettingsModels(m_files, m_completePathRowKey);
-		} catch (URISyntaxException e) {
-			throw new IllegalArgumentException(e);
-		}
+		m_files.setStringArrayValue(new String[] { context.getUrl().toExternalForm() });
+		addSettingsModels(m_files, m_completePathRowKey);
 	}
 
 	/**
@@ -171,9 +162,8 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 
 		BufferedDataContainer bdc = exec.createDataContainer(getOutspec());
 
-		Iterator<String> iterator = Arrays.asList(m_files.getStringArrayValue()).iterator();
-		while (iterator.hasNext()) {
-			rifp.apply(iterator.next()).forEachOrdered(dataRow -> {
+		for (final String uri : m_files.getStringArrayValue()) {
+			rifp.apply(URI.create(uri)).forEachOrdered(dataRow -> {
 
 				if (dataRow.getSecond().isPresent()) {
 					encounteredExceptions.set(true);
@@ -188,9 +178,8 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 
 			exec.checkCanceled();
 
+			rifp.close();
 		}
-		
-		rifp.close();
 
 		bdc.close();
 
@@ -219,7 +208,8 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 				// boolean for exceptions and file format
 				final AtomicBoolean encounteredExceptions = new AtomicBoolean(false);
 
-				Arrays.asList(m_files.getStringArrayValue()).stream().flatMap(rifp).forEachOrdered(dataRow -> {
+				Arrays.asList(m_files.getStringArrayValue()).stream().map(s -> URI.create(s)).flatMap(rifp)
+						.forEachOrdered(dataRow -> {
 
 					if (dataRow.getSecond().isPresent()) {
 						encounteredExceptions.set(true);

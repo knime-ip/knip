@@ -1,5 +1,7 @@
 package org.knime.knip.io.nodes.imgreader2;
 
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -91,21 +93,21 @@ public abstract class AbstractReadImgFunction<T extends RealType<T> & NativeType
 		m_pixelType = pixelType;
 	}
 
-	protected Pair<DataRow, Optional<Throwable>> createResultFromException(String pathToImage, String rowKey,
-			Exception exc) {
+	protected Pair<DataRow, Optional<Throwable>> createResultFromException(String path, String rowKey, Exception exc) {
+
 		DataCell[] cells = new DataCell[((m_readImage) ? 1 : 0) + ((m_readMetadata) ? 1 : 0)];
 
 		if (m_readImage) {
-			cells[0] = new MissingCell("Exception while processing  " + pathToImage + "!\nCaught Exception"
-					+ exc.getMessage() + "\n" + exc.getStackTrace());
+			cells[0] = new MissingCell("Exception while processing  " + path + "!\nCaught Exception" + exc.getMessage()
+					+ "\n" + exc.getStackTrace());
 		}
 
 		if (m_readMetadata) {
-			cells[cells.length - 1] = new MissingCell("Exception while processing  " + pathToImage
-					+ "!\nCaught Exception" + exc.getMessage() + "\n" + exc.getStackTrace());
+			cells[cells.length - 1] = new MissingCell("Exception while processing  " + path + "!\nCaught Exception"
+					+ exc.getMessage() + "\n" + exc.getStackTrace());
 		}
+		return new Pair<DataRow, Optional<Throwable>>(new DefaultRow(path, cells), Optional.of(exc));
 
-		return new Pair<DataRow, Optional<Throwable>>(new DefaultRow(rowKey, cells), Optional.of(exc));
 	}
 
 	/**
@@ -156,11 +158,11 @@ public abstract class AbstractReadImgFunction<T extends RealType<T> & NativeType
 
 		return new Pair<DataRow, Optional<Throwable>>(new DefaultRow(rowKey, cells), Optional.empty());
 	}
-	
+
 	/**
 	 * Performs all the clean-up work, e.g. closing files etc.
 	 */
 	public void close() {
-	    m_imgSource.close();
+		m_imgSource.close();
 	}
 }
