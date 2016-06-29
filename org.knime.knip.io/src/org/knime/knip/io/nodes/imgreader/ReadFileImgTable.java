@@ -51,8 +51,6 @@ package org.knime.knip.io.nodes.imgreader;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
@@ -74,13 +72,11 @@ import org.knime.core.data.xml.XMLCellFactory;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.util.FileUtil;
-import org.knime.core.util.pathresolve.ResolverUtil;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
 import org.knime.knip.io.ScifioImgSource;
-import org.knime.knip.io.node.dialog.DialogComponentMultiFileChooser;
 
 import io.scif.config.SCIFIOConfig;
 import loci.formats.FormatException;
@@ -157,8 +153,6 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements 
 	 */
 	private int m_selectedSeries = -1;
 
-	private String m_workflowCanonicalPath;
-
 	/**
 	 * Creates an new and empty ImageTable and is useful to get the table
 	 * specification without actually knowing the content.
@@ -168,7 +162,6 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements 
 	 * 
 	 */
 	public ReadFileImgTable(final boolean omexml) {
-		initCanonicalWorkflowPath();
 		m_omexml = omexml;
 	}
 
@@ -208,7 +201,6 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements 
 			final boolean completePathRowKey, final boolean isGroupFiles, final int selectedSeries,
 			final ImgFactory<T> imgFactory) {
 
-		initCanonicalWorkflowPath();
 		m_completePathRowKey = completePathRowKey;
 		m_fileList = fileList;
 		m_numberOfFiles = numberOfFiles;
@@ -338,10 +330,6 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements 
 						currentFile = fileIterator.next().trim();
 						rowKey = currentFile;
 
-						// replace relative file pathes knime://knime.workflow
-						currentFile = DialogComponentMultiFileChooser.convertToFilePath(currentFile,
-								m_workflowCanonicalPath);
-
 						// download file and return new file path, if
 						// 'currentFile' is an url
 						String newLoc;
@@ -448,23 +436,6 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements 
 	 */
 	public void set(String key, Object value) {
 		m_scifioConfig.put(key, value);
-	}
-
-	/*
-	 * Determines the absolute workflow path (for workflow-relative files, i.e.
-	 * knime://...)
-	 */
-	private void initCanonicalWorkflowPath() {
-		m_workflowCanonicalPath = null;
-		try {
-			m_workflowCanonicalPath = ResolverUtil
-					.resolveURItoLocalFile(new URI(DialogComponentMultiFileChooser.KNIME_WORKFLOW_RELPATH))
-					.getCanonicalPath();
-		} catch (URISyntaxException e) {
-			LOGGER.warn("could not resolve the workflow directory as local file");
-		} catch (IOException e) {
-			LOGGER.warn("could not resolve the workflow directory as local file");
-		}
 	}
 
 	/*
