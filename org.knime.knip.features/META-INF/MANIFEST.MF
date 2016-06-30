@@ -12,10 +12,8 @@ Require-Bundle: org.eclipse.core.runtime,
  imglib2-algorithm-gpl;bundle-version="0.1.2",
  imglib2-ij;bundle-version="2.0.0",
  scijava-log-slf4j;bundle-version="1.0.2",
- scijava-ui-swing;bundle-version="0.3.0",
  org.knime.knip.base;bundle-version="1.4.0",
  org.knime.knip.io;bundle-version="1.4.0",
- miglayout-swing;bundle-version="4.2.0",
  scijava-common;bundle-version="2.47.0",
  imagej-common;bundle-version="0.18.0",
  imglib2-roi,
@@ -27,7 +25,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.workbench.repository;bundle-version="3.0.0",
  org.knime.workbench.core;bundle-version="3.0.0",
  commons-math3;bundle-version="3.5.0",
- miglayout;bundle-version="3.7.4"
+ miglayout;bundle-version="3.7.4",
+ scijava-ui-swing;bundle-version="0.3.0"
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
