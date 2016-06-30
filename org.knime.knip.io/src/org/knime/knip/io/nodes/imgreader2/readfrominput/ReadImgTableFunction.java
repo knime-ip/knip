@@ -1,6 +1,7 @@
 package org.knime.knip.io.nodes.imgreader2.readfrominput;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.InvalidPathException;
@@ -22,6 +23,7 @@ import org.knime.core.util.FileUtil;
 import org.knime.core.util.Pair;
 import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection2;
 import org.knime.knip.io.nodes.imgreader2.AbstractReadImgFunction;
+import org.knime.knip.io.nodes.imgreader2.URLUtil;
 
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
@@ -65,10 +67,12 @@ class ReadImgTableFunction<T extends RealType<T> & NativeType<T>> extends Abstra
 		String path;
 		int numSeries;
 		try {
-			URL url = FileUtil.toURL(t);
+			URI uri = URLUtil.encode(t);
+			URL url = uri.toURL();
 
 			// check if its a internet address;
-			if (url.getProtocol().equalsIgnoreCase("HTTP") || url.getProtocol().equalsIgnoreCase("FTP") || url.getProtocol().equalsIgnoreCase("HTTPS")) {
+			if (url.getProtocol().equalsIgnoreCase("HTTP") || url.getProtocol().equalsIgnoreCase("FTP")
+					|| url.getProtocol().equalsIgnoreCase("HTTPS")) {
 				path = url.toURI().toString();
 			} else {
 				path = FileUtil.resolveToPath(url).toString();

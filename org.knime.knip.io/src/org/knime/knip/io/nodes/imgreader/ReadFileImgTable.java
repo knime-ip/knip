@@ -51,7 +51,9 @@ package org.knime.knip.io.nodes.imgreader;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -72,6 +74,7 @@ import org.knime.core.data.xml.XMLCellFactory;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.util.FileUtil;
+import org.knime.core.util.pathresolve.ResolverUtil;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.exceptions.KNIPException;
@@ -327,7 +330,26 @@ public class ReadFileImgTable<T extends NativeType<T> & RealType<T>> implements 
 					} else {
 						/* prepare next file name and the according row key */
 						progressCount++;
-						currentFile = fileIterator.next().trim();
+
+						final String tmp = fileIterator.next().trim().replaceAll(" ", "%20");
+						// final String tmp =
+						// URLEncoder.encode(fileIterator.next().trim(),
+						// "UTF-8");
+						try {
+							currentFile = ResolverUtil.resolveURItoLocalOrTempFile(new URL(tmp).toURI())
+									.getAbsolutePath();
+						} catch (final MalformedURLException | URISyntaxException e) {
+							if (tmp.contains("knime://knime.workflow")) {
+								currentFile = tmp.replaceAll("knime://knime.workflow",
+										ResolverUtil
+												.resolveURItoLocalOrTempFile(new URL("knime://knime.workflow").toURI())
+												.getAbsolutePath());
+							} else {
+								currentFile = tmp;
+							}
+
+						}
+
 						rowKey = currentFile;
 
 						// download file and return new file path, if
