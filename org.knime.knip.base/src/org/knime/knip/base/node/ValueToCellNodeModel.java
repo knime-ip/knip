@@ -261,7 +261,7 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
     protected abstract void addSettingsModels(List<SettingsModel> settingsModels);
 
     /* Helper to collect all columns of the given type. */
-    private void collectAllColumns(final List<String> colNames, final DataTableSpec spec) {
+    private void collectAllColumns(final List<String> colNames, final DataTableSpec spec) throws InvalidSettingsException {
         colNames.clear();
         for (final DataColumnSpec c : spec) {
             if (c.getType().isCompatible(m_inValueClass)) {
@@ -269,8 +269,7 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
             }
         }
         if (colNames.size() == 0) {
-            LOGGER.warn("No columns of type " + m_inValueClass.getSimpleName() + " available!");
-            return;
+            throw new InvalidSettingsException("No columns of type " + m_inValueClass.getSimpleName() + " available!");
         }
         LOGGER.info("All available columns of type " + m_inValueClass.getSimpleName() + " are selected!");
 
@@ -614,8 +613,9 @@ public abstract class ValueToCellNodeModel<VIN extends DataValue, COUT extends D
      *
      * @param inSpec the inspec
      * @return the selected indices
+     * @throws InvalidSettingsException
      */
-    protected int[] getSelectedColumnIndices(final DataTableSpec inSpec) {
+    protected int[] getSelectedColumnIndices(final DataTableSpec inSpec) throws InvalidSettingsException {
         final List<String> colNames;
         if ((m_columns.getIncludeList().size() == 0) || m_columns.isKeepAllSelected()) {
             colNames = new ArrayList<String>();
