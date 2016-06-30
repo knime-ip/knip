@@ -1,5 +1,6 @@
 package org.knime.knip.io.nodes.imgreader2;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.knime.core.data.xml.XMLCellFactory;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.util.Pair;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
+import org.knime.knip.base.exceptions.KNIPException;
 import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection2;
 import org.knime.knip.core.types.NativeTypes;
 import org.knime.knip.io.ScifioImgSource;
