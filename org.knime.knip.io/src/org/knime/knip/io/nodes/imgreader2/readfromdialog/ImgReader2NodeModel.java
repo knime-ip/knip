@@ -46,7 +46,6 @@
  */
 package org.knime.knip.io.nodes.imgreader2.readfromdialog;
 
-import java.net.URI;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -74,6 +73,7 @@ import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.io.nodes.imgreader2.AbstractImgReaderNodeModel;
 import org.knime.knip.io.nodes.imgreader2.MetadataMode;
+import org.knime.knip.io.nodes.imgreader2.URLUtil;
 
 import net.imglib2.img.ImgFactory;
 import net.imglib2.img.array.ArrayImgFactory;
@@ -163,11 +163,11 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 		BufferedDataContainer bdc = exec.createDataContainer(getOutspec());
 
 		for (final String uri : m_files.getStringArrayValue()) {
-			rifp.apply(URI.create(uri)).forEachOrdered(dataRow -> {
+			rifp.apply(URLUtil.encode(uri)).forEachOrdered(dataRow -> {
 
 				if (dataRow.getSecond().isPresent()) {
 					encounteredExceptions.set(true);
-					LOGGER.error("Encountered exception while reading image " + dataRow.getFirst().getKey()
+					LOGGER.debug("Encountered exception while reading image " + dataRow.getFirst().getKey()
 							+ "! Caught Exception: " + dataRow.getSecond().get().getMessage());
 					LOGGER.debug(dataRow.getSecond().get());
 				}
@@ -208,12 +208,12 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 				// boolean for exceptions and file format
 				final AtomicBoolean encounteredExceptions = new AtomicBoolean(false);
 
-				Arrays.asList(m_files.getStringArrayValue()).stream().map(s -> URI.create(s)).flatMap(rifp)
+				Arrays.asList(m_files.getStringArrayValue()).stream().map(s -> URLUtil.encode(s)).flatMap(rifp)
 						.forEachOrdered(dataRow -> {
 
 					if (dataRow.getSecond().isPresent()) {
 						encounteredExceptions.set(true);
-						LOGGER.warn("Encountered exception while reading image " + dataRow.getFirst().getKey()
+						LOGGER.debug("Encountered exception while reading image " + dataRow.getFirst().getKey()
 								+ "! Caught Exception: " + dataRow.getSecond().get().getMessage());
 						LOGGER.debug(dataRow.getSecond().get());
 					}
@@ -232,6 +232,7 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 				rifp.close();
 				out.close();
 			}
+
 		};
 	}
 
@@ -297,6 +298,7 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 			seriesSelectionFrom = Double.valueOf(m_seriesRangeSelection.getMinRange()).intValue();
 			seriesSelectionTo = Double.valueOf(m_seriesRangeSelection.getMaxRange()).intValue();
 		}
+		
 		// create image function
 		ReadImg2Function<T> rifp = new ReadImg2Function<T>(exec, rowCount, m_planeSelect, readImage, readMetadata,
 				m_readAllMetaDataModel.getBooleanValue(), m_checkFileFormat.getBooleanValue(),
