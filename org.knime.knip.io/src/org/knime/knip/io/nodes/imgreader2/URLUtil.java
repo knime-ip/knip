@@ -19,7 +19,11 @@ public class URLUtil {
 			return new URL(in).toURI();
 		} catch (MalformedURLException | URISyntaxException e1) {
 			try {
-				return URIUtil.fromString(in);
+				URI fromString = URIUtil.fromString(in);
+				if (fromString.getScheme() == null) {
+					fromString = new URI("file", fromString.getSchemeSpecificPart(), fromString.getFragment());
+				}
+				return fromString;
 			} catch (final URISyntaxException e) {
 				throw new RuntimeException(e);
 			}
