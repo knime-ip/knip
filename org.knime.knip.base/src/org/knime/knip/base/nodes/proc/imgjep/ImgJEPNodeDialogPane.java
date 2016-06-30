@@ -50,6 +50,7 @@ package org.knime.knip.base.nodes.proc.imgjep;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -314,6 +315,7 @@ public class ImgJEPNodeDialogPane extends NodeDialogPane {
 
         final JPanel finalPanel = new JPanel(new BorderLayout());
         finalPanel.add(createPanel(), BorderLayout.CENTER);
+        finalPanel.setPreferredSize(new Dimension(300,350));
 
         final JPanel additionalOptions = new JPanel();
         additionalOptions.setLayout(new BoxLayout(additionalOptions, BoxLayout.Y_AXIS));
