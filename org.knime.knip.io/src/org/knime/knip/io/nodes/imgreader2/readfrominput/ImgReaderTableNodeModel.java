@@ -155,8 +155,9 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 
 				if (dataRow.getSecond().isPresent()) {
 					encounteredExceptions.set(true);
-					LOGGER.warn("Encountered exception while reading image " + dataRow.getFirst().getKey()
-							+ "! Caught Exception: " + dataRow.getSecond().get());
+					LOGGER.warn("Encountered exception while reading image: " + dataRow.getFirst().getKey()
+							+ "! view log for more info.");
+					LOGGER.debug("Encountered exception while reading image:", dataRow.getSecond().get());
 				}
 
 				bdc.addRowToTable(dataRow.getFirst());
@@ -199,16 +200,17 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 					readImgFunction.apply(row).forEachOrdered(result -> {
 						if (result.getSecond().isPresent()) {
 							encounteredExceptions.set(true);
-							LOGGER.warn("Encountered exception while reading image " + result.getFirst().getKey()
-									+ "! Caught Exception: " + result.getSecond().get().getMessage());
-							LOGGER.debug(result.getSecond().get());
+							LOGGER.warn("Encountered exception while reading image: " + result.getFirst().getKey()
+									+ "! view log for more info.");
+							LOGGER.debug("Encountered exception while reading image:", result.getSecond().get());
 						}
 
 						try {
 							out.push(result.getFirst());
 						} catch (Exception exc) {
 							encounteredExceptions.set(true);
-							LOGGER.warn("Couldn't push result for row " + result.getFirst().getKey());
+							LOGGER.warn("Couldn't push row " + result.getFirst().getKey() + " into output stream.");
+							LOGGER.debug("Encountered exception when trying to push result: ", exc);
 						}
 					});
 				}
@@ -287,7 +289,7 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 			outSpec = new DataTableSpec(list.toArray(new DataColumnSpec[list.size()]));
 		}
 		// replace
-		else if (columnCreationMode == ColumnCreationMode.REPLACE){
+		else if (columnCreationMode == ColumnCreationMode.REPLACE) {
 			DataColumnSpec imgSpec = new DataColumnSpecCreator(
 					DataTableSpec.getUniqueColumnName(spec, "Image" + m_colSuffix.getStringValue()), ImgPlusCell.TYPE)
 							.createSpec();
@@ -310,9 +312,9 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 			}
 
 			outSpec = new DataTableSpec(list.toArray(new DataColumnSpec[list.size()]));
-		} else{
-			throw new IllegalStateException("Support for the columncreation mode"
-					+ m_colCreationMode.getStringValue() + " is not implemented!");
+		} else {
+			throw new IllegalStateException("Support for the columncreation mode" + m_colCreationMode.getStringValue()
+					+ " is not implemented!");
 		}
 
 		return outSpec;
@@ -350,11 +352,11 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 		// create ImgFactory
 		ImgFactory<T> imgFac;
 		if (m_imgFactory.getStringValue().equals(IMG_FACTORIES[1])) {
-			imgFac = new PlanarImgFactory<T>();
+			imgFac = new PlanarImgFactory<>();
 		} else if (m_imgFactory.getStringValue().equals(IMG_FACTORIES[2])) {
-			imgFac = new CellImgFactory<T>();
+			imgFac = new CellImgFactory<>();
 		} else {
-			imgFac = new ArrayImgFactory<T>();
+			imgFac = new ArrayImgFactory<>();
 		}
 
 		// series selection
@@ -370,10 +372,11 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 		}
 
 		// create image function
-		ReadImgTableFunction<T> rifp = new ReadImgTableFunction<T>(exec, rowCount, m_planeSelect, readImage,
+		ReadImgTableFunction<T> rifp = new ReadImgTableFunction<>(exec, rowCount, m_planeSelect, readImage,
 				readMetadata, m_readAllMetaDataModel.getBooleanValue(), m_checkFileFormat.getBooleanValue(),
 				m_isGroupFiles.getBooleanValue(), seriesSelectionFrom, seriesSelectionTo, imgFac,
-				ColumnCreationMode.fromString(m_colCreationMode.getStringValue()), imgIdx, m_pixelType.getStringValue());
+				ColumnCreationMode.fromString(m_colCreationMode.getStringValue()), imgIdx,
+				m_pixelType.getStringValue());
 
 		return rifp;
 	}

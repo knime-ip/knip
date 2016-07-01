@@ -53,7 +53,6 @@ import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelectio
 import org.knime.core.node.defaultnodesettings.DialogComponentString;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.io.nodes.imgreader2.AbstractImgReaderNodeDialog;
 import org.knime.knip.io.nodes.imgreader2.ColumnCreationMode;
 

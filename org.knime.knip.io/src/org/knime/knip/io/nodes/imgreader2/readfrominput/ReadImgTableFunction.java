@@ -23,6 +23,7 @@ import org.knime.core.util.FileUtil;
 import org.knime.core.util.Pair;
 import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection2;
 import org.knime.knip.io.nodes.imgreader2.AbstractReadImgFunction;
+import org.knime.knip.io.nodes.imgreader2.ColumnCreationMode;
 import org.knime.knip.io.nodes.imgreader2.URLUtil;
 
 import net.imglib2.img.Img;
@@ -70,7 +71,7 @@ class ReadImgTableFunction<T extends RealType<T> & NativeType<T>> extends Abstra
 			URI uri = URLUtil.encode(t);
 			URL url = uri.toURL();
 
-			// check if its a internet address;
+			// check if its an internet address;
 			if (url.getProtocol().equalsIgnoreCase("HTTP") || url.getProtocol().equalsIgnoreCase("FTP")
 					|| url.getProtocol().equalsIgnoreCase("HTTPS")) {
 				path = url.toURI().toString();
