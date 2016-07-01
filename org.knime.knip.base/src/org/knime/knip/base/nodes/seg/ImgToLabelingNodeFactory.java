@@ -50,20 +50,25 @@ package org.knime.knip.base.nodes.seg;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.knime.core.data.DataRow;
+import org.knime.core.data.DataTableSpec;
+import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
-import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.node.port.PortObject;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingCellFactory;
@@ -75,16 +80,17 @@ import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
 import org.knime.knip.core.data.img.DefaultLabelingMetadata;
-import org.knime.knip.core.types.ImgFactoryTypes;
-import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.MinimaUtils;
 
 import net.imagej.ImgPlus;
 import net.imglib2.Cursor;
+import net.imglib2.IterableInterval;
 import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelingMapping;
 import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.IntegerType;
+import net.imglib2.view.Views;
 
 /**
  * NodeFactory for the Lab2Table Node
@@ -93,15 +99,11 @@ import net.imglib2.type.numeric.IntegerType;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class ImgToLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>>
+public class ImgToLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>, L>
         extends ValueToCellNodeFactory<ImgPlusValue<T>> {
 
     private static SettingsModelInteger createBackgroundValueModel() {
         return new SettingsModelInteger("background value", 0);
-    }
-
-    private static SettingsModelString createFactoryTypeModel() {
-        return new SettingsModelString("factory_type", ImgFactoryTypes.SOURCE_FACTORY.toString());
     }
 
     private static SettingsModelString createLabelingMapColModel() {
@@ -127,23 +129,9 @@ public class ImgToLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>>
             public void addDialogComponents() {
 
                 final SettingsModelString labCol = createLabelingMapColModel();
-                final SettingsModelString labFac = createFactoryTypeModel();
-                labCol.addChangeListener(new ChangeListener() {
-                    @Override
-                    public void stateChanged(final ChangeEvent e) {
-                        if (labCol.getStringValue() == null || labCol.getStringValue().equals("")) {
-                            labFac.setEnabled(true);
-                        } else {
-                            labFac.setEnabled(false);
-                        }
-                    }
-                });
 
                 addDialogComponent("Labeling Settings", "", new DialogComponentColumnNameSelection(labCol,
                         "Labels from ...", 0, false, true, LabelingValue.class));
-
-                addDialogComponent("Labeling Settings", "", new DialogComponentStringSelection(labFac,
-                        "Labeling factory", EnumUtils.getStringListFromName(ImgFactoryTypes.values())));
 
                 final SettingsModelBoolean setBackground = createSetBackgroundModel();
                 final SettingsModelInteger backgroundValue = createBackgroundValueModel();
@@ -176,18 +164,18 @@ public class ImgToLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>>
      * {@inheritDoc}
      */
     @Override
-    public ValueToCellNodeModel<ImgPlusValue<T>, LabelingCell<Integer>> createNodeModel() {
-        return new ValueToCellNodeModel<ImgPlusValue<T>, LabelingCell<Integer>>() {
+    public ValueToCellNodeModel<ImgPlusValue<T>, LabelingCell<L>> createNodeModel() {
+        return new ValueToCellNodeModel<ImgPlusValue<T>, LabelingCell<L>>() {
 
             private final NodeLogger LOGGER = NodeLogger.getLogger(this.getClass());
 
             private final SettingsModelInteger m_background = createBackgroundValueModel();
 
-            private final SettingsModelString m_factoryType = createFactoryTypeModel();
-
             private LabelingCellFactory m_labCellFactory;
 
             private int m_labelingMappingColIdx = -1;
+
+            private LabelingMapping<L> m_currentLabelingMapping;
 
             private final SettingsModelString m_labelingMappingColumn = createLabelingMapColModel();
 
@@ -198,7 +186,6 @@ public class ImgToLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>>
                 settingsModels.add(m_labelingMappingColumn);
                 settingsModels.add(m_background);
                 settingsModels.add(m_setBackground);
-
             }
 
             /**
@@ -215,7 +202,7 @@ public class ImgToLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>>
              * @throws IOException
              */
             @Override
-            protected LabelingCell<Integer> compute(final ImgPlusValue<T> cellValue) throws IOException {
+            protected LabelingCell<L> compute(final ImgPlusValue<T> cellValue) throws IOException {
 
                 final ImgPlus<T> fromCell = cellValue.getImgPlus();
 
@@ -226,24 +213,107 @@ public class ImgToLabelingNodeFactory<T extends IntegerType<T> & NativeType<T>>
 
                 final ImgPlus<T> zeroMinFromCell = MinimaUtils.getZeroMinImgPlus(fromCell);
 
-                final ImgLabeling<Integer, T> res = KNIPGateway.ops().create().imgLabeling(zeroMinFromCell);
+                ImgLabeling<L, ?> res;
 
-                final boolean setBGValue = m_setBackground.getBooleanValue();
-                final Cursor<T> cursor = zeroMinFromCell.cursor();
-                final Cursor<LabelingType<Integer>> labType = res.cursor();
-                while (cursor.hasNext()) {
-                    int val = cursor.next().getInteger();
-                    if (!setBGValue || val != m_background.getIntValue()) {
-                        labType.next().add(val);
-                    } else {
-                        labType.fwd();
-                    }
+                T type =  zeroMinFromCell.firstElement().createVariable();
+                int maxNumLabelSets = (int) (type.getMaxValue() - type.getMinValue());
+                if (!m_setBackground.getBooleanValue()) {
+                    //if the background is not set to a certain value, we need to reserve an extra label for the additional background
+                    maxNumLabelSets++;
                 }
 
+                if (m_currentLabelingMapping == null) {
+                    final ImgLabeling<Integer, ?> tmp = KNIPGateway.ops().create()
+                            .imgLabeling(zeroMinFromCell, null, fromCell.factory(), maxNumLabelSets);
+
+                    final boolean setBGValue = m_setBackground.getBooleanValue();
+                    final Cursor<T> cursor = zeroMinFromCell.cursor();
+                    final Cursor<LabelingType<Integer>> labType = tmp.cursor();
+                    while (cursor.hasNext()) {
+                        int val = cursor.next().getInteger();
+                        if (!setBGValue || val != m_background.getIntValue()) {
+                            labType.next().add(val);
+                        } else {
+                            labType.fwd();
+                        }
+                    }
+                    res = (ImgLabeling<L, ?>)tmp;
+                } else {
+                    final ImgLabeling<String, ?> tmp = KNIPGateway.ops().create()
+                            .imgLabeling(zeroMinFromCell, null, fromCell.factory(), maxNumLabelSets);
+
+                    final boolean setBGValue = m_setBackground.getBooleanValue();
+                    final Cursor<T> cursor = zeroMinFromCell.cursor();
+                    final Cursor<LabelingType<String>> labType = tmp.cursor();
+                    while (cursor.hasNext()) {
+                        int index = cursor.next().getInteger();
+                        if (setBGValue && index == m_background.getIntValue()) {
+                            //do nothing
+                            labType.fwd();
+                        } else if (index >= 0 && index < m_currentLabelingMapping.numSets()) {
+                            Set<String> labels = m_currentLabelingMapping.labelsAtIndex(index).stream()
+                                    .map(o -> o.toString()).collect(Collectors.toSet());
+                            if (!setBGValue || index != m_background.getIntValue()) {
+                                labType.next().addAll(labels);
+                            } else {
+                                labType.fwd();
+                            }
+                        } else {
+                            //no labels found in the labeling mapping for the given index
+                            //add the index (as string) as label
+                            labType.next().add(String.valueOf(index));
+                        }
+                    }
+                    res = (ImgLabeling<L, ?>)tmp;
+                }
                 return m_labCellFactory.createCell(MinimaUtils.getTranslatedLabeling(fromCell, res),
                                                    new DefaultLabelingMetadata(cellValue.getMetadata(),
                                                            cellValue.getMetadata(), cellValue.getMetadata(),
                                                            new DefaultLabelingColorTable()));
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected void computeDataRow(final DataRow row) {
+                if (m_labelingMappingColIdx != -1) {
+                    if (row.getCell(m_labelingMappingColIdx).isMissing()) {
+                        LOGGER.warn("Labeling is missing. No labeling mapping can be used.");
+                        m_currentLabelingMapping = null;
+                        return;
+                    }
+                    IterableInterval<LabelingType<L>> labeling =
+                            Views.iterable(((LabelingValue<L>)row.getCell(m_labelingMappingColIdx)).getLabeling());
+                    if (!(labeling.firstElement().getMapping().getLabels().iterator().next() instanceof String)) {
+                        LOGGER.warn("Labeling for the Labeling Mapping not compatible with String. Labeling Mapping ignored for row  "
+                                + row.getKey());
+                        m_currentLabelingMapping = null;
+
+                    } else {
+                        m_currentLabelingMapping = labeling.firstElement().getMapping();
+                    }
+
+                } else {
+                    m_currentLabelingMapping = null;
+                }
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected PortObject[] execute(final PortObject[] inObjects, final ExecutionContext exec) throws Exception {
+                BufferedDataTable inTable = (BufferedDataTable)inObjects[0];
+                m_labelingMappingColIdx = getLabelingMappingColIdx(inTable.getDataTableSpec());
+                if (m_labelingMappingColIdx == -1) {
+                    m_currentLabelingMapping = null;
+                }
+                return super.execute(inObjects, exec);
+            }
+
+            private int getLabelingMappingColIdx(final DataTableSpec inSpec) {
+                return inSpec.findColumnIndex(m_labelingMappingColumn.getStringValue());
             }
 
         };
