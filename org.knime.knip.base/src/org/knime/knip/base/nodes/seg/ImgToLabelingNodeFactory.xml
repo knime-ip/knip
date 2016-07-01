@@ -20,9 +20,14 @@
 			background. Hence, no label will be assigned to them.</option>		
 		</tab>
 		<tab name="Labeling Settings">
-		<option name = "Labels from ...">Optional column to specify the labels from where the labels of the new labeling (segmentation) should be taken. In this case no labeling factory can be selected (factory type is determined by the source image).</option>
-		<option name ="Labeling factory">Specifies how the labeling is stored internally. SOURCE_FACTORY uses the same data structure as the input image.</option>
-		</tab>
+	<option name="Labels from ...">Optional column to specify the labels from where
+		the labels of the new labeling (segmentation) should be taken.
+		The main use case is in conjunction with the 'Labeling to Image'-node.
+		With its help a labeling can be converted into an image in order to
+		apply some transformation on it (e.g. resizing). By converting it back to a labeling
+		this option helps to restore the original labels.
+	</option>
+</tab>
 
 	</fullDescription>
 
