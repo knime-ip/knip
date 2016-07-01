@@ -132,8 +132,8 @@ public class LabelOptionPanel extends ViewerComponent {
 
     private void construct() {
         setMinimumSize(new Dimension(240, 80));
-        setPreferredSize(new Dimension(240, 80));
-        setMaximumSize(new Dimension(240, this.getMaximumSize().height));
+//        setPreferredSize(new Dimension(240, 200));
+//        setMaximumSize(new Dimension(240, this.getMaximumSize().height));
         setLayout(new GridBagLayout());
 
         final GridBagConstraints gc = new GridBagConstraints();
@@ -141,9 +141,8 @@ public class LabelOptionPanel extends ViewerComponent {
         gc.fill = GridBagConstraints.HORIZONTAL;
 
         // first col
-//        gc.anchor = GridBagConstraints.LINE_START;
+        //        gc.anchor = GridBagConstraints.LINE_START;
         gc.weightx = 1.0;
-
 
         // Buttons for changing BoundingBox color and reset color
         m_boundingBoxColor = new JButton(new ImageIcon(getClass().getResource("ColorIcon.png")));
@@ -154,9 +153,8 @@ public class LabelOptionPanel extends ViewerComponent {
             @Override
             public void actionPerformed(final java.awt.event.ActionEvent evt) {
                 if (m_colorDialog == null) {
-                    m_colorDialog =
-                            JColorChooser.createDialog(LabelOptionPanel.this, "Choose Bounding Box Color", false,
-                                                       m_colorChooser, m_adapter, null);
+                    m_colorDialog = JColorChooser.createDialog(LabelOptionPanel.this, "Choose Bounding Box Color",
+                                                               false, m_colorChooser, m_adapter, null);
                 }
                 m_colorDialog.setVisible(true);
             }
@@ -182,6 +180,9 @@ public class LabelOptionPanel extends ViewerComponent {
             }
         });
 
+        gc.gridheight = GridBagConstraints.REMAINDER;
+        gc.gridwidth = GridBagConstraints.REMAINDER;
+
         add(createComponentPanel(), gc);
     }
 
@@ -196,7 +197,7 @@ public class LabelOptionPanel extends ViewerComponent {
         gc.fill = GridBagConstraints.HORIZONTAL;
 
         // first col
-//        gc.anchor = GridBagConstraints.LINE_START;
+        //        gc.anchor = GridBagConstraints.LINE_START;
         gc.weightx = 1.0;
 
         gc.gridy = y;
@@ -218,6 +219,7 @@ public class LabelOptionPanel extends ViewerComponent {
         gc.weightx = 0.0;
         y = 0;
         gc.gridy = y;
+        gc.gridx = 1;
         gc.insets = new Insets(5, 5, 0, 5);
         ret.add(m_boundingBoxColor, gc);
 
