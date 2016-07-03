@@ -8,6 +8,9 @@ import java.net.URL;
 import org.eclipse.core.runtime.URIUtil;
 
 public class URLUtil {
+
+	private static final String[] VALID_PROTOCOLS = new String[] { "ftp", "http", "https", "knime", "file" };
+
 	/**
 	 * String to URI if valid & possible.
 	 * 
@@ -19,14 +22,27 @@ public class URLUtil {
 			return new URL(in).toURI();
 		} catch (MalformedURLException | URISyntaxException e1) {
 			try {
-				URI fromString = URIUtil.fromString(in);
+				final URI fromString = URIUtil.fromString(in);
 				if (fromString.getScheme() == null) {
-					fromString = new URI("file", fromString.getSchemeSpecificPart(), fromString.getFragment());
+					return new URI("file", fromString.getSchemeSpecificPart(), fromString.getFragment());
+				} else if (isValidScheme(fromString.getScheme())) {
+					return fromString;
+				} else {
+					return URIUtil.fromString("file://" + in);
 				}
-				return fromString;
+
 			} catch (final URISyntaxException e) {
 				throw new RuntimeException(e);
 			}
 		}
+	}
+
+	private static boolean isValidScheme(String scheme) {
+		for (final String protocol : VALID_PROTOCOLS) {
+			if (scheme.equals(protocol)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
