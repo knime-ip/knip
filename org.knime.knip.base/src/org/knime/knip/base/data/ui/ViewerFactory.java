@@ -124,7 +124,7 @@ public class ViewerFactory {
         viewer.addViewerComponent(new ImgCanvas<T, Img<T>>());
 
         viewer.addViewerComponent(ViewerComponents.MINIMAP_PLANE_SELECTION.createInstance());
-        viewer.addViewerComponent(new ExpandingPanel("Image Enhancement",
+        viewer.addViewerComponent(new ExpandingPanel("Brightness and Contrast",
                 ViewerComponents.IMAGE_ENHANCE.createInstance(), true));
         viewer.addViewerComponent(new ExpandingPanel("Renderer Selection",
                 ViewerComponents.RENDERER_SELECTION.createInstance(), true));

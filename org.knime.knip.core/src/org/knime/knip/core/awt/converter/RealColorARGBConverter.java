@@ -98,6 +98,7 @@ public class RealColorARGBConverter<R extends RealType<R>> implements Converter<
         while (input.hasNext() && (i < 3)) {
 
             val = input.get().getRealDouble();
+
             if (m_normalizationFactor == -1) {
                 //no normalization, but make it unsigned
                 val = val - input.get().getMinValue();
