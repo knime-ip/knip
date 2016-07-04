@@ -54,7 +54,6 @@ import java.util.Map;
 import net.imagej.ops.Op;
 import net.imagej.ops.OpInfo;
 import net.imagej.ops.Ops;
-import net.imagej.ops.Ops.Create;
 import net.imagej.ops.cached.CachedOpEnvironment;
 import net.imagej.ops.special.function.AbstractUnaryFunctionOp;
 import net.imglib2.type.numeric.RealType;
