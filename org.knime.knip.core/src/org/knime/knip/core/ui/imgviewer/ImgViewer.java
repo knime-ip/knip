@@ -201,7 +201,7 @@ public class ImgViewer extends JPanel implements ViewerComponentContainer {
         m_menuComponent = createMenu();
 
         JScrollPane sp = new JScrollPane(m_menuComponent);
-        sp.setMinimumSize(new Dimension(300, sp.getMinimumSize().height));
+        sp.setMinimumSize(new Dimension(320, sp.getMinimumSize().height));
         sp.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         m_background.setLeftComponent(view);
