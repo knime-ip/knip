@@ -50,9 +50,17 @@ package org.knime.knip.base.nodes.proc.resizer;
 
 import java.util.List;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
 import org.knime.core.node.ExecutionContext;
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeLogger;
+import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.defaultnodesettings.DialogComponentNumberEdit;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
+import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
@@ -127,6 +135,24 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
         }
     }
 
+    private enum AffectedDimension {
+        DIM_MANUAL("All Dimensions Manual"), DIM_ALL("Affect All Dimensions");
+
+        private String displayedName;
+
+        private AffectedDimension(final String _name) {
+            displayedName = _name;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String toString() {
+            return displayedName;
+        }
+    }
+
     private static SettingsModelString createResizingStrategyModel() {
         return new SettingsModelString("resizing_strategy", ResizeStrategy.LINEAR.toString());
     }
@@ -139,6 +165,14 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
         return new SettingsModelResizeInputValues("input_factors");
     }
 
+    private static SettingsModelString createAffectedDimensionModel() {
+        return new SettingsModelString("affected_dimension", AffectedDimension.DIM_MANUAL.toString());
+    }
+
+    private static SettingsModelDouble createAffectAllDimensionModel() {
+        return new SettingsModelDouble("scaling_factor", 1.0);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -148,17 +182,42 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
 
             @Override
             public void addDialogComponents() {
+
                 addDialogComponent("Options", "Resize Strategy",
                                    new DialogComponentStringSelection(createResizingStrategyModel(), "",
                                            EnumUtils.getStringListFromToString(ResizeStrategy.values())));
 
-                addDialogComponent("Options", "New Dimension Sizes (will affect calibration)",
-                                   new DialogComponentResizeInputValues(createInputFactorsModel()));
+                final SettingsModelString affectedDim = createAffectedDimensionModel();
+                addDialogComponent("Options", "Dimensions to Affect", new DialogComponentStringSelection(affectedDim,
+                        "", EnumUtils.getStringListFromToString(AffectedDimension.values())));
+
+                final DialogComponentResizeInputValues dimSizes =
+                        new DialogComponentResizeInputValues(createInputFactorsModel());
+                addDialogComponent("Options", "New Dimension Sizes (will affect calibration)", dimSizes);
+
+                final DialogComponentNumberEdit dimSize = new DialogComponentNumberEdit(createAffectAllDimensionModel(),
+                        "Scaling Factor For All Dimensions");
+
+                addDialogComponent("Options", "New Dimension Sizes (will affect calibration)", dimSize);
 
                 addDialogComponent("Options", "New Dimension Sizes (will affect calibration)",
                                    new DialogComponentStringSelection(createInputFactorInterpretationModel(), "",
                                            EnumUtils.getStringListFromToString(InputFactors.values())));
 
+                affectedDim.addChangeListener(new ChangeListener() {
+                    @Override
+                    public void stateChanged(final ChangeEvent arg0) {
+                        final String selectedMethod = affectedDim.getStringValue();
+                        if (EnumUtils.valueForName(selectedMethod,
+                                                   AffectedDimension.values()) == AffectedDimension.DIM_ALL) {
+                            dimSizes.setEnabled(false);
+                            dimSize.setEnabled(true);
+                        } else {
+                            dimSizes.setEnabled(true);
+                            dimSize.setEnabled(false);
+                        }
+                    }
+                });
             }
 
             /**
@@ -186,12 +245,60 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
 
             private final SettingsModelString m_scalingTypeModel = createInputFactorInterpretationModel();
 
+            private final SettingsModelString m_affectedDimensionModel = createAffectedDimensionModel();
+
+            private final SettingsModelDouble m_inputFactorModel = createAffectAllDimensionModel();
+
+            private final NodeLogger LOGGER = NodeLogger.getLogger(ValueToCellNodeModel.class);
+
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
+                settingsModels.add(m_affectedDimensionModel);
+                settingsModels.add(m_inputFactorModel);
                 settingsModels.add(m_extensionTypeModel);
                 settingsModels.add(m_inputFactorsModel);
                 settingsModels.add(m_scalingTypeModel);
+                m_inputFactorModel.setEnabled(false);
+            }
 
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
+                collectSettingsModels();
+                for (final SettingsModel sm : m_settingsModels) {
+                    try {
+                        sm.validateSettings(settings);
+                    } catch (final InvalidSettingsException e) {
+
+                        if (!sm.equals(m_inputFactorModel) && !sm.equals(m_affectedDimensionModel)) {
+                            LOGGER.warn("Problems occurred validating the settings " + sm.toString() + ": "
+                                    + e.getLocalizedMessage());
+                            setWarningMessage("Problems occurred while validating settings.");
+                        }
+                    }
+                }
+
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
+                collectSettingsModels();
+                for (final SettingsModel sm : m_settingsModels) {
+                    try {
+                        sm.loadSettingsFrom(settings);
+                    } catch (final InvalidSettingsException e) {
+                        if (!sm.equals(m_inputFactorModel) && !sm.equals(m_affectedDimensionModel)) {
+                            LOGGER.warn("Problems occurred loading the settings " + sm.toString() + ": "
+                                    + e.getLocalizedMessage());
+                            setWarningMessage("Problems occurred while loading settings.");
+                        }
+                    }
+                }
             }
 
             @Override
@@ -203,6 +310,20 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
                 ImgPlusMetadata metadata = cellValue.getMetadata();
 
                 final double[] inputFactors = m_inputFactorsModel.getNewDimensions(metadata);
+
+                switch (EnumUtils.valueForName(m_affectedDimensionModel.getStringValue(), AffectedDimension.values())) {
+                    case DIM_MANUAL:
+                        break;
+                    case DIM_ALL:
+                        final double inputFactor = m_inputFactorModel.getDoubleValue();
+
+                        for (int i = 0; i < inputFactors.length; i++) {
+                            inputFactors[i] = inputFactor;
+                        }
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Unknown interpretation of input factors!");
+                }
 
                 // Extract calibration
                 final double[] calibration = new double[metadata.numDimensions()];
@@ -247,16 +368,13 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
                             (calibration[i] * zeroMinFromCell.getImg().dimension(i)) / newDimensions[i])), i);
                 }
 
-                return m_imgCellFactory.createCell(MinimaUtils
-                        .getTranslatedImgPlus(fromCell,
-                                              new ImgPlus<T>(
-                                                      resample(zeroMinFromCell,
-                                                               EnumUtils.valueForName(
-                                                                                      m_extensionTypeModel
-                                                                                              .getStringValue(),
-                                                                                      ResizeStrategy.values()),
-                                                               new FinalInterval(newDimensions), scaleFactors),
-                                                      metadata)));
+                return m_imgCellFactory
+                        .createCell(MinimaUtils.getTranslatedImgPlus(fromCell, new ImgPlus<T>(
+                                resample(zeroMinFromCell,
+                                         EnumUtils.valueForName(m_extensionTypeModel.getStringValue(), ResizeStrategy
+                                                 .values()),
+                                         new FinalInterval(newDimensions), scaleFactors),
+                                metadata)));
             }
 
             /**
@@ -276,7 +394,8 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
             case LINEAR:
                 // create copy of Img
                 return (Img<T>)new ImgCopyOperation<T>().compute(new ImgView<T>(
-                        Views.interval(Views.raster(RealViews.affineReal(
+                        Views.interval(Views.raster(
+                                                    RealViews.affineReal(
                                                                          Views.interpolate(Views.extendBorder(img),
                                                                                            new NLinearInterpolatorFactory<T>()),
                                                                          new Scale(scaleFactors))),
@@ -284,7 +403,8 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
                         img.factory()), img.factory().create(resultingInterval, img.firstElement().createVariable()));
             case NEAREST_NEIGHBOR:
                 return (Img<T>)new ImgCopyOperation<T>().compute(new ImgView<T>(
-                        Views.interval(Views.raster(RealViews.affineReal(
+                        Views.interval(Views.raster(
+                                                    RealViews.affineReal(
                                                                          Views.interpolate(Views.extendBorder(img),
                                                                                            new NearestNeighborInterpolatorFactory<T>()),
                                                                          new Scale(scaleFactors))),
@@ -292,7 +412,8 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
                         img.factory()), img.factory().create(resultingInterval, img.firstElement().createVariable()));
             case LANCZOS:
                 return (Img<T>)new ImgCopyOperation<T>().compute(new ImgView<T>(
-                        Views.interval(Views.raster(RealViews.affineReal(
+                        Views.interval(Views.raster(
+                                                    RealViews.affineReal(
                                                                          Views.interpolate(Views.extendBorder(img),
                                                                                            new LanczosInterpolatorFactory<T>()),
                                                                          new Scale(scaleFactors))),
