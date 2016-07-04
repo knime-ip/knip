@@ -49,12 +49,14 @@
  */
 package org.knime.knip.core.ui.imgviewer;
 
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import org.knime.knip.core.ui.event.EventListener;
@@ -68,6 +70,7 @@ import org.knime.knip.core.ui.imgviewer.panels.CombinedRUControlPanel;
 import org.knime.knip.core.ui.imgviewer.panels.CombinedRURenderEvent;
 import org.knime.knip.core.ui.imgviewer.panels.CombinedRUSynchEvent;
 import org.knime.knip.core.ui.imgviewer.panels.MinimapPanel;
+import org.knime.knip.core.ui.imgviewer.panels.TransparencyPanel;
 import org.knime.knip.core.ui.imgviewer.panels.providers.AWTImageProvider;
 import org.knime.knip.core.ui.imgviewer.panels.providers.CombinedRU;
 import org.knime.knip.core.ui.imgviewer.panels.providers.ImageRU;
@@ -117,39 +120,53 @@ public class CombinedImgViewer extends ImgViewer {
     @Override
     protected JComponent createMenu() {
 
-        Box menuPanel = new Box(BoxLayout.Y_AXIS);
+        JPanel menuPanel = new JPanel(new GridBagLayout());
 
-        menuPanel.add(Box.createVerticalStrut(10));
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        gbc.gridx = 0;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1;
+        gbc.weighty = 0;
+
+        menuPanel.add(Box.createVerticalStrut(10), gbc);
 
         MinimapPanel minimap = new MinimapPanel();
 
         minimap.setEventService(getEventService());
 
-        menuPanel.add(minimap);
+        menuPanel.add(minimap, gbc);
 
-        menuPanel.add(Box.createVerticalStrut(5));
+        menuPanel.add(Box.createVerticalStrut(5), gbc);
 
         CombinedRUControlPanel controlPanel = new CombinedRUControlPanel();
 
         controlPanel.setEventService(getEventService());
-        menuPanel.add(controlPanel);
+        menuPanel.add(controlPanel, gbc);
 
-        menuPanel.add(Box.createVerticalStrut(5));
+        menuPanel.add(Box.createVerticalStrut(5), gbc);
 
         BackgroundColorChooserPanel colourChooser = new BackgroundColorChooserPanel();
 
         colourChooser.setEventService(getEventService());
-        menuPanel.add(colourChooser);
+        menuPanel.add(colourChooser, gbc);
 
-        menuPanel.add(Box.createVerticalStrut(10));
+        menuPanel.add(Box.createVerticalStrut(10), gbc);
+
+        TransparencyPanel transparency = new TransparencyPanel();
+        transparency.setEventService(getEventService());
+        menuPanel.add(transparency, gbc);
+
+        menuPanel.add(Box.createVerticalStrut(10), gbc);
+
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
+        gbc.weighty = 1;
 
         m_tabbedMenu = new JTabbedPane();
 
-        menuPanel.add(m_tabbedMenu);
-
-        menuPanel.add(Box.createVerticalStrut(10));
-
-        menuPanel.add(Box.createVerticalGlue());
+        menuPanel.add(m_tabbedMenu, gbc);
 
         return menuPanel;
     }
