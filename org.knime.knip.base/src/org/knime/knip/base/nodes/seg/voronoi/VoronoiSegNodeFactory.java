@@ -48,16 +48,16 @@
  */
 package org.knime.knip.base.nodes.seg.voronoi;
 
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
-import org.knime.knip.base.nodes.view.TableCellViewNodeView;
+import org.knime.knip.cellviewer.CellNodeView;
+
+import net.imglib2.type.numeric.RealType;
 
 /**
  * Factory class to produce a Vorono Segmentation
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -87,7 +87,7 @@ public class VoronoiSegNodeFactory<T extends RealType<T>, L extends Comparable<L
     @Override
     public NodeView<VoronoiSegNodeModel<T, L>> createNodeView(final int viewIndex,
                                                               final VoronoiSegNodeModel<T, L> nodeModel) {
-        return new TableCellViewNodeView<VoronoiSegNodeModel<T, L>>(nodeModel);
+        return new CellNodeView<VoronoiSegNodeModel<T, L>>(nodeModel);
     }
 
     /**

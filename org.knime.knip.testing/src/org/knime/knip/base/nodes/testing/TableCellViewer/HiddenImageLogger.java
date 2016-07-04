@@ -67,6 +67,7 @@ import org.knime.knip.core.ui.imgviewer.ViewerComponent;
  *
  * @author Andreas Burger, University of Konstanz
  */
+@Deprecated
 public class HiddenImageLogger extends ViewerComponent {
 
     /**

@@ -48,12 +48,16 @@
  */
 package org.knime.knip.base.nodes.view;
 
+import java.util.List;
+
+import javax.swing.JPanel;
+
 import org.knime.core.data.DataValue;
-import org.knime.core.node.config.ConfigRO;
-import org.knime.core.node.config.ConfigWO;
 import org.knime.knip.base.KNIMEKNIPPlugin;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.data.ui.ViewerFactory;
+import org.knime.knip.cellviewer.interfaces.CellView;
+import org.knime.knip.cellviewer.interfaces.CellViewFactory;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 
@@ -66,46 +70,30 @@ import net.imglib2.type.numeric.IntegerType;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class LabelingCellViewFactory<L extends Comparable<L>, II extends IntegerType<II>> implements
-        TableCellViewFactory {
+public class LabelingCellViewFactory<L extends Comparable<L>, II extends IntegerType<II>>
+        implements CellViewFactory {
 
     @Override
-    public TableCellView[] createTableCellViews() {
-        return new TableCellView[]{new TableCellView() {
+    public CellView createCellView() {
+        return new CellView() {
 
             // Lazy loading due to headless mode
             private ImgViewer m_view = null;
 
-            /**
-             * {@inheritDoc}
-             */
             @Override
-            public String getDescription() {
-                return "View on a labeling/segmentation";
-            }
-
-            @Override
-            public String getName() {
-                return "Labeling Viewer";
-            }
-
-            @Override
-            public ImgViewer getViewComponent() {
+            public JPanel getViewComponent() {
                 if (m_view == null) {
                     m_view = ViewerFactory.createLabelingViewer(KNIMEKNIPPlugin.getCacheSizeForBufferedImages());
                 }
                 return m_view;
             }
 
-            @Override
-            public void loadConfigurationFrom(final ConfigRO config) {
-                //
-
-            }
 
             @Override
             public void onClose() {
-                getViewComponent().getEventService().publish(new ViewClosedEvent());
+                if (m_view != null) {
+                    m_view.getEventService().publish(new ViewClosedEvent());
+                }
             }
 
             @Override
@@ -113,24 +101,46 @@ public class LabelingCellViewFactory<L extends Comparable<L>, II extends Integer
                 // Nothing to do here
             }
 
-            @Override
-            public void saveConfigurationTo(final ConfigWO config) {
-                //
 
+            @Override
+            public void updateComponent(final List<DataValue> valuesToView) {
+
+                final LabelingValue<L> labelingValue = (LabelingValue<L>)valuesToView.get(0);
+                m_view.setLabeling(labelingValue.getLabeling(), labelingValue.getLabelingMetadata());
             }
 
-            @Override
-            public void updateComponent(final DataValue valueToView) {
-
-                final LabelingValue<L> labelingValue = (LabelingValue<L>)valueToView;
-                getViewComponent().setLabeling(labelingValue.getLabeling(), labelingValue.getLabelingMetadata());
-            };
-        }};
+        };
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Class<? extends DataValue> getDataValueClass() {
-        return LabelingValue.class;
+    public String getCellViewName() {
+        return "Labeling View";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getCellViewDescription() {
+        return "View on a labeling/segmentation";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isCompatible(final List<Class<? extends DataValue>> values) {
+        if (values.size() >= 2) {
+            return false;
+        }
+        if (values.get(0).equals(LabelingValue.class)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }

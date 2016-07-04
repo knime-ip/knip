@@ -76,6 +76,7 @@ import org.knime.knip.core.ui.imgviewer.annotator.create.AnnotatorLabelPanel;
 import org.knime.knip.core.ui.imgviewer.annotator.deprecated.AnnotatorManager;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorResetEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
+import org.knime.knip.core.ui.imgviewer.panels.BrightnessContrastPanel;
 import org.knime.knip.core.ui.imgviewer.panels.ImgNormalizationPanel;
 import org.knime.knip.core.ui.imgviewer.panels.MinimapPanel;
 import org.knime.knip.core.ui.imgviewer.panels.PlaneSelectionPanel;
@@ -163,7 +164,7 @@ public class DialogComponentAnnotator<T extends RealType<T> & NativeType<T>>
         m_annotator
                 .addViewerComponent(AnnotatorToolbar.createStandardToolbar());
         m_annotator.addViewerComponent(new MinimapPanel());
-        m_annotator.addViewerComponent(new ImgNormalizationPanel<T, Img<T>>());
+        m_annotator.addViewerComponent(new BrightnessContrastPanel());
         m_annotator.addViewerComponent(new PlaneSelectionPanel<T, Img<T>>());
         m_annotator.addViewerComponent(new RendererSelectionPanel<T>());
         m_annotator.addViewerComponent(new TransparencyPanel());

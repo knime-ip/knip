@@ -102,10 +102,10 @@ public final class TableCellViewsManager {
      * Singleton, use getInstance()
      */
     private TableCellViewsManager() {
-        addTableCellViewFactory(new ImgCellViewFactory());
-        addTableCellViewFactory(new LabelingCellViewFactory());
-        addTableCellViewFactory(new CombinedCellViewFactory());
-        addTableCellViewFactory(new MissingCellViewFactory());
+//        addTableCellViewFactory(new ImgCellViewFactory());
+//        addTableCellViewFactory(new LabelingCellViewFactory());
+//        addTableCellViewFactory(new CombinedCellViewFactory());
+//        addTableCellViewFactory(new MissingCellViewFactory());
         registerExtensionPoints();
     }
 

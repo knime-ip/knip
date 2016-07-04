@@ -122,6 +122,7 @@ import org.knime.node2012.ViewsDocument.Views;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @author Andreas Burger, University of Konstanz
  */
+@Deprecated
 public class TestTableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder> extends TableCellViewNodeView<T> {
 
     private static final NodeLogger LOGGER = NodeLogger.getLogger(TestTableCellViewNodeView.class);

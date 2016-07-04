@@ -103,13 +103,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import net.imagej.ImgPlus;
-import net.imglib2.RandomAccess;
-import net.imglib2.img.Img;
-import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.type.numeric.ARGBType;
-import net.imglib2.type.numeric.integer.UnsignedByteType;
-
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.RowKey;
@@ -130,6 +123,13 @@ import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.nodes.view.TableCellViewNodeModel;
 
+import net.imagej.ImgPlus;
+import net.imglib2.RandomAccess;
+import net.imglib2.img.Img;
+import net.imglib2.img.array.ArrayImgFactory;
+import net.imglib2.type.numeric.ARGBType;
+import net.imglib2.type.numeric.integer.UnsignedByteType;
+
 /**
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
@@ -137,6 +137,7 @@ import org.knime.knip.base.nodes.view.TableCellViewNodeModel;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @author Andreas Burger, University of Konstanz
  */
+@Deprecated
 public class TestTableCellViewNodeModel extends NodeModel implements BufferedDataTableHolder {
 
     private ImgPlusCellFactory m_imgCellFactory;

@@ -274,4 +274,19 @@
            </renderer>
         </dataValue>
      </extension>
+     <extension
+           point="org.knime.knip.cellviewer.cellviews">
+        <CellView
+              CellViewProviderFactory="org.knime.knip.base.nodes.view.ImgCellViewFactory">
+        </CellView>
+        <CellView
+              CellViewProviderFactory="org.knime.knip.base.nodes.view.LabelingCellViewFactory">
+        </CellView>
+        <CellView
+              CellViewProviderFactory="org.knime.knip.base.nodes.view.HistogramCellViewFactory">
+        </CellView>
+        <CellView
+              CellViewProviderFactory="org.knime.knip.base.nodes.view.CombinedCellViewFactory">
+        </CellView>
+     </extension>
 </plugin>

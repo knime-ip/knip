@@ -48,9 +48,6 @@
  */
 package org.knime.knip.base.nodes.io.imggenerator;
 
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.DynamicNodeFactory;
 import org.knime.core.node.NodeDescription;
 import org.knime.core.node.NodeDescription210Proxy;
@@ -58,8 +55,12 @@ import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeView;
 import org.knime.knip.base.node.XMLNodeUtils;
 import org.knime.knip.base.nodes.view.TableCellViewNodeView;
+import org.knime.knip.cellviewer.CellNodeView;
 import org.knime.node.v210.KnimeNodeDocument;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
+
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * The Factory class for the Image Reader.
@@ -92,7 +93,7 @@ public class ImgGeneratorNodeFactory<T extends NativeType<T> & RealType<T>> exte
      */
     @Override
     public NodeView<ImgGeneratorNodeModel<T>> createNodeView(final int i, final ImgGeneratorNodeModel<T> nodeModel) {
-        return new TableCellViewNodeView<ImgGeneratorNodeModel<T>>(nodeModel);
+        return new CellNodeView<ImgGeneratorNodeModel<T>>(nodeModel);
     }
 
     /**

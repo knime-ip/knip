@@ -50,12 +50,6 @@
  */
 package org.knime.knip.base.nodes.testing.TableCellViewer;
 
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.Img;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.knip.base.data.ui.ViewerFactory;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.ui.imgviewer.ViewerComponents;
@@ -71,6 +65,12 @@ import org.knime.knip.core.ui.imgviewer.panels.providers.LabelingRU;
 import org.knime.knip.core.ui.imgviewer.panels.transfunc.PlaneSelectionTFCDataProvider;
 import org.knime.knip.core.ui.imgviewer.panels.transfunc.TransferFunctionControlPanel;
 
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.Img;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
+
 /**
  * Simple copy of {@link ViewerFactory}, using a special canvas to log images.
  *
@@ -79,6 +79,7 @@ import org.knime.knip.core.ui.imgviewer.panels.transfunc.TransferFunctionControl
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @author Andreas Burger, University of Konstanz
  */
+@Deprecated
 public class TestViewerFactory {
 
     /**

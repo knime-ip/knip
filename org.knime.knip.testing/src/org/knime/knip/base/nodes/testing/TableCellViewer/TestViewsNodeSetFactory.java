@@ -64,6 +64,7 @@ import org.knime.core.node.config.ConfigRO;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @author Andreas Burger, University of Konstanz
  */
+@Deprecated
 public class TestViewsNodeSetFactory implements NodeSetFactory {
 
     private final Map<String, String> m_nodeFactories = new HashMap<String, String>();

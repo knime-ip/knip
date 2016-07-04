@@ -64,8 +64,7 @@
 	</ports>
 
 	<views>
-		<view name="Table Cell View" index="0">Table Cell View with resulting
-			Images
-		</view>
+		<view name="Image Viewer" index="0">Tabular View with resulting
+			Images</view>
 	</views>
 </knimeNode>

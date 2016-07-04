@@ -49,21 +49,19 @@
 package org.knime.knip.io.view;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
+import java.util.List;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 
-import loci.formats.gui.XMLCellRenderer;
-
 import org.knime.core.data.DataValue;
 import org.knime.core.data.xml.XMLValue;
-import org.knime.core.node.config.ConfigRO;
-import org.knime.core.node.config.ConfigWO;
-import org.knime.knip.base.nodes.view.TableCellView;
-import org.knime.knip.base.nodes.view.TableCellViewFactory;
+import org.knime.knip.cellviewer.interfaces.CellView;
+import org.knime.knip.cellviewer.interfaces.CellViewFactory;
 import org.w3c.dom.Document;
+
+import loci.formats.gui.XMLCellRenderer;
 
 /**
  * Displays a XML-String in a tree.
@@ -73,134 +71,122 @@ import org.w3c.dom.Document;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
  */
-public class XMLCellViewFactory implements TableCellViewFactory {
+public class XMLCellViewFactory implements CellViewFactory {
 
-    @Override
-    public TableCellView[] createTableCellViews() {
-        return new TableCellView[]{new TableCellView() {
+	@Override
+	public CellView createCellView() {
+		return new CellView() {
 
-            // private Document m_doc;
-            private JPanel m_panel;
+			// private Document m_doc;
+			private JPanel m_panel;
 
-            {
-                m_panel = new JPanel(new BorderLayout());
-            }
+			{
+				m_panel = new JPanel(new BorderLayout());
+			}
 
-            // -- XMLPanel methods --
+			// -- XMLPanel methods --
 
-            // /** Displays XML from the given string. */
-            // public void setXML(final String xml)
-            // throws ParserConfigurationException, SAXException,
-            // IOException {
-            //
-            // setDocument(null);
-            // // parse XML from string into DOM structure
-            // DocumentBuilderFactory docFact =
-            // DocumentBuilderFactory
-            // .newInstance();
-            // DocumentBuilder db = docFact.newDocumentBuilder();
-            // ByteArrayInputStream is = new ByteArrayInputStream(
-            // xml.getBytes());
-            // Document doc = db.parse(is);
-            // is.close();
-            //
-            // setDocument(doc);
-            // }
+			// /** Displays XML from the given string. */
+			// public void setXML(final String xml)
+			// throws ParserConfigurationException, SAXException,
+			// IOException {
+			//
+			// setDocument(null);
+			// // parse XML from string into DOM structure
+			// DocumentBuilderFactory docFact =
+			// DocumentBuilderFactory
+			// .newInstance();
+			// DocumentBuilder db = docFact.newDocumentBuilder();
+			// ByteArrayInputStream is = new ByteArrayInputStream(
+			// xml.getBytes());
+			// Document doc = db.parse(is);
+			// is.close();
+			//
+			// setDocument(doc);
+			// }
 
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            public String getDescription() {
-                return "XML tree";
-            }
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			public JPanel getViewComponent() {
+				return m_panel;
+			}
 
-            // /**
-            // * Gets the XML document currently being displayed
-            // within the
-            // * window.
-            // */
-            // public Document getDocument() {
-            // return m_doc;
-            // }
+			@Override
+			public void onClose() {
+				//
+			}
 
-            @Override
-            public String getName() {
-                return "XML";
-            }
+			@Override
+			public void onReset() {
 
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            public Component getViewComponent() {
-                return m_panel;
-            }
+			}
 
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            public void loadConfigurationFrom(final ConfigRO config) {
-                //
+			/** Displays XML from the given document. */
+			public void setDocument(final Document doc) {
+				// m_doc = doc;
+				m_panel.removeAll();
+				// populate metadata window and size
+				// intelligently
+				final JTree tree = XMLCellRenderer.makeJTree(doc);
+				for (int i = 0; i < tree.getRowCount(); i++) {
+					tree.expandRow(i);
+				}
 
-            }
+				m_panel.add(new JScrollPane(tree), BorderLayout.CENTER);
+				// JFrame test = new JFrame("test");
+				// test.add(tree);
+				// test.pack();
+				// test.setVisible(true);
+				// setVisible(true);
 
-            @Override
-            public void onClose() {
-                //
-            }
+			}
 
-            @Override
-            public void onReset() {
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			public void updateComponent(List<DataValue> valuesToView) {
+				setDocument(((XMLValue) valuesToView.get(0)).getDocument());
+				m_panel.repaint();
+				return;
 
-            }
+			}
 
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            public void saveConfigurationTo(final ConfigWO config) {
-                //
+		};
+	}
 
-            }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getCellViewDescription() {
+		return "XML tree";
+	}
 
-            /** Displays XML from the given document. */
-            public void setDocument(final Document doc) {
-                // m_doc = doc;
-                m_panel.removeAll();
-                // populate metadata window and size
-                // intelligently
-                final JTree tree = XMLCellRenderer.makeJTree(doc);
-                for (int i = 0; i < tree.getRowCount(); i++) {
-                    tree.expandRow(i);
-                }
+	// /**
+	// * Gets the XML document currently being displayed
+	// within the
+	// * window.
+	// */
+	// public Document getDocument() {
+	// return m_doc;
+	// }
 
-                m_panel.add(new JScrollPane(tree), BorderLayout.CENTER);
-                // JFrame test = new JFrame("test");
-                // test.add(tree);
-                // test.pack();
-                // test.setVisible(true);
-                // setVisible(true);
+	@Override
+	public String getCellViewName() {
+		return "XML";
+	}
 
-            }
-
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            public void updateComponent(final DataValue valueToView) {
-                setDocument(((XMLValue)valueToView).getDocument());
-                m_panel.repaint();
-                return;
-
-            }
-        }};
-    }
-
-    @Override
-    public Class<? extends DataValue> getDataValueClass() {
-        return XMLValue.class;
-    }
+	@Override
+	public boolean isCompatible(List<Class<? extends DataValue>> values) {
+		if (values.size() >= 2)
+			return false;
+		if (values.get(0).equals(XMLValue.class))
+			return true;
+		else
+			return false;
+	}
 
 }

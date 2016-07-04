@@ -48,17 +48,18 @@
  */
 package org.knime.knip.base.nodes.view;
 
-import java.awt.Component;
 import java.util.List;
+
+import javax.swing.JPanel;
 
 import org.knime.core.data.DataValue;
 import org.knime.core.data.MissingValue;
-import org.knime.core.node.config.ConfigRO;
-import org.knime.core.node.config.ConfigWO;
 import org.knime.knip.base.KNIMEKNIPPlugin;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.data.ui.ViewerFactory;
+import org.knime.knip.cellviewer.interfaces.CellView;
+import org.knime.knip.cellviewer.interfaces.CellViewFactory;
 import org.knime.knip.core.awt.ColorLabelingRenderer;
 import org.knime.knip.core.awt.Real2GreyRenderer;
 import org.knime.knip.core.ui.imgviewer.CombinedImgViewer;
@@ -78,34 +79,19 @@ import org.knime.knip.core.util.waitingindicator.WaitingIndicatorUtils;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
  */
-public class CombinedCellViewFactory implements TableCellViewFactory {
+public class CombinedCellViewFactory implements CellViewFactory {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public TableCellView[] createTableCellViews() {
-        return new TableCellView[]{new TableCellView() {
+    public CellView createCellView() {
+        return new CellView() {
 
             private CombinedImgViewer m_view = null;
 
-            /**
-             * {@inheritDoc}
-             */
             @Override
-            public String getDescription() {
-                return "A viewer shown when the user selects an interval of rows and columns in the viewer. " +
-            "This viewer combines all images and labelings in the selected interval to one image by rendering them next to each other. "
-                        + "Alternatively, the images and labelings can be layed over each other.";
-            }
-
-            @Override
-            public String getName() {
-                return "Combined Image Viewer";
-            }
-
-            @Override
-            public Component getViewComponent() {
+            public JPanel getViewComponent() {
                 if (m_view == null) {
                     m_view = ViewerFactory.createCombinedImgViewer(KNIMEKNIPPlugin.getCacheSizeForBufferedImages());
                 }
@@ -113,11 +99,6 @@ public class CombinedCellViewFactory implements TableCellViewFactory {
                 return m_view;
             }
 
-            @Override
-            public void loadConfigurationFrom(final ConfigRO config) {
-                //
-
-            }
 
             @Override
             public void onClose() {
@@ -129,14 +110,9 @@ public class CombinedCellViewFactory implements TableCellViewFactory {
                 // Nothing to do here
             }
 
-            @Override
-            public void saveConfigurationTo(final ConfigWO config) {
-                //
-
-            }
 
             @Override
-            public void updateComponent(final List<? extends DataValue> valueToView) {
+            public void updateComponent(final List<DataValue> valueToView) {
                 WaitingIndicatorUtils.setWaiting(m_view, true);
 
                 m_view.clear();
@@ -146,17 +122,18 @@ public class CombinedCellViewFactory implements TableCellViewFactory {
                         final ImgPlusValue imgPlusValue = (ImgPlusValue)v;
                         ImageRU ru = new ImageRU();
                         m_view.addRU(ru);
+                        m_view.publishToPrev(new RendererSelectionChgEvent(new Real2GreyRenderer()));
                         m_view.publishToPrev(new ImgWithMetadataChgEvent<>(imgPlusValue.getImgPlus(),
                                 imgPlusValue.getMetadata()));
-                        m_view.publishToPrev(new RendererSelectionChgEvent(new Real2GreyRenderer()));
+
 
                     } else if (v instanceof LabelingValue) {
                         final LabelingValue labValue = (LabelingValue)v;
                         LabelingRU labRU = new LabelingRU();
                         m_view.addRU(labRU);
+                        m_view.publishToPrev(new RendererSelectionChgEvent(new ColorLabelingRenderer<>()));
                         m_view.publishToPrev(new LabelingWithMetadataChgEvent(labValue.getLabeling(),
                                 labValue.getLabelingMetadata()));
-                        m_view.publishToPrev(new RendererSelectionChgEvent(new ColorLabelingRenderer<>()));
                     }
                 }
 
@@ -165,27 +142,14 @@ public class CombinedCellViewFactory implements TableCellViewFactory {
                 WaitingIndicatorUtils.setWaiting(m_view, false);
 
             }
-
-
-
-            @Override
-            public void updateComponent(final DataValue valueToView) {
-                //Intentionally left blank
-
-            }
-        }};
-    }
-
-    @Override
-    public Class<? extends DataValue> getDataValueClass() {
-        return ImgPlusValue.class;
+        };
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean check(final List<Class<? extends DataValue>> values) {
+    public boolean isCompatible(final List<Class<? extends DataValue>> values) {
 
         if (values.size() < 2) {
             return false;
@@ -203,6 +167,25 @@ public class CombinedCellViewFactory implements TableCellViewFactory {
             }
         }
         return canHandle;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getCellViewName() {
+        // TODO Auto-generated method stub
+        return "Combined View";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getCellViewDescription() {
+        return "A viewer shown when the user selects an interval of rows and columns in the viewer. "
+                + "This viewer combines all images and labelings in the selected interval to one image by rendering them next to each other. "
+                + "Alternatively, the images and labelings can be layed over each other.";
     }
 
 }
