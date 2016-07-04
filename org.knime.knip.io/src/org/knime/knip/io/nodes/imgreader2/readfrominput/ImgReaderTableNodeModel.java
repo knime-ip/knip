@@ -76,6 +76,7 @@ import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.io.nodes.imgreader2.AbstractImgReaderNodeModel;
+import org.knime.knip.io.nodes.imgreader2.ColumnCreationMode;
 import org.knime.knip.io.nodes.imgreader2.MetadataMode;
 
 import net.imglib2.img.ImgFactory;
@@ -100,8 +101,6 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 
 	private static final NodeLogger LOGGER = NodeLogger.getLogger(ImgReaderTableNodeModel.class);
 
-	public static final String[] COL_CREATION_MODES = new String[] { "New Table", "Append", "Replace" };
-
 	/**
 	 * @return Model to store the selected column in the optional input table
 	 */
@@ -110,7 +109,7 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 	}
 
 	public static SettingsModelString createColCreationModeModel() {
-		return new SettingsModelString("m_colCreationMode", "New Table");
+		return new SettingsModelString("m_colCreationMode", ColumnCreationMode.NEW_TABLE.toString());
 	}
 
 	public static SettingsModelString createColSuffixNodeModel() {
@@ -156,9 +155,9 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 
 				if (dataRow.getSecond().isPresent()) {
 					encounteredExceptions.set(true);
-					LOGGER.debug("Encountered exception while reading image " + dataRow.getFirst().getKey()
-							+ "! Caught Exception: " + dataRow.getSecond().get().getMessage());
-					LOGGER.debug(dataRow.getSecond().get());
+					LOGGER.warn("Encountered exception while reading image: " + dataRow.getFirst().getKey()
+							+ "! view log for more info.");
+					LOGGER.debug("Encountered exception while reading image:", dataRow.getSecond().get());
 				}
 
 				bdc.addRowToTable(dataRow.getFirst());
@@ -168,9 +167,9 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 			exec.checkCanceled();
 		}
 
-		//close img file sources
+		// close img file sources
 		rifp.close();
-		
+
 		bdc.close();
 		// data table for the table cell viewer
 		m_data = bdc.getTable();
@@ -201,16 +200,17 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 					readImgFunction.apply(row).forEachOrdered(result -> {
 						if (result.getSecond().isPresent()) {
 							encounteredExceptions.set(true);
-							LOGGER.debug("Encountered exception while reading image " + result.getFirst().getKey()
-									+ "! Caught Exception: " + result.getSecond().get().getMessage());
-							LOGGER.debug(result.getSecond().get());
+							LOGGER.warn("Encountered exception while reading image: " + result.getFirst().getKey()
+									+ "! view log for more info.");
+							LOGGER.debug("Encountered exception while reading image:", result.getSecond().get());
 						}
 
 						try {
 							out.push(result.getFirst());
 						} catch (Exception exc) {
 							encounteredExceptions.set(true);
-							LOGGER.warn("Couldn't push result for row " + result.getFirst().getKey());
+							LOGGER.warn("Couldn't push row " + result.getFirst().getKey() + " into output stream.");
+							LOGGER.debug("Encountered exception when trying to push result: ", exc);
 						}
 					});
 				}
@@ -221,7 +221,7 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 
 				in.close();
 				out.close();
-				
+
 				readImgFunction.close();
 			}
 		};
@@ -247,7 +247,8 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 
 		DataTableSpec outSpec;
 		// new table
-		if (m_colCreationMode.getStringValue().equalsIgnoreCase(COL_CREATION_MODES[0])) {
+		ColumnCreationMode columnCreationMode = ColumnCreationMode.fromString(m_colCreationMode.getStringValue());
+		if (columnCreationMode == ColumnCreationMode.NEW_TABLE) {
 
 			DataColumnSpec imgSpec = new DataColumnSpecCreator("Image", ImgPlusCell.TYPE).createSpec();
 			DataColumnSpec omeSpec = new DataColumnSpecCreator("OME-XML Metadata", XMLCell.TYPE).createSpec();
@@ -262,7 +263,7 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 
 		}
 		// append
-		else if (m_colCreationMode.getStringValue().equalsIgnoreCase(COL_CREATION_MODES[1])) {
+		else if (columnCreationMode == ColumnCreationMode.APPEND) {
 
 			DataColumnSpec imgSpec = new DataColumnSpecCreator(
 					DataTableSpec.getUniqueColumnName(spec, "Image" + m_colSuffix.getStringValue()), ImgPlusCell.TYPE)
@@ -288,7 +289,7 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 			outSpec = new DataTableSpec(list.toArray(new DataColumnSpec[list.size()]));
 		}
 		// replace
-		else {
+		else if (columnCreationMode == ColumnCreationMode.REPLACE) {
 			DataColumnSpec imgSpec = new DataColumnSpecCreator(
 					DataTableSpec.getUniqueColumnName(spec, "Image" + m_colSuffix.getStringValue()), ImgPlusCell.TYPE)
 							.createSpec();
@@ -311,6 +312,9 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 			}
 
 			outSpec = new DataTableSpec(list.toArray(new DataColumnSpec[list.size()]));
+		} else {
+			throw new IllegalStateException("Support for the columncreation mode" + m_colCreationMode.getStringValue()
+					+ " is not implemented!");
 		}
 
 		return outSpec;
@@ -348,11 +352,11 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 		// create ImgFactory
 		ImgFactory<T> imgFac;
 		if (m_imgFactory.getStringValue().equals(IMG_FACTORIES[1])) {
-			imgFac = new PlanarImgFactory<T>();
+			imgFac = new PlanarImgFactory<>();
 		} else if (m_imgFactory.getStringValue().equals(IMG_FACTORIES[2])) {
-			imgFac = new CellImgFactory<T>();
+			imgFac = new CellImgFactory<>();
 		} else {
-			imgFac = new ArrayImgFactory<T>();
+			imgFac = new ArrayImgFactory<>();
 		}
 
 		// series selection
@@ -368,10 +372,11 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 		}
 
 		// create image function
-		ReadImgTableFunction<T> rifp = new ReadImgTableFunction<T>(exec, rowCount, m_planeSelect, readImage,
+		ReadImgTableFunction<T> rifp = new ReadImgTableFunction<>(exec, rowCount, m_planeSelect, readImage,
 				readMetadata, m_readAllMetaDataModel.getBooleanValue(), m_checkFileFormat.getBooleanValue(),
 				m_isGroupFiles.getBooleanValue(), seriesSelectionFrom, seriesSelectionTo, imgFac,
-				m_colCreationMode.getStringValue(), imgIdx, m_pixelType.getStringValue());
+				ColumnCreationMode.fromString(m_colCreationMode.getStringValue()), imgIdx,
+				m_pixelType.getStringValue());
 
 		return rifp;
 	}

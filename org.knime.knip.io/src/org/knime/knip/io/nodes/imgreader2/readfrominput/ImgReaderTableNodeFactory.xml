@@ -31,25 +31,15 @@
 			Image can also be downloaded and read from URLs (e.g. http://...). The URLs have to be provided via the input table (as strings).
 		</intro>
 		<tab name="Options">
-			<option name="File browser">
-				Choose your image files here and add them to the
-				list of selected files.
-				An image preview is available which will also
-				help you to determine,
-				whether an image format is supported or not.
-				The list of the core meta data gives you some more information about
-				the
-				image object.
-			</option>
-		</tab>
-		<tab name="Additional Options">
+			<option name="File name column in input table">If another node with a string column is plugged
+				to the optional in-port, the column, which contains the potential
+				file paths, can be selected.</option>
 			<option name="OME-XML-metadata">
 				You can either add a column containing the metadata formated as
 				an OML-XML-String, read only the metadata from the images files, or just read the
 				images (default).
 				(for more details see:
-				<a href="http://www.ome-xml.org/">http://www.ome-xml.org/</a>
-				).
+				<a href="http://www.ome-xml.org/">http://www.ome-xml.org/</a>).
 			</option>
 			<option name="Read non OME-XML Metadata">
 				Read metadata that is not part of the ome-xml specification.
@@ -62,18 +52,16 @@
 				slower pixel access), and Cell Image Factory (multiple arrays of
 				fixed sizes are used, pros: unlimited number of pixels per images;
 				cons: very slow pixel reading and pixel access))</option>
-			<option name="Use complete file path as row key">
-				If checked, the complete file path will be used
-				as
-				row key, else only
-				the file name. Has no effect, if images are read from URLs.</option>
+			<option name="Pixel type">
+				Set the numeric type of the pixel values, this can save memory when reading e.g. a binary image saved as integer image. <br/>
+				<b>Attention</b> this option can lead to unexpected results if the selected pixel type does not fit the read data.
+				Make sure you are not reading unsigned values into a signed data type or signed values into an unsigned data type. 
+				In most cases the right choice is "Automatic".
+			</option>
 			<option name="Check file format for each file">Checks for each file individually the
 				file-format, if checked. Else, the file format as assumed to be the
 				same for all files and only if the reading fails, the new file
 				format will be determined.</option>
-			<option name="File name column in optional table">If another node with a string column is plugged
-				to the optional in-port, the column, which contains the potential
-				file paths, can be selected.</option>
 			<option name="Read all series">Some image file formats might contain multiple
 				images (called series). One can either read all available series
 				(each appended as own table row) or one can specify with a range
@@ -133,7 +121,7 @@
 	</fullDescription>
 
 	<ports>
-		<inPort name="File names (optional)" index="0">Optional input table
+		<inPort name="File names" index="0">Input table
 			with a column containing the file names/paths.</inPort>
 		<outPort index="0" name="Images">
 			The opened images and optionally a

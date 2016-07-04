@@ -72,12 +72,11 @@
 				fixed sizes are used, pros: unlimited number of pixels per images;
 				cons: very slow pixel reading and pixel access))
 			</option>
-			<option name="Use complete file path as row key">
-				If checked, the complete file path will be used
-				as
-				row key, else only
-				the file name. Has no effect, if images are read
-				from URLs.
+			<option name="Pixel type">
+				Set the numeric type of the pixel values, this can save memory when reading e.g. a binary image saved as integer image. <br/>
+				<b>Attention</b> this option can lead to unexpected results if the selected pixel type does not fit the read data.
+				Make sure you are not reading unsigned values into a signed data type or signed values into an unsigned data type. 
+				In most cases the right choice is "Automatic".
 			</option>
 			<option name="Check file format for each file">Checks for each file individually the
 				file-format, if checked. Else, the file format as assumed to be the

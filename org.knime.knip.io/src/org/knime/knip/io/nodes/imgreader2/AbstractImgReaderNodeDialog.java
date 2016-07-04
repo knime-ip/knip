@@ -87,11 +87,6 @@ public abstract class AbstractImgReaderNodeDialog extends DefaultNodeSettingsPan
 
 	@Override
 	public void saveAdditionalSettingsTo(final NodeSettingsWO settings) throws InvalidSettingsException {
-		// if ((m_filechooser.getSelectFiles().length == 0) &&
-		// (m_fileNamesColumn.getStringValue() == null)) {
-		// m_filechooser.getFileChooserPanel().onAdd();
-		// }
-		// // throw new InvalidSettingsException("No files selected");
 		super.saveAdditionalSettingsTo(settings);
 	}
 
@@ -114,22 +109,11 @@ public abstract class AbstractImgReaderNodeDialog extends DefaultNodeSettingsPan
 				"Check file format for each file (may be slower)"));
 		closeCurrentGroup();
 
-		// createNewGroup("Optional Inport");
-		// m_fileNamesColumn = AbstractImgReader.createFilenameColumnModel();
-		// addDialogComponent(new
-		// DialogComponentColumnNameSelection(m_fileNamesColumn,
-		// "File name column in optional table", 0, false, true,
-		// StringValue.class));
-		// closeCurrentGroup();
 
 		createNewGroup("Series & Groups");
 		final SettingsModelBoolean smReadAll = AbstractImgReaderNodeModel.createReadAllSeriesModel();
-		// final SettingsModelIntegerBounded smSeriesIdx =
-		// AbstractImgReaderNodeModel.createSeriesSelectionModel();
 		final SettingsModelDoubleRange smSeriesIdx = AbstractImgReaderNodeModel.createSeriesSelectionRangeModel();
 		addDialogComponent(new DialogComponentBoolean(smReadAll, "Read all series"));
-		// addDialogComponent(new DialogComponentNumber(smSeriesIdx, "Series
-		// index", 1));
 		addDialogComponent(new DialogComponentDoubleRange(smSeriesIdx, 0, Short.MAX_VALUE, 1, "Series index"));
 
 		smReadAll.addChangeListener(new ChangeListener() {
