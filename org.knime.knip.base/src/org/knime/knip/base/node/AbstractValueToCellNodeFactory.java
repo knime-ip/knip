@@ -60,6 +60,7 @@ import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeView;
 import org.knime.knip.base.nodes.view.TableCellViewNodeView;
+import org.knime.knip.cellviewer.CellNodeView;
 import org.knime.node.v210.KnimeNodeDocument;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 
@@ -247,7 +248,7 @@ public abstract class AbstractValueToCellNodeFactory<DIALOG extends NodeDialogPa
      */
     @Override
     public NodeView<MODEL> createNodeView(final int viewIndex, final MODEL nodeModel) {
-        return new TableCellViewNodeView<MODEL>(nodeModel);
+        return new CellNodeView<MODEL>(nodeModel);
     }
 
     /**

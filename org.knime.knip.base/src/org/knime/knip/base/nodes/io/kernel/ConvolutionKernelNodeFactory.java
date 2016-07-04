@@ -51,8 +51,6 @@ package org.knime.knip.base.nodes.io.kernel;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.DynamicNodeFactory;
 import org.knime.core.node.NodeDescription;
 import org.knime.core.node.NodeDescription210Proxy;
@@ -73,7 +71,10 @@ import org.knime.knip.base.nodes.io.kernel.filter.PrewittConfiguration;
 import org.knime.knip.base.nodes.io.kernel.filter.RobertsConfiguration;
 import org.knime.knip.base.nodes.io.kernel.filter.SobelConfiguration;
 import org.knime.knip.base.nodes.view.TableCellViewNodeView;
+import org.knime.knip.cellviewer.CellNodeView;
 import org.knime.node.v210.KnimeNodeDocument;
+
+import net.imglib2.type.numeric.RealType;
 
 /**
  * TODO Auto-generated
@@ -130,7 +131,7 @@ public class ConvolutionKernelNodeFactory<T extends RealType<T>> extends Dynamic
     @Override
     public NodeView<KernelCreatorNodeModel<T>> createNodeView(final int viewIndex,
                                                               final KernelCreatorNodeModel<T> nodeModel) {
-        return new TableCellViewNodeView<KernelCreatorNodeModel<T>>(nodeModel);
+        return new CellNodeView<KernelCreatorNodeModel<T>>(nodeModel);
     }
 
     private Map<String, Class<?>> createPool() {

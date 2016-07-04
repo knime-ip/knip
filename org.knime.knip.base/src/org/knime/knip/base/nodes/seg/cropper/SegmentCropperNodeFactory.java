@@ -48,12 +48,12 @@
  */
 package org.knime.knip.base.nodes.seg.cropper;
 
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
-import org.knime.knip.base.nodes.view.TableCellViewNodeView;
+import org.knime.knip.cellviewer.CellNodeView;
+
+import net.imglib2.type.numeric.RealType;
 
 /**
  * {@link NodeFactory} for {@link SegmentCropperNodeModel}
@@ -65,8 +65,8 @@ import org.knime.knip.base.nodes.view.TableCellViewNodeView;
  * @param <L>
  * @param <T>
  */
-public class SegmentCropperNodeFactory<L extends Number & Comparable<L>, T extends RealType<T>> extends
-        NodeFactory<SegmentCropperNodeModel<L, T>> {
+public class SegmentCropperNodeFactory<L extends Number & Comparable<L>, T extends RealType<T>>
+        extends NodeFactory<SegmentCropperNodeModel<L, T>> {
 
     /**
      * {@inheritDoc}
@@ -90,7 +90,7 @@ public class SegmentCropperNodeFactory<L extends Number & Comparable<L>, T exten
     @Override
     public NodeView<SegmentCropperNodeModel<L, T>> createNodeView(final int viewIndex,
                                                                   final SegmentCropperNodeModel<L, T> nodeModel) {
-        return new TableCellViewNodeView<SegmentCropperNodeModel<L, T>>(nodeModel);
+        return new CellNodeView<SegmentCropperNodeModel<L, T>>(nodeModel);
     }
 
     /**

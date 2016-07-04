@@ -81,6 +81,8 @@ import org.knime.core.node.NodeView;
 import org.knime.core.node.tableview.TableContentModel;
 import org.knime.core.node.tableview.TableContentView;
 import org.knime.core.node.tableview.TableView;
+import org.knime.knip.cellviewer.CellViewsManager;
+import org.knime.knip.cellviewer.interfaces.CellViewFactory;
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.event.EventServiceClient;
@@ -169,14 +171,14 @@ public class TableCellViewNodeView<T extends NodeModel & BufferedDataTableHolder
         view.setIndex(new BigInteger("0"));
         view.setName("Image Viewer");
 
-        final Map<Class<? extends DataValue>, List<String>> descs =
-                TableCellViewsManager.getInstance().getTableCellViewDescriptions();
+        final Map<CellViewFactory, List<String>> descs =
+                CellViewsManager.getInstance().getTableCellViewDescriptions();
         view.newCursor()
                 .setTextValue("Another, possibly interactive, view on table cells. Displays the selected cells with their associated viewer if it exists. Available views are:");
         view.addNewBr();
-        for (final Entry<Class<? extends DataValue>, List<String>> entry : descs.entrySet()) {
+        for (final Entry<CellViewFactory, List<String>> entry : descs.entrySet()) {
 
-            view.addB("- " + entry.getKey().getSimpleName());
+            view.addB("- " + entry.getKey().getCellViewName());
             view.addNewBr();
             for (final String d : entry.getValue()) {
                 view.addI("-- " + d);

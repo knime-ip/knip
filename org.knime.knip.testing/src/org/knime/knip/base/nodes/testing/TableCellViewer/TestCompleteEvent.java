@@ -57,6 +57,7 @@ import org.knime.knip.core.ui.event.KNIPEvent;
  *
  * @author Andreas Burger, University of Konstanz
  */
+@Deprecated
 public class TestCompleteEvent implements KNIPEvent {
 
     /**

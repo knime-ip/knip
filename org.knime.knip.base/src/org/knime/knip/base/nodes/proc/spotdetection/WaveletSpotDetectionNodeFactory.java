@@ -55,7 +55,7 @@ import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
-import org.knime.knip.base.nodes.view.TableCellViewNodeView;
+import org.knime.knip.cellviewer.CellNodeView;
 
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
@@ -70,8 +70,8 @@ import net.imglib2.type.numeric.RealType;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  *
  */
-public class WaveletSpotDetectionNodeFactory<T extends RealType<T>> extends
-        NodeFactory<ImgPlusToImgPlusNodeModel<T, BitType>> {
+public class WaveletSpotDetectionNodeFactory<T extends RealType<T>>
+        extends NodeFactory<ImgPlusToImgPlusNodeModel<T, BitType>> {
 
     @Override
     protected NodeDialogPane createNodeDialogPane() {
@@ -83,9 +83,8 @@ public class WaveletSpotDetectionNodeFactory<T extends RealType<T>> extends
                         new DialogComponentStringSelection(WaveletSpotDetectionNodeModel.createAvgNodeModel(),
                                 "avg method", WaveletSpotDetectionNodeModel.getAvgOptions());
 
-                final DialogComponent scaleConfig =
-                        new DialogComponentScaleConfig(WaveletSpotDetectionNodeModel.createScaleModel(),
-                                "configure levels");
+                final DialogComponent scaleConfig = new DialogComponentScaleConfig(
+                        WaveletSpotDetectionNodeModel.createScaleModel(), "configure levels");
 
                 // add them to the dialog component collection
 
@@ -110,8 +109,8 @@ public class WaveletSpotDetectionNodeFactory<T extends RealType<T>> extends
 
     @Override
     public NodeView<ImgPlusToImgPlusNodeModel<T, BitType>>
-            createNodeView(final int viewIndex, final ImgPlusToImgPlusNodeModel<T, BitType> nodeModel) {
-        return new TableCellViewNodeView<ImgPlusToImgPlusNodeModel<T, BitType>>(nodeModel);
+           createNodeView(final int viewIndex, final ImgPlusToImgPlusNodeModel<T, BitType> nodeModel) {
+        return new CellNodeView<ImgPlusToImgPlusNodeModel<T, BitType>>(nodeModel);
     }
 
     @Override

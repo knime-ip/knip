@@ -68,6 +68,7 @@ import org.knime.knip.base.nodes.view.TableCellViewsManager;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @author Andreas Burger, University of Konstanz
  */
+@Deprecated
 public final class TestTableCellViewsManager {
 
     private static TestTableCellViewsManager instance;

@@ -51,7 +51,7 @@ package org.knime.knip.base.nodes.util.slicelooper;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
-import org.knime.knip.base.nodes.view.TableCellViewNodeView;
+import org.knime.knip.cellviewer.CellNodeView;
 
 /**
  * @author Andreas Graumann, University of Konstanz
@@ -93,7 +93,7 @@ public class SliceIteratorLoopEndNodeFactory extends NodeFactory<SliceIteratorLo
     @Override
     public NodeView<SliceIteratorLoopEndNodeModel> createNodeView(final int viewIndex,
                                                                   final SliceIteratorLoopEndNodeModel nodeModel) {
-        return new TableCellViewNodeView<SliceIteratorLoopEndNodeModel>(nodeModel);
+        return new CellNodeView<SliceIteratorLoopEndNodeModel>(nodeModel);
     }
 
     /**

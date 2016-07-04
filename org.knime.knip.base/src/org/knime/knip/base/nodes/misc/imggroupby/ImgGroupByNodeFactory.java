@@ -51,10 +51,10 @@ package org.knime.knip.base.nodes.misc.imggroupby;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
-import org.knime.knip.base.nodes.view.TableCellViewNodeView;
+import org.knime.knip.cellviewer.CellNodeView;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -83,7 +83,7 @@ public class ImgGroupByNodeFactory extends NodeFactory<ImgGroupByNodeModel> {
      */
     @Override
     public NodeView<ImgGroupByNodeModel> createNodeView(final int viewIndex, final ImgGroupByNodeModel nodeModel) {
-        return new TableCellViewNodeView<ImgGroupByNodeModel>(nodeModel);
+        return new CellNodeView<ImgGroupByNodeModel>(nodeModel);
     }
 
     /**

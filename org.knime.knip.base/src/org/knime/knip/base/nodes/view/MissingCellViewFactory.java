@@ -48,12 +48,14 @@
  */
 package org.knime.knip.base.nodes.view;
 
-import java.awt.Component;
+import java.util.List;
+
+import javax.swing.JPanel;
 
 import org.knime.core.data.DataValue;
 import org.knime.core.data.MissingValue;
-import org.knime.core.node.config.ConfigRO;
-import org.knime.core.node.config.ConfigWO;
+import org.knime.knip.cellviewer.interfaces.CellView;
+import org.knime.knip.cellviewer.interfaces.CellViewFactory;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.ui.imgviewer.MissingImgViewer;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
@@ -69,40 +71,21 @@ import net.imglib2.type.numeric.RealType;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
  */
-public class MissingCellViewFactory<T extends RealType<T> & NativeType<T>> implements TableCellViewFactory {
+public class MissingCellViewFactory<T extends RealType<T> & NativeType<T>> implements CellViewFactory {
 
     @Override
-    public TableCellView[] createTableCellViews() {
-        return new TableCellView[]{new TableCellView() {
+    public CellView createCellView() {
+        return new CellView() {
 
             private ImgViewer m_view = null;
 
-            /**
-             * {@inheritDoc}
-             */
             @Override
-            public String getDescription() {
-                return "An empty viewer that is shown when the input cell has no value to display.";
-            }
-
-            @Override
-            public String getName() {
-                return "Missing Value";
-            }
-
-            @Override
-            public Component getViewComponent() {
+            public JPanel getViewComponent() {
                 if (m_view == null) {
                     m_view = new MissingImgViewer();
                 }
 
                 return m_view;
-            }
-
-            @Override
-            public void loadConfigurationFrom(final ConfigRO config) {
-                //
-
             }
 
             @Override
@@ -116,21 +99,41 @@ public class MissingCellViewFactory<T extends RealType<T> & NativeType<T>> imple
             }
 
             @Override
-            public void saveConfigurationTo(final ConfigWO config) {
-                //
+            public void updateComponent(final List<DataValue> valuesToView) {
 
             }
-
-            @Override
-            public void updateComponent(final DataValue valueToView) {
-
-
-            }
-        }};
+        };
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Class<? extends DataValue> getDataValueClass() {
-        return MissingValue.class;
+    public String getCellViewName() {
+        // TODO Auto-generated method stub
+        return "Missing Value Viewer";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getCellViewDescription() {
+        return "An empty viewer that is shown when the input cell has no value to display.";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isCompatible(final List<Class<? extends DataValue>> values) {
+        if (values.size() >= 2) {
+            return false;
+        }
+        if (values.get(0).equals(MissingValue.class)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

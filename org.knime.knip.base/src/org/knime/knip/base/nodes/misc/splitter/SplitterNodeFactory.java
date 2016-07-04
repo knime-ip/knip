@@ -51,11 +51,11 @@ package org.knime.knip.base.nodes.misc.splitter;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
-import org.knime.knip.base.nodes.view.TableCellViewNodeView;
+import org.knime.knip.cellviewer.CellNodeView;
 
 /**
  * Factory class to produce an image inverter node.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -83,7 +83,7 @@ public class SplitterNodeFactory extends NodeFactory<SplitterNodeModel> {
      */
     @Override
     public NodeView createNodeView(final int viewIndex, final SplitterNodeModel nodeModel) {
-        return new TableCellViewNodeView<SplitterNodeModel>(nodeModel);
+        return new CellNodeView<SplitterNodeModel>(nodeModel);
     }
 
     /**

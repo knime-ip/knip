@@ -83,6 +83,7 @@ import net.imglib2.type.numeric.RealType;
  *
  * @author Andreas Burger, University of Konstanz
  */
+@Deprecated
 public class TestImgCellViewFactory<T extends RealType<T> & NativeType<T>> implements TableCellViewFactory {
 
     /**

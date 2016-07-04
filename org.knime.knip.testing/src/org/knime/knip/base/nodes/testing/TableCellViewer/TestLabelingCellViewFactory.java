@@ -76,6 +76,7 @@ import net.imglib2.type.numeric.IntegerType;
  *
  * @author Andreas Burger, University of Konstanz
  */
+@Deprecated
 public class TestLabelingCellViewFactory<L extends Comparable<L>, II extends IntegerType<II>> implements
         TableCellViewFactory {
 

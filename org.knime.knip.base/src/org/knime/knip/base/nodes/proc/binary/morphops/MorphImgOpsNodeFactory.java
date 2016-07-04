@@ -48,12 +48,12 @@
  */
 package org.knime.knip.base.nodes.proc.binary.morphops;
 
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
-import org.knime.knip.base.nodes.view.TableCellViewNodeView;
+import org.knime.knip.cellviewer.CellNodeView;
+
+import net.imglib2.type.numeric.RealType;
 
 /**
  * TODO Auto-generated
@@ -88,7 +88,7 @@ public class MorphImgOpsNodeFactory<T extends RealType<T>> extends NodeFactory<M
     @Override
     public NodeView<MorphImgOpsNodeModel<T>>
             createNodeView(final int viewIndex, final MorphImgOpsNodeModel<T> nodeModel) {
-        return new TableCellViewNodeView<MorphImgOpsNodeModel<T>>(nodeModel);
+        return new CellNodeView<MorphImgOpsNodeModel<T>>(nodeModel);
     }
 
     /**

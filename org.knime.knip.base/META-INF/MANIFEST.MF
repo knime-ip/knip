@@ -102,4 +102,6 @@ Export-Package: org.knime.knip.base,
  org.knime.knip.base.nodes.view.segmentoverlay,
  org.knime.knip.base.prefs,
  org.knime.knip.base.renderer
+Import-Package: org.knime.knip.cellviewer,
+ org.knime.knip.cellviewer.interfaces
 

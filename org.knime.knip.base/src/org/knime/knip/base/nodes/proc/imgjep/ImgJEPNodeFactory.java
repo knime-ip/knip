@@ -51,11 +51,11 @@ package org.knime.knip.base.nodes.proc.imgjep;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
-import org.knime.knip.base.nodes.view.TableCellViewNodeView;
+import org.knime.knip.cellviewer.CellNodeView;
 
 /**
  * <code>NodeFactory</code> for the "JEP" Node. Math expression parser using JEP (http://www.singularsys.com/jep/)
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -78,7 +78,7 @@ public class ImgJEPNodeFactory extends NodeFactory<ImgJEPNodeModel> {
     /** {@inheritDoc} */
     @Override
     public NodeView createNodeView(final int viewIndex, final ImgJEPNodeModel nodeModel) {
-        return new TableCellViewNodeView<ImgJEPNodeModel>(nodeModel);
+        return new CellNodeView<ImgJEPNodeModel>(nodeModel);
     }
 
     /** {@inheritDoc} */
