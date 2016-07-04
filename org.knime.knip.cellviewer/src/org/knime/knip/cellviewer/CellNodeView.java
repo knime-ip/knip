@@ -192,8 +192,6 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 	 */
 	private void rowColIntervalSelectionChanged(final int[] rowIndices, final int[] colIndices) {
 		
-		System.out.println("rowColIntervalSelectionChanged fired");
-
 		if (rowIndices.length == 0 || colIndices.length == 0)
 			return;
 
