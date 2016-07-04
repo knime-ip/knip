@@ -45,42 +45,87 @@
   ---------------------------------------------------------------------
  *
  */
+
 package org.knime.knip.features.node.ui;
 
+import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 
-import javax.swing.BorderFactory;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
-import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
-import org.knime.knip.features.node.model.SettingsModelFeatureSet;
+import org.scijava.widget.AbstractInputPanel;
+import org.scijava.widget.InputWidget;
+import org.scijava.widget.WidgetModel;
 
-public class ColumnSelectionPanel extends JPanel {
+public class FeatureCalculatorSwingInputPanel extends AbstractInputPanel<JPanel, JPanel> {
 
-	/**
-	 * serialVersionUID.
-	 */
-	private static final long serialVersionUID = -7299527416096266344L;
+	private JPanel uiComponent;
 
-	public ColumnSelectionPanel(final DialogComponentColumnNameSelection imgColumnComponent,
-			final DialogComponentColumnNameSelection labelingColumnComponent,
-			final DialogComponentStringSelection columnCreationModeComponent) {
+	private GridBagConstraints uiGBC;
 
-		this.setBorder(BorderFactory.createTitledBorder("Column Selection:"));
-		this.setLayout(new GridBagLayout());
+	@Override
+	public void addWidget(InputWidget<?, JPanel> widget) {
+		super.addWidget(widget);
+		final JPanel widgetPane = widget.getComponent();
+		final WidgetModel model = widget.get();
 
-		final GridBagConstraints gbc = SettingsModelFeatureSet.getNewDefaultGridBagConstraints();
+		// add widget to panel
+		final JPanel labeledWidget = new JPanel();
+		labeledWidget.setLayout(new BorderLayout());
+		if (widget.isLabeled()) {
+			// widget is suffixed by a label
+			final JLabel l = new JLabel(model.getWidgetLabel());
+			final String desc = model.getItem().getDescription();
+			if (desc != null && !desc.isEmpty())
+				l.setToolTipText(desc);
+			labeledWidget.add(widgetPane, BorderLayout.WEST);
+			labeledWidget.add(l);
+		} else {
+			labeledWidget.add(widgetPane);
+		}
 
-		this.add(imgColumnComponent.getComponentPanel(), gbc);
+		getComponent().add(labeledWidget, uiGBC);
 
-		gbc.gridx++;
+		updateUIGBC();
+	}
 
-		this.add(labelingColumnComponent.getComponentPanel(), gbc);
+	private void updateUIGBC() {
+		if (uiGBC.gridx % 3 == 2) {
+			uiGBC.gridx = 0;
+			uiGBC.gridy++;
+		} else {
+			uiGBC.gridx++;
+		}
+	}
 
-		gbc.gridx++;
+	@Override
+	public Class<JPanel> getWidgetComponentType() {
+		return JPanel.class;
+	}
 
-		this.add(columnCreationModeComponent.getComponentPanel(), gbc);
+	@Override
+	public JPanel getComponent() {
+		if (uiComponent == null) {
+			uiComponent = new JPanel(new GridBagLayout());
+
+			uiGBC = new GridBagConstraints();
+			uiGBC.fill = GridBagConstraints.BOTH;
+			uiGBC.anchor = GridBagConstraints.NORTH;
+			uiGBC.gridx = 0;
+			uiGBC.gridy = 0;
+			uiGBC.gridheight = 1;
+			uiGBC.gridwidth = 1;
+			uiGBC.weightx = 1;
+			uiGBC.insets = new Insets(2, 2, 2, 2);
+		}
+		return uiComponent;
+	}
+
+	@Override
+	public Class<JPanel> getComponentType() {
+		return JPanel.class;
 	}
 }

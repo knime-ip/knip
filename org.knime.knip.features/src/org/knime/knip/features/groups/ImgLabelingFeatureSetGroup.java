@@ -55,6 +55,18 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import net.imagej.ops.slice.SlicesII;
+import net.imagej.ops.special.computer.UnaryComputerOp;
+import net.imglib2.Cursor;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.ops.operation.Operations;
+import net.imglib2.roi.labeling.LabelRegion;
+import net.imglib2.roi.labeling.LabelRegions;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.Pair;
+import net.imglib2.util.ValuePair;
+
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
@@ -73,18 +85,6 @@ import org.knime.knip.features.DataRowUtil;
 import org.knime.knip.features.FeaturesGateway;
 import org.knime.knip.features.node.model.FeatureSetInfo;
 import org.knime.knip.features.sets.FeatureSet;
-
-import net.imagej.ops.slice.SlicesII;
-import net.imagej.ops.special.computer.UnaryComputerOp;
-import net.imglib2.Cursor;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.ops.operation.Operations;
-import net.imglib2.roi.labeling.LabelRegion;
-import net.imglib2.roi.labeling.LabelRegions;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.util.Pair;
-import net.imglib2.util.ValuePair;
 
 /**
  * FIXME: Design of FeatureGroups is really weak. However, we can redesign it
@@ -110,16 +110,19 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 
 	private final boolean intersectionMode;
 
-	private final RulebasedLabelFilter<L> filter;
+	private final RulebasedLabelFilter<L> filterLabel;
 
 	private final ExecutionContext exec;
 
 	private final SettingsModelDimSelection dimSelection;
 
+	private final RulebasedLabelFilter<L> filterOverlappingLabel;
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public ImgLabelingFeatureSetGroup(final List<FeatureSetInfo> infos, final int labIdx, final boolean append,
 			final boolean appendOverlappingSegments, final boolean appendSegmentInformation,
-			final boolean intersectionMode, final RulebasedLabelFilter<L> filter, final ExecutionContext exec,
+			final boolean intersectionMode, final RulebasedLabelFilter<L> filterLabel,
+			final RulebasedLabelFilter<L> filterOverlappingLabel, final ExecutionContext exec,
 			final SettingsModelDimSelection dimSelection) {
 		this.featureSets = (List) FeaturesGateway.fs().getValidFeatureSets(LabelRegion.class, Void.class, infos);
 		this.labdx = labIdx;
@@ -127,7 +130,8 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 		this.appendOverlappingSegments = appendOverlappingSegments;
 		this.appendSegmentInformation = appendSegmentInformation;
 		this.intersectionMode = intersectionMode;
-		this.filter = filter;
+		this.filterLabel = filterLabel;
+		this.filterOverlappingLabel = filterOverlappingLabel;
 		this.exec = exec;
 		this.dimSelection = dimSelection;
 	}
@@ -154,13 +158,7 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 		final ImgPlusCellFactory imgPlusCellFactory;
 		final LabelingDependency<L> dependencyOp;
 
-		if (appendOverlappingSegments) {
-			RulebasedLabelFilter<L> rightFilter = new RulebasedLabelFilter<>();
-			rightFilter.addRules(".+");
-			dependencyOp = new LabelingDependency<L>(filter, rightFilter, intersectionMode);
-		} else {
-			dependencyOp = null;
-		}
+		dependencyOp = new LabelingDependency<L>(filterLabel, filterOverlappingLabel, intersectionMode);
 
 		if (appendSegmentInformation) {
 			imgPlusCellFactory = new ImgPlusCellFactory(exec);
@@ -230,7 +228,7 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 
 					final ArrayList<Future<Pair<String, List<DataCell>>>> futures = new ArrayList<>();
 					for (final LabelRegion<L> region : regions) {
-						if (!filter.getRules().isEmpty() && !filter.isValid(region.getLabel())) {
+						if (dependencies != null && !dependencies.keySet().contains(region.getLabel())) {
 							continue;
 						}
 						futures.add(KNIPGateway.threads().run(new Callable<Pair<String, List<DataCell>>>() {
@@ -239,7 +237,8 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 							public Pair<String, List<DataCell>> call() throws Exception {
 								final List<DataCell> cells = new ArrayList<DataCell>();
 
-								appendRegionOptions(region, cells, imgPlusCellFactory, dependencies, ops());
+								appendRegionOptions(region, cells, imgPlusCellFactory, dependencies,
+										appendOverlappingSegments, ops());
 
 								cells.addAll(computeOnFeatureSets(featureSets, region));
 

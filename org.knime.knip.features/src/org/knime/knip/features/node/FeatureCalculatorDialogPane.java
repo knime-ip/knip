@@ -48,18 +48,10 @@
 
 package org.knime.knip.features.node;
 
-import java.awt.Dimension;
-
-import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
-import net.miginfocom.layout.AC;
-import net.miginfocom.layout.LC;
-import net.miginfocom.swing.MigLayout;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.InvalidSettingsException;
@@ -80,6 +72,7 @@ import org.knime.knip.features.node.model.SettingsModelFeatureSet;
 import org.knime.knip.features.node.ui.ColumnSelectionPanel;
 import org.knime.knip.features.node.ui.DimensionSelectionPanel;
 import org.knime.knip.features.node.ui.FeatureSetCollectionPanel;
+import org.knime.knip.features.node.ui.FeatureSetConfigPanel;
 import org.knime.knip.features.node.ui.FeatureSetPanel;
 import org.knime.knip.features.node.ui.FeatureSetSelectionPanel;
 import org.knime.knip.features.node.ui.LabelSettingsPanel;
@@ -88,10 +81,6 @@ import org.scijava.module.ModuleException;
 
 public class FeatureCalculatorDialogPane<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
 		extends NodeDialogPane {
-
-	private static final int DEFAULT_HEIGHT = 500;
-
-	private static final int DEFAULT_WIDTH = 792;
 
 	/**
 	 * The logger instance.
@@ -122,15 +111,17 @@ public class FeatureCalculatorDialogPane<T extends RealType<T> & NativeType<T>, 
 	private DialogComponentBoolean intersectionModeComponent;
 	private DialogComponentBoolean appendSegmentInformationComponent;
 	private DialogComponentFilterSelection<L> includeLabelsComponent;
+	private DialogComponentFilterSelection<L> filterOverlappingLabelsComponent;
 
 	/**
 	 * Feature Set GUI Elements
 	 */
-	private ColumnSelectionPanel columnSelectionPanel;
-	private DimensionSelectionPanel dimensionSelectionPanel;
-	private LabelSettingsPanel labelSettingsPanel;
-	private FeatureSetSelectionPanel featureSetSelectionPanel;
-	public FeatureSetCollectionPanel featureSetCollectionPanel;
+	private final ColumnSelectionPanel columnSelectionPanel;
+	private final DimensionSelectionPanel dimensionSelectionPanel;
+	private final LabelSettingsPanel labelSettingsPanel;
+	private final FeatureSetSelectionPanel featureSetSelectionPanel;
+	public final FeatureSetCollectionPanel featureSetCollectionPanel;
+	private final FeatureSetConfigPanel featureSetConfigPanel;
 	private SettingsModelFeatureSet smfs;
 
 	public FeatureCalculatorDialogPane() {
@@ -138,46 +129,39 @@ public class FeatureCalculatorDialogPane<T extends RealType<T> & NativeType<T>, 
 		// initialize dialog components
 		initializeDialogComponents();
 
-		// create the col selection panel
+		// create the column selection panel
 		this.columnSelectionPanel = new ColumnSelectionPanel(this.m_imgSelectionComponent,
 				this.m_labelingSelectionComponent, this.m_columnCreationModeComponent);
 
 		// create the dim selection panel
 		this.dimensionSelectionPanel = new DimensionSelectionPanel(m_dimSelectionModelComponent);
 
+		// create the feature set collection panel
 		this.featureSetCollectionPanel = new FeatureSetCollectionPanel();
+
+		// create the feature set selection panel
 		this.featureSetSelectionPanel = new FeatureSetSelectionPanel(featureSetCollectionPanel);
 
 		// create label settings panel
 		this.labelSettingsPanel = new LabelSettingsPanel(appendLabelsOfOverlappingSegments, intersectionModeComponent,
-				appendSegmentInformationComponent, includeLabelsComponent);
+				appendSegmentInformationComponent, includeLabelsComponent, filterOverlappingLabelsComponent);
 
-		final JPanel featureSetConfigPanel = new JPanel(new MigLayout(new LC().wrapAfter(1), new AC().grow().fill()));
-		featureSetConfigPanel.add(this.columnSelectionPanel);
-		featureSetConfigPanel.add(this.dimensionSelectionPanel);
-		featureSetConfigPanel.add(this.featureSetSelectionPanel);
+		// arrange all components
+		this.featureSetConfigPanel = new FeatureSetConfigPanel(columnSelectionPanel, dimensionSelectionPanel,
+				featureSetSelectionPanel, featureSetCollectionPanel);
 
-		JScrollPane selectedFeatureSetsScrollPane = new JScrollPane();
-		selectedFeatureSetsScrollPane.getVerticalScrollBar().setUnitIncrement(20);
-		selectedFeatureSetsScrollPane.setViewportView(this.featureSetCollectionPanel);
+		this.addTab("Feature Set Configuration", this.featureSetConfigPanel);
 
-		selectedFeatureSetsScrollPane.setBorder(BorderFactory.createTitledBorder("Selected Feature Sets:"));
-
-		selectedFeatureSetsScrollPane.setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
-
-		featureSetConfigPanel.add(selectedFeatureSetsScrollPane);
-
-		featureSetConfigPanel.setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
-		this.addTab("Feature Set Configuration", featureSetConfigPanel);
-
-		this.addTab("Label Segment Settings", this.labelSettingsPanel);
+		this.addTab("Segment Settings", this.labelSettingsPanel);
 	}
 
 	@SuppressWarnings("unchecked")
 	private void initializeDialogComponents() {
 		// column selection
-		this.m_imgSelectionComponent = new DialogComponentColumnNameSelection(FeatureCalculatorModel.createImgColumnModel(),
-				"Image", 0, false, true, ImgPlusValue.class);
+		this.m_imgSelectionComponent = new DialogComponentColumnNameSelection(
+				FeatureCalculatorModel.createImgColumnModel(), "Image", 0, false, true, ImgPlusValue.class);
+
+		// labeling selection
 		this.m_labelingSelectionComponent = new DialogComponentColumnNameSelection(
 				FeatureCalculatorModel.createLabelingColumnModel(), "Labeling", 0, false, true, LabelingValue.class);
 
@@ -187,22 +171,31 @@ public class FeatureCalculatorDialogPane<T extends RealType<T> & NativeType<T>, 
 				FeatureCalculatorModel.COL_CREATION_MODES);
 
 		// dimension selection
-		this.m_dimSelectionModelComponent = new DialogComponentDimSelection(FeatureCalculatorModel.createDimSelectionModel(),
-				"Selected Dimensions");
+		this.m_dimSelectionModelComponent = new DialogComponentDimSelection(
+				FeatureCalculatorModel.createDimSelectionModel(), "Selected Dimensions");
 
 		// labels segment settings
 		this.appendLabelsOfOverlappingSegments = new DialogComponentBoolean(
-				FeatureCalculatorModel.createAppendLabelsOfOverlappingSegments(), "Append labels of overlapping segments");
+				FeatureCalculatorModel.createAppendLabelsOfOverlappingSegments(),
+				"Append labels of overlapping segments");
 
-		this.intersectionModeComponent = new DialogComponentBoolean(FeatureCalculatorModel.createIntersectionModeModel(),
+		// intersection segment settings
+		this.intersectionModeComponent = new DialogComponentBoolean(
+				FeatureCalculatorModel.createIntersectionModeModel(),
 				"Overlapping segments do NOT need to completely overlap");
 
+		// append segment settings
 		this.appendSegmentInformationComponent = new DialogComponentBoolean(
 				FeatureCalculatorModel.createAppendSegmentInfoModel(), "Append segment information");
 
+		// include segment settings
 		this.includeLabelsComponent = new DialogComponentFilterSelection<L>(
 				FeatureCalculatorModel.<L> createIncludeLabelModel());
 
+		// filter overlapping labels settings
+		this.filterOverlappingLabelsComponent = new DialogComponentFilterSelection<L>(
+				FeatureCalculatorModel.<L> createFilterOverlappingLabelModel());
+		
 		// feature set selection
 		this.smfs = FeatureCalculatorModel.createFeatureSetsModel();
 	}
@@ -211,7 +204,7 @@ public class FeatureCalculatorDialogPane<T extends RealType<T> & NativeType<T>, 
 	protected void saveSettingsTo(final NodeSettingsWO settings) throws InvalidSettingsException {
 		if ((this.m_imgSelectionComponent.getSelected() == null)
 				&& (this.m_labelingSelectionComponent.getSelected() == null)) {
-			throw new InvalidSettingsException("Select at least one image column or one labeling column.");
+			throw new InvalidSettingsException("Select at least an image column or a labeling column.");
 		}
 
 		this.smfs.clearFeatureSets();
@@ -229,6 +222,7 @@ public class FeatureCalculatorDialogPane<T extends RealType<T> & NativeType<T>, 
 		this.appendLabelsOfOverlappingSegments.saveSettingsTo(settings);
 		this.intersectionModeComponent.saveSettingsTo(settings);
 		this.includeLabelsComponent.saveSettingsTo(settings);
+		this.filterOverlappingLabelsComponent.saveSettingsTo(settings);
 
 		this.appendSegmentInformationComponent.saveSettingsTo(settings);
 
@@ -246,6 +240,7 @@ public class FeatureCalculatorDialogPane<T extends RealType<T> & NativeType<T>, 
 		this.appendLabelsOfOverlappingSegments.loadSettingsFrom(settings, specs);
 		this.intersectionModeComponent.loadSettingsFrom(settings, specs);
 		this.includeLabelsComponent.loadSettingsFrom(settings, specs);
+		this.filterOverlappingLabelsComponent.loadSettingsFrom(settings, specs);
 		this.appendSegmentInformationComponent.loadSettingsFrom(settings, specs);
 
 		try {

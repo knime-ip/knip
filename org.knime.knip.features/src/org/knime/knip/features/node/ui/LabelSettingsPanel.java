@@ -48,14 +48,14 @@
 
 package org.knime.knip.features.node.ui;
 
-import javax.swing.BorderFactory;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+
 import javax.swing.JPanel;
 
-import net.miginfocom.layout.AC;
-import net.miginfocom.layout.LC;
-import net.miginfocom.swing.MigLayout;
-
 import org.knime.core.node.defaultnodesettings.DialogComponent;
+import org.knime.knip.features.node.model.SettingsModelFeatureSet;
+
 
 /**
  * 
@@ -69,20 +69,33 @@ public class LabelSettingsPanel extends JPanel {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public LabelSettingsPanel(DialogComponent appendOverlappingLabels, DialogComponent intersectionComponent,
-			DialogComponent appendSegmentInformationComponent, DialogComponent includeLabelsSelectionModel) {
+	public LabelSettingsPanel(final DialogComponent appendOverlappingLabels,
+			final DialogComponent intersectionComponent, final DialogComponent appendSegmentInformationComponent,
+			final DialogComponent filterLabelsModel, final DialogComponent filterOverlappingLabelsModel) {
 
-		this.setBorder(BorderFactory.createTitledBorder("Segment Settings"));
-		this.setLayout(new MigLayout(new LC().wrapAfter(1), new AC().fill().grow()));
+		this.setLayout(new GridBagLayout());
 
-		this.add(appendOverlappingLabels.getComponentPanel());
-		this.add(intersectionComponent.getComponentPanel());
-		this.add(appendSegmentInformationComponent.getComponentPanel());
+		final GridBagConstraints gbc = SettingsModelFeatureSet.getNewDefaultGridBagConstraints();
+		gbc.anchor = GridBagConstraints.NORTH;
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.weightx = 1;
+		gbc.weighty = 0;
+		gbc.gridx = 0;
+		gbc.gridy = 0;
 
-		JPanel includeLabelsPanel = new JPanel(new MigLayout(new LC().wrapAfter(1), new AC().fill().grow()));
-		includeLabelsPanel.setBorder(BorderFactory.createTitledBorder("Segment Label Filter"));
-		includeLabelsPanel.add(includeLabelsSelectionModel.getComponentPanel());
+		this.add(new SegmentSettingsPanel(appendOverlappingLabels, intersectionComponent,
+				appendSegmentInformationComponent), gbc);
 
-		this.add(includeLabelsPanel);
+		gbc.gridy++;
+
+		this.add(new FilterSegmentLabelsPanel(filterLabelsModel), gbc);
+
+		gbc.gridy++;
+
+		this.add(new FilterOverlappingLabelsPanel(filterOverlappingLabelsModel), gbc);
+		// just an empty panel so everything is pushed to the top
+		gbc.gridy++;
+		gbc.weighty = 1;
+		this.add(new JPanel(), gbc);
 	}
 }

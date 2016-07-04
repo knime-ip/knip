@@ -77,20 +77,23 @@ public class DefaultFeatureService extends AbstractService implements FeatureSer
 	public <L> FeatureSetGroup getFeatureGroup(final List<FeatureSetInfo> infos, final int imgColIndex,
 			final int labColIdx, final boolean append, final boolean appendOverlappingSegments,
 			final boolean appendSegmentInformation, final boolean intersectionMode,
-			final RulebasedLabelFilter<L> rulebasedFilter, final ExecutionContext exec,
+			final RulebasedLabelFilter<L> rulebasedLabelFilter,
+			final RulebasedLabelFilter<L> rulebasedOverlappingLabelFilter, final ExecutionContext exec,
 			final SettingsModelDimSelection dimSelection) {
 
 		// just labeling
 		if (imgColIndex == -1 && labColIdx != -1) {
 			return new ImgLabelingFeatureSetGroup<>(infos, labColIdx, append, appendOverlappingSegments,
-					appendSegmentInformation, intersectionMode, rulebasedFilter, exec, dimSelection);
+					appendSegmentInformation, intersectionMode, rulebasedLabelFilter, rulebasedOverlappingLabelFilter,
+					exec, dimSelection);
 			// just img
 		} else if (imgColIndex != -1 && labColIdx == -1) {
 			return new ImgPlusFeatureSetGroup<>(infos, imgColIndex, append, dimSelection);
 			// img and labeling
 		} else {
 			return new PairedFeatureSetGroup<>(infos, imgColIndex, labColIdx, append, appendOverlappingSegments,
-					appendSegmentInformation, intersectionMode, rulebasedFilter, exec, dimSelection);
+					appendSegmentInformation, intersectionMode, rulebasedLabelFilter, rulebasedOverlappingLabelFilter,
+					exec, dimSelection);
 		}
 	}
 

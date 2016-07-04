@@ -48,97 +48,41 @@
 
 package org.knime.knip.features.node.ui;
 
-import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.ListCellRenderer;
 
-import org.knime.knip.core.KNIPGateway;
-import org.knime.knip.features.node.model.FeatureSetInfo;
+import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.knip.features.node.model.SettingsModelFeatureSet;
-import org.knime.knip.features.sets.FeatureSet;
-import org.scijava.command.CommandInfo;
 
-@SuppressWarnings("rawtypes")
-public class FeatureSetSelectionPanel extends JPanel {
+public class SegmentSettingsPanel extends JPanel {
 
 	/**
-	 * serialVersionUID.
+	 * serial version uid
 	 */
-	private static final long serialVersionUID = 1691899824989296852L;
-	private final JComboBox<CommandInfo> featureSetComboxBox;
-	private final JButton addButton;
+	private static final long serialVersionUID = 3993686239750347221L;
 
-	public FeatureSetSelectionPanel(final FeatureSetCollectionPanel featureSetCollectionPanel) {
-
-		// get all available featuresets
-		final List<CommandInfo> featureSetList = KNIPGateway.cs().getCommandsOfType(FeatureSet.class);
-
-		this.featureSetComboxBox = new JComboBox<CommandInfo>(
-				featureSetList.toArray(new CommandInfo[featureSetList.size()]));
-		this.featureSetComboxBox.setRenderer(new ListCellRenderer<CommandInfo>() {
-
-			@Override
-			public Component getListCellRendererComponent(final JList<? extends CommandInfo> list,
-					final CommandInfo value, final int index, final boolean isSelected, final boolean cellHasFocus) {
-
-				final JLabel renderer = (JLabel) new DefaultListCellRenderer().getListCellRendererComponent(list, value,
-						index, isSelected, cellHasFocus);
-
-				if (!isSelected) {
-					renderer.setForeground(list.getForeground());
-				}
-
-				renderer.setText(value.getLabel());
-
-				return renderer;
-			}
-		});
-
-		this.addButton = new JButton("Add");
-		this.addButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				try {
-					featureSetCollectionPanel.addFeatureSetPanel(
-							new FeatureSetPanel(new FeatureSetInfo(getSelectedFeatureSetType(), null)));
-				} catch (final Throwable e1) {
-					KNIPGateway.log().error("Couldn't add feature set", e1);
-				}
-			}
-		});
-
-		this.setBorder(BorderFactory.createTitledBorder("Select Feature Set:"));
+	public SegmentSettingsPanel(final DialogComponent appendOverlappingLabels,
+			final DialogComponent intersectionComponent, final DialogComponent appendSegmentInformationComponent) {
+		this.setBorder(BorderFactory.createTitledBorder("Settings"));
 		this.setLayout(new GridBagLayout());
 
 		final GridBagConstraints gbc = SettingsModelFeatureSet.getNewDefaultGridBagConstraints();
-		gbc.weightx = 0;
+		gbc.weightx = 1;
+		gbc.weighty = 0;
+		gbc.gridx = 0;
+		gbc.gridy = 0;
 
-		this.add(this.featureSetComboxBox, gbc);
+		this.add(appendOverlappingLabels.getComponentPanel(), gbc);
 
-		gbc.gridx++;
-		this.add(this.addButton, gbc);
+		gbc.gridy++;
+
+		this.add(intersectionComponent.getComponentPanel(), gbc);
+
+		gbc.gridy++;
+
+		this.add(appendSegmentInformationComponent.getComponentPanel(), gbc);
 	}
-
-	@SuppressWarnings("unchecked")
-	public Class<? extends FeatureSet> getSelectedFeatureSetType() {
-		try {
-			return (Class<? extends FeatureSet>) Class.forName(this.featureSetComboxBox
-					.getItemAt(this.featureSetComboxBox.getSelectedIndex()).getDelegateClassName());
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
 }

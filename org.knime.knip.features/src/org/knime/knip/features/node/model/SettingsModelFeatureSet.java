@@ -48,6 +48,8 @@
 
 package org.knime.knip.features.node.model;
 
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -351,5 +353,25 @@ public class SettingsModelFeatureSet extends SettingsModel {
 
 	public void clearFeatureSets() {
 		this.m_featureSets.clear();
+	}
+
+	/**
+	 * Default GridBagConstraints for this Node Dialog.
+	 * 
+	 * @return gridBagConstraints
+	 */
+	public static GridBagConstraints getNewDefaultGridBagConstraints() {
+		final GridBagConstraints gbc = new GridBagConstraints();
+
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.anchor = GridBagConstraints.LINE_START;
+		gbc.weightx = 1;
+		gbc.weighty = 0;
+		gbc.insets = new Insets(2, 2, 2, 2);
+		gbc.gridheight = 1;
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+
+		return gbc;
 	}
 }

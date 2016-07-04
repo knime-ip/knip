@@ -48,97 +48,63 @@
 
 package org.knime.knip.features.node.ui;
 
-import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.ListCellRenderer;
+import javax.swing.JScrollPane;
 
-import org.knime.knip.core.KNIPGateway;
-import org.knime.knip.features.node.model.FeatureSetInfo;
 import org.knime.knip.features.node.model.SettingsModelFeatureSet;
-import org.knime.knip.features.sets.FeatureSet;
-import org.scijava.command.CommandInfo;
 
-@SuppressWarnings("rawtypes")
-public class FeatureSetSelectionPanel extends JPanel {
+/**
+ * FeatureSet Configuration Panel which is placed in the Configure Tab of the
+ * Node.
+ * 
+ * @author Tim-Oliver Buchholz, University of Konstanz
+ *
+ */
+public class FeatureSetConfigPanel extends JPanel {
 
 	/**
-	 * serialVersionUID.
+	 * Serial Version UID
 	 */
-	private static final long serialVersionUID = 1691899824989296852L;
-	private final JComboBox<CommandInfo> featureSetComboxBox;
-	private final JButton addButton;
+	private static final long serialVersionUID = 2567291859653955359L;
 
-	public FeatureSetSelectionPanel(final FeatureSetCollectionPanel featureSetCollectionPanel) {
+	public FeatureSetConfigPanel(final ColumnSelectionPanel columnSelectionPanel,
+			final DimensionSelectionPanel dimensionSelectionPanel,
+			final FeatureSetSelectionPanel featureSetSelectionPanel,
+			final FeatureSetCollectionPanel featureSetCollectionPanel) {
 
-		// get all available featuresets
-		final List<CommandInfo> featureSetList = KNIPGateway.cs().getCommandsOfType(FeatureSet.class);
+		final JScrollPane selectedFeatureSetsScrollPane = new JScrollPane();
+		selectedFeatureSetsScrollPane.setBorder(BorderFactory.createTitledBorder("Selected Feature Sets:"));
+		selectedFeatureSetsScrollPane.getVerticalScrollBar().setUnitIncrement(20);
+		selectedFeatureSetsScrollPane.setViewportView(featureSetCollectionPanel);
+		// set a size because on first open there is nothing to display here.
+		selectedFeatureSetsScrollPane.setPreferredSize(new Dimension(500, 300));
 
-		this.featureSetComboxBox = new JComboBox<CommandInfo>(
-				featureSetList.toArray(new CommandInfo[featureSetList.size()]));
-		this.featureSetComboxBox.setRenderer(new ListCellRenderer<CommandInfo>() {
-
-			@Override
-			public Component getListCellRendererComponent(final JList<? extends CommandInfo> list,
-					final CommandInfo value, final int index, final boolean isSelected, final boolean cellHasFocus) {
-
-				final JLabel renderer = (JLabel) new DefaultListCellRenderer().getListCellRendererComponent(list, value,
-						index, isSelected, cellHasFocus);
-
-				if (!isSelected) {
-					renderer.setForeground(list.getForeground());
-				}
-
-				renderer.setText(value.getLabel());
-
-				return renderer;
-			}
-		});
-
-		this.addButton = new JButton("Add");
-		this.addButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				try {
-					featureSetCollectionPanel.addFeatureSetPanel(
-							new FeatureSetPanel(new FeatureSetInfo(getSelectedFeatureSetType(), null)));
-				} catch (final Throwable e1) {
-					KNIPGateway.log().error("Couldn't add feature set", e1);
-				}
-			}
-		});
-
-		this.setBorder(BorderFactory.createTitledBorder("Select Feature Set:"));
 		this.setLayout(new GridBagLayout());
-
 		final GridBagConstraints gbc = SettingsModelFeatureSet.getNewDefaultGridBagConstraints();
-		gbc.weightx = 0;
+		gbc.weightx = 1;
+		gbc.weighty = 0;
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.anchor = GridBagConstraints.NORTH;
+		this.add(columnSelectionPanel, gbc);
 
-		this.add(this.featureSetComboxBox, gbc);
+		gbc.gridy++;
 
-		gbc.gridx++;
-		this.add(this.addButton, gbc);
+		this.add(dimensionSelectionPanel, gbc);
+
+		gbc.gridy++;
+
+		this.add(featureSetSelectionPanel, gbc);
+
+		gbc.gridy++;
+		gbc.weighty = 1;
+
+		this.add(selectedFeatureSetsScrollPane, gbc);
 	}
-
-	@SuppressWarnings("unchecked")
-	public Class<? extends FeatureSet> getSelectedFeatureSetType() {
-		try {
-			return (Class<? extends FeatureSet>) Class.forName(this.featureSetComboxBox
-					.getItemAt(this.featureSetComboxBox.getSelectedIndex()).getDelegateClassName());
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
 }

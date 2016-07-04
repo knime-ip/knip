@@ -56,6 +56,22 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import net.imagej.ImgPlus;
+import net.imagej.ops.slice.SlicesII;
+import net.imagej.ops.special.computer.UnaryComputerOp;
+import net.imglib2.Cursor;
+import net.imglib2.IterableInterval;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.ops.operation.Operations;
+import net.imglib2.roi.Regions;
+import net.imglib2.roi.labeling.LabelRegion;
+import net.imglib2.roi.labeling.LabelRegions;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.Intervals;
+import net.imglib2.util.Pair;
+import net.imglib2.util.ValuePair;
+
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
@@ -76,22 +92,6 @@ import org.knime.knip.features.DataRowUtil;
 import org.knime.knip.features.FeaturesGateway;
 import org.knime.knip.features.node.model.FeatureSetInfo;
 import org.knime.knip.features.sets.FeatureSet;
-
-import net.imagej.ImgPlus;
-import net.imagej.ops.slice.SlicesII;
-import net.imagej.ops.special.computer.UnaryComputerOp;
-import net.imglib2.Cursor;
-import net.imglib2.IterableInterval;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.ops.operation.Operations;
-import net.imglib2.roi.Regions;
-import net.imglib2.roi.labeling.LabelRegion;
-import net.imglib2.roi.labeling.LabelRegions;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.util.Intervals;
-import net.imglib2.util.Pair;
-import net.imglib2.util.ValuePair;
 
 /**
  * FIXME: Design of FeatureGroups is really weak. However, we can redesign it
@@ -121,7 +121,9 @@ public class PairedFeatureSetGroup<L, T extends RealType<T>, O extends RealType<
 
 	private final boolean intersectionMode;
 
-	private final RulebasedLabelFilter<L> filter;
+	private final RulebasedLabelFilter<L> labelFilter;
+
+	private final RulebasedLabelFilter<L> labelOverlappingFilter;
 
 	private final ExecutionContext exec;
 
@@ -130,7 +132,8 @@ public class PairedFeatureSetGroup<L, T extends RealType<T>, O extends RealType<
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public PairedFeatureSetGroup(final List<FeatureSetInfo> infos, final int imgIdx, final int labIdx,
 			final boolean append, final boolean appendOverlappingSegments, final boolean appendSegmentInformation,
-			final boolean intersectionMode, final RulebasedLabelFilter<L> filter, final ExecutionContext exec,
+			final boolean intersectionMode, final RulebasedLabelFilter<L> labelFilter,
+			final RulebasedLabelFilter<L> labelOverlappingFilter, final ExecutionContext exec,
 			final SettingsModelDimSelection dimSelection) {
 		this.regionSets = (List) FeaturesGateway.fs().getValidFeatureSets(LabelRegion.class, Void.class, infos);
 		this.iterableSets = (List) FeaturesGateway.fs().getValidFeatureSets(IterableInterval.class, RealType.class,
@@ -141,7 +144,8 @@ public class PairedFeatureSetGroup<L, T extends RealType<T>, O extends RealType<
 		this.appendOverlappingSegments = appendOverlappingSegments;
 		this.appendSegmentInformation = appendSegmentInformation;
 		this.intersectionMode = intersectionMode;
-		this.filter = filter;
+		this.labelFilter = labelFilter;
+		this.labelOverlappingFilter = labelOverlappingFilter;
 		this.exec = exec;
 		this.dimSelection = dimSelection;
 	}
@@ -173,9 +177,7 @@ public class PairedFeatureSetGroup<L, T extends RealType<T>, O extends RealType<
 		final LabelingDependency<L> dependencyOp;
 
 		if (appendOverlappingSegments) {
-			RulebasedLabelFilter<L> rightFilter = new RulebasedLabelFilter<>();
-			rightFilter.addRules(".+");
-			dependencyOp = new LabelingDependency<L>(filter, rightFilter, intersectionMode);
+			dependencyOp = new LabelingDependency<L>(labelFilter, labelOverlappingFilter, intersectionMode);
 		} else {
 			dependencyOp = null;
 		}
@@ -272,7 +274,7 @@ public class PairedFeatureSetGroup<L, T extends RealType<T>, O extends RealType<
 
 					final ArrayList<Future<Pair<String, List<DataCell>>>> futures = new ArrayList<>();
 					for (final LabelRegion<L> region : regions) {
-						if (!filter.getRules().isEmpty() && !filter.isValid(region.getLabel())) {
+						if (!labelFilter.getRules().isEmpty() && !labelFilter.isValid(region.getLabel())) {
 							continue;
 						}
 
@@ -282,7 +284,8 @@ public class PairedFeatureSetGroup<L, T extends RealType<T>, O extends RealType<
 							public Pair<String, List<DataCell>> call() throws Exception {
 								final List<DataCell> cells = new ArrayList<DataCell>();
 
-								appendRegionOptions(region, cells, imgPlusCellFactory, dependencies, ops());
+								appendRegionOptions(region, cells, imgPlusCellFactory, dependencies,
+										appendOverlappingSegments, ops());
 
 								cells.addAll(computeOnFeatureSets(regionSets, region));
 								cells.addAll(computeOnFeatureSets(iterableSets, Regions.sample(region, sliceImgPlus)));
