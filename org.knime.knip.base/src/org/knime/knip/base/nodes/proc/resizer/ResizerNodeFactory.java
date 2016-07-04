@@ -54,6 +54,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.knime.core.node.ExecutionContext;
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeLogger;
+import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumberEdit;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
@@ -246,14 +249,57 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
 
             private final SettingsModelDouble m_inputFactorModel = createAffectAllDimensionModel();
 
+            //ADDED BY ME
+            private final NodeLogger LOGGER = NodeLogger.getLogger(ValueToCellNodeModel.class);
+
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
+                settingsModels.add(m_affectedDimensionModel);
+                settingsModels.add(m_inputFactorModel);
                 settingsModels.add(m_extensionTypeModel);
                 settingsModels.add(m_inputFactorsModel);
                 settingsModels.add(m_scalingTypeModel);
-                settingsModels.add(m_affectedDimensionModel);
                 m_inputFactorModel.setEnabled(false);
-                settingsModels.add(m_inputFactorModel);
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
+                collectSettingsModels();
+                for (final SettingsModel sm : m_settingsModels) {
+                    try {
+                        sm.validateSettings(settings);
+                    } catch (final InvalidSettingsException e) {
+
+                        if (!sm.equals(m_inputFactorModel) && !sm.equals(m_affectedDimensionModel)) {
+                            LOGGER.warn("Problems occurred validating the settings " + sm.toString() + ": "
+                                    + e.getLocalizedMessage());
+                            setWarningMessage("Problems occurred while validating settings.");
+                        }
+                    }
+                }
+
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
+                collectSettingsModels();
+                for (final SettingsModel sm : m_settingsModels) {
+                    try {
+                        sm.loadSettingsFrom(settings);
+                    } catch (final InvalidSettingsException e) {
+                        if (!sm.equals(m_inputFactorModel) && !sm.equals(m_affectedDimensionModel)) {
+                            LOGGER.warn("Problems occurred loading the settings " + sm.toString() + ": "
+                                    + e.getLocalizedMessage());
+                            setWarningMessage("Problems occurred while loading settings.");
+                        }
+                    }
+                }
             }
 
             @Override
