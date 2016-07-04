@@ -342,12 +342,14 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
         c6.gridwidth = 2;
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
-        m_autoSelect = new JCheckBox();
+        m_autoSelect = new JCheckBox("Auto");
         m_autoSelect.setSelected(autoSelect);
         m_autoSelect.setToolTipText("Always do automatic adjustment.");
         m_autoSelect.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
+                m_resetButton.setEnabled(!m_autoSelect.isSelected());
+                m_automaticSaturationButton.setEnabled(!m_autoSelect.isSelected());
                 if (!isAdjusting) {
                     isAdjusting = true;
                     autoSelect = m_autoSelect.isSelected();
@@ -381,6 +383,7 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
                 }
             }
         });
+        m_automaticSaturationButton.setEnabled(!m_autoSelect.isSelected());
         buttonPanel.add(m_automaticSaturationButton);
 
         m_resetButton = new JButton("Reset");
@@ -406,10 +409,12 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
                 }
             }
         });
+        m_resetButton.setEnabled(!m_autoSelect.isSelected());
         buttonPanel.add(m_resetButton);
 
 
-        m_planeSelect = new JCheckBox("Plane");
+
+        m_planeSelect = new JCheckBox("Per plane");
         m_planeSelect.setSelected(planeSelected);
         m_planeSelect.setToolTipText("Planewise?");
         m_planeSelect.addActionListener(new ActionListener() {
