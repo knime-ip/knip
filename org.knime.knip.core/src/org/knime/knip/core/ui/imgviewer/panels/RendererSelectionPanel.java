@@ -57,6 +57,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import javax.swing.Box;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 
 import org.knime.knip.core.awt.ImageRenderer;
@@ -90,6 +91,8 @@ public class RendererSelectionPanel<T extends Type<T>> extends ViewerComponent {
 
     private boolean m_blockEvent = false;
 
+    private ImageRenderer m_currentSelection;
+
     public RendererSelectionPanel() {
 
         //super("Rendering", false);
@@ -108,38 +111,37 @@ public class RendererSelectionPanel<T extends Type<T>> extends ViewerComponent {
 
         //m_rendList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-
-
-//        m_rendList.addaddSelectionListener(new ListSelectionListener() {
-//
-//            @Override
-//            public void valueChanged(final ListSelectionEvent e) {
-//                if (e.getValueIsAdjusting() || m_blockEvent) {
-//                    return;
-//                } else {
-//                    m_eventService.publish(new RendererSelectionChgEvent((ImageRenderer)m_rendList.getSelectedValue()));
-//                    m_eventService.publish(new ImgRedrawEvent());
-//                }
-//
-//            }
-//        });
-
+        //        m_rendList.addaddSelectionListener(new ListSelectionListener() {
+        //
+        //            @Override
+        //            public void valueChanged(final ListSelectionEvent e) {
+        //                if (e.getValueIsAdjusting() || m_blockEvent) {
+        //                    return;
+        //                } else {
+        //                    m_eventService.publish(new RendererSelectionChgEvent((ImageRenderer)m_rendList.getSelectedValue()));
+        //                    m_eventService.publish(new ImgRedrawEvent());
+        //                }
+        //
+        //            }
+        //        });
 
         m_rendList.addItemListener(new ItemListener() {
 
             @Override
             public void itemStateChanged(final ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.DESELECTED || m_blockEvent) {
-                  return;
-              } else {
-                  m_eventService.publish(new RendererSelectionChgEvent((ImageRenderer)m_rendList.getSelectedItem()));
-                  m_eventService.publish(new ImgRedrawEvent());
-              }
+                    return;
+                } else {
+                    ImageRenderer selected = (ImageRenderer)m_rendList.getSelectedItem();
+                    m_currentSelection = selected;
+                    m_eventService.publish(new RendererSelectionChgEvent(selected));
+                    m_eventService.publish(new ImgRedrawEvent());
+                }
 
             }
         });
 
-   //     m_rendList.setSelectedIndex(0);
+        //     m_rendList.setSelectedIndex(0);
 
         add(m_rendList, gbc);
 
@@ -147,9 +149,9 @@ public class RendererSelectionPanel<T extends Type<T>> extends ViewerComponent {
         gbc.fill = GridBagConstraints.BOTH;
 
         add(Box.createVerticalGlue(), gbc);
-//        setPreferredSize(new Dimension(getPreferredSize().width, 200));
-//        setMaximumSize(getPreferredSize());
-//        setMinimumSize(new Dimension(100, getMinimumSize().height));
+        //        setPreferredSize(new Dimension(getPreferredSize().width, 200));
+        //        setMaximumSize(getPreferredSize());
+        //        setMinimumSize(new Dimension(100, getMinimumSize().height));
 
         validate();
     }
@@ -168,8 +170,7 @@ public class RendererSelectionPanel<T extends Type<T>> extends ViewerComponent {
 
         m_blockEvent = true;
         m_rendList.removeAllItems();
-        for(ImageRenderer<T> rend : tmp)
-        {
+        for (ImageRenderer<T> rend : tmp) {
             m_rendList.addItem(rend);
         }
         m_rendList.repaint();
@@ -184,9 +185,15 @@ public class RendererSelectionPanel<T extends Type<T>> extends ViewerComponent {
 
         m_blockEvent = true;
         m_rendList.removeAllItems();
-        for(ImageRenderer<T> rend : tmp)
-        {
+        for (ImageRenderer<T> rend : tmp) {
             m_rendList.addItem(rend);
+        }
+        if (m_currentSelection != null
+                && ((DefaultComboBoxModel)m_rendList.getModel()).getIndexOf(m_currentSelection) != -1) {
+            m_rendList.setSelectedItem(m_currentSelection);
+        } else {
+            m_rendList.setSelectedIndex(0);
+            m_currentSelection = null;
         }
         m_rendList.repaint();
         m_blockEvent = false;

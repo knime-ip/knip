@@ -100,4 +100,16 @@ public abstract class ProjectingRenderer<T extends Type<T>> implements ImageRend
     protected abstract AbstractProjector2D getProjector(final int dimX, final int dimY,
                                                         final RandomAccessibleInterval<T> source,
                                                         final RandomAccessibleInterval<ARGBType> target);
+
+    @Override
+    public boolean equals(final Object obj) {
+        if(obj == null) {
+            return false;
+        }
+        if (obj.getClass().equals(this.getClass())) {
+            return true;
+        }
+        return false;
+    }
+
 }
