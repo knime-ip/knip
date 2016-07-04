@@ -249,7 +249,6 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
 
             private final SettingsModelDouble m_inputFactorModel = createAffectAllDimensionModel();
 
-            //ADDED BY ME
             private final NodeLogger LOGGER = NodeLogger.getLogger(ValueToCellNodeModel.class);
 
             @Override
