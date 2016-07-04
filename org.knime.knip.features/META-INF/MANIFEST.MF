@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: KNIME Featurenode extension for KNIME Workbench
 Bundle-SymbolicName: org.knime.knip.features;singleton:=true
-Bundle-Version: 1.4.2.qualifier
+Bundle-Version: 1.5.0.qualifier
 Bundle-Vendor: University of Konstanz
 Eclipse-RegisterBuddy: org.knime.knip.core
 Require-Bundle: org.eclipse.core.runtime,
@@ -12,12 +12,12 @@ Require-Bundle: org.eclipse.core.runtime,
  imglib2-algorithm-gpl;bundle-version="0.1.2",
  imglib2-ij;bundle-version="2.0.0",
  scijava-log-slf4j;bundle-version="1.0.2",
- org.knime.knip.base;bundle-version="1.4.0",
- org.knime.knip.io;bundle-version="1.4.0",
+ org.knime.knip.base;bundle-version="1.5.0",
+ org.knime.knip.io;bundle-version="1.5.0",
  scijava-common;bundle-version="2.47.0",
  imagej-common;bundle-version="0.18.0",
  imglib2-roi,
- org.knime.knip.core;bundle-version="1.4.0",
+ org.knime.knip.core;bundle-version="1.5.0",
  imagej-ops;bundle-version="0.22.0",
  knip-tmp-imglib2-ops,
  org.knime.scijava.core;bundle-version="0.2.0",
