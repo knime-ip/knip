@@ -232,7 +232,7 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
         m_imgView.addViewerComponent(new ImgLabelingViewInfoPanel<T, L>());
         m_imgView.addViewerComponent(new ImgCanvas<T, Img<T>>());
         m_imgView.addViewerComponent(ViewerComponents.MINIMAP_PLANE_SELECTION.createInstance());
-        m_imgView.addViewerComponent(new ExpandingPanel("Image Enhancement",
+        m_imgView.addViewerComponent(new ExpandingPanel("Brightness and Contrast",
                 ViewerComponents.IMAGE_ENHANCE.createInstance(), true));
         m_imgView.addViewerComponent(new ExpandingPanel("Renderer Selection", new RendererSelectionPanel<T>(), true));
 
@@ -413,11 +413,10 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
 
             }
 
-            m_imgView.getEventService()
-                    .publish(new LabelingWithMetadataChgEvent<String>(displayedLabeling, labelingMetadata));
-
             m_imgView.getEventService().publish(new ImgAndLabelingChgEvent<T, String>(underlyingInterval,
                     displayedLabeling, labelingMetadata, labelingMetadata, labelingMetadata));
+            m_imgView.getEventService()
+                    .publish(new LabelingWithMetadataChgEvent<String>(displayedLabeling, labelingMetadata));
 
             m_imgView.getEventService().publish(new ImgRedrawEvent());
             m_eventService.publish(new TableOverviewDisableEvent(false, true));

@@ -65,23 +65,23 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.imagej.ImgPlus;
-import net.imagej.axis.Axes;
-import net.imagej.axis.DefaultLinearAxis;
-import net.imagej.space.DefaultCalibratedSpace;
-import net.imglib2.img.Img;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.knip.base.KNIMEKNIPPlugin;
 import org.knime.knip.core.ui.imgviewer.ImgCanvas;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.ui.imgviewer.ViewerComponents;
 import org.knime.knip.core.ui.imgviewer.events.ViewZoomfactorChgEvent;
-import org.knime.knip.core.ui.imgviewer.panels.ImgNormalizationPanel;
+import org.knime.knip.core.ui.imgviewer.panels.BrightnessContrastPanel;
 import org.knime.knip.core.ui.imgviewer.panels.infobars.ImgViewInfoPanel;
 import org.knime.knip.core.ui.imgviewer.panels.providers.AWTImageProvider;
 import org.knime.knip.core.ui.imgviewer.panels.providers.ImageRU;
+
+import net.imagej.ImgPlus;
+import net.imagej.axis.Axes;
+import net.imagej.axis.DefaultLinearAxis;
+import net.imagej.space.DefaultCalibratedSpace;
+import net.imglib2.img.Img;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * TODO Auto-generated
@@ -105,7 +105,7 @@ public abstract class ImgConfiguration<T extends RealType<T>> extends Serializab
         viewer.addViewerComponent(new ImgCanvas<T, Img<T>>());
         viewer.addViewerComponent(ViewerComponents.MINIMAP.createInstance());
         viewer.addViewerComponent(ViewerComponents.PLANE_SELECTION.createInstance());
-        viewer.addViewerComponent(new ImgNormalizationPanel<T, Img<T>>(0, true));
+        viewer.addViewerComponent(new BrightnessContrastPanel());
         // set normalization true as default and higher zoom level
         // TODO: build constructor for minimap
         viewer.getEventService().publish(new ViewZoomfactorChgEvent(10));

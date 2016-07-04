@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2013
+ *  Copyright (C) 2003 - 2015
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -43,105 +43,78 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
+ * Created on Dec 2, 2015 by kimber
  */
-package org.knime.knip.core.ui.imgviewer;
+package org.knime.knip.core.ui.imgviewer.events;
 
-import org.knime.knip.core.ui.imgviewer.panels.BrightnessContrastPanel;
-import org.knime.knip.core.ui.imgviewer.panels.CaptureScreenshot;
-import org.knime.knip.core.ui.imgviewer.panels.ImagePropertiesPanel;
-import org.knime.knip.core.ui.imgviewer.panels.LabelFilterPanel;
-import org.knime.knip.core.ui.imgviewer.panels.MinimapAndPlaneSelectionPanel;
-import org.knime.knip.core.ui.imgviewer.panels.MinimapPanel;
-import org.knime.knip.core.ui.imgviewer.panels.PlaneSelectionPanel;
-import org.knime.knip.core.ui.imgviewer.panels.RendererSelectionPanel;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
+import org.knime.knip.core.ui.event.KNIPEvent;
 
 /**
- * Enumeration of "primitive" manipulators the can be created with out further knowledge.
  *
- * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author <a href="mailto:ole.c.ostergaard@gmail.com">Ole Ostergaard</a>
  */
-public enum ViewerComponents {
+public class BrightnessContrastChgEvent implements Externalizable, KNIPEvent {
+
+    private double m_min;
+    private double m_factor;
+
+    public BrightnessContrastChgEvent(final double factor, final double min) {
+        m_min = min;
+        m_factor = factor;
+    }
 
     /**
      *
      */
-    IMAGE_ENHANCE() {
-        @Override
-        public ViewerComponent createInstance() {
-            return new BrightnessContrastPanel();
-        }
-
-    },
+    public BrightnessContrastChgEvent() {
+        // TODO Auto-generated constructor stub
+    }
 
     /**
-     *
+     * {@inheritDoc}
      */
-    PLANE_SELECTION() {
-        @Override
-        public ViewerComponent createInstance() {
-            return new PlaneSelectionPanel();
-        }
-    },
-
-    MINIMAP_PLANE_SELECTION() {
-        @Override
-        public ViewerComponent createInstance() {
-            return new MinimapAndPlaneSelectionPanel();
-        }
-    },
+    @Override
+    public ExecutionPriority getExecutionOrder() {
+        return ExecutionPriority.NORMAL;
+    }
     /**
-     *
+     * {@inheritDoc}
      */
-    IMAGE_PROPERTIES() {
-
-        @Override
-        public ViewerComponent createInstance() {
-            return new ImagePropertiesPanel();
-        }
-
-    },
+    @Override
+    public <E extends KNIPEvent> boolean isRedundant(final E thatEvent) {
+        return this.equals(thatEvent);
+    }
     /**
-     *
+     * {@inheritDoc}
      */
-    RENDERER_SELECTION() {
-        @Override
-        public ViewerComponent createInstance() {
-            return new RendererSelectionPanel();
-        }
+    @Override
+    public void writeExternal(final ObjectOutput out) throws IOException {
+        // TODO Auto-generated method stub
 
-    },
+    }
     /**
-     *
+     * {@inheritDoc}
      */
-    MINIMAP() {
-        @Override
-        public ViewerComponent createInstance() {
-            return new MinimapPanel();
-        }
+    @Override
+    public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException {
+        // TODO Auto-generated method stub
 
-    },
-    LABEL_FILTER() {
-        @Override
-        public ViewerComponent createInstance() {
-            return new LabelFilterPanel();
-        }
-    },
-    SCREENSHOT() {
-        @Override
-        public ViewerComponent createInstance() {
-            return new CaptureScreenshot();
-        }
-    };
+    }
 
     /**
-     * @param <T>
-     * @param <I>
      * @return
      */
-    public abstract ViewerComponent createInstance();
+    public double[] getBrightnessContrastParameters() {
+        double[] parameters = {m_factor, m_min};
+
+        return parameters;
+    }
 
 }

@@ -76,6 +76,7 @@ import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelingWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.TableOverviewDisableEvent;
 import org.knime.knip.core.ui.imgviewer.events.TablePositionEvent;
+import org.knime.knip.core.ui.imgviewer.panels.BrightnessContrastPanel;
 import org.knime.knip.core.ui.imgviewer.panels.ImgNormalizationPanel;
 import org.knime.knip.core.ui.imgviewer.panels.RendererSelectionPanel;
 import org.knime.knip.core.ui.imgviewer.panels.TransparencyPanel;
@@ -177,7 +178,7 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 
 		annotator.addViewerComponent(new AnnotatorMinimapAndPlaneSelectionPanel());
 		annotator.addViewerComponent(m_labelPanel, true, true);
-		annotator.addViewerComponent(new ExpandingPanel("Normalization", new ImgNormalizationPanel<T, Img<T>>()));
+		annotator.addViewerComponent(new ExpandingPanel("Brightness and Contrast", new BrightnessContrastPanel()));
 		annotator.addViewerComponent(new ExpandingPanel("Renderer Selection", new RendererSelectionPanel<T>()));
 		annotator.addViewerComponent(new ExpandingPanel("Transparency", new TransparencyPanel()));
 		annotator.addViewerComponent(new LabelingViewInfoPanel<>());

@@ -81,7 +81,7 @@ public class ViewerMenuFactory {
         menu.add(comp, gbc);
         comp.setEventService(e);
 
-        comp = new ExpandingPanel("Image Enhancement", ViewerComponents.IMAGE_ENHANCE.createInstance(), true);
+        comp = new ExpandingPanel("Brightness and Contrast", ViewerComponents.IMAGE_ENHANCE.createInstance(), true);
         comp.setEventService(e);
         menu.add(comp, gbc);
 

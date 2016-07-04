@@ -146,17 +146,18 @@ public class CombinedCellViewFactory implements TableCellViewFactory {
                         final ImgPlusValue imgPlusValue = (ImgPlusValue)v;
                         ImageRU ru = new ImageRU();
                         m_view.addRU(ru);
+                        m_view.publishToPrev(new RendererSelectionChgEvent(new Real2GreyRenderer()));
                         m_view.publishToPrev(new ImgWithMetadataChgEvent<>(imgPlusValue.getImgPlus(),
                                 imgPlusValue.getMetadata()));
-                        m_view.publishToPrev(new RendererSelectionChgEvent(new Real2GreyRenderer()));
+
 
                     } else if (v instanceof LabelingValue) {
                         final LabelingValue labValue = (LabelingValue)v;
                         LabelingRU labRU = new LabelingRU();
                         m_view.addRU(labRU);
+                        m_view.publishToPrev(new RendererSelectionChgEvent(new ColorLabelingRenderer<>()));
                         m_view.publishToPrev(new LabelingWithMetadataChgEvent(labValue.getLabeling(),
                                 labValue.getLabelingMetadata()));
-                        m_view.publishToPrev(new RendererSelectionChgEvent(new ColorLabelingRenderer<>()));
                     }
                 }
 

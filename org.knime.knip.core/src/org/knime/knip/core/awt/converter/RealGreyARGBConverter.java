@@ -54,7 +54,7 @@ import net.imglib2.type.numeric.RealType;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -76,14 +76,10 @@ public class RealGreyARGBConverter<R extends RealType<R>> implements Converter<R
         int b;
         double val;
 
-        if (m_normalizationFactor == 1) {
-            val = ((input.getRealDouble() - input.getMinValue()) / (input.getMaxValue() - input.getMinValue()));
 
-        } else {
-            val =
-                    (((input.getRealDouble() - m_localMin) / (input.getMaxValue() - input.getMinValue())) * m_normalizationFactor);
+        val =
+           (((input.getRealDouble() - m_localMin) / (input.getMaxValue() - input.getMinValue())) * m_normalizationFactor);
 
-        }
 
         b = (int)Math.round(val * 255.0);
 
