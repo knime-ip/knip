@@ -270,7 +270,11 @@ public class FeatureCalculatorModel<T extends RealType<T> & NativeType<T>, L ext
 		this.m_labelIntersectionModeModel.loadSettingsFrom(settings);
 		this.m_appendSegmentInfoModel.loadSettingsFrom(settings);
 		this.m_includeLabelModel.loadSettingsFrom(settings);
-		this.m_filterOverlappingLabelsModeModel.loadSettingsFrom(settings);
+		try {
+			this.m_filterOverlappingLabelsModeModel.loadSettingsFrom(settings);
+		} catch (InvalidSettingsException ise) {
+			// do nothing
+		}
 	}
 
 	/**
@@ -287,7 +291,11 @@ public class FeatureCalculatorModel<T extends RealType<T> & NativeType<T>, L ext
 		this.m_labelIntersectionModeModel.validateSettings(settings);
 		this.m_appendSegmentInfoModel.validateSettings(settings);
 		this.m_includeLabelModel.validateSettings(settings);
-		this.m_filterOverlappingLabelsModeModel.validateSettings(settings);
+		try {
+			this.m_filterOverlappingLabelsModeModel.loadSettingsFrom(settings);
+		} catch (InvalidSettingsException ise) {
+			// do nothing
+		}
 	}
 
 	/**
