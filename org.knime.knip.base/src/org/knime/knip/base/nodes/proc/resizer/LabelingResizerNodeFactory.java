@@ -162,6 +162,14 @@ public class LabelingResizerNodeFactory<L> extends ValueToCellNodeFactory<Labeli
                                            EnumUtils.getStringListFromToString(InputFactors.values())));
 
             }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected String getDefaultSuffixForAppend() {
+                return "_resized";
+            }
         };
     }
 
