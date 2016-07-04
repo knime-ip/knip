@@ -52,9 +52,6 @@ import javax.swing.JOptionPane;
 
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
-import net.miginfocom.layout.AC;
-import net.miginfocom.layout.LC;
-import net.miginfocom.swing.MigLayout;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.InvalidSettingsException;
