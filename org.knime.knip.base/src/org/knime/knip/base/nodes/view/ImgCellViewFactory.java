@@ -48,18 +48,18 @@
  */
 package org.knime.knip.base.nodes.view;
 
-import java.awt.Component;
+import java.util.List;
 
+import javax.swing.JPanel;
 import javax.swing.SwingWorker;
 
 import org.knime.core.data.DataValue;
-import org.knime.core.node.config.ConfigRO;
-import org.knime.core.node.config.ConfigWO;
 import org.knime.knip.base.KNIMEKNIPPlugin;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.ui.ViewerFactory;
+import org.knime.knip.cellviewer.interfaces.CellView;
+import org.knime.knip.cellviewer.interfaces.CellViewFactory;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
-import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 import org.knime.knip.core.util.waitingindicator.WaitingIndicatorUtils;
 
 import net.imglib2.type.NativeType;
@@ -73,68 +73,31 @@ import net.imglib2.type.numeric.RealType;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
  */
-public class ImgCellViewFactory<T extends RealType<T> & NativeType<T>> implements TableCellViewFactory {
+public class ImgCellViewFactory<T extends RealType<T> & NativeType<T>> implements CellViewFactory {
 
     @Override
-    public TableCellView[] createTableCellViews() {
-        return new TableCellView[]{new TableCellView() {
+    public CellView createCellView() {
+        return new CellView() {
 
-            private ImgViewer m_view = null;
-
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            public String getDescription() {
-                return "";
-            }
+            private ImgViewer m_view;
 
             @Override
-            public String getName() {
-                return "Image Viewer";
-            }
-
-            @Override
-            public Component getViewComponent() {
+            public JPanel getViewComponent() {
                 if (m_view == null) {
                     m_view = ViewerFactory.createImgViewer(KNIMEKNIPPlugin.getCacheSizeForBufferedImages());
                 }
-
                 return m_view;
             }
 
             @Override
-            public void loadConfigurationFrom(final ConfigRO config) {
-                //
-
-            }
-
-            @Override
-            public void onClose() {
-                m_view.getEventService().publish(new ViewClosedEvent());
-            }
-
-            @Override
-            public void onReset() {
-                // Nothing to do here
-            }
-
-            @Override
-            public void saveConfigurationTo(final ConfigWO config) {
-                //
-
-            }
-
-            @Override
-            public void updateComponent(final DataValue valueToView) {
-
+            public void updateComponent(final List<DataValue> valuesToView) {
                 WaitingIndicatorUtils.setWaiting(m_view, true);
 
                 SwingWorker<ImgPlusValue<T>, Integer> worker = new SwingWorker<ImgPlusValue<T>, Integer>() {
 
                     @Override
                     protected ImgPlusValue<T> doInBackground() throws Exception {
-                        final ImgPlusValue<T> imgPlusValue = (ImgPlusValue<T>)valueToView;
+                        final ImgPlusValue<T> imgPlusValue = (ImgPlusValue<T>)valuesToView.get(0);
                         m_view.setImg(imgPlusValue.getImgPlus());
                         return null;
                     }
@@ -146,77 +109,54 @@ public class ImgCellViewFactory<T extends RealType<T> & NativeType<T>> implement
                 };
 
                 worker.execute();
-            }
-        }, new TableCellView() {
-            private ImgViewer m_view = null;
-
-            @Override
-            public String getDescription() {
-                return "";
-            }
-
-            @Override
-            public String getName() {
-                return "Histogram";
-            }
-
-            @Override
-            public Component getViewComponent() {
-                if (m_view == null) {
-                    m_view = ViewerFactory.createHistViewer(KNIMEKNIPPlugin.getCacheSizeForBufferedImages());
-                }
-
-                return m_view;
-            }
-
-            @Override
-            public void loadConfigurationFrom(final ConfigRO config) {
-                //
 
             }
 
             @Override
             public void onClose() {
-                m_view.getEventService().publish(new ViewClosedEvent());
+                // TODO Auto-generated method stub
+
             }
 
             @Override
             public void onReset() {
-                // Nothing to do here
-            }
-
-            @Override
-            public void saveConfigurationTo(final ConfigWO config) {
-                //
+                // TODO Auto-generated method stub
 
             }
 
-            public void updateComponent(final DataValue valueToView) {
 
-                WaitingIndicatorUtils.setWaiting(m_view, true);
-
-                SwingWorker<ImgPlusValue<T>, Integer> worker = new SwingWorker<ImgPlusValue<T>, Integer>() {
-
-                    @Override
-                    protected ImgPlusValue<T> doInBackground() throws Exception {
-                        final ImgPlusValue<T> imgPlusValue = (ImgPlusValue<T>)valueToView;
-                        m_view.setImg(imgPlusValue.getImgPlus());
-                        return null;
-                    }
-
-                    @Override
-                    protected void done() {
-                        WaitingIndicatorUtils.setWaiting(m_view, false);
-                    }
-                };
-
-                worker.execute();
-            }
-        }};
+        };
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Class<? extends DataValue> getDataValueClass() {
-        return ImgPlusValue.class;
+    public String getCellViewName() {
+        return "Image Viewer";
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getCellViewDescription() {
+        return "This viewer renders the selected image-cell.";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isCompatible(final List<Class<? extends DataValue>> values) {
+        if (values.size() >= 2) {
+            return false;
+        }
+        if (values.get(0).equals(ImgPlusValue.class)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }

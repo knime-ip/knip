@@ -51,8 +51,6 @@ package org.knime.knip.base.nodes.io.kernel;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.DynamicNodeFactory;
 import org.knime.core.node.NodeDescription;
 import org.knime.core.node.NodeDescription210Proxy;
@@ -63,7 +61,10 @@ import org.knime.knip.base.node.XMLNodeUtils;
 import org.knime.knip.base.nodes.io.kernel.structuring.BoxConfiguration;
 import org.knime.knip.base.nodes.io.kernel.structuring.SphereConfiguration;
 import org.knime.knip.base.nodes.view.TableCellViewNodeView;
+import org.knime.knip.cellviewer.CellNodeView;
 import org.knime.node.v210.KnimeNodeDocument;
+
+import net.imglib2.type.numeric.RealType;
 
 /**
  * TODO Auto-generated
@@ -121,7 +122,7 @@ public class StructuringElementNodeFactory<T extends RealType<T>> extends Dynami
     @Override
     public NodeView<KernelCreatorNodeModel<T>> createNodeView(final int viewIndex,
                                                               final KernelCreatorNodeModel<T> nodeModel) {
-        return new TableCellViewNodeView<KernelCreatorNodeModel<T>>(nodeModel);
+        return new CellNodeView<KernelCreatorNodeModel<T>>(nodeModel);
     }
 
     private Map<String, Class<?>> createPool() {

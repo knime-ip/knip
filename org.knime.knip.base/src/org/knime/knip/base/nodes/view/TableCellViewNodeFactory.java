@@ -54,6 +54,7 @@ import org.knime.core.node.NodeDescription210Proxy;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeView;
 import org.knime.knip.base.node.XMLNodeUtils;
+import org.knime.knip.cellviewer.CellNodeView;
 import org.knime.node.v210.KnimeNodeDocument;
 
 /**
@@ -102,7 +103,7 @@ public class TableCellViewNodeFactory extends DynamicNodeFactory<TableCellViewNo
      */
     @Override
     public NodeView<TableCellViewNodeModel> createNodeView(final int viewIndex, final TableCellViewNodeModel nodeModel) {
-        return new TableCellViewNodeView<>(nodeModel);
+        return new CellNodeView<>(nodeModel);
     }
 
     /**

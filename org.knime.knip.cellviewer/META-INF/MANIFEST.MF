@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: KNIME Image Processing - Cell Viewer
+Bundle-SymbolicName: org.knime.knip.cellviewer;singleton:=true
+Bundle-Version: 1.5.0.qualifier
+Require-Bundle: org.eclipse.core.runtime,
+ org.knime.core;bundle-version="3.1.1",
+ org.knime.workbench.repository;bundle-version="3.1.0",
+ slf4j-log4j12
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: org.apache.log4j
+Export-Package: org.knime.knip.cellviewer,
+ org.knime.knip.cellviewer.interfaces
+Bundle-ClassPath: .

@@ -12,12 +12,6 @@
         </nodeset>
      </extension>
      <extension
-           point="org.knime.knip.base.TableCellView">
-        <TableCellView
-              TableCellViewFactory="org.knime.knip.io.view.XMLCellViewFactory">
-        </TableCellView>
-     </extension>
-     <extension
            point="org.knime.workbench.repository.registeredFileExtensions">
         <FileExtensionMapping
               NodeFactory="org.knime.knip.io.nodes.imgreader2.readfromdialog.ImgReader2NodeFactory">
@@ -162,5 +156,11 @@
 			<FileExtension extension="zpo"></FileExtension>
 			<FileExtension extension="zvi"></FileExtension>
         </FileExtensionMapping>
+     </extension>
+     <extension
+           point="org.knime.knip.cellviewer.cellviews">
+        <CellView
+              CellViewProviderFactory="org.knime.knip.io.view.XMLCellViewFactory">
+        </CellView>
      </extension>
 </plugin>

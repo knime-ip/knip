@@ -109,6 +109,7 @@ public abstract class ImgConfiguration<T extends RealType<T>> extends Serializab
         // set normalization true as default and higher zoom level
         // TODO: build constructor for minimap
         viewer.getEventService().publish(new ViewZoomfactorChgEvent(10));
+        viewer.doneAdding();
         return viewer;
     }
 

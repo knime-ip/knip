@@ -52,12 +52,12 @@ package org.knime.knip.base.nodes.testing.TableCellViewer;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.type.Type;
-
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.imgviewer.ImgCanvas;
 import org.knime.knip.core.ui.imgviewer.events.MinimapOffsetChgEvent;
+
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.type.Type;
 
 /**
  * This class is a small extension of the {@link ImgCanvas} class, listening to an additional event-type.
@@ -65,6 +65,7 @@ import org.knime.knip.core.ui.imgviewer.events.MinimapOffsetChgEvent;
  * @author Andreas Burger, University of Konstanz
  * @param <T>
  */
+@Deprecated
 public class TestImgCanvas<T extends Type<T>, I extends RandomAccessibleInterval<T>> extends
         ImgCanvas<T, I> {
 

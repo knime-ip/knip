@@ -60,6 +60,7 @@ import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelectio
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.XMLNodeUtils;
 import org.knime.knip.base.nodes.view.TableCellViewNodeView;
+import org.knime.knip.cellviewer.CellNodeView;
 import org.knime.node.v210.KnimeNodeDocument;
 
 /**
@@ -122,7 +123,7 @@ public class ApplyColorSettingsToLabelsNodeFactory<L extends Comparable<L>> exte
     @Override
     public NodeView<ApplyColorSettingsToLabelsNodeModel<L>>
             createNodeView(final int viewIndex, final ApplyColorSettingsToLabelsNodeModel<L> nodeModel) {
-        return new TableCellViewNodeView<ApplyColorSettingsToLabelsNodeModel<L>>(nodeModel);
+        return new CellNodeView<ApplyColorSettingsToLabelsNodeModel<L>>(nodeModel);
     }
 
     /**

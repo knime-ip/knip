@@ -31,7 +31,8 @@ Require-Bundle: org.apache.log4j;bundle-version="1.2.15",
  org.knime.scijava.core;bundle-version="0.2.0",
  commons-math3;bundle-version="3.5.0",
  imagej-ui-swing;bundle-version="0.16.0",
- jfreechart;bundle-version="1.0.19"
+ jfreechart;bundle-version="1.0.19",
+ org.knime.knip.cellviewer;bundle-version="1.5.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: org.knime.knip.core,
  org.knime.knip.core.algorithm,

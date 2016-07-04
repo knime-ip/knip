@@ -57,7 +57,7 @@ import org.knime.core.node.defaultnodesettings.DialogComponentColumnFilter;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
-import org.knime.knip.base.nodes.view.TableCellViewNodeView;
+import org.knime.knip.cellviewer.CellNodeView;
 
 /**
  *
@@ -111,7 +111,7 @@ public class SliceIteratorLoopStartNodeFactory extends NodeFactory<SliceIterator
     @Override
     public NodeView<SliceIteratorLoopStartNodeModel> createNodeView(final int viewIndex,
                                                                     final SliceIteratorLoopStartNodeModel nodeModel) {
-        return new TableCellViewNodeView<SliceIteratorLoopStartNodeModel>(nodeModel, 0);
+        return new CellNodeView<SliceIteratorLoopStartNodeModel>(nodeModel, 0);
     }
 
     /**

@@ -65,6 +65,7 @@ import org.knime.node.v210.KnimeNodeDocument;
  * @author <a href="mailto:jonathan.hale@uni.kn">Jonathan Hale</a>
  * @author Andreas Burger, University of Konstanz
  */
+@Deprecated
 public class TestTableCellViewNodeFactory extends DynamicNodeFactory<TestTableCellViewNodeModel> {
 
     /**
