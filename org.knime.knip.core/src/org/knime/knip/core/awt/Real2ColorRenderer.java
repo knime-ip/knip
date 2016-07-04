@@ -48,14 +48,14 @@
  */
 package org.knime.knip.core.awt;
 
+import org.knime.knip.core.awt.converter.RealColorARGBConverter;
+import org.knime.knip.core.awt.parametersupport.RendererWithNormalization;
+
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.display.projector.sampler.SamplingProjector2D;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
-
-import org.knime.knip.core.awt.converter.RealColorARGBConverter;
-import org.knime.knip.core.awt.parametersupport.RendererWithNormalization;
 
 /**
  * TODO Auto-generated
@@ -64,8 +64,8 @@ import org.knime.knip.core.awt.parametersupport.RendererWithNormalization;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public class Real2ColorRenderer<R extends RealType<R>> extends ProjectingRenderer<R> implements
-        RendererWithNormalization {
+public class Real2ColorRenderer<R extends RealType<R>> extends ProjectingRenderer<R>
+        implements RendererWithNormalization {
 
     private RealColorARGBConverter<R> m_converter;
 
@@ -91,7 +91,22 @@ public class Real2ColorRenderer<R extends RealType<R>> extends ProjectingRendere
                                                             final RandomAccessibleInterval<R> source,
                                                             final RandomAccessibleInterval<ARGBType> target) {
 
-        return new SamplingProjector2D<R, ARGBType>(dimX, dimY, source, Views.iterable(target), m_converter, m_projectedDimension);
+        return new SamplingProjector2D<R, ARGBType>(dimX, dimY, source, Views.iterable(target), m_converter,
+                m_projectedDimension);
+    }
+
+    @Override
+    public boolean equals(final Object other) {
+        if (other == null) {
+            return false;
+        }
+
+        if (other instanceof Real2ColorRenderer) {
+            if (((Real2ColorRenderer)other).m_projectedDimension == this.m_projectedDimension) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
