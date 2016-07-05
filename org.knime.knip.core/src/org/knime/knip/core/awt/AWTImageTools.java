@@ -372,7 +372,6 @@ public final class AWTImageTools {
            renderScaledStandardColorImg(RandomAccessibleInterval<T> img, final ImageRenderer<T> renderer,
                                         final double factor, final long[] startPos) {
 
-        long width;
 
         FinalInterval interval;
         AffineGet transform;
