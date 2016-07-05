@@ -156,4 +156,9 @@ public class HistogramCellViewFactory<T extends RealType<T> & NativeType<T>> imp
             return false;
         }
     }
+
+    @Override
+    public int getPriority(){
+        return Integer.MAX_VALUE -1;
+    }
 }

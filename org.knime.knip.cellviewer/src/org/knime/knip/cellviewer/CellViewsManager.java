@@ -49,10 +49,13 @@
 package org.knime.knip.cellviewer;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.event.ListSelectionEvent;
 
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionPoint;
@@ -167,6 +170,7 @@ public final class CellViewsManager {
 				facs.add(f);
 			}
 		}
+		Collections.sort(facs);
 		return facs;
 
 	}

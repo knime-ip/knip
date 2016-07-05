@@ -188,4 +188,9 @@ public class CombinedCellViewFactory implements CellViewFactory {
                 + "Alternatively, the images and labelings can be layed over each other.";
     }
 
+    @Override
+    public int getPriority(){
+        return Integer.MAX_VALUE;
+    }
+
 }

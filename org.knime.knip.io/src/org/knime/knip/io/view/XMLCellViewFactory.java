@@ -188,5 +188,10 @@ public class XMLCellViewFactory implements CellViewFactory {
 		else
 			return false;
 	}
+	
+    @Override
+    public int getPriority(){
+        return Integer.MAX_VALUE;
+    }
 
 }

@@ -143,4 +143,9 @@ public class LabelingCellViewFactory<L extends Comparable<L>, II extends Integer
         }
     }
 
+    @Override
+    public int getPriority(){
+        return Integer.MAX_VALUE;
+    }
+
 }

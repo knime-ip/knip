@@ -136,4 +136,9 @@ public class MissingCellViewFactory<T extends RealType<T> & NativeType<T>> imple
             return false;
         }
     }
+
+    @Override
+    public int getPriority(){
+        return Integer.MAX_VALUE;
+    }
 }

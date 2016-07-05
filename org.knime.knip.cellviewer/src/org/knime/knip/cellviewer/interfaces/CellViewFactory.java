@@ -60,7 +60,7 @@ import org.knime.core.data.DataValue;
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:Andreas.Burger@uni-konstanz.de">Andreas Burger</a>
  */
-public interface CellViewFactory {
+public interface CellViewFactory extends Comparable<CellViewFactory> {
 
 	/**
 	 * This method creates the {@link CellView} which instantiates and handles
@@ -86,13 +86,36 @@ public interface CellViewFactory {
 	 * views. If, for a given list, this method returns <i>true</i>, the view
 	 * has to be able to handle (i.e. display) the list. <br>
 	 * A default implementation which checks for a list containing a single
-	 * value in accordance with
-	 * {@link CellViewFactory#getDataValueClass()} is provided.
+	 * value in accordance with {@link CellViewFactory#getDataValueClass()} is
+	 * provided.
 	 * 
 	 * @param values
 	 *            The prototype list whose displayability is to be checked.
 	 * @return true if the contents of the list can be rendered, false otherwise
 	 */
 	public boolean isCompatible(final List<Class<? extends DataValue>> values);
+
+	/**
+	 * Get an associated priority-value for the CellView. This is used to
+	 * determine the ordering of eligible views in the cell viewer. Views with
+	 * larger priority are shown before views with small priority.
+	 * 
+	 * @return An integer describing this views priority
+	 */
+	default public int getPriority() {
+		return 0;
+	}
+
+	@Override
+	default int compareTo(CellViewFactory o) {
+		if(getPriority() > o.getPriority())
+			return 1;
+		if(getPriority() < o.getPriority())
+			return -1;
+		return 0;
+		
+	}
+	
+	
 
 }
