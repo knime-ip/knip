@@ -92,6 +92,7 @@ import net.imglib2.img.WrappedImg;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.util.MetadataUtil;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.Util;
 import net.imglib2.view.Views;
 
 /**
@@ -229,8 +230,10 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
             toRender = tmpImg.factory().create(toRender, tmpImg.firstElement().createVariable());
         }
 
-        return AWTImageTools.renderScaledStandardColorImg(toRender, new Real2GreyColorRenderer<T>(2), factor,
-                                                          new long[max.length]);
+        return AWTImageTools.renderScaledStandardColorImg(toRender,
+                                                          new Real2GreyColorRenderer<T>(2,
+                                                                  Util.getTypeFromInterval(toRender).getMinValue()),
+                                                          factor, new long[max.length]);
     }
 
     /**

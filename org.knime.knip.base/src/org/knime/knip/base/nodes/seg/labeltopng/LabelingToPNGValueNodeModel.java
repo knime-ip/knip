@@ -226,7 +226,7 @@ public class LabelingToPNGValueNodeModel<T extends RealType<T>, L extends Compar
     //
 
     private BufferedImage createGreyImage(final ImgPlus<T> img, final long[] min, final int X, final int Y) {
-        Real2GreyRenderer<T> greyRenderer = new Real2GreyRenderer<T>();
+        Real2GreyRenderer<T> greyRenderer = new Real2GreyRenderer<T>(img.firstElement().getMinValue());
         BufferedImage res = AWTImageTools.makeBuffered(greyRenderer.render(img, X, Y, min).image());
         return res;
     }

@@ -48,12 +48,12 @@
  */
 package org.knime.knip.core.awt;
 
+import org.knime.knip.core.awt.parametersupport.RendererWithNormalization;
+
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.display.projector.AbstractProjector2D;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.RealType;
-
-import org.knime.knip.core.awt.parametersupport.RendererWithNormalization;
 
 /**
  *
@@ -70,10 +70,10 @@ public class Real2GreyColorRenderer<R extends RealType<R>> extends ProjectingRen
 
     private final Real2GreyRenderer<R> m_greyRenderer;
 
-    public Real2GreyColorRenderer(final int colorDim) {
+    public Real2GreyColorRenderer(final int colorDim, final double minValue) {
         m_colorDim = colorDim;
         m_colorRenderer = new Real2ColorRenderer<R>(colorDim);
-        m_greyRenderer = new Real2GreyRenderer<R>();
+        m_greyRenderer = new Real2GreyRenderer<R>(minValue);
     }
 
     /**

@@ -225,8 +225,8 @@ public class ImgPlusCellToPNGValueNodeFactory<T extends RealType<T>> extends Val
 
                     interval.min(min);
 
-                    final Real2GreyColorRenderer<T> renderer =
-                            new Real2GreyColorRenderer<T>(channelSelected ? channelDim[0] : -1);
+                    final Real2GreyColorRenderer<T> renderer = new Real2GreyColorRenderer<T>(
+                            channelSelected ? channelDim[0] : -1, imgPlus.firstElement().getMinValue());
 
                     final ByteArrayOutputStream out = new ByteArrayOutputStream();
                     ImageIO.write(AWTImageTools

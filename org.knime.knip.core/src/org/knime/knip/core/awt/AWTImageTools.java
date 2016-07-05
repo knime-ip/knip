@@ -305,7 +305,7 @@ public final class AWTImageTools {
         frame.setSize(w, h);
         frame.getContentPane().add(label);
 
-        final Real2GreyRenderer<T> renderer = new Real2GreyRenderer<T>();
+        final Real2GreyRenderer<T> renderer = new Real2GreyRenderer<T>(img.firstElement().getMinValue());
 
         final java.awt.Image awtImage = renderer.render(img, dimX, dimY, pos).image();
         label.setIcon(new ImageIcon(awtImage.getScaledInstance((int)Math.round(w * factor), (int)Math.round(h * factor),

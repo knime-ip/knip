@@ -160,7 +160,7 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>> extends
 	@Override
 	protected JComponent createAnnotatorComponent() {
 		ImgViewer annotator = new ImgViewer();
-		annotator.addViewerComponent(new AWTImageProvider(0, new OverlayRU<String>(new ImageRU<T>())));
+		annotator.addViewerComponent(new AWTImageProvider(0, new OverlayRU<String>(new ImageRU<T>(0.0))));
 		annotator.addViewerComponent(m_manager);
 
 		annotator.addViewerComponent(new AnnotatorMinimapAndPlaneSelectionPanel());

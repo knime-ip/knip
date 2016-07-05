@@ -48,6 +48,10 @@
  */
 package org.knime.knip.core.awt;
 
+import org.knime.knip.core.awt.converter.RealGreyARGBConverter;
+import org.knime.knip.core.awt.parametersupport.RendererWithNormalization;
+import org.knime.knip.core.awt.specializedrendering.FastNormalizingGreyRendering;
+
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.display.projector.AbstractProjector2D;
 import net.imglib2.display.projector.IterableIntervalProjector2D;
@@ -55,10 +59,6 @@ import net.imglib2.display.screenimage.awt.AWTScreenImage;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
-
-import org.knime.knip.core.awt.converter.RealGreyARGBConverter;
-import org.knime.knip.core.awt.parametersupport.RendererWithNormalization;
-import org.knime.knip.core.awt.specializedrendering.FastNormalizingGreyRendering;
 
 /**
  * TODO Auto-generated
@@ -76,10 +76,16 @@ public class Real2GreyRenderer<R extends RealType<R>> extends ProjectingRenderer
 
     private RealGreyARGBConverter<R> m_converter;
 
-    public Real2GreyRenderer() {
-        m_converter = new RealGreyARGBConverter<R>(1.0, 0.0);
+//    public Real2GreyRenderer() {
+//        m_converter = new RealGreyARGBConverter<R>(1.0, 0.0);
+//        m_normalizationFactor = 1.0;
+//        m_min = 0.0;
+//    }
+
+    public Real2GreyRenderer(final double localMin) {
+        m_converter = new RealGreyARGBConverter<R>(1.0, localMin);
         m_normalizationFactor = 1.0;
-        m_min = 0.0;
+        m_min = localMin;
     }
 
     @Override

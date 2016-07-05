@@ -81,7 +81,7 @@ public class RendererFactory {
             final T type = img.randomAccess().get();
 
             if (type instanceof RealType) {
-                res.add(new Real2GreyRenderer());
+                res.add(new Real2GreyRenderer(((RealType)Util.getTypeFromInterval(img)).getMinValue()));
                 for (int d = 0; d < img.numDimensions(); d++) {
                     if ((img.dimension(d) > 1) && (img.dimension(d) < 4)) {
                         res.add(new Real2ColorRenderer(d));

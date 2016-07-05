@@ -52,15 +52,6 @@ import java.awt.Image;
 import java.awt.RenderingHints;
 import java.io.IOException;
 
-import net.imagej.ImgPlus;
-import net.imagej.ImgPlusMetadata;
-import net.imagej.Sourced;
-import net.imagej.axis.CalibratedAxis;
-import net.imagej.space.CalibratedSpace;
-import net.imglib2.img.Img;
-import net.imglib2.ops.operation.imgplus.unary.ImgPlusCopy;
-import net.imglib2.type.logic.BitType;
-
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataCellDataInput;
 import org.knime.core.data.DataCellDataOutput;
@@ -75,6 +66,15 @@ import org.knime.knip.core.awt.Real2GreyColorRenderer;
 import org.knime.knip.core.data.algebra.ExtendedPolygon;
 import org.knime.knip.core.io.externalization.ExtendedPolygonDeSerializer;
 import org.scijava.Named;
+
+import net.imagej.ImgPlus;
+import net.imagej.ImgPlusMetadata;
+import net.imagej.Sourced;
+import net.imagej.axis.CalibratedAxis;
+import net.imagej.space.CalibratedSpace;
+import net.imglib2.img.Img;
+import net.imglib2.ops.operation.imgplus.unary.ImgPlusCopy;
+import net.imglib2.type.logic.BitType;
 
 /**
  * Cell containing a Polygon.
@@ -221,8 +221,8 @@ public class PolygonCell extends DataCell implements PolygonValue, ImgPlusValue<
     @Override
     public ImgPlus<BitType> getImgPlusCopy() {
         final ImgPlus<BitType> imgPlus = getImgPlus();
-        return new ImgPlusCopy<BitType>().compute(imgPlus, new ImgPlus<BitType>(
-                KNIPGateway.ops().create().img(imgPlus), imgPlus));
+        return new ImgPlusCopy<BitType>()
+                .compute(imgPlus, new ImgPlus<BitType>(KNIPGateway.ops().create().img(imgPlus), imgPlus));
     }
 
     /**
@@ -295,7 +295,7 @@ public class PolygonCell extends DataCell implements PolygonValue, ImgPlusValue<
         // int width = (int) (mask.dimension(0) * (height / mask
         // .dimension(1)));
 
-        return AWTImageTools.<BitType> renderScaledStandardColorImg(mask, new Real2GreyColorRenderer<BitType>(2),
+        return AWTImageTools.<BitType> renderScaledStandardColorImg(mask, new Real2GreyColorRenderer<BitType>(2, 0.0),
                                                                     (double)height / (double)mask.dimension(1),
                                                                     new long[mask.numDimensions()]);
     }

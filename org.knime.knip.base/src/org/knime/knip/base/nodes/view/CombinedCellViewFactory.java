@@ -71,6 +71,8 @@ import org.knime.knip.core.ui.imgviewer.panels.providers.ImageRU;
 import org.knime.knip.core.ui.imgviewer.panels.providers.LabelingRU;
 import org.knime.knip.core.util.waitingindicator.WaitingIndicatorUtils;
 
+import net.imglib2.type.numeric.RealType;
+
 /**
  * TODO Auto-generated
  *
@@ -99,7 +101,6 @@ public class CombinedCellViewFactory implements CellViewFactory {
                 return m_view;
             }
 
-
             @Override
             public void onClose() {
                 m_view.getEventService().publish(new ViewClosedEvent());
@@ -110,7 +111,6 @@ public class CombinedCellViewFactory implements CellViewFactory {
                 // Nothing to do here
             }
 
-
             @Override
             public void updateComponent(final List<DataValue> valueToView) {
                 WaitingIndicatorUtils.setWaiting(m_view, true);
@@ -120,12 +120,12 @@ public class CombinedCellViewFactory implements CellViewFactory {
                 for (DataValue v : valueToView) {
                     if (v instanceof ImgPlusValue) {
                         final ImgPlusValue imgPlusValue = (ImgPlusValue)v;
-                        ImageRU ru = new ImageRU();
+                        ImageRU ru = new ImageRU(((RealType)imgPlusValue.getImgPlus().firstElement()).getMinValue());
                         m_view.addRU(ru);
-                        m_view.publishToPrev(new RendererSelectionChgEvent(new Real2GreyRenderer()));
+                        m_view.publishToPrev(new RendererSelectionChgEvent(new Real2GreyRenderer(
+                                ((RealType)imgPlusValue.getImgPlus().firstElement()).getMinValue())));
                         m_view.publishToPrev(new ImgWithMetadataChgEvent<>(imgPlusValue.getImgPlus(),
                                 imgPlusValue.getMetadata()));
-
 
                     } else if (v instanceof LabelingValue) {
                         final LabelingValue labValue = (LabelingValue)v;

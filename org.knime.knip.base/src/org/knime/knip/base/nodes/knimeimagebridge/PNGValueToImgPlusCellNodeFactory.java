@@ -58,6 +58,8 @@ import javax.swing.event.ChangeListener;
 
 import org.knime.core.data.image.png.PNGImageValue;
 import org.knime.core.node.ExecutionContext;
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
@@ -162,6 +164,15 @@ public class PNGValueToImgPlusCellNodeFactory extends ValueToCellNodeFactory<PNG
                 settingsModels.add(m_factory);
                 settingsModels.add(m_replaceTransparentAlphaWithConstant);
                 settingsModels.add(m_alphaReplacementValue);
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
+                // TODO Auto-generated method stub
+                super.validateSettings(settings);
             }
 
             /**

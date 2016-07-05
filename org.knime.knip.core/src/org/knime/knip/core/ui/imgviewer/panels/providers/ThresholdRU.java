@@ -81,7 +81,7 @@ import net.imglib2.view.Views;
 public class ThresholdRU<T extends RealType<T>> extends AbstractDefaultRU<BitType> {
 
     /** can be used instead of the threshold rendering if the selection is deactivated. */
-    private ImageRU<T> m_imageRenderer = new ImageRU<T>();
+    private ImageRU<T> m_imageRenderer = new ImageRU<T>(0.0);
 
     // event members
 
@@ -169,7 +169,7 @@ public class ThresholdRU<T extends RealType<T>> extends AbstractDefaultRU<BitTyp
     @EventListener
     public void onClose2(final ViewClosedEvent event) {
         m_src = null;
-        m_imageRenderer = new ImageRU<T>();
+        m_imageRenderer = new ImageRU<T>(0.0);
         m_brightnessContrastParameters = new BrightnessContrastChgEvent();
     }
 

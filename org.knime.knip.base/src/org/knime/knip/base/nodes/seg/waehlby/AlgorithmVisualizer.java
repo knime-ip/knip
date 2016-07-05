@@ -56,11 +56,12 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
 
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.knip.core.awt.AWTImageTools;
 import org.knime.knip.core.awt.Real2GreyRenderer;
+
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.Util;
 
 /**
  *
@@ -69,6 +70,7 @@ import org.knime.knip.core.awt.Real2GreyRenderer;
 public class AlgorithmVisualizer<T extends RealType<T>> extends JFrame {
 
     RandomAccessibleInterval<T> m_interval;
+
     BufferedImage m_img;
 
     int[] m_pos;
@@ -83,7 +85,10 @@ public class AlgorithmVisualizer<T extends RealType<T>> extends JFrame {
 
     public void setImage(final RandomAccessibleInterval<T> i) {
         m_interval = i;
-        m_img = AWTImageTools.renderScaledStandardColorImg(m_interval, new Real2GreyRenderer(), 1.0, new long[]{0, 0});
+        m_img = AWTImageTools.renderScaledStandardColorImg(m_interval,
+                                                           new Real2GreyRenderer(
+                                                                   Util.getTypeFromInterval(i).getMinValue()),
+                                                           1.0, new long[]{0, 0});
 
         this.setPreferredSize(new Dimension(m_img.getWidth(), m_img.getHeight()));
         this.setSize(new Dimension(m_img.getWidth(), m_img.getHeight()));
@@ -97,7 +102,7 @@ public class AlgorithmVisualizer<T extends RealType<T>> extends JFrame {
         g.drawRect(m_pos[0], m_pos[1], 1, 1);
     }
 
-    public void setPosition(final int[] pos){
+    public void setPosition(final int[] pos) {
         m_pos = pos;
     }
 

@@ -96,10 +96,10 @@ public abstract class ImgConfiguration<T extends RealType<T>> extends Serializab
 
     protected final static int STANDARD_TEXTFIELD_COLUMNS = 10;
 
-    private static <T extends RealType<T>, I extends Img<T>> ImgViewer createImgViewer() {
+    private static <T extends RealType<T>, I extends Img<T>> ImgViewer createImgViewer(final double min) {
         final ImgViewer viewer = new ImgViewer();
         final AWTImageProvider realProvider =
-                new AWTImageProvider(KNIMEKNIPPlugin.getCacheSizeForBufferedImages(), new ImageRU<T>());
+                new AWTImageProvider(KNIMEKNIPPlugin.getCacheSizeForBufferedImages(), new ImageRU<T>(min));
         realProvider.setEventService(viewer.getEventService());
         viewer.addViewerComponent(new ImgViewInfoPanel<T>());
         viewer.addViewerComponent(new ImgCanvas<T, Img<T>>());
@@ -169,7 +169,7 @@ public abstract class ImgConfiguration<T extends RealType<T>> extends Serializab
             // it is used or updated
             getVariantSliderPanel();
 
-            m_view = createImgViewer();
+            m_view = createImgViewer(0);
             m_jpViewPanel = new JPanel(new BorderLayout());
             m_jpViewPanel.add(m_view, BorderLayout.CENTER);
             updatePreview();
