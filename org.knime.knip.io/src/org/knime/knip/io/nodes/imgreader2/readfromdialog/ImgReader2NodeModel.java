@@ -167,9 +167,9 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 
 				if (dataRow.getSecond().isPresent()) {
 					encounteredExceptions.set(true);
-					LOGGER.debug("Encountered exception while reading image " + dataRow.getFirst().getKey()
-							+ "! Caught Exception: " + dataRow.getSecond().get().getMessage());
-					LOGGER.debug(dataRow.getSecond().get());
+					LOGGER.warn("Encountered exception while reading image: " + dataRow.getFirst().getKey()
+							+ "! view log for more info.");
+					LOGGER.debug("Encountered exception while reading image:", dataRow.getSecond().get());
 				}
 
 				bdc.addRowToTable(dataRow.getFirst());
@@ -208,31 +208,33 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 				// boolean for exceptions and file format
 				final AtomicBoolean encounteredExceptions = new AtomicBoolean(false);
 
-				Arrays.asList(m_files.getStringArrayValue()).stream().map(s -> URLUtil.encode(s)).flatMap(rifp)
+				Arrays.asList(m_files.getStringArrayValue()).stream().map(URLUtil::encode).flatMap(rifp)
 						.forEachOrdered(dataRow -> {
 
-					if (dataRow.getSecond().isPresent()) {
-						encounteredExceptions.set(true);
-						LOGGER.debug("Encountered exception while reading image " + dataRow.getFirst().getKey()
-								+ "! Caught Exception: " + dataRow.getSecond().get().getMessage());
-						LOGGER.debug(dataRow.getSecond().get());
-					}
+							if (dataRow.getSecond().isPresent()) {
+								encounteredExceptions.set(true);
+								LOGGER.warn("Encountered exception while reading image: " + dataRow.getFirst().getKey()
+										+ "! view log for more Info.");
+								LOGGER.debug("Encountered exception while reading image:", dataRow.getSecond().get());
+							}
 
-					try {
-						out.push(dataRow.getFirst());
-					} catch (Exception exc) {
-						encounteredExceptions.set(true);
-						LOGGER.warn("Couldn't push row " + dataRow.getFirst().getKey() + " into output stream.");
-					}
-				});
+							try {
+								out.push(dataRow.getFirst());
+							} catch (Exception exc) {
+								encounteredExceptions.set(true);
+								LOGGER.warn(
+										"Couldn't push row " + dataRow.getFirst().getKey() + " into output stream.");
+								LOGGER.debug("Encountered exception when trying to push result: ", exc);
+							}
+						});
 
 				if (encounteredExceptions.get()) {
 					setWarningMessage("Encountered errors during execution!");
+					LOGGER.warn("Encountered errors during execution, view log for more details!");
 				}
 				rifp.close();
 				out.close();
 			}
-
 		};
 	}
 
@@ -249,10 +251,9 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 	protected DataTableSpec getOutspec() {
 		MetadataMode metadataMode = EnumUtils.valueForName(m_metadataModeModel.getStringValue(), MetadataMode.values());
 
-		boolean readImage = (metadataMode == MetadataMode.NO_METADATA || metadataMode == MetadataMode.APPEND_METADATA)
-				? true : false;
-		boolean readMetadata = (metadataMode == MetadataMode.APPEND_METADATA
-				|| metadataMode == MetadataMode.METADATA_ONLY) ? true : false;
+		boolean readImage = metadataMode == MetadataMode.NO_METADATA || metadataMode == MetadataMode.APPEND_METADATA;
+		boolean readMetadata = metadataMode == MetadataMode.APPEND_METADATA
+				|| metadataMode == MetadataMode.METADATA_ONLY;
 
 		DataColumnSpecCreator creator;
 		// size of spec from on the reader settings.
@@ -280,11 +281,11 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 		// create ImgFactory
 		ImgFactory<T> imgFac;
 		if (m_imgFactory.getStringValue().equals(IMG_FACTORIES[1])) {
-			imgFac = new PlanarImgFactory<T>();
+			imgFac = new PlanarImgFactory<>();
 		} else if (m_imgFactory.getStringValue().equals(IMG_FACTORIES[2])) {
-			imgFac = new CellImgFactory<T>();
+			imgFac = new CellImgFactory<>();
 		} else {
-			imgFac = new ArrayImgFactory<T>();
+			imgFac = new ArrayImgFactory<>();
 		}
 
 		// series selection
@@ -298,9 +299,9 @@ public class ImgReader2NodeModel<T extends RealType<T> & NativeType<T>> extends 
 			seriesSelectionFrom = Double.valueOf(m_seriesRangeSelection.getMinRange()).intValue();
 			seriesSelectionTo = Double.valueOf(m_seriesRangeSelection.getMaxRange()).intValue();
 		}
-		
+
 		// create image function
-		ReadImg2Function<T> rifp = new ReadImg2Function<T>(exec, rowCount, m_planeSelect, readImage, readMetadata,
+		ReadImg2Function<T> rifp = new ReadImg2Function<>(exec, rowCount, m_planeSelect, readImage, readMetadata,
 				m_readAllMetaDataModel.getBooleanValue(), m_checkFileFormat.getBooleanValue(),
 				m_completePathRowKey.getBooleanValue(), m_isGroupFiles.getBooleanValue(), seriesSelectionFrom,
 				seriesSelectionTo, imgFac, m_pixelType.getStringValue());

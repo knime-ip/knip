@@ -23,6 +23,7 @@ import org.knime.core.util.FileUtil;
 import org.knime.core.util.Pair;
 import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection2;
 import org.knime.knip.io.nodes.imgreader2.AbstractReadImgFunction;
+import org.knime.knip.io.nodes.imgreader2.ColumnCreationMode;
 import org.knime.knip.io.nodes.imgreader2.URLUtil;
 
 import net.imglib2.img.Img;
@@ -39,38 +40,38 @@ import net.imglib2.type.numeric.RealType;
  */
 class ReadImgTableFunction<T extends RealType<T> & NativeType<T>> extends AbstractReadImgFunction<T, DataRow> {
 
-	private String columnCreationMode;
-	private int stringIndex;
+	private ColumnCreationMode m_columnCreationMode;
+	private int m_stringIndex;
 
 	public ReadImgTableFunction(ExecutionContext exec, int numberOfFiles, SettingsModelSubsetSelection2 sel,
 			boolean readImage, boolean readMetadata, boolean readAllMetaData, boolean checkFileFormat,
 			boolean isGroupFiles, int seriesSelectionFrom, int seriesSelectionTo, ImgFactory<T> imgFactory,
-			String columnCreationMode, int stringIndex, final String pixelType) {
+			ColumnCreationMode columnCreationMode, int stringIndex, final String pixelType) {
 		super(exec, numberOfFiles, sel, readImage, readMetadata, readAllMetaData, checkFileFormat, false, isGroupFiles,
 				seriesSelectionFrom, seriesSelectionTo, imgFactory, pixelType);
 
-		this.columnCreationMode = columnCreationMode;
-		this.stringIndex = stringIndex;
+		m_columnCreationMode = columnCreationMode;
+		m_stringIndex = stringIndex;
 	}
 
 	@Override
 	public Stream<Pair<DataRow, Optional<Throwable>>> apply(DataRow input) {
 		List<Pair<DataRow, Optional<Throwable>>> tempResults = new ArrayList<>();
 
-		if (input.getCell(stringIndex).isMissing()) {
+		if (input.getCell(m_stringIndex).isMissing()) {
 			m_exec.setProgress(Double.valueOf(m_currentFile.incrementAndGet()) / m_numberOfFiles);
 			return Arrays.asList(createResultFromException("no path specified", input.getKey().getString(),
 					new IllegalArgumentException("Input was missing"))).stream();
 		}
 
-		String t = ((StringValue) input.getCell(stringIndex)).getStringValue();
+		String t = ((StringValue) input.getCell(m_stringIndex)).getStringValue();
 		String path;
 		int numSeries;
 		try {
 			URI uri = URLUtil.encode(t);
 			URL url = uri.toURL();
 
-			// check if its a internet address;
+			// check if its an internet address;
 			if (url.getProtocol().equalsIgnoreCase("HTTP") || url.getProtocol().equalsIgnoreCase("FTP")
 					|| url.getProtocol().equalsIgnoreCase("HTTPS")) {
 				path = url.toURI().toString();
@@ -102,7 +103,7 @@ class ReadImgTableFunction<T extends RealType<T> & NativeType<T>> extends Abstra
 
 		m_exec.setProgress(Double.valueOf(m_currentFile.incrementAndGet()) / m_numberOfFiles);
 
-		return createOutput(input, tempResults, columnCreationMode, stringIndex);
+		return createOutput(input, tempResults, m_columnCreationMode, m_stringIndex);
 	}
 
 	/**
@@ -122,12 +123,13 @@ class ReadImgTableFunction<T extends RealType<T> & NativeType<T>> extends Abstra
 	 * @return a {@link Stream} with the output {@link DataRow}s.
 	 */
 	private Stream<Pair<DataRow, Optional<Throwable>>> createOutput(DataRow inputRow,
-			List<Pair<DataRow, Optional<Throwable>>> readFiles, String columnSelectionMode, int inputColumnIndex) {
+			List<Pair<DataRow, Optional<Throwable>>> readFiles, ColumnCreationMode columnCreationMode,
+			int inputColumnIndex) {
 
 		List<Pair<DataRow, Optional<Throwable>>> outputResults = new ArrayList<>();
-		if (columnCreationMode.equalsIgnoreCase(ImgReaderTableNodeModel.COL_CREATION_MODES[0])) {
+		if (columnCreationMode == ColumnCreationMode.NEW_TABLE) {
 			return readFiles.stream();
-		} else if (columnCreationMode.equalsIgnoreCase(ImgReaderTableNodeModel.COL_CREATION_MODES[1])) {
+		} else if (columnCreationMode == ColumnCreationMode.APPEND) {
 			for (Pair<DataRow, Optional<Throwable>> result : readFiles) {
 
 				List<DataCell> cells = new ArrayList<>();
@@ -143,7 +145,7 @@ class ReadImgTableFunction<T extends RealType<T> & NativeType<T>> extends Abstra
 						new DefaultRow(result.getFirst().getKey(), cells.toArray(new DataCell[cells.size()])),
 						result.getSecond()));
 			}
-		} else {
+		} else if (columnCreationMode == ColumnCreationMode.REPLACE) {
 			for (Pair<DataRow, Optional<Throwable>> result : readFiles) {
 
 				List<DataCell> cells = new ArrayList<>();
@@ -151,15 +153,18 @@ class ReadImgTableFunction<T extends RealType<T> & NativeType<T>> extends Abstra
 					cells.add(inputRow.getCell(i));
 				}
 
-				cells.set(stringIndex, result.getFirst().getCell(0));
+				cells.set(m_stringIndex, result.getFirst().getCell(0));
 				if (result.getFirst().getNumCells() > 1) {
-					cells.add(stringIndex + 1, result.getFirst().getCell(1));
+					cells.add(m_stringIndex + 1, result.getFirst().getCell(1));
 				}
 
 				outputResults.add(new Pair<>(
 						new DefaultRow(result.getFirst().getKey(), cells.toArray(new DataCell[cells.size()])),
 						result.getSecond()));
 			}
+		} else {
+			throw new IllegalStateException(
+					"Support for the columncreation mode" + columnCreationMode.toString() + " is not implemented!");
 		}
 
 		return outputResults.stream();

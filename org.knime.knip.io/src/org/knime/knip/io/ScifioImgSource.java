@@ -220,8 +220,11 @@ public class ScifioImgSource implements ImgSource {
 	public String getOMEXMLMetadata(final String imgRef) throws Exception {
 		final Metadata meta = getReader(imgRef).getMetadata();
 		final OMEMetadata omexml = new OMEMetadata(ScifioGateway.getSCIFIO().getContext());
-
-		ScifioGateway.getSCIFIO().translator().translate(meta, omexml, false);
+		try {
+			ScifioGateway.getSCIFIO().translator().translate(meta, omexml, false);
+		} catch (Exception e) {
+			throw new IOException("Could not read the OMEXML-metadata! : " + e);
+		}
 		final String xml = omexml.getRoot().dumpXML();
 		return xml;
 	}
