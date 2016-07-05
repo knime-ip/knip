@@ -163,7 +163,11 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 	 * an IOOBEx
 	 **/
 	private boolean cellExists(final int row, final int col) {
-		return (col >= 0 && col < m_tableModel.getColumnCount() && row >= 0 && row < m_tableModel.getRowCount());
+		if (m_tableModel == null) {
+			return false;
+		} else {
+			return (col >= 0 && col < m_tableModel.getColumnCount() && row >= 0 && row < m_tableModel.getRowCount());
+		}
 	}
 
 	/**
@@ -191,7 +195,7 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 	 *            An array holding the column-indices of the selected cells
 	 */
 	private void rowColIntervalSelectionChanged(final int[] rowIndices, final int[] colIndices) {
-		
+
 		if (rowIndices.length == 0 || colIndices.length == 0)
 			return;
 
@@ -241,7 +245,7 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 				selected = m_viewsPane.getTitleAt(index);
 			m_viewsPane.removeAll();
 		}
-		
+
 		m_updatingTabs = true;
 
 		// Add all compatible views to the tabbed pane
@@ -265,7 +269,7 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 		} else {
 			m_viewsPane.setSelectedIndex(0);
 		}
-		
+
 		m_updatingTabs = false;
 
 		// Update the viewers contents
@@ -391,14 +395,6 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 		m_cellViewCache = new HashMap<String, CellView>();
 	}
 
-	protected void loadPortContent() {
-		m_tableModel = new TableContentModel();
-		m_tableModel.setDataTable(getNodeModel().getInternalTables()[m_portIdx]);
-
-		initViewComponents();
-
-	}
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -417,7 +413,10 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 			nodata.setPreferredSize(new Dimension(500, 500));
 			setComponent(nodata);
 		} else {
-			loadPortContent();
+			m_tableModel = new TableContentModel();
+			m_tableModel.setDataTable(getNodeModel().getInternalTables()[m_portIdx]);
+
+			initViewComponents();
 		}
 	}
 
