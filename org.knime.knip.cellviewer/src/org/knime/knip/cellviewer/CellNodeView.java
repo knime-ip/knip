@@ -339,8 +339,7 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 
 			@Override
 			protected void done() {
-				setComponent(m_contentPanel);
-				cellSelectionChanged(0, 0);
+				setComponent(m_tableView);
 			}
 		};
 
