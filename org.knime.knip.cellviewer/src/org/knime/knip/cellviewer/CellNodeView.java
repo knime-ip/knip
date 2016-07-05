@@ -537,8 +537,6 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 	private JComponent createNavBar() {
 		Box navbar = new Box(BoxLayout.X_AXIS);
 
-		navbar.add(Box.createHorizontalGlue());
-
 		navbar.add(Box.createRigidArea(new Dimension(10, 40)));
 
 		Box firstPanel = new Box(BoxLayout.X_AXIS);
