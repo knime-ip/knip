@@ -105,6 +105,7 @@ public class NavigationPanel extends JPanel {
 		Box columnBox = new Box(BoxLayout.X_AXIS);
 
 		m_colLabel = new JLabel("");
+		m_colLabel.setPreferredSize(new Dimension(240, 20));
 		columnBox.add(Box.createVerticalStrut(32));
 		columnBox.add(m_colLabel);
 		columnBox.add(Box.createHorizontalStrut(5));
@@ -117,6 +118,7 @@ public class NavigationPanel extends JPanel {
 		Box rowBox = new Box(BoxLayout.X_AXIS);
 
 		m_rowLabel = new JLabel("");
+		m_rowLabel.setPreferredSize(new Dimension(240, 20));
 		rowBox.add(Box.createVerticalStrut(32));
 		rowBox.add(m_rowLabel);
 		rowBox.add(Box.createHorizontalStrut(5));
