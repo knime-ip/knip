@@ -203,13 +203,6 @@
          unpack="false"/>
 
    <plugin
-         id="imagej-ui-swing"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="knip-trackmate-fork"
          download-size="0"
          install-size="0"
@@ -280,6 +273,27 @@
 
    <plugin
          id="jfreechart"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="imagej-ui-swing"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="imagej-deprecated"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="imagej-updater"
          download-size="0"
          install-size="0"
          version="0.0.0"
