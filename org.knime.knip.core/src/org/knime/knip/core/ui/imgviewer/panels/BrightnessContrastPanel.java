@@ -460,7 +460,7 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
         m_planeSelect.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                if (!isAdjusting) {
+                if (!isAdjusting && imgIt.numDimensions() > 2) {
                     isAdjusting = true;
                     planeSelected = m_planeSelect.isSelected();
                     if (planeSelected && planeSelection == null) {
