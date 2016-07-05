@@ -53,6 +53,8 @@ import java.awt.Image;
 
 import org.knime.knip.core.ui.event.EventService;
 
+import net.imglib2.Interval;
+
 /**
  * Encapsulates a (parameter) state and allows to create an image from a given state. Parameters (normalization / source
  * /...) are retrieved by listening to the {@link EventService} and can change. A {@link RenderUnit} listens to changes
@@ -62,7 +64,7 @@ import org.knime.knip.core.ui.event.EventService;
  * The contract is that if the {@link #generateHashCode() hashCode} changes {@link #createImage() createImage} will
  * return a different image. <br>
  * <br>
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -72,7 +74,7 @@ public interface RenderUnit {
     /**
      * Renders something (e.g. a labeling) into a {@link Image}. White will be treated as transparent color during
      * blending!
-     * 
+     *
      * @return the created image.
      */
     public Image createImage();
@@ -84,7 +86,7 @@ public interface RenderUnit {
      * the hashCode should be created like this: super.hashCode + object1.hashCode * 31 + object2.hashCode * 31<br>
      * <br>
      * IMPORTANT: hashCode generation has to be fast! (the hashCode is used for caching decisions)
-     * 
+     *
      * @return hashCode that identifies the image created by {@link #createImage()}
      */
     public int generateHashCode();
@@ -98,5 +100,27 @@ public interface RenderUnit {
      * @param service registers at the provided service to listen to parameter changes.
      */
     public void setEventService(EventService service);
+
+    /**
+     * Restricts the rendered image to the given interval, if the RenderUnit supports it.
+     *
+     * @param interval The interval to which rendering should be restricted to.
+     */
+    default public void limitTo(final Interval interval) {
+        // Intentionally left blank.
+    };
+
+    default public void resetLimit() {
+        // Intentionally left blank.
+    }
+
+    /**
+     * Returns the Interval encompassing the currently rendered image.
+     *
+     * @return An Interval
+     */
+    default public Interval getInterval() {
+        return null;
+    }
 
 }

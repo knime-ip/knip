@@ -71,9 +71,11 @@ import org.knime.knip.core.ui.imgviewer.events.LabelingWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter.Operator;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 
+import net.imglib2.Interval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.display.screenimage.awt.AWTScreenImage;
 import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.view.Views;
 
 /*
  * This class could be likely split into multiple following the one class one responsibility paradigm. However
@@ -102,6 +104,8 @@ public class LabelingRU<L> extends AbstractDefaultRU<LabelingType<L>> {
 
     private RandomAccessibleInterval<LabelingType<L>> m_src;
 
+    private RandomAccessibleInterval<LabelingType<L>> m_unmodSrc;
+
     private LabelingColorTable m_labelingColorMapping;
 
     private Set<String> m_activeLabels;
@@ -121,6 +125,8 @@ public class LabelingRU<L> extends AbstractDefaultRU<LabelingType<L>> {
     private Set<String> m_hilitedLabels;
 
     private boolean m_isHiliteMode = false;
+
+    private Interval m_interval;
 
     @Override
     public Image createImage() {
@@ -156,6 +162,28 @@ public class LabelingRU<L> extends AbstractDefaultRU<LabelingType<L>> {
         m_lastImage = ret.image();
 
         return AWTImageTools.makeBuffered(ret.image());
+    }
+
+    @Override
+    public void limitTo(final Interval interval) {
+        if (!interval.equals(m_interval)) {
+            LabelingType<L> val = m_src.randomAccess().get().createVariable();
+            val.clear();
+            m_interval = interval;
+            m_src = Views.interval(Views.extendValue(m_unmodSrc, val), interval);
+        }
+    }
+
+    @Override
+    public void resetLimit() {
+        m_interval = null;
+        m_src = m_unmodSrc;
+        m_hashOfLastRendering = -1;
+    }
+
+    @Override
+    public Interval getInterval() {
+        return m_src;
     }
 
     @Override
@@ -214,6 +242,7 @@ public class LabelingRU<L> extends AbstractDefaultRU<LabelingType<L>> {
     @EventListener
     public void onUpdated(final LabelingWithMetadataChgEvent<L> e) {
         m_src = e.getRandomAccessibleInterval();
+        m_unmodSrc = e.getRandomAccessibleInterval();
         m_labelingColorMapping =
                 LabelingColorTableUtils.extendLabelingColorTable(e.getLabelingMetaData().getLabelingColorTable(),
                                                                  new RandomMissingColorHandler());

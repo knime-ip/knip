@@ -66,6 +66,7 @@ import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 import org.knime.knip.core.ui.imgviewer.panels.transfunc.LookupTableChgEvent;
 
+import net.imglib2.Interval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.display.ColorTable;
 import net.imglib2.display.screenimage.awt.AWTScreenImage;
@@ -115,6 +116,9 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
     /** caches the last rendered image. */
     private Image m_lastImage;
 
+    /** Caches the current restriction interval */
+    private Interval m_interval;
+
     /**
      * true if all images should be rendered using a greyScale renderer (independent of the renderer selection).
      */
@@ -132,6 +136,8 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
     private ColorTable[] m_colorTables = new ColorTable[]{};
 
     private RandomAccessibleInterval<T> m_src;
+
+    private RandomAccessibleInterval<T> m_unmodSrc;
 
     /** default constructor that creates a renderer selection dependent image {@link RenderUnit}. */
     public ImageRU(final double minValue) {
@@ -159,8 +165,7 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
         //+ allows normalization - breaks type safety
         @SuppressWarnings("rawtypes")
         RandomAccessibleInterval convertedSrc = AWTImageProvider.convertIfDouble(m_src);
-        final double[] normParams =
-                m_brightnessContrastParameters.getBrightnessContrastParameters();
+        final double[] normParams = m_brightnessContrastParameters.getBrightnessContrastParameters();
 
         //set parameters of the renderer
         if (m_renderer instanceof RendererWithNormalization) {
@@ -189,6 +194,29 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
         m_hashOfLastRendering = generateHashCode();
 
         return AWTImageTools.makeBuffered(ret.image());
+    }
+
+    @Override
+    public void limitTo(final Interval interval) {
+        if (!interval.equals(m_interval)) {
+            T val = m_src.randomAccess().get().createVariable();
+            val.setReal(val.getMinValue());
+            m_interval = interval;
+            m_src = Views.interval(Views.extendValue(m_unmodSrc, val), interval);
+            m_hashOfLastRendering = -1;
+        }
+    }
+
+    @Override
+    public void resetLimit() {
+        m_interval = null;
+        m_src = m_unmodSrc;
+        m_hashOfLastRendering = -1;
+    }
+
+    @Override
+    public Interval getInterval() {
+        return m_src;
     }
 
     @Override
@@ -243,6 +271,7 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
     @EventListener
     public void onImageUpdated(final ImgWithMetadataChgEvent<T> e) {
         m_src = e.getRandomAccessibleInterval();
+        m_unmodSrc = e.getRandomAccessibleInterval();
 
         final int size = e.getImgMetaData().getColorTableCount();
         m_colorTables = new ColorTable[size];

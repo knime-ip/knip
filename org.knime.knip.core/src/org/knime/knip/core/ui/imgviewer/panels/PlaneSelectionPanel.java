@@ -87,6 +87,7 @@ import org.knime.knip.core.ui.imgviewer.events.ForcePlanePosEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
 import org.knime.knip.core.ui.imgviewer.events.IntervalWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
+import org.knime.knip.core.ui.imgviewer.events.RebroadcastSelectionEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 
 import net.imagej.axis.CalibratedAxis;
@@ -470,6 +471,13 @@ public class PlaneSelectionPanel<T extends Type<T>, I extends Interval> extends 
         }
         updateTotalSlider();
         onSliderChanged(0);
+    }
+
+    @EventListener
+    public void onRebroadcastEvent(final RebroadcastSelectionEvent e) {
+        if(m_dims != null && m_dims.length != 0) {
+            m_eventService.publish(new PlaneSelectionEvent(Math.min(m_dim1, m_dim2), Math.max(m_dim2, m_dim1), getImageCoordinate()));
+        }
     }
 
     private void draw() {

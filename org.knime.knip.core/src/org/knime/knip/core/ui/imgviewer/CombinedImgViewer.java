@@ -62,13 +62,16 @@ import javax.swing.JTabbedPane;
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.event.KNIPEvent;
+import org.knime.knip.core.ui.imgviewer.events.CombinedPlaneSelectionEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
 import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
+import org.knime.knip.core.ui.imgviewer.events.RebroadcastSelectionEvent;
 import org.knime.knip.core.ui.imgviewer.panels.BackgroundColorChooserPanel;
 //import org.knime.knip.core.ui.imgviewer.events.ResetCacheEvent;
 import org.knime.knip.core.ui.imgviewer.panels.CombinedRUControlPanel;
 import org.knime.knip.core.ui.imgviewer.panels.CombinedRURenderEvent;
 import org.knime.knip.core.ui.imgviewer.panels.CombinedRUSynchEvent;
+import org.knime.knip.core.ui.imgviewer.panels.CombinedRUSynchEventClone;
 import org.knime.knip.core.ui.imgviewer.panels.MinimapPanel;
 import org.knime.knip.core.ui.imgviewer.panels.TransparencyPanel;
 import org.knime.knip.core.ui.imgviewer.panels.providers.AWTImageProvider;
@@ -100,6 +103,8 @@ public class CombinedImgViewer extends ImgViewer {
     private int m_imgCounter = 1;
 
     private int m_labCounter = 1;
+
+    private CombinedRUControlPanel m_controlPanel;
 
     public CombinedImgViewer(final int cacheSize) {
         super();
@@ -140,10 +145,10 @@ public class CombinedImgViewer extends ImgViewer {
 
         menuPanel.add(Box.createVerticalStrut(5), gbc);
 
-        CombinedRUControlPanel controlPanel = new CombinedRUControlPanel();
+        m_controlPanel = new CombinedRUControlPanel();
 
-        controlPanel.setEventService(getEventService());
-        menuPanel.add(controlPanel, gbc);
+        m_controlPanel.setEventService(getEventService());
+        menuPanel.add(m_controlPanel, gbc);
 
         menuPanel.add(Box.createVerticalStrut(5), gbc);
 
@@ -186,6 +191,10 @@ public class CombinedImgViewer extends ImgViewer {
         if (ru instanceof LabelingRU) {
             m_tabbedMenu.add(ViewerMenuFactory.getCombinedImgViewerLabelingMenu(e), "Labeling " + m_labCounter++);
         }
+
+        broadcast(new CombinedRUSynchEventClone(false));
+        m_ru.setStackedRendering(true);
+        m_controlPanel.resetCheckboxes();
     }
 
     public void clear() {
@@ -226,14 +235,22 @@ public class CombinedImgViewer extends ImgViewer {
 
     @EventListener
     public void onEvent(final PlaneSelectionEvent e) {
-        if (m_sync) {
-            broadcast(e);
+        if (m_sync && !(e instanceof CombinedPlaneSelectionEvent)) {
+            broadcast(new CombinedPlaneSelectionEvent(e));
         }
     }
 
     @EventListener
     public void onCombinedRUSynchChange(final CombinedRUSynchEvent e) {
+        if (e instanceof CombinedRUSynchEventClone) {
+            return;
+        }
+
         m_sync = e.getSyncStatus();
+        broadcast(new CombinedRUSynchEventClone(e));
+        if (!m_sync) {
+            broadcast(new RebroadcastSelectionEvent());
+        }
     }
 
     @EventListener

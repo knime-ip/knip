@@ -102,74 +102,108 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
 
     /* slider values */
     private static final int SLIDER_MIN = 0;
+
     private static final int SLIDER_MAX = 100;
+
     private static final long serialVersionUID = 1L;
 
     /* sliders */
     private JSlider m_minimumSlider;
+
     private JSlider m_maximumSlider;
+
     private JSlider m_brightnessSlider;
+
     private JSlider m_contrastSlider;
 
     /* buttons */
     private JButton m_automaticSaturationButton;
+
     private JButton m_resetButton;
 
     /* checkbox */
     private JCheckBox m_autoSelect;
+
     private JCheckBox m_planeSelect;
 
     /* labels */
     private JLabel m_min;
+
     private JLabel m_max;
+
     private JLabel m_bright;
+
     private JLabel m_contrast;
+
     private JLabel w_minLabel;
+
     private JLabel w_maxLabel;
 
     /* initial min max values */
     private double initialMin;
+
     private double initialMax;
 
     /* data element min max values */
     private double elementMin;
+
     private double elementMax;
 
     /* min max used for normalization */
     private double normMin;
+
     private double normMax;
 
     /* working values */
     private double w_min;
+
     private double w_max;
+
     private double w_brightness;
+
     private double w_contrast;
+
     private double w_factor;
 
     /* drawing check */
     private boolean isDrawn = false;
+
     /* adjust check */
     private boolean isAdjusting = false;
+
     /* plane selected */
     private boolean planeSelected = true;
+
     /* auto selected */
     private boolean autoSelect = true;
+
     /* eventservice to publish events */
     private EventService m_eventService;
 
     /* image and selected plane */
     private RandomAccessibleInterval<T> img;
+
+    /* image copy for the combined view */
+    private RandomAccessibleInterval<T> unmodImg;
+
     private IterableInterval<T> imgIt;
+
     private RandomAccessibleInterval<T> planeSelection;
+
     private long[] planeSelectionPos;
+
     private int[] planeSelectionIndices;
+
     private int bitDepth;
+
     private T element;
+
     /* ops */
     OpService ops = KNIPGateway.ops();
 
     /* histogram */
     private HistogramBC m_histoWidget;
+
     private HistogramBundle m_bundle;
 
     /**
@@ -190,8 +224,7 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
         c.gridwidth = 2;
         c.gridy = 0;
         c.fill = GridBagConstraints.HORIZONTAL;
-        add(m_histoWidget.getChartPanel(),c);
-
+        add(m_histoWidget.getChartPanel(), c);
 
         GridBagConstraints c1 = new GridBagConstraints();
         c1.gridy = 1;
@@ -395,8 +428,7 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
                     if (autoSelect) {
                         m_autoSelect.setSelected(autoSelect);
                         autoAdjust();
-                    }
-                    else {
+                    } else {
                         w_min = initialMin;
                         w_max = initialMax;
                     }
@@ -405,14 +437,12 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
                     setBrightnessContrast();
 
                     publishFactor();
-                    isAdjusting=false;
+                    isAdjusting = false;
                 }
             }
         });
         m_resetButton.setEnabled(!m_autoSelect.isSelected());
         buttonPanel.add(m_resetButton);
-
-
 
         m_planeSelect = new JCheckBox("Per plane");
         m_planeSelect.setSelected(planeSelected);
@@ -421,7 +451,7 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
             @Override
             public void actionPerformed(final ActionEvent e) {
                 if (!isAdjusting) {
-                    isAdjusting=true;
+                    isAdjusting = true;
                     planeSelected = m_planeSelect.isSelected();
                     if (planeSelected && planeSelection == null) {
                         getSelectedPlane();
@@ -442,7 +472,7 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
                         autoAdjust();
                     }
                     publishFactor();
-                    isAdjusting=false;
+                    isAdjusting = false;
                 }
             }
         });
@@ -467,7 +497,7 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
         max[planeSelectionIndices[0]] = img.max(planeSelectionIndices[0]);
         max[planeSelectionIndices[1]] = img.max(planeSelectionIndices[1]);
 
-        FinalInterval interval =  new FinalInterval(min, max);
+        FinalInterval interval = new FinalInterval(min, max);
         planeSelection = (RandomAccessibleInterval<T>)Views.iterable(Views.interval(img, interval));
     }
 
@@ -574,7 +604,7 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
     private void computeDataMinMax() {
         initialMin = ops.stats().min(imgIt).getRealDouble();
         initialMax = ops.stats().max(imgIt).getRealDouble();
-        if (bitDepth == 1){
+        if (bitDepth == 1) {
             elementMin = element.getMinValue();
             elementMax = element.getMaxValue();
             normMin = elementMin;
@@ -723,7 +753,8 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
         planeSelectionIndices = event.getDimIndices();
         if (imgIt != null) {
             try {
-            planeSelection = (RandomAccessibleInterval<T>)Views.iterable(Views.interval(img, event.getInterval(img)));
+                planeSelection =
+                        (RandomAccessibleInterval<T>)Views.iterable(Views.interval(img, event.getInterval(img)));
             } catch (AssertionError e) {
 
             }
@@ -806,7 +837,20 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
         }
     }
 
-
+    @EventListener
+    public void onCombinedRUSynchChange(final CombinedRUSynchEvent e) {
+        boolean isSynched = e.getSyncStatus();
+        if (isSynched) {
+            unmodImg = img;
+            T val = img.randomAccess().get().createVariable();
+            val.setReal(val.getMinValue());
+            img = Views.interval(Views.extendValue(img, val), img);
+        } else {
+            if (unmodImg != null) {
+                img = unmodImg;
+            }
+        }
+    }
 
     /**
      * {@inheritDoc}

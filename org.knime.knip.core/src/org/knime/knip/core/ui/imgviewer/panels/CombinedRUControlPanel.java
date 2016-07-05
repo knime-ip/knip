@@ -163,6 +163,14 @@ public class CombinedRUControlPanel extends ViewerComponent {
     }
 
     /**
+     * Resets all checkboxes to the initial status.
+     */
+    public void resetCheckboxes(){
+        m_checkBox.setSelected(false);
+        m_checkBox2.setSelected(false);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override

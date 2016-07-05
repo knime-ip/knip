@@ -61,6 +61,9 @@ import org.knime.knip.core.awt.Transparency;
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.events.TransparencyPanelValueChgEvent;
+import org.knime.knip.core.ui.imgviewer.panels.CombinedRUSynchEvent;
+
+import net.imglib2.Interval;
 
 /**
  * Combines multiple {@link RenderUnit}s by blending their result images together. The color WHITE is treated as
@@ -87,7 +90,7 @@ public class CombinedRU implements RenderUnit {
     /** caches the last rendered image. */
     private Image m_lastImage;
 
-    private boolean m_renderStack;
+    private boolean m_renderStack = false;
 
     // event members
 
@@ -96,6 +99,8 @@ public class CombinedRU implements RenderUnit {
     private Integer m_transparency = 128;
 
     private boolean m_invalidateHash;
+
+    private boolean m_sync;
 
     /**
      * Uses different parameters from the {@link EventService} to create images using its associated {@link RenderUnit}
@@ -144,12 +149,21 @@ public class CombinedRU implements RenderUnit {
             if (m_renderStack) {
                 int first = i;
                 int w = 0, h = 0;
+                Interval target = null;
+                if (m_sync) {
+                    target = m_renderUnits.get(i).getInterval();
+                    m_renderUnits.get(i).limitTo(target);
+                }
                 Image img = m_renderUnits.get(i).createImage();
                 w += img.getWidth(null);
                 h = Math.max(h, img.getHeight(null));
+
                 ++i;
                 while (i < m_renderUnits.size()) {
                     if (m_renderUnits.get(i).isActive()) {
+                        if (m_sync) {
+                            m_renderUnits.get(i).limitTo(target);
+                        }
                         img = m_renderUnits.get(i).createImage();
                         w += img.getWidth(null);
                         h = Math.max(h, img.getHeight(null));
@@ -162,6 +176,9 @@ public class CombinedRU implements RenderUnit {
                 i = first;
                 while (i < m_renderUnits.size()) {
                     if (m_renderUnits.get(i).isActive()) {
+                        if (m_sync) {
+                            m_renderUnits.get(i).limitTo(target);
+                        }
                         img = m_renderUnits.get(i).createImage();
                         g.drawImage(img, x, 0, null);
                         x += img.getWidth(null);
@@ -171,17 +188,27 @@ public class CombinedRU implements RenderUnit {
 
             } else {
                 //at least one active image
+
+                Interval target = null;
+                if (m_sync) {
+                    target = m_renderUnits.get(i).getInterval();
+                    m_renderUnits.get(i).limitTo(target);
+                }
                 Image img = m_renderUnits.get(i).createImage();
                 joinedImg = m_graphicsConfig.createCompatibleImage(img.getWidth(null), img.getHeight(null),
                                                                    java.awt.Transparency.TRANSLUCENT);
                 Graphics g = joinedImg.getGraphics();
 
                 g.drawImage(img, 0, 0, null);
+
                 i++;
 
                 //blend in the other active images
                 while (i < m_renderUnits.size()) {
                     if (m_renderUnits.get(i).isActive()) {
+                        if (m_sync) {
+                            m_renderUnits.get(i).limitTo(target);
+                        }
                         g.drawImage(Transparency.makeColorTransparent(m_renderUnits.get(i).createImage(), Color.WHITE,
                                                                       m_transparency),
                                     0, 0, null);
@@ -215,10 +242,12 @@ public class CombinedRU implements RenderUnit {
         hash += m_transparency;
         hash *= 31;
         for (RenderUnit ru : m_renderUnits) {
-            hash += ru.generateHashCode();
-            hash *= 31;
+            if (ru.isActive()) {
+                hash += ru.generateHashCode();
+                hash *= 31;
+            }
         }
-        if(m_renderStack) {
+        if (m_renderStack) {
             hash *= 31;
         }
         return hash;
@@ -247,6 +276,16 @@ public class CombinedRU implements RenderUnit {
 
     public void setStackedRendering(final boolean b) {
         m_renderStack = b;
+    }
+
+    @EventListener
+    public void onCombinedRUSynchChange(final CombinedRUSynchEvent e) {
+        if (!(m_sync & e.getSyncStatus())) {
+            for (RenderUnit u : m_renderUnits) {
+                u.resetLimit();
+            }
+        }
+        m_sync = e.getSyncStatus();
     }
 
     // event handling

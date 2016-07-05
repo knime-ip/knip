@@ -43,102 +43,32 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * ---------------------------------------------------------------------
+ * --------------------------------------------------------------------- *
  *
- * Created on 18.09.2013 by zinsmaie
  */
-package org.knime.knip.core.ui.imgviewer.panels.providers;
+package org.knime.knip.core.ui.imgviewer.events;
 
-import org.knime.knip.core.awt.ImageRenderer;
-import org.knime.knip.core.ui.event.EventListener;
-import org.knime.knip.core.ui.event.EventService;
-import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
-import org.knime.knip.core.ui.imgviewer.events.RendererSelectionChgEvent;
-import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
-
-import net.imglib2.type.Type;
+import org.knime.knip.core.ui.event.KNIPEvent;
 
 /**
- * Default implementation for {@link RenderUnit}s that depend on {@link ImageRenderer} and PlaneSelection events.
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
- *
- * @param <T> defines the type of the {@link ImageRenderer}
  */
-public abstract class AbstractDefaultRU<T extends Type<T>> implements RenderUnit {
+public class RebroadcastSelectionEvent implements KNIPEvent {
 
-    // event members
-
-    /** holds the currently selected plane position. */
-    protected PlaneSelectionEvent m_planeSelection;
-
-    /** holds the currently selected renderer. */
-    protected ImageRenderer<T> m_renderer;
-
-    /** holds the {@link EventService} this {@link RenderUnit} is registered at. */
-    protected EventService m_eventService;
+    @Override
+    public ExecutionPriority getExecutionOrder() {
+        return ExecutionPriority.NORMAL;
+    }
 
     /**
-     * {@inheritDoc}
+     * implements object equality {@inheritDoc}
      */
     @Override
-    public int generateHashCode() {
-        int hash = 31;
-        if (m_planeSelection != null) {
-            hash += m_planeSelection.hashCode();
-            hash *= 31;
-        }
-        hash += m_renderer.getClass().hashCode();
-        hash *= 31;
-        hash += m_renderer.toString().hashCode(); //if the user information differs
-        hash *= 31; //re-rendering is most likely necessary
-
-        return hash;
+    public <E extends KNIPEvent> boolean isRedundant(final E thatEvent) {
+        return this.equals(thatEvent);
     }
 
-    // event handling
-
-    /**
-     * stores the current planeSelection in a member.
-     *
-     * @param sel {@link PlaneSelectionEvent}
-     */
-    @EventListener
-    public void onPlaneSelectionUpdate(final PlaneSelectionEvent sel) {
-        m_planeSelection = sel;
-    }
-
-    /**
-     * stores the currently active renderer in a member.
-     *
-     * @param e contains a {@link ImageRenderer}
-     */
-    @EventListener
-    public void onRendererUpdate(final RendererSelectionChgEvent e) {
-        m_renderer = e.getRenderer();
-    }
-
-    /**
-     * set all members that could hold expensive references to null or resets them to allow storage clean ups.
-     *
-     * @param event marker event
-     */
-    @EventListener
-    public void onClose(final ViewClosedEvent event) {
-        m_planeSelection = null;
-        m_renderer = null;
-    }
-
-    //standard methods
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setEventService(final EventService service) {
-        m_eventService = service;
-        service.subscribe(this);
-    }
 }
