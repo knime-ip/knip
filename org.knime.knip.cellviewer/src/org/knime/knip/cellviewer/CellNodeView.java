@@ -450,6 +450,7 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 		if (getComponent().equals(m_contentPanel)) {
 			setComponent(m_tableView);
 			m_tableExpanded = false;
+			m_tableContentView.clearSelection();
 		}
 	}
 
