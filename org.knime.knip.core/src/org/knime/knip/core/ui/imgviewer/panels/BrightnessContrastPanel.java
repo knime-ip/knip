@@ -79,6 +79,10 @@ import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
 import org.knime.knip.core.ui.imgviewer.panels.providers.AWTImageProvider;
 
 import net.imagej.ops.OpService;
+import net.imagej.ops.Ops.Stats.MinMax;
+import net.imagej.ops.cached.CachedOpEnvironment;
+import net.imagej.ops.special.function.Functions;
+import net.imagej.ops.special.function.UnaryFunctionOp;
 import net.imagej.widget.HistogramBundle;
 import net.imglib2.FinalInterval;
 import net.imglib2.IterableInterval;
@@ -89,6 +93,7 @@ import net.imglib2.histogram.Real1dBinMapper;
 import net.imglib2.img.Img;
 import net.imglib2.ops.operation.real.unary.Normalize;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.Pair;
 import net.imglib2.view.Views;
 
 /**
@@ -172,10 +177,10 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
     private boolean isAdjusting = false;
 
     /* plane selected */
-    private boolean planeSelected = true;
+    private boolean planeSelected = false;
 
     /* auto selected */
-    private boolean autoSelect = true;
+    private boolean autoSelect = false;
 
     /* eventservice to publish events */
     private EventService m_eventService;
@@ -206,12 +211,17 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
 
     private HistogramBundle m_bundle;
 
+    private UnaryFunctionOp<IterableInterval, Pair> minMax;
+
     /**
      * Empty constructor prior to image update
      */
     public BrightnessContrastPanel() {
         super("", true);
         setLayout(new GridBagLayout());
+
+        final CachedOpEnvironment cachedOpEnvironment = new CachedOpEnvironment(KNIPGateway.ops());
+        minMax = Functions.unary(cachedOpEnvironment, MinMax.class, Pair.class, IterableInterval.class);
     }
 
     /**
@@ -602,8 +612,9 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
      * Compute the datatype's min and max.
      */
     private void computeDataMinMax() {
-        initialMin = ops.stats().min(imgIt).getRealDouble();
-        initialMax = ops.stats().max(imgIt).getRealDouble();
+        Pair<RealType, RealType> minMaxRes = minMax.compute1(imgIt);
+        initialMin = minMaxRes.getA().getRealDouble();
+        initialMax = minMaxRes.getB().getRealDouble();
         if (bitDepth == 1) {
             elementMin = element.getMinValue();
             elementMax = element.getMaxValue();
@@ -650,13 +661,15 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
         Iterable<T> iterable = null;
 
         if (planeSelected) {
-            Iterable<T> planeSelIt = (Iterable<T>)planeSelection;
-            initialMin = ops.stats().min(planeSelIt).getRealDouble();
-            initialMax = ops.stats().max(planeSelIt).getRealDouble();
+            IterableInterval<T> planeSelIt = (IterableInterval<T>)planeSelection;
+            Pair<RealType, RealType> minMaxRes = minMax.compute1(planeSelIt);
+            initialMin = minMaxRes.getA().getRealDouble();
+            initialMax = minMaxRes.getB().getRealDouble();
             iterable = planeSelIt;
         } else {
-            initialMin = ops.stats().min(imgIt).getRealDouble();
-            initialMax = ops.stats().max(imgIt).getRealDouble();
+            Pair<RealType, RealType> minMaxRes = minMax.compute1(imgIt);
+            initialMin = minMaxRes.getA().getRealDouble();
+            initialMax = minMaxRes.getB().getRealDouble();
             iterable = imgIt;
         }
 
@@ -705,7 +718,7 @@ public class BrightnessContrastPanel<T extends RealType<T>, I extends Img<T>> ex
     public void onImgUpdated(final ImgWithMetadataChgEvent<T> event) {
         RandomAccessibleInterval convertedImg = AWTImageProvider.convertIfDouble(event.getRandomAccessibleInterval());
         img = convertedImg;
-        imgIt = Views.iterable(img);
+        imgIt = Views.iterable(convertedImg);
         element = img.randomAccess().get().createVariable();
         bitDepth = element.getBitsPerPixel();
         if (imgIt != null && planeSelection != null) {
