@@ -52,7 +52,7 @@ import org.knime.core.node.ContextAwareNodeFactory;
 import org.knime.core.node.NodeCreationContext;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeView;
-import org.knime.knip.base.nodes.view.TableCellViewNodeView;
+import org.knime.knip.cellviewer.CellNodeView;
 
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
@@ -91,7 +91,7 @@ public class ImgReader2NodeFactory<T extends NativeType<T> & RealType<T>>
 	 */
 	@Override
 	public NodeView<ImgReader2NodeModel<T>> createNodeView(final int i, final ImgReader2NodeModel<T> nodeModel) {
-		return new TableCellViewNodeView<ImgReader2NodeModel<T>>(nodeModel);
+		return new CellNodeView<ImgReader2NodeModel<T>>(nodeModel);
 	}
 
 	/**
