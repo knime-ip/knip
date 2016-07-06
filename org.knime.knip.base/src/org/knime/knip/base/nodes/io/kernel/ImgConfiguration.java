@@ -67,6 +67,7 @@ import javax.swing.event.ChangeListener;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.knip.base.KNIMEKNIPPlugin;
+import org.knime.knip.core.ui.imgviewer.ExpandingPanel;
 import org.knime.knip.core.ui.imgviewer.ImgCanvas;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.ui.imgviewer.ViewerComponents;
@@ -103,9 +104,9 @@ public abstract class ImgConfiguration<T extends RealType<T>> extends Serializab
         realProvider.setEventService(viewer.getEventService());
         viewer.addViewerComponent(new ImgViewInfoPanel<T>());
         viewer.addViewerComponent(new ImgCanvas<T, Img<T>>());
-        viewer.addViewerComponent(ViewerComponents.MINIMAP.createInstance());
-        viewer.addViewerComponent(ViewerComponents.PLANE_SELECTION.createInstance());
-        viewer.addViewerComponent(new ImgNormalizationPanel<>());
+        viewer.addViewerComponent(ViewerComponents.MINIMAP_PLANE_SELECTION.createInstance());
+        //        viewer.addViewerComponent(ViewerComponents.PLANE_SELECTION.createInstance());
+        viewer.addViewerComponent(new ExpandingPanel("Normalization", new ImgNormalizationPanel<>(), true));
         // set normalization true as default and higher zoom level
         // TODO: build constructor for minimap
         viewer.getEventService().publish(new ViewZoomfactorChgEvent(10));
