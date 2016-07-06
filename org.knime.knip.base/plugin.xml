@@ -288,5 +288,8 @@
         <CellView
               CellViewProviderFactory="org.knime.knip.base.nodes.view.CombinedCellViewFactory">
         </CellView>
+        <CellView
+              CellViewProviderFactory="org.knime.knip.base.nodes.view.MissingCellViewFactory">
+        </CellView>
      </extension>
 </plugin>
