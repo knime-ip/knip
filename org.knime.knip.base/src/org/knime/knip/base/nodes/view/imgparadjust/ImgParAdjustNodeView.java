@@ -225,7 +225,7 @@ public class ImgParAdjustNodeView<T extends RealType<T>> extends NodeView<ImgPar
                 onContinueExecution();
             }
         });
-        m_content.add(continueButton, BorderLayout.SOUTH);
+        m_parameterPanel.add(continueButton, BorderLayout.SOUTH);
 
         setComponent(m_tableViewPanel);
 

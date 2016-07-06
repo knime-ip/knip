@@ -48,6 +48,7 @@
  */
 package org.knime.knip.base.nodes.view.imgparadjust;
 
+import java.awt.BorderLayout;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -102,10 +103,10 @@ public class ParameterPanel extends ViewerComponent {
 
     public ParameterPanel() {
         super("Parameters", true);
-
+        setLayout(new BorderLayout());
         m_parameterList = new JTextArea();
         m_parameterList.setEditable(false);
-        add(new JScrollPane(m_parameterList));
+        add(new JScrollPane(m_parameterList), BorderLayout.CENTER);
         updatedParameterList();
 
     }
