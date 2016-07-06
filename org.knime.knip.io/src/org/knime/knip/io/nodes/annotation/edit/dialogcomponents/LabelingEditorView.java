@@ -76,7 +76,6 @@ import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelingWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.TableOverviewDisableEvent;
 import org.knime.knip.core.ui.imgviewer.events.TablePositionEvent;
-import org.knime.knip.core.ui.imgviewer.panels.BrightnessContrastPanel;
 import org.knime.knip.core.ui.imgviewer.panels.ImgNormalizationPanel;
 import org.knime.knip.core.ui.imgviewer.panels.RendererSelectionPanel;
 import org.knime.knip.core.ui.imgviewer.panels.TransparencyPanel;
@@ -107,8 +106,9 @@ import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.ConstantUtils;
 import net.imglib2.view.Views;
 
-public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends Comparable<L>> extends
-		AbstractDefaultAnnotatorView<LabelingEditorChangeTracker>implements AnnotatorView<LabelingEditorChangeTracker> {
+public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
+		extends AbstractDefaultAnnotatorView<LabelingEditorChangeTracker>
+		implements AnnotatorView<LabelingEditorChangeTracker> {
 
 	public static final String FIXED_COL = "FirstMatch";
 
@@ -178,7 +178,7 @@ public class LabelingEditorView<T extends RealType<T> & NativeType<T>, L extends
 
 		annotator.addViewerComponent(new AnnotatorMinimapAndPlaneSelectionPanel());
 		annotator.addViewerComponent(m_labelPanel, true, true);
-		annotator.addViewerComponent(new ExpandingPanel("Brightness and Contrast", new BrightnessContrastPanel()));
+		annotator.addViewerComponent(new ExpandingPanel("Brightness and Contrast", new ImgNormalizationPanel<>()));
 		annotator.addViewerComponent(new ExpandingPanel("Renderer Selection", new RendererSelectionPanel<T>()));
 		annotator.addViewerComponent(new ExpandingPanel("Transparency", new TransparencyPanel()));
 		annotator.addViewerComponent(new LabelingViewInfoPanel<>());

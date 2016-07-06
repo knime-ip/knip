@@ -71,7 +71,7 @@ import org.knime.knip.core.ui.imgviewer.ImgCanvas;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.ui.imgviewer.ViewerComponents;
 import org.knime.knip.core.ui.imgviewer.events.ViewZoomfactorChgEvent;
-import org.knime.knip.core.ui.imgviewer.panels.BrightnessContrastPanel;
+import org.knime.knip.core.ui.imgviewer.panels.ImgNormalizationPanel;
 import org.knime.knip.core.ui.imgviewer.panels.infobars.ImgViewInfoPanel;
 import org.knime.knip.core.ui.imgviewer.panels.providers.AWTImageProvider;
 import org.knime.knip.core.ui.imgviewer.panels.providers.ImageRU;
@@ -105,7 +105,7 @@ public abstract class ImgConfiguration<T extends RealType<T>> extends Serializab
         viewer.addViewerComponent(new ImgCanvas<T, Img<T>>());
         viewer.addViewerComponent(ViewerComponents.MINIMAP.createInstance());
         viewer.addViewerComponent(ViewerComponents.PLANE_SELECTION.createInstance());
-        viewer.addViewerComponent(new BrightnessContrastPanel());
+        viewer.addViewerComponent(new ImgNormalizationPanel<>());
         // set normalization true as default and higher zoom level
         // TODO: build constructor for minimap
         viewer.getEventService().publish(new ViewZoomfactorChgEvent(10));

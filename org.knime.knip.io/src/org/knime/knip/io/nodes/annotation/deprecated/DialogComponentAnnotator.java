@@ -60,10 +60,6 @@ import java.util.Map;
 
 import javax.swing.BoxLayout;
 
-import net.imglib2.img.Img;
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-
 import org.apache.xmlbeans.impl.util.Base64;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NotConfigurableException;
@@ -76,7 +72,6 @@ import org.knime.knip.core.ui.imgviewer.annotator.create.AnnotatorLabelPanel;
 import org.knime.knip.core.ui.imgviewer.annotator.deprecated.AnnotatorManager;
 import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorResetEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
-import org.knime.knip.core.ui.imgviewer.panels.BrightnessContrastPanel;
 import org.knime.knip.core.ui.imgviewer.panels.ImgNormalizationPanel;
 import org.knime.knip.core.ui.imgviewer.panels.MinimapPanel;
 import org.knime.knip.core.ui.imgviewer.panels.PlaneSelectionPanel;
@@ -88,6 +83,10 @@ import org.knime.knip.core.ui.imgviewer.panels.providers.ImageRU;
 import org.knime.knip.core.ui.imgviewer.panels.providers.OverlayRU;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import net.imglib2.img.Img;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * 
@@ -161,7 +160,7 @@ public class DialogComponentAnnotator<T extends RealType<T> & NativeType<T>> ext
 		m_annotator.addViewerComponent(new AnnotatorLabelPanel(defaultLabels));
 		m_annotator.addViewerComponent(AnnotatorToolbar.createStandardToolbar());
 		m_annotator.addViewerComponent(new MinimapPanel());
-		m_annotator.addViewerComponent(new BrightnessContrastPanel());
+		m_annotator.addViewerComponent(new ImgNormalizationPanel<>());
 		m_annotator.addViewerComponent(new PlaneSelectionPanel<T, Img<T>>());
 		m_annotator.addViewerComponent(new RendererSelectionPanel<T>());
 		m_annotator.addViewerComponent(new TransparencyPanel());

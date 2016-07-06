@@ -70,7 +70,7 @@ import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.TablePositionEvent;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
 import org.knime.knip.core.ui.imgviewer.overlay.OverlayElement2D;
-import org.knime.knip.core.ui.imgviewer.panels.BrightnessContrastPanel;
+import org.knime.knip.core.ui.imgviewer.panels.ImgNormalizationPanel;
 import org.knime.knip.core.ui.imgviewer.panels.RendererSelectionPanel;
 import org.knime.knip.core.ui.imgviewer.panels.TransparencyPanel;
 import org.knime.knip.core.ui.imgviewer.panels.infobars.ImgViewInfoPanel;
@@ -82,7 +82,6 @@ import org.knime.knip.io.nodes.annotation.AnnotatorView;
 import org.knime.knip.io.nodes.annotation.deprecated.AnnotatorImgCanvas;
 
 import net.imagej.ImgPlus;
-import net.imglib2.img.Img;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
@@ -167,7 +166,7 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>> extends
 		annotator.addViewerComponent(
 				new ExpandingPanel("Labels", m_annotatorLabelPanel = new AnnotatorLabelPanel(), true));
 		annotator.addViewerComponent(AnnotatorToolbar.createStandardToolbar());
-		annotator.addViewerComponent(new ExpandingPanel("Brightness and Contrast", new BrightnessContrastPanel()));
+		annotator.addViewerComponent(new ExpandingPanel("Brightness and Contrast", new ImgNormalizationPanel<>()));
 		// annotator.addViewerComponent(new PlaneSelectionPanel<T, Img<T>>());
 		annotator.addViewerComponent(new ExpandingPanel("Renderer Selection", new RendererSelectionPanel<T>()));
 		annotator.addViewerComponent(new ExpandingPanel("Transparency", new TransparencyPanel()));
