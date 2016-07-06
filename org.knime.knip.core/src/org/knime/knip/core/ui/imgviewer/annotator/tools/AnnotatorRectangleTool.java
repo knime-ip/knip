@@ -56,7 +56,7 @@ import org.knime.knip.core.ui.imgviewer.overlay.elements.RectangleOverlayElement
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -105,7 +105,7 @@ public class AnnotatorRectangleTool extends AnnotationDrawingTool<RectangleOverl
     public void onMouseDraggedLeft(final ImgViewerMouseEvent e, final RectangleOverlayElement currentOverlayElement,
                                    final PlaneSelectionEvent selection, final Overlay overlay, final String... labels) {
 
-        if (currentOverlayElement.getStatus() == OverlayElementStatus.DRAWING) {
+        if (currentOverlayElement != null && currentOverlayElement.getStatus() == OverlayElementStatus.DRAWING) {
             currentOverlayElement.setRectangle(m_startPoint[selection.getPlaneDimIndex1()],
                                                m_startPoint[selection.getPlaneDimIndex2()], e.getPosX(), e.getPosY());
 
