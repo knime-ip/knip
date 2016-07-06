@@ -68,12 +68,15 @@ import org.knime.knip.core.ui.imgviewer.events.LabelOptionsChangeEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelPanelIsHiliteModeEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelPanelVisibleLabelsChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelingWithMetadataChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter.Operator;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
+import org.knime.knip.core.util.MiscViews;
 
 import net.imglib2.Interval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.display.screenimage.awt.AWTScreenImage;
+import net.imglib2.outofbounds.OutOfBoundsConstantValueFactory;
 import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.view.Views;
 
@@ -134,6 +137,11 @@ public class LabelingRU<L> extends AbstractDefaultRU<LabelingType<L>> {
             return m_lastImage;
         }
 
+        PlaneSelectionEvent pSel = m_planeSelection;
+        if(m_interval != null && m_planeSelection.numDimensions() != m_interval.numDimensions()) {
+            pSel = MiscViews.adjustPlaneSelection(m_planeSelection, m_interval);
+        }
+
         if (m_renderer instanceof RendererWithLabels) {
             @SuppressWarnings("unchecked")
             final RendererWithLabels<L> r = (RendererWithLabels<L>)m_renderer;
@@ -155,8 +163,8 @@ public class LabelingRU<L> extends AbstractDefaultRU<LabelingType<L>> {
         }
 
         final AWTScreenImage ret =
-                m_renderer.render(m_src, m_planeSelection.getPlaneDimIndex1(), m_planeSelection.getPlaneDimIndex2(),
-                                  m_planeSelection.getPlanePos());
+                m_renderer.render(m_src, pSel.getPlaneDimIndex1(), pSel.getPlaneDimIndex2(),
+                                  pSel.getPlanePos());
 
         m_hashOfLastRendering = generateHashCode();
         m_lastImage = ret.image();
@@ -169,8 +177,11 @@ public class LabelingRU<L> extends AbstractDefaultRU<LabelingType<L>> {
         if (!interval.equals(m_interval)) {
             LabelingType<L> val = m_src.randomAccess().get().createVariable();
             val.clear();
+            OutOfBoundsConstantValueFactory<LabelingType<L>, RandomAccessibleInterval<LabelingType<L>>> fac =
+                    new OutOfBoundsConstantValueFactory<>(val);
             m_interval = interval;
-            m_src = Views.interval(Views.extendValue(m_unmodSrc, val), interval);
+            m_src = Views.interval(MiscViews.synchronizeDimensionality(m_unmodSrc, interval, fac), interval);
+            m_hashOfLastRendering = -1;
         }
     }
 

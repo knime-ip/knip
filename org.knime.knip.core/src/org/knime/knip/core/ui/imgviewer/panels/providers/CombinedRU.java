@@ -62,7 +62,9 @@ import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.events.TransparencyPanelValueChgEvent;
 import org.knime.knip.core.ui.imgviewer.panels.CombinedRUSynchEvent;
+import org.knime.knip.core.util.MiscViews;
 
+import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
 
 /**
@@ -150,10 +152,12 @@ public class CombinedRU implements RenderUnit {
                 int first = i;
                 int w = 0, h = 0;
                 Interval target = null;
+
                 if (m_sync) {
-                    target = m_renderUnits.get(i).getInterval();
+                    target = calculateHull();
                     m_renderUnits.get(i).limitTo(target);
                 }
+
                 Image img = m_renderUnits.get(i).createImage();
                 w += img.getWidth(null);
                 h = Math.max(h, img.getHeight(null));
@@ -190,10 +194,12 @@ public class CombinedRU implements RenderUnit {
                 //at least one active image
 
                 Interval target = null;
+
                 if (m_sync) {
-                    target = m_renderUnits.get(i).getInterval();
+                    target = calculateHull();
                     m_renderUnits.get(i).limitTo(target);
                 }
+
                 Image img = m_renderUnits.get(i).createImage();
                 joinedImg = m_graphicsConfig.createCompatibleImage(img.getWidth(null), img.getHeight(null),
                                                                    java.awt.Transparency.TRANSLUCENT);
@@ -206,9 +212,11 @@ public class CombinedRU implements RenderUnit {
                 //blend in the other active images
                 while (i < m_renderUnits.size()) {
                     if (m_renderUnits.get(i).isActive()) {
+
                         if (m_sync) {
                             m_renderUnits.get(i).limitTo(target);
                         }
+
                         g.drawImage(Transparency.makeColorTransparent(m_renderUnits.get(i).createImage(), Color.WHITE,
                                                                       m_transparency),
                                     0, 0, null);
@@ -230,6 +238,21 @@ public class CombinedRU implements RenderUnit {
 
         return ret;
 
+    }
+
+    private Interval calculateHull() {
+        Interval result = new FinalInterval();
+        for (RenderUnit ru : m_renderUnits) {
+            if (ru.isActive()) {
+                Interval target = ru.getInterval();
+                if (result.numDimensions() > target.numDimensions()) {
+                    result = MiscViews.synchronizeDimensionality(target, result);
+                } else {
+                    result = MiscViews.synchronizeDimensionality(result, target);
+                }
+            }
+        }
+        return result;
     }
 
     /**

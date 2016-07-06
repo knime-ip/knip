@@ -62,6 +62,7 @@ import org.knime.knip.cellviewer.interfaces.CellView;
 import org.knime.knip.cellviewer.interfaces.CellViewFactory;
 import org.knime.knip.core.awt.ColorLabelingRenderer;
 import org.knime.knip.core.awt.Real2GreyRenderer;
+import org.knime.knip.core.data.img.DefaultImgMetadata;
 import org.knime.knip.core.ui.imgviewer.CombinedImgViewer;
 import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelingWithMetadataChgEvent;
@@ -71,7 +72,11 @@ import org.knime.knip.core.ui.imgviewer.panels.providers.ImageRU;
 import org.knime.knip.core.ui.imgviewer.panels.providers.LabelingRU;
 import org.knime.knip.core.util.waitingindicator.WaitingIndicatorUtils;
 
+import net.imagej.ImgPlusMetadata;
+import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
 
 /**
  * TODO Auto-generated
@@ -111,6 +116,7 @@ public class CombinedCellViewFactory implements CellViewFactory {
                 // Nothing to do here
             }
 
+            @SuppressWarnings("unchecked")
             @Override
             public void updateComponent(final List<DataValue> valueToView) {
                 WaitingIndicatorUtils.setWaiting(m_view, true);
@@ -120,12 +126,28 @@ public class CombinedCellViewFactory implements CellViewFactory {
                 for (DataValue v : valueToView) {
                     if (v instanceof ImgPlusValue) {
                         final ImgPlusValue imgPlusValue = (ImgPlusValue)v;
-                        ImageRU ru = new ImageRU(((RealType)imgPlusValue.getImgPlus().firstElement()).getMinValue());
-                        m_view.addRU(ru);
-                        m_view.publishToPrev(new RendererSelectionChgEvent(new Real2GreyRenderer(
-                                ((RealType)imgPlusValue.getImgPlus().firstElement()).getMinValue())));
-                        m_view.publishToPrev(new ImgWithMetadataChgEvent<>(imgPlusValue.getImgPlus(),
-                                imgPlusValue.getMetadata()));
+
+                        if (imgPlusValue.getMetadata().numDimensions() <= 1) {
+                            Img img2d = imgPlusValue.getImgPlus().getImg();
+                            ImgPlusMetadata meta = imgPlusValue.getMetadata();
+
+                            img2d = ImgView.wrap(Views.addDimension(img2d, 0, 0), img2d.factory());
+                            meta = new DefaultImgMetadata(2);
+                            ImageRU ru = new ImageRU(((RealType)img2d.firstElement()).getMinValue());
+                            m_view.addRU(ru);
+                            m_view.publishToPrev(new RendererSelectionChgEvent(
+                                    new Real2GreyRenderer(((RealType)img2d.firstElement()).getMinValue())));
+                            m_view.publishToPrev(new ImgWithMetadataChgEvent<>(img2d, meta));
+
+                        } else {
+                            ImageRU ru =
+                                    new ImageRU(((RealType)imgPlusValue.getImgPlus().firstElement()).getMinValue());
+                            m_view.addRU(ru);
+                            m_view.publishToPrev(new RendererSelectionChgEvent(new Real2GreyRenderer(
+                                    ((RealType)imgPlusValue.getImgPlus().firstElement()).getMinValue())));
+                            m_view.publishToPrev(new ImgWithMetadataChgEvent<>(imgPlusValue.getImgPlus(),
+                                    imgPlusValue.getMetadata()));
+                        }
 
                     } else if (v instanceof LabelingValue) {
                         final LabelingValue labValue = (LabelingValue)v;
@@ -189,7 +211,7 @@ public class CombinedCellViewFactory implements CellViewFactory {
     }
 
     @Override
-    public int getPriority(){
+    public int getPriority() {
         return Integer.MAX_VALUE;
     }
 

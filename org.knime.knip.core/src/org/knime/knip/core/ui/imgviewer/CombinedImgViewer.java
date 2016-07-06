@@ -195,6 +195,7 @@ public class CombinedImgViewer extends ImgViewer {
         broadcast(new CombinedRUSynchEventClone(false));
         m_ru.setStackedRendering(true);
         m_controlPanel.resetCheckboxes();
+        m_tabbedMenu.setSelectedIndex(0);
     }
 
     public void clear() {
@@ -250,6 +251,8 @@ public class CombinedImgViewer extends ImgViewer {
         broadcast(new CombinedRUSynchEventClone(e));
         if (!m_sync) {
             broadcast(new RebroadcastSelectionEvent());
+        } else {
+            m_eventServices.get(m_tabbedMenu.getSelectedIndex()).publish(new RebroadcastSelectionEvent());
         }
     }
 

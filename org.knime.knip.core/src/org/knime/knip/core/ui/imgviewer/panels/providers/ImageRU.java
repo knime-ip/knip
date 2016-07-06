@@ -63,12 +63,16 @@ import org.knime.knip.core.ui.imgviewer.annotator.events.AnnotatorResetEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgAndLabelingChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.NormalizationParametersChgEvent;
+import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
 import org.knime.knip.core.ui.imgviewer.panels.transfunc.LookupTableChgEvent;
+import org.knime.knip.core.util.MiscViews;
 
+import net.imglib2.Interval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.display.ColorTable;
 import net.imglib2.display.screenimage.awt.AWTScreenImage;
+import net.imglib2.outofbounds.OutOfBoundsConstantValueFactory;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
@@ -125,6 +129,9 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
 
     // event members
 
+    /** Caches the current restriction interval */
+    private Interval m_interval;
+
     private LookupTable<T, ARGBType> m_lookupTable = new SimpleTable();
 
     private NormalizationParametersChgEvent m_normalizationParameters = new NormalizationParametersChgEvent(0, false);
@@ -133,11 +140,13 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
 
     private RandomAccessibleInterval<T> m_src;
 
+    private RandomAccessibleInterval<T> m_unmodSrc;
+
     /** default constructor that creates a renderer selection dependent image {@link RenderUnit}. */
     public ImageRU(final double min) {
         this(false);
 
-        this.m_greyRenderer = new Real2GreyRenderer<T>(0.0);
+
     }
 
     /**
@@ -148,6 +157,7 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
      */
     public ImageRU(final boolean enforceGreyScale) {
         m_enforceGreyScale = enforceGreyScale;
+        this.m_greyRenderer = new Real2GreyRenderer<T>(0.0);
     }
 
     @SuppressWarnings("unchecked")
@@ -156,13 +166,14 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
         if (m_lastImage != null && m_hashOfLastRendering == generateHashCode()) {
             return m_lastImage;
         }
-
+        PlaneSelectionEvent pSel = m_planeSelection;
+        if(m_interval != null && m_planeSelection.numDimensions() != m_interval.numDimensions()) {
+            pSel = MiscViews.adjustPlaneSelection(m_planeSelection, m_interval);
+        }
         //+ allows normalization - breaks type safety
         @SuppressWarnings("rawtypes")
         RandomAccessibleInterval convertedSrc = AWTImageProvider.convertIfDouble(m_src);
-        final double[] normParams =
-                m_normalizationParameters.getNormalizationParameters(convertedSrc, m_planeSelection);
-
+        final double[] normParams =  m_normalizationParameters.getNormalizationParameters(convertedSrc, pSel);
         //set parameters of the renderer
         if (m_renderer instanceof RendererWithNormalization) {
             ((RendererWithNormalization)m_renderer).setNormalizationParameters(normParams[0], normParams[1]);
@@ -178,12 +189,12 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
 
         final AWTScreenImage ret;
         if (!m_enforceGreyScale) {
-            ret = m_renderer.render(Views.zeroMin(convertedSrc), m_planeSelection.getPlaneDimIndex1(),
-                                    m_planeSelection.getPlaneDimIndex2(), m_planeSelection.getPlanePos());
+            ret = m_renderer.render(Views.zeroMin(convertedSrc), pSel.getPlaneDimIndex1(),
+                                    pSel.getPlaneDimIndex2(), pSel.getPlanePos());
         } else {
             m_greyRenderer.setNormalizationParameters(normParams[0], normParams[1]);
-            ret = m_greyRenderer.render(Views.zeroMin(convertedSrc), m_planeSelection.getPlaneDimIndex1(),
-                                        m_planeSelection.getPlaneDimIndex2(), m_planeSelection.getPlanePos());
+            ret = m_greyRenderer.render(Views.zeroMin(convertedSrc), pSel.getPlaneDimIndex1(),
+                                        pSel.getPlaneDimIndex2(), pSel.getPlanePos());
         }
 
         m_lastImage = ret.image();
@@ -211,6 +222,31 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
     @Override
     public boolean isActive() {
         return (m_src != null);
+    }
+
+    @Override
+    public void limitTo(final Interval interval) {
+        if (!interval.equals(m_interval)) {
+            T val = m_src.randomAccess().get().createVariable();
+            val.setReal(val.getMinValue());
+            OutOfBoundsConstantValueFactory<T, RandomAccessibleInterval<T>> fac =
+                    new OutOfBoundsConstantValueFactory<>(val);
+            m_interval = interval;
+            m_src = Views.interval(MiscViews.synchronizeDimensionality(m_unmodSrc, interval, fac), interval);
+            m_hashOfLastRendering = -1;
+        }
+    }
+
+    @Override
+    public void resetLimit() {
+        m_interval = null;
+        m_src = m_unmodSrc;
+        m_hashOfLastRendering = -1;
+    }
+
+    @Override
+    public Interval getInterval() {
+        return m_src;
     }
 
     //event handling
@@ -244,6 +280,7 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
     @EventListener
     public void onImageUpdated(final ImgWithMetadataChgEvent<T> e) {
         m_src = e.getRandomAccessibleInterval();
+        m_unmodSrc = e.getRandomAccessibleInterval();
 
         final int size = e.getImgMetaData().getColorTableCount();
         m_colorTables = new ColorTable[size];
@@ -261,6 +298,7 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
     @EventListener
     public void onImageUpdated(final ImgAndLabelingChgEvent<T, ?> e) {
         m_src = e.getRandomAccessibleInterval();
+        m_unmodSrc = e.getRandomAccessibleInterval();
     }
 
     /**
