@@ -161,17 +161,18 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>> extends
 		ImgViewer annotator = new ImgViewer();
 		annotator.addViewerComponent(new AWTImageProvider(0, new OverlayRU<String>(new ImageRU<T>(0.0))));
 		annotator.addViewerComponent(m_manager);
-
+		annotator.addViewerComponent(new AnnotatorImgCanvas<T>());
+		annotator.addViewerComponent(new ExpandingPanel("Renderer Selection", new RendererSelectionPanel<T>()));
 		annotator.addViewerComponent(new AnnotatorMinimapAndPlaneSelectionPanel());
 		annotator.addViewerComponent(
 				new ExpandingPanel("Labels", m_annotatorLabelPanel = new AnnotatorLabelPanel(), true));
 		annotator.addViewerComponent(AnnotatorToolbar.createStandardToolbar());
 		annotator.addViewerComponent(new ExpandingPanel("Brightness and Contrast", new ImgNormalizationPanel<>()));
 		// annotator.addViewerComponent(new PlaneSelectionPanel<T, Img<T>>());
-		annotator.addViewerComponent(new ExpandingPanel("Renderer Selection", new RendererSelectionPanel<T>()));
+
 		annotator.addViewerComponent(new ExpandingPanel("Transparency", new TransparencyPanel()));
 		annotator.addViewerComponent(new ExpandingPanel("Info", new ImgViewInfoPanel()));
-		annotator.addViewerComponent(new AnnotatorImgCanvas<T>());
+
 		m_eventService = annotator.getEventService();
 		m_eventService.subscribe(this);
 		isViewActive = true;

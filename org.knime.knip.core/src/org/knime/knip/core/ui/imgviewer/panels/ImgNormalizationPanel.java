@@ -198,8 +198,8 @@ public class ImgNormalizationPanel<T extends RealType<T>, I extends Img<T>> exte
         m_saturationSlider.setEnabled(defNormalize);
 
         // inform everybody about our settings.
-        eventService
-                .publish(new NormalizationParametersChgEvent(m_saturationSlider.getValue(), m_normalize.isSelected()));
+        m_eventService.publish(new NormalizationParametersChgEvent(
+                                                                   m_saturationSlider.getValue() / SATURATION_SLIDER_FACTOR, m_normalize.isSelected()));
 
     }
 

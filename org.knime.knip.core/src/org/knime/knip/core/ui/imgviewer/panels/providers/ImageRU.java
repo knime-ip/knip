@@ -274,7 +274,6 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
         m_src = null;
         m_greyRenderer = new Real2GreyRenderer<T>(0.0);
         m_lookupTable = new SimpleTable();
-        m_normalizationParameters = new NormalizationParametersChgEvent(0, false);
         m_colorTables = new ColorTable[]{};
     }
 
