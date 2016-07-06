@@ -74,6 +74,8 @@ public abstract class AbstractDefaultAnnotatorView<A> implements AnnotatorView<A
 		m_tableView = new TableView(m_tableContentView);
 		m_tableContentView.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		m_tableContentView.getSelectionModel().addListSelectionListener(this);
+		m_tableContentView.getColumnModel().getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		m_tableContentView.getColumnModel().getSelectionModel().addListSelectionListener(this);
 		m_view = new PlainCellView(m_tableView, (ImgViewer) createAnnotatorComponent());
 		m_view.setEventService(getEventService());
 		getEventService().publish(new TableOverviewDisableEvent(false, true));
@@ -97,7 +99,9 @@ public abstract class AbstractDefaultAnnotatorView<A> implements AnnotatorView<A
 
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
-		if (e.getValueIsAdjusting()) {
+		// Ensures that the listener fires exactly once per selection
+		if (m_tableContentView.getSelectionModel().getValueIsAdjusting()
+				&& m_tableContentView.getColumnModel().getSelectionModel().getValueIsAdjusting()) {
 			return;
 		}
 
@@ -146,8 +150,14 @@ public abstract class AbstractDefaultAnnotatorView<A> implements AnnotatorView<A
 		if (e.getDirection() == Direction.NORTH) {
 			rowSelectionChanged(m_currentRow - 1, m_currentCol);
 		}
+		if(e.getDirection() == Direction.EAST){
+			rowSelectionChanged(m_currentRow, m_currentCol+1);
+		}
 		if (e.getDirection() == Direction.SOUTH) {
 			rowSelectionChanged(m_currentRow + 1, m_currentCol);
+		}
+		if(e.getDirection() == Direction.WEST){
+			rowSelectionChanged(m_currentRow, m_currentCol-1);
 		}
 
 	}

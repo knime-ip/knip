@@ -194,8 +194,8 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>> extends
 			m_eventService.publish(new ImgWithMetadataChgEvent(imgPlus.getImg(), imgPlus));
 			m_eventService.publish(new AnnotatorRowColKeyChgEvent(key));
 			m_eventService.publish(new ImgRedrawEvent());
-			m_eventService.publish(new TablePositionEvent(-1, m_tableContentView.getRowCount(), -1, m_currentRow + 1,
-					"", m_tableContentView.getContentModel().getRowKey(m_currentRow).toString()));
+			m_eventService.publish(new TablePositionEvent(m_tableContentView.getColumnCount(), m_tableContentView.getRowCount(), m_currentCol+1, m_currentRow + 1,
+					m_tableContentView.getColumnName(m_currentCol), m_tableContentView.getContentModel().getRowKey(m_currentRow).toString()));
 		}
 	}
 
