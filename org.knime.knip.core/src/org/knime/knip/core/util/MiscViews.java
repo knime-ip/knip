@@ -51,17 +51,21 @@ package org.knime.knip.core.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
+
 import net.imagej.ImgPlus;
 import net.imagej.axis.DefaultTypedAxis;
 import net.imagej.axis.TypedAxis;
 import net.imagej.space.DefaultTypedSpace;
 import net.imagej.space.TypedSpace;
+import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.ImgView;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.util.MetadataUtil;
+import net.imglib2.outofbounds.OutOfBoundsFactory;
 import net.imglib2.type.Type;
 import net.imglib2.util.Intervals;
 import net.imglib2.view.IntervalView;
@@ -224,6 +228,98 @@ public class MiscViews {
 
         return Views.interval(res, target);
 
+    }
+
+    /**
+     * {@link RandomAccessibleInterval} with same sice as target is returned
+     *
+     * @param src {@link RandomAccessibleInterval} to be adjusted
+     * @param target {@link Interval} describing the resulting sizes
+     * @return Adjusted {@link RandomAccessibleInterval}
+     */
+    public static Interval synchronizeDimensionality(final Interval src, final Interval target) {
+        Interval res = new FinalInterval(src);
+
+        // Check direction of conversion
+        if (Intervals.equals(src, target)) {
+            return res;
+        }
+
+        // adjust dimensions
+
+        long[] mins = new long[target.numDimensions()];
+        long[] maxs = new long[target.numDimensions()];
+
+        if (target.numDimensions() >= res.numDimensions()) {
+            for (int d = 0; d < res.numDimensions(); d++) {
+                mins[d] = (res.min(d) <= target.min(d)) ? res.min(d) : target.min(d);
+                maxs[d] = (res.max(d) >= target.max(d)) ? res.max(d) : target.max(d);
+            }
+            for (int d = res.numDimensions(); d < target.numDimensions(); d++) {
+                mins[d] = target.min(d);
+                maxs[d] = target.max(d);
+            }
+        } else {
+            for (int d = 0; d < target.numDimensions(); d++) {
+                mins[d] = (res.min(d) <= target.min(d)) ? res.min(d) : target.min(d);
+                maxs[d] = (res.max(d) >= target.max(d)) ? res.max(d) : target.max(d);
+            }
+        }
+        res = new FinalInterval(mins, maxs);
+
+        return res;
+
+    }
+
+    public static <T, F extends RandomAccessibleInterval<T>> RandomAccessibleInterval<T>
+           synchronizeDimensionality(final F src, final Interval target, final OutOfBoundsFactory<T, F> factory) {
+        IntervalView<T> res = Views.interval(Views.extend(src, factory), src);
+
+        // Check direction of conversion
+        if (Intervals.equals(src, target)) {
+            return res;
+        }
+
+        // adjust dimensions
+        if (res.numDimensions() < target.numDimensions()) {
+            for (int d = res.numDimensions(); d < target.numDimensions(); d++) {
+                res = Views.addDimension(res, target.min(d), target.max(d));
+            }
+        } else {
+            for (int d = res.numDimensions() - 1; d >= target.numDimensions(); --d) {
+                res = Views.hyperSlice(res, d, 0);
+            }
+        }
+
+        final long[] resDims = new long[res.numDimensions()];
+        res.dimensions(resDims);
+
+        return Views.interval(res, target);
+
+    }
+
+    public static PlaneSelectionEvent adjustPlaneSelection(final PlaneSelectionEvent e, final Interval target) {
+        final long[] pos = new long[target.numDimensions()];
+        if (target.numDimensions() > e.numDimensions()) {
+            for (int d = 0; d < e.numDimensions(); d++) {
+                pos[d] = e.getPlanePosAt(d);
+            }
+        } else {
+            for (int d = 0; d < target.numDimensions(); d++) {
+                pos[d] = e.getPlanePosAt(d);
+            }
+        }
+
+        int dim1 = 0, dim2 = 0;
+
+        if (e.getPlaneDimIndex1() < target.numDimensions()) {
+            dim1 = e.getPlaneDimIndex1();
+        }
+        if (e.getPlaneDimIndex2() < target.numDimensions()) {
+            dim2 = e.getPlaneDimIndex2();
+        }
+
+        return new PlaneSelectionEvent(dim1, dim2, pos);
     }
 
     private static boolean spaceEquals(final TypedSpace<? extends TypedAxis> srcSpace,
