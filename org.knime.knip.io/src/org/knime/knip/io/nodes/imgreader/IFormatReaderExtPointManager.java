@@ -51,13 +51,13 @@ package org.knime.knip.io.nodes.imgreader;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import loci.formats.IFormatReader;
-
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.Platform;
 import org.knime.core.node.NodeLogger;
+
+import loci.formats.IFormatReader;
 
 /**
  * 

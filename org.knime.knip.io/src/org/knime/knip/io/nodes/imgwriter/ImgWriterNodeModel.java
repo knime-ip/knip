@@ -53,10 +53,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import loci.formats.FormatException;
-import net.imagej.ImgPlus;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.StringValue;
@@ -76,6 +72,10 @@ import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.NodeUtils;
+
+import loci.formats.FormatException;
+import net.imagej.ImgPlus;
+import net.imglib2.type.numeric.RealType;
 
 /**
  *

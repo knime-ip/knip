@@ -50,10 +50,6 @@ package org.knime.knip.io.nodes.imgimporter;
 
 import java.util.List;
 
-import net.imagej.ImgPlus;
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
@@ -70,6 +66,10 @@ import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.io.ImgRefValue;
 import org.knime.knip.io.ImgSource;
 import org.knime.knip.io.ImgSourcePool;
+
+import net.imagej.ImgPlus;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * The Factory class for the Image Reader.

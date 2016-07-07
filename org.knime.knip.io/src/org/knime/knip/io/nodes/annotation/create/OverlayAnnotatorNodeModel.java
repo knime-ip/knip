@@ -52,11 +52,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import net.imagej.ImgPlus;
-import net.imglib2.roi.labeling.ImgLabeling;
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataTableHolder;
@@ -77,6 +72,11 @@ import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.types.NativeTypes;
 import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
+
+import net.imagej.ImgPlus;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * TODO Auto-generated

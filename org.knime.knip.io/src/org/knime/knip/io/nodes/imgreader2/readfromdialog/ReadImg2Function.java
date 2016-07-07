@@ -2,7 +2,6 @@ package org.knime.knip.io.nodes.imgreader2.readfromdialog;
 
 import java.io.File;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -11,7 +10,6 @@ import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.eclipse.core.runtime.URIUtil;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.RowKey;
 import org.knime.core.node.ExecutionContext;

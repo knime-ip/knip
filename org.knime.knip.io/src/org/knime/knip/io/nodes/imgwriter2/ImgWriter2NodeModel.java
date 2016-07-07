@@ -48,8 +48,6 @@
  */
 package org.knime.knip.io.nodes.imgwriter2;
 
-import io.scif.FormatException;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -57,9 +55,6 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
-
-import net.imagej.ImgPlus;
-import net.imglib2.type.numeric.RealType;
 
 import org.apache.commons.io.FileUtils;
 import org.knime.core.data.DataRow;
@@ -83,6 +78,10 @@ import org.knime.core.node.util.CheckUtils;
 import org.knime.core.util.FileUtil;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.NodeUtils;
+
+import io.scif.FormatException;
+import net.imagej.ImgPlus;
+import net.imglib2.type.numeric.RealType;
 
 /**
  *

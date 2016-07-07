@@ -50,9 +50,6 @@ package org.knime.knip.io.nodes.annotation.create;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.base.data.filter.column.FilterColumnTable;
 import org.knime.core.data.DataTable;
 import org.knime.core.node.BufferedDataTable;
@@ -74,6 +71,9 @@ import org.knime.knip.core.types.NativeTypes;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
 import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.io.nodes.annotation.DialogComponentAnnotatorView;
+
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * TODO Auto-generated

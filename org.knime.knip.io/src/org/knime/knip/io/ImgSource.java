@@ -48,12 +48,11 @@
  */
 package org.knime.knip.io;
 
-import io.scif.FormatException;
-
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
 
+import io.scif.FormatException;
 import net.imagej.ImgPlus;
 import net.imagej.axis.CalibratedAxis;
 import net.imagej.axis.TypedAxis;

@@ -48,9 +48,6 @@
  */
 package org.knime.knip.io.nodes.annotation.deprecated;
 
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
@@ -59,6 +56,9 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.types.NativeTypes;
 import org.knime.knip.core.util.EnumUtils;
+
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * Dialog for the Point Picker Node.

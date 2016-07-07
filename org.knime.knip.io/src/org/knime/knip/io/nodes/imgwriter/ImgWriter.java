@@ -51,6 +51,9 @@ package org.knime.knip.io.nodes.imgwriter;
 import java.io.IOException;
 import java.util.HashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import loci.common.DataTools;
 import loci.common.services.DependencyException;
 import loci.common.services.ServiceException;
@@ -81,9 +84,6 @@ import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.view.Views;
 import ome.xml.model.enums.DimensionOrder;
 import ome.xml.model.enums.PixelType;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Provides the functionality to write {@link Img}s using the <a href =

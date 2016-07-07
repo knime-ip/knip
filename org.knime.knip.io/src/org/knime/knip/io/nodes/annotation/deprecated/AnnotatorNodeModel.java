@@ -57,13 +57,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import net.imagej.ImgPlus;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.view.Views;
-
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataTableSpec;
@@ -94,6 +87,13 @@ import org.knime.knip.core.types.NativeTypes;
 import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
 import org.knime.knip.core.ui.imgviewer.annotator.deprecated.AnnotatorManager;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
+
+import net.imagej.ImgPlus;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
 
 /**
  * This Node reads images.

@@ -55,13 +55,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
-import net.imglib2.img.ImgFactory;
-import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.img.cell.CellImgFactory;
-import net.imglib2.img.planar.PlanarImgFactory;
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
@@ -83,6 +76,13 @@ import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.PortTypeRegistry;
 import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
+
+import net.imglib2.img.ImgFactory;
+import net.imglib2.img.array.ArrayImgFactory;
+import net.imglib2.img.cell.CellImgFactory;
+import net.imglib2.img.planar.PlanarImgFactory;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * This Node reads images.

@@ -48,8 +48,6 @@
  */
 package org.knime.knip.io.nodes.imgreader;
 
-import io.scif.Format;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -78,6 +76,8 @@ import org.knime.knip.base.node.dialog.DialogComponentSubsetSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
 import org.knime.knip.io.ScifioGateway;
 import org.knime.knip.io.node.dialog.DialogComponentMultiFileChooser;
+
+import io.scif.Format;
 
 /**
  * Dialog for the ImageReader to select the files and choose some additional

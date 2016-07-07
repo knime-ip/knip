@@ -64,11 +64,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import net.imagej.ImgPlus;
-import net.imglib2.exception.IncompatibleTypeException;
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.ViewerComponent;
@@ -84,6 +79,11 @@ import org.knime.knip.io.nodes.imgreader.FileChooserPanel;
 import org.knime.knip.io.nodes.imgreader.ImgReaderNodeDialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import net.imagej.ImgPlus;
+import net.imglib2.exception.IncompatibleTypeException;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * TODO Auto-generated

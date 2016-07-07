@@ -48,6 +48,15 @@
  */
 package org.knime.knip.io.extensionpoint;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtensionPoint;
+import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.core.runtime.Platform;
+import org.knime.core.node.NodeLogger;
+
 /*
  * ------------------------------------------------------------------------
  *
@@ -100,15 +109,6 @@ package org.knime.knip.io.extensionpoint;
  */
 
 import io.scif.Format;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IExtensionPoint;
-import org.eclipse.core.runtime.IExtensionRegistry;
-import org.eclipse.core.runtime.Platform;
-import org.knime.core.node.NodeLogger;
 
 /**
  * 
