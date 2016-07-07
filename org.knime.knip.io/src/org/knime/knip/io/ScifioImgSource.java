@@ -55,6 +55,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.knime.core.node.NodeLogger;
 import org.knime.knip.base.exceptions.KNIPRuntimeException;
 import org.knime.knip.core.types.NativeTypes;
@@ -241,6 +242,8 @@ public class ScifioImgSource implements ImgSource {
 	public ImgPlus<RealType> getImg(final String imgRef, final int currentSeries,
 			final Pair<TypedAxis, long[]>[] axisSelectionConstraints) throws Exception {
 
+		final Level oldLevel = Logger.getRootLogger().getLevel();
+
 		// FIXME: WORKAROUND till bug 3391 is fixed (support for
 		// SCIFIOImgPlus)
 		if (m_imgFactory instanceof CellImgFactory) {
@@ -289,6 +292,7 @@ public class ScifioImgSource implements ImgSource {
 		final ImgPlus<RealType> ret = MiscViews.cleanImgPlus(
 				m_imgOpener.openImg(getReader(imgRef), getPixelType(imgRef, currentSeries), m_imgFactory, options));
 
+		Logger.getRootLogger().setLevel(oldLevel);
 		return ret;
 	}
 
@@ -303,6 +307,8 @@ public class ScifioImgSource implements ImgSource {
 	@Override
 	public <T extends RealType<T> & NativeType<T>> ImgPlus<T> getTypedImg(final String imgRef, final int currentSeries,
 			final Pair<TypedAxis, long[]>[] axisSelectionConstraints, T type) throws Exception {
+
+		final Level oldLevel = Logger.getRootLogger().getLevel();
 
 		// FIXME: WORKAROUND till bug 3391 is fixed (support for
 		// SCIFIOImgPlus)
@@ -351,6 +357,8 @@ public class ScifioImgSource implements ImgSource {
 
 		final ImgPlus<T> ret = MiscViews
 				.cleanImgPlus(m_imgOpener.openImg(getReader(imgRef), type, m_imgFactory, options));
+
+		Logger.getRootLogger().setLevel(oldLevel);
 		return ret;
 	}
 
