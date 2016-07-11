@@ -51,7 +51,7 @@ package org.knime.knip.io.nodes.annotation.deprecated;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
-import org.knime.knip.base.nodes.view.TableCellViewNodeView;
+import org.knime.knip.cellviewer.CellNodeView;
 
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
@@ -67,46 +67,45 @@ import net.imglib2.type.numeric.RealType;
  */
 @Deprecated
 public class AnnotatorNodeFactory<T extends RealType<T> & NativeType<T>, L extends Comparable<L>>
-        extends NodeFactory<AnnotatorNodeModel<T, L>> {
+		extends NodeFactory<AnnotatorNodeModel<T, L>> {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeDialogPane createNodeDialogPane() {
-        return new AnnotatorNodeDialog<T, L>();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeDialogPane createNodeDialogPane() {
+		return new AnnotatorNodeDialog<T, L>();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public AnnotatorNodeModel<T, L> createNodeModel() {
-        return new AnnotatorNodeModel<T, L>();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public AnnotatorNodeModel<T, L> createNodeModel() {
+		return new AnnotatorNodeModel<T, L>();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeView<AnnotatorNodeModel<T, L>> createNodeView(final int i,
-            final AnnotatorNodeModel<T, L> nodeModel) {
-        return new TableCellViewNodeView(nodeModel);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeView<AnnotatorNodeModel<T, L>> createNodeView(final int i, final AnnotatorNodeModel<T, L> nodeModel) {
+		return new CellNodeView<AnnotatorNodeModel<T, L>>(nodeModel);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getNrNodeViews() {
-        return 1;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getNrNodeViews() {
+		return 1;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean hasDialog() {
-        return true;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean hasDialog() {
+		return true;
+	}
 }
