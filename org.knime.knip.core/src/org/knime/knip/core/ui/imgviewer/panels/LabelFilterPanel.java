@@ -177,6 +177,7 @@ public class LabelFilterPanel<L> extends ViewerComponent {
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.gridheight = 1;
         gbc.weightx = 1;
+        gbc.weighty = 0;
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.fill = GridBagConstraints.BOTH;
 
@@ -268,10 +269,15 @@ public class LabelFilterPanel<L> extends ViewerComponent {
         confirmationPanel.add(filterButton);
 
         m_filters = new JScrollPane(m_textFieldsPanel);
-        add(m_filterTabbs, gbc);
+        m_scrollPane.setMaximumSize(new Dimension(200, 1000));
+        m_scrollPane.setPreferredSize(new Dimension(200, 200));
         m_filterTabbs.add("Labels", m_scrollPane);
         m_filterTabbs.add("Filter Rules", m_filters);
-        m_filters.setPreferredSize(new Dimension(200, 200));
+        gbc.weighty = 1;
+        add(m_filterTabbs, gbc);
+
+
+        gbc.weighty = 0;
         gbc.gridheight = GridBagConstraints.REMAINDER;
         add(confirmationPanel, gbc);
 
