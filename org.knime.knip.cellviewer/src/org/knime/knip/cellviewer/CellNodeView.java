@@ -7,6 +7,7 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -142,6 +143,10 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 
 	private boolean m_updatingTabs;
 
+	private int[] m_prevRows;
+
+	private int[] m_prevCols;
+
 	public CellNodeView(final T nodeModel) {
 		this(nodeModel, 0);
 	}
@@ -196,8 +201,12 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 	 */
 	private void rowColIntervalSelectionChanged(final int[] rowIndices, final int[] colIndices) {
 
-		if (rowIndices.length == 0 || colIndices.length == 0)
+		if (rowIndices.length == 0 || colIndices.length == 0
+				|| (Arrays.equals(rowIndices, m_prevRows) && Arrays.equals(colIndices, m_prevCols)))
 			return;
+
+		m_prevRows = rowIndices;
+		m_prevCols = colIndices;
 
 		// Extract classes and count of selected Cells
 
@@ -450,6 +459,8 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 			setComponent(m_tableView);
 			m_tableExpanded = false;
 			m_tableContentView.clearSelection();
+			m_prevRows = new int[] { -1 };
+			m_prevCols = new int[] { -1 };
 		}
 	}
 
