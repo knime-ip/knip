@@ -124,7 +124,6 @@ public class ImgCellViewFactory<T extends RealType<T> & NativeType<T>> implement
 
             }
 
-
         };
     }
 
@@ -142,6 +141,15 @@ public class ImgCellViewFactory<T extends RealType<T> & NativeType<T>> implement
     @Override
     public String getCellViewDescription() {
         return "This viewer renders the selected image-cell.";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getPriority() {
+        // TODO Auto-generated method stub
+        return Integer.MAX_VALUE;
     }
 
     /**

@@ -108,9 +108,9 @@ public interface CellViewFactory extends Comparable<CellViewFactory> {
 
 	@Override
 	default int compareTo(CellViewFactory o) {
-		if(getPriority() > o.getPriority())
-			return 1;
 		if(getPriority() < o.getPriority())
+			return 1;
+		if(getPriority() > o.getPriority())
 			return -1;
 		return 0;
 		
