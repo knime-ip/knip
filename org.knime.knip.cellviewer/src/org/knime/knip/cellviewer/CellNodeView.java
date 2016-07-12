@@ -17,7 +17,10 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
@@ -33,6 +36,7 @@ import javax.swing.event.ListSelectionListener;
 
 import org.knime.core.data.DataValue;
 import org.knime.core.node.BufferedDataTableHolder;
+import org.knime.core.node.KNIMEConstants;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeView;
@@ -41,6 +45,7 @@ import org.knime.core.node.tableview.TableContentView;
 import org.knime.core.node.tableview.TableView;
 import org.knime.knip.cellviewer.interfaces.CellView;
 import org.knime.knip.cellviewer.interfaces.CellViewFactory;
+import org.knime.knip.cellviewer.panels.HelpPanel;
 import org.knime.knip.cellviewer.panels.NavigationPanel;
 
 /*
@@ -397,6 +402,8 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 			m_hiliteAdded = true;
 		}
 
+		addHelpDialogue();
+
 		// Set preferred height to ~ 1 row
 		m_tableView.setPreferredSize(new Dimension(0, (m_tableView.getRowHeight() + 16)));
 
@@ -546,6 +553,7 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 	 * @return The navigation panel
 	 */
 	private JComponent createNavBar() {
+
 		Box navbar = new Box(BoxLayout.X_AXIS);
 
 		navbar.add(Box.createRigidArea(new Dimension(10, 40)));
@@ -645,6 +653,30 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 		});
 
 		return navbar;
+	}
+
+	private void addHelpDialogue() {
+		this.getJMenuBar().add(Box.createHorizontalGlue());
+		JMenu helpMenu = new JMenu("?");
+		JMenuItem helpItem = new JMenuItem("Hotkeys");
+		helpMenu.add(helpItem);
+		this.getJMenuBar().add(helpMenu);
+		helpItem.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JFrame helpFrame = new JFrame("Hotkeys");
+				if (KNIMEConstants.KNIME16X16 != null)
+					helpFrame.setIconImage(KNIMEConstants.KNIME16X16.getImage());
+				helpFrame.add(new HelpPanel());
+				helpFrame.setSize(500, 300);
+				helpFrame.setResizable(false);
+				helpFrame.setVisible(true);
+
+			}
+
+		});
+		this.getJMenuBar().add(Box.createHorizontalStrut(10));
 	}
 
 	private void showTableView() {
