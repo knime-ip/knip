@@ -52,7 +52,11 @@ import java.awt.Component;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
@@ -85,6 +89,9 @@ import org.knime.knip.core.util.EnumUtils;
 
 import net.imagej.ImgPlus;
 import net.imagej.ImgPlusMetadata;
+import net.imagej.axis.CalibratedAxis;
+import net.imagej.axis.DefaultAxisType;
+import net.imagej.axis.DefaultLinearAxis;
 import net.imagej.space.DefaultCalibratedSpace;
 import net.imglib2.Cursor;
 import net.imglib2.FinalInterval;
@@ -124,7 +131,11 @@ public class ImgComposeOperator<T1 extends RealType<T1>, T2 extends RealType<T2>
     // set
     private String m_intervalCol = "";
 
+    //keep track of the maximum dimensions when the result interval is not available
     private long[] m_maxDims = null;
+
+    //keep track of the labels when the result interval is not available
+    private List<Set<String>> m_joinedLabels;
 
     // fields needed, if the result interval is not known in advance, i.e.
     // if the default settings are used
@@ -250,8 +261,16 @@ public class ImgComposeOperator<T1 extends RealType<T1>, T2 extends RealType<T2>
                 for (int i = 0; i < m_maxDims.length; i++) {
                     m_maxDims[i] = Math.max(m_maxDims[i], min[i] + dims[i]);
                 }
-
                 m_patchList.add(imgVal);
+            }
+            if (m_joinedLabels == null) {
+                m_joinedLabels = IntStream.range(0, dims.length).mapToObj(i -> {
+                    return new HashSet<String>();
+                }).collect(Collectors.toList());
+            }
+            ImgPlusMetadata metadata = imgVal.getMetadata();
+            for (int i = 0; i < m_joinedLabels.size(); i++) {
+                m_joinedLabels.get(i).add(metadata.axis(i).type().getLabel());
             }
 
         } else {
@@ -353,9 +372,13 @@ public class ImgComposeOperator<T1 extends RealType<T1>, T2 extends RealType<T2>
         if (m_intervalCol.length() == 0) {
             // compose result and return
             m_resultImg = new ArrayImgFactory<T2>().create(m_maxDims, m_resultType);
-            m_resultMetadata =
-                    new DefaultImgMetadata(new DefaultCalibratedSpace(m_maxDims.length), new DefaultNamed("Unknown"),
-                            new DefaultSourced("Unknown"), new DefaultImageMetadata());
+            List<CalibratedAxis> tmp = m_joinedLabels.stream()
+                    .map(labels -> new DefaultLinearAxis(new DefaultAxisType(String.join(",",
+                                                                                         labels.toArray(new String[labels
+                                                                                                 .size()])))))
+                    .collect(Collectors.toList());
+            m_resultMetadata = new DefaultImgMetadata(new DefaultCalibratedSpace(tmp), new DefaultNamed("Unknown"),
+                    new DefaultSourced("Unknown"), new DefaultImageMetadata());
             m_resAccess = m_resultImg.randomAccess();
             for (final ImgPlusValue<T1> imgVal : m_patchList) {
                 addToImage(imgVal);
@@ -425,6 +448,7 @@ public class ImgComposeOperator<T1 extends RealType<T1>, T2 extends RealType<T2>
             m_patchList.clear();
         }
         m_maxDims = null;
+        m_joinedLabels = null;
 
         // default settings
         m_intervalCol = "";
