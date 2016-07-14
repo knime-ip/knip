@@ -17,10 +17,8 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
@@ -45,7 +43,7 @@ import org.knime.core.node.tableview.TableContentView;
 import org.knime.core.node.tableview.TableView;
 import org.knime.knip.cellviewer.interfaces.CellView;
 import org.knime.knip.cellviewer.interfaces.CellViewFactory;
-import org.knime.knip.cellviewer.panels.HelpPanel;
+import org.knime.knip.cellviewer.panels.CellViewerHelpDialog;
 import org.knime.knip.cellviewer.panels.NavigationPanel;
 
 /*
@@ -402,8 +400,6 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 			m_hiliteAdded = true;
 		}
 
-		addHelpDialogue();
-
 		// Set preferred height to ~ 1 row
 		m_tableView.setPreferredSize(new Dimension(0, (m_tableView.getRowHeight() + 16)));
 
@@ -537,7 +533,6 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 
 				String title = m_viewsPane.getTitleAt(m_viewsPane.getSelectedIndex());
 				CellView p = m_cellViewCache.get(title);
-
 				p.updateComponent(m_cellValues);
 
 			}
@@ -613,6 +608,24 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 
 		Box thirdPanel = new Box(BoxLayout.X_AXIS);
 		thirdPanel.add(Box.createHorizontalGlue());
+		JButton helpButton = new JButton("?");
+		thirdPanel.add(helpButton);
+
+		helpButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JDialog helpFrame = new CellViewerHelpDialog();
+				if (KNIMEConstants.KNIME16X16 != null)
+					helpFrame.setIconImage(KNIMEConstants.KNIME16X16.getImage());
+				helpFrame.pack();
+				helpFrame.setVisible(true);
+
+			}
+
+		});
+
+		thirdPanel.add(Box.createHorizontalStrut(15));
 
 		navbar.add(thirdPanel);
 
@@ -653,30 +666,6 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 		});
 
 		return navbar;
-	}
-
-	private void addHelpDialogue() {
-		this.getJMenuBar().add(Box.createHorizontalGlue());
-		JMenu helpMenu = new JMenu("?");
-		JMenuItem helpItem = new JMenuItem("Hotkeys");
-		helpMenu.add(helpItem);
-		this.getJMenuBar().add(helpMenu);
-		helpItem.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JFrame helpFrame = new JFrame("Hotkeys");
-				if (KNIMEConstants.KNIME16X16 != null)
-					helpFrame.setIconImage(KNIMEConstants.KNIME16X16.getImage());
-				helpFrame.add(new HelpPanel());
-				helpFrame.setSize(500, 300);
-				helpFrame.setResizable(false);
-				helpFrame.setVisible(true);
-
-			}
-
-		});
-		this.getJMenuBar().add(Box.createHorizontalStrut(10));
 	}
 
 	private void showTableView() {
