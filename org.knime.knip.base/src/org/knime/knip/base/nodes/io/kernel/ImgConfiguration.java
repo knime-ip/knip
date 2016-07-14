@@ -79,6 +79,7 @@ import org.knime.knip.core.ui.imgviewer.panels.providers.ImageRU;
 
 import net.imagej.ImgPlus;
 import net.imagej.axis.Axes;
+import net.imagej.axis.CalibratedAxis;
 import net.imagej.axis.DefaultLinearAxis;
 import net.imagej.space.DefaultCalibratedSpace;
 import net.imglib2.img.Img;
@@ -247,8 +248,30 @@ public abstract class ImgConfiguration<T extends RealType<T>> extends Serializab
         final Img<T> img = m_imgs[index];
         final DefaultCalibratedSpace cs = new DefaultCalibratedSpace(img.numDimensions());
         for (int i = 0; i < img.numDimensions(); i++) {
-            cs.setAxis(new DefaultLinearAxis(Axes.get("X" + i)), i);
+
+            cs.setAxis(new DefaultLinearAxis(Axes.get(getLabelForDim(i))), i);
         }
-        m_view.setImg(new ImgPlus<T>(img));
+        CalibratedAxis[] a = new CalibratedAxis[cs.numDimensions()];
+        cs.axes(a);
+        m_view.setImg(new ImgPlus<T>(img, "Structuring Element", a));
     }
+
+    protected String getLabelForDim(final int i) {
+        String dimLabel;
+        if (i == 0) {
+            dimLabel = "X";
+        } else if (i == 1) {
+            dimLabel = "Y";
+        } else if (i == 2) {
+            dimLabel = "Z";
+        } else if (i == 3) {
+            dimLabel = "T";
+        } else if (i == 4) {
+            dimLabel = "C";
+        } else {
+            dimLabel = "Unknown";
+        }
+        return dimLabel;
+    }
+
 }
