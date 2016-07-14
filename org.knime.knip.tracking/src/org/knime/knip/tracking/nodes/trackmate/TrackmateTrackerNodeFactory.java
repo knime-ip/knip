@@ -3,7 +3,7 @@ package org.knime.knip.tracking.nodes.trackmate;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
-import org.knime.knip.base.nodes.view.TableCellViewNodeView;
+import org.knime.knip.cellviewer.CellNodeView;
 
 /**
  * Node Factory for the Trackmate Tracker Node.
@@ -28,7 +28,7 @@ public class TrackmateTrackerNodeFactory
     @Override
     public NodeView<TrackmateTrackerNodeModel> createNodeView(
             final int viewIndex, final TrackmateTrackerNodeModel nodeModel) {
-        return new TableCellViewNodeView<>(nodeModel);
+        return new CellNodeView<>(nodeModel);
     }
 
     @Override
