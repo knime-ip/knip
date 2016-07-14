@@ -9,6 +9,12 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 
+/**
+ * A simple dialog displaying a helpful message for cell view users.
+ * 
+ * @author Andreas Burger, University of Konstanz
+ *
+ */
 public class CellViewerHelpDialog extends JDialog implements ActionListener {
 
 	public CellViewerHelpDialog() {
@@ -36,7 +42,7 @@ public class CellViewerHelpDialog extends JDialog implements ActionListener {
 		ep.setFont(close.getFont());
 		close.addActionListener(this);
 		add(close, BorderLayout.SOUTH);
-		setPreferredSize(new Dimension(400, 500));
+		setPreferredSize(new Dimension(400, 550));
 		validate();
 		setVisible(true);
 
