@@ -17,13 +17,14 @@ public class CellViewerHelpDialog extends JDialog implements ActionListener {
 		JEditorPane ep = new JEditorPane();
 		ep.setContentType("text/html");
 		ep.setEditable(false);
-		ep.setText("<html>" + "<head></head>" + "<bodystyle='font-family=\"sans-serif\"'>"
-				+ "<h1> About the cell viewer </h1>"
+		ep.setText("<html>" + "<head></head>" + "<body style='font-family=\"sans-serif\"'>"
+				+ "<h1> About the Cell Viewer </h1>"
 				+ "The cell viewer provides the user with an interface to browse tables and view their content."
 				+ "<br>"
 				+ " In order to navigate through the table, you can either click on any image in the tabular overview"
-				+ " directly, or use the buttons at the bottom of the window to move step-by-step through the table.  <br><br>"
-				+ "<h1>Useful keyboard shortcuts</h1>"
+				+ " directly, or use the buttons at the bottom of the window to move step-by-step through the table.<br>"
+				+ "Furthermore, it is possible to select multiple images simultaneously if there are any viewers registered that can handle multiple "
+				+ "images." + " <br><br>" + "<h1>Useful Keyboard Shortcuts</h1>"
 				+ "<i> In order to facilitate navigation through the table, the viewer provides hotkeys that control the selection. </i>"
 				+ "<br>" + "<table style=\"width:100%\">" + "<tr>" + "<td>Move selection up</td>" + "<td>[ w ]</td>"
 				+ "</tr>" + "<tr>" + "<td>Move selection down</td>" + "<td>[ s ]</td>" + "</tr>" + "<tr>"
@@ -32,6 +33,7 @@ public class CellViewerHelpDialog extends JDialog implements ActionListener {
 
 		add(ep, BorderLayout.CENTER);
 		JButton close = new JButton("OK");
+		ep.setFont(close.getFont());
 		close.addActionListener(this);
 		add(close, BorderLayout.SOUTH);
 		setPreferredSize(new Dimension(400, 500));
