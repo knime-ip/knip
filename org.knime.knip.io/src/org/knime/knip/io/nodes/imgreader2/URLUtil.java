@@ -24,7 +24,12 @@ public class URLUtil {
 			try {
 				final URI fromString = URIUtil.fromString(in);
 				if (fromString.getScheme() == null) {
-					return new URI("file", fromString.getSchemeSpecificPart(), fromString.getFragment());
+					final String fragment = fromString.getFragment();
+					if (fragment != null) {
+						return new URI("file", fromString.getSchemeSpecificPart() + "#" + fragment, null);
+					} else {
+						return new URI("file", fromString.getSchemeSpecificPart(), fragment);
+					}
 				} else if (isValidScheme(fromString.getScheme())) {
 					return fromString;
 				} else {
