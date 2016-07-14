@@ -17,6 +17,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
@@ -33,6 +34,7 @@ import javax.swing.event.ListSelectionListener;
 
 import org.knime.core.data.DataValue;
 import org.knime.core.node.BufferedDataTableHolder;
+import org.knime.core.node.KNIMEConstants;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeView;
@@ -41,6 +43,7 @@ import org.knime.core.node.tableview.TableContentView;
 import org.knime.core.node.tableview.TableView;
 import org.knime.knip.cellviewer.interfaces.CellView;
 import org.knime.knip.cellviewer.interfaces.CellViewFactory;
+import org.knime.knip.cellviewer.panels.CellViewerHelpDialog;
 import org.knime.knip.cellviewer.panels.NavigationPanel;
 
 /*
@@ -530,7 +533,6 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 
 				String title = m_viewsPane.getTitleAt(m_viewsPane.getSelectedIndex());
 				CellView p = m_cellViewCache.get(title);
-
 				p.updateComponent(m_cellValues);
 
 			}
@@ -546,6 +548,7 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 	 * @return The navigation panel
 	 */
 	private JComponent createNavBar() {
+
 		Box navbar = new Box(BoxLayout.X_AXIS);
 
 		navbar.add(Box.createRigidArea(new Dimension(10, 40)));
@@ -605,6 +608,24 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 
 		Box thirdPanel = new Box(BoxLayout.X_AXIS);
 		thirdPanel.add(Box.createHorizontalGlue());
+		JButton helpButton = new JButton("?");
+		thirdPanel.add(helpButton);
+
+		helpButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JDialog helpFrame = new CellViewerHelpDialog();
+				if (KNIMEConstants.KNIME16X16 != null)
+					helpFrame.setIconImage(KNIMEConstants.KNIME16X16.getImage());
+				helpFrame.pack();
+				helpFrame.setVisible(true);
+
+			}
+
+		});
+
+		thirdPanel.add(Box.createHorizontalStrut(15));
 
 		navbar.add(thirdPanel);
 
