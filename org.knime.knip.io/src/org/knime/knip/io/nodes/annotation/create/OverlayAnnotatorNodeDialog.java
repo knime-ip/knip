@@ -179,10 +179,11 @@ public class OverlayAnnotatorNodeDialog<T extends RealType<T> & NativeType<T>>
 			PortObject[] input) throws NotConfigurableException {
 
 		// update input data dependent
+		// Filtering now handled in the annotator itself on selection change
 		BufferedDataTable inputTable = (BufferedDataTable) input[0];
-		DataTable filteredTable = new FilterColumnTable(inputTable,
-				ImgPlusValue.class);
-		m_dialogComponentAnnotator.updateDataTable(filteredTable);
+//		DataTable filteredTable = new FilterColumnTable(inputTable,
+//				ImgPlusValue.class);
+		m_dialogComponentAnnotator.updateDataTable(inputTable);
 	}
 
 	/**

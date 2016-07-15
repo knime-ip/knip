@@ -188,6 +188,9 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>> extends
 			m_mainPanel.repaint();
 			isViewActive = true;
 		}
+		// Filter for non-imgPlus-cells
+		if (!currentRow[currentColNr].getType().isCompatible(ImgPlusValue.class))
+			return;
 		if (!currentRow[currentColNr].isMissing()) {
 
 			ImgPlus<T> imgPlus = ((ImgPlusValue<T>) currentRow[currentColNr]).getImgPlus();
@@ -195,8 +198,10 @@ public class OverlayAnnotatorView<T extends RealType<T> & NativeType<T>> extends
 			m_eventService.publish(new ImgWithMetadataChgEvent(imgPlus.getImg(), imgPlus));
 			m_eventService.publish(new AnnotatorRowColKeyChgEvent(key));
 			m_eventService.publish(new ImgRedrawEvent());
-			m_eventService.publish(new TablePositionEvent(m_tableContentView.getColumnCount(), m_tableContentView.getRowCount(), m_currentCol+1, m_currentRow + 1,
-					m_tableContentView.getColumnName(m_currentCol), m_tableContentView.getContentModel().getRowKey(m_currentRow).toString()));
+			m_eventService.publish(
+					new TablePositionEvent(m_tableContentView.getColumnCount(), m_tableContentView.getRowCount(),
+							m_currentCol + 1, m_currentRow + 1, m_tableContentView.getColumnName(m_currentCol),
+							m_tableContentView.getContentModel().getRowKey(m_currentRow).toString()));
 		}
 	}
 
