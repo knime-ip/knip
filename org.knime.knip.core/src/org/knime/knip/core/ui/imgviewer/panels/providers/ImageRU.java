@@ -122,7 +122,7 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
     /**
      * true if all images should be rendered using a greyScale renderer (independent of the renderer selection).
      */
-    private final boolean m_enforceGreyScale;
+    private boolean m_enforceGreyScale;
 
     /** used for all grey rendering mode. */
     private Real2GreyRenderer<T> m_greyRenderer;
@@ -217,6 +217,10 @@ public class ImageRU<T extends RealType<T>> extends AbstractDefaultRU<T> {
             hash *= 31;
         }
         return hash;
+    }
+
+    public void enableColourRendering(){
+        m_enforceGreyScale = false;
     }
 
     @Override
