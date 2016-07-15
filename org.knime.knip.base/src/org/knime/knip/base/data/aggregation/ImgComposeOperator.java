@@ -318,12 +318,12 @@ public class ImgComposeOperator<T1 extends RealType<T1>, T2 extends RealType<T2>
                     new DialogComponentColumnNameSelection(createIntervalColumnModel(),
                             "Interval (the size of the result image)", 0, false, true, IntervalValue.class);
 
-            m_dcImgType =
-                    new DialogComponentStringSelection(createImgTypeModel(), "Result image type",
-                            EnumUtils.getStringListFromName(NativeTypes.SHORTTYPE, NativeTypes.BITTYPE,
-                                                            NativeTypes.BYTETYPE, NativeTypes.INTTYPE,
-                                                            NativeTypes.UNSIGNEDSHORTTYPE, NativeTypes.UNSIGNEDINTTYPE,
-                                                            NativeTypes.UNSIGNEDBYTETYPE));
+            m_dcImgType = new DialogComponentStringSelection(createImgTypeModel(), "Result image type",
+                    EnumUtils.getStringListFromName(NativeTypes.BITTYPE, NativeTypes.BYTETYPE,
+                                                    NativeTypes.UNSIGNEDBYTETYPE, NativeTypes.SHORTTYPE,
+                                                    NativeTypes.UNSIGNEDSHORTTYPE, NativeTypes.INTTYPE,
+                                                    NativeTypes.UNSIGNEDINTTYPE, NativeTypes.LONGTYPE,
+                                                    NativeTypes.FLOATTYPE, NativeTypes.DOUBLETYPE));
         }
     }
 
