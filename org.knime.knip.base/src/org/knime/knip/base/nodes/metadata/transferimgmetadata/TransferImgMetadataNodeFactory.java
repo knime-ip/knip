@@ -70,8 +70,8 @@ import net.imglib2.type.numeric.RealType;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  * @param <T>
  */
-public class TransferImgMetadataNodeFactory<T extends RealType<T>> extends
-        TwoValuesToCellNodeFactory<ImgPlusValue<T>, ImgPlusValue<T>> {
+public class TransferImgMetadataNodeFactory<T extends RealType<T>>
+        extends TwoValuesToCellNodeFactory<ImgPlusValue<T>, ImgPlusValue<T>> {
 
     /**
      * {@inheritDoc}
@@ -107,7 +107,7 @@ public class TransferImgMetadataNodeFactory<T extends RealType<T>> extends
              */
             @Override
             protected String getDefaultSuffixForAppend() {
-                return  "_timd";
+                return "_timd";
             }
 
         };
@@ -135,7 +135,7 @@ public class TransferImgMetadataNodeFactory<T extends RealType<T>> extends
                 final ImgPlus<T> src = cellValue1.getImgPlus();
                 final ImgPlus<T> res = cellValue2.getImgPlusCopy();
                 MetadataUtil.copyImgPlusMetadata(src, res);
-
+                res.setSource(cellValue1.getMetadata().getSource());
                 return m_imgCellFactory.createCell(res);
             }
 

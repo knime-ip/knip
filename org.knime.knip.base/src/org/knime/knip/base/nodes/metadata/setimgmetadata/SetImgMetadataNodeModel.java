@@ -260,9 +260,11 @@ public class SetImgMetadataNodeModel<T extends RealType<T>> extends NodeModel im
                         new DefaultSourced(source), imgPlus);
 
                 try {
-                    return new DataCell[]{imgFactory.createCell(new ImgPlus<>(
-                            ImgView.wrap(Views.translate(imgPlus.getImg(), min), imgPlus.getImg().factory()),
-                            metadata))};
+                    final ImgPlus<T> res = new ImgPlus<>(
+                            ImgView.wrap(Views.translate(imgPlus.getImg(), min), imgPlus.getImg().factory()), metadata);
+
+                    res.setSource(metadata.getSource());
+                    return new DataCell[]{imgFactory.createCell(res)};
                 } catch (final IOException e) {
                     throw new RuntimeException(e);
                 }
