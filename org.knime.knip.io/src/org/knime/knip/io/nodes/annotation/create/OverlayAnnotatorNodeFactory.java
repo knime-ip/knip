@@ -52,6 +52,7 @@ import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 import org.knime.knip.base.nodes.view.TableCellViewNodeView;
+import org.knime.knip.cellviewer.CellNodeView;
 
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
@@ -90,7 +91,7 @@ public class OverlayAnnotatorNodeFactory<T extends RealType<T> & NativeType<T>>
     @Override
     public NodeView<OverlayAnnotatorNodeModel<T>> createNodeView(final int i,
             final OverlayAnnotatorNodeModel<T> nodeModel) {
-        return new TableCellViewNodeView(nodeModel);
+        return new CellNodeView<OverlayAnnotatorNodeModel<T>>(nodeModel);
     }
 
     /**
