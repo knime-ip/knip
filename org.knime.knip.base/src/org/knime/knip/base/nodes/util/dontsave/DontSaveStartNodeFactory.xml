@@ -7,10 +7,8 @@
 	</shortDescription>
 
 	<fullDescription>
-		<intro>
-			Starting from this node, no data will be saved until the next
-			'Don't Save End' node was reached, when then workflow is saved.
-		</intro>
+		<intro>Starting from this node, no data will be saved until the next
+			'Don't Save End' node was reached, when the workflow is saved.</intro>
 	</fullDescription>
 
 	<ports>
