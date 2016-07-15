@@ -306,8 +306,9 @@ public class MergerNodeModel<T extends RealType<T>, V extends RealType<V>> exten
             for (int j = a; j < axes.length; j++) {
                 axes[j] = Axes.get("Unknown" + (j - a));
             }
-            con.addRowToTable(new DefaultRow(row.getKey(), imgCellFactory.createCell(new ImgPlus(res, img.getName(),
-                    axes))));
+            ImgPlus newImgPlus = new ImgPlus(res, img.getName(), axes);
+            newImgPlus.setSource(img.getSource());
+            con.addRowToTable(new DefaultRow(row.getKey(), imgCellFactory.createCell(newImgPlus)));
             exec.checkCanceled();
             exec.setProgress((double)rowCount++ / rowNum);
         }
