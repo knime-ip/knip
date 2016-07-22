@@ -24,16 +24,16 @@ package org.knime.knip.base.data.aggregation;
 
 import java.io.IOException;
 
-import net.imagej.ImgPlus;
-import net.imglib2.ops.img.UnaryOperationAssignment;
-import net.imglib2.ops.operation.real.unary.RealUnaryOperation;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.base.data.aggregation.GlobalSettings;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataType;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusValue;
+
+import net.imagej.ImgPlus;
+import net.imglib2.ops.img.UnaryOperationAssignment;
+import net.imglib2.ops.operation.real.unary.RealUnaryOperation;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * Simple, so far infexible version of a pixel-wise image aggregation operator (image are required to have the same
@@ -46,6 +46,16 @@ public abstract class ImgPixOperator<T extends RealType<T>> extends ImgAggregrat
 
     /* the pixel-wise operation to apply */
     private RealUnaryOperation<T, T> m_op = null;
+
+    /*
+     * Comma-separated concatenation of all source-strings.
+     */
+    private String m_joinedSources = "";
+
+    /*
+     * Comma-separated concatenation of all name-strings.
+     */
+    private String m_joinedNames = "";
 
     /* the tempory result holding the pixel-wise mean */
     private ImgPlus<T> m_resImg = null;
@@ -81,6 +91,16 @@ public abstract class ImgPixOperator<T extends RealType<T>> extends ImgAggregrat
                 return true;
             }
         }
+        if (m_joinedSources.length() == 0 || m_joinedSources.equals(img.getSource())) {
+            m_joinedSources = img.getSource();
+        } else {
+            m_joinedSources = String.join(",", m_joinedSources, img.getSource());
+        }
+        if (m_joinedNames.length() == 0 || m_joinedNames.equals(img.getName())) {
+            m_joinedNames = img.getName();
+        } else {
+            m_joinedNames = String.join(",", m_joinedNames, img.getName());
+        }
         return false;
     }
 
@@ -103,6 +123,8 @@ public abstract class ImgPixOperator<T extends RealType<T>> extends ImgAggregrat
     @Override
     protected DataCell getResultInternal() {
         try {
+            m_resImg.setName(m_joinedNames);
+            m_resImg.setSource(m_joinedSources);
             return getImgPlusCellFactory().createCell(m_resImg);
         } catch (final IOException e) {
             throw new RuntimeException(e);
@@ -115,6 +137,8 @@ public abstract class ImgPixOperator<T extends RealType<T>> extends ImgAggregrat
     @Override
     protected void resetInternal() {
         m_resImg = null;
+        m_joinedNames = "";
+        m_joinedSources = "";
     }
 
 }
