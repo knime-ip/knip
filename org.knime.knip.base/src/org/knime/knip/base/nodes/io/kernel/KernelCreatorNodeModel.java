@@ -52,10 +52,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import net.imagej.ImgPlus;
-import net.imglib2.img.Img;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.def.DefaultRow;
@@ -74,9 +70,13 @@ import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.node.nodesettings.BaseObjectExt0;
 import org.knime.knip.base.node.nodesettings.SettingsModelSerializableObjects;
 
+import net.imagej.ImgPlus;
+import net.imglib2.img.Img;
+import net.imglib2.type.numeric.RealType;
+
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -119,7 +119,11 @@ public class KernelCreatorNodeModel<T extends RealType<T>> extends NodeModel imp
         int id = 1;
         for (final SerializableSetting<Img<T>[]> conf : m_kernelList.getObjects()) {
             for (final Img<T> img : conf.get()) {
-                con.addRowToTable(new DefaultRow("Kernel " + id, imgCellFactory.createCell(new ImgPlus<T>(img))));
+                if (img instanceof ImgPlus<?>) {
+                    con.addRowToTable(new DefaultRow("Kernel " + id, imgCellFactory.createCell((ImgPlus<T>)img)));
+                } else {
+                    con.addRowToTable(new DefaultRow("Kernel " + id, imgCellFactory.createCell(new ImgPlus<T>(img))));
+                }
                 id++;
             }
         }
@@ -137,8 +141,8 @@ public class KernelCreatorNodeModel<T extends RealType<T>> extends NodeModel imp
     }
 
     @Override
-    protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
+    protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec)
+            throws IOException, CanceledExecutionException {
         // Nothing to do here
 
     }
@@ -154,8 +158,8 @@ public class KernelCreatorNodeModel<T extends RealType<T>> extends NodeModel imp
     }
 
     @Override
-    protected void saveInternals(final File nodeInternDir, final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
+    protected void saveInternals(final File nodeInternDir, final ExecutionMonitor exec)
+            throws IOException, CanceledExecutionException {
         // Nothing to do here
 
     }

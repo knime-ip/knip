@@ -57,15 +57,20 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import net.imglib2.img.Img;
-import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.ops.operation.iterable.unary.Fill;
-import net.imglib2.type.logic.BitType;
-
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.knip.base.nodes.io.kernel.ImgConfiguration;
 import org.knime.knip.base.nodes.io.kernel.SerializableConfiguration;
 import org.knime.knip.base.nodes.io.kernel.SerializableSetting;
+
+import net.imagej.ImgPlus;
+import net.imagej.axis.Axes;
+import net.imagej.axis.CalibratedAxis;
+import net.imagej.axis.DefaultLinearAxis;
+import net.imagej.space.DefaultCalibratedSpace;
+import net.imglib2.img.Img;
+import net.imglib2.img.array.ArrayImgFactory;
+import net.imglib2.ops.operation.iterable.unary.Fill;
+import net.imglib2.type.logic.BitType;
 
 /**
  * TODO Auto-generated
@@ -184,6 +189,15 @@ class BoxSetting extends SerializableSetting<Img<BitType>[]> {
         final ArrayImgFactory<BitType> fac = new ArrayImgFactory<BitType>();
         final Img<BitType> img = fac.create(dim, new BitType());
         new Fill<BitType>().compute(new BitType(true), img.iterator());
-        return new Img[]{img};
+
+        final DefaultCalibratedSpace cs = new DefaultCalibratedSpace(m_numDimensions);
+        for (int i = 0; i < m_numDimensions; i++) {
+
+            cs.setAxis(new DefaultLinearAxis(Axes.get(getLabelForDim(i))), i);
+        }
+        CalibratedAxis[] a = new CalibratedAxis[cs.numDimensions()];
+        cs.axes(a);
+
+        return new Img[]{new ImgPlus<BitType>(img, "Structuring Element", a)};
     }
 }

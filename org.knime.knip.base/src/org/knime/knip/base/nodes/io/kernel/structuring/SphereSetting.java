@@ -51,15 +51,20 @@ package org.knime.knip.base.nodes.io.kernel.structuring;
 
 import java.util.Arrays;
 
+import org.knime.knip.base.nodes.io.kernel.SerializableConfiguration;
+import org.knime.knip.base.nodes.io.kernel.SerializableSetting;
+
+import net.imagej.ImgPlus;
+import net.imagej.axis.Axes;
+import net.imagej.axis.CalibratedAxis;
+import net.imagej.axis.DefaultLinearAxis;
+import net.imagej.space.DefaultCalibratedSpace;
 import net.imglib2.Cursor;
 import net.imglib2.RealPoint;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.roi.EllipseRegionOfInterest;
 import net.imglib2.type.logic.BitType;
-
-import org.knime.knip.base.nodes.io.kernel.SerializableConfiguration;
-import org.knime.knip.base.nodes.io.kernel.SerializableSetting;
 
 /**
  * TODO Auto-generated
@@ -96,6 +101,15 @@ public class SphereSetting extends SerializableSetting<Img<BitType>[]> {
             origin[i] = Math.round(origin[i]);
             dim[i] = (long)((2 * origin[i]) + 1);
         }
+
+        final DefaultCalibratedSpace cs = new DefaultCalibratedSpace(m_numDimensions);
+        for (int i = 0; i < m_numDimensions; i++) {
+
+            cs.setAxis(new DefaultLinearAxis(Axes.get(getLabelForDim(i))), i);
+        }
+        CalibratedAxis[] a = new CalibratedAxis[cs.numDimensions()];
+        cs.axes(a);
+
         final EllipseRegionOfInterest el = new EllipseRegionOfInterest(new RealPoint(origin), m_radius);
         final ArrayImgFactory<BitType> fac = new ArrayImgFactory<BitType>();
         final Img<BitType> img = fac.create(dim, new BitType());
@@ -104,6 +118,7 @@ public class SphereSetting extends SerializableSetting<Img<BitType>[]> {
             c.next();
             c.get().set(true);
         }
-        return new Img[]{img};
+        return new Img[]{new ImgPlus<BitType>(img, "Structuring Element", a)};
     }
+
 }
