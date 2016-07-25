@@ -80,7 +80,7 @@ public class DefaultMemoryService extends AbstractService implements MemoryServi
 
             @Override
             protected boolean memoryAlert(final MemoryAlert alert) {
-                log.info(getClass().getName() + " released memory for " + registered.size() + " objects");
+                log.debug(getClass().getName() + " released memory for " + registered.size() + " objects");
                 for (final MemoryAlertable alertable : registered.values()) {
                     alertable.memoryLow();
                 }
