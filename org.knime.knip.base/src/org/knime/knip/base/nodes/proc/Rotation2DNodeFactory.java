@@ -56,10 +56,12 @@ import javax.swing.event.ChangeListener;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
+import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
+import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
@@ -69,6 +71,7 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
+import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.MinimaUtils;
 
 import net.imagej.ImgPlus;
@@ -88,8 +91,30 @@ import net.imglib2.type.numeric.RealType;
  */
 public class Rotation2DNodeFactory<T extends RealType<T>> extends ValueToCellNodeFactory<ImgPlusValue<T>> {
 
+    private enum AngularUnit {
+        RADIAN("Radian"), DEGREE("Degree");
+
+        private String displayedName;
+
+        private AngularUnit(final String _name) {
+            displayedName = _name;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String toString() {
+            return displayedName;
+        }
+    }
+
     private static SettingsModelDouble createAngleModel() {
         return new SettingsModelDouble("angle", 0);
+    }
+
+    private static SettingsModelString createAngularUnitModel() {
+        return new SettingsModelString("angular_unit", AngularUnit.RADIAN.toString());
     }
 
     private static SettingsModelInteger createCenterDim1Model() {
@@ -131,7 +156,13 @@ public class Rotation2DNodeFactory<T extends RealType<T>> extends ValueToCellNod
                 final DialogComponentBoolean useManualValue =
                         new DialogComponentBoolean(createUseManualModel(), "Use Manual Value?");
 
+                SettingsModelString usedAngularUnit = createAngularUnitModel();
+
+                addDialogComponent("Options", "", new DialogComponentStringSelection(usedAngularUnit, "Angular Unit",
+                        EnumUtils.getStringListFromToString(AngularUnit.values())));
+
                 addDialogComponent("Options", "", new DialogComponentNumber(createAngleModel(), "Angle", .01));
+
                 addDialogComponent("Options", "", new DialogComponentDimSelection(createDimSelectionModel(),
                         "Rotation dimensions", 2, 2));
                 addDialogComponent("Options", "", new DialogComponentBoolean(createKeepSizeModel(), "Keep size"));
@@ -172,6 +203,8 @@ public class Rotation2DNodeFactory<T extends RealType<T>> extends ValueToCellNod
 
             private final SettingsModelDouble m_angle = createAngleModel();
 
+            private final SettingsModelString m_usedAngularUnit = createAngularUnitModel();
+
             private final SettingsModelInteger m_centerDim1 = createCenterDim1Model();
 
             private final SettingsModelInteger m_centerDim2 = createCenterDim2Model();
@@ -193,6 +226,7 @@ public class Rotation2DNodeFactory<T extends RealType<T>> extends ValueToCellNod
             @Override
             protected void addSettingsModels(final List<SettingsModel> settingsModels) {
                 settingsModels.add(m_angle);
+                settingsModels.add(m_usedAngularUnit);
                 settingsModels.add(m_dimSelection);
                 settingsModels.add(m_keepSize);
                 settingsModels.add(m_centerDim1);
@@ -205,6 +239,8 @@ public class Rotation2DNodeFactory<T extends RealType<T>> extends ValueToCellNod
             protected ImgPlusCell<T> compute(final ImgPlusValue<T> cellValue) throws Exception {
                 //TODO: we should also rotate the minimum..
                 final ImgPlus<T> srcImg = MinimaUtils.getZeroMinImgPlus(cellValue.getImgPlus());
+
+                final double angle;
 
                 final int[] dimIndices = m_dimSelection.getSelectedDimIndices(srcImg);
                 if (dimIndices.length != 2) {
@@ -225,7 +261,19 @@ public class Rotation2DNodeFactory<T extends RealType<T>> extends ValueToCellNod
                 } else {
                     min.setReal(m_backgroundValue.getDoubleValue());
                 }
-                final ImgRotate2D<T> rot = new ImgRotate2D<T>(m_angle.getDoubleValue(), dimIndices[0], dimIndices[1],
+
+                switch (EnumUtils.valueForName(m_usedAngularUnit.getStringValue(), AngularUnit.values())) {
+                    case RADIAN:
+                        angle = m_angle.getDoubleValue();
+                        break;
+                    case DEGREE:
+                        angle = m_angle.getDoubleValue() * Math.PI / 180;
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Unknown interpretation of input factors!");
+                }
+
+                final ImgRotate2D<T> rot = new ImgRotate2D<T>(angle, dimIndices[0], dimIndices[1],
                         m_keepSize.getBooleanValue(), min, center);
 
                 return m_imgCellFactory.createCell(new ImgPlus<>(Operations.compute(rot, srcImg), srcImg));
