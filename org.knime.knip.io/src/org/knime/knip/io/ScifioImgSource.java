@@ -57,7 +57,9 @@ import java.util.Set;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.knime.core.node.NodeLogger;
+import org.knime.core.node.NodeLogger.LEVEL;
 import org.knime.knip.base.exceptions.KNIPRuntimeException;
+import org.knime.knip.core.KNIPLogService;
 import org.knime.knip.core.types.NativeTypes;
 import org.knime.knip.core.util.MiscViews;
 import org.scijava.Context;
@@ -136,6 +138,8 @@ public class ScifioImgSource implements ImgSource {
 	 */
 	private boolean m_usedDifferentReaders;
 
+	private Level m_rootLvl;
+
 	public ScifioImgSource() {
 		this(true);
 	}
@@ -187,6 +191,8 @@ public class ScifioImgSource implements ImgSource {
 		org.apache.log4j.Logger.getLogger(OMEModelImpl.class).setLevel(Level.ERROR);
 		org.apache.log4j.Logger.getLogger(FormatHandler.class).setLevel(Level.ERROR);
 		org.apache.log4j.Logger.getLogger(DetectorTypeEnumHandler.class).setLevel(Level.ERROR);
+
+		m_rootLvl = org.apache.log4j.Logger.getLogger(KNIPLogService.class.getSimpleName()).getLevel();
 	}
 
 	@Override
@@ -242,7 +248,7 @@ public class ScifioImgSource implements ImgSource {
 	public ImgPlus<RealType> getImg(final String imgRef, final int currentSeries,
 			final Pair<TypedAxis, long[]>[] axisSelectionConstraints) throws Exception {
 
-		final Level oldLevel = Logger.getRootLogger().getLevel();
+		org.apache.log4j.Logger.getLogger(KNIPLogService.class.getSimpleName()).setLevel(Level.ERROR);
 
 		// FIXME: WORKAROUND till bug 3391 is fixed (support for
 		// SCIFIOImgPlus)
@@ -292,7 +298,7 @@ public class ScifioImgSource implements ImgSource {
 		final ImgPlus<RealType> ret = MiscViews.cleanImgPlus(
 				m_imgOpener.openImg(getReader(imgRef), getPixelType(imgRef, currentSeries), m_imgFactory, options));
 
-		Logger.getRootLogger().setLevel(oldLevel);
+		org.apache.log4j.Logger.getLogger(KNIPLogService.class.getSimpleName()).setLevel(m_rootLvl);
 		return ret;
 	}
 
@@ -308,7 +314,7 @@ public class ScifioImgSource implements ImgSource {
 	public <T extends RealType<T> & NativeType<T>> ImgPlus<T> getTypedImg(final String imgRef, final int currentSeries,
 			final Pair<TypedAxis, long[]>[] axisSelectionConstraints, T type) throws Exception {
 
-		final Level oldLevel = Logger.getRootLogger().getLevel();
+		org.apache.log4j.Logger.getLogger(KNIPLogService.class.getSimpleName()).setLevel(Level.ERROR);
 
 		// FIXME: WORKAROUND till bug 3391 is fixed (support for
 		// SCIFIOImgPlus)
@@ -358,7 +364,7 @@ public class ScifioImgSource implements ImgSource {
 		final ImgPlus<T> ret = MiscViews
 				.cleanImgPlus(m_imgOpener.openImg(getReader(imgRef), type, m_imgFactory, options));
 
-		Logger.getRootLogger().setLevel(oldLevel);
+		org.apache.log4j.Logger.getLogger(KNIPLogService.class.getSimpleName()).setLevel(m_rootLvl);
 		return ret;
 	}
 
