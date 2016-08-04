@@ -443,8 +443,8 @@ public class ScifioImgSource implements ImgSource {
 	// -- private helper methods --
 
 	private UnclosableReaderFilter getReader(final String imgRef) throws FormatException, IOException {
+		org.apache.log4j.Logger.getLogger(KNIPLogService.class.getSimpleName()).setLevel(Level.ERROR);
 		if (m_reader == null || (!m_currentFile.equals(imgRef) && m_checkFileFormat)) {
-
 			final Format format = ScifioGateway.getSCIFIO().format().getFormat(imgRef,
 					new SCIFIOConfig().checkerSetOpen(true));
 
@@ -489,6 +489,7 @@ public class ScifioImgSource implements ImgSource {
 
 		// sets the file the reader currently points to
 		m_currentFile = imgRef;
+		org.apache.log4j.Logger.getLogger(KNIPLogService.class.getSimpleName()).setLevel(m_rootLvl);
 		return m_reader;
 	}
 
