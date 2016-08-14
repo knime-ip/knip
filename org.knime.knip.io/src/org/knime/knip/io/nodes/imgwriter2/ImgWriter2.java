@@ -337,7 +337,7 @@ public class ImgWriter2 {
         }
 
         try {
-            m_saver.saveImg(outfile, img, config);
+            m_saver.saveImg(outfile, imp, config);
         } catch (final ImgIOException e) {
             LOGGER.error("Skipped image: " + imp.getName() + " "
                     + e.getMessage().replace("io.scif.FormatException:", ""));
