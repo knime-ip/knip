@@ -78,6 +78,7 @@ import org.knime.core.node.util.CheckUtils;
 import org.knime.core.util.FileUtil;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.NodeUtils;
+import org.knime.knip.core.util.MinimaUtils;
 
 import io.scif.FormatException;
 import net.imagej.ImgPlus;
@@ -345,7 +346,7 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
             }
 
             try {
-                img = ((ImgPlusValue<T>) row.getCell(imgColIndex)).getImgPlus();
+				img = MinimaUtils.getZeroMinImgPlus(((ImgPlusValue<T>) row.getCell(imgColIndex)).getImgPlus());
             } catch (ClassCastException e) {
                 throw new IllegalArgumentException(
                         "Missing value in the img column in row: "
