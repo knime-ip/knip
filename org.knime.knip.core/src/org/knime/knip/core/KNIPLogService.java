@@ -189,7 +189,7 @@ public class KNIPLogService extends AbstractService implements LogService {
      */
     @Override
     public void setLevel(final int arg0) {
-        NodeLogger.setAppenderLevelRange(getClass().getSimpleName(), NodeLogger.LEVEL.values()[arg0],
+        NodeLogger.setAppenderLevelRange(NodeLogger.KNIME_CONSOLE_APPENDER, NodeLogger.LEVEL.values()[arg0],
                                          NodeLogger.LEVEL.values()[arg0]);
     }
 
@@ -239,6 +239,15 @@ public class KNIPLogService extends AbstractService implements LogService {
     @Override
     public void warn(final Object arg0, final Throwable arg1) {
         LOGGER.warn(arg0, arg1);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setLevel(final String appender, final int level) {
+        //TODO this behavior is not correct. we would have to dig deeper into the KNIME code to understand to fully support the specification of setLevel
+        NodeLogger.setAppenderLevelRange(appender, NodeLogger.LEVEL.values()[level], NodeLogger.LEVEL.values()[level]);
     }
 
 }
