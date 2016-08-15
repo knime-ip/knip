@@ -280,7 +280,7 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 
         /* File name number magic */
         // get number of digits needed for padding
-        final int digits = (int) Math.log10(inData[0].getRowCount()) + 1;
+        final int digits = (int) Math.log10(inData[0].size()) + 1;
         final String digitStringFormat = "%0" + digits + "d";
         int imgCount = 0;
 
@@ -372,7 +372,7 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
                 error = true;
             }
 
-            exec.setProgress((double) imgCount / inData[0].getRowCount());
+            exec.setProgress((double) imgCount / inData[0].size());
             exec.checkCanceled();
             imgCount++;
         }

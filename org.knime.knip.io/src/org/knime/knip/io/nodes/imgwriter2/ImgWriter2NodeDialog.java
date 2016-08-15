@@ -104,7 +104,8 @@ public class ImgWriter2NodeDialog extends DefaultNodeSettingsPane {
         addAdditionalOptions();
     }
 
-    private void addFileOptions() {
+    @SuppressWarnings("unchecked")
+	private void addFileOptions() {
         createNewGroup("Output");
         // directory selection
         SettingsModelString dirChooserModel = ImgWriter2SettingsModels
