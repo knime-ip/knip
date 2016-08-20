@@ -28,7 +28,7 @@
  * #L%
  */
 
-package org.knime.knip.io.translators;
+package org.knime.knip.io.formats;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;

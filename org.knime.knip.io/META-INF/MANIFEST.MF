@@ -29,6 +29,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: knip-io.jar
 Export-Package: org.knime.knip.io,
+ org.knime.knip.io.formats,
  org.knime.knip.io.node.dialog,
  org.knime.knip.io.nodes.imgreader,
  org.knime.knip.io.nodes.imgwriter2
