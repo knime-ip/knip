@@ -270,7 +270,8 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 		// get number of digits needed for padding
 		final int digits;
 		if (size == -1) {
-			digits = (int) Short.MAX_VALUE;
+			// very magic
+			digits = (int) 7;
 		} else {
 			digits = (int) Math.log10(size) + 1;
 		}
