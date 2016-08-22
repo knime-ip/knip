@@ -52,6 +52,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -74,6 +75,14 @@ import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelColumnName;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.node.port.PortObjectSpec;
+import org.knime.core.node.streamable.DataTableRowInput;
+import org.knime.core.node.streamable.InputPortRole;
+import org.knime.core.node.streamable.PartitionInfo;
+import org.knime.core.node.streamable.PortInput;
+import org.knime.core.node.streamable.PortOutput;
+import org.knime.core.node.streamable.RowInput;
+import org.knime.core.node.streamable.StreamableOperator;
 import org.knime.core.node.util.CheckUtils;
 import org.knime.core.util.FileUtil;
 import org.knime.knip.base.data.img.ImgPlusValue;
@@ -98,452 +107,417 @@ import net.imglib2.type.numeric.RealType;
  */
 public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 
-    private static final NodeLogger LOGGER = NodeLogger
-            .getLogger(ImgWriter2NodeModel.class);
+	private static final NodeLogger LOGGER = NodeLogger.getLogger(ImgWriter2NodeModel.class);
 
-    /*
-     * SETTING MODELS
-     */
+	/*
+	 * SETTING MODELS
+	 */
 
-    private final SettingsModelString m_imgColumn = ImgWriter2SettingsModels
-            .createImgColumnModel();
+	private final SettingsModelString m_imgColumn = ImgWriter2SettingsModels.createImgColumnModel();
 
-    private final SettingsModelColumnName m_filenameColumn = ImgWriter2SettingsModels
-            .createFileNameColumnModel();
+	private final SettingsModelColumnName m_filenameColumn = ImgWriter2SettingsModels.createFileNameColumnModel();
 
-    /*
-     * Custom filename options.
-     */
-    private final SettingsModelBoolean m_customNameOption = ImgWriter2SettingsModels
-            .createUseCustomFileNameModel();
+	/*
+	 * Custom filename options.
+	 */
+	private final SettingsModelBoolean m_customNameOption = ImgWriter2SettingsModels.createUseCustomFileNameModel();
 
-    private final SettingsModelString m_customFileName = ImgWriter2SettingsModels
-            .createCustomFileNameModel();
+	private final SettingsModelString m_customFileName = ImgWriter2SettingsModels.createCustomFileNameModel();
 
-    /*
-     * Output options.
-     */
-    private final SettingsModelBoolean m_overwrite = ImgWriter2SettingsModels
-            .createOverwriteModel();
+	/*
+	 * Output options.
+	 */
+	private final SettingsModelBoolean m_overwrite = ImgWriter2SettingsModels.createOverwriteModel();
 
-    private final SettingsModelBoolean m_forceMkdir = ImgWriter2SettingsModels
-            .createForceDirCreationModel();
+	private final SettingsModelBoolean m_forceMkdir = ImgWriter2SettingsModels.createForceDirCreationModel();
 
-    private final SettingsModelString m_directory = ImgWriter2SettingsModels
-            .createDirectoryModel();
+	private final SettingsModelString m_directory = ImgWriter2SettingsModels.createDirectoryModel();
 
-    private SettingsModelBoolean m_useAbsolutePaths = ImgWriter2SettingsModels
-            .createAbsolutePathsModel();
+	private SettingsModelBoolean m_useAbsolutePaths = ImgWriter2SettingsModels.createAbsolutePathsModel();
 
-    private final SettingsModelString m_format = ImgWriter2SettingsModels
-            .createFormatModel();
+	private final SettingsModelString m_format = ImgWriter2SettingsModels.createFormatModel();
 
-    private final SettingsModelString m_compression = ImgWriter2SettingsModels
-            .createCompressionModel();
+	private final SettingsModelString m_compression = ImgWriter2SettingsModels.createCompressionModel();
 
-    private final SettingsModelInteger m_frameRate = ImgWriter2SettingsModels
-            .createFrameRateModel();
+	private final SettingsModelInteger m_frameRate = ImgWriter2SettingsModels.createFrameRateModel();
 
-    private SettingsModelBoolean m_writeSequentially = ImgWriter2SettingsModels
-            .createWriteSequentiallyModel();
+	private SettingsModelBoolean m_writeSequentially = ImgWriter2SettingsModels.createWriteSequentiallyModel();
 
-    /*
-     * MAPPING SETTINGS MODELS.
-     */
-    private final SettingsModelString m_tMapping = ImgWriter2SettingsModels
-            .createTimeMappingModel();
+	/*
+	 * MAPPING SETTINGS MODELS.
+	 */
+	private final SettingsModelString m_tMapping = ImgWriter2SettingsModels.createTimeMappingModel();
 
-    private final SettingsModelString m_cMapping = ImgWriter2SettingsModels
-            .createChannelMappingModel();
+	private final SettingsModelString m_cMapping = ImgWriter2SettingsModels.createChannelMappingModel();
 
-    private final SettingsModelString m_zMapping = ImgWriter2SettingsModels
-            .createZMappingModel();
+	private final SettingsModelString m_zMapping = ImgWriter2SettingsModels.createZMappingModel();
 
-    private final Collection<SettingsModel> m_settingsCollection;
+	private final Collection<SettingsModel> m_settingsCollection;
 
-    /**
-     * One input one output.
-     *
-     */
-    public ImgWriter2NodeModel() {
-        super(1, 0);
-        // for state consistency:
-        m_customFileName.setEnabled(false);
+	/**
+	 * One input one output.
+	 *
+	 */
+	public ImgWriter2NodeModel() {
+		super(1, 0);
+		// for state consistency:
+		m_customFileName.setEnabled(false);
 
-        m_settingsCollection = new ArrayList<SettingsModel>();
-        m_settingsCollection.add(m_directory);
-        m_settingsCollection.add(m_filenameColumn);
-        m_settingsCollection.add(m_imgColumn);
-        m_settingsCollection.add(m_format);
-        m_settingsCollection.add(m_compression);
-        m_settingsCollection.add(m_overwrite);
-        m_settingsCollection.add(m_zMapping);
-        m_settingsCollection.add(m_cMapping);
-        m_settingsCollection.add(m_tMapping);
-        m_settingsCollection.add(m_frameRate);
-        m_settingsCollection.add(m_forceMkdir);
-        m_settingsCollection.add(m_customNameOption);
-        m_settingsCollection.add(m_customFileName);
-    }
+		m_settingsCollection = new ArrayList<SettingsModel>();
+		m_settingsCollection.add(m_directory);
+		m_settingsCollection.add(m_filenameColumn);
+		m_settingsCollection.add(m_imgColumn);
+		m_settingsCollection.add(m_format);
+		m_settingsCollection.add(m_compression);
+		m_settingsCollection.add(m_overwrite);
+		m_settingsCollection.add(m_zMapping);
+		m_settingsCollection.add(m_cMapping);
+		m_settingsCollection.add(m_tMapping);
+		m_settingsCollection.add(m_frameRate);
+		m_settingsCollection.add(m_forceMkdir);
+		m_settingsCollection.add(m_customNameOption);
+		m_settingsCollection.add(m_customFileName);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
-            throws InvalidSettingsException {
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
 
-        // check if dimension mapping is valid
-        checkDimensionMapping();
+		// check if dimension mapping is valid
+		checkDimensionMapping();
 
-        // check if configured filename column is still available
-        String imgNamColumn = m_filenameColumn.getStringValue();
+		// check if configured filename column is still available
+		String imgNamColumn = m_filenameColumn.getStringValue();
 
-        // not a newly created node
-        if (imgNamColumn != null && !imgNamColumn.equals("")
-                && !inSpecs[0].containsName(imgNamColumn)) {
-            throw new InvalidSettingsException(
-                    "The configured Filename column: '"
-                            + m_filenameColumn.getStringValue()
-                            + "' is no longer avaiable!");
-        }
+		// not a newly created node
+		if (imgNamColumn != null && !imgNamColumn.equals("") && !inSpecs[0].containsName(imgNamColumn)) {
+			throw new InvalidSettingsException("The configured Filename column: '" + m_filenameColumn.getStringValue()
+					+ "' is no longer avaiable!");
+		}
 
-        // check img column
-        String imgColumn = m_imgColumn.getStringValue();
-        if (imgColumn.equals("")) { // newly created node
-            if ((NodeUtils.autoOptionalColumnSelection(inSpecs[0], m_imgColumn,
-                    ImgPlusValue.class)) >= 0) {
-                setWarningMessage("Auto-configure Image Column: "
-                        + m_imgColumn.getStringValue());
-            } else {
-                throw new InvalidSettingsException("No Image column avaiable!");
-            }
-        } else if (!inSpecs[0].containsName(imgColumn)) {
-            throw new InvalidSettingsException(
-                    "The configured Filename column: '"
-                            + m_filenameColumn.getStringValue()
-                            + "' is no longer avaiable!");
-        }
-        return null;
-    }
+		// check img column
+		String imgColumn = m_imgColumn.getStringValue();
+		if (imgColumn.equals("")) { // newly created node
+			if ((NodeUtils.autoOptionalColumnSelection(inSpecs[0], m_imgColumn, ImgPlusValue.class)) >= 0) {
+				setWarningMessage("Auto-configure Image Column: " + m_imgColumn.getStringValue());
+			} else {
+				throw new InvalidSettingsException("No Image column avaiable!");
+			}
+		} else if (!inSpecs[0].containsName(imgColumn)) {
+			throw new InvalidSettingsException("The configured Filename column: '" + m_filenameColumn.getStringValue()
+					+ "' is no longer avaiable!");
+		}
+		return null;
+	}
 
-    /**
-     * Checks that the dimension mappings, making sure no dimensions are mapped
-     * to the same label.
-     * 
-     * @throws InvalidSettingsException
-     *             when dimensions are mapped to the same labels.
-     */
-    private void checkDimensionMapping() throws InvalidSettingsException {
-        if (m_zMapping.getStringValue().equals(m_cMapping.getStringValue())
-                || m_zMapping.getStringValue()
-                        .equals(m_tMapping.getStringValue())
-                || m_cMapping.getStringValue()
-                        .equals(m_tMapping.getStringValue())) {
-            throw new InvalidSettingsException(
-                    "Dimensions must not be mapped to the same label!");
-        }
-    }
+	/**
+	 * Checks that the dimension mappings, making sure no dimensions are mapped
+	 * to the same label.
+	 * 
+	 * @throws InvalidSettingsException
+	 *             when dimensions are mapped to the same labels.
+	 */
+	private void checkDimensionMapping() throws InvalidSettingsException {
+		if (m_zMapping.getStringValue().equals(m_cMapping.getStringValue())
+				|| m_zMapping.getStringValue().equals(m_tMapping.getStringValue())
+				|| m_cMapping.getStringValue().equals(m_tMapping.getStringValue())) {
+			throw new InvalidSettingsException("Dimensions must not be mapped to the same label!");
+		}
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @SuppressWarnings("unchecked")
-    @Override
-    protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
-            final ExecutionContext exec) throws Exception {
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
+			throws Exception {
 
-        checkDimensionMapping();
+		run(new DataTableRowInput(inData[0]), exec, inData[0].size(), inData[0].getDataTableSpec());
 
-        String directory = null;
-        // only initialize output directory when needed
-        if (!m_useAbsolutePaths.getBooleanValue()) {
-            Path folderPath = createOutputPath();
-            directory = folderPath.toString();
-            if (!directory.endsWith("/")) { // fix directory path
-                directory += "/";
-            }
-        }
+		return null;
 
-        // loop constants
-        final boolean overwrite = m_overwrite.getBooleanValue();
-        final boolean useCustomName = m_customNameOption.getBooleanValue();
-        final boolean useAbsolutPaths = m_useAbsolutePaths.getBooleanValue();
-        final boolean forceMkdir = m_forceMkdir.getBooleanValue();
-        final String customName = m_customFileName.getStringValue();
-        final int nameColIndex = inData[0].getDataTableSpec()
-                .findColumnIndex(m_filenameColumn.getStringValue());
-        final int imgColIndex = inData[0].getDataTableSpec()
-                .findColumnIndex(m_imgColumn.getStringValue());
-        final String format = m_format.getStringValue();
-        final String compression = m_compression.getStringValue();
+	}
 
-        /* File name number magic */
-        // get number of digits needed for padding
-        final int digits = (int) Math.log10(inData[0].size()) + 1;
-        final String digitStringFormat = "%0" + digits + "d";
-        int imgCount = 0;
+	protected void run(final RowInput inData, final ExecutionContext exec, final long size, final DataTableSpec spec)
+			throws InvalidSettingsException, IOException, URISyntaxException, MalformedURLException, FormatException,
+			CanceledExecutionException, InvalidPathException, InterruptedException {
+		checkDimensionMapping();
 
-        // loop variables
-        ImgPlus<T> img;
-        String outfile;
-        boolean error = false;
+		String directory = null;
+		// only initialize output directory when needed
+		if (!m_useAbsolutePaths.getBooleanValue()) {
+			Path folderPath = createOutputPath();
+			directory = folderPath.toString();
+			if (!directory.endsWith("/")) { // fix directory path
+				directory += "/";
+			}
+		}
 
-        final ImgWriter2 writer = new ImgWriter2()
-                .setWriteSequantially(m_writeSequentially.getBooleanValue())
-                .setFramesPerSecond(m_frameRate.getIntValue());
+		// loop constants
+		final boolean overwrite = m_overwrite.getBooleanValue();
+		final boolean useCustomName = m_customNameOption.getBooleanValue();
+		final boolean useAbsolutPaths = m_useAbsolutePaths.getBooleanValue();
+		final boolean forceMkdir = m_forceMkdir.getBooleanValue();
+		final String customName = m_customFileName.getStringValue();
+		final int nameColIndex = spec.findColumnIndex(m_filenameColumn.getStringValue());
+		final int imgColIndex = spec.findColumnIndex(m_imgColumn.getStringValue());
+		final String format = m_format.getStringValue();
+		final String compression = m_compression.getStringValue();
 
-        for (DataRow row : inData[0]) {
+		/* File name number magic */
+		// get number of digits needed for padding
+		final int digits;
+		if (size == -1) {
+			digits = (int) Short.MAX_VALUE;
+		} else {
+			digits = (int) Math.log10(size) + 1;
+		}
+		final String digitStringFormat = "%0" + digits + "d";
+		int imgCount = 0;
 
-            // set the filename
-            if (useAbsolutPaths) {
-                outfile = ((StringValue) row.getCell(nameColIndex))
-                        .getStringValue();
-            } else if (useCustomName) {
-                outfile = directory + customName
-                        + String.format(digitStringFormat, imgCount);
-            } else if (nameColIndex == -1) {
-                outfile = directory + row.getKey().getString();
-            } else { // file name column configured
-                try {
-                    outfile = directory
-                            + ((StringValue) row.getCell(nameColIndex))
-                                    .getStringValue();
-                } catch (ClassCastException e1) {
-                    throw new IllegalArgumentException(
-                            "Missing value in the filename column in row: "
-                                    + row.getKey());
-                }
-            }
-            outfile += "." + writer.getSuffix(format);
+		// loop variables
+		ImgPlus<T> img;
+		String outfile;
+		boolean error = false;
 
-            // handle file location
-            final File f = FileUtil.resolveToPath(FileUtil.toURL(outfile))
-                    .toFile();
+		final ImgWriter2 writer = new ImgWriter2().setWriteSequantially(m_writeSequentially.getBooleanValue())
+				.setFramesPerSecond(m_frameRate.getIntValue());
 
-            if (f.exists()) {
-                if (overwrite) {
-                    LOGGER.warn("The file " + outfile
-                            + " already exits and will be OVERWRITTEN.");
-                    f.delete();
+		DataRow row;
+		while ((row = inData.poll()) != null) {
 
-                } else {
-                    throw new InvalidSettingsException("The file " + outfile
-                            + " exits and must not be overwritten due to user settings.");
-                }
-                // filename contained path to non existent directory
-            } else if (!f.getParentFile().exists()) {
-                if (forceMkdir) {
-                    LOGGER.info("Creating directory: "
-                            + f.getParentFile().getPath());
-                    FileUtils.forceMkdir(f.getParentFile());
-                } else {
-                    throw new InvalidSettingsException(
-                            "Output directory " + f.getParentFile().getPath()
-                                    + " doesn't exist, you can force the creation"
-                                    + " in the node settings.");
-                }
-            }
+			// set the filename
+			if (useAbsolutPaths) {
+				outfile = ((StringValue) row.getCell(nameColIndex)).getStringValue();
+			} else if (useCustomName) {
+				outfile = directory + customName + String.format(digitStringFormat, imgCount);
+			} else if (nameColIndex == -1) {
+				outfile = directory + row.getKey().getString();
+			} else { // file name column configured
+				try {
+					outfile = directory + ((StringValue) row.getCell(nameColIndex)).getStringValue();
+				} catch (ClassCastException e1) {
+					throw new IllegalArgumentException("Missing value in the filename column in row: " + row.getKey());
+				}
+			}
+			outfile += "." + writer.getSuffix(format);
 
-            try {
+			// handle file location
+			final File f = FileUtil.resolveToPath(FileUtil.toURL(outfile)).toFile();
+
+			if (f.exists()) {
+				if (overwrite) {
+					LOGGER.warn("The file " + outfile + " already exits and will be OVERWRITTEN.");
+					f.delete();
+
+				} else {
+					throw new InvalidSettingsException(
+							"The file " + outfile + " exits and must not be overwritten due to user settings.");
+				}
+				// filename contained path to non existent directory
+			} else if (!f.getParentFile().exists()) {
+				if (forceMkdir) {
+					LOGGER.info("Creating directory: " + f.getParentFile().getPath());
+					FileUtils.forceMkdir(f.getParentFile());
+				} else {
+					throw new InvalidSettingsException("Output directory " + f.getParentFile().getPath()
+							+ " doesn't exist, you can force the creation" + " in the node settings.");
+				}
+			}
+
+			try {
 				img = MinimaUtils.getZeroMinImgPlus(((ImgPlusValue<T>) row.getCell(imgColIndex)).getImgPlus());
-            } catch (ClassCastException e) {
-                throw new IllegalArgumentException(
-                        "Missing value in the img column in row: "
-                                + row.getKey());
-            }
+			} catch (ClassCastException e) {
+				throw new IllegalArgumentException("Missing value in the img column in row: " + row.getKey());
+			}
 
-            // create dimensions mapping
-            final int[] map = createDimMapping(img);
+			// create dimensions mapping
+			final int[] map = createDimMapping(img);
 
-            try {
-                writer.writeImage(img, FileUtil
-                        .resolveToPath(FileUtil.toURL(outfile)).toString(),
-                        format, compression, map);
+			try {
+				writer.writeImage(img, FileUtil.resolveToPath(FileUtil.toURL(outfile)).toString(), format, compression,
+						map);
 
-            } catch (final FormatException | IOException e) {
-                LOGGER.error("Error while writing image " + outfile + " : "
-                        + e.getMessage(), e);
-                error = true;
-            } catch (final UnsupportedOperationException e) {
-                LOGGER.error("Error while writing image " + outfile + " : "
-                        + "Check the filename for illegal characters! "
-                        + e.getMessage(), e);
-                error = true;
-            }
+			} catch (final FormatException | IOException e) {
+				LOGGER.error("Error while writing image " + outfile + " : " + e.getMessage(), e);
+				error = true;
+			} catch (final UnsupportedOperationException e) {
+				LOGGER.error("Error while writing image " + outfile + " : "
+						+ "Check the filename for illegal characters! " + e.getMessage(), e);
+				error = true;
+			}
 
-            exec.setProgress((double) imgCount / inData[0].size());
-            exec.checkCanceled();
-            imgCount++;
-        }
+			exec.setProgress((double) imgCount / size);
+			exec.checkCanceled();
+			imgCount++;
+		}
 
-        if (error) {
-            setWarningMessage(
-                    "Some errors occured during the writing process!");
-        }
+		if (error) {
+			setWarningMessage("Some errors occured during the writing process!");
+		}
+	}
 
-        return null;
+	/**
+	 * Creates and checks the output folder.
+	 * 
+	 * @return the Path of the output folder.
+	 * @throws InvalidSettingsException
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 * @throws MalformedURLException
+	 */
+	private Path createOutputPath()
+			throws InvalidSettingsException, IOException, URISyntaxException, MalformedURLException {
+		// check and locate target folder
+		try {
+			CheckUtils.checkDestinationDirectory(m_directory.getStringValue());
+		} catch (InvalidSettingsException e) {
+			// allow creation of nonexistent directories if set in the options.
+			if (e.getMessage().endsWith("does not exist")) {
+				if (!m_forceMkdir.getBooleanValue()) { // option not set
+					throw new InvalidSettingsException("Output directory doesn't exist, "
+							+ "you can force the creation in the" + " node settings.");
+				}
+			} else {
+				// don't hide other exceptions
+				throw e;
+			}
+		}
+		Path folderPath = FileUtil.resolveToPath(FileUtil.toURL(m_directory.getStringValue()));
+		if (folderPath == null) {
+			throw new InvalidSettingsException("Could not locate:" + m_directory.getStringValue()
+					+ ", are you trying to write to an non local directory?");
+		}
 
-    }
+		// handle target folder
+		final File folderFile = folderPath.toFile();
+		if (!folderFile.exists()) { // create nonexistent folders must be set to
+									// reach this point!.
+			try {
+				LOGGER.info("Creating directory: " + m_directory.getStringValue());
+				FileUtils.forceMkdir(folderFile);
+			} catch (final IOException e1) {
+				LOGGER.error("Selected Path " + folderPath + " is not a directory");
+				throw new IOException("Directory unreachable or file exists with the same name");
+			}
+		}
+		return folderPath;
+	}
 
-    /**
-     * Creates and checks the output folder.
-     * 
-     * @return the Path of the output folder.
-     * @throws InvalidSettingsException
-     * @throws IOException
-     * @throws URISyntaxException
-     * @throws MalformedURLException
-     */
-    private Path createOutputPath() throws InvalidSettingsException,
-            IOException, URISyntaxException, MalformedURLException {
-        // check and locate target folder
-        try {
-            CheckUtils.checkDestinationDirectory(m_directory.getStringValue());
-        } catch (InvalidSettingsException e) {
-            // allow creation of nonexistent directories if set in the options.
-            if (e.getMessage().endsWith("does not exist")) {
-                if (!m_forceMkdir.getBooleanValue()) { // option not set
-                    throw new InvalidSettingsException(
-                            "Output directory doesn't exist, "
-                                    + "you can force the creation in the"
-                                    + " node settings.");
-                }
-            } else {
-                // don't hide other exceptions
-                throw e;
-            }
-        }
-        Path folderPath = FileUtil
-                .resolveToPath(FileUtil.toURL(m_directory.getStringValue()));
-        if (folderPath == null) {
-            throw new InvalidSettingsException("Could not locate:"
-                    + m_directory.getStringValue()
-                    + ", are you trying to write to an non local directory?");
-        }
+	/**
+	 * Creates the dimension mapping for the given Img.
+	 * 
+	 * @param img
+	 *            the image
+	 * @return the dimension mapping
+	 */
+	private int[] createDimMapping(ImgPlus<T> img) {
+		final int[] map = new int[] { -1, -1, -1 };
+		for (int d = 2; d < img.numDimensions(); d++) {
+			if (img.axis(d).type().getLabel().equals(m_zMapping.getStringValue())) {
+				map[0] = d - 2;
+			}
+			if (img.axis(d).type().getLabel().equals(m_cMapping.getStringValue())) {
+				map[1] = d - 2;
+			}
+			if (img.axis(d).type().getLabel().equals(m_tMapping.getStringValue())) {
+				map[2] = d - 2;
+			}
+		}
+		return map;
+	}
 
-        // handle target folder
-        final File folderFile = folderPath.toFile();
-        if (!folderFile.exists()) { // create nonexistent folders must be set to
-                                    // reach this point!.
-            try {
-                LOGGER.info(
-                        "Creating directory: " + m_directory.getStringValue());
-                FileUtils.forceMkdir(folderFile);
-            } catch (final IOException e1) {
-                LOGGER.error(
-                        "Selected Path " + folderPath + " is not a directory");
-                throw new IOException(
-                        "Directory unreachable or file exists with the same name");
-            }
-        }
-        return folderPath;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
+		//
+	}
 
-    /**
-     * Creates the dimension mapping for the given Img.
-     * 
-     * @param img
-     *            the image
-     * @return the dimension mapping
-     */
-    private int[] createDimMapping(ImgPlus<T> img) {
-        final int[] map = new int[] { -1, -1, -1 };
-        for (int d = 2; d < img.numDimensions(); d++) {
-            if (img.axis(d).type().getLabel()
-                    .equals(m_zMapping.getStringValue())) {
-                map[0] = d - 2;
-            }
-            if (img.axis(d).type().getLabel()
-                    .equals(m_cMapping.getStringValue())) {
-                map[1] = d - 2;
-            }
-            if (img.axis(d).type().getLabel()
-                    .equals(m_tMapping.getStringValue())) {
-                map[2] = d - 2;
-            }
-        }
-        return map;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void reset() {
+		//
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void loadInternals(final File nodeInternDir,
-            final ExecutionMonitor exec)
-                    throws IOException, CanceledExecutionException {
-        //
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void saveInternals(final File nodeInternDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
+		//
+	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void saveSettingsTo(final NodeSettingsWO settings) {
+		for (final SettingsModel sm : m_settingsCollection) {
+			sm.saveSettingsTo(settings);
+		}
+		try {
+			// new in 1.4.0
+			m_useAbsolutePaths.saveSettingsTo(settings);
+		} catch (Exception e) {
+			//
+		}
+	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
+		for (final SettingsModel sm : m_settingsCollection) {
+			sm.validateSettings(settings);
+		}
+		try {
+			// new in 1.4.0
+			m_useAbsolutePaths.validateSettings(settings);
+		} catch (Exception e) {
+			//
+		}
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void reset() {
-        //
-    }
+	@Override
+	public StreamableOperator createStreamableOperator(PartitionInfo partitionInfo, PortObjectSpec[] inSpecs)
+			throws InvalidSettingsException {
+		return new StreamableOperator() {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void saveInternals(final File nodeInternDir,
-            final ExecutionMonitor exec)
-                    throws IOException, CanceledExecutionException {
-        //
-    }
+			@Override
+			public void runFinal(PortInput[] inputs, PortOutput[] outputs, ExecutionContext exec) throws Exception {
+				run(((RowInput) inputs[0]), exec, -1, (DataTableSpec) inSpecs[0]);
+			}
+		};
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void saveSettingsTo(final NodeSettingsWO settings) {
-        for (final SettingsModel sm : m_settingsCollection) {
-            sm.saveSettingsTo(settings);
-        }
-        try {
-            // new in 1.4.0
-            m_useAbsolutePaths.saveSettingsTo(settings);
-        } catch (Exception e) {
-            //
-        }
-    }
+	@Override
+	public InputPortRole[] getInputPortRoles() {
+		return new InputPortRole[] { InputPortRole.DISTRIBUTED_STREAMABLE };
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void validateSettings(final NodeSettingsRO settings)
-            throws InvalidSettingsException {
-        for (final SettingsModel sm : m_settingsCollection) {
-            sm.validateSettings(settings);
-        }
-        try {
-            // new in 1.4.0
-            m_useAbsolutePaths.validateSettings(settings);
-        } catch (Exception e) {
-            //
-        }
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-            throws InvalidSettingsException {
-        for (final SettingsModel sm : m_settingsCollection) {
-            sm.loadSettingsFrom(settings);
-        }
-        try {
-            // new in 1.4.0
-            m_useAbsolutePaths.loadSettingsFrom(settings);
-        } catch (Exception e) {
-            //
-        }
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
+		for (final SettingsModel sm : m_settingsCollection) {
+			sm.loadSettingsFrom(settings);
+		}
+		try {
+			// new in 1.4.0
+			m_useAbsolutePaths.loadSettingsFrom(settings);
+		} catch (Exception e) {
+			//
+		}
+	}
 
 }
