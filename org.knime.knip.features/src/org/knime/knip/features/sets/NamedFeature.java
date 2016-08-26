@@ -48,9 +48,9 @@
 
 package org.knime.knip.features.sets;
 
-import net.imagej.ops.OpRef;
-
 import org.scijava.Named;
+
+import net.imagej.ops.OpRef;
 
 /**
  * Simple semantic description of an arbitrary feature
@@ -60,13 +60,13 @@ import org.scijava.Named;
 public class NamedFeature implements Named {
 
 	private final String name;
-	private OpRef<?> ref;
+	private OpRef ref;
 
 	public NamedFeature(final String name) {
 		this.name = name;
 	}
 
-	public NamedFeature(final OpRef<?> ref, final String name) {
+	public NamedFeature(final OpRef ref, final String name) {
 		this(name);
 		this.ref = ref;
 	}
@@ -107,7 +107,7 @@ public class NamedFeature implements Named {
 		return true;
 	}
 
-	public OpRef<?> getOp() {
+	public OpRef getOp() {
 		return ref;
 	}
 

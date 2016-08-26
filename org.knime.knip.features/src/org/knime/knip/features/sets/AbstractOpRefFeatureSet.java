@@ -49,21 +49,23 @@
 package org.knime.knip.features.sets;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.imagej.ops.OpRef;
-import net.imagej.ops.special.function.Functions;
-import net.imagej.ops.special.function.UnaryFunctionOp;
-import net.imglib2.type.numeric.RealType;
-
 import org.scijava.command.CommandService;
 import org.scijava.module.Module;
 import org.scijava.module.ModuleItem;
 import org.scijava.plugin.Parameter;
+
+import net.imagej.ops.Op;
+import net.imagej.ops.OpRef;
+import net.imagej.ops.special.function.Functions;
+import net.imagej.ops.special.function.UnaryFunctionOp;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * {@link OpRef} based {@link AbstractCachedFeatureSet}.
@@ -137,12 +139,12 @@ public abstract class AbstractOpRefFeatureSet<I, O extends RealType<O>> extends 
 						args[i++] = self.getInput(param);
 					}
 
-					@SuppressWarnings("rawtypes")
-					final OpRef ref = new OpRef(null, Class.forName((String) item.get(ATTR_TYPE)), null, null, args);
+					Class<? extends Op> type = (Class<? extends Op>) Class.forName((String) item.get(ATTR_TYPE));
+					final OpRef ref = new OpRef(null, Arrays.asList(type), null, null, args);
 
 					namedFeatureMap.put(new NamedFeature(ref, item.getLabel()),
-							(UnaryFunctionOp<Object, ? extends O>) Functions.unary(ops(), ref.getType(), RealType.class,
-									in(), ref.getArgs()));
+							(UnaryFunctionOp<Object, ? extends O>) Functions.unary(ops(), type, RealType.class, in(),
+									ref.getArgs()));
 				}
 			}
 		} catch (final ClassNotFoundException e) {

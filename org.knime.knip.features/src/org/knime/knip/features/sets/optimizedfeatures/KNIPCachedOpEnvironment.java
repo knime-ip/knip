@@ -30,8 +30,16 @@
 
 package org.knime.knip.features.sets.optimizedfeatures;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+
+import org.scijava.Priority;
+import org.scijava.cache.CacheService;
+import org.scijava.command.CommandInfo;
+import org.scijava.module.Module;
+import org.scijava.module.ModuleItem;
+import org.scijava.plugin.Parameter;
 
 import net.imagej.ops.AbstractOp;
 import net.imagej.ops.CustomOpEnvironment;
@@ -41,13 +49,6 @@ import net.imagej.ops.OpInfo;
 import net.imagej.ops.OpRef;
 import net.imagej.ops.special.function.UnaryFunctionOp;
 import net.imagej.ops.special.hybrid.UnaryHybridCF;
-
-import org.scijava.Priority;
-import org.scijava.cache.CacheService;
-import org.scijava.command.CommandInfo;
-import org.scijava.module.Module;
-import org.scijava.module.ModuleItem;
-import org.scijava.plugin.Parameter;
 
 /**
  * Creates {@link CachedFunctionOp}s which know how to cache their outputs.
@@ -75,25 +76,31 @@ public class KNIPCachedOpEnvironment extends CustomOpEnvironment {
 	}
 
 	@Override
-	public Op op(final OpRef<?> ref) {
-		final Op op = super.op(ref);
+	public Op op(final OpRef ref) {
+		try {
+			final Op op = super.op(ref);
 
-		for (final Class<?> ignored : ignored) {
-			if (ignored.isAssignableFrom(ref.getType())) {
-				return op;
+			for (final Class<?> ignored : ignored) {
+				for (final Type t : ref.getTypes()) {
+					if (ignored.isAssignableFrom(Class.forName(t.getTypeName()))) {
+						return op;
+					}
+				}
 			}
+
+			final Op cachedOp;
+			if (op instanceof UnaryHybridCF) {
+				cachedOp = wrapUnaryHybrid((UnaryHybridCF<?, ?>) op);
+			} else if (op instanceof UnaryFunctionOp) {
+				cachedOp = wrapUnaryFunction((UnaryFunctionOp<?, ?>) op);
+			} else
+				return op;
+
+			getContext().inject(cachedOp);
+			return cachedOp;
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException(e);
 		}
-
-		final Op cachedOp;
-		if (op instanceof UnaryHybridCF) {
-			cachedOp = wrapUnaryHybrid((UnaryHybridCF<?, ?>) op);
-		} else if (op instanceof UnaryFunctionOp) {
-			cachedOp = wrapUnaryFunction((UnaryFunctionOp<?, ?>) op);
-		} else
-			return op;
-
-		getContext().inject(cachedOp);
-		return cachedOp;
 	}
 
 	// -- Helper methods --
