@@ -54,6 +54,7 @@ import net.imagej.ops.OpService;
 
 import org.knime.scijava.core.ResourceAwareClassLoader;
 import org.scijava.Context;
+import org.scijava.menu.MenuService;
 import org.scijava.plugin.DefaultPluginFinder;
 import org.scijava.plugin.PluginIndex;
 import org.scijava.service.Service;
@@ -79,7 +80,7 @@ public final class FeaturesGateway {
 
 		// required classes
 		final List<Class<? extends Service>> classes = Arrays.asList(OpService.class, FeatureService.class,
-				WidgetService.class, UIService.class);
+				WidgetService.class, UIService.class, MenuService.class);
 
 		this.context = new Context(classes, new PluginIndex(
 				new DefaultPluginFinder(new ResourceAwareClassLoader(getClass().getClassLoader(), getClass()))));
