@@ -144,7 +144,7 @@ public class Geometric2DFeatureSet<L, O extends RealType<O>> extends AbstractOpR
 	@Override
 	public void initialize() {
 		super.initialize();
-		converter = Functions.unary(ops(), Contour.class, Polygon.class, in(), true, true);
+		converter = Functions.unary(ops(), Contour.class, Polygon.class, in(), true);
 		polygonSize = Functions.unary(ops(), Size.class, DoubleType.class, Polygon.class);
 	}
 
