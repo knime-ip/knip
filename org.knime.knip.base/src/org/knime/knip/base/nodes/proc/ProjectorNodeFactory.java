@@ -64,8 +64,8 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
-import org.knime.knip.core.util.MinimaUtils;
 import org.knime.knip.core.util.EnumUtils;
+import org.knime.knip.core.util.MinimaUtils;
 
 import net.imagej.ImgPlus;
 import net.imglib2.FinalInterval;
@@ -173,7 +173,7 @@ public class ProjectorNodeFactory<T extends RealType<T>> extends ValueToCellNode
                 MetadataUtil.copyAndCleanImgPlusMetadata(resSizeInterval, zeroMinFromCell, resImg);
 
                 final long[] oldMin = Intervals.minAsLongArray(fromCell);
-                final long[] newMin = new long[oldMin.length];
+                final long[] newMin = new long[oldMin.length-1];
 
                 boolean hasNonZeroMin = false;
                 int offset = 0;
