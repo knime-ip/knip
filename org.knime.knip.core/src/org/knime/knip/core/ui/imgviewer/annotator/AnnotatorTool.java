@@ -263,20 +263,16 @@ public abstract class AnnotatorTool<O extends OverlayElement2D> {
      * @param overlay
      * @param labels
      */
-    public void onMouseReleased(final ImgViewerMouseEvent e, final PlaneSelectionEvent selection,
-                                final Overlay overlay, final String... labels) {
+    public void onMouseReleased(final ImgViewerMouseEvent e, final PlaneSelectionEvent selection, final Overlay overlay,
+                                final String... labels) {
 
         if (!e.isInside()) {
-            if ((m_currentOverlayElement != null)
-                    && (m_currentOverlayElement.getStatus() != OverlayElementStatus.ACTIVE)) {
-                m_currentOverlayElement.setStatus(OverlayElementStatus.ACTIVE);
-                fireStateChanged();
-            }
-        } else if (e.isLeftDown() && m_currentOverlayElement != null) {
+            // ignore click
+        } else if (e.isLeftDown()) {
             onMouseReleasedLeft(e, m_currentOverlayElement, selection, overlay, labels);
-        } else if (e.isRightDown() && m_currentOverlayElement != null) {
+        } else if (e.isRightDown()) {
             onMouseReleasedRight(e, m_currentOverlayElement, selection, overlay, labels);
-        } else if (e.isMidDown() && m_currentOverlayElement != null) {
+        } else if (e.isMidDown()) {
             onMouseReleasedMid(e, m_currentOverlayElement, selection, overlay, labels);
         }
 
