@@ -272,11 +272,11 @@ public abstract class AnnotatorTool<O extends OverlayElement2D> {
                 m_currentOverlayElement.setStatus(OverlayElementStatus.ACTIVE);
                 fireStateChanged();
             }
-        } else if (e.isLeftDown()) {
+        } else if (e.isLeftDown() && m_currentOverlayElement != null) {
             onMouseReleasedLeft(e, m_currentOverlayElement, selection, overlay, labels);
-        } else if (e.isRightDown()) {
+        } else if (e.isRightDown() && m_currentOverlayElement != null) {
             onMouseReleasedRight(e, m_currentOverlayElement, selection, overlay, labels);
-        } else if (e.isMidDown()) {
+        } else if (e.isMidDown() && m_currentOverlayElement != null) {
             onMouseReleasedMid(e, m_currentOverlayElement, selection, overlay, labels);
         }
 
