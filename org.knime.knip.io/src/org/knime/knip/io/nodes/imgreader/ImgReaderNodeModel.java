@@ -439,11 +439,11 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends N
 	 */
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
-		for (final SettingsModel sm : m_settingsCollection) {
-			sm.loadSettingsFrom(settings);
-		}
-
 		try {
+			for (final SettingsModel sm : m_settingsCollection) {
+				sm.loadSettingsFrom(settings);
+			}
+			
 			// group file setting new in 1.0.2
 			m_isGroupFiles.loadSettingsFrom(settings);
 
@@ -479,11 +479,11 @@ public class ImgReaderNodeModel<T extends RealType<T> & NativeType<T>> extends N
 	 */
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
-		for (final SettingsModel sm : m_settingsCollection) {
-			sm.validateSettings(settings);
-		}
-
 		try {
+			for (final SettingsModel sm : m_settingsCollection) {
+				sm.validateSettings(settings);
+			}
+			
 			// group file setting new in 1.0.2
 			m_isGroupFiles.validateSettings(settings);
 
