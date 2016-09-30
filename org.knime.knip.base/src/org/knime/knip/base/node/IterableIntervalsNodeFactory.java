@@ -50,7 +50,7 @@
 package org.knime.knip.base.node;
 
 import org.knime.knip.base.data.img.ImgPlusValue;
-import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
+import org.knime.knip.base.node.dialog.Descriptions;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 import org.knime.node.v210.OptionDocument.Option;
 import org.knime.node.v210.TabDocument.Tab;
@@ -98,8 +98,8 @@ public abstract class IterableIntervalsNodeFactory<T extends RealType<T>, V exte
     @Override
     protected void addNodeDescriptionContent(final KnimeNode node) {
         if (m_hasDimensionSelection) {
-            DialogComponentDimSelection
-                    .createNodeDescription(node.getFullDescription().getTabList().get(0).addNewOption());
+            Descriptions
+                    .createNodeDescriptionDimSelection(node.getFullDescription().getTabList().get(0).addNewOption());
         }
 
         Tab tab = node.getFullDescription().addNewTab();

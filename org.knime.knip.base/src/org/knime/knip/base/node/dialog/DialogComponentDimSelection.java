@@ -65,15 +65,14 @@ import javax.swing.JToggleButton;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.imagej.axis.TypedAxis;
-
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.knip.base.KNIMEKNIPPlugin;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
-import org.knime.node.v210.OptionDocument.Option;
+
+import net.imagej.axis.TypedAxis;
 
 /**
  * Dialog component to select image axis.
@@ -306,40 +305,4 @@ public class DialogComponentDimSelection extends DialogComponent implements Item
         updateModel();
     }
 
-    /**
-     * @param opt Option pane to add dimension selection description.
-     *
-     */
-    public static void createNodeDescription(final Option opt) {
-        opt.setName("Dimension Selection");
-        opt.addNewP()
-                .newCursor()
-                .setTextValue("This component allows the selection of dimensions of interest."
-                                      + System.getProperty("line.separator")
-                                      + "If an algorithm cannot, as it only supports fewer dimensions than the number of dimensions of the image, or shouldnot, as one wants to run the algorithm only on subsets of the image, be applied on the complete image, the dimension selection can be used to define the plane/cube/hypercube on which the algorithm is applied."
-                                      + System.getProperty("line.separator")
-                                      + "Example 1 with three dimensional Image (X,Y,Time): An algorithm cannot be applied to the complete image, as it only supports two dimensional images. If you select e.g. X,Y then the algorithm will be applied to all X,Y planes individually."
-                                      + System.getProperty("line.separator")
-                                      + "Example 2 with three dimensional Image (X,Y,Time): The algorithm can be applied in two, three or even more dimensions. Select the dimensions to define your plane/cube/hypercube on which the algorithm will be applied.");
-
-    }
-
-    /**
-     * @param opt Option pane to add dimension selection description.
-     * @deprecated Consider using {@link org.knime.node.v210.OptionDocument.Option}
-     */
-    @Deprecated
-    public static void createNodeDescription(final org.knime.node2012.OptionDocument.Option opt) {
-        opt.setName("Dimension Selection");
-        opt.addNewP()
-                .newCursor()
-                .setTextValue("This component allows the selection of dimensions of interest."
-                                      + System.getProperty("line.separator")
-                                      + "If an algorithm cannot, as it only supports fewer dimensions than the number of dimensions of the image, or shouldnot, as one wants to run the algorithm only on subsets of the image, be applied on the complete image, the dimension selection can be used to define the plane/cube/hypercube on which the algorithm is applied."
-                                      + System.getProperty("line.separator")
-                                      + "Example 1 with three dimensional Image (X,Y,Time): An algorithm cannot be applied to the complete image, as it only supports two dimensional images. If you select e.g. X,Y then the algorithm will be applied to all X,Y planes individually."
-                                      + System.getProperty("line.separator")
-                                      + "Example 2 with three dimensional Image (X,Y,Time): The algorithm can be applied in two, three or even more dimensions. Select the dimensions to define your plane/cube/hypercube on which the algorithm will be applied.");
-
-    }
 }

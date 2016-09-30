@@ -48,21 +48,20 @@
  */
 package org.knime.knip.base.nodes.filter;
 
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.dialog.DescriptionHelper;
-import org.knime.knip.base.node.dialog.DialogComponentOutOfBoundsSelection;
-import org.knime.knip.base.node.dialog.DialogComponentSpanSelection;
+import org.knime.knip.base.node.dialog.Descriptions;
 import org.knime.knip.core.types.NeighborhoodType;
 import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
 import org.knime.node.v210.FullDescriptionDocument.FullDescription;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 import org.knime.node.v210.OptionDocument.Option;
 import org.knime.node.v210.TabDocument.Tab;
+
+import net.imglib2.type.numeric.RealType;
 
 /**
  *
@@ -105,9 +104,9 @@ public abstract class SlidingWindowOperationNodeFactory<T extends RealType<T>, V
 
 
         int index = DescriptionHelper.findTabIndex("Options", node.getFullDescription().getTabList());
-        DialogComponentOutOfBoundsSelection.createNodeDescription(node.getFullDescription().getTabArray(index)
+        Descriptions.createNodeDescriptionOutOfBounds(node.getFullDescription().getTabArray(index)
                 .addNewOption());
-        DialogComponentSpanSelection.createNodeDescription(node.getFullDescription().getTabArray(index).addNewOption());
+        Descriptions.createNodeDescriptionSpan(node.getFullDescription().getTabArray(index).addNewOption());
 
         super.addNodeDescriptionContent(node);
     }

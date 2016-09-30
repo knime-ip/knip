@@ -60,6 +60,7 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
 import org.knime.knip.base.node.dialog.DescriptionHelper;
 import org.knime.knip.base.node.dialog.DialogComponentSpanSelection;
+import org.knime.knip.base.node.dialog.Descriptions;
 import org.knime.knip.core.ops.filters.BilateralFilter;
 import org.knime.knip.core.util.ImgPlusFactory;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
@@ -98,8 +99,7 @@ public class BilateralFilterNodeFactory<T extends RealType<T> & NativeType<T>>
     protected void addNodeDescriptionContent(final KnimeNode node) {
 
         int optIndex = DescriptionHelper.findTabIndex("Options", node.getFullDescription().getTabList());
-        DialogComponentSpanSelection
-                .createNodeDescription(node.getFullDescription().getTabList().get(optIndex).addNewOption());
+        Descriptions.createNodeDescriptionSpan(node.getFullDescription().getTabList().get(optIndex).addNewOption());
 
         super.addNodeDescriptionContent(node);
     }

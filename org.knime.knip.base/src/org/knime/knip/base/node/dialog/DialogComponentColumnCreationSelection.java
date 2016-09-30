@@ -50,10 +50,9 @@ package org.knime.knip.base.node.dialog;
 
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.knip.base.node.ValueToCellNodeModel;
-import org.knime.node.v210.OptionDocument.Option;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -68,12 +67,4 @@ public class DialogComponentColumnCreationSelection extends AbstractSimpleCombob
         super(model, "Column Creation", ValueToCellNodeModel.COL_CREATION_MODES);
     }
 
-    @SuppressWarnings("javadoc")
-    public static void createNodeDescription(final Option opt) {
-        opt.setName("Column Creation Mode");
-        opt.addNewP()
-                .newCursor()
-                .setTextValue("Mode how to handle the selected column. The processed column can be added to a new table, appended to the end of the table, or the old column can be replaced by the new result");
-
-    }
 }

@@ -61,7 +61,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
-import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
+import org.knime.knip.base.node.dialog.Descriptions;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 
 import net.imagej.ImgPlus;
@@ -81,8 +81,8 @@ import net.imglib2.type.numeric.RealType;
  *
  * @param <T>
  */
-public class MaximumFinderNodeFactory<T extends RealType<T> & NativeType<T>> extends
-        ImgPlusToImgPlusNodeFactory<T, BitType> {
+public class MaximumFinderNodeFactory<T extends RealType<T> & NativeType<T>>
+        extends ImgPlusToImgPlusNodeFactory<T, BitType> {
 
     private static SettingsModelDouble createToleranceModel() {
         return new SettingsModelDouble("Noise Tolerance", 0);
@@ -142,10 +142,10 @@ public class MaximumFinderNodeFactory<T extends RealType<T> & NativeType<T>> ext
         return new ImgPlusToImgPlusNodeDialog<T>(1, Integer.MAX_VALUE, "X", "Y") {
             @Override
             public void addDialogComponents() {
-                addDialogComponent("Options", "Options", new DialogComponentNumber(createToleranceModel(),
-                        "Noise Tolerance", 0.5));
-                addDialogComponent("Options", "Options", new DialogComponentNumber(createSuppressionModel(),
-                        "Supression", 0.5));
+                addDialogComponent("Options", "Options",
+                                   new DialogComponentNumber(createToleranceModel(), "Noise Tolerance", 0.5));
+                addDialogComponent("Options", "Options",
+                                   new DialogComponentNumber(createSuppressionModel(), "Supression", 0.5));
                 addDialogComponent(new DialogComponentBoolean(createMaxAreaModel(), "Output with Tolerance Areas"));
             }
 
@@ -164,6 +164,7 @@ public class MaximumFinderNodeFactory<T extends RealType<T> & NativeType<T>> ext
      */
     @Override
     protected void addNodeDescriptionContent(final KnimeNode node) {
-        DialogComponentDimSelection.createNodeDescription(node.getFullDescription().getTabList().get(0).addNewOption());
+        Descriptions
+                .createNodeDescriptionDimSelection(node.getFullDescription().getTabList().get(0).addNewOption());
     }
 }

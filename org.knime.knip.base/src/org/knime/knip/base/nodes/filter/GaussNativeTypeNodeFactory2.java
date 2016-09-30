@@ -64,6 +64,7 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentOutOfBoundsSelection;
+import org.knime.knip.base.node.dialog.Descriptions;
 import org.knime.knip.core.ops.filters.GaussNativeTypeOp;
 import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
 import org.knime.knip.core.types.OutOfBoundsStrategyFactory;
@@ -231,7 +232,7 @@ public class GaussNativeTypeNodeFactory2<T extends NumericType<T> & RealType<T> 
         super.addNodeDescriptionContent(node);
         final Tab t = node.getFullDescription().addNewTab();
         t.setName("Options");
-        DialogComponentOutOfBoundsSelection.createNodeDescription(t.addNewOption());
+        Descriptions.createNodeDescriptionOutOfBounds(t.addNewOption());
     }
 
 }

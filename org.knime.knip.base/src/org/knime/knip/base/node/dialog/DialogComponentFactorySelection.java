@@ -51,8 +51,6 @@ package org.knime.knip.base.node.dialog;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.knip.core.types.ImgFactoryTypes;
 import org.knime.knip.core.util.EnumUtils;
-import org.knime.node.v210.OptionDocument.Option;
-import org.knime.node.v210.PDocument.P;
 
 /**
  *
@@ -69,17 +67,4 @@ public class DialogComponentFactorySelection extends AbstractSimpleComboboxDialo
         super(model, "Factory Selection:", EnumUtils.getStringListFromName(ImgFactoryTypes.values()));
     }
 
-    @SuppressWarnings("javadoc")
-    public static void createNodeDescription(final Option opt) {
-        opt.setName("Factory Selection");
-        P para = opt.addNewP();
-
-        //add node description
-        para.newCursor()
-                .setTextValue("The Factory is used to create images and determines how the data of an image is stored."
-                                      + System.getProperty("line.separator")
-                                      + "An 'ArrayImgFactory' for example stores the data in a single java array which results in optimal performance, but limits the amount of possible pixels to 2^31-1 (~2 billion pixels)."
-                                      + System.getProperty("line.separator")
-                                      + "For bigger images a 'CellImgFactory' can be used. The type of the selected Factory may have an impact on the runtime of algorithms.");
-    }
 }

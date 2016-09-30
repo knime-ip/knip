@@ -51,7 +51,7 @@ package org.knime.knip.base.nodes.filter.sigma;
 import org.knime.core.node.NodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.dialog.DescriptionHelper;
-import org.knime.knip.base.node.dialog.DialogComponentOutOfBoundsSelection;
+import org.knime.knip.base.node.dialog.Descriptions;
 import org.knime.knip.core.ops.iterator.SigmaFilter;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 
@@ -92,8 +92,8 @@ public class SigmaFilterNodeFactory<T extends RealType<T> & NativeType<T>> exten
     protected void addNodeDescriptionContent(final KnimeNode node) {
         super.addNodeDescriptionContent(node);
         int optionsIndex = DescriptionHelper.findTabIndex("Options", node.getFullDescription().getTabList());
-        DialogComponentOutOfBoundsSelection
-                .createNodeDescription(node.getFullDescription().getTabArray(optionsIndex).addNewOption());
+        Descriptions
+                .createNodeDescriptionOutOfBounds(node.getFullDescription().getTabArray(optionsIndex).addNewOption());
 
     }
 

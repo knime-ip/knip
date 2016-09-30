@@ -48,12 +48,12 @@
  */
 package org.knime.knip.base.node;
 
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.dialog.DescriptionHelper;
-import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
+import org.knime.knip.base.node.dialog.Descriptions;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
+
+import net.imglib2.type.numeric.RealType;
 
 /**
  * {@link ImgPlusToImgPlusNodeFactory}
@@ -70,7 +70,9 @@ public abstract class ImgPlusToImgPlusNodeFactory<T extends RealType<T>, V exten
 
     /**
      * {@inheritDoc}
+     * @deprecated
      */
+    @Deprecated
     @Override
     protected ImgPlusToImgPlusNodeDialog<T> createNodeDialog() {
         return new ImgPlusToImgPlusNodeDialog<T>(2, 2, "X", "Y") {
@@ -88,7 +90,7 @@ public abstract class ImgPlusToImgPlusNodeFactory<T extends RealType<T>, V exten
     @Override
     protected void addNodeDescriptionContent(final KnimeNode node) {
         int optionsIndex = DescriptionHelper.findTabIndex("Options", node.getFullDescription().getTabList());
-        DialogComponentDimSelection.createNodeDescription(node.getFullDescription().getTabList().get(optionsIndex).addNewOption());
+        Descriptions.createNodeDescriptionDimSelection(node.getFullDescription().getTabList().get(optionsIndex).addNewOption());
     }
 
 }

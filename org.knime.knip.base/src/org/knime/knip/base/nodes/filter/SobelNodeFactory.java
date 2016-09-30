@@ -65,6 +65,7 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
 import org.knime.knip.base.node.dialog.DescriptionHelper;
 import org.knime.knip.base.node.dialog.DialogComponentOutOfBoundsSelection;
+import org.knime.knip.base.node.dialog.Descriptions;
 import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.ThreadPoolExecutorService;
 import org.knime.knip.core.algorithm.convolvers.Convolver;
@@ -210,7 +211,7 @@ public class SobelNodeFactory<T extends RealType<T> & NativeType<T>> extends Img
         super.addNodeDescriptionContent(node);
 
         int index = DescriptionHelper.findTabIndex("Options", node.getFullDescription().getTabList());
-        DialogComponentOutOfBoundsSelection.createNodeDescription(node.getFullDescription().getTabArray(index)
+        Descriptions.createNodeDescriptionOutOfBounds(node.getFullDescription().getTabArray(index)
                 .addNewOption());
     }
 

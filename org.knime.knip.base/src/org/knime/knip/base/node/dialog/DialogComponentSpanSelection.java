@@ -49,8 +49,6 @@
 package org.knime.knip.base.node.dialog;
 
 import org.knime.core.node.defaultnodesettings.SettingsModel;
-import org.knime.node.v210.OptionDocument.Option;
-import org.knime.node.v210.PDocument.P;
 
 /**
  *
@@ -66,12 +64,4 @@ public class DialogComponentSpanSelection extends AbstractSimpleJSpinnerDialogCo
         super(model, "Span:", 0, Integer.MAX_VALUE, 3);
     }
 
-    @SuppressWarnings("javadoc")
-    public static void createNodeDescription(final Option opt) {
-        opt.setName("Window Span");
-        P para = opt.addNewP();
-
-        //add node description
-        para.newCursor().setTextValue("The size of the span which will be used by the algorithm.");
-    }
 }

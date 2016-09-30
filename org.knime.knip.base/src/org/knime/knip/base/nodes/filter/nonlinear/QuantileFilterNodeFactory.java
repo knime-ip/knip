@@ -64,7 +64,7 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DescriptionHelper;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
-import org.knime.knip.base.node.dialog.DialogComponentSpanSelection;
+import org.knime.knip.base.node.dialog.Descriptions;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.util.MinimaUtils;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
@@ -112,8 +112,8 @@ public class QuantileFilterNodeFactory<T extends RealType<T>> extends ValueToCel
     @Override
     protected void addNodeDescriptionContent(final KnimeNode node) {
         int index = DescriptionHelper.findTabIndex("Options", node.getFullDescription().getTabList());
-        DialogComponentSpanSelection.createNodeDescription(node.getFullDescription().getTabArray(index).addNewOption());
-        DialogComponentDimSelection.createNodeDescription(node.getFullDescription().getTabList().get(0).addNewOption());
+        Descriptions.createNodeDescriptionSpan(node.getFullDescription().getTabArray(index).addNewOption());
+        Descriptions.createNodeDescriptionDimSelection(node.getFullDescription().getTabList().get(0).addNewOption());
     }
 
     /**

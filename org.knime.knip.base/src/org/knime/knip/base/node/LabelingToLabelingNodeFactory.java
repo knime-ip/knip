@@ -49,7 +49,7 @@
 package org.knime.knip.base.node;
 
 import org.knime.knip.base.data.labeling.LabelingValue;
-import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
+import org.knime.knip.base.node.dialog.Descriptions;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 
 /**
@@ -88,6 +88,7 @@ public abstract class LabelingToLabelingNodeFactory<L1 extends Comparable<L1>, L
      */
     @Override
     protected void addNodeDescriptionContent(final KnimeNode node) {
-        DialogComponentDimSelection.createNodeDescription(node.getFullDescription().getTabList().get(0).addNewOption());
+        Descriptions
+                .createNodeDescriptionDimSelection(node.getFullDescription().getTabList().get(0).addNewOption());
     }
 }

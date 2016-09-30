@@ -48,15 +48,15 @@
  */
 package org.knime.knip.base.nodes.filter.convolver;
 
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.dialog.DescriptionHelper;
-import org.knime.knip.base.node.dialog.DialogComponentOutOfBoundsSelection;
+import org.knime.knip.base.node.dialog.Descriptions;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 import org.knime.node.v210.TabDocument.Tab;
+
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  *
@@ -82,7 +82,7 @@ public class ConvolverNodeFactory<T extends RealType<T>, O extends RealType<O>, 
         }
 
         int index = DescriptionHelper.findTabIndex("Options", node.getFullDescription().getTabList());
-        DialogComponentOutOfBoundsSelection.createNodeDescription(node.getFullDescription().getTabArray(index)
+        Descriptions.createNodeDescriptionOutOfBounds(node.getFullDescription().getTabArray(index)
                 .addNewOption());
     }
 

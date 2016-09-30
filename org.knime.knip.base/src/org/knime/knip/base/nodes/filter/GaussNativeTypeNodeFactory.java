@@ -50,14 +50,6 @@ package org.knime.knip.base.nodes.filter;
 
 import java.util.List;
 
-import net.imagej.ImgPlus;
-import net.imglib2.algorithm.gauss3.Gauss3;
-import net.imglib2.ops.operation.Operations;
-import net.imglib2.ops.operation.UnaryOutputOperation;
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.NumericType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
@@ -67,12 +59,21 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentOutOfBoundsSelection;
+import org.knime.knip.base.node.dialog.Descriptions;
 import org.knime.knip.core.ops.filters.GaussNativeTypeOp;
 import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
 import org.knime.knip.core.types.OutOfBoundsStrategyFactory;
 import org.knime.knip.core.util.ImgPlusFactory;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 import org.knime.node.v210.TabDocument.Tab;
+
+import net.imagej.ImgPlus;
+import net.imglib2.algorithm.gauss3.Gauss3;
+import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.operation.UnaryOutputOperation;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.NumericType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * NodeModel to wrap {@link Gauss3} Algorithm
@@ -83,8 +84,8 @@ import org.knime.node.v210.TabDocument.Tab;
  *
  * @param <T> Type parameter of the input
  */
-public class GaussNativeTypeNodeFactory<T extends NumericType<T> & RealType<T> & NativeType<T>> extends
-        ImgPlusToImgPlusNodeFactory<T, T> {
+public class GaussNativeTypeNodeFactory<T extends NumericType<T> & RealType<T> & NativeType<T>>
+        extends ImgPlusToImgPlusNodeFactory<T, T> {
 
     private static SettingsModelString createOutOfBoundsModel() {
         return new SettingsModelString("outofboundsstrategy", OutOfBoundsStrategyEnum.BORDER.toString());
@@ -106,8 +107,8 @@ public class GaussNativeTypeNodeFactory<T extends NumericType<T> & RealType<T> &
 
                 addDialogComponent(new DialogComponentNumber(createSigmaModel(), "Sigma", 1));
 
-                addDialogComponent("Options", "Out of Bounds Strategy", new DialogComponentOutOfBoundsSelection(
-                        createOutOfBoundsModel()));
+                addDialogComponent("Options", "Out of Bounds Strategy",
+                                   new DialogComponentOutOfBoundsSelection(createOutOfBoundsModel()));
 
             }
         };
@@ -156,11 +157,13 @@ public class GaussNativeTypeNodeFactory<T extends NumericType<T> & RealType<T> &
                     sigmas[d] = m_sigma.getDoubleValue();
                 }
 
-                return Operations.wrap(new GaussNativeTypeOp<T, ImgPlus<T>>(getExecutorService(), sigmas,
-                                               OutOfBoundsStrategyFactory
-                                                       .<T, ImgPlus<T>> getStrategy(m_outOfBoundsStrategy
-                                                               .getStringValue(), img.firstElement())), ImgPlusFactory
-                                               .<T, T> get(img.firstElement()));
+                return Operations.wrap(
+                                       new GaussNativeTypeOp<T, ImgPlus<T>>(getExecutorService(), sigmas,
+                                               OutOfBoundsStrategyFactory.<T, ImgPlus<T>> getStrategy(
+                                                                                                      m_outOfBoundsStrategy
+                                                                                                              .getStringValue(),
+                                                                                                      img.firstElement())),
+                                       ImgPlusFactory.<T, T> get(img.firstElement()));
             }
 
             @Override
@@ -178,7 +181,7 @@ public class GaussNativeTypeNodeFactory<T extends NumericType<T> & RealType<T> &
         super.addNodeDescriptionContent(node);
         Tab t = node.getFullDescription().addNewTab();
         t.setName("Options");
-        DialogComponentOutOfBoundsSelection.createNodeDescription(t.addNewOption());
+        Descriptions.createNodeDescriptionOutOfBounds(t.addNewOption());
 
     }
 

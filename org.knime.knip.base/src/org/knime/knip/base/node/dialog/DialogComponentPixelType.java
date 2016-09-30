@@ -51,8 +51,6 @@ package org.knime.knip.base.node.dialog;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.knip.core.types.NativeTypes;
 import org.knime.knip.core.util.EnumUtils;
-import org.knime.node.v210.OptionDocument.Option;
-import org.knime.node.v210.PDocument.P;
 
 /**
  *
@@ -72,17 +70,4 @@ public class DialogComponentPixelType extends AbstractSimpleComboboxDialogCompon
         super(model, "PixelType Selection:", EnumUtils.getStringListFromName(NativeTypes.values()));
     }
 
-    /**
-     * @param opt
-     */
-    public static void createNodeDescription(final Option opt) {
-        opt.setName("PixelType Selection");
-        P para = opt.addNewP();
-
-        //add node description
-        para.newCursor()
-                .setTextValue("The 'PixelType' determines how much information can be stored in a single pixel. "
-                                      + "For monochromatic images the BitType suffices (0 or 1 for black and white), while for a greyscale image at least the UnsignedByteType must be used. "
-                                      + "The selected PixelType affects the memory consumption.");
-    }
 }

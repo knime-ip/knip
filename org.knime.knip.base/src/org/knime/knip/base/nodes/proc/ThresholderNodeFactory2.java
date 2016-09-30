@@ -54,15 +54,6 @@ import java.util.List;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.imagej.ImgPlus;
-import net.imglib2.ops.img.UnaryRelationAssigment;
-import net.imglib2.ops.operation.ImgOperations;
-import net.imglib2.ops.operation.SubsetOperations;
-import net.imglib2.ops.operation.UnaryOutputOperation;
-import net.imglib2.ops.relation.real.unary.RealGreaterThanConstant;
-import net.imglib2.type.logic.BitType;
-import net.imglib2.type.numeric.RealType;
-
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataType;
 import org.knime.core.data.DataValue;
@@ -84,12 +75,22 @@ import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
+import org.knime.knip.base.node.dialog.Descriptions;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.algorithm.types.ThresholdingType;
 import org.knime.knip.core.ops.interval.AutoThreshold;
 import org.knime.knip.core.util.EnumUtils;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
+
+import net.imagej.ImgPlus;
+import net.imglib2.ops.img.UnaryRelationAssigment;
+import net.imglib2.ops.operation.ImgOperations;
+import net.imglib2.ops.operation.SubsetOperations;
+import net.imglib2.ops.operation.UnaryOutputOperation;
+import net.imglib2.ops.relation.real.unary.RealGreaterThanConstant;
+import net.imglib2.type.logic.BitType;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * Deprecated. Use ROI based ThresholderNodeFactory3 (ImgThresholder)
@@ -123,7 +124,8 @@ public class ThresholderNodeFactory2<T extends RealType<T>> extends ValueToCellN
      */
     @Override
     protected void addNodeDescriptionContent(final KnimeNode node) {
-        DialogComponentDimSelection.createNodeDescription(node.getFullDescription().getTabList().get(0).addNewOption());
+        Descriptions
+                .createNodeDescriptionDimSelection(node.getFullDescription().getTabList().get(0).addNewOption());
     }
 
     /**
@@ -135,14 +137,14 @@ public class ThresholderNodeFactory2<T extends RealType<T>> extends ValueToCellN
             @Override
             public void addDialogComponents() {
                 final SettingsModelDouble settModManual = createManualThresholdModel();
-                addDialogComponent("Options", "Manual Threshold", new DialogComponentNumber(settModManual,
-                        "Threshold Value", .01));
+                addDialogComponent("Options", "Manual Threshold",
+                                   new DialogComponentNumber(settModManual, "Threshold Value", .01));
                 final SettingsModelStringArray method = createThresholderSelectionModel();
                 addDialogComponent("Options", "Thresholding Method", new DialogComponentStringListSelection(method,
                         "Method", EnumUtils.getStringListFromName(ThresholdingType.values())));
 
-                addDialogComponent("Options", "Dimension Selection", new DialogComponentDimSelection(
-                        createDimSelectionModel(), "", 2, 5));
+                addDialogComponent("Options", "Dimension Selection",
+                                   new DialogComponentDimSelection(createDimSelectionModel(), "", 2, 5));
 
                 method.addChangeListener(new ChangeListener() {
 
@@ -229,8 +231,7 @@ public class ThresholderNodeFactory2<T extends RealType<T>> extends ValueToCellN
                 final ImgPlusCell[] resCells = new ImgPlusCell[thresholders.length];
                 for (int i = 0; i < resCells.length; i++) {
                     final ImgPlus<BitType> res =
-                            new ImgPlus<BitType>(KNIPGateway.ops().create().img(imgPlus, new BitType()),
-                                    imgPlus);
+                            new ImgPlus<BitType>(KNIPGateway.ops().create().img(imgPlus, new BitType()), imgPlus);
                     res.setName(res.getName());
                     if (thresholders[i] == ThresholdingType.MANUAL) {
 

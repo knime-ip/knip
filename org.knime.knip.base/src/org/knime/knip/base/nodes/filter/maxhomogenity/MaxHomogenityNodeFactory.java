@@ -52,7 +52,7 @@ import org.knime.knip.base.node.ImgPlusToImgPlusNodeDialog;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeFactory;
 import org.knime.knip.base.node.ImgPlusToImgPlusNodeModel;
 import org.knime.knip.base.node.dialog.DescriptionHelper;
-import org.knime.knip.base.node.dialog.DialogComponentOutOfBoundsSelection;
+import org.knime.knip.base.node.dialog.Descriptions;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 
 import net.imglib2.type.NativeType;
@@ -91,8 +91,8 @@ public class MaxHomogenityNodeFactory<T extends RealType<T> & NativeType<T>> ext
     protected void addNodeDescriptionContent(final KnimeNode node) {
         super.addNodeDescriptionContent(node);
         int optionsIndex = DescriptionHelper.findTabIndex("Options", node.getFullDescription().getTabList());
-        DialogComponentOutOfBoundsSelection
-                .createNodeDescription(node.getFullDescription().getTabArray(optionsIndex).addNewOption());
+        Descriptions
+                .createNodeDescriptionOutOfBounds(node.getFullDescription().getTabArray(optionsIndex).addNewOption());
 
     }
 

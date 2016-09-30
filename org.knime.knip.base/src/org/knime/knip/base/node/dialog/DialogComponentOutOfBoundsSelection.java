@@ -51,9 +51,6 @@ package org.knime.knip.base.node.dialog;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
 import org.knime.knip.core.util.EnumUtils;
-import org.knime.node.v210.ADocument.A;
-import org.knime.node.v210.OptionDocument.Option;
-import org.knime.node.v210.PDocument.P;
 
 /**
  *
@@ -73,24 +70,5 @@ public class DialogComponentOutOfBoundsSelection extends AbstractSimpleComboboxD
         super(model, "Out of Bounds Strategy:", EnumUtils.getStringListFromName(OutOfBoundsStrategyEnum.values()));
     }
 
-    @SuppressWarnings("javadoc")
-    public static void createNodeDescription(final Option opt) {
-
-        opt.setName("Out of Bounds Selection");
-        P para = opt.addNewP();
-
-        //add node description
-        para.newCursor()
-                .setTextValue("The 'OutOfBounds Strategy' is used when an algorithm needs access to pixels which lie outside of an image (for example convolutions)."
-                                      + System.getProperty("line.separator")
-                                      + "The strategy determines how an image is extended, for examples see ");
-
-        // add new <a> element
-        A a = para.addNewA();
-        // add attribute href
-        a.addNewHref().setStringValue("http://fiji.sc/ImgLib2_Examples#Example_5_-_Out_of_bounds");
-        // set text
-        a.newCursor().setTextValue("here");
-    }
 
 }

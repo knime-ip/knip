@@ -64,10 +64,11 @@ import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentDimSelection;
+import org.knime.knip.base.node.dialog.Descriptions;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.KNIPGateway;
-import org.knime.knip.core.util.MinimaUtils;
 import org.knime.knip.core.util.EnumUtils;
+import org.knime.knip.core.util.MinimaUtils;
 import org.knime.node.v210.KnimeNodeDocument.KnimeNode;
 
 import net.imagej.ImgPlus;
@@ -122,7 +123,8 @@ public class ColorspaceConvertNodeFactory<T extends RealType<T>> extends ValueTo
      */
     @Override
     protected void addNodeDescriptionContent(final KnimeNode node) {
-        DialogComponentDimSelection.createNodeDescription(node.getFullDescription().getTabList().get(0).addNewOption());
+        Descriptions
+                .createNodeDescriptionDimSelection(node.getFullDescription().getTabList().get(0).addNewOption());
     }
 
     /**
