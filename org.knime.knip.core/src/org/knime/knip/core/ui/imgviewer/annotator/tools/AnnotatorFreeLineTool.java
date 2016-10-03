@@ -56,7 +56,7 @@ import org.knime.knip.core.ui.imgviewer.overlay.elements.FreeFormOverlayElement;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -75,7 +75,6 @@ public class AnnotatorFreeLineTool extends AnnotationDrawingTool<FreeFormOverlay
 
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void onMousePressedLeft(final ImgViewerMouseEvent e, final FreeFormOverlayElement currentOverlayElement,
                                    final PlaneSelectionEvent selection, final Overlay overlay, final String... labels) {
@@ -95,16 +94,17 @@ public class AnnotatorFreeLineTool extends AnnotationDrawingTool<FreeFormOverlay
     @Override
     public void onMouseReleasedLeft(final ImgViewerMouseEvent e, final FreeFormOverlayElement currentOverlayElement,
                                     final PlaneSelectionEvent selection, final Overlay overlay, final String... labels) {
-
-        currentOverlayElement.setStatus(OverlayElementStatus.ACTIVE);
-        fireStateChanged();
+        if (currentOverlayElement != null) {
+            currentOverlayElement.setStatus(OverlayElementStatus.ACTIVE);
+            fireStateChanged();
+        }
     }
 
     @Override
     public void onMouseDraggedLeft(final ImgViewerMouseEvent e, final FreeFormOverlayElement currentOverlayElement,
                                    final PlaneSelectionEvent selection, final Overlay overlay, final String... labels) {
 
-        if (currentOverlayElement.getStatus() == OverlayElementStatus.DRAWING) {
+        if (currentOverlayElement!=null && currentOverlayElement.getStatus() == OverlayElementStatus.DRAWING) {
             currentOverlayElement.add(e.getPosX(), e.getPosY());
             fireStateChanged();
         }

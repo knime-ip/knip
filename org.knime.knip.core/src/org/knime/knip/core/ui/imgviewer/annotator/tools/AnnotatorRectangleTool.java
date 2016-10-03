@@ -77,7 +77,6 @@ public class AnnotatorRectangleTool extends AnnotationDrawingTool<RectangleOverl
         // Nothing to do here
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void onMousePressedLeft(final ImgViewerMouseEvent e, final RectangleOverlayElement currentOverlayElement,
                                    final PlaneSelectionEvent selection, final Overlay overlay, final String... labels) {
@@ -96,9 +95,10 @@ public class AnnotatorRectangleTool extends AnnotationDrawingTool<RectangleOverl
     @Override
     public void onMouseReleasedLeft(final ImgViewerMouseEvent e, final RectangleOverlayElement currentOverlayElement,
                                     final PlaneSelectionEvent selection, final Overlay overlay, final String... labels) {
-        currentOverlayElement.setStatus(OverlayElementStatus.ACTIVE);
-        fireStateChanged();
-
+        if (currentOverlayElement != null) {
+            currentOverlayElement.setStatus(OverlayElementStatus.ACTIVE);
+            fireStateChanged();
+        }
     }
 
     @Override
