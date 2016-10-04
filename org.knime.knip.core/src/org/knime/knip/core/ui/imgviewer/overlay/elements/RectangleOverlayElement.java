@@ -52,19 +52,24 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.io.IOException;
 import java.io.ObjectInput;
-
-import net.imglib2.roi.IterableRegionOfInterest;
-import net.imglib2.roi.RectangleRegionOfInterest;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.knime.knip.core.ui.imgviewer.overlay.OverlayElementStatus;
 
+import net.imglib2.IterableInterval;
+import net.imglib2.Point;
+import net.imglib2.roi.geometric.Polygon;
+
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
 public class RectangleOverlayElement extends AbstractPolygonOverlayElement {
+
+    public static final long serialVersionUID = 2322166867078273277l;
 
     private Rectangle m_rect;
 
@@ -97,8 +102,8 @@ public class RectangleOverlayElement extends AbstractPolygonOverlayElement {
                 (int)((max[orientation[1]] - min[orientation[1]]) + 1)), planePos, orientation, labels);
     }
 
-    public void
-            setRectangle(final long minExtendX, final long minExtendY, final long maxExtendX, final long maxExtendY) {
+    public void setRectangle(final long minExtendX, final long minExtendY, final long maxExtendX,
+                             final long maxExtendY) {
         m_poly.reset();
 
         add(minExtendX, minExtendY);
@@ -157,12 +162,19 @@ public class RectangleOverlayElement extends AbstractPolygonOverlayElement {
     }
 
     @Override
-    public IterableRegionOfInterest getRegionOfInterest() {
+    public IterableInterval<Void> getRegionOfInterest() {
         m_origin[0] = m_rect.x;
         m_origin[1] = m_rect.y;
         m_extend[0] = m_rect.width;
         m_extend[1] = m_rect.height;
-        return new RectangleRegionOfInterest(m_origin, m_extend);
+
+        final List<Point> list = new ArrayList<>();
+        list.add(new Point(m_rect.x, m_rect.y));
+        list.add(new Point(m_rect.x + m_rect.width, m_rect.y));
+        list.add(new Point(m_rect.x + m_rect.width, m_rect.y + m_rect.height));
+        list.add(new Point(m_rect.x, m_rect.y + m_rect.height));
+
+        return new Polygon(list).rasterize();
     }
 
     @Override

@@ -219,10 +219,8 @@ public abstract class AnnotatorTool<O extends OverlayElement2D> {
      */
     public void onMouseDoubleClick(final ImgViewerMouseEvent e, final PlaneSelectionEvent selection,
                                    final Overlay overlay, final String... labels) {
-        if (!e.isInside()) {
-            setCurrentOverlayElement(null, null);
-            fireStateChanged();
-        } else if (e.isLeftDown()) {
+
+        if (e.isLeftDown()) {
             onMouseDoubleClickLeft(e, m_currentOverlayElement, selection, overlay, labels);
         } else if (e.isRightDown()) {
             onMouseDoubleClickRight(e, m_currentOverlayElement, selection, overlay, labels);
@@ -243,10 +241,7 @@ public abstract class AnnotatorTool<O extends OverlayElement2D> {
                                final String... labels) {
         m_dragPoint = selection.getPlanePos(e.getPosX(), e.getPosY());
 
-        if (!e.isInside()) {
-            setCurrentOverlayElement(null, null);
-            fireStateChanged();
-        } else if (e.isLeftDown()) {
+        if (e.isLeftDown()) {
             onMousePressedLeft(e, m_currentOverlayElement, selection, overlay, labels);
         } else if (e.isRightDown()) {
             onMousePressedRight(e, m_currentOverlayElement, selection, overlay, labels);
@@ -266,9 +261,7 @@ public abstract class AnnotatorTool<O extends OverlayElement2D> {
     public void onMouseReleased(final ImgViewerMouseEvent e, final PlaneSelectionEvent selection, final Overlay overlay,
                                 final String... labels) {
 
-        if (!e.isInside()) {
-            // ignore click
-        } else if (e.isLeftDown()) {
+        if (e.isLeftDown()) {
             onMouseReleasedLeft(e, m_currentOverlayElement, selection, overlay, labels);
         } else if (e.isRightDown()) {
             onMouseReleasedRight(e, m_currentOverlayElement, selection, overlay, labels);
@@ -288,9 +281,6 @@ public abstract class AnnotatorTool<O extends OverlayElement2D> {
      */
     public void onMouseDragged(final ImgViewerMouseEvent e, final PlaneSelectionEvent selection, final Overlay overlay,
                                final String... labels) {
-        if (!e.isInside()) {
-            return;
-        }
 
         if (e.isLeftDown()) {
             onMouseDraggedLeft(e, m_currentOverlayElement, selection, overlay, labels);
@@ -329,9 +319,8 @@ public abstract class AnnotatorTool<O extends OverlayElement2D> {
 
     @SuppressWarnings("javadoc")
     public final void setButtonIcon(final AbstractButton jb, final String path) {
-        final URL icon =
-                getClass().getClassLoader().getResource(getClass().getPackage().getName().replace('.', '/') + "/"
-                                                                + path);
+        final URL icon = getClass().getClassLoader()
+                .getResource(getClass().getPackage().getName().replace('.', '/') + "/" + path);
         jb.setHorizontalAlignment(SwingConstants.LEFT);
         if (icon != null) {
             jb.setIcon(new ImageIcon(icon));
@@ -345,8 +334,8 @@ public abstract class AnnotatorTool<O extends OverlayElement2D> {
      */
     // Helpers
     protected boolean setCurrentOverlayElement(final OverlayElementStatus status, final O os) {
-        if ((((m_currentOverlayElement == null) && (os == null)) || ((m_currentOverlayElement == os) && (m_currentOverlayElement
-                .getStatus() == status)))) {
+        if ((((m_currentOverlayElement == null) && (os == null))
+                || ((m_currentOverlayElement == os) && (m_currentOverlayElement.getStatus() == status)))) {
             return false;
         }
 

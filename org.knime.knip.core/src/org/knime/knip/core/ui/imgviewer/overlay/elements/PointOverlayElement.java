@@ -53,14 +53,16 @@ import java.awt.Rectangle;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-
-import net.imglib2.roi.IterableRegionOfInterest;
-import net.imglib2.roi.RectangleRegionOfInterest;
+import java.util.Arrays;
 
 import org.knime.knip.core.ui.imgviewer.overlay.OverlayElement2D;
 
+import net.imglib2.IterableInterval;
+import net.imglib2.Point;
+import net.imglib2.roi.geometric.PointCollection;
+
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -73,7 +75,7 @@ public class PointOverlayElement extends OverlayElement2D {
 
     private int m_x;
 
-    private RectangleRegionOfInterest m_roi;
+    private PointCollection m_roi;
 
     public PointOverlayElement() {
         //
@@ -84,7 +86,7 @@ public class PointOverlayElement extends OverlayElement2D {
         super(pos, orientation, labels);
         m_x = x;
         m_y = y;
-        m_roi = new RectangleRegionOfInterest(new double[]{x, y}, new double[]{1, 1});
+        m_roi = new PointCollection(Arrays.asList(new Point(pos)));
     }
 
     @Override
@@ -109,7 +111,7 @@ public class PointOverlayElement extends OverlayElement2D {
     }
 
     @Override
-    public IterableRegionOfInterest getRegionOfInterest() {
+    public IterableInterval<Void> getRegionOfInterest() {
         return m_roi;
     }
 
@@ -131,7 +133,7 @@ public class PointOverlayElement extends OverlayElement2D {
         super.readExternal(in);
         m_x = in.readInt();
         m_y = in.readInt();
-        m_roi = new RectangleRegionOfInterest(new double[]{m_x, m_y}, new double[]{1, 1});
+        m_roi = new PointCollection(Arrays.asList(new Point(m_x, m_y)));
 
     }
 

@@ -59,12 +59,14 @@ import java.util.Set;
 
 import net.imglib2.Cursor;
 import net.imglib2.Interval;
+import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.labeling.Labeling;
-import net.imglib2.roi.IterableRegionOfInterest;
+import net.imglib2.roi.Regions;
 import net.imglib2.roi.labeling.LabelingMapping;
 import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.util.Intervals;
 
 /**
  *
@@ -106,7 +108,7 @@ public abstract class OverlayElement implements Externalizable {
 
     public abstract boolean contains(long[] point);
 
-    public abstract IterableRegionOfInterest getRegionOfInterest();
+    public abstract IterableInterval<Void> getRegionOfInterest();
 
     public abstract void renderOutline(Graphics g);
 
@@ -236,15 +238,15 @@ public abstract class OverlayElement implements Externalizable {
             throw new IllegalArgumentException(
                     "(Sub)Labeling must have the same number of dimensions as the OverlayElement");
         }
-
-        final Cursor<LabelingType<String>> c = getRegionOfInterest().getIterableIntervalOverROI(labeling).cursor();
+       ;
+        final Cursor<LabelingType<String>> c =  Regions.sample(getRegionOfInterest(), labeling).cursor();
 
         final long[] pos = new long[c.numDimensions()];
         while (c.hasNext()) {
             c.fwd();
             c.localize(pos);
 
-            if (contains(pos)) {
+            if (Intervals.contains(labeling, c) && contains(pos)) {
 
                 if (c.get().isEmpty()) {
                     c.get().clear();

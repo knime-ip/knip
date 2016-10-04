@@ -75,7 +75,6 @@ public class AnnotatorFreeFormTool extends AnnotationDrawingTool<FreeFormOverlay
 
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void onMousePressedLeft(final ImgViewerMouseEvent e, final FreeFormOverlayElement currentOverlayElement,
                                    final PlaneSelectionEvent selection, final Overlay overlay, final String... labels) {

@@ -54,11 +54,8 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import net.imglib2.RealPoint;
-import net.imglib2.roi.PolygonRegionOfInterest;
-
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -115,14 +112,10 @@ public class SplineOverlayElement extends AbstractPolygonOverlayElement {
              */
             m_poly = new Polygon();
             m_poly.addPoint(Math.round(X[0].eval(0)), Math.round(Y[0].eval(0)));
-            m_roi = new PolygonRegionOfInterest();
-            m_roi.addVertex(0, new RealPoint((double)Math.round(X[0].eval(0)), Math.round(Y[0].eval(0))));
-            int idx = 1;
             for (int i = 0; i < X.length; i++) {
                 for (int j = 1; j <= SPLINE_STEPS; j++) {
                     final float u = j / (float)SPLINE_STEPS;
                     m_poly.addPoint(Math.round(X[i].eval(u)), Math.round(Y[i].eval(u)));
-                    m_roi.addVertex(idx++, new RealPoint((double)Math.round(X[i].eval(u)), Math.round(Y[i].eval(u))));
                 }
             }
         } else {
@@ -159,8 +152,8 @@ public class SplineOverlayElement extends AbstractPolygonOverlayElement {
     @Override
     protected void renderPointInterior(final Graphics2D g) {
         for (int i = 0; i < m_tmpPoly.npoints; i++) {
-            g.fillOval(m_tmpPoly.xpoints[i] - DRAWING_RADIUS, m_tmpPoly.ypoints[i] - DRAWING_RADIUS,
-                       2 * DRAWING_RADIUS, 2 * DRAWING_RADIUS);
+            g.fillOval(m_tmpPoly.xpoints[i] - DRAWING_RADIUS, m_tmpPoly.ypoints[i] - DRAWING_RADIUS, 2 * DRAWING_RADIUS,
+                       2 * DRAWING_RADIUS);
         }
 
     }
@@ -168,8 +161,8 @@ public class SplineOverlayElement extends AbstractPolygonOverlayElement {
     @Override
     protected void renderPointOutline(final Graphics2D g) {
         for (int i = 0; i < m_tmpPoly.npoints; i++) {
-            g.drawOval(m_tmpPoly.xpoints[i] - DRAWING_RADIUS, m_tmpPoly.ypoints[i] - DRAWING_RADIUS,
-                       2 * DRAWING_RADIUS, 2 * DRAWING_RADIUS);
+            g.drawOval(m_tmpPoly.xpoints[i] - DRAWING_RADIUS, m_tmpPoly.ypoints[i] - DRAWING_RADIUS, 2 * DRAWING_RADIUS,
+                       2 * DRAWING_RADIUS);
         }
     }
 
@@ -237,9 +230,8 @@ public class SplineOverlayElement extends AbstractPolygonOverlayElement {
         /* now compute the coefficients of the cubics */
         final Cubic[] C = new Cubic[n];
         for (i = 0; i < n; i++) {
-            C[i] =
-                    new Cubic(x[i], D[i], (3 * (x[i + 1] - x[i])) - (2 * D[i]) - D[i + 1], (2 * (x[i] - x[i + 1]))
-                            + D[i] + D[i + 1]);
+            C[i] = new Cubic(x[i], D[i], (3 * (x[i + 1] - x[i])) - (2 * D[i]) - D[i + 1],
+                    (2 * (x[i] - x[i + 1])) + D[i] + D[i + 1]);
         }
         return C;
     }
@@ -300,9 +292,8 @@ public class SplineOverlayElement extends AbstractPolygonOverlayElement {
         /* now compute the coefficients of the cubics */
         final Cubic[] C = new Cubic[n + 1];
         for (k = 0; k < n; k++) {
-            C[k] =
-                    new Cubic(x[k], D[k], (3 * (x[k + 1] - x[k])) - (2 * D[k]) - D[k + 1], (2 * (x[k] - x[k + 1]))
-                            + D[k] + D[k + 1]);
+            C[k] = new Cubic(x[k], D[k], (3 * (x[k + 1] - x[k])) - (2 * D[k]) - D[k + 1],
+                    (2 * (x[k] - x[k + 1])) + D[k] + D[k + 1]);
         }
         C[n] = new Cubic(x[n], D[n], (3 * (x[0] - x[n])) - (2 * D[n]) - D[0], (2 * (x[n] - x[0])) + D[n] + D[0]);
         return C;

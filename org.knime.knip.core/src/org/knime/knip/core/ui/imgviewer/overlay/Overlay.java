@@ -58,6 +58,17 @@ import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.knime.knip.core.KNIPGateway;
+import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
+import org.knime.knip.core.awt.labelingcolortable.LabelingColorTable;
+import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableUtils;
+import org.knime.knip.core.awt.labelingcolortable.RandomMissingColorHandler;
+import org.knime.knip.core.types.NativeTypes;
+import org.knime.knip.core.ui.event.EventService;
+import org.knime.knip.core.ui.event.EventServiceClient;
+import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
+import org.knime.knip.core.ui.imgviewer.events.OverlayChgEvent;
+
 import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccessibleInterval;
@@ -69,17 +80,6 @@ import net.imglib2.type.numeric.integer.ByteType;
 import net.imglib2.type.numeric.integer.LongType;
 import net.imglib2.type.numeric.integer.ShortType;
 import net.imglib2.type.numeric.integer.UnsignedShortType;
-
-import org.knime.knip.core.KNIPGateway;
-import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
-import org.knime.knip.core.awt.labelingcolortable.LabelingColorTable;
-import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableUtils;
-import org.knime.knip.core.awt.labelingcolortable.RandomMissingColorHandler;
-import org.knime.knip.core.types.NativeTypes;
-import org.knime.knip.core.ui.event.EventService;
-import org.knime.knip.core.ui.event.EventServiceClient;
-import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
-import org.knime.knip.core.ui.imgviewer.events.OverlayChgEvent;
 
 /**
  * Overlay
@@ -275,7 +275,6 @@ public class Overlay implements EventServiceClient, Externalizable {
      * @param addSegmentID if true, an additional label with a unique id for each segment is added
      * @return
      */
-    @SuppressWarnings("unchecked")
     public ImgLabeling<String, ?> renderSegmentationImage(final boolean addSegmentID, final NativeTypes type) {
 
         ImgLabeling<String, ?> res = null;

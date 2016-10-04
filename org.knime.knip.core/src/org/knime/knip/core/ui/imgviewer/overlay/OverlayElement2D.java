@@ -51,7 +51,6 @@ package org.knime.knip.core.ui.imgviewer.overlay;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -60,12 +59,14 @@ import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
 
 /**
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
-public abstract class OverlayElement2D extends OverlayElement implements Externalizable {
+public abstract class OverlayElement2D extends OverlayElement {
+
+    public static final long serialVersionUID = -826721428402711836l;
 
     private Rectangle m_boundingBox;
 
