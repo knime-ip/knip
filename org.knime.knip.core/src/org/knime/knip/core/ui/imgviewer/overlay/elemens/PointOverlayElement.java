@@ -70,6 +70,8 @@ import net.imglib2.roi.geometric.PointCollection;
  */
 public class PointOverlayElement extends OverlayElement2D {
 
+    public static final long serialVersionUID = -3686435965417501903l;
+
     private static final int DRAWING_RADIUS = 4;
 
     private int m_y;
