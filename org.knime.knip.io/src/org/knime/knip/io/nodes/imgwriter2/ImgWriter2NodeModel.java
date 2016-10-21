@@ -291,7 +291,11 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 
 			// set the filename
 			if (useAbsolutPaths) {
-				outfile = ((StringValue) row.getCell(nameColIndex)).getStringValue();
+				if (nameColIndex == -1) {
+					outfile = row.getKey().getString();
+				} else {
+					outfile = ((StringValue) row.getCell(nameColIndex)).getStringValue();
+				}
 			} else if (useCustomName) {
 				outfile = directory + customName + String.format(digitStringFormat, imgCount);
 			} else if (nameColIndex == -1) {
