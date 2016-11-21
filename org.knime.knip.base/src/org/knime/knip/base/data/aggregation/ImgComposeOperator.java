@@ -75,7 +75,9 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
+import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
+import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.data.IntervalValue;
 import org.knime.knip.base.data.img.ImgPlusCell;
@@ -122,10 +124,16 @@ public class ImgComposeOperator<T1 extends RealType<T1>, T2 extends RealType<T2>
         return new SettingsModelString("interval_column", "");
     }
 
-    private DialogComponentStringSelection m_dcImgType;
+    private static SettingsModelDouble createBackgroundValueModel() {
+        return new SettingsModelDouble("background_value", 0.0);
+    }
 
     // dialog components
     private DialogComponent m_dcIntervalCol;
+
+    private DialogComponentStringSelection m_dcImgType;
+
+    private DialogComponentNumber m_dcBackgroundValue;
 
     // the default settings, i.e. if the respective globalsettings are not
     // set
@@ -150,10 +158,12 @@ public class ImgComposeOperator<T1 extends RealType<T1>, T2 extends RealType<T2>
 
     private T2 m_resultType = null;
 
+    // settings models
     private final SettingsModelString m_smImgType = createImgTypeModel();
 
-    // settings models
     private final SettingsModelString m_smIntervalCol = createIntervalColumnModel();
+
+    private final SettingsModelDouble m_smBackgroundValue = createBackgroundValueModel();
 
     public ImgComposeOperator() {
         super("compose_image_2", "Compose Image", "Compose Image");
@@ -163,8 +173,8 @@ public class ImgComposeOperator<T1 extends RealType<T1>, T2 extends RealType<T2>
      * @param label
      * @param globalSettings
      */
-    public ImgComposeOperator(final GlobalSettings globalSettings) {
-        this(globalSettings, null, null);
+    private ImgComposeOperator(final GlobalSettings globalSettings) {
+        this(globalSettings, null, null, 0);
     }
 
     /**
@@ -172,7 +182,7 @@ public class ImgComposeOperator<T1 extends RealType<T1>, T2 extends RealType<T2>
      * @param globalSettings
      */
     @SuppressWarnings("unchecked")
-    public ImgComposeOperator(final GlobalSettings globalSettings, final String colName, final String type) {
+    private ImgComposeOperator(final GlobalSettings globalSettings, final String colName, final String type, final double bgValue) {
         super("compose_image_2", "Compose Image", globalSettings);
 
         if (colName != null) {
@@ -181,10 +191,10 @@ public class ImgComposeOperator<T1 extends RealType<T1>, T2 extends RealType<T2>
         if (type != null) {
             m_smImgType.setStringValue(type);
         }
+        m_smBackgroundValue.setDoubleValue(bgValue);
 
         m_intervalCol = m_smIntervalCol.getStringValue();
         m_resultType = (T2)NativeTypes.getTypeInstance(NativeTypes.valueOf(m_smImgType.getStringValue()));
-
     }
 
     /*
@@ -201,7 +211,7 @@ public class ImgComposeOperator<T1 extends RealType<T1>, T2 extends RealType<T2>
         // Set segmented pixels to label
         final Cursor<T1> patchCursor = patch.localizingCursor();
         final T1 minVal = patch.firstElement().createVariable();
-        minVal.setReal(minVal.getMinValue());
+        minVal.setReal(m_smBackgroundValue.getDoubleValue());
         while (patchCursor.hasNext()) {
             patchCursor.fwd();
             if (patchCursor.get().compareTo(minVal) == 0) {
@@ -324,6 +334,8 @@ public class ImgComposeOperator<T1 extends RealType<T1>, T2 extends RealType<T2>
                                                     NativeTypes.UNSIGNEDSHORTTYPE, NativeTypes.INTTYPE,
                                                     NativeTypes.UNSIGNEDINTTYPE, NativeTypes.LONGTYPE,
                                                     NativeTypes.FLOATTYPE, NativeTypes.DOUBLETYPE));
+
+            m_dcBackgroundValue = new DialogComponentNumber(createBackgroundValueModel(), "Background value", 1);
         }
     }
 
@@ -334,7 +346,7 @@ public class ImgComposeOperator<T1 extends RealType<T1>, T2 extends RealType<T2>
     public AggregationOperator createInstance(final GlobalSettings globalSettings,
                                               final OperatorColumnSettings opColSettings) {
         return new ImgComposeOperator<T1, T2>(globalSettings, m_smIntervalCol.getStringValue(),
-                m_smImgType.getStringValue());
+                m_smImgType.getStringValue(), m_smBackgroundValue.getDoubleValue());
     }
 
     @Override
@@ -361,7 +373,11 @@ public class ImgComposeOperator<T1 extends RealType<T1>, T2 extends RealType<T2>
      */
     @Override
     public String getDescription() {
-        return "Composes images from image patches.";
+        return "Composes images from image patches.\n"
+                + "Options:\n"
+                + "Interval: the size of the result image\n"
+                + "Result image type: the type of the result image\n"
+                + "Background value: this value will be ignored and not transferred to the result image.";
     }
 
     /**
@@ -401,6 +417,7 @@ public class ImgComposeOperator<T1 extends RealType<T1>, T2 extends RealType<T2>
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.add(m_dcIntervalCol.getComponentPanel());
         panel.add(m_dcImgType.getComponentPanel());
+        panel.add(m_dcBackgroundValue.getComponentPanel());
         return panel;
     }
 
@@ -418,6 +435,7 @@ public class ImgComposeOperator<T1 extends RealType<T1>, T2 extends RealType<T2>
         createDCs();
         m_dcIntervalCol.loadSettingsFrom(settings, new DataTableSpec[]{spec});
         m_dcImgType.loadSettingsFrom(settings, new DataTableSpec[]{spec});
+        m_dcBackgroundValue.loadSettingsFrom(settings, new DataTableSpec[]{spec});
     }
 
     /**
@@ -430,6 +448,13 @@ public class ImgComposeOperator<T1 extends RealType<T1>, T2 extends RealType<T2>
             m_smIntervalCol.setStringValue("");
         }
         m_smImgType.loadSettingsFrom(settings);
+
+        try{
+            m_smBackgroundValue.loadSettingsFrom(settings);
+        }catch(InvalidSettingsException e) {
+            //backwards compatibility -
+            //use default value if settings not available
+        }
     }
 
     /**
@@ -461,12 +486,14 @@ public class ImgComposeOperator<T1 extends RealType<T1>, T2 extends RealType<T2>
             try {
                 m_dcIntervalCol.saveSettingsTo(settings);
                 m_dcImgType.saveSettingsTo(settings);
+                m_dcBackgroundValue.saveSettingsTo(settings);
             } catch (final InvalidSettingsException e) {
                 throw new RuntimeException(e.getMessage());
             }
         } else {
             m_smIntervalCol.saveSettingsTo(settings);
             m_smImgType.saveSettingsTo(settings);
+            m_smBackgroundValue.saveSettingsTo(settings);
         }
 
     }
@@ -478,5 +505,6 @@ public class ImgComposeOperator<T1 extends RealType<T1>, T2 extends RealType<T2>
     public void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
         m_smIntervalCol.validateSettings(settings);
         m_smImgType.validateSettings(settings);
+        m_smBackgroundValue.validateSettings(settings);
     }
 }
