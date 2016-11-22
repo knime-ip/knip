@@ -52,9 +52,11 @@ import net.imagej.axis.Axes;
 import net.imagej.axis.CalibratedAxis;
 import net.imagej.axis.DefaultLinearAxis;
 import net.imagej.space.DefaultCalibratedSpace;
+import net.imglib2.Cursor;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgView;
 import net.imglib2.img.array.ArrayImg;
+import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.img.basictypeaccess.array.ArrayDataAccess;
 import net.imglib2.img.basictypeaccess.array.ByteArray;
 import net.imglib2.img.basictypeaccess.array.DoubleArray;
@@ -74,6 +76,7 @@ import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.util.Fraction;
+import net.imglib2.view.Views;
 
 /**
  * Aggregation operator which merges images.
@@ -467,7 +470,7 @@ public class ImgMergeOperator<T extends RealType<T> & NativeType<T>, A, ADA exte
 
     private String m_axisLabel;
 
-    /* aggregated pixel data */
+    /* aggregated pixel data (in case of a 2D input)*/
     private ArrayList<A> m_data = null;
 
     // dialog components
@@ -484,6 +487,18 @@ public class ImgMergeOperator<T extends RealType<T> & NativeType<T>, A, ADA exte
 
     private RealTypeHandler<T, A, ADA> m_typeHandler;
 
+    /**
+     * Required to determine the size of the result image for the nD case (n > 2)
+     * and keep track of the current position in the result image
+     */
+    private long m_rowCount;
+    private long m_rowIdx;
+
+    /**
+     * Result image in case of an input >2D
+     */
+    private Img<T> m_resImg;
+
     public ImgMergeOperator() {
         super("Merge Image", "Merge Image", "Merge Image");
     }
@@ -498,7 +513,7 @@ public class ImgMergeOperator<T extends RealType<T> & NativeType<T>, A, ADA exte
             m_smAxisLabel.setStringValue(axisLabel);
         }
         m_axisLabel = m_smAxisLabel.getStringValue();
-
+        m_rowCount = globalSettings.getNoOfRows();
     }
 
     /**
@@ -522,58 +537,69 @@ public class ImgMergeOperator<T extends RealType<T> & NativeType<T>, A, ADA exte
         }
 
         if (m_dims != null) {
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < m_dims.length - 1; i++) {
                 if (imgPlus.dimension(i) != m_dims[i]) {
                     throw new IllegalArgumentException(
                             "Image " + imgPlus.getName() + " not compatible with first-row image. Different dimension!");
                 }
             }
-
         }
 
-        if (m_data == null) {
-            m_type = imgPlus.firstElement().createVariable();
-            if (m_type instanceof ByteType) {
-                m_typeHandler = (RealTypeHandler<T, A, ADA>)new ByteTypeHandler();
-            } else if (m_type instanceof UnsignedByteType) {
-                m_typeHandler = (RealTypeHandler<T, A, ADA>)new UnsignedByteTypeHandler();
-            } else if (m_type instanceof UnsignedShortType) {
-                m_typeHandler = (RealTypeHandler<T, A, ADA>)new UnsignedShortTypeHandler();
-            } else if (m_type instanceof ShortType) {
-                m_typeHandler = (RealTypeHandler<T, A, ADA>)new ShortTypeHandler();
-            } else if (m_type instanceof IntType) {
-                m_typeHandler = (RealTypeHandler<T, A, ADA>)new IntTypeHandler();
-            } else if (m_type instanceof LongType) {
-                m_typeHandler = (RealTypeHandler<T, A, ADA>)new LongTypeHandler();
-            } else if (m_type instanceof FloatType) {
-                m_typeHandler = (RealTypeHandler<T, A, ADA>)new FloatTypeHandler();
-            } else if (m_type instanceof DoubleType) {
-                m_typeHandler = (RealTypeHandler<T, A, ADA>)new DoubleTypeHandler();
-            } else {
-                throw new IllegalArgumentException(
-                        "Pixel type " + m_type.getClass().getSimpleName() + " not supported for merging.");
-            }
-            m_data = new ArrayList<A>();
+        int numHyperPlanes = -1;
+        int hyperPlaneSize = -1;
+        if (m_data == null && m_resImg == null) {
+            //first iteration -> create data structures
 
             final CalibratedAxis[] axes = new CalibratedAxis[imgPlus.numDimensions()];
             imgPlus.axes(axes);
-            final CalibratedAxis[] newAxes = new CalibratedAxis[3];
-            for (int i = 0; i < 2; i++) {
+            final CalibratedAxis[] newAxes = new CalibratedAxis[axes.length + 1];
+            for (int i = 0; i < axes.length; i++) {
                 newAxes[i] = axes[i];
             }
 
             //TODO: How to support different types of calibrates spaces/axis.
-            newAxes[2] = new DefaultLinearAxis(Axes.get(m_axisLabel));
+            newAxes[newAxes.length - 1] = new DefaultLinearAxis(Axes.get(m_axisLabel));
             m_metadata = new DefaultImgMetadata(new DefaultCalibratedSpace(newAxes), imgPlus, imgPlus, imgPlus);
-            m_dims = new long[3];
-            m_dims[0] = imgPlus.dimension(0);
-            m_dims[1] = imgPlus.dimension(1);
+            m_dims = new long[newAxes.length];
+            imgPlus.dimensions(m_dims);
 
+            m_type = imgPlus.firstElement().createVariable();
+            if (imgPlus.numDimensions() == 2) {
+                hyperPlaneSize = 1;
+                for (int i = 0; i < imgPlus.numDimensions(); i++) {
+                    hyperPlaneSize *=imgPlus.dimension(i);
+                }
+                numHyperPlanes = (int)(imgPlus.size() / hyperPlaneSize);
+                m_dims[m_dims.length - 1] += numHyperPlanes;
+
+                if (m_type instanceof ByteType) {
+                    m_typeHandler = (RealTypeHandler<T, A, ADA>)new ByteTypeHandler();
+                } else if (m_type instanceof UnsignedByteType) {
+                    m_typeHandler = (RealTypeHandler<T, A, ADA>)new UnsignedByteTypeHandler();
+                } else if (m_type instanceof UnsignedShortType) {
+                    m_typeHandler = (RealTypeHandler<T, A, ADA>)new UnsignedShortTypeHandler();
+                } else if (m_type instanceof ShortType) {
+                    m_typeHandler = (RealTypeHandler<T, A, ADA>)new ShortTypeHandler();
+                } else if (m_type instanceof IntType) {
+                    m_typeHandler = (RealTypeHandler<T, A, ADA>)new IntTypeHandler();
+                } else if (m_type instanceof LongType) {
+                    m_typeHandler = (RealTypeHandler<T, A, ADA>)new LongTypeHandler();
+                } else if (m_type instanceof FloatType) {
+                    m_typeHandler = (RealTypeHandler<T, A, ADA>)new FloatTypeHandler();
+                } else if (m_type instanceof DoubleType) {
+                    m_typeHandler = (RealTypeHandler<T, A, ADA>)new DoubleTypeHandler();
+                } else {
+                    throw new IllegalArgumentException(
+                            "Pixel type " + m_type.getClass().getSimpleName() + " not supported for merging.");
+                }
+                m_data = new ArrayList<A>();
+            } else {
+                //create res img
+                m_dims[m_dims.length - 1] = m_rowCount;
+                m_resImg = new ArrayImgFactory().create(m_dims, m_type);
+                m_rowIdx = 0;
+            }
         }
-
-        final int planeSize = (int)(imgPlus.dimension(0) * imgPlus.dimension(1));
-        final int numPlanes = (int)(imgPlus.size() / planeSize);
-        m_dims[2] += numPlanes;
 
         //in case of a previous virtual operation (img is wrapped in a ImgView), first execute the operation in order to get the 'physical' pixel data
         Img<T> img;
@@ -583,27 +609,41 @@ public class ImgMergeOperator<T extends RealType<T> & NativeType<T>, A, ADA exte
             img = imgPlus.getImg();
         }
 
-        // copy data
-        if (img instanceof ArrayImg) {
-            for (int i = 0; i < numPlanes; i++) {
-                final A plane = m_typeHandler.createArray(planeSize);
-                m_typeHandler.copyData((A)((ArrayDataAccess<A>)((ArrayImg)img).update(null))
-                        .getCurrentStorageArray(), plane, 0);
-                m_data.add(plane);
-            }
+        if (imgPlus.numDimensions() == 2) {
+            //in case of 2D we can efficiently copy the data arrays
+            // copy data
+            if (img instanceof ArrayImg) {
+                for (int i = 0; i < numHyperPlanes; i++) {
+                    final A plane = m_typeHandler.createArray(hyperPlaneSize);
+                    m_typeHandler
+                            .copyData((A)((ArrayDataAccess<A>)((ArrayImg)img).update(null)).getCurrentStorageArray(),
+                                      plane, 0);
+                    m_data.add(plane);
+                }
 
-        } else if (imgPlus.getImg() instanceof PlanarImg) {
+            } else if (imgPlus.getImg() instanceof PlanarImg) {
 
-            for (int i = 0; i < ((PlanarImg)img).numSlices(); i++) {
-                final A plane = m_typeHandler.createArray(planeSize);
-                m_typeHandler.copyData((A)((ArrayDataAccess<A>)((PlanarImg)img).getPlane(i))
-                        .getCurrentStorageArray(), plane, 0);
-                m_data.add(plane);
+                for (int i = 0; i < ((PlanarImg)img).numSlices(); i++) {
+                    final A plane = m_typeHandler.createArray(hyperPlaneSize);
+                    m_typeHandler
+                            .copyData((A)((ArrayDataAccess<A>)((PlanarImg)img).getPlane(i)).getCurrentStorageArray(),
+                                      plane, 0);
+                    m_data.add(plane);
+                }
+            } else {
+                if (imgPlus.numDimensions() != (m_dims.length - 1)) {
+                    throw new IllegalArgumentException("Image type not supported, yet.");
+                }
             }
         } else {
-            if (imgPlus.numDimensions() != (m_dims.length - 1)) {
-                throw new IllegalArgumentException("Image type not supported, yet.");
+            //just transfer the pixel values to the already created result image
+            //TODO guarantee same iteration order
+            Cursor<T> dest = Views.hyperSlice(m_resImg, m_resImg.numDimensions() - 1, m_rowIdx).cursor();
+            for(T t : imgPlus) {
+                dest.fwd();
+                dest.get().set(t);
             }
+            m_rowIdx++;
         }
 
         return false;
@@ -637,7 +677,7 @@ public class ImgMergeOperator<T extends RealType<T> & NativeType<T>, A, ADA exte
      */
     @Override
     public String getDescription() {
-        return "Merges the n-dimension to one (n+1) dimensional image object. The images to be merged must have the same X and Y dimensions and same pixel type as the first image in the group. If not, they will be skipped.";
+        return "Merges the n-dimension to one (n+1) dimensional image object. The images to be merged must have exactly the same dimensions and same pixel type as the first image in the group. If not, they will be skipped.";
     }
 
     /**
@@ -645,16 +685,28 @@ public class ImgMergeOperator<T extends RealType<T> & NativeType<T>, A, ADA exte
      */
     @Override
     protected DataCell getResultInternal() {
-        final ArrayList<ADA> mirror = new ArrayList<ADA>(m_data.size());
-        for (int i = 0; i < m_data.size(); i++) {
-            mirror.add(m_typeHandler.wrap(m_data.get(i)));
-        }
-        final CustomPlanarImg img = new CustomPlanarImg(mirror, m_dims, new Fraction(1, 1));
-        img.setLinkedType(m_typeHandler.createLinkedType(img));
-        try {
-            return getImgPlusCellFactory().createCell(new ImgPlus(img, m_metadata));
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
+        if (m_data != null) {
+            //in case 2D images have been merged
+            final ArrayList<ADA> mirror = new ArrayList<ADA>(m_data.size());
+            for (int i = 0; i < m_data.size(); i++) {
+                mirror.add(m_typeHandler.wrap(m_data.get(i)));
+            }
+            final CustomPlanarImg img = new CustomPlanarImg(mirror, m_dims, new Fraction(1, 1));
+            img.setLinkedType(m_typeHandler.createLinkedType(img));
+            try {
+                return getImgPlusCellFactory().createCell(new ImgPlus(img, m_metadata));
+            } catch (final IOException e) {
+                //TODO better error handling
+                throw new RuntimeException(e);
+            }
+        } else {
+            assert m_resImg != null;
+            try {
+                return getImgPlusCellFactory().createCell(new ImgPlus(m_resImg, m_metadata));
+            } catch (IOException e) {
+                //TODO better error handling
+                throw new RuntimeException(e);
+            }
         }
     }
 
