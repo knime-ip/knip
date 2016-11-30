@@ -91,8 +91,8 @@ import org.knime.knip.core.util.EnumUtils;
 
 import net.imagej.ImgPlus;
 import net.imagej.ImgPlusMetadata;
+import net.imagej.axis.Axes;
 import net.imagej.axis.CalibratedAxis;
-import net.imagej.axis.DefaultAxisType;
 import net.imagej.axis.DefaultLinearAxis;
 import net.imagej.space.DefaultCalibratedSpace;
 import net.imglib2.Cursor;
@@ -389,9 +389,8 @@ public class ImgComposeOperator<T1 extends RealType<T1>, T2 extends RealType<T2>
             // compose result and return
             m_resultImg = new ArrayImgFactory<T2>().create(m_maxDims, m_resultType);
             List<CalibratedAxis> tmp = m_joinedLabels.stream()
-                    .map(labels -> new DefaultLinearAxis(new DefaultAxisType(String.join(",",
-                                                                                         labels.toArray(new String[labels
-                                                                                                 .size()])))))
+                    .map(labels -> new DefaultLinearAxis(
+                            Axes.get(String.join(",", labels.toArray(new String[labels.size()])))))
                     .collect(Collectors.toList());
             m_resultMetadata = new DefaultImgMetadata(new DefaultCalibratedSpace(tmp), new DefaultNamed("Unknown"),
                     new DefaultSourced("Unknown"), new DefaultImageMetadata());
