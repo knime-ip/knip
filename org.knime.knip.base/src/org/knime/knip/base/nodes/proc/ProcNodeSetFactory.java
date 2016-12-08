@@ -58,7 +58,7 @@ import org.knime.core.node.NodeSetFactory;
 import org.knime.core.node.config.ConfigRO;
 import org.knime.knip.base.nodes.misc.dimswap.DimensionSwapperNodeFactory;
 import org.knime.knip.base.nodes.misc.merger.MergerNodeFactory;
-import org.knime.knip.base.nodes.misc.splitter.SplitterNodeFactory;
+import org.knime.knip.base.nodes.misc.splitter.Splitter2NodeFactory;
 import org.knime.knip.base.nodes.misc.splitter.UCSplitterNodeFactory;
 import org.knime.knip.base.nodes.proc.binner.IntensityBinnerNodeFactory;
 import org.knime.knip.base.nodes.proc.clahe.ClaheNodeFactory;
@@ -140,7 +140,7 @@ public class ProcNodeSetFactory implements NodeSetFactory {
         m_nodeFactories.put(LabelingResizerNodeFactory.class.getCanonicalName(), "/community/knip/image");
         m_nodeFactories.put(UCSplitterNodeFactory.class.getCanonicalName(), "/community/knip/image");
         m_nodeFactories.put(DimensionSwapperNodeFactory.class.getCanonicalName(), "/community/knip/image");
-        m_nodeFactories.put(SplitterNodeFactory.class.getCanonicalName(), "/community/knip/image");
+        m_nodeFactories.put(Splitter2NodeFactory.class.getCanonicalName(), "/community/knip/image");
         m_nodeFactories.put(MergerNodeFactory.class.getCanonicalName(), "/community/knip/image");
         //        m_nodeFactories.put(ImgCropperNodeFactory.class.getCanonicalName(), "/community/knip/image");
         m_nodeFactories.put(AutoCropNodeFactory.class.getCanonicalName(), "/community/knip/image");
