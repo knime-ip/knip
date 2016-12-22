@@ -116,7 +116,7 @@ public class MiscViews {
             }
         }
 
-        IntervalView<T> translated = Views.translate(imgPlusView.getImg(), newMin);
+        IntervalView<T> translated = Views.translate(imgPlusView, newMin);
 
         if (hasNonZeroMin) {
             ImgPlus<T> img = ImgPlus.wrap(ImgView.wrap(translated, imgPlusView.factory()), imgPlusView);
