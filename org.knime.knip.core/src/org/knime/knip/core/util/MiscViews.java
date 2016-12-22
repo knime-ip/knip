@@ -113,9 +113,15 @@ public class MiscViews {
             }
         }
 
-        return new ImgPlus<>(hasNonZeroMin
-                ? ImgView.wrap(Views.translate(imgPlusView.getImg(), newMin), imgPlusView.factory()) : imgPlusView,
-                imgPlusView);
+        IntervalView<T> translated = Views.translate(imgPlusView.getImg(), newMin);
+
+        if (hasNonZeroMin) {
+            ImgPlus<T> img = ImgPlus.wrap(ImgView.wrap(translated, imgPlusView.factory()), imgPlusView);
+            img.setSource(ret.getSource());
+            return img;
+        } else {
+            return ImgPlus.wrap(imgPlusView, imgPlusView);
+        }
     }
 
     /**
