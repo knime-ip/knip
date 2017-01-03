@@ -80,21 +80,24 @@ import net.imglib2.view.Views;
  */
 public class MiscViews {
 
+    private MiscViews() {
+        // Utility class
+    }
+
     /**
      * removes dimensions of size 1 if any.
      *
-     * @param ret
-     * @return
+     * @param ret the cleaned image
      */
     public static <T extends Type<T>> ImgPlus<T> cleanImgPlus(final ImgPlus<T> ret) {
 
         final List<Integer> oneSizedDims = getOneSizeDims(ret);
-        if (oneSizedDims.size() == 0) {
+        if (oneSizedDims.isEmpty()) {
             return ret;
         }
 
         final ImgPlus<T> imgPlusView =
-                new ImgPlus<T>(ImgView.wrap(SubsetOperations.subsetview(ret.getImg(), ret.getImg()), ret.factory()));
+                new ImgPlus<>(ImgView.wrap(SubsetOperations.subsetview(ret.getImg(), ret.getImg()), ret.factory()));
         MetadataUtil.copyAndCleanImgPlusMetadata(ret, ret, imgPlusView);
 
         final long[] oldMin = Intervals.minAsLongArray(imgPlusView);
@@ -113,9 +116,15 @@ public class MiscViews {
             }
         }
 
-        return new ImgPlus<>(hasNonZeroMin
-                ? ImgView.wrap(Views.translate(imgPlusView.getImg(), newMin), imgPlusView.factory()) : imgPlusView,
-                imgPlusView);
+        IntervalView<T> translated = Views.translate(imgPlusView, newMin);
+
+        if (hasNonZeroMin) {
+            ImgPlus<T> img = ImgPlus.wrap(ImgView.wrap(translated, imgPlusView.factory()), imgPlusView);
+            img.setSource(ret.getSource());
+            return img;
+        } else {
+            return ImgPlus.wrap(imgPlusView, imgPlusView);
+        }
     }
 
     /**
@@ -310,7 +319,8 @@ public class MiscViews {
             }
         }
 
-        int dim1 = 0, dim2 = 0;
+        int dim1 = 0;
+        int dim2 = 0;
 
         if (e.getPlaneDimIndex1() < target.numDimensions()) {
             dim1 = e.getPlaneDimIndex1();
@@ -341,10 +351,10 @@ public class MiscViews {
      * Calculate the delta axis which are missing in the smaller space. >
      * From the smallest index of axistype to the biggest
      */
-    private synchronized static TypedAxis[] getDeltaAxisTypes(final TypedSpace<? extends TypedAxis> sourceSpace,
+    private static synchronized TypedAxis[] getDeltaAxisTypes(final TypedSpace<? extends TypedAxis> sourceSpace,
                                                               final TypedSpace<? extends TypedAxis> targetSpace) {
 
-        final List<TypedAxis> delta = new ArrayList<TypedAxis>();
+        final List<TypedAxis> delta = new ArrayList<>();
         for (int d = 0; d < targetSpace.numDimensions(); d++) {
             final TypedAxis axis = targetSpace.axis(d);
             if (sourceSpace.dimensionIndex(axis.type()) == -1) {
