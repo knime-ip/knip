@@ -79,6 +79,7 @@ import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.integer.ByteType;
 import net.imglib2.type.numeric.integer.LongType;
 import net.imglib2.type.numeric.integer.ShortType;
+import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.type.numeric.integer.UnsignedShortType;
 
 /**
@@ -295,7 +296,7 @@ public class Overlay implements EventServiceClient, Externalizable {
                 res = KNIPGateway.ops().create().imgLabeling(new FinalInterval(m_dims), new UnsignedShortType());
                 break;
             case UNSIGNEDBYTETYPE:
-                res = KNIPGateway.ops().create().imgLabeling(new FinalInterval(m_dims), new UnsignedShortType());
+                res = KNIPGateway.ops().create().imgLabeling(new FinalInterval(m_dims), new UnsignedByteType());
                 break;
             default:
                 res = KNIPGateway.ops().create().imgLabeling(new FinalInterval(m_dims), new ShortType());
