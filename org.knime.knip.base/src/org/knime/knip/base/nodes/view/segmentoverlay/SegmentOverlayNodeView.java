@@ -89,14 +89,15 @@ import org.knime.knip.core.ui.imgviewer.ExpandingPanel;
 import org.knime.knip.core.ui.imgviewer.ImgCanvas;
 import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.ui.imgviewer.ViewerComponents;
+import org.knime.knip.core.ui.imgviewer.events.ImageAndLabelingRendererEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgAndLabelingChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.ImgRedrawEvent;
 import org.knime.knip.core.ui.imgviewer.events.LabelingWithMetadataChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.TableOverviewDisableEvent;
 import org.knime.knip.core.ui.imgviewer.events.TablePositionEvent;
 import org.knime.knip.core.ui.imgviewer.events.ViewClosedEvent;
+import org.knime.knip.core.ui.imgviewer.panels.DualRendererSelectionPanel;
 import org.knime.knip.core.ui.imgviewer.panels.LabelFilterPanel;
-import org.knime.knip.core.ui.imgviewer.panels.RendererSelectionPanel;
 import org.knime.knip.core.ui.imgviewer.panels.TransparencyColorSelectionPanel;
 import org.knime.knip.core.ui.imgviewer.panels.ViewerControlEvent;
 import org.knime.knip.core.ui.imgviewer.panels.ViewerScrollEvent;
@@ -225,7 +226,9 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
     /* Initializes the img view (right side of the split pane)*/
     private void initImgView() {
         m_imgView = new ImgViewer();
-        AWTImageProvider prov = new AWTImageProvider(20, new CombinedRU(new ImageRU<T>(true), new LabelingRU<L>()));
+        ImageRU<T> imageRU = new ImageRU<T>(true);
+        LabelingRU<L> labelingRU = new LabelingRU<L>();
+        AWTImageProvider prov = new AWTImageProvider(20, new CombinedRU(imageRU, labelingRU));
         prov.setEventService(m_imgView.getEventService());
         m_imgView.addViewerComponent(prov);
 
@@ -234,14 +237,13 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
         m_imgView.addViewerComponent(ViewerComponents.MINIMAP_PLANE_SELECTION.createInstance());
         m_imgView.addViewerComponent(new ExpandingPanel("Brightness and Contrast",
                 ViewerComponents.IMAGE_ENHANCE.createInstance(), true));
-        m_imgView.addViewerComponent(new ExpandingPanel("Renderer Selection", new RendererSelectionPanel<T>(), true));
+        m_imgView.addViewerComponent(new ExpandingPanel("Dual Renderer Selection",
+                new DualRendererSelectionPanel(imageRU, labelingRU), true));
 
         m_imgView.addViewerComponent(new ExpandingPanel("Transparency", new TransparencyColorSelectionPanel(), true));
-        m_imgView.addViewerComponent(
-                                     new ExpandingPanel("Label Filter",
-                                             new LabelFilterPanel<L>(getNodeModel()
-                                                     .getInternalTables().length > SegmentOverlayNodeModel.PORT_SEG),
-                                             true));
+        m_imgView.addViewerComponent(new ExpandingPanel("Label Filter",
+                new LabelFilterPanel<L>(getNodeModel().getInternalTables().length > SegmentOverlayNodeModel.PORT_SEG),
+                true));
 
         m_imgView.doneAdding();
 
@@ -330,6 +332,7 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
             RandomAccessibleInterval<T> underlyingInterval;
             String imgName = "";
             String imgSource = "";
+            ImgPlus<T> imgPlus = null;
 
             LabelingValue<L> currentLabelingCell;
 
@@ -349,7 +352,7 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
                 // Set image
                 final DataCell currentImgCell =
                         m_tableContentView.getContentModel().getValueAt(row, SegmentOverlayNodeModel.COL_IDX_IMAGE);
-                final ImgPlus<T> imgPlus = ((ImgPlusValue<T>)currentImgCell).getImgPlus();
+                imgPlus = ((ImgPlusValue<T>)currentImgCell).getImgPlus();
 
                 imgName = imgPlus.getName();
                 imgSource = imgPlus.getSource();
@@ -415,6 +418,10 @@ public class SegmentOverlayNodeView<T extends RealType<T>, L extends Comparable<
 
             m_imgView.getEventService().publish(new ImgAndLabelingChgEvent<T, String>(underlyingInterval,
                     displayedLabeling, labelingMetadata, labelingMetadata, labelingMetadata));
+            if (!labelingOnly) {
+                m_imgView.getEventService()
+                        .publish(new ImageAndLabelingRendererEvent<T, String>(displayedLabeling, imgPlus));
+            }
             m_imgView.getEventService()
                     .publish(new LabelingWithMetadataChgEvent<String>(displayedLabeling, labelingMetadata));
 
