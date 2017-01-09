@@ -100,11 +100,11 @@ public class OverlayAnnotatorNodeModel<T extends RealType<T> & NativeType<T>>
 	}
 
 	static SettingsModelString creatFactoryTypeSM() {
-		return new SettingsModelString("factory_type", ImgFactoryTypes.NTREE_IMG_FACTORY.toString());
+		return new SettingsModelString("factory_type", ImgFactoryTypes.ARRAY_IMG_FACTORY.toString());
 	}
 
 	static SettingsModelString createLabelingTypeSM() {
-		return new SettingsModelString("labeling_type", NativeTypes.SHORTTYPE.toString());
+		return new SettingsModelString("labeling_type", NativeTypes.BYTETYPE.toString());
 	}
 
 	private SettingsModelOverlayAnnotator m_annotationsSM = createAnnotatorSM();
