@@ -48,9 +48,6 @@
  */
 package org.knime.knip.base.nodes.seg.cropper;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
 import org.knime.core.node.NodeDialog;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
@@ -62,6 +59,8 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.dialog.DialogComponentFilterSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelFilterSelection;
+import org.knime.knip.base.nodes.seg.cropper.SegmentCropperNodeSettings.BACKGROUND_OPTION;
+import org.knime.knip.core.util.EnumUtils;
 
 /**
  * {@link NodeDialog} for {@link SegmentCropperNodeModel}
@@ -80,28 +79,24 @@ public class SegmentCropperNodeDialog<L extends Comparable<L>> extends DefaultNo
     @SuppressWarnings("unchecked")
     public SegmentCropperNodeDialog() {
         super();
-        final SettingsModelString imgSelectionModel = SegmentCropperNodeModel.createImgColumnSelectionModel();
-        final SettingsModelString backgroundModel = SegmentCropperNodeModel.createBackgroundSelectionModel();
+        final SettingsModelString imgSelectionModel = SegmentCropperNodeSettings.createImgColumnSelectionModel();
+        final SettingsModelString backgroundModel = SegmentCropperNodeSettings.createBackgroundSelectionModel();
 
         createNewGroup("Column Selection");
         addDialogComponent(new DialogComponentColumnNameSelection(
-                SegmentCropperNodeModel.createSMLabelingColumnSelection(), "Labeling Column", 0, true,
+                SegmentCropperNodeSettings.createSMLabelingColumnSelection(), "Labeling Column", 0, true,
                 LabelingValue.class));
 
-        imgSelectionModel.addChangeListener(new ChangeListener() {
-
-            @Override
-            public void stateChanged(final ChangeEvent e) {
-                if (imgSelectionModel.getStringValue() != null) {
-                    backgroundModel.setEnabled(!imgSelectionModel.getStringValue().equals(""));
-                } else if (backgroundModel != null) {
-                    backgroundModel.setEnabled(false);
-                }
+        imgSelectionModel.addChangeListener(e -> {
+            if (imgSelectionModel.getStringValue() != null) {
+                backgroundModel.setEnabled(!"".equals(imgSelectionModel.getStringValue()));
+            } else if (backgroundModel != null) {
+                backgroundModel.setEnabled(false);
             }
         });
 
         // add some change listeners
-        backgroundModel.setEnabled(!imgSelectionModel.getStringValue().equals(""));
+        backgroundModel.setEnabled(!"".equals(imgSelectionModel.getStringValue()));
 
         addDialogComponent(new DialogComponentColumnNameSelection(imgSelectionModel, "Image Column (optional)", 0,
                 false, true, ImgPlusValue.class));
@@ -111,30 +106,26 @@ public class SegmentCropperNodeDialog<L extends Comparable<L>> extends DefaultNo
         createNewGroup("Background");
 
         addDialogComponent(new DialogComponentStringSelection(backgroundModel, "Background",
-                SegmentCropperNodeModel.BACKGROUND_OPTIONS));
+                EnumUtils.getStringCollectionFromToString(BACKGROUND_OPTION.values())));
 
         closeCurrentGroup();
 
         createNewTab("Segment Label Filter");
 
         createNewGroup("Filter on segment labels");
-        addDialogComponent(new DialogComponentFilterSelection<L>(SegmentCropperNodeModel.<L> createLabelFilterModel()));
+        addDialogComponent(new DialogComponentFilterSelection<L>(SegmentCropperNodeSettings.createLabelFilterModel()));
         closeCurrentGroup();
 
         createNewGroup("Overlapping segment labels");
-        final SettingsModelBoolean addDependencies = SegmentCropperNodeModel.createAddOverlappingLabels();
+        final SettingsModelBoolean addDependencies = SegmentCropperNodeSettings.createAddOverlappingLabels();
         final SettingsModelFilterSelection<L> nonRoiFilterModel =
-                SegmentCropperNodeModel.<L> createOverlappingLabelFilterModel(false);
+                SegmentCropperNodeSettings.createOverlappingLabelFilterModel(false);
         final SettingsModelBoolean noCompleteOverlap =
-                SegmentCropperNodeModel.createNotEnforceCompleteOverlapModel(false);
+                SegmentCropperNodeSettings.createNotEnforceCompleteOverlapModel(false);
 
-        addDependencies.addChangeListener(new ChangeListener() {
-
-            @Override
-            public void stateChanged(final ChangeEvent e) {
-                nonRoiFilterModel.setEnabled(addDependencies.getBooleanValue());
-                noCompleteOverlap.setEnabled(addDependencies.getBooleanValue());
-            }
+        addDependencies.addChangeListener(e -> {
+            nonRoiFilterModel.setEnabled(addDependencies.getBooleanValue());
+            noCompleteOverlap.setEnabled(addDependencies.getBooleanValue());
         });
 
         addDialogComponent(new DialogComponentBoolean(addDependencies, "Append labels of overlapping segments"));

@@ -83,6 +83,7 @@ import org.knime.knip.base.data.labeling.LabelingCell;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.node.nodesettings.SettingsModelFilterSelection;
+import org.knime.knip.base.nodes.seg.cropper.SegmentCropperNodeSettings.BACKGROUND_OPTION;
 import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.data.DefaultNamed;
 import org.knime.knip.core.data.DefaultSourced;
@@ -91,6 +92,7 @@ import org.knime.knip.core.data.img.DefaultImgMetadata;
 import org.knime.knip.core.data.img.LabelingMetadata;
 import org.knime.knip.core.ops.misc.LabelingDependency;
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter;
+import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.MiscViews;
 
 import net.imagej.ImgPlus;
@@ -129,107 +131,42 @@ import net.imglib2.view.Views;
 public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType<T>> extends NodeModel
         implements BufferedDataTableHolder {
 
-    private static enum BACKGROUND {
-        MIN, MAX, ZERO, SOURCE;
-    }
-
-    static final String[] BACKGROUND_OPTIONS =
-            new String[]{"Min Value of Result", "Max Value of Result", "Zero", "Source"};
-
-    /**
-     * Helper
-     *
-     * @return SettingsModel to store img column
-     */
-    static SettingsModelBoolean createAddOverlappingLabels() {
-        return new SettingsModelBoolean("cfg_add_dependendcy", false);
-    }
-
-    static SettingsModelBoolean createNotEnforceCompleteOverlapModel(final boolean enabled) {
-        SettingsModelBoolean sm = new SettingsModelBoolean("no_complete_overlap", false);
-        sm.setEnabled(enabled);
-        return sm;
-    }
-
-    /**
-     * Helper
-     *
-     * @return SettingsModel to store img column
-     */
-    static SettingsModelString createImgColumnSelectionModel() {
-        return new SettingsModelString("cfg_img_col", "");
-    }
-
-    /**
-     * @return selected value for the background (parts of a bounding box that do not belong to the label.
-     */
-    static SettingsModelString createBackgroundSelectionModel() {
-        return new SettingsModelString("backgroundOptions", BACKGROUND_OPTIONS[BACKGROUND.MIN.ordinal()]);
-    }
-
-    /**
-     * Helper
-     *
-     * @return SettingsModelFilterSelection to store left filter selection
-     */
-    static <LL extends Comparable<LL>> SettingsModelFilterSelection<LL> createLabelFilterModel() {
-        return new SettingsModelFilterSelection<LL>("cfg_label_filter_left");
-    }
-
-    /**
-     * Helper
-     *
-     * @return SettingsModelFilterSelection to store right filter selection
-     */
-    static <LL extends Comparable<LL>> SettingsModelFilterSelection<LL>
-           createOverlappingLabelFilterModel(final boolean isEnabled) {
-        final SettingsModelFilterSelection<LL> sm = new SettingsModelFilterSelection<LL>("cfg_label_filter_right");
-        sm.setEnabled(isEnabled);
-        return sm;
-    }
-
-    /**
-     * Helper
-     *
-     * @return SettingsModel to store labeling column
-     */
-    static SettingsModelString createSMLabelingColumnSelection() {
-        return new SettingsModelString("cfg_labeling_column", "");
-    }
-
     // SM addDependencies
-    private final SettingsModelBoolean m_addOverlappingLabels = createAddOverlappingLabels();
+    private final SettingsModelBoolean m_addOverlappingLabels = SegmentCropperNodeSettings.createAddOverlappingLabels();
 
     //if segments have to completely overlap or not
-    private final SettingsModelBoolean m_noCompleteOverlap = createNotEnforceCompleteOverlapModel(false);
+    private final SettingsModelBoolean m_noCompleteOverlap =
+            SegmentCropperNodeSettings.createNotEnforceCompleteOverlapModel(false);
 
     /* Resulting BufferedDataTable */
     private BufferedDataTable m_data;
 
     // SettingsModel to store Img column
-    private final SettingsModelString m_imgColumn = createImgColumnSelectionModel();
+    private final SettingsModelString m_imgColumn = SegmentCropperNodeSettings.createImgColumnSelectionModel();
 
     // SettingsModel to store Labeling column
-    private final SettingsModelString m_labelingColumn = createSMLabelingColumnSelection();
+    private final SettingsModelString m_labelingColumn = SegmentCropperNodeSettings.createSMLabelingColumnSelection();
 
     // SM left filter
-    private final SettingsModelFilterSelection<L> m_labelFilter = createLabelFilterModel();
+    private final SettingsModelFilterSelection<L> m_labelFilter = SegmentCropperNodeSettings.createLabelFilterModel();
 
     /* Specification of the resulting table */
     private DataTableSpec m_outSpec;
 
     // SM right filter
-    private final SettingsModelFilterSelection<L> m_overlappingLabelFilter = createOverlappingLabelFilterModel(false);
+    private final SettingsModelFilterSelection<L> m_overlappingLabelFilter =
+            SegmentCropperNodeSettings.createOverlappingLabelFilterModel(false);
 
     //value for the label background
-    private final SettingsModelString m_backgroundSelection = createBackgroundSelectionModel();
+    private final SettingsModelString m_backgroundSelection =
+            SegmentCropperNodeSettings.createBackgroundSelectionModel();
 
     /**
      * Constructor SegementCropperNodeModel
      */
     public SegmentCropperNodeModel() {
         super(1, 1);
-        m_backgroundSelection.setEnabled(!m_imgColumn.getStringValue().equals(""));
+        m_backgroundSelection.setEnabled(!"".equals(m_imgColumn.getStringValue()));
     }
 
     /**
@@ -247,7 +184,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
             }
         }
 
-        final ArrayList<DataColumnSpec> specs = new ArrayList<DataColumnSpec>();
+        final ArrayList<DataColumnSpec> specs = new ArrayList<>();
         specs.add(new DataColumnSpecCreator("CroppedImg", ImgPlusCell.TYPE).createSpec());
 
         DataColumnSpecCreator colspecCreator;
@@ -301,7 +238,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
         final RulebasedLabelFilter<L> rightFilter = m_overlappingLabelFilter.getRulebasedFilter();
 
         final RowIterator it = inData[0].iterator();
-        final int rowCount = inData[0].getRowCount();
+        final long rowCount = inData[0].size();
         DataRow row;
         int rowIndex = 0;
         final ImgPlusCellFactory imgCellFactory = new ImgPlusCellFactory(exec);
@@ -315,7 +252,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
             final LabelingValue<L> labelingValue = (LabelingValue<L>)row.getCell(labColIndex);
 
             final LabelingDependency<L> labelingDependency =
-                    new LabelingDependency<L>(leftFilter, rightFilter, m_noCompleteOverlap.getBooleanValue());
+                    new LabelingDependency<>(leftFilter, rightFilter, m_noCompleteOverlap.getBooleanValue());
 
             // If no img selected, create bitmasks
             ImgPlus<T> img = null;
@@ -332,18 +269,18 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
                 labeling = MiscViews.synchronizeDimensionality(labeling, labelingValue.getLabelingMetadata(), img, img);
             }
 
-            ImgFactory<T> fac = null;
+            ImgFactory<T> fac;
             if (labeling instanceof ImgLabeling && ((ImgLabeling)labeling).getIndexImg() instanceof Img) {
                 fac = ((Img)((ImgLabeling)labeling).getIndexImg()).factory();
             } else if (img != null) {
                 fac = img.factory();
             } else {
                 // if we don't have an image and no labeling where we can derive the factory from we simply create ArrayImg BitMasks
-                fac = (ImgFactory<T>)new ArrayImgFactory<BitType>();
+                fac = (ImgFactory<T>)new ArrayImgFactory<>();
             }
 
             final Map<L, List<L>> dependedLabels = Operations.compute(labelingDependency, labeling);
-            final StringBuffer stringBuffer = new StringBuffer();
+            final StringBuilder stringBuffer = new StringBuilder();
             final LabelRegions<L> regions = KNIPGateway.regions().regions(labeling);
             for (final L l : regions.getExistingLabels()) {
 
@@ -362,52 +299,57 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
                     negativeMin[k] = -min[k];
                 }
 
-                Img<T> res = null;
+                Img<T> res;
                 if (img != null) {
                     T type = img.firstElement().createVariable();
                     T minType = type.createVariable();
                     minType.setReal(type.getMinValue());
 
-                    Fill<T> fill = new Fill<T>();
-                    if (m_backgroundSelection.getStringValue().equals(BACKGROUND_OPTIONS[BACKGROUND.MIN.ordinal()])) {
-                        res = fac.create(new FinalInterval(min, max), type.createVariable());
+                    Fill<T> fill = new Fill<>();
 
+                    BACKGROUND_OPTION backGroundOption =
+                            EnumUtils.valueForName(m_backgroundSelection.getStringValue(), BACKGROUND_OPTION.values());
+
+                    if (backGroundOption == BACKGROUND_OPTION.MIN) {
+                        res = fac.create(new FinalInterval(min, max), type.createVariable());
                         if (minType.getRealDouble() != 0) {
                             fill.compute(minType, res.iterator());
                         }
                         writeInRes(res, img, roi);
-                    } else if (m_backgroundSelection.getStringValue()
-                            .equals(BACKGROUND_OPTIONS[BACKGROUND.MAX.ordinal()])) {
+                    } else if (backGroundOption == BACKGROUND_OPTION.MAX) {
                         T maxType = type.createVariable();
                         maxType.setReal(type.getMaxValue());
                         res = fac.create(new FinalInterval(min, max), type.createVariable());
                         fill.compute(maxType, res.iterator());
                         writeInRes(res, img, roi);
-                    } else if (m_backgroundSelection.getStringValue()
-                            .equals(BACKGROUND_OPTIONS[BACKGROUND.ZERO.ordinal()])) {
+                    } else if (backGroundOption == BACKGROUND_OPTION.ZERO) {
                         res = fac.create(new FinalInterval(min, max), type.createVariable());
                         writeInRes(res, img, roi);
-                    } else {
+                    } else if (backGroundOption == BACKGROUND_OPTION.SOURCE) { // BACKGROUND_OPTION.SOURCE
                         res = fac.create(new FinalInterval(min, max), type.createVariable());
                         new ImgCopyOperation()
                                 .compute(new ImgView<T>(Views.zeroMin(Views.interval(img, min, max)), fac),
                                          Views.flatIterable(res));
+                    } else {
+                        throw new UnsupportedOperationException(
+                                "This Background option is not supported: " + backGroundOption.toString());
                     }
 
                 } else {
                     res = (Img<T>)fac.imgFactory(new BitType()).create(new FinalInterval(min, max), new BitType());
-                    copy((ImgView<BoolType>)new ImgView<T>(Views
+                    copy((ImgView<BoolType>)new ImgView<>(Views
                             .zeroMin((RandomAccessibleInterval<T>)Views.interval(roi, new FinalInterval(min, max))),
                             fac),
                          (IterableInterval<BitType>)Views.flatIterable(res));
                 }
 
-                final List<DataCell> cells = new ArrayList<DataCell>();
+                final List<DataCell> cells = new ArrayList<>();
 
                 // TODO: What about color tables?
                 final LabelingMetadata lmdata = labelingValue.getLabelingMetadata();
-                final ImgPlusMetadata metadata = new DefaultImgMetadata(img == null ? lmdata : img, new DefaultNamed(l.toString()),
-                        new DefaultSourced(lmdata.getSource()), new DefaultImageMetadata());
+                final ImgPlusMetadata metadata =
+                        new DefaultImgMetadata(img == null ? lmdata : img, new DefaultNamed(l.toString()),
+                                new DefaultSourced(lmdata.getSource()), new DefaultImageMetadata());
 
                 ImgPlus<T> resImgPlus = new ImgPlus<>(ImgView.wrap(Views.translate(res, min), res.factory()), metadata);
                 resImgPlus.setSource(metadata.getSource());

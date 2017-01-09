@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2013
+ *  Copyright (C) 2003 - 2017
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -43,70 +43,95 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * --------------------------------------------------------------------- *
+ * ---------------------------------------------------------------------
  *
+ * Created on Jan 9, 2017 by gabriel
  */
 package org.knime.knip.base.nodes.seg.cropper;
 
-import org.knime.core.node.NodeDialogPane;
-import org.knime.core.node.NodeFactory;
-import org.knime.core.node.NodeView;
-import org.knime.knip.cellviewer.CellNodeView;
-
-import net.imglib2.type.numeric.RealType;
+import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
+import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.knip.base.node.nodesettings.SettingsModelFilterSelection;
 
 /**
- * {@link NodeFactory} for {@link SegmentCropperNodeModel}
  *
- * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
- *
- * @param <L>
- * @param <T>
+ * @author gabriel
  */
-public class SegmentCropperNodeFactory<L extends Number & Comparable<L>, T extends RealType<T>>
-        extends NodeFactory<SegmentCropperNodeModel<L, T>> {
+class SegmentCropperNodeSettings {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeDialogPane createNodeDialogPane() {
-        return new SegmentCropperNodeDialog<L>();
+    enum BACKGROUND_OPTION {
+        MIN("Min Value of Result"), MAX("Max Value of Result"), ZERO("Zero"), SOURCE("Source");
+
+        private String name;
+
+        private BACKGROUND_OPTION(final String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 
     /**
-     * {@inheritDoc}
+     * Helper
+     *
+     * @return SettingsModel to store img column
      */
-    @Override
-    public SegmentCropperNodeModel<L, T> createNodeModel() {
-        return new SegmentCropperNodeModel<>();
+    static SettingsModelBoolean createAddOverlappingLabels() {
+        return new SettingsModelBoolean("cfg_add_dependendcy", false);
+    }
+
+    static SettingsModelBoolean createNotEnforceCompleteOverlapModel(final boolean enabled) {
+        SettingsModelBoolean sm = new SettingsModelBoolean("no_complete_overlap", false);
+        sm.setEnabled(enabled);
+        return sm;
     }
 
     /**
-     * {@inheritDoc}
+     * Helper
+     *
+     * @return SettingsModel to store img column
      */
-    @Override
-    public NodeView<SegmentCropperNodeModel<L, T>> createNodeView(final int viewIndex,
-                                                                  final SegmentCropperNodeModel<L, T> nodeModel) {
-        return new CellNodeView<>(nodeModel);
+    static SettingsModelString createImgColumnSelectionModel() {
+        return new SettingsModelString("cfg_img_col", "");
     }
 
     /**
-     * {@inheritDoc}
+     * @return selected value for the background (parts of a bounding box that do not belong to the label.
      */
-    @Override
-    public int getNrNodeViews() {
-        return 1;
+    static SettingsModelString createBackgroundSelectionModel() {
+        return new SettingsModelString("backgroundOptions", BACKGROUND_OPTION.MIN.toString());
     }
 
     /**
-     * {@inheritDoc}
+     * Helper
+     *
+     * @return SettingsModelFilterSelection to store left filter selection
      */
-    @Override
-    public boolean hasDialog() {
-        return true;
+    static <LL extends Comparable<LL>> SettingsModelFilterSelection<LL> createLabelFilterModel() {
+        return new SettingsModelFilterSelection<>("cfg_label_filter_left");
     }
 
+    /**
+     * Helper
+     *
+     * @return SettingsModelFilterSelection to store right filter selection
+     */
+    static <LL extends Comparable<LL>> SettingsModelFilterSelection<LL>
+           createOverlappingLabelFilterModel(final boolean isEnabled) {
+        final SettingsModelFilterSelection<LL> sm = new SettingsModelFilterSelection<>("cfg_label_filter_right");
+        sm.setEnabled(isEnabled);
+        return sm;
+    }
+
+    /**
+     * Helper
+     *
+     * @return SettingsModel to store labeling column
+     */
+    static SettingsModelString createSMLabelingColumnSelection() {
+        return new SettingsModelString("cfg_labeling_column", "");
+    }
 }
