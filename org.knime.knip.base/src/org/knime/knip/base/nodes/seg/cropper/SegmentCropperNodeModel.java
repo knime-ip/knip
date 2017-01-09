@@ -521,7 +521,7 @@ public class SegmentCropperNodeModel<L extends Comparable<L>, T extends RealType
      */
     @Override
     protected void reset() {
-        //
+        m_data = null;
     }
 
     /**
