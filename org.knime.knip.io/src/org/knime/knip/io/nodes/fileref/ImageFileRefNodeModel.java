@@ -396,7 +396,7 @@ public class ImageFileRefNodeModel extends NodeModel implements
      */
     @Override
     public void reset() {
-        //
+    	m_data = null;
     }
 
     /**

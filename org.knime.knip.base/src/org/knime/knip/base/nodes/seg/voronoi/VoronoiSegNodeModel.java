@@ -408,6 +408,7 @@ public class VoronoiSegNodeModel<T extends RealType<T>, L extends Comparable<L>>
      */
     @Override
     protected void reset() {
+        m_data = null;
     }
 
     /**

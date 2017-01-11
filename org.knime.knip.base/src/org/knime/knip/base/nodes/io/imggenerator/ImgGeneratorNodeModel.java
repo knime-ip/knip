@@ -387,7 +387,7 @@ public class ImgGeneratorNodeModel<T extends NativeType<T> & RealType<T>> extend
      */
     @Override
     public void reset() {
-        //
+        m_data = null;
     }
 
     /**
