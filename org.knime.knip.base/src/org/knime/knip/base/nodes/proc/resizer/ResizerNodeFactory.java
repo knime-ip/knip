@@ -368,13 +368,13 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
                             (calibration[i] * zeroMinFromCell.getImg().dimension(i)) / newDimensions[i])), i);
                 }
 
-                return m_imgCellFactory
-                        .createCell(MinimaUtils.getTranslatedImgPlus(fromCell, new ImgPlus<T>(
-                                resample(zeroMinFromCell,
-                                         EnumUtils.valueForName(m_extensionTypeModel.getStringValue(), ResizeStrategy
-                                                 .values()),
-                                         new FinalInterval(newDimensions), scaleFactors),
-                                metadata)));
+                ImgPlus<T> res = new ImgPlus<>(resample(zeroMinFromCell,
+                                                        EnumUtils.valueForName(m_extensionTypeModel.getStringValue(),
+                                                                               ResizeStrategy.values()),
+                                                        new FinalInterval(newDimensions), scaleFactors),
+                        metadata);
+                res.setSource(fromCell.getSource());
+                return m_imgCellFactory.createCell(MinimaUtils.getTranslatedImgPlus(fromCell, res));
             }
 
             /**
