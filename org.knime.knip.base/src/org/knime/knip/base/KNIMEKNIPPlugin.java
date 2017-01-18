@@ -127,7 +127,11 @@ public class KNIMEKNIPPlugin extends AbstractUIPlugin {
      */
     public static final String[] parseDimensionLabels() {
         final IPreferenceStore store = KNIMEKNIPPlugin.getDefault().getPreferenceStore();
-        return store.getString(PreferenceConstants.P_DIM_LABELS).split(",");
+        String[] labels = store.getString(PreferenceConstants.P_DIM_LABELS).split(",");
+        for (int i = 0; i < labels.length; i++) {
+           labels[i]  = labels[i].trim();
+        }
+        return labels;
     }
 
     /**
