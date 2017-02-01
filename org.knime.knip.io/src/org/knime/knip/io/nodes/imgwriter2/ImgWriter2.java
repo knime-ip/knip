@@ -70,7 +70,9 @@ import io.scif.services.ServiceException;
 import net.imagej.ImgPlus;
 import net.imglib2.exception.IncompatibleTypeException;
 import net.imglib2.img.Img;
+import net.imglib2.img.ImgView;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
 
 /**
  * Provides the functionality to write {@link Img}s using the
@@ -228,7 +230,7 @@ public class ImgWriter2 {
                     throws FormatException, IOException {
 
         retrieveSupportedWriters();
-        writeImage(img, outfile, m_mapFormats.get(format), compressionType,
+        writeImage(ImgView.wrap(Views.zeroMin(img), img.factory()), outfile, m_mapFormats.get(format), compressionType,
                 dimMapping);
 
     }
