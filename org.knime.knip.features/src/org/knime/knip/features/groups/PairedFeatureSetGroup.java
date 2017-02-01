@@ -194,7 +194,7 @@ public class PairedFeatureSetGroup<L, T extends RealType<T>, O extends RealType<
 
 			@SuppressWarnings("unchecked")
 			@Override
-			public void compute1(final DataRow row, final DataContainer container) {
+			public void compute(final DataRow row, final DataContainer container) {
 
 				final DataCell labCell = row.getCell(labdx);
 				final DataCell imgPlusCell = row.getCell(imgIdx);

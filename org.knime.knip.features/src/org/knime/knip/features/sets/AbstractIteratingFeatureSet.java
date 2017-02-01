@@ -75,7 +75,7 @@ public abstract class AbstractIteratingFeatureSet<I, O extends RealType<O>> exte
 	}
 
 	@Override
-	public Map<NamedFeature, O> compute1(final I input) {
+	public Map<NamedFeature, O> calculate(final I input) {
 		final Map<NamedFeature, O> res = new HashMap<NamedFeature, O>();
 
 		preCompute(input);

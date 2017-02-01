@@ -98,10 +98,10 @@ public class CentroidFeatureSet<L> extends AbstractCachedFeatureSet<LabelRegion<
 	}
 
 	@Override
-	public Map<NamedFeature, DoubleType> compute1(final LabelRegion<L> input) {
-		Map<NamedFeature, DoubleType> res = new LinkedHashMap<NamedFeature, DoubleType>();
+	public Map<NamedFeature, DoubleType> calculate(final LabelRegion<L> input) {
+		Map<NamedFeature, DoubleType> res = new LinkedHashMap<>();
 
-		final RealLocalizable centroid = centroidOp.compute1(input);
+		final RealLocalizable centroid = centroidOp.calculate(input);
 
 		for (int i = 0; i < getFeatures().size(); i++) {
 			res.put(new NamedFeature("Dimension " + i), new DoubleType(centroid.getDoublePosition(i)));

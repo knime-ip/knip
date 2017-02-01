@@ -95,7 +95,7 @@ public class LBP2DFeatureSet<T extends RealType<T>>
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void preCompute(final RandomAccessibleInterval<T> input) {
-		histogram = histogramFunc.compute1(input);
+		histogram = histogramFunc.calculate(input);
 	}
 
 	@Override

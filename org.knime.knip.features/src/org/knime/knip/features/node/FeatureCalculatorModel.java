@@ -193,7 +193,7 @@ public class FeatureCalculatorModel<T extends RealType<T> & NativeType<T>, L ext
 				exec.setProgress(
 						"Computing " + m_featureSetsModel.getFeatureSetNames() + " on row " + row.getKey() + ".");
 				// magic happens here ;-)
-				computer.compute1(row, container);
+				computer.compute(row, container);
 			}
 
 			exec.checkCanceled();

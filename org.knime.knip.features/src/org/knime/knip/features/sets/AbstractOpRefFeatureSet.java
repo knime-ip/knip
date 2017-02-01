@@ -153,7 +153,7 @@ public abstract class AbstractOpRefFeatureSet<I, O extends RealType<O>> extends 
 	}
 
 	@Override
-	public Map<NamedFeature, O> compute1(final I input) {
+	public Map<NamedFeature, O> calculate(final I input) {
 		final Map<NamedFeature, O> res = new HashMap<NamedFeature, O>();
 
 		for (final Entry<NamedFeature, UnaryFunctionOp<Object, ? extends O>> entry : namedFeatureMap.entrySet()) {
@@ -175,6 +175,6 @@ public abstract class AbstractOpRefFeatureSet<I, O extends RealType<O>> extends 
 	 * @return
 	 */
 	protected O evalFunction(final UnaryFunctionOp<Object, ? extends O> func, final I input) {
-		return func.compute1(input);
+		return func.calculate(input);
 	}
 }

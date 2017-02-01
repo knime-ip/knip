@@ -88,7 +88,7 @@ public class HistogramFeatureSet<T extends RealType<T>> extends AbstractIteratin
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void preCompute(final Iterable<T> input) {
-		histogram = histogramFunc.compute1(input);
+		histogram = histogramFunc.calculate(input);
 	}
 
 	@Override

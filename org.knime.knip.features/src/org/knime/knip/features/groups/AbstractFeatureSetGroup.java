@@ -188,7 +188,7 @@ public abstract class AbstractFeatureSetGroup implements FeatureSetGroup {
 			for (final FeatureSet<I, O> fs : sets) {
 				fs.setInput(in);
 				if (fs.conforms()) {
-					final Map<NamedFeature, O> fsRes = fs.compute1(in);
+					final Map<NamedFeature, O> fsRes = fs.calculate(in);
 					for (final NamedFeature namedFeature : fs.getFeatures()) {
 						cells.add(new DoubleCell(fsRes.get(namedFeature).getRealDouble()));
 					}

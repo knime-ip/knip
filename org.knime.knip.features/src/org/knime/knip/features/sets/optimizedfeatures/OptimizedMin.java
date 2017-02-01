@@ -83,8 +83,8 @@ public class OptimizedMin<IN extends RealType<IN>, OUT extends RealType<OUT>>
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public OUT compute1(Iterable<IN> input) {
-		return (OUT) function.compute1(input).getA();
+	public OUT calculate(Iterable<IN> input) {
+		return (OUT) function.calculate(input).getA();
 	}
 
 }

@@ -151,10 +151,10 @@ public class Geometric3DFeatureSet<L, O extends RealType<O>> extends AbstractOpR
 		// these ops can be directly computed on label region
 		if (MainElongation.class.isAssignableFrom(funcClass) || MedianElongation.class.isAssignableFrom(funcClass)
 				|| Spareness.class.isAssignableFrom(funcClass) || Size.class.isAssignableFrom(funcClass)) {
-			return func.compute1(input);
+			return func.calculate(input);
 		}
 
-		return func.compute1(converter.compute1(input));
+		return func.calculate(converter.calculate(input));
 	}
 
 	@Override

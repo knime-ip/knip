@@ -162,9 +162,9 @@ public class Geometric2DFeatureSet<L, O extends RealType<O>> extends AbstractOpR
 		// ops
 		Class<?> funcClass = ((KNIPCachedOpEnvironment.CachedFunctionOp<?, ?>) func).getDelegateType();
 		if (Size.class.isAssignableFrom(funcClass)) {
-			return (O) polygonSize.compute1(converter.compute1(input));
+			return (O) polygonSize.calculate(converter.calculate(input));
 		} else {
-			return func.compute1(converter.compute1(input));
+			return func.calculate(converter.calculate(input));
 		}
 	}
 

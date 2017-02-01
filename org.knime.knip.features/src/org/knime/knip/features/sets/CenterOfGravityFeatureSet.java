@@ -88,7 +88,7 @@ public class CenterOfGravityFeatureSet<T extends RealType<T>>
 	}
 
 	@Override
-	public Map<NamedFeature, DoubleType> compute1(final IterableInterval<T> input) {
+	public Map<NamedFeature, DoubleType> calculate(final IterableInterval<T> input) {
 		Map<NamedFeature, DoubleType> res = new LinkedHashMap<NamedFeature, DoubleType>();
 		RealLocalizable centroid = ops().geom().centerOfGravity(input);
 

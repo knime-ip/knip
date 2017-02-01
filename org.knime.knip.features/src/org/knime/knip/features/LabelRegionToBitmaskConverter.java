@@ -67,7 +67,7 @@ public class LabelRegionToBitmaskConverter<B extends BooleanType<B>>
 		extends AbstractUnaryFunctionOp<LabelRegion<B>, Img<BitType>> implements Ops.Convert.Copy {
 
 	@Override
-	public Img<BitType> compute1(final LabelRegion<B> labelRegion) {
+	public Img<BitType> calculate(final LabelRegion<B> labelRegion) {
 
 		final RandomAccessibleInterval<BitType> convert = Converters.convert(labelRegion,
 				new Converter<BoolType, BitType>() {

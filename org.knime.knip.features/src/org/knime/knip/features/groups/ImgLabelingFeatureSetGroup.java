@@ -171,7 +171,7 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 			private boolean initialized = false;
 
 			@Override
-			public void compute1(final DataRow row, final DataContainer container) {
+			public void compute(final DataRow row, final DataContainer container) {
 
 				final DataCell labCell = row.getCell(labdx);
 

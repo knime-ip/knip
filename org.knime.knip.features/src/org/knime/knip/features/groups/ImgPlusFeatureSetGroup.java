@@ -126,7 +126,7 @@ public class ImgPlusFeatureSetGroup<T extends RealType<T>, R extends RealType<R>
 			private boolean initialized = false;
 
 			@Override
-			public void compute1(final DataRow row, final DataContainer container) {
+			public void compute(final DataRow row, final DataContainer container) {
 				final DataCell cell = row.getCell(imgIdx);
 				if (cell.isMissing()) {
 					KNIPGateway.log().warn("Skipping missing Image at Row: " + row.getKey() + ".");

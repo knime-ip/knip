@@ -154,7 +154,7 @@ public class KNIPCachedOpEnvironment extends CustomOpEnvironment {
 		}
 
 		@Override
-		public O compute1(final I input) {
+		public O calculate(final I input) {
 
 			final Hash hash = new Hash(input, delegate, args);
 
@@ -162,7 +162,7 @@ public class KNIPCachedOpEnvironment extends CustomOpEnvironment {
 			O output = (O) cache.get(hash);
 
 			if (output == null) {
-				output = delegate.compute1(input);
+				output = delegate.calculate(input);
 				cache.put(hash, output);
 			}
 			return output;
@@ -229,7 +229,7 @@ public class KNIPCachedOpEnvironment extends CustomOpEnvironment {
 		}
 
 		@Override
-		public O compute1(final I input) {
+		public O calculate(final I input) {
 			final Hash hash = new Hash(input, delegate, args);
 
 			@SuppressWarnings("unchecked")
@@ -237,7 +237,7 @@ public class KNIPCachedOpEnvironment extends CustomOpEnvironment {
 
 			if (output == null) {
 				output = createOutput(input);
-				compute1(input, output);
+				compute(input, output);
 				cache.put(hash, output);
 			}
 			return output;
@@ -249,8 +249,8 @@ public class KNIPCachedOpEnvironment extends CustomOpEnvironment {
 		}
 
 		@Override
-		public void compute1(final I input, final O output) {
-			delegate.compute1(input, output);
+		public void compute(final I input, final O output) {
+			delegate.compute(input, output);
 		}
 
 		@Override
