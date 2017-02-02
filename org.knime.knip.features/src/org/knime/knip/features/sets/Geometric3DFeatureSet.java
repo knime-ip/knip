@@ -93,11 +93,11 @@ public class Geometric3DFeatureSet<L, O extends RealType<O>> extends AbstractOpR
 	private boolean isBoundarySizeActive = true;
 
 	@Parameter(required = false, label = "Surface Area (in pixel units)", attrs = { @Attr(name = ATTR_FEATURE),
-			@Attr(name = ATTR_TYPE, value = PKG + "BoundaryPixelCount") })
+			@Attr(name = ATTR_TYPE, value = PKG + "VerticesCount") })
 	private boolean isBoundaryPixelCountActive = true;
 
 	@Parameter(required = false, label = "Surface Area of Convex Hull (in pixel units)", attrs = {
-			@Attr(name = ATTR_FEATURE), @Attr(name = ATTR_TYPE, value = PKG + "BoundaryPixelCountConvexHull") })
+			@Attr(name = ATTR_FEATURE), @Attr(name = ATTR_TYPE, value = PKG + "VerticesCountConvexHull") })
 	private boolean isBoundaryPixelCountConvexHullMeshActive = true;
 
 	@Parameter(required = false, label = "Compactness", attrs = { @Attr(name = ATTR_FEATURE),
@@ -107,10 +107,6 @@ public class Geometric3DFeatureSet<L, O extends RealType<O>> extends AbstractOpR
 	@Parameter(required = false, label = "Convexity", attrs = { @Attr(name = ATTR_FEATURE),
 			@Attr(name = ATTR_TYPE, value = PKG + "Convexity") })
 	private boolean isConvexityActive = true;
-
-	@Parameter(required = false, label = "Rugosity", attrs = { @Attr(name = ATTR_FEATURE),
-			@Attr(name = ATTR_TYPE, value = PKG + "Rugosity") })
-	private boolean isRugosityActive = true;
 
 	@Parameter(required = false, label = "Solidity", attrs = { @Attr(name = ATTR_FEATURE),
 			@Attr(name = ATTR_TYPE, value = PKG + "Solidity") })

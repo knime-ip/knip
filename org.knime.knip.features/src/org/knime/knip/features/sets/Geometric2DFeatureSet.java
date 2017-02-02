@@ -124,10 +124,6 @@ public class Geometric2DFeatureSet<L, O extends RealType<O>> extends AbstractOpR
 			@Attr(name = ATTR_TYPE, value = PKG + "Roundness") })
 	private boolean isRoundnessActive = true;
 
-	@Parameter(required = false, label = "Rugosity", attrs = { @Attr(name = ATTR_FEATURE),
-			@Attr(name = ATTR_TYPE, value = PKG + "Rugosity") })
-	private boolean isRugosityActive = true;
-
 	@Parameter(required = false, label = "Solidity", attrs = { @Attr(name = ATTR_FEATURE),
 			@Attr(name = ATTR_TYPE, value = PKG + "Solidity") })
 	private boolean isSolidityActive = true;
