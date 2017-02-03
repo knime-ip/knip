@@ -139,7 +139,7 @@ public abstract class AbstractOpRefFeatureSet<I, O extends RealType<O>> extends 
 						args[i++] = self.getInput(param);
 					}
 
-					Class<? extends Op> type = (Class<? extends Op>) Class.forName((String) item.get(ATTR_TYPE));
+					Class<? extends Op> type = (Class<? extends Op>) Class.forName(item.get(ATTR_TYPE));
 					final OpRef ref = new OpRef(null, Arrays.asList(type), null, args);
 
 					namedFeatureMap.put(new NamedFeature(ref, item.getLabel()),

@@ -133,6 +133,8 @@ public class FeatureSetInfo {
 
 	private void validateAndInitialize(final Module module) {
 
+		module.setResolved("ps", true);
+		module.setResolved("cs", true);
 		// resolve default input and output
 		module.setResolved("in", true);
 		module.setResolved("out", true);

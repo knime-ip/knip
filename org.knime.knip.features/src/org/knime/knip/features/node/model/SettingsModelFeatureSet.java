@@ -50,6 +50,8 @@ package org.knime.knip.features.node.model;
 
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -57,15 +59,25 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
 import net.imglib2.util.Pair;
 
+import org.eclipse.swt.widgets.Display;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.port.PortObjectSpec;
+import org.knime.knip.core.KNIPGateway;
+import org.knime.knip.core.KNIPLogService;
 import org.knime.knip.features.sets.FeatureSet;
+import org.knime.workbench.core.KNIMEErrorDialog;
+import org.scijava.log.LogService;
 
 public class SettingsModelFeatureSet extends SettingsModel {
 
@@ -82,6 +94,13 @@ public class SettingsModelFeatureSet extends SettingsModel {
 
 	private final String m_configName;
 	private List<FeatureSetInfo> m_featureSets;
+	
+	private final LogService logger = KNIPGateway.log();
+	
+	// Update-Dialog should only pop up once.
+	boolean infoShownRugosity = false;
+	boolean infoShownAngleFerets = true;
+	boolean infoShownDiameterFerets = true;
 
 	/**
 	 * Creates a new object holding an integer value.
@@ -188,11 +207,33 @@ public class SettingsModelFeatureSet extends SettingsModel {
 				try {
 					fieldValue = loadObject(featureSetSettings, FIELD_VALUE + j,
 							featureSetClass.getDeclaredField(fieldName).getType());
+					fieldNamesAndValues.put(fieldName, fieldValue);
 				} catch (NoSuchFieldException | SecurityException e) {
-					throw new InvalidSettingsException("Couldn't load field value", e);
+					if (e.getMessage().equals("isRugosityActive")) {
+						if (!infoShownRugosity) {
+							infoShownRugosity = true;
+							logger.warn("Rugosity feature was removed, because it was a duplicate of convexity.");
+						}
+					} else if (e.getMessage().equals("isFeretsAngleActive")) {
+						if (!infoShownAngleFerets) {
+							infoShownAngleFerets = true;
+							logger.warn("Ferets Angle feature was replaced by Min-, Max Ferets Angle.\n"
+									+ "The new features were added and activated.");
+						}
+						fieldNamesAndValues.put("isMinimumFeretsAngleActive", true);
+						fieldNamesAndValues.put("isMaximumFeretsAngleActive", true);
+					} else if (e.getMessage().equals("isFeretsDiameterActive")) {
+						if (!infoShownDiameterFerets) {
+							infoShownDiameterFerets = true;
+							logger.warn("Ferets Diameter feature was replaced by Min-, Max Ferets Diameter.\n"
+									+ "The new features were added and activated.");
+						}
+						fieldNamesAndValues.put("isMinimumFeretsDiameterActive", true);
+						fieldNamesAndValues.put("isMaximumFeretsDiameterActive", true);
+					} else {
+						throw new InvalidSettingsException("Couldn't load field value", e);
+					}
 				}
-
-				fieldNamesAndValues.put(fieldName, fieldValue);
 			}
 
 			featureSets.add(new FeatureSetInfo(featureSetClass, fieldNamesAndValues));
@@ -234,11 +275,34 @@ public class SettingsModelFeatureSet extends SettingsModel {
 				try {
 					fieldValue = loadObject(featureSetSettings, FIELD_VALUE + j,
 							featureSetClass.getDeclaredField(fieldName).getType());
+					fieldNamesAndValues.put(fieldName, fieldValue);
 				} catch (NoSuchFieldException | SecurityException e) {
-					throw new InvalidSettingsException("Couldn't load field value", e);
+					if (e.getMessage().equals("isRugosityActive")) {
+						if (!infoShownRugosity) {
+							infoShownRugosity = true;
+							logger.warn("Rugosity feature was removed, because it was a duplicate of convexity.");
+						}
+					} else if (e.getMessage().equals("isFeretsAngleActive")) {
+						if (!infoShownAngleFerets) {
+							infoShownAngleFerets = true;
+							logger.warn("Ferets Angle feature was replaced by Min-, Max Ferets Angle.\n"
+									+ "The new features were added and activated.");
+						}
+						fieldNamesAndValues.put("isMinimumFeretsAngleActive", true);
+						fieldNamesAndValues.put("isMaximumFeretsAngleActive", true);
+					} else if (e.getMessage().equals("isFeretsDiameterActive")) {
+						if (!infoShownDiameterFerets) {
+							infoShownDiameterFerets = true;
+							logger.warn("Ferets Diameter feature was replaced by Min-, Max Ferets Diameter.\n"
+									+ "The new features were added and activated.");
+						}
+						fieldNamesAndValues.put("isMinimumFeretsDiameterActive", true);
+						fieldNamesAndValues.put("isMaximumFeretsDiameterActive", true);
+					} else {
+						throw new InvalidSettingsException("Couldn't load field value", e);
+					}
 				}
 
-				fieldNamesAndValues.put(fieldName, fieldValue);
 			}
 
 			featureSets.add(new FeatureSetInfo(featureSetClass, fieldNamesAndValues));
