@@ -96,13 +96,21 @@ public class Geometric2DFeatureSet<L, O extends RealType<O>> extends AbstractOpR
 			@Attr(name = ATTR_TYPE, value = PKG + "MainElongation") })
 	private boolean isMainElongationActive = true;
 
-	@Parameter(required = false, label = "Ferets Angle", attrs = { @Attr(name = ATTR_FEATURE),
-			@Attr(name = ATTR_TYPE, value = PKG + "FeretsAngle") })
-	private boolean isFeretsAngleActive = true;
+	@Parameter(required = false, label = "Minimum Ferets Angle", attrs = { @Attr(name = ATTR_FEATURE),
+			@Attr(name = ATTR_TYPE, value = PKG + "MinimumFeretsAngle") })
+	private boolean isMinimumFeretsAngleActive = true;
 
-	@Parameter(required = false, label = "Ferets Diameter", attrs = { @Attr(name = ATTR_FEATURE),
-			@Attr(name = ATTR_TYPE, value = PKG + "FeretsDiameter") })
-	private boolean isFeretsDiameterActive = true;
+	@Parameter(required = false, label = "Minimum Ferets Diameter", attrs = { @Attr(name = ATTR_FEATURE),
+			@Attr(name = ATTR_TYPE, value = PKG + "MinimumFeretsDiameter") })
+	private boolean isMinimumFeretsDiameterActive = true;
+	
+	@Parameter(required = false, label = "Maximum Ferets Angle", attrs = { @Attr(name = ATTR_FEATURE),
+			@Attr(name = ATTR_TYPE, value = PKG + "MaximumFeretsAngle") })
+	private boolean isMaximumFeretsAngleActive = true;
+
+	@Parameter(required = false, label = "Maximum Ferets Diameter", attrs = { @Attr(name = ATTR_FEATURE),
+			@Attr(name = ATTR_TYPE, value = PKG + "MaximumFeretsDiameter") })
+	private boolean isMaximumFeretsDiameterActive = true;
 
 	@Parameter(required = false, label = "Major Axis", attrs = { @Attr(name = ATTR_FEATURE),
 			@Attr(name = ATTR_TYPE, value = PKG + "MajorAxis") })
