@@ -392,9 +392,12 @@ public final class AWTImageTools {
             transform = new AffineTransform3D();
             ((AffineTransform3D)transform).set(factor, 0.0, 0.0, 0.0, 0.0, factor, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
-            interval = new FinalInterval(scale(Intervals.minAsLongArray(img), factor),
-                    scale(Intervals.maxAsLongArray(img), factor));
-
+            long[] min = scale(Intervals.minAsLongArray(img), factor);
+            long[] max = scale(Intervals.maxAsLongArray(img), factor);
+            //don't scale the 3rd dimension
+            min[2] = img.min(2);
+            max[2] = img.max(2);
+            interval = new FinalInterval(min, max);
         } else {
             throw new IllegalArgumentException("Images with more than 3 dimensions are not supported!");
         }
