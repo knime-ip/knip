@@ -92,11 +92,11 @@ public class Geometric3DFeatureSet<L, O extends RealType<O>> extends AbstractOpR
 			@Attr(name = ATTR_TYPE, value = PKG + "BoundarySize") })
 	private boolean isBoundarySizeActive = true;
 
-	@Parameter(required = false, label = "Surface Area (in pixel units)", attrs = { @Attr(name = ATTR_FEATURE),
+	@Parameter(required = false, label = "Number of Mesh Vertices", attrs = { @Attr(name = ATTR_FEATURE),
 			@Attr(name = ATTR_TYPE, value = PKG + "VerticesCount") })
 	private boolean isBoundaryPixelCountActive = true;
 
-	@Parameter(required = false, label = "Surface Area of Convex Hull (in pixel units)", attrs = {
+	@Parameter(required = false, label = "Convex Hull Number of Mesh Vertices", attrs = {
 			@Attr(name = ATTR_FEATURE), @Attr(name = ATTR_TYPE, value = PKG + "VerticesCountConvexHull") })
 	private boolean isBoundaryPixelCountConvexHullMeshActive = true;
 
