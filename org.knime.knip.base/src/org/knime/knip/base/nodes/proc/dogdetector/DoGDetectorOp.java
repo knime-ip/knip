@@ -125,7 +125,7 @@ public class DoGDetectorOp<T extends RealType<T> & NativeType<T>> implements
 
         DogDetection<T> dogDetection =
                 new DogDetection<T>(Views.extend(input, m_oob), input, calibration, m_sigma1, m_sigma2, m_type,
-                        m_threshold, m_normalize);
+                        m_threshold, m_normalize, input.firstElement().createVariable());
 
         dogDetection.setExecutorService(m_service);
 
