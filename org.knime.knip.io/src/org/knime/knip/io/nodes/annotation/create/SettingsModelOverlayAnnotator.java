@@ -56,14 +56,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.xmlbeans.impl.util.Base64;
+import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
 import org.knime.knip.io.nodes.annotation.SettingsModelAnnotatorView;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * SettingsModel for the annotator. Stores a annotations for an image as
@@ -77,7 +76,7 @@ import org.slf4j.LoggerFactory;
 public class SettingsModelOverlayAnnotator extends SettingsModelAnnotatorView<Overlay> {
 
 	/* Logger */
-	private final Logger LOGGER = LoggerFactory.getLogger(SettingsModelOverlayAnnotator.class);
+	private final NodeLogger LOGGER = NodeLogger.getLogger(SettingsModelOverlayAnnotator.class);
 
 	private final String m_configName;
 

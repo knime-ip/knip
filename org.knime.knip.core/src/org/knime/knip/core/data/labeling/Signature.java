@@ -13,6 +13,11 @@ package org.knime.knip.core.data.labeling;
 import java.awt.Polygon;
 import java.util.Arrays;
 
+import org.knime.core.node.NodeLogger;
+import org.knime.knip.core.algorithm.InplaceFFT;
+import org.knime.knip.core.data.algebra.Complex;
+import org.knime.knip.core.data.algebra.ExtendedPolygon;
+
 import net.imglib2.Cursor;
 import net.imglib2.IterableInterval;
 import net.imglib2.Point;
@@ -26,11 +31,6 @@ import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.ConstantUtils;
 import net.imglib2.view.Views;
-
-import org.knime.knip.core.algorithm.InplaceFFT;
-import org.knime.knip.core.data.algebra.Complex;
-import org.knime.knip.core.data.algebra.ExtendedPolygon;
-import org.slf4j.LoggerFactory;
 
 /**
  * Represents a signature (i.e. a line in the polar space) of a polygon in the cartesian space.
@@ -648,7 +648,7 @@ public class Signature {
                 }
                 m_score = leaves[l].getVal() / scores.length;
                 if (Math.abs(res[0] - res[res.length - 1]) <= maxLineVariance) {
-                    LoggerFactory.getLogger(Signature.class).debug("alternative backtrack: " + l);
+                    NodeLogger.getLogger(Signature.class).debug("alternative backtrack: " + l);
                     break;
                 }
             }

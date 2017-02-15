@@ -56,6 +56,7 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.Platform;
+import org.knime.core.node.NodeLogger;
 import org.knime.knip.core.io.externalization.externalizers.AbstractImgExt0;
 import org.knime.knip.core.io.externalization.externalizers.ArrayImgExt0;
 import org.knime.knip.core.io.externalization.externalizers.ArrayImgExt1;
@@ -89,8 +90,6 @@ import org.knime.knip.core.io.externalization.externalizers.ObjectExt0;
 import org.knime.knip.core.io.externalization.externalizers.PlanarImgExt0;
 import org.knime.knip.core.io.externalization.externalizers.PlanarImgExt1;
 import org.knime.knip.core.io.externalization.externalizers.SourcedExt0;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Manages a set of externalizers, e.g. registered via the according extension point.
@@ -101,7 +100,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class ExternalizerManager {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(ExternalizerManager.class);
+    private static NodeLogger LOGGER = NodeLogger.getLogger(ExternalizerManager.class);
 
     /* maps the externalizer object type to the externalizer */
     private static final Map<Class<?>, Externalizer> CLASS_EXT_MAP = new HashMap<Class<?>, Externalizer>();

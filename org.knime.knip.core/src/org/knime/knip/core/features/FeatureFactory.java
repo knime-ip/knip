@@ -58,8 +58,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.knime.core.node.NodeLogger;
 
 /**
  * Calculates a specific set of features (double values) for a particular {@link FeatureTarget}. The feature factory
@@ -72,7 +71,7 @@ import org.slf4j.LoggerFactory;
  */
 public class FeatureFactory {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FeatureFactory.class);
+    private static final NodeLogger LOG = NodeLogger.getLogger(FeatureFactory.class);
 
     private final Map<Class<?>, List<FeatureTargetUpdater>> m_targetListeners =
             new HashMap<Class<?>, List<FeatureFactory.FeatureTargetUpdater>>();

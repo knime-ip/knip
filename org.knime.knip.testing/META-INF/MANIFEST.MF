@@ -7,7 +7,6 @@ Bundle-Vendor: University of Konstanz
 Eclipse-RegisterBuddy: org.knime.core
 Require-Bundle: org.knime.base;bundle-version="[3.0.0,4.0.0)",
  org.knime.workbench.repository;bundle-version="[3.0.0,4.0.0)",
- org.apache.log4j;bundle-version="1.2.15",
  org.eclipse.core.runtime,
  org.eclipse.ui,
  org.knime.knip.core;bundle-version="[1.5.0,1.6.0)",

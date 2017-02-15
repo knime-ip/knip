@@ -48,6 +48,11 @@
  */
 package org.knime.knip.core.awt;
 
+import org.knime.core.node.NodeLogger;
+import org.knime.knip.core.awt.converter.RealTableColorARGBConverter;
+import org.knime.knip.core.awt.parametersupport.RendererWithColorTable;
+import org.knime.knip.core.awt.parametersupport.RendererWithNormalization;
+
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.display.ColorTable;
 import net.imglib2.display.ColorTable16;
@@ -58,12 +63,6 @@ import net.imglib2.display.screenimage.awt.AWTScreenImage;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
-
-import org.knime.knip.core.awt.converter.RealTableColorARGBConverter;
-import org.knime.knip.core.awt.parametersupport.RendererWithColorTable;
-import org.knime.knip.core.awt.parametersupport.RendererWithNormalization;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Renders the real values of a X,Y slice as ScreenImage. The position in the colorDim defines which of the provided
@@ -78,7 +77,7 @@ import org.slf4j.LoggerFactory;
 public class Real2TableColorRenderer<R extends RealType<R>> extends ProjectingRenderer<R> implements
         RendererWithNormalization, RendererWithColorTable {
 
-    public final static Logger LOGGER = LoggerFactory.getLogger(Real2TableColorRenderer.class);
+    public final static NodeLogger LOGGER = NodeLogger.getLogger(Real2TableColorRenderer.class);
 
     // default
     private RealTableColorARGBConverter<R> m_converter;

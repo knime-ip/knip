@@ -51,9 +51,6 @@ package org.knime.knip.io.nodes.imgwriter;
 import java.io.IOException;
 import java.util.HashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import loci.common.DataTools;
 import loci.common.services.DependencyException;
 import loci.common.services.ServiceException;
@@ -82,6 +79,9 @@ import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.view.Views;
+
+import org.knime.core.node.NodeLogger;
+
 import ome.xml.model.enums.DimensionOrder;
 import ome.xml.model.enums.PixelType;
 
@@ -94,8 +94,7 @@ import ome.xml.model.enums.PixelType;
  */
 public class ImgWriter {
 
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(ImgWriter.class);
+	private static final NodeLogger LOGGER = NodeLogger.getLogger(ImgWriter.class);
 
 	/*
 	 * List of the names of the available writers associated with specific
