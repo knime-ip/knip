@@ -53,6 +53,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import org.knime.core.node.NodeLogger;
 import org.knime.core.util.LRUCache;
 import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.awt.ImageRenderer;
@@ -67,8 +68,6 @@ import org.knime.knip.core.ui.imgviewer.events.PlaneSelectionEvent;
 import org.knime.knip.core.ui.imgviewer.events.RendererSelectionChgEvent;
 import org.knime.knip.core.ui.imgviewer.events.SetCachingEvent;
 import org.knime.knip.core.ui.imgviewer.panels.HiddenViewerComponent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
@@ -91,7 +90,7 @@ public class AWTImageProvider extends HiddenViewerComponent {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AWTImageProvider.class);
+    private static final NodeLogger LOGGER = NodeLogger.getLogger(AWTImageProvider.class);
 
     /**
      * Converts DoubleType to FloatType and preserves other types. This can be used to ensure that images (after calling

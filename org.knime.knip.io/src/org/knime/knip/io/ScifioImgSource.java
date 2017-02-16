@@ -55,9 +55,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.knime.core.node.NodeLogger;
-import org.knime.core.node.NodeLogger.LEVEL;
 import org.knime.knip.base.exceptions.KNIPRuntimeException;
 import org.knime.knip.core.KNIPLogService;
 import org.knime.knip.core.types.NativeTypes;

@@ -56,8 +56,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.PriorityBlockingQueue;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.knime.core.node.NodeLogger;
 
 /**
  *
@@ -69,7 +68,7 @@ import org.slf4j.LoggerFactory;
  */
 public class EventService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EventService.class);
+    private static final NodeLogger LOGGER = NodeLogger.getLogger(EventService.class);
 
     private final Map<Class<? extends KNIPEvent>, List<ProxyEventSubscriber<?>>> m_typeToSubscriber;
 

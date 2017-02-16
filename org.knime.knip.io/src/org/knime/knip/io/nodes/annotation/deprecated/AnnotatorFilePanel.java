@@ -64,6 +64,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.knime.core.node.NodeLogger;
 import org.knime.knip.core.ui.event.EventListener;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.ViewerComponent;
@@ -77,8 +78,6 @@ import org.knime.knip.io.ImgSourcePool;
 import org.knime.knip.io.ScifioImgSource;
 import org.knime.knip.io.nodes.imgreader.FileChooserPanel;
 import org.knime.knip.io.nodes.imgreader.ImgReaderNodeDialog;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import net.imagej.ImgPlus;
 import net.imglib2.exception.IncompatibleTypeException;
@@ -104,8 +103,7 @@ public class AnnotatorFilePanel<T extends RealType<T> & NativeType<T>> extends
     private static final long serialVersionUID = 1L;
 
     /* Logger */
-    private final Logger logger = LoggerFactory
-            .getLogger(AnnotatorFilePanel.class);
+    private final NodeLogger logger = NodeLogger.getLogger(AnnotatorFilePanel.class);
 
     /* */
     private FileAssociation[] m_allFiles;

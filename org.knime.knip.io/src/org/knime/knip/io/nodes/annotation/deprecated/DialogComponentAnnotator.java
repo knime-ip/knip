@@ -60,8 +60,14 @@ import java.util.Map;
 
 import javax.swing.BoxLayout;
 
+import net.imglib2.img.Img;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
+
+import org.apache.log4j.spi.LoggerFactory;
 import org.apache.xmlbeans.impl.util.Base64;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.port.PortObjectSpec;
@@ -81,12 +87,6 @@ import org.knime.knip.core.ui.imgviewer.panels.infobars.ImgViewInfoPanel;
 import org.knime.knip.core.ui.imgviewer.panels.providers.AWTImageProvider;
 import org.knime.knip.core.ui.imgviewer.panels.providers.ImageRU;
 import org.knime.knip.core.ui.imgviewer.panels.providers.OverlayRU;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import net.imglib2.img.Img;
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
 
 /**
  * 
@@ -99,7 +99,7 @@ import net.imglib2.type.numeric.RealType;
 public class DialogComponentAnnotator<T extends RealType<T> & NativeType<T>> extends DialogComponent {
 
 	/* Logger */
-	private final Logger logger = LoggerFactory.getLogger(DialogComponentAnnotator.class);
+	private final NodeLogger logger = NodeLogger.getLogger(DialogComponentAnnotator.class);
 
 	/* Img viewer in which the img/labeling is displayed */
 	private AnnotatorImgViewer m_annotator;
@@ -306,7 +306,7 @@ public class DialogComponentAnnotator<T extends RealType<T> & NativeType<T>> ext
 
 				totalIn.close();
 			} catch (final IOException e) {
-				LoggerFactory.getLogger(ImgViewer.class).error("error", e);
+				NodeLogger.getLogger(ImgViewer.class).error("error", e);
 				return;
 			}
 

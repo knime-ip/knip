@@ -61,7 +61,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import net.imagej.ImgPlus;
+import net.imglib2.img.Img;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
+
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
@@ -74,13 +80,6 @@ import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
 import org.knime.knip.io.ImgSource;
 import org.knime.knip.io.ImgSourcePool;
 import org.knime.knip.io.ScifioImgSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import net.imagej.ImgPlus;
-import net.imglib2.img.Img;
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
 
 /**
  * SettingsModel for the annotator
@@ -103,7 +102,7 @@ public class SettingsModelAnnotator extends SettingsModel {
     }
 
     /* Logger */
-    private final Logger logger = LoggerFactory
+    private final NodeLogger logger = NodeLogger
             .getLogger(SettingsModelAnnotator.class);
 
     /*
