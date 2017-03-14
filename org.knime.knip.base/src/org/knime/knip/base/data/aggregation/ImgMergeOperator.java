@@ -545,8 +545,6 @@ public class ImgMergeOperator<T extends RealType<T> & NativeType<T>, A, ADA exte
             }
         }
 
-        int numHyperPlanes = -1;
-        int hyperPlaneSize = -1;
         if (m_data == null && m_resImg == null) {
             //first iteration -> create data structures
 
@@ -565,13 +563,6 @@ public class ImgMergeOperator<T extends RealType<T> & NativeType<T>, A, ADA exte
 
             m_type = imgPlus.firstElement().createVariable();
             if (imgPlus.numDimensions() == 2) {
-                hyperPlaneSize = 1;
-                for (int i = 0; i < imgPlus.numDimensions(); i++) {
-                    hyperPlaneSize *=imgPlus.dimension(i);
-                }
-                numHyperPlanes = (int)(imgPlus.size() / hyperPlaneSize);
-                m_dims[m_dims.length - 1] += numHyperPlanes;
-
                 if (m_type instanceof ByteType) {
                     m_typeHandler = (RealTypeHandler<T, A, ADA>)new ByteTypeHandler();
                 } else if (m_type instanceof UnsignedByteType) {
@@ -610,6 +601,13 @@ public class ImgMergeOperator<T extends RealType<T> & NativeType<T>, A, ADA exte
         }
 
         if (imgPlus.numDimensions() == 2) {
+            int hyperPlaneSize = 1;
+            for (int i = 0; i < imgPlus.numDimensions(); i++) {
+                hyperPlaneSize *=imgPlus.dimension(i);
+            }
+            int numHyperPlanes = (int)(imgPlus.size() / hyperPlaneSize);
+            m_dims[m_dims.length - 1] += numHyperPlanes;
+
             //in case of 2D we can efficiently copy the data arrays
             // copy data
             if (img instanceof ArrayImg) {
@@ -622,7 +620,6 @@ public class ImgMergeOperator<T extends RealType<T> & NativeType<T>, A, ADA exte
                 }
 
             } else if (imgPlus.getImg() instanceof PlanarImg) {
-
                 for (int i = 0; i < ((PlanarImg)img).numSlices(); i++) {
                     final A plane = m_typeHandler.createArray(hyperPlaneSize);
                     m_typeHandler
