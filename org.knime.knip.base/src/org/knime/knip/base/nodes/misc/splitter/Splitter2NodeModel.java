@@ -103,6 +103,7 @@ import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.SubsetOperations;
 import net.imglib2.ops.operation.interval.binary.IntervalsFromDimSelection;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
 
 /**
  * Splits an image.
@@ -350,6 +351,7 @@ public class Splitter2NodeModel<T extends RealType<T>> extends NodeModel impleme
         int i = 0;
         final long[] tmpMin = new long[axes.length];
         final long[] tmpMax = new long[axes.length];
+        final long[] shift = new long[completelySelectedDims.length];
         while (it.hasNext()) {
             row = it.next();
             if (row.getCell(m_colIndex).isMissing()) {
@@ -369,11 +371,12 @@ public class Splitter2NodeModel<T extends RealType<T>> extends NodeModel impleme
                 for (int j = 0; j < completelySelectedDims.length; j++) {
                     tmpMin[completelySelectedDims[j]] = fromCell.min(completelySelectedDims[j]);
                     tmpMax[completelySelectedDims[j]] = fromCell.max(completelySelectedDims[j]);
+                    shift[j] = fromCell.min(completelySelectedDims[j]);
                 }
                 final Interval interval = new FinalInterval(tmpMin, tmpMax);
 
                 // create subimg view
-                final Img<T> subImg = ImgView.wrap(SubsetOperations.subsetview(fromCell, interval), fromCell.factory());
+                final Img<T> subImg = ImgView.wrap(Views.translate(SubsetOperations.subsetview(fromCell, interval), shift), fromCell.factory());
 
                 final CalibratedSpace<CalibratedAxis> typedSpace = new DefaultCalibratedSpace(subImg.numDimensions());
                 int d = 0;
