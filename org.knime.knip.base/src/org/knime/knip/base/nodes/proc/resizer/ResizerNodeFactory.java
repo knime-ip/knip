@@ -228,13 +228,6 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
                 return "_resized";
             }
 
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            protected String getDefaultSuffixForAppend() {
-                return "_resized";
-            }
         };
     }
 
