@@ -59,6 +59,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -93,6 +94,12 @@ public class DialogComponentFilterSelection<L extends Comparable<L>> extends Dia
     private final List<JTextField> m_textFields;
 
     private final JPanel m_textFieldsPanel;
+
+    private final JCheckBox m_caseSensitiveMatch;
+
+    private final JCheckBox m_containsWildCards;
+
+    private final JCheckBox m_regularExpression;
 
     private GridBagConstraints m_textFieldsGBC;
 
@@ -130,6 +137,36 @@ public class DialogComponentFilterSelection<L extends Comparable<L>> extends Dia
 
         m_operatorBox = new JComboBox(RulebasedLabelFilter.Operator.values());
 
+        m_caseSensitiveMatch = new JCheckBox("Case Sensitive Match");
+        m_caseSensitiveMatch.setEnabled(false);
+
+        m_containsWildCards = new JCheckBox("Contains Wild Cards");
+        m_containsWildCards.setEnabled(false);
+        m_containsWildCards.addChangeListener(new ChangeListener() {
+
+            @Override
+            public void stateChanged(final ChangeEvent e) {
+                if ((e.getSource() == m_containsWildCards) && m_containsWildCards.isSelected()) {
+                    m_regularExpression.setSelected(false);
+                }
+            }
+        });
+
+        m_regularExpression = new JCheckBox("Regular Expression");
+        m_regularExpression.setEnabled(false);
+        m_regularExpression.addChangeListener(new ChangeListener() {
+
+            @Override
+            public void stateChanged(final ChangeEvent e) {
+                if ((e.getSource() == m_regularExpression) && m_regularExpression.isSelected()) {
+                    m_containsWildCards.setSelected(false);
+                }
+            }
+        });
+
+        final JPanel ruleConfigurationPanel = new JPanel(new GridBagLayout());
+
+
         getComponentPanel().setLayout(new GridBagLayout());
 
         final GridBagConstraints dialogGBC = new GridBagConstraints();
@@ -138,8 +175,19 @@ public class DialogComponentFilterSelection<L extends Comparable<L>> extends Dia
         dialogGBC.weighty = 1;
         dialogGBC.gridx = 0;
         dialogGBC.gridy = 0;
-        dialogGBC.insets = new Insets(2, 2, 2, 2);
         dialogGBC.anchor = GridBagConstraints.NORTH;
+
+        ruleConfigurationPanel.add(m_caseSensitiveMatch, dialogGBC);
+        dialogGBC.gridx++;
+        ruleConfigurationPanel.add(m_regularExpression, dialogGBC);
+        dialogGBC.gridx++;
+        ruleConfigurationPanel.add(m_containsWildCards, dialogGBC);
+
+        dialogGBC.gridx = 0;
+        dialogGBC.insets = new Insets(2, 2, 2, 2);
+
+        getComponentPanel().add(ruleConfigurationPanel, dialogGBC);
+        dialogGBC.gridy++;
 
         getComponentPanel().add(m_textFieldsPanel, dialogGBC);
         dialogGBC.fill = GridBagConstraints.NONE;
@@ -197,6 +245,12 @@ public class DialogComponentFilterSelection<L extends Comparable<L>> extends Dia
                 m_textFieldsPanel.remove(removeButton.getParent());
                 getComponentPanel().updateUI();
                 m_textFieldsGBC.gridy--;
+
+                if (m_textFieldsGBC.gridy == 0) {
+                    m_caseSensitiveMatch.setEnabled(false);
+                    m_containsWildCards.setEnabled(false);
+                    m_regularExpression.setEnabled(false);
+                }
             }
         });
 
@@ -207,6 +261,10 @@ public class DialogComponentFilterSelection<L extends Comparable<L>> extends Dia
         m_removeButtons.add(removeButton);
         m_textFieldsPanel.add(oneFieldRow, m_textFieldsGBC);
         m_textFieldsGBC.gridy++;
+
+        m_caseSensitiveMatch.setEnabled(true);
+        m_containsWildCards.setEnabled(true);
+        m_regularExpression.setEnabled(true);
 
         getComponentPanel().updateUI();
 
@@ -259,6 +317,10 @@ public class DialogComponentFilterSelection<L extends Comparable<L>> extends Dia
         m_operatorBox.setSelectedItem(model.getOperator());
         getComponentPanel().updateUI();
         setEnabledComponents(getModel().isEnabled());
+
+        m_caseSensitiveMatch.setSelected(model.getCaseSensitiveMatch());
+        m_containsWildCards.setSelected(model.getContainsWildCards());
+        m_regularExpression.setSelected(model.getRegularExpression());
     }
 
     private void updateModel() {
@@ -273,6 +335,9 @@ public class DialogComponentFilterSelection<L extends Comparable<L>> extends Dia
         model.setRules(tmp);
         model.setOperator((RulebasedLabelFilter.Operator)m_operatorBox.getSelectedItem());
 
+        model.setCaseSensitiveMatch(m_caseSensitiveMatch.isSelected());
+        model.setContainsWildCards(m_containsWildCards.isSelected());
+        model.setRegularExpression(m_regularExpression.isSelected());
     }
 
     @Override
