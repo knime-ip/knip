@@ -364,9 +364,8 @@ public class Splitter2NodeModel<T extends RealType<T>> extends NodeModel impleme
 
                 // set the according dimension size for
                 // dimensions which are completely selected
-                final Interval tmp = splitIntervals[intervalIdx];
-                tmp.min(tmpMin);
-                tmp.max(tmpMax);
+                fromCell.min(tmpMin);
+                fromCell.min(tmpMax);
                 for (int j = 0; j < completelySelectedDims.length; j++) {
                     tmpMin[completelySelectedDims[j]] = fromCell.min(completelySelectedDims[j]);
                     tmpMax[completelySelectedDims[j]] = fromCell.max(completelySelectedDims[j]);
