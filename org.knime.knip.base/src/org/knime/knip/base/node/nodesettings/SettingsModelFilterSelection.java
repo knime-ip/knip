@@ -49,6 +49,7 @@
 package org.knime.knip.base.node.nodesettings;
 
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
@@ -70,6 +71,12 @@ import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter.Operator;
  */
 public class SettingsModelFilterSelection<L extends Comparable<L>> extends SettingsModel {
 
+    private final String m_caseSensitiveMatchCFG = "caseSensitiveMatchCFG";
+
+    private final String m_containsWildCardsCFG = "containsWildCardsCFG";
+
+    private final String m_regularExpressionCFG = "regularExpressionCFG";
+
     /*
      *
      */
@@ -84,6 +91,12 @@ public class SettingsModelFilterSelection<L extends Comparable<L>> extends Setti
      * The rules
      */
     private String[] m_rules = new String[0];
+
+    private boolean m_caseSensitiveMatch = false;
+
+    private boolean  m_containsWildCards = false;
+
+    private boolean m_regularExpression = false;
 
     /**
      * Constructor
@@ -127,11 +140,12 @@ public class SettingsModelFilterSelection<L extends Comparable<L>> extends Setti
 
         final String[] rules = getRules().clone();
 
+        final Pattern[] patterns = new Pattern[rules.length];
         for (int r = 0; r < rules.length; r++) {
-            rules[r] = RulebasedLabelFilter.formatRegExp(rules[r]);
+            patterns[r] = RulebasedLabelFilter.compileRegularExpression(m_caseSensitiveMatch, m_containsWildCards, m_regularExpression, rules[r]);
         }
 
-        return new RulebasedLabelFilter<L>(rules, getOperator());
+        return new RulebasedLabelFilter<L>(patterns, getOperator());
     }
 
     /**
@@ -161,6 +175,16 @@ public class SettingsModelFilterSelection<L extends Comparable<L>> extends Setti
 
         m_operator = RulebasedLabelFilter.Operator.values()[lists.getInt("operator")];
 
+        try {
+            m_caseSensitiveMatch = lists.getBoolean(m_caseSensitiveMatchCFG);
+            m_containsWildCards = lists.getBoolean(m_containsWildCardsCFG);
+            m_regularExpression = lists.getBoolean(m_regularExpressionCFG);
+        } catch (InvalidSettingsException e) {
+            // introduced in KNIP 1.5.4
+            m_caseSensitiveMatch = true;
+            m_containsWildCards = true;
+            m_regularExpression = false;
+        }
     }
 
     @Override
@@ -178,6 +202,10 @@ public class SettingsModelFilterSelection<L extends Comparable<L>> extends Setti
         }
 
         lists.addInt("operator", m_operator.ordinal());
+
+        lists.addBoolean(m_caseSensitiveMatchCFG, m_caseSensitiveMatch);
+        lists.addBoolean(m_containsWildCardsCFG, m_containsWildCards);
+        lists.addBoolean(m_regularExpressionCFG, m_regularExpression);
     }
 
     /**
@@ -211,5 +239,82 @@ public class SettingsModelFilterSelection<L extends Comparable<L>> extends Setti
         }
 
         m_operator = RulebasedLabelFilter.Operator.values()[lists.getInt("operator")];
+
+        try {
+            m_caseSensitiveMatch = lists.getBoolean(m_caseSensitiveMatchCFG);
+            m_containsWildCards = lists.getBoolean(m_containsWildCardsCFG);
+            m_regularExpression = lists.getBoolean(m_regularExpressionCFG);
+        } catch (InvalidSettingsException e) {
+            // introduced in KNIP 1.5.4
+            m_caseSensitiveMatch = true;
+            m_containsWildCards = true;
+            m_regularExpression = false;
+        }
+    }
+
+    /**
+     * Is caseSensitiveMatch active.
+     *
+     * @param status
+     */
+    public void setCaseSensitiveMatch(final boolean status) {
+        this.m_caseSensitiveMatch = status;
+    }
+
+    /**
+     * CaseSensitveMatch status.
+     *
+     * @return status
+     */
+    public boolean getCaseSensitiveMatch() {
+        return this.m_caseSensitiveMatch;
+    }
+
+    /**
+     * Is containsWildCards active.
+     * Note: if containsWildCards is true, regularExpression has to be false.
+     *
+     * @param status
+     */
+    public void setContainsWildCards(final boolean status) {
+        if (status) {
+            this.m_containsWildCards = true;
+            this.m_regularExpression = false;
+        } else {
+            this.m_containsWildCards = false;
+        }
+    }
+
+    /**
+     * ContainsWildCards status.
+     *
+     * @return status
+     */
+    public boolean getContainsWildCards() {
+        return this.m_containsWildCards;
+    }
+
+    /**
+     * Is regularExpression active.
+     * Note: if regularExpression is true, containsWildCards has to be false.
+     *
+     * @param status
+     */
+    public void setRegularExpression(final boolean status) {
+        if (status) {
+            this.m_regularExpression = true;
+            this.m_containsWildCards = false;
+        } else {
+            this.m_regularExpression = false;
+        }
+    }
+
+    /**
+     * RegularExpression status.
+     *
+     * @return status
+     */
+    public boolean getRegularExpression() {
+        return this.m_regularExpression;
     }
 }
