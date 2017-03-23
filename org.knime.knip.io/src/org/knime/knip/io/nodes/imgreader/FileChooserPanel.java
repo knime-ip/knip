@@ -98,6 +98,8 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileView;
 
 import org.knime.base.util.WildcardMatcher;
+import org.knime.knip.base.KNIMEKNIPPlugin;
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.events.FileChooserSelectedFilesChgEvent;
 import org.knime.knip.io.node.dialog.ImagePreviewPanel;
@@ -174,7 +176,7 @@ public class FileChooserPanel extends JPanel {
 		}
 
 		public String getAbsolutePathAt(final int idx) {
-			return m_files.get(idx).getAbsolutePath();
+			return m_files.get(idx).getPath();
 		}
 
 		/**
