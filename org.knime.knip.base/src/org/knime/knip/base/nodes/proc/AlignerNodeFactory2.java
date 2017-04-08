@@ -76,6 +76,7 @@ import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.Intervals;
 
 /**
  * AlignerNodeFactory. Uses {@link DialogComponentSubsetSelection2} instead of {@link DialogComponentSubsetSelection};
@@ -248,7 +249,8 @@ public class AlignerNodeFactory2<T extends RealType<T>, V extends RealType<V>>
 
                 final long[] dims = new long[zeroMinFromCell.numDimensions()];
                 zeroMinFromCell.dimensions(dims);
-                Interval ivs[] = m_subsetSelect.createSelectedIntervals(dims, zeroMinFromCell);
+                Interval ivs[] = m_subsetSelect.createSelectedIntervals(Intervals.minAsLongArray(zeroMinFromCell), dims,
+                                                                        zeroMinFromCell);
                 if ((ivs == null) || (ivs.length == 0)) {
                     ivs = new Interval[1];
                     final long mins[] = new long[zeroMinFromCell.numDimensions()];
@@ -258,16 +260,13 @@ public class AlignerNodeFactory2<T extends RealType<T>, V extends RealType<V>>
                     ivs[0] = new FinalInterval(mins, maxs);
                 }
 
-                return m_imgCellFactory
-                        .createCell(MinimaUtils
-                                .getTranslatedImgPlus(fromCell, new ImgPlus<>(
-                                        Operations.compute(
-                                                           new Aligner<T, V>(selectedDims1, selectedDim2, ivs[0],
-                                                                   sizemode, alignmode, m_stepSize.getIntValue(),
-                                                                   m_minPixOverlap.getIntValue()),
-                                                           zeroMinFromCell,
-                                                           MinimaUtils.getZeroMinImgPlus(cellValueB.getImgPlus())),
-                                        cellValueA.getMetadata())));
+                return m_imgCellFactory.createCell(MinimaUtils
+                        .getTranslatedImgPlus(fromCell, new ImgPlus<>(
+                                Operations.compute(new Aligner<T, V>(selectedDims1, selectedDim2, ivs[0], sizemode,
+                                        alignmode, m_stepSize.getIntValue(), m_minPixOverlap.getIntValue()),
+                                                   zeroMinFromCell,
+                                                   MinimaUtils.getZeroMinImgPlus(cellValueB.getImgPlus())),
+                                cellValueA.getMetadata())));
             }
 
             /**

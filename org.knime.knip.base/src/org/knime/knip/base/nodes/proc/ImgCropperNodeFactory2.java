@@ -156,13 +156,13 @@ public class ImgCropperNodeFactory2<T extends RealType<T> & NativeType<T>>
                     final ImgPlus<T> img = cellValue.getImgPlus();
 
                     final Interval[] intervals =
-                            m_smSubsetSel.createSelectedIntervals(Intervals.dimensionsAsLongArray(img), img);
+                            m_smSubsetSel.createSelectedIntervals(cellValue.getMinimum(), Intervals.dimensionsAsLongArray(img), img);
 
                     @SuppressWarnings("unchecked")
                     final IntervalView<T>[] iis = new IntervalView[intervals.length];
 
                     for (int i = 0; i < intervals.length; i++) {
-                        iis[i] = Views.interval(img, intervals[i]);
+                        iis[i] = Views.interval(img.getImg(), intervals[i]);
                     }
 
                     if ((iis.length == 1) && m_smAdjustDimensionality.getBooleanValue()) {

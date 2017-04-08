@@ -78,6 +78,7 @@ import net.imglib2.ops.operation.labeling.unary.MergeLabelings;
 import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.IntegerType;
+import net.imglib2.util.Intervals;
 import net.imglib2.util.Util;
 import net.imglib2.view.Views;
 
@@ -163,7 +164,8 @@ public class LabelingOrthoCropperNodeFactory2<L extends Comparable<L>>
                     lab.dimensions(dimensions);
 
                     final Interval[] intervals =
-                            m_subsetSel.createSelectedIntervals(dimensions, cellValue.getLabelingMetadata());
+                            m_subsetSel.createSelectedIntervals(Intervals.minAsLongArray(lab), dimensions,
+                                                                cellValue.getLabelingMetadata());
 
                     @SuppressWarnings("unchecked")
                     final RandomAccessibleInterval<LabelingType<L>>[] subLab =
@@ -201,14 +203,11 @@ public class LabelingOrthoCropperNodeFactory2<L extends Comparable<L>>
 
                     }
 
-                    return m_labCellFactory
-                            .createCell(res,
-                                        new DefaultLabelingMetadata(
-                                                new DefaultCalibratedSpace(
-                                                        validAxes.toArray(new CalibratedAxis[validAxes.size()])),
-                                                new DefaultNamed(cellValue.getLabelingMetadata().getName()),
-                                                new DefaultSourced(cellValue.getLabelingMetadata().getSource()),
-                                                cellValue.getLabelingMetadata().getLabelingColorTable()));
+                    return m_labCellFactory.createCell(res, new DefaultLabelingMetadata(
+                            new DefaultCalibratedSpace(validAxes.toArray(new CalibratedAxis[validAxes.size()])),
+                            new DefaultNamed(cellValue.getLabelingMetadata().getName()),
+                            new DefaultSourced(cellValue.getLabelingMetadata().getSource()),
+                            cellValue.getLabelingMetadata().getLabelingColorTable()));
                 }
             }
 

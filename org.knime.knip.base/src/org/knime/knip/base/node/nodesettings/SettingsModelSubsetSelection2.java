@@ -140,7 +140,8 @@ public class SettingsModelSubsetSelection2 extends SettingsModel {
      * @throws KNIPException
      */
     @SuppressWarnings("unchecked")
-    public final Interval[] createSelectedIntervals(final long[] dimensions, final CalibratedAxis[] axes)
+    public final Interval[] createSelectedIntervals(final long[] min, final long[] dimensions,
+                                                    final CalibratedAxis[] axes)
             throws KNIPException {
 
         List<Long>[] minPosList;
@@ -160,8 +161,8 @@ public class SettingsModelSubsetSelection2 extends SettingsModel {
             maxPosList[d] = new ArrayList<Long>(dimensions.length);
 
             if (selectionInformation[d]) {
-                minPosList[d].add(0l);
-                maxPosList[d].add(dimensions[d] - 1);
+                minPosList[d].add(min[d]);
+                maxPosList[d].add(min[d] + dimensions[d] - 1);
                 numIntervalsPerDim[d] = 1;
             } else {
                 final int[] selection = SubsetSelectionUtils.parseString(m_selection.get(axes[d].type().getLabel()));
@@ -246,12 +247,12 @@ public class SettingsModelSubsetSelection2 extends SettingsModel {
      * @return the intervals
      * @throws KNIPException
      */
-    public final Interval[] createSelectedIntervals(final long[] dimensions,
+    public final Interval[] createSelectedIntervals(final long[] minimum, final long[] dimensions,
                                                     final CalibratedSpace<CalibratedAxis> labeledAxes)
-                                                            throws KNIPException {
+            throws KNIPException {
         final CalibratedAxis[] axes = new CalibratedAxis[dimensions.length];
         labeledAxes.axes(axes);
-        return createSelectedIntervals(dimensions, axes);
+        return createSelectedIntervals(minimum, dimensions, axes);
     }
 
     /**
@@ -260,10 +261,11 @@ public class SettingsModelSubsetSelection2 extends SettingsModel {
      * @return the intervals
      * @throws KNIPException
      */
-    public Interval[] createSelectedIntervalsPlaneWise(final long[] dimensions, final CalibratedAxis[] axes)
+    public Interval[] createSelectedIntervalsPlaneWise(final long[] minimum, final long[] dimensions,
+                                                       final CalibratedAxis[] axes)
             throws KNIPException {
 
-        final Interval[] selected = createSelectedIntervals(dimensions, axes);
+        final Interval[] selected = createSelectedIntervals(minimum, dimensions, axes);
 
         if (selected.length == 1) {
             boolean same = true;
@@ -645,7 +647,8 @@ public class SettingsModelSubsetSelection2 extends SettingsModel {
      */
     @SuppressWarnings("unchecked")
     public Pair<TypedAxis, long[]>[] createSelectionConstraints(final long[] dimensions,
-                                                                final CalibratedAxis[] calibAxes) throws KNIPException {
+                                                                final CalibratedAxis[] calibAxes)
+            throws KNIPException {
 
         ArrayList<Pair<TypedAxis, long[]>> ret = new ArrayList<Pair<TypedAxis, long[]>>();
 
