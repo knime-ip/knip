@@ -2,7 +2,7 @@
 <feature
       id="org.knime.knip.testing.feature"
       label="KNIME Image Processing - Testing Nodes"
-      version="1.5.4.qualifier"
+      version="1.6.0.qualifier"
       provider-name="KNIME">
 
    <description>
