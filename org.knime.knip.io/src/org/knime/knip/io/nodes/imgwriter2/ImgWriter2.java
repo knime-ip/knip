@@ -320,6 +320,7 @@ public class ImgWriter2 {
         }
 
         final ImgPlus<T> imp = ImgPlus.wrap(img);
+        imp.setCompositeChannelCount(sizeC);
 
         try {
             tempWriter.isSupportedType(
