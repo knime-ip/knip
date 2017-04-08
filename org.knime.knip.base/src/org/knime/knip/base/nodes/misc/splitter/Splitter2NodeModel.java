@@ -351,7 +351,6 @@ public class Splitter2NodeModel<T extends RealType<T>> extends NodeModel impleme
         int i = 0;
         final long[] tmpMin = new long[axes.length];
         final long[] tmpMax = new long[axes.length];
-        final long[] shift = new long[completelySelectedDims.length];
         while (it.hasNext()) {
             row = it.next();
             if (row.getCell(m_colIndex).isMissing()) {
@@ -366,17 +365,34 @@ public class Splitter2NodeModel<T extends RealType<T>> extends NodeModel impleme
 
                 // set the according dimension size for
                 // dimensions which are completely selected
-                fromCell.min(tmpMin);
-                fromCell.min(tmpMax);
-                for (int j = 0; j < completelySelectedDims.length; j++) {
-                    tmpMin[completelySelectedDims[j]] = fromCell.min(completelySelectedDims[j]);
-                    tmpMax[completelySelectedDims[j]] = fromCell.max(completelySelectedDims[j]);
-                    shift[j] = fromCell.min(completelySelectedDims[j]);
+                final Interval tmp = splitIntervals[intervalIdx];
+                tmp.min(tmpMin);
+                tmp.max(tmpMax);
+
+                int numResDims = 0;
+                for (int j = 0; j < tmp.numDimensions(); j++) {
+                    tmpMin[j] += fromCell.min(j);
+                    tmpMax[j] += fromCell.min(j);
+
+                    if (tmpMin[j] != tmpMax[j]) {
+                        numResDims++;
+                    }
                 }
+
+                long[] shift = new long[numResDims];
+                int offset = 0;
+                for (int j = 0; j < tmpMin.length; j++) {
+                    if (tmpMax[j] != tmpMin[j]) {
+                        shift[offset++] = tmpMin[j];
+                    }
+                }
+
                 final Interval interval = new FinalInterval(tmpMin, tmpMax);
 
                 // create subimg view
-                final Img<T> subImg = ImgView.wrap(Views.translate(SubsetOperations.subsetview(fromCell, interval), shift), fromCell.factory());
+                final Img<T> subImg =
+                        ImgView.wrap(Views.translate(SubsetOperations.subsetview(fromCell, interval), shift),
+                                     fromCell.factory());
 
                 final CalibratedSpace<CalibratedAxis> typedSpace = new DefaultCalibratedSpace(subImg.numDimensions());
                 int d = 0;
