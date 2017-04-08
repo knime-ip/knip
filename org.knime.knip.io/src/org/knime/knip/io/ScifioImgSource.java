@@ -292,12 +292,16 @@ public class ScifioImgSource implements ImgSource {
 
 			options.imgOpenerSetRegion(new ImageRegion(axes, ranges));
 		}
+		try {
+			final ImgPlus<RealType> ret = MiscViews.cleanImgPlus(
+					m_imgOpener.openImg(getReader(imgRef), getPixelType(imgRef, currentSeries), m_imgFactory, options));
+			org.apache.log4j.Logger.getLogger(KNIPLogService.class.getSimpleName()).setLevel(m_rootLvl);
+			return ret;
+		} finally {
+			m_reader.closeNow();
+			m_reader = null;
+		}
 
-		final ImgPlus<RealType> ret = MiscViews.cleanImgPlus(
-				m_imgOpener.openImg(getReader(imgRef), getPixelType(imgRef, currentSeries), m_imgFactory, options));
-
-		org.apache.log4j.Logger.getLogger(KNIPLogService.class.getSimpleName()).setLevel(m_rootLvl);
-		return ret;
 	}
 
 	@Override
