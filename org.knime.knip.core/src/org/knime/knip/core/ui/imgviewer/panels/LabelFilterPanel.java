@@ -361,7 +361,7 @@ public class LabelFilterPanel<L> extends ViewerComponent {
             final Set<String> allLabels = new HashSet<String>();
             m_ruleFilter.clear();
             for (int i = 0; i < m_textFields.size(); i++) {
-                m_ruleFilter.addRules(RulebasedLabelFilter.formatRegExp(m_textFields.get(i).getText()));
+                m_ruleFilter.addRules(RulebasedLabelFilter.compileRegularExpression(false, false, true, m_textFields.get(i).getText()));
             }
             m_activeLabels.clear();
 
@@ -470,7 +470,7 @@ public class LabelFilterPanel<L> extends ViewerComponent {
         m_ruleFilter.readExternal(in);
 
         for (int s = 0; s < m_ruleFilter.getRules().size(); s++) {
-            addTextField(m_ruleFilter.getRules().get(s));
+            addTextField(m_ruleFilter.getRules().get(s).pattern());
         }
     }
 

@@ -60,13 +60,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
+import org.knime.base.util.WildcardMatcher;
 import org.knime.knip.core.data.labeling.LabelFilter;
 import org.knime.knip.core.ui.event.KNIPEvent;
 
 /**
  * TODO Auto-generated
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
@@ -77,7 +79,7 @@ public class RulebasedLabelFilter<L> implements LabelFilter<L>, Externalizable, 
         OR, AND, XOR
     }
 
-    private List<String> m_rules;
+    private List<Pattern> m_rules;
 
     private Operator m_op = Operator.OR;
 
@@ -89,7 +91,7 @@ public class RulebasedLabelFilter<L> implements LabelFilter<L>, Externalizable, 
 
     private Set<L> m_invalidLabels;
 
-    public RulebasedLabelFilter(final String[] rules, final Operator op) {
+    public RulebasedLabelFilter(final Pattern[] rules, final Operator op) {
 
         this();
 
@@ -117,15 +119,15 @@ public class RulebasedLabelFilter<L> implements LabelFilter<L>, Externalizable, 
 
     public RulebasedLabelFilter() {
         m_tmpLabeling = new ArrayList<L>();
-        m_rules = new ArrayList<String>();
+        m_rules = new ArrayList<Pattern>();
         m_ruleValidation = new BitSet();
         m_validLabels = new HashMap<L, Set<Integer>>();
         m_invalidLabels = new HashSet<L>();
     }
 
-    public final boolean addRules(final String... rules) {
+    public final boolean addRules(final Pattern... rules) {
         boolean added = false;
-        for (final String r : rules) {
+        for (final Pattern r : rules) {
             added = m_rules.add(r) || added;
         }
 
@@ -139,7 +141,7 @@ public class RulebasedLabelFilter<L> implements LabelFilter<L>, Externalizable, 
 
         int hashCode = 1;
 
-        for (final String rule : m_rules) {
+        for (final Pattern rule : m_rules) {
             hashCode *= 31;
             hashCode += rule.hashCode();
         }
@@ -153,7 +155,7 @@ public class RulebasedLabelFilter<L> implements LabelFilter<L>, Externalizable, 
     public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException {
         final int num = in.readInt();
         for (int i = 0; i < num; i++) {
-            m_rules.add(in.readUTF());
+            m_rules.add((Pattern)in.readObject());
         }
 
         m_op = Operator.values()[in.readInt()];
@@ -163,7 +165,7 @@ public class RulebasedLabelFilter<L> implements LabelFilter<L>, Externalizable, 
     public void writeExternal(final ObjectOutput out) throws IOException {
         out.writeInt(m_rules.size());
         for (int i = 0; i < m_rules.size(); i++) {
-            out.writeUTF(m_rules.get(i));
+            out.writeObject(m_rules.get(i));
         }
 
         out.writeInt(m_op.ordinal());
@@ -176,7 +178,7 @@ public class RulebasedLabelFilter<L> implements LabelFilter<L>, Externalizable, 
         m_op = op;
     }
 
-    public List<String> getRules() {
+    public List<Pattern> getRules() {
         return m_rules;
     }
 
@@ -184,7 +186,7 @@ public class RulebasedLabelFilter<L> implements LabelFilter<L>, Externalizable, 
         return m_op;
     }
 
-    public Collection<L> filterLabeling(final Collection<L> labels, final Operator op, final List<String> rules) {
+    public Collection<L> filterLabeling(final Collection<L> labels, final Operator op, final List<Pattern> rules) {
 
         if (rules.size() == 0) {
             return labels;
@@ -220,9 +222,9 @@ public class RulebasedLabelFilter<L> implements LabelFilter<L>, Externalizable, 
                 int r = 0;
                 final String labelString = label.toString();
 
-                for (final String rule : rules) {
+                for (final Pattern rule : rules) {
 
-                    if (labelString.matches(rule)) {
+                    if (rule.matcher(labelString).matches()) {
                         m_tmpLabeling.add(label);
                         m_validLabels.put(label, new HashSet<Integer>());
                         m_invalidLabels.remove(label);
@@ -267,8 +269,8 @@ public class RulebasedLabelFilter<L> implements LabelFilter<L>, Externalizable, 
     }
 
     public boolean isValid(final L label) {
-        for (final String rule : m_rules) {
-            if (label.toString().matches(rule)) {
+        for (final Pattern rule : m_rules) {
+            if (rule.matcher(label.toString()).matches()) {
                 return true;
             }
         }
@@ -280,21 +282,36 @@ public class RulebasedLabelFilter<L> implements LabelFilter<L>, Externalizable, 
         return filterLabeling(labels, m_op, m_rules);
     }
 
-    public static String formatRegExp(String rule) {
+    public static Pattern compileRegularExpression(final boolean caseSensitive, final boolean hasWildCards,
+                                                  final boolean isRegularExpression, final String rule) {
 
-        rule = rule.trim();
-        rule = rule.replaceAll("\\.", "\\\\.");
-        rule = rule.replaceAll("[^a-zA-Z0-9*#-|&_?()\t\r\n:\\.\\ ]", "");
-        rule = rule.replaceAll("\\*", ".*");
-        rule = rule.replaceAll("\\?", ".");
-        rule = rule.replaceAll("\\(", "\\\\\\(");
-        rule = rule.replaceAll("\\)", "\\\\\\)");
+        assert !(hasWildCards && isRegularExpression);
 
-        String regExp = "(";
-        regExp += rule;
-        regExp += ")";
+        String regEx = null;
 
-        return regExp;
+        if (hasWildCards) {
+            regEx = WildcardMatcher.wildcardToRegex(rule);
+        } else if (isRegularExpression) {
+            regEx = rule;
+        } else {
+            regEx = null;
+        }
+
+        Pattern p = null;
+
+        if (regEx != null) {
+            // allow - and match - LF and international chars in the data
+            int flags =
+                Pattern.DOTALL | Pattern.MULTILINE;
+            if (!caseSensitive) {
+                flags |= Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE;
+            }
+            p = Pattern.compile(regEx, flags);
+        } else {
+            p = Pattern.compile(rule);
+        }
+
+        return p;
     }
 
     @Override
@@ -303,7 +320,7 @@ public class RulebasedLabelFilter<L> implements LabelFilter<L>, Externalizable, 
     }
 
     public RulebasedLabelFilter<L> copy() {
-        return new RulebasedLabelFilter<L>(m_rules.toArray(new String[m_rules.size()]), m_op);
+        return new RulebasedLabelFilter<L>(m_rules.toArray(new Pattern[m_rules.size()]), m_op);
     }
 
 }
