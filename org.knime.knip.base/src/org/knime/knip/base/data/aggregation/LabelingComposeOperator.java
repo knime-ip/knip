@@ -94,6 +94,7 @@ import org.knime.knip.core.types.NativeTypes;
 import org.knime.knip.core.util.EnumUtils;
 import org.knime.knip.core.util.Triple;
 
+import net.imagej.axis.CalibratedAxis;
 import net.imagej.space.DefaultCalibratedSpace;
 import net.imglib2.Cursor;
 import net.imglib2.FinalInterval;
@@ -496,9 +497,11 @@ public class LabelingComposeOperator<T extends IntegerType<T> & NativeType<T>, L
         if (m_intervalCol.length() == 0) {
             // compose result and return
             m_resultLab = new ImgLabeling<L, T>(m_factory.create(m_maxDims, m_resType));
-            m_resultMetadata =
-                    new DefaultLabelingMetadata(new DefaultCalibratedSpace(m_maxDims.length), new DefaultNamed(
-                            "Unknown"), new DefaultSourced("Unknown"), null);
+            final Triple<ImgPlusValue<BitType>, L, Double> triple = m_bitMaskList.get(0);
+            final CalibratedAxis[] axes = new CalibratedAxis[triple.getFirst().getDimensions().length];
+            triple.getFirst().getMetadata().axes(axes);
+            m_resultMetadata = new DefaultLabelingMetadata(new DefaultCalibratedSpace(axes),
+                    new DefaultNamed("Unknown"), new DefaultSourced("Unknown"), null);
             m_resAccess = m_resultLab.randomAccess();
             m_labelGenerator.reset();
         }
