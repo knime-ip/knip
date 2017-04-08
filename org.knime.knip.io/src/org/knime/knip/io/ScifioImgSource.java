@@ -297,9 +297,10 @@ public class ScifioImgSource implements ImgSource {
 					m_imgOpener.openImg(getReader(imgRef), getPixelType(imgRef, currentSeries), m_imgFactory, options));
 			org.apache.log4j.Logger.getLogger(KNIPLogService.class.getSimpleName()).setLevel(m_rootLvl);
 			return ret;
-		} finally {
+		} catch(Exception e) {
 			m_reader.closeNow();
 			m_reader = null;
+			throw e;
 		}
 
 	}
