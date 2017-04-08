@@ -230,9 +230,18 @@ public class ImgWriter2 {
                     throws FormatException, IOException {
 
         retrieveSupportedWriters();
-        writeImage(ImgView.wrap(Views.zeroMin(img), img.factory()), outfile, m_mapFormats.get(format), compressionType,
-                dimMapping);
 
+		// only wrap into img view if necessary, as writing is slower for ImgViews
+		Img<T> out = img;
+		for (int d = 0; d < img.numDimensions(); d++) {
+			if (img.min(d) != 0) {
+				out = ImgView.wrap(Views.zeroMin(img), img.factory());
+				break;
+			}
+		}
+        
+        writeImage(out, outfile, m_mapFormats.get(format), compressionType,
+                dimMapping);
     }
 
     /**
