@@ -150,7 +150,15 @@ public class MinimaUtils {
      * @param min
      * @return
      */
-    private static boolean hasNonZeroMin(final long[] min) {
+    public static boolean hasNonZeroMin(final Interval interval) {
+        return hasNonZeroMin(Intervals.minAsLongArray(interval));
+    }
+
+    /**
+     * @param min
+     * @return
+     */
+    public static boolean hasNonZeroMin(final long[] min) {
         boolean hasNonZeroMin = false;
         for (int i = 0; i < min.length; i++) {
             if (min[i] != 0) {
