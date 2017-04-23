@@ -175,7 +175,7 @@ public abstract class ImgPlusToImgPlusNodeModel<T extends RealType<T>, V extends
 
         final ImgPlus<V> out = op.bufferFactory().instantiate(imgPlus);
 
-        return m_imgCellFactory.createCell(MinimaUtils.getTranslatedImgPlus(imgPlus, SubsetOperations
+        return m_imgCellFactory.createCell(MinimaUtils.getTranslatedImgPlus(cellValue.getImgPlus(), SubsetOperations
                 .iterate(op, selection, imgPlus, out, m_active ? getExecutorService() : null)));
     }
 
