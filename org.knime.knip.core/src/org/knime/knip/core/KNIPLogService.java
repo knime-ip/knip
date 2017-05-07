@@ -62,14 +62,32 @@ import org.scijava.service.Service;
 @Plugin(type = Service.class, priority = Priority.HIGH_PRIORITY)
 public class KNIPLogService extends AbstractService implements LogService {
 
+    private static boolean forwarding = false;
+
     private final NodeLogger LOGGER = NodeLogger.getLogger(KNIPLogService.class.getSimpleName());
+
+    /**
+     * @param forwarding If debug and info messages should be forwarded to the KNIME logs.
+     */
+    public void setForwarding(final boolean forwarding) {
+        KNIPLogService.forwarding = forwarding;
+    }
+
+    /**
+     * @return If debug and info messages are forwarded to the KNIME logs.
+     */
+    public boolean getForwarding() {
+        return forwarding;
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
     public void debug(final Object arg0) {
-        LOGGER.debug(arg0);
+        if (forwarding) {
+            LOGGER.debug(arg0);
+        }
     }
 
     /**
@@ -77,7 +95,9 @@ public class KNIPLogService extends AbstractService implements LogService {
      */
     @Override
     public void debug(final Throwable arg0) {
-        LOGGER.debug(arg0);
+        if (forwarding) {
+            LOGGER.debug(arg0);
+        }
     }
 
     /**
@@ -85,7 +105,9 @@ public class KNIPLogService extends AbstractService implements LogService {
      */
     @Override
     public void debug(final Object arg0, final Throwable arg1) {
-        LOGGER.debug(arg0, arg1);
+        if (forwarding) {
+            LOGGER.debug(arg0, arg1);
+        }
     }
 
     /**
@@ -125,7 +147,9 @@ public class KNIPLogService extends AbstractService implements LogService {
      */
     @Override
     public void info(final Object arg0) {
-        LOGGER.info(arg0);
+        if (forwarding) {
+            LOGGER.info(arg0);
+        }
     }
 
     /**
@@ -133,7 +157,9 @@ public class KNIPLogService extends AbstractService implements LogService {
      */
     @Override
     public void info(final Throwable arg0) {
-        LOGGER.info(arg0);
+        if (forwarding) {
+            LOGGER.info(arg0);
+        }
     }
 
     /**
@@ -141,7 +167,9 @@ public class KNIPLogService extends AbstractService implements LogService {
      */
     @Override
     public void info(final Object arg0, final Throwable arg1) {
-        LOGGER.info(arg0, arg1);
+        if (forwarding) {
+            LOGGER.info(arg0, arg1);
+        }
     }
 
     /**
@@ -198,7 +226,9 @@ public class KNIPLogService extends AbstractService implements LogService {
      */
     @Override
     public void trace(final Object arg0) {
-        LOGGER.debug(arg0);
+        if (forwarding) {
+            LOGGER.debug(arg0);
+        }
     }
 
     /**
@@ -206,7 +236,9 @@ public class KNIPLogService extends AbstractService implements LogService {
      */
     @Override
     public void trace(final Throwable arg0) {
-        LOGGER.debug(arg0);
+        if (forwarding) {
+            LOGGER.debug(arg0);
+        }
     }
 
     /**
@@ -214,7 +246,9 @@ public class KNIPLogService extends AbstractService implements LogService {
      */
     @Override
     public void trace(final Object arg0, final Throwable arg1) {
-        LOGGER.debug(arg0, arg1);
+        if (forwarding) {
+            LOGGER.debug(arg0, arg1);
+        }
     }
 
     /**
