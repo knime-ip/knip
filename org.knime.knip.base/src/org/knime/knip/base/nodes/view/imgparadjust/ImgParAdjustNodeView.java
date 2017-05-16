@@ -199,6 +199,7 @@ public class ImgParAdjustNodeView<T extends RealType<T>> extends NodeView<ImgPar
         m_imgViewer.addViewerComponent(new ExpandingPanel("Threshold", new SetThresholdPanel<T, Img<T>>()));
         m_parameterPanel = new ParameterPanel();
         m_imgViewer.addViewerComponent(new ExpandingPanel("Parameters", m_parameterPanel));
+        m_imgViewer.addViewerComponent(new ExpandingPanel("Renderer Selection", new RendererSelectionPanel<T>()));
         m_imgViewer.doneAdding();
 
         m_cellView = new PlainCellView(m_tableView, m_imgViewer);
