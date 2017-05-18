@@ -84,6 +84,7 @@ import org.knime.knip.core.ui.imgviewer.ImgViewer;
 import org.knime.knip.core.ui.imgviewer.events.TablePositionEvent;
 import org.knime.knip.core.ui.imgviewer.panels.ImgNormalizationPanel;
 import org.knime.knip.core.ui.imgviewer.panels.MinimapAndPlaneSelectionPanel;
+import org.knime.knip.core.ui.imgviewer.panels.RendererSelectionPanel;
 import org.knime.knip.core.ui.imgviewer.panels.ViewerControlEvent;
 import org.knime.knip.core.ui.imgviewer.panels.ViewerScrollEvent;
 import org.knime.knip.core.ui.imgviewer.panels.ViewerScrollEvent.Direction;
