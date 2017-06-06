@@ -45,7 +45,7 @@
 			<option name="Constants">Constant values available during execution.
 			</option>
 			<option name="Expression">A mathematical expression. Constants, e.g. numbers (2*...) can be used as well, but at least one image column must be part of the expression.</option>
-			<option name="Result pixel type">Specifies the pixel type of the result image (and the pixel types of the intermediate result images).</option>
+			<option name="Result pixel type">Specifies the pixel type of the result image (and the pixel types of the intermediate result images). If this pixel type cannot hold the computation results, behavior is undefined.</option>
 		</tab>
 		<tab name="Advanced Settings">
 			<option name="Reference Image">Result images get dimensionality definitions and metadata from the reference image. If none is selected
