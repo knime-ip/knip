@@ -56,6 +56,7 @@ import javax.swing.Icon;
 import org.knime.core.data.DataValue;
 import org.knime.core.data.DataValueComparator;
 import org.knime.core.data.ExtensibleUtilityFactory;
+import org.knime.core.data.convert.DataValueAccessMethod;
 import org.knime.knip.core.data.img.LabelingMetadata;
 
 import net.imglib2.RandomAccessibleInterval;
@@ -125,6 +126,7 @@ public interface LabelingValue<L> extends DataValue {
     /**
      * @return the labeling object
      */
+    @DataValueAccessMethod(name = "RandomAccessibleInterval")
     RandomAccessibleInterval<LabelingType<L>> getLabeling();
 
     /**
