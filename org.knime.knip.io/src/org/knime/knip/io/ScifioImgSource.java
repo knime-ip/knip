@@ -250,14 +250,14 @@ public class ScifioImgSource implements ImgSource {
 
 		// FIXME: WORKAROUND till bug 3391 is fixed (support for
 		// SCIFIOImgPlus)
-		if (m_imgFactory instanceof CellImgFactory) {
+ 		if (m_imgFactory instanceof CellImgFactory) {
 
 			LOGGER.warn(
 					"Cell images are not fully supported, yet. Images are read but potential subset selection is ignored.");
 
 			// copy scifio img plus to an ordinary cell img
 
-			final SCIFIOImgPlus<RealType> scifio = (SCIFIOImgPlus<RealType>) IO.open(imgRef);
+			final SCIFIOImgPlus<RealType> scifio = (SCIFIOImgPlus<RealType>) m_imgOpener.openImg(imgRef);
 			final Img<RealType> tmp = new CellImgFactory().create(scifio, scifio.firstElement().createVariable());
 			final Cursor<RealType> inCur = scifio.cursor();
 			final RandomAccess<RealType> outRA = tmp.randomAccess();
@@ -298,6 +298,7 @@ public class ScifioImgSource implements ImgSource {
 			org.apache.log4j.Logger.getLogger(KNIPLogService.class.getSimpleName()).setLevel(m_rootLvl);
 			return ret;
 		} catch(Exception e) {
+			e.printStackTrace();
 			m_reader.closeNow();
 			m_reader = null;
 			throw e;
