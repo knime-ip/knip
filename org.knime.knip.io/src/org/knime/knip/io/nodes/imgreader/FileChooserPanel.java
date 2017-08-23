@@ -52,8 +52,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -61,12 +59,13 @@ import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.Vector;
 import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
@@ -98,13 +97,14 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileView;
 
 import org.knime.base.util.WildcardMatcher;
+import org.knime.core.node.NodeLogger;
+import org.knime.core.util.FileUtil;
 import org.knime.knip.core.ui.event.EventService;
 import org.knime.knip.core.ui.imgviewer.events.FileChooserSelectedFilesChgEvent;
 import org.knime.knip.io.node.dialog.ImagePreviewPanel;
+import org.knime.knip.io.nodes.imgreader2.URLUtil;
 
 /**
- * TODO Auto-generated
- * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
@@ -132,13 +132,13 @@ public class FileChooserPanel extends JPanel {
 	@SuppressWarnings("rawtypes")
 	private class FileListModel implements ListModel, Comparator<File> {
 
-		private final ArrayList<ListDataListener> listener = new ArrayList<ListDataListener>();
+		private final ArrayList<ListDataListener> listener = new ArrayList<>();
 
-		private final Vector<File> m_files = new Vector<File>();
+		private final List<File> m_files = new ArrayList<>();
 
 		public void addFiles(final File[] files, final FileFilter fileFilter) {
 
-			final LinkedList<File> directoryQueue = new LinkedList<File>();
+			final LinkedList<File> directoryQueue = new LinkedList<>();
 
 			// init
 			insertTopFiles(directoryQueue, fileFilter, files);
@@ -231,7 +231,6 @@ public class FileChooserPanel extends JPanel {
 		@Override
 		public void removeListDataListener(final ListDataListener arg0) {
 			listener.remove(arg0);
-
 		}
 
 		public void removeMenu(final File[] files) {
@@ -263,14 +262,10 @@ public class FileChooserPanel extends JPanel {
 				}
 			}
 		}
-
 	}
 
 	class MacHackedFileChooserPanel extends JFileChooser {
 
-		/**
-		 *
-		 */
 		private static final long serialVersionUID = 1L;
 
 		@Override
@@ -280,7 +275,6 @@ public class FileChooserPanel extends JPanel {
 			} catch (final Exception e) { // This is a hack to avoid
 				// stupid mac behaviour
 			}
-
 		}
 	}
 
@@ -288,11 +282,11 @@ public class FileChooserPanel extends JPanel {
 
 	/**
 	 * Shows a modal dialog to select some files
-	 * 
+	 *
 	 * @param file_list
 	 *            default files in the selected file list
-	 * @return the file list returns <code>null</code> if the dialog was closed
-	 *         with cancel, or ESC or X
+	 * @return the file list returns <code>null</code> if the dialog was closed with
+	 *         cancel, or ESC or X
 	 */
 
 	public static String[] showFileChooserDialog(final FileFilter filter, final String[] file_list) {
@@ -308,21 +302,12 @@ public class FileChooserPanel extends JPanel {
 		}
 
 		final JButton ok = new JButton("OK");
-		ok.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				cancelFlag[0] = -1;
-				dlg.dispose();
-
-			}
+		ok.addActionListener(e -> {
+			cancelFlag[0] = -1;
+			dlg.dispose();
 		});
 		final JButton cancel = new JButton("Cancel");
-		cancel.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				dlg.dispose();
-			}
-		});
+		cancel.addActionListener(e -> dlg.dispose());
 		final JPanel buttons = new JPanel();
 		buttons.add(ok);
 		buttons.add(cancel);
@@ -362,14 +347,9 @@ public class FileChooserPanel extends JPanel {
 
 	private final JButton m_remAllButton;
 
-	// /**
-	// * Creates an new file chooser panel with no files filtered.
-	// */
-	// public FileChooserPanel2() {
-	// this(null);
-	// }
-
 	private final JButton m_remButton;
+
+	private NodeLogger log = NodeLogger.getLogger(FileChooserPanel.class);
 
 	/*
 	 * action for the add button
@@ -380,7 +360,7 @@ public class FileChooserPanel extends JPanel {
 	private final JList m_selectedFileList;
 
 	/*
-	 * 
+	 *
 	 * action add all button
 	 */
 
@@ -392,7 +372,7 @@ public class FileChooserPanel extends JPanel {
 
 	/**
 	 * Creates a new file chooser panel
-	 * 
+	 *
 	 * @param fileFilter
 	 *            available file name extension filters
 	 */
@@ -402,7 +382,6 @@ public class FileChooserPanel extends JPanel {
 		this.m_fileFilter = fileFilter;
 
 		m_defDir = new File(prefDir);
-		// System.out.println(defDir.toString());
 		// create instances
 
 		// mac hack to get the file name text field in the jfilechooser dialog.
@@ -462,8 +441,6 @@ public class FileChooserPanel extends JPanel {
 		final ApplyFileView view = new ApplyFileView();
 		m_fileChooser.setFileView(view);
 
-		// buttonPan.add(m_imagePreviewPanel);
-		// buttonPan.add(Box.createGlue());
 		m_fileChooser.setPreferredSize(new Dimension(300, 100));
 		final JPanel browsePane = new JPanel();
 		browsePane.setLayout(new BoxLayout(browsePane, BoxLayout.Y_AXIS));
@@ -471,7 +448,6 @@ public class FileChooserPanel extends JPanel {
 		browsePane.add(m_fileChooser);
 
 		if (fileFilter != null) {
-			// m_fileChooser.setFileFilter(fileFilter);
 			m_fileChooser.setFileFilter(fileFilter);
 
 		}
@@ -481,9 +457,7 @@ public class FileChooserPanel extends JPanel {
 		m_fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 		m_fileChooser.setControlButtonsAreShown(false);
 		m_fileChooser.setPreferredSize(new Dimension(450, 340));
-		// center.add(buttonPan);
-		// rightTab.setPreferredSize(new Dimension(400, 300));
-		// browsePane.setPreferredSize(new Dimension(600, 500));
+
 		enterHack(m_fileChooser.getComponents());
 		right.add(rightTab);
 		left.add(browsePane);
@@ -494,62 +468,40 @@ public class FileChooserPanel extends JPanel {
 		selectedPane.add(jspSelFileList);
 		selectedPane.add(delButtonPan);
 
-		// browsePane.add(m_addAllButton);
 		rightTab.add("Selected Files", selectedPane);
 		rightTab.add("Preview/Meta-Data", m_imagePreviewPanel);
 
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		add(left);
-		// add(center);
 		add(right);
 		m_fileChooser.setComponentPopupMenu(popup);
 
 		final JMenuItem add = new JMenuItem("Add Selected File",
 				new ImageIcon(getClass().getResource("button_ok.png")));
-		add.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				onAdd();
-				fireSelectionChangedEvent();
-			}
-
+		add.addActionListener(e -> {
+			onAdd();
+			fireSelectionChangedEvent();
 		});
 
 		final JMenuItem addAll = new JMenuItem("Add all Visible Files",
 				new ImageIcon(getClass().getResource("edit_add.png")));
-		addAll.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				onAddAllTopLevelFiles();
-				fireSelectionChangedEvent();
-			}
-
+		addAll.addActionListener(e -> {
+			onAddAllTopLevelFiles();
+			fireSelectionChangedEvent();
 		});
 
 		final JMenuItem clearSelection = new JMenuItem("Remove All",
 				new ImageIcon(getClass().getResource("edit_remove.png")));
-		clearSelection.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				m_selectedFileListModel.removeAll();
-				fireSelectionChangedEvent();
-			}
-
+		clearSelection.addActionListener(e -> {
+			m_selectedFileListModel.removeAll();
+			fireSelectionChangedEvent();
 		});
 
 		final JMenuItem remove = new JMenuItem("Remove Selected",
 				new ImageIcon(getClass().getResource("editdelete.png")));
-		remove.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				m_selectedFileListModel.removeMenu(m_fileChooser.getSelectedFiles());
-
-				fireSelectionChangedEvent();
-			}
+		remove.addActionListener(e -> {
+			m_selectedFileListModel.removeMenu(m_fileChooser.getSelectedFiles());
+			fireSelectionChangedEvent();
 		});
 		final JSeparator sep = new JSeparator();
 
@@ -564,43 +516,15 @@ public class FileChooserPanel extends JPanel {
 		m_previewListener = new ImagePreviewListener(m_imagePreviewPanel);
 		m_fileChooser.addPropertyChangeListener(m_previewListener);
 
-		m_addButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				onAdd();
-			}
-		});
+		m_addButton.addActionListener(e -> onAdd());
 
-		m_addAllButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				onAddAllTopLevelFiles();
-			}
-		});
+		m_addAllButton.addActionListener(e -> onAddAllTopLevelFiles());
 
-		m_remButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
+		m_remButton.addActionListener(e -> onRemove());
 
-				onRemove();
-			}
+		m_remAllButton.addActionListener(e -> onRemoveAll());
 
-		});
-
-		m_remAllButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				onRemoveAll();
-			}
-		});
-
-		m_fileChooser.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				onAdd();
-			}
-		});
+		m_fileChooser.addActionListener(e -> onAdd());
 
 		m_selectedFileList.addMouseListener(new MouseListener() {
 
@@ -620,7 +544,6 @@ public class FileChooserPanel extends JPanel {
 				} else if (arg0.getClickCount() == 2) {
 					onRemove();
 				}
-
 			}
 
 			@Override
@@ -645,8 +568,6 @@ public class FileChooserPanel extends JPanel {
 		});
 
 		m_fileChooser.setCurrentDirectory(m_defDir);
-		// m_fileChooser.setVisible(false);
-		// m_fileChooser.setVisible(true);
 	}
 
 	public void enterHack(final Component[] comp) {
@@ -662,17 +583,16 @@ public class FileChooserPanel extends JPanel {
 						if (event.getKeyCode() == KeyEvent.VK_ENTER) {
 							enterOnTextField(event, fl.getText());
 						}
-
 					}
 
 					@Override
 					public void keyReleased(final KeyEvent arg0) {
-
+						// Nothing to do here
 					}
 
 					@Override
 					public void keyTyped(final KeyEvent arg0) {
-
+						// Nothing to do here
 					}
 				});
 				return;
@@ -688,8 +608,8 @@ public class FileChooserPanel extends JPanel {
 		}
 
 		final File[] dirFiles = m_fileChooser.getCurrentDirectory().listFiles();
-		final ArrayList<String> textFiles = new ArrayList<String>();
-		final ArrayList<File> selectedFiles = new ArrayList<File>();
+		final ArrayList<String> textFiles = new ArrayList<>();
+		final ArrayList<File> selectedFiles = new ArrayList<>();
 
 		// split at " and ' ' most probably a list of files
 		final StringTokenizer tk = new StringTokenizer(text, "\"");
@@ -783,9 +703,9 @@ public class FileChooserPanel extends JPanel {
 
 	/**
 	 * The list of the selected files
-	 * 
+	 *
 	 * @return files
-	 * 
+	 *
 	 */
 	public String[] getSelectedFiles() {
 		final String[] values = new String[m_selectedFileListModel.getSize()];
@@ -813,7 +733,7 @@ public class FileChooserPanel extends JPanel {
 
 	private void onAddAllTopLevelFiles() {
 		final File[] files = m_fileChooser.getCurrentDirectory().listFiles();
-		final ArrayList<File> topLevelFiles = new ArrayList<File>();
+		final ArrayList<File> topLevelFiles = new ArrayList<>();
 
 		// remove directories
 		for (final File f : files) {
@@ -853,7 +773,7 @@ public class FileChooserPanel extends JPanel {
 
 	/**
 	 * Updates the selected files list after removing or adding files
-	 * 
+	 *
 	 * @param selectedFiles
 	 */
 
@@ -866,7 +786,6 @@ public class FileChooserPanel extends JPanel {
 			}
 			m_selectedFileListModel.removeAll();
 			m_selectedFileListModel.addFiles(files, m_fileFilter);
-
 		}
 
 		if (m_eventService != null) {
@@ -875,22 +794,22 @@ public class FileChooserPanel extends JPanel {
 	}
 
 	/**
-	 * On Mac OS X there is no text field for regexes with the default look and
-	 * feel {@link JFileChooser}. Therefore on Mac OS X the
+	 * On Mac OS X there is no text field for regexes with the default look and feel
+	 * {@link JFileChooser}. Therefore on Mac OS X the
 	 * {@link MacHackedFileChooserPanel} gets the
 	 * UIManager.getCrossPlatformLookAndFeelClassName()
-	 * 
-	 * @return
+	 *
+	 * @return A file chooser
 	 */
 	private MacHackedFileChooserPanel getFileChooserWithLookAndFeel() {
 		MacHackedFileChooserPanel fileChooser = null;
 		if (System.getProperty("os.name").equals("Mac OS X")) {
-			LookAndFeel lookAndFeel = UIManager.getLookAndFeel();
+			final LookAndFeel lookAndFeel = UIManager.getLookAndFeel();
 			try {
 				UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
 				fileChooser = new MacHackedFileChooserPanel();
 				UIManager.setLookAndFeel(lookAndFeel);
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				// mac hack
 			}
 		}
