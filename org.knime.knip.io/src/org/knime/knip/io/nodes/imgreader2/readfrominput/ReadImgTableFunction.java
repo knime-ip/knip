@@ -19,8 +19,8 @@ import org.knime.core.data.RowKey;
 import org.knime.core.data.StringValue;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.node.ExecutionContext;
-import org.knime.core.util.FileUtil;
 import org.knime.core.util.Pair;
+import org.knime.core.util.pathresolve.ResolverUtil;
 import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection2;
 import org.knime.knip.io.nodes.imgreader2.AbstractReadImgFunction;
 import org.knime.knip.io.nodes.imgreader2.ColumnCreationMode;
@@ -76,7 +76,7 @@ class ReadImgTableFunction<T extends RealType<T> & NativeType<T>> extends Abstra
 					|| url.getProtocol().equalsIgnoreCase("HTTPS")) {
 				path = url.toURI().toString();
 			} else {
-				path = FileUtil.resolveToPath(url).toString();
+				path = ResolverUtil.resolveURItoLocalOrTempFile(url.toURI()).getAbsolutePath();
 			}
 
 			numSeries = m_imgSource.getSeriesCount(path);
