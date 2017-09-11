@@ -23,13 +23,13 @@ public class URLUtil {
 		} catch (MalformedURLException | URISyntaxException e1) {
 			try {
 				final URI fromString = URIUtil.fromString(in);
+				// no scheme specified, we assume 'file://'
 				if (fromString.getScheme() == null) {
 					final String fragment = fromString.getFragment();
 					if (fragment != null) {
 						return new URI("file", fromString.getSchemeSpecificPart() + "#" + fragment, null);
-					} else {
-						return new URI("file", fromString.getSchemeSpecificPart(), fragment);
 					}
+					return new URI("file", fromString.getSchemeSpecificPart(), fragment);
 				} else if (isValidScheme(fromString.getScheme())) {
 					return fromString;
 				} else {
