@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: KNIME Image Processing - Cell Viewer
 Bundle-SymbolicName: org.knime.knip.cellviewer;singleton:=true
-Bundle-Version: 1.6.0.qualifier
+Bundle-Version: 1.5.5.qualifier
 Require-Bundle: org.eclipse.core.runtime,
  org.knime.core;bundle-version="3.1.1",
  org.knime.workbench.repository;bundle-version="3.1.0"
