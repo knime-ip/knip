@@ -1,7 +1,6 @@
 package org.knime.knip.io.nodes.imgreader2.readfrominput;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.InvalidPathException;
@@ -12,6 +11,11 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import net.imglib2.img.Img;
+import net.imglib2.img.ImgFactory;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
@@ -25,11 +29,6 @@ import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection2;
 import org.knime.knip.io.nodes.imgreader2.AbstractReadImgFunction;
 import org.knime.knip.io.nodes.imgreader2.ColumnCreationMode;
 import org.knime.knip.io.nodes.imgreader2.URLUtil;
-
-import net.imglib2.img.Img;
-import net.imglib2.img.ImgFactory;
-import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.RealType;
 
 /**
  * {@link Function} to read an {@link Img}, OME-XML Metadata or both from a file
@@ -68,10 +67,8 @@ class ReadImgTableFunction<T extends RealType<T> & NativeType<T>> extends Abstra
 		String path;
 		int numSeries;
 		try {
-			URI uri = URLUtil.encode(t);
-			URL url = uri.toURL();
-
-			// check if its an internet address;
+			URL url = URLUtil.encode(t).toURL();
+			// check if its an remote address;
 			if (url.getProtocol().equalsIgnoreCase("HTTP") || url.getProtocol().equalsIgnoreCase("FTP")
 					|| url.getProtocol().equalsIgnoreCase("HTTPS")) {
 				path = url.toURI().toString();
@@ -115,9 +112,6 @@ class ReadImgTableFunction<T extends RealType<T> & NativeType<T>> extends Abstra
 	 * @param readFiles
 	 *            the {@link List} of read {@link Img}s, with {@link Optional}
 	 *            {@link Exception}s.
-	 * @param columnSelectionMode
-	 *            the column selection mode see
-	 *            {@link ImgReaderTableNodeModel#COL_CREATION_MODES}
 	 * @param inputColumnIndex
 	 *            the column index of the path.
 	 * @return a {@link Stream} with the output {@link DataRow}s.
