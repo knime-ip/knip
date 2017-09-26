@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode type="Manipulator" icon="orientationj_measure.png">
+	<name>OrientationJ Measurement</name>
+	<shortDescription>Extracts the features energy, orientation
+		and coherency from images.</shortDescription>
+	<fullDescription>
+		<intro>
+			This node performs quantitative orientation measurements according to
+			the
+			<a href="https://imagej.net/">ImageJ</a>
+			plugin
+			<a href="http://bigwww.epfl.ch/demo/orientation/">OrientationJ</a>
+			written by Daniel Sage at the
+			<a href="http://bigwww.epfl.ch/">Biomedical Imaging Group (BIG)</a>
+			. It is able to extract the following features from an image: energy,
+			orientation and coherency. A brief theoretical background can be
+			found
+			<a
+				href="http://bigwww.epfl.ch/demo/orientation/theoretical-background.pdf">here</a>
+			.
+			<br />
+			A Laplacian of Gaussian filtering can be applied as an preprocesing step to the images.
+			<br />
+			Input must be images with only two dimensions. If needed, images can
+			be sliced with the 	<i>Image Cropper</i> node.
+		</intro>
+		<tab name="Options">
+			<option name="Laplacian of Gaussian (sigma)">
+				If sigma is greater than zero, a Laplacian of
+				Gaussian filtering will
+				be applied as preprocessing onto the image.
+			</option>
+			<option name="Energy">
+				If selected, the energy feature will be
+				extracted.
+			</option>
+			<option name="Orientation">
+				If selected, the orientation feature will be
+				extracted.
+			</option>
+			<option name="Coherency">
+				If selected, the coherency feature will be
+				extracted.
+			</option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Input table">
+			Input table containing a column with images.
+		</inPort>
+		<outPort index="0" name="Output table">
+			Output table with the selected
+			features.
+		</outPort>
+	</ports>
+</knimeNode>
