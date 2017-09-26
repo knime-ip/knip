@@ -67,8 +67,8 @@ import net.imglib2.view.Views;
  * This {@link Op} calculates the energy, orientation and coherency features according to the OrientationJ plugin for
  * ImageJ. <br>
  * <br>
- * This code has mostly been taken and ported form the
- * <a href="http://bigwww.epfl.ch/demo/orientation/">OrientationJ</a> plugin for ImageJ, written by Daniel Sage.
+ * This code has been inspired and ported from the <a href="http://bigwww.epfl.ch/demo/orientation/">OrientationJ</a>
+ * plugin for ImageJ, written by Daniel Sage.
  *
  * @see <a href="http://bigwww.epfl.ch/demo/orientation/">OrientationJ</a>
  * @see <a href="https://imagej.net/">ImageJ</a>

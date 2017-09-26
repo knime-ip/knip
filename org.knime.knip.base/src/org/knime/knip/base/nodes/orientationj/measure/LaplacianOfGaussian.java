@@ -61,7 +61,13 @@ import net.imglib2.view.Views;
 
 /**
  * This class allows to apply a Laplacian of Gaussian filter onto a {@link RandomAccessibleInterval} with parameter
- * sigma.
+ * sigma.<br>
+ * <br>
+ * This code has been inspired and ported from the <a href="http://bigwww.epfl.ch/demo/orientation/">OrientationJ</a>
+ * plugin for ImageJ, written by Daniel Sage.
+ *
+ * @see <a href="http://bigwww.epfl.ch/demo/orientation/">OrientationJ</a>
+ * @see <a href="https://imagej.net/">ImageJ</a>
  *
  * @author Simon Schmid, University of Konstanz, Germany
  */
@@ -175,14 +181,14 @@ final class LaplacianOfGaussian<T extends RealType<T>> {
         double[][] kernel = new double[2][size];
 
         for (int k = 0; k < size; k++) {
-            kernel[k][0] = Math.exp(-((k - size2) * (k - size2)) / dem);
+            kernel[0][k] = Math.exp(-((k - size2) * (k - size2)) / dem);
         }
 
         double s4 = s2 * s2;
         double cst = 1.0 / (2 * Math.PI * sigma * sigma);
         for (int k = 0; k < size; k++) {
             final double x = (k - size2) * (k - size2);
-            kernel[k][1] = cst * (x / s4 - 1.0 / s2) * Math.exp(-x / dem);
+            kernel[1][k] = cst * (x / s4 - 1.0 / s2) * Math.exp(-x / dem);
         }
         return kernel;
     }
