@@ -63,11 +63,6 @@ import net.imglib2.type.numeric.RealType;
 public final class OrientationJMeasurementNodeFactory<T extends RealType<T>>
         extends ValueToCellsNodeFactory<ImgPlusValue<T>> {
 
-    @Override
-    protected int getNrNodeViews() {
-        return 0;
-    }
-
     /**
      * {@inheritDoc}
      */

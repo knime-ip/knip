@@ -49,7 +49,6 @@
 package org.knime.knip.base.nodes.orientationj.measure;
 
 import org.scijava.plugin.Parameter;
-import org.scijava.plugin.Plugin;
 
 import net.imagej.ops.Contingent;
 import net.imagej.ops.Op;
@@ -76,8 +75,7 @@ import net.imglib2.view.Views;
  * @author Simon Schmid, University of Konstanz, Germany
  * @param <T>
  */
-@Plugin(type = Op.class)
-public class Measure<T extends RealType<T>> extends AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, double[]>
+class Measure<T extends RealType<T>> extends AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, double[]>
         implements Contingent {
 
     @Parameter
