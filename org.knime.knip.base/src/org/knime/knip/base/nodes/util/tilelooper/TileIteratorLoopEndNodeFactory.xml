@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="tileiteratorloopend.png" type="LoopEnd">
+	<name>Tile Loop End</name>
+
+	<shortDescription>
+		Collects tiles of Tile Loop Start and recombines them to images.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			<!-- TODO(benjamin) -->
+		</intro>
+	</fullDescription>
+
+	<ports>
+		<!-- TODO(benjamin) -->
+		<inPort index="0" name="Processed datatable">Processed datatable</inPort>
+		<outPort index="0" name="Merged image tiles">Merged image slices</outPort>
+	</ports>
+
+	<views>
+		<!-- TODO(benjamin) -->
+		<view name="TableCellView" index="0">
+		View selected images /labelings.
+		</view>
+	</views>
+
+</knimeNode>

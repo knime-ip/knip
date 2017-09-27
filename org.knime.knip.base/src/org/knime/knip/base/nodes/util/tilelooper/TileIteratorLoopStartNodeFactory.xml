@@ -1,0 +1,32 @@
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="tileiterator.png" type="LoopStart">
+	<name>Tile Loop Start</name>
+	<shortDescription>
+		Loops over tiles of equal size.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>Tile Loop
+			<!-- TODO(benjamin) -->
+		</intro>
+
+		<option name="Option"> <!-- TODO(benjamin) describe options -->
+		</option>
+	</fullDescription>
+
+	<ports>
+		<!-- TODO(benjamin) describe ports -->
+		<inPort index="0" name="Any datatable">Any datatable</inPort>
+		<outPort index="0" name="Slices to process in the current iteration">Slices to process in the current
+			iteration
+		</outPort>
+	</ports>
+
+
+	<views>
+		<!-- TODO(benjamin) describe views -->
+		<view name="TableCellView" index="0"> View recombined images /
+			labelings.
+		</view>
+	</views>
+</knimeNode>
