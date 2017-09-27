@@ -3,7 +3,8 @@
 <knimeNode type="Manipulator" icon="orientationj_measure.png">
 	<name>OrientationJ Measurement</name>
 	<shortDescription>Extracts the features energy, orientation
-		and coherency from images.</shortDescription>
+		and
+		coherency from images.</shortDescription>
 	<fullDescription>
 		<intro>
 			This node performs quantitative orientation measurements according to
@@ -20,10 +21,13 @@
 				href="http://bigwww.epfl.ch/demo/orientation/theoretical-background.pdf">here</a>
 			.
 			<br />
-			A Laplacian of Gaussian filtering can be applied as an preprocesing step to the images.
+			A Laplacian of Gaussian filtering can be applied as an preprocesing
+			step to the images.
 			<br />
 			Input must be images with only two dimensions. If needed, images can
-			be sliced with the 	<i>Image Cropper</i> node.
+			be sliced with the
+			<i>Image Cropper</i>
+			node.
 		</intro>
 		<tab name="Options">
 			<option name="Laplacian of Gaussian (sigma)">
@@ -48,11 +52,16 @@
 
 	<ports>
 		<inPort index="0" name="Input table">
-			Input table containing a column with images.
+			Input table containing a column with
+			images.
 		</inPort>
 		<outPort index="0" name="Output table">
 			Output table with the selected
 			features.
 		</outPort>
 	</ports>
+
+	<views>
+		<view index="0" name="Image Viewer">Image Viewer</view>
+	</views>
 </knimeNode>
