@@ -12,6 +12,10 @@
 			Merges the tiles of a Tile Loop Start into the original images.
 			Also removes the overlap.
 		</intro>
+
+		<option name="Image column to merge">
+			The column which contains the tiles of the images.
+		</option>
 	</fullDescription>
 
 	<ports>
@@ -24,7 +28,7 @@
 	</ports>
 
 	<views>
-		<view name="TableCellView" index="0">
+		<view name="Image Viewer" index="0">
 			View recombined images.
 		</view>
 	</views>

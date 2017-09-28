@@ -43,7 +43,7 @@
 
 
 	<views>
-		<view name="TableCellView" index="0">
+		<view name="Image Viewer" index="0">
 			View image tiles.
 		</view>
 	</views>

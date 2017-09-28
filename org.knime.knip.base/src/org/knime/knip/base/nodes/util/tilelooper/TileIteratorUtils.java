@@ -49,6 +49,10 @@
  */
 package org.knime.knip.base.nodes.util.tilelooper;
 
+import org.knime.core.data.DataColumnSpec;
+import org.knime.core.data.DataTableSpec;
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.KNIMEKNIPPlugin;
 import org.knime.knip.base.nodes.util.tilelooper.config.SettingsModelOptionalNumber;
 
@@ -75,13 +79,45 @@ public class TileIteratorUtils {
         long[] array = new long[metadata.numDimensions()];
         for (int i = 0; i < array.length; i++) {
             for (int j = 0; j < axis.length; j++) {
-                // TODO(discuss) is this always correct?
                 // TODO think about a more elegant solution
                 if (axis[j].type().getLabel().equals(metadata.axis(i).type().getLabel())) {
                     array[i] = models[j].hasNumber() ? models[j].getIntValue() : -1;
+                    break;
                 }
             }
         }
         return array;
+    }
+
+    /**
+     * Finds the index of the chosen column.
+     *
+     * @param inSpec The data table spec of the table.
+     * @param columnSelection Settings model for the column selection.
+     * @return The index.
+     * @throws InvalidSettingsException If no column is selected.
+     */
+    static int getSelectedColumnIndex(final DataTableSpec inSpec, final SettingsModelString columnSelection)
+            throws InvalidSettingsException {
+        int columnIndex = inSpec.findColumnIndex(columnSelection.getStringValue());
+        if (columnIndex == -1) {
+            throw new InvalidSettingsException("No column selected.");
+        }
+        return columnIndex;
+    }
+
+    /**
+     * Creates the output table spec of the node.
+     *
+     * @param inSpec The input table spec.
+     * @param columnSelection Settings model for the column selection.
+     * @return The output table spec.
+     * @throws InvalidSettingsException If no column is selected.
+     */
+    static DataTableSpec createOutSpecs(final DataTableSpec inSpec, final SettingsModelString columnSelection)
+            throws InvalidSettingsException {
+        int i = getSelectedColumnIndex(inSpec, columnSelection);
+        DataColumnSpec columnSpec = inSpec.getColumnSpec(i);
+        return new DataTableSpec(columnSpec);
     }
 }

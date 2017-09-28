@@ -51,6 +51,9 @@ package org.knime.knip.base.nodes.util.tilelooper;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
+import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
+import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
+import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.cellviewer.CellNodeView;
 
 import net.imglib2.type.numeric.RealType;
@@ -69,8 +72,16 @@ public class TileIteratorLoopEndNodeFactory <T extends RealType<T>> extends Node
      */
     @Override
     protected NodeDialogPane createNodeDialogPane() {
-        // there is no dialog
-        return null;
+
+        return new DefaultNodeSettingsPane() {
+            {
+                createNewGroup("Image column to merge");
+                addDialogComponent(new DialogComponentColumnNameSelection(
+                        TileIteratorLoopEndNodeModel.createImgColumnModel(), "", 0,
+                        ImgPlusValue.class));
+                closeCurrentGroup();
+            }
+        };
     }
 
     /**
@@ -106,7 +117,7 @@ public class TileIteratorLoopEndNodeFactory <T extends RealType<T>> extends Node
      */
     @Override
     protected boolean hasDialog() {
-        return false;
+        return true;
     }
 
 }

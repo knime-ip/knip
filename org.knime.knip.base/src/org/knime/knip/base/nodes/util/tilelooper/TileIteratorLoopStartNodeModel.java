@@ -54,7 +54,6 @@ import java.io.IOException;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.DataType;
 import org.knime.core.data.container.CloseableRowIterator;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.node.BufferedDataContainer;
@@ -164,10 +163,8 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>> extends NodeM
      */
     @Override
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
-        // TODO(discuss) maybe we want to keep other columns?
-        // TODO(discuss) fail if no column was selected
         assert m_iteration == 0;
-        return new DataTableSpec[]{createTableSpec(inSpecs[0])};
+        return new DataTableSpec[]{TileIteratorUtils.createOutSpecs(inSpecs[0], m_columnSelection)};
     }
 
     /**
@@ -192,12 +189,13 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>> extends NodeM
         }
 
         // Create the output table
-        BufferedDataContainer cont = exec.createDataContainer(createTableSpec(table.getDataTableSpec()));
+        BufferedDataContainer cont =
+                exec.createDataContainer(TileIteratorUtils.createOutSpecs(table.getDataTableSpec(), m_columnSelection));
 
         // Get the image to tile
         final DataRow dataRow = m_iterator.next();
-        final DataCell imgCell = dataRow.getCell(getSelectedColumnIndex(table.getDataTableSpec()));
-        // TODO(discuss) do we modify it somewhere?
+        final DataCell imgCell =
+                dataRow.getCell(TileIteratorUtils.getSelectedColumnIndex(table.getDataTableSpec(), m_columnSelection));
         @SuppressWarnings("unchecked") // We only allow columns with images
         ImgPlusValue<T> imgVal = (ImgPlusValue<T>)imgCell;
         ImgPlus<T> img = imgVal.getImgPlus();
@@ -405,16 +403,6 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>> extends NodeM
     // ----------------- Helpers for interpreting the settings ----------------------
 
     /**
-     * Finds the index of the chosen column.
-     *
-     * @param inSpec The data table spec of the table.
-     * @return The index.
-     */
-    protected int getSelectedColumnIndex(final DataTableSpec inSpec) {
-        return inSpec.findColumnIndex(m_columnSelection.getStringValue());
-    }
-
-    /**
      * Calculates the tile size for the current image using the user settings.
      *
      * @param dimSize The size of the current image.
@@ -443,19 +431,6 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>> extends NodeM
             overlap[i] = overlap[i] > 0 ? overlap[i] : DEFAULT_OVERLAP;
         }
         return overlap;
-    }
-
-    /**
-     * Creates the tables spec of the output table.
-     *
-     * @param inSpec The spec of the input table.
-     * @return The table spec of the output table.
-     */
-    protected DataTableSpec createTableSpec(final DataTableSpec inSpec) {
-        // TODO(discuss) Keep other columns?
-        String name = m_columnSelection.getStringValue();
-        DataType type = inSpec.getColumnSpec(getSelectedColumnIndex(inSpec)).getType();
-        return new DataTableSpec(new String[]{name}, new DataType[]{type});
     }
 
     /**

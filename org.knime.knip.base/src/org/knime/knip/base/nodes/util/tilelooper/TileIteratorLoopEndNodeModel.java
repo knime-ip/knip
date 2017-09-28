@@ -52,7 +52,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.knime.core.data.DataCell;
-import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.container.CloseableRowIterator;
@@ -67,6 +66,7 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.workflow.LoopEndNode;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
@@ -91,13 +91,18 @@ import net.imglib2.view.Views;
  *
  * @author Benjamin Wilhelm, MPI-CBG, Dresden
  */
-public class TileIteratorLoopEndNodeModel <T extends RealType<T>> extends NodeModel implements LoopEndNode, BufferedDataTableHolder {
+public class TileIteratorLoopEndNodeModel<T extends RealType<T>> extends NodeModel
+        implements LoopEndNode, BufferedDataTableHolder {
+
+    private static final String IMG_COLUMN_CONF_KEY = "img_column_key";
 
     // ---------------------------------------------- Loop helper stuff -------------------------------
 
     private BufferedDataContainer m_resultContainer;
 
     // ---------------------------------------------- Misc --------------------------------------------
+
+    private final SettingsModelString m_columnSelection = createImgColumnModel();
 
     private BufferedDataTable m_dataTable;
 
@@ -115,14 +120,15 @@ public class TileIteratorLoopEndNodeModel <T extends RealType<T>> extends NodeMo
      */
     @Override
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
-        return new DataTableSpec[] {createOutSpecs(inSpecs[0])};
+        return new DataTableSpec[]{TileIteratorUtils.createOutSpecs(inSpecs[0], m_columnSelection)};
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec) throws Exception {
+    protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
+            throws Exception {
         final BufferedDataTable table = inData[0];
 
         // do we have a valid start node?
@@ -132,8 +138,7 @@ public class TileIteratorLoopEndNodeModel <T extends RealType<T>> extends NodeMo
 
         // get loop start node
         @SuppressWarnings("unchecked")
-        final TileIteratorLoopStartNodeModel<T> loopStartNode =
-                (TileIteratorLoopStartNodeModel<T>)getLoopStartNode();
+        final TileIteratorLoopStartNodeModel<T> loopStartNode = (TileIteratorLoopStartNodeModel<T>)getLoopStartNode();
 
         // create output container if it does not exist
         if (m_resultContainer == null) {
@@ -158,11 +163,11 @@ public class TileIteratorLoopEndNodeModel <T extends RealType<T>> extends NodeMo
         final long[] overlap = loopStartNode.getCurrentOverlap();
         final long[] negOverlap = new long[overlap.length];
         for (int i = 0; i < overlap.length; i++) {
-            negOverlap[i] = - overlap[i];
+            negOverlap[i] = -overlap[i];
         }
 
         ArrayList<RandomAccessibleInterval<T>> tiles = new ArrayList<>();
-        int tilesIndex = getTilesColumnIndex(table.getDataTableSpec());
+        int tilesIndex = TileIteratorUtils.getSelectedColumnIndex(table.getDataTableSpec(), m_columnSelection);
         ImgPlusMetadata tileMetadata = null;
         ImgFactory<T> imgFactory = null;
         String rowKey = null;
@@ -171,7 +176,7 @@ public class TileIteratorLoopEndNodeModel <T extends RealType<T>> extends NodeMo
             DataRow dataRow = iterator.next();
             DataCell cell = dataRow.getCell(tilesIndex);
             @SuppressWarnings("unchecked") // We check before that our column contains images
-            ImgPlusValue<T> imgVal = (ImgPlusValue<T>) cell;
+            ImgPlusValue<T> imgVal = (ImgPlusValue<T>)cell;
             ImgPlus<T> img = imgVal.getImgPlus();
 
             // Get the metadata
@@ -269,7 +274,7 @@ public class TileIteratorLoopEndNodeModel <T extends RealType<T>> extends NodeMo
      */
     @Override
     protected void saveSettingsTo(final NodeSettingsWO settings) {
-        // Nothing to do
+        m_columnSelection.saveSettingsTo(settings);
     }
 
     /**
@@ -277,7 +282,7 @@ public class TileIteratorLoopEndNodeModel <T extends RealType<T>> extends NodeMo
      */
     @Override
     protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
-        // Nothing to do
+        m_columnSelection.validateSettings(settings);
     }
 
     /**
@@ -285,7 +290,7 @@ public class TileIteratorLoopEndNodeModel <T extends RealType<T>> extends NodeMo
      */
     @Override
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
-        // Nothing to do
+        m_columnSelection.loadSettingsFrom(settings);
     }
 
     /**
@@ -299,32 +304,12 @@ public class TileIteratorLoopEndNodeModel <T extends RealType<T>> extends NodeMo
 
     }
 
-    // --------------------------------------- Helpers
+    // ----------------- Static methods for settings models -------------------------
 
     /**
-     * @param inSpec The specs of the data table.
-     * @return The column with the tiles to combine. (First column with images)
+     * @return Model to store the Img Column.
      */
-    protected int getTilesColumnIndex(final DataTableSpec inSpec) {
-        // I hope it's the first image column.
-        // TODO(discuss) be smarter about this
-        for (int i = 0; i < inSpec.getNumColumns(); i++) {
-            if (inSpec.getColumnSpec(i).getType().isCompatible(ImgPlusValue.class)) {
-                return i;
-            }
-        }
-        throw new IllegalStateException("No image column in input table");
-    }
-
-    /**
-     * Creates the output table spec of the node.
-     *
-     * @param inSpec The input table spec.
-     * @return The output table spec.
-     */
-    protected DataTableSpec createOutSpecs(final DataTableSpec inSpec) {
-        int i = getTilesColumnIndex(inSpec);
-        DataColumnSpec columnSpec = inSpec.getColumnSpec(i);
-        return new DataTableSpec(columnSpec);
+    static SettingsModelString createImgColumnModel() {
+        return new SettingsModelString(IMG_COLUMN_CONF_KEY, "");
     }
 }
