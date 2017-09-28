@@ -13,11 +13,11 @@
    height="16"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.4 r9939"
-   sodipodi:docname="sliceiterator.svg"
-   inkscape:export-filename="/home/graumanna/Desktop/sliceiterator.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90">
+   inkscape:version="0.92.2 5c3e80d, 2017-08-06"
+   sodipodi:docname="tileiterator_2_4.svg"
+   inkscape:export-filename="/Users/bw/KNIME/git/knip/org.knime.knip.base/src/org/knime/knip/base/nodes/util/tilelooper/tileiterator.png"
+   inkscape:export-xdpi="99.096771"
+   inkscape:export-ydpi="99.096771">
   <defs
      id="defs4">
     <marker
@@ -472,17 +472,18 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="22.627417"
-     inkscape:cx="3.6361207"
-     inkscape:cy="8.9772181"
+     inkscape:zoom="32"
+     inkscape:cx="5.5991288"
+     inkscape:cy="6.4052134"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1600"
-     inkscape:window-height="1151"
+     inkscape:window-width="1920"
+     inkscape:window-height="1152"
      inkscape:window-x="0"
-     inkscape:window-y="25"
-     inkscape:window-maximized="1" />
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:snap-global="true" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -491,7 +492,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -509,31 +510,48 @@
        width="2"
        id="rect3089"
        style="fill:#8c0000;fill-opacity:1;stroke:none" />
-    <rect
-       style="opacity:1;fill:#e6e6e6;stroke:#000000;stroke-width:0.585;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       id="rect3347-3"
-       width="10.765332"
-       height="12.267422"
-       x="4.8923988"
-       y="1036.6941" />
-    <rect
-       style="opacity:1;fill:#e6e6e6;stroke:#000000;stroke-width:0.585;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       id="rect3347-3-7-6-3-5"
-       width="10.765332"
-       height="12.267422"
-       x="2.3628697"
-       y="1040.0635" />
     <text
        xml:space="preserve"
-       style="font-size:5px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        x="8.1317282"
-       y="13.657709"
-       id="text4360"
-       sodipodi:linespacing="125%"
-       transform="translate(0,1036.3622)"><tspan
+       y="1050.2699"
+       id="text4360"><tspan
          sodipodi:role="line"
          id="tspan4362"
          x="8.1317282"
-         y="13.657709" /></text>
+         y="1050.2699"
+         style="font-size:5px;line-height:1.25;font-family:sans-serif"> </tspan></text>
+    <rect
+       id="rect3889"
+       width="5.2768707"
+       height="6.1768708"
+       x="2.9615648"
+       y="-1043.2007"
+       style="fill:#e6e6e6;fill-opacity:1;stroke:#000000;stroke-width:0.32312942;stroke-miterlimit:4;stroke-dasharray:none"
+       transform="scale(1,-1)" />
+    <rect
+       transform="scale(1,-1)"
+       style="fill:#e6e6e6;fill-opacity:1;stroke:#000000;stroke-width:0.32312945;stroke-miterlimit:4;stroke-dasharray:none"
+       y="-1043.2007"
+       x="10.561564"
+       height="6.1768708"
+       width="5.2768707"
+       id="rect6535" />
+    <rect
+       transform="scale(1,-1)"
+       style="fill:#e6e6e6;fill-opacity:1;stroke:#000000;stroke-width:0.32312942;stroke-miterlimit:4;stroke-dasharray:none"
+       y="-1051.7007"
+       x="2.9615648"
+       height="6.1768708"
+       width="5.2768707"
+       id="rect6557" />
+    <rect
+       id="rect6559"
+       width="5.2768707"
+       height="6.1768708"
+       x="10.561564"
+       y="-1051.7007"
+       style="fill:#e6e6e6;fill-opacity:1;stroke:#000000;stroke-width:0.32312942;stroke-miterlimit:4;stroke-dasharray:none"
+       transform="scale(1,-1)" />
   </g>
 </svg>
