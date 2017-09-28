@@ -52,6 +52,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.knime.core.data.DataCell;
+import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.container.CloseableRowIterator;
@@ -114,7 +115,7 @@ public class TileIteratorLoopEndNodeModel <T extends RealType<T>> extends NodeMo
      */
     @Override
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
-        return inSpecs;
+        return new DataTableSpec[] {createOutSpecs(inSpecs[0])};
     }
 
     /**
@@ -301,17 +302,29 @@ public class TileIteratorLoopEndNodeModel <T extends RealType<T>> extends NodeMo
     // --------------------------------------- Helpers
 
     /**
-     * @param inSpecs The specs of the data table.
+     * @param inSpec The specs of the data table.
      * @return The column with the tiles to combine. (First column with images)
      */
-    protected int getTilesColumnIndex(final DataTableSpec inSpecs) {
+    protected int getTilesColumnIndex(final DataTableSpec inSpec) {
         // I hope it's the first image column.
         // TODO(discuss) be smarter about this
-        for (int i = 0; i < inSpecs.getNumColumns(); i++) {
-            if (inSpecs.getColumnSpec(i).getType().isCompatible(ImgPlusValue.class)) {
+        for (int i = 0; i < inSpec.getNumColumns(); i++) {
+            if (inSpec.getColumnSpec(i).getType().isCompatible(ImgPlusValue.class)) {
                 return i;
             }
         }
         throw new IllegalStateException("No image column in input table");
+    }
+
+    /**
+     * Creates the output table spec of the node.
+     *
+     * @param inSpec The input table spec.
+     * @return The output table spec.
+     */
+    protected DataTableSpec createOutSpecs(final DataTableSpec inSpec) {
+        int i = getTilesColumnIndex(inSpec);
+        DataColumnSpec columnSpec = inSpec.getColumnSpec(i);
+        return new DataTableSpec(columnSpec);
     }
 }

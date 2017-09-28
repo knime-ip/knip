@@ -82,7 +82,6 @@ import org.knime.knip.core.types.OutOfBoundsStrategyFactory;
 
 import net.imagej.ImgPlus;
 import net.imagej.ImgPlusMetadata;
-import net.imagej.axis.TypedAxis;
 import net.imagej.ops.MetadataUtil;
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccessibleInterval;
@@ -108,6 +107,12 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>> extends NodeM
     private static final int DEFAULT_TILE_SIZE = 100;
 
     private static final int DEFAULT_OVERLAP = 0;
+
+    /** Percentage of tile which must be outside of the image for a warning to appear. */
+    private static final float BAD_TILESIZE_WARNING_THRESHOLD = 0.5f;
+
+    private static final String BAD_TILESIZE_WARNING_MESSAGE = "Bad tilesize in dimension %s. More than "
+            + BAD_TILESIZE_WARNING_THRESHOLD * 100 + " %% of the tile outside of the image.";
 
     private static final String IMG_COLUMN_CONF_KEY = "img_column_key";
 
@@ -160,7 +165,7 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>> extends NodeM
     @Override
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
         // TODO(discuss) maybe we want to keep other columns?
-
+        // TODO(discuss) fail if no column was selected
         assert m_iteration == 0;
         return new DataTableSpec[]{createTableSpec(inSpecs[0])};
     }
@@ -207,10 +212,14 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>> extends NodeM
         m_currentGrid = new long[m_currentImgSize.length];
         m_currentOverlap = getOverlap(imgMetadata);
         for (int i = 0; i < m_currentImgSize.length; i++) {
-            m_currentGrid[i] = (long) Math.ceil(m_currentImgSize[i] / (float)tileSize[i]);
+            m_currentGrid[i] = (long)Math.ceil(m_currentImgSize[i] / (float)tileSize[i]);
             min[i] = img.min(i);
             max[i] = min[i] + m_currentGrid[i] * tileSize[i] - 1;
-            // TODO add warning when tile size is bad
+
+            // Check if the tile size is very bad
+            if (max[i] - min[i] - m_currentImgSize[i] >= tileSize[i] * BAD_TILESIZE_WARNING_THRESHOLD) {
+                setWarningMessage(String.format(BAD_TILESIZE_WARNING_MESSAGE, imgMetadata.axis(i).type().getLabel()));
+            }
         }
         OutOfBoundsFactory<T, RandomAccessibleInterval<T>> outOfBoundsFactory =
                 getOutOfBoundsStrategy(img.firstElement());
@@ -232,7 +241,8 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>> extends NodeM
 
             // Add to table
             DataCell outCell = m_cellFactory.createCell(tile);
-            cont.addRowToTable(new DefaultRow(dataRow.getKey().getString() + TileIteratorUtils.ROW_KEY_DELIMITER + ++i, outCell));
+            cont.addRowToTable(new DefaultRow(dataRow.getKey().getString() + TileIteratorUtils.ROW_KEY_DELIMITER + ++i,
+                    outCell));
         }
 
         // This iteration is done now
@@ -370,8 +380,8 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>> extends NodeM
         final SettingsModelOptionalNumber[] models =
                 new SettingsModelOptionalNumber[KNIMEKNIPPlugin.parseDimensionLabels().length];
         for (int i = 0; i < models.length; i++) {
-            models[i] =
-                    new SettingsModelOptionalNumberRange(TILE_SIZE_CONF_KEY + i, DEFAULT_TILE_SIZE, false, 1, Integer.MAX_VALUE);
+            models[i] = new SettingsModelOptionalNumberRange(TILE_SIZE_CONF_KEY + i, DEFAULT_TILE_SIZE, false, 1,
+                    Integer.MAX_VALUE);
         }
         return models;
     }
@@ -383,48 +393,62 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>> extends NodeM
         final SettingsModelOptionalNumber[] models =
                 new SettingsModelOptionalNumber[KNIMEKNIPPlugin.parseDimensionLabels().length];
         for (int i = 0; i < models.length; i++) {
-            models[i] =
-                    new SettingsModelOptionalNumberRange(OVERLAP_CONF_KEY + i, DEFAULT_OVERLAP, false, 1, Integer.MAX_VALUE);
+            models[i] = new SettingsModelOptionalNumberRange(OVERLAP_CONF_KEY + i, DEFAULT_OVERLAP, false, 0,
+                    Integer.MAX_VALUE);
         }
         return models;
     }
+    /**
+     * @param inSpec
+     * @return
+     */
     // ----------------- Helpers for interpreting the settings ----------------------
 
+    /**
+     * Finds the index of the chosen column.
+     *
+     * @param inSpec The data table spec of the table.
+     * @return The index.
+     */
     protected int getSelectedColumnIndex(final DataTableSpec inSpec) {
         return inSpec.findColumnIndex(m_columnSelection.getStringValue());
     }
 
+    /**
+     * Calculates the tile size for the current image using the user settings.
+     *
+     * @param dimSize The size of the current image.
+     * @param metadata The metadata of the image for the axis names.
+     * @return the tile size.
+     */
     protected long[] getTileSize(final long[] dimSize, final ImgPlusMetadata metadata) {
-        long[] tileSize = modelToArray(metadata, m_tileSizes);
+        long[] tileSize = TileIteratorUtils.modelToArray(metadata, m_tileSizes);
         for (int i = 0; i < tileSize.length; i++) {
             tileSize[i] = tileSize[i] > 0 ? tileSize[i] : dimSize[i];
         }
         return tileSize;
     }
 
+    /**
+     * Calculates the overlap for the current image using the user settings.
+     *
+     * @param metadata The metadata of the image for the axis names.
+     * @return The overlap in each dimension.
+     */
     protected long[] getOverlap(final ImgPlusMetadata metadata) {
-        long[] overlap = modelToArray(metadata, m_overlap);
+        long[] overlap = TileIteratorUtils.modelToArray(metadata, m_overlap);
         for (int i = 0; i < overlap.length; i++) {
             overlap[i] = overlap[i] > 0 ? overlap[i] : DEFAULT_OVERLAP;
         }
         return overlap;
     }
 
-    private static long[] modelToArray(final ImgPlusMetadata metadata, final SettingsModelOptionalNumber[] models) {
-        TypedAxis[] axis = KNIMEKNIPPlugin.parseDimensionLabelsAsAxis();
-        long[] array = new long[metadata.numDimensions()];
-        for (int i = 0; i < array.length; i++) {
-            for (int j = 0; j < axis.length; j++) {
-                // TODO(discuss) is this always correct?
-                // TODO think about a more elegant solution
-                if (axis[j].type().getLabel().equals(metadata.axis(i).type().getLabel())) {
-                    array[i] = models[j].hasNumber() ? models[j].getIntValue() : -1;
-                }
-            }
-        }
-        return array;
-    }
-
+    /**
+     * Creates the tables spec of the output table.
+     *
+     * @param inSpec The spec of the input table.
+     * @return The table spec of the output table.
+     */
     protected DataTableSpec createTableSpec(final DataTableSpec inSpec) {
         // TODO(discuss) Keep other columns?
         String name = m_columnSelection.getStringValue();
@@ -432,6 +456,12 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>> extends NodeM
         return new DataTableSpec(new String[]{name}, new DataType[]{type});
     }
 
+    /**
+     * Creates an {@link OutOfBoundsFactory} for the chosen out of bounds strategy.
+     *
+     * @param val A value of the image to get the type.
+     * @return A {@link OutOfBoundsFactory}.
+     */
     protected OutOfBoundsFactory<T, RandomAccessibleInterval<T>> getOutOfBoundsStrategy(final T val) {
         return OutOfBoundsStrategyFactory.getStrategy(m_outOfBoundsStrategy.getStringValue(), val);
     }

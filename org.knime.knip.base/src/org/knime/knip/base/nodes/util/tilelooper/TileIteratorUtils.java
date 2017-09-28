@@ -49,11 +49,39 @@
  */
 package org.knime.knip.base.nodes.util.tilelooper;
 
+import org.knime.knip.base.KNIMEKNIPPlugin;
+import org.knime.knip.base.nodes.util.tilelooper.config.SettingsModelOptionalNumber;
+
+import net.imagej.ImgPlusMetadata;
+import net.imagej.axis.TypedAxis;
+
 /**
- * TODO javadoc
+ * Utilities for the tile loop.
  *
  * @author Benjamin Wilhelm, MPI-CBG, Dresden
  */
 public class TileIteratorUtils {
     static final String ROW_KEY_DELIMITER = "#";
+
+    /**
+     * Writes the values of integer fields in the settings into an array using the order of dimensions of the image.
+     *
+     * @param metadata The metadata of the image.
+     * @param models The {@link SettingsModelOptionalNumber} which stores the settings.
+     * @return An array containing the values of the settings.
+     */
+    static long[] modelToArray(final ImgPlusMetadata metadata, final SettingsModelOptionalNumber[] models) {
+        TypedAxis[] axis = KNIMEKNIPPlugin.parseDimensionLabelsAsAxis();
+        long[] array = new long[metadata.numDimensions()];
+        for (int i = 0; i < array.length; i++) {
+            for (int j = 0; j < axis.length; j++) {
+                // TODO(discuss) is this always correct?
+                // TODO think about a more elegant solution
+                if (axis[j].type().getLabel().equals(metadata.axis(i).type().getLabel())) {
+                    array[i] = models[j].hasNumber() ? models[j].getIntValue() : -1;
+                }
+            }
+        }
+        return array;
+    }
 }

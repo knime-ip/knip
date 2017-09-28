@@ -9,20 +9,23 @@
 
 	<fullDescription>
 		<intro>
-			<!-- TODO(benjamin) -->
+			Merges the tiles of a Tile Loop Start into the original images.
+			Also removes the overlap.
 		</intro>
 	</fullDescription>
 
 	<ports>
-		<!-- TODO(benjamin) -->
-		<inPort index="0" name="Processed datatable">Processed datatable</inPort>
-		<outPort index="0" name="Merged image tiles">Merged image slices</outPort>
+		<inPort index="0" name="Processed tiles">
+			Processed tiles.
+		</inPort>
+		<outPort index="0" name="Merged images">
+			Merged images.
+		</outPort>
 	</ports>
 
 	<views>
-		<!-- TODO(benjamin) -->
 		<view name="TableCellView" index="0">
-		View selected images /labelings.
+			View recombined images.
 		</view>
 	</views>
 
