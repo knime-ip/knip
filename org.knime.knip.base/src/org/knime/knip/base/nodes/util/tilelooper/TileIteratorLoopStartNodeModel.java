@@ -424,7 +424,9 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>> extends NodeM
     protected long[] getTileSize(final long[] dimSize, final ImgPlusMetadata metadata) {
         long[] tileSize = TileIteratorUtils.modelToArray(metadata, m_tileSizes);
         for (int i = 0; i < tileSize.length; i++) {
-            tileSize[i] = tileSize[i] > 0 ? tileSize[i] : dimSize[i];
+            // Use the dimension length of the image if the tile size wasn't set
+            // or is bigger than the dimension length of the image.
+            tileSize[i] = tileSize[i] > 0 || tileSize[i] > dimSize[i] ? tileSize[i] : dimSize[i];
         }
         return tileSize;
     }
