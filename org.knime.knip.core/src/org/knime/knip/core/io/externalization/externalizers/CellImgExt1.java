@@ -48,18 +48,17 @@
  */
 package org.knime.knip.core.io.externalization.externalizers;
 
-import net.imglib2.img.basictypeaccess.array.ArrayDataAccess;
-import net.imglib2.img.cell.AbstractCell;
-import net.imglib2.img.cell.AbstractCellImg.CellContainerSampler;
-import net.imglib2.img.cell.CellCursor;
-import net.imglib2.img.cell.CellImg;
-import net.imglib2.img.cell.CellImgFactory;
-import net.imglib2.type.NativeType;
-
 import org.knime.knip.core.io.externalization.BufferedDataInputStream;
 import org.knime.knip.core.io.externalization.BufferedDataOutputStream;
 import org.knime.knip.core.io.externalization.Externalizer;
 import org.knime.knip.core.io.externalization.ExternalizerManager;
+
+import net.imglib2.img.basictypeaccess.array.ArrayDataAccess;
+import net.imglib2.img.cell.Cell;
+import net.imglib2.img.cell.CellCursor;
+import net.imglib2.img.cell.CellImg;
+import net.imglib2.img.cell.CellImgFactory;
+import net.imglib2.type.NativeType;
 
 /**
  *
@@ -104,17 +103,17 @@ public class CellImgExt1 implements Externalizer<CellImg> {
 
         final NativeType<?> type = (NativeType<?>)ExternalizerManager.<Class> read(in).newInstance();
 
-        final CellImg<? extends NativeType<?>, ? extends ArrayDataAccess<?>, ? extends AbstractCell<?>> cellImg =
+        final CellImg<? extends NativeType<?>, ? extends ArrayDataAccess<?>> cellImg =
                 new CellImgFactory().create(dims, type);
 
-        final DirectCellCursor<? extends NativeType<?>, ? extends ArrayDataAccess<?>, ? extends AbstractCell<?>> cursor =
+        final DirectCellCursor<? extends NativeType<?>, ? extends ArrayDataAccess<?>, ? extends Cell<?>> cursor =
                 new DirectCellCursor(cellImg.cursor());
 
         boolean indicateStop = cursor.isLastCell();
         while (true) {
 
-            in.readLArray(((ArrayDataAccess<? extends ArrayDataAccess<?>>)((CellContainerSampler<? extends NativeType<?>, ? extends ArrayDataAccess<?>, ? extends AbstractCell<?>>)cursor)
-                    .getCell().getData()).getCurrentStorageArray());
+            in.readLArray(((ArrayDataAccess<? extends ArrayDataAccess<?>>)cursor.getCell().getData())
+                    .getCurrentStorageArray());
 
             if (indicateStop) {
                 break;
@@ -144,16 +143,14 @@ public class CellImgExt1 implements Externalizer<CellImg> {
 
         ExternalizerManager.<Class> write(out, obj.firstElement().getClass());
 
-        final DirectCellCursor<? extends NativeType<?>, ? extends ArrayDataAccess<?>, ? extends AbstractCell<?>> cursorOnCells =
-                new DirectCellCursor(
-                        ((CellImg<? extends NativeType<?>, ? extends ArrayDataAccess<?>, ? extends AbstractCell<?>>)obj)
-                                .cursor());
+        final DirectCellCursor<? extends NativeType<?>, ? extends ArrayDataAccess<?>, ? extends Cell<?>> cursorOnCells =
+                new DirectCellCursor<>(obj.cursor());
 
         boolean indicateStop = cursorOnCells.isLastCell();
         while (true) {
             // TODO extend for other types
-            out.writeArray(((ArrayDataAccess<? extends ArrayDataAccess<?>>)((CellContainerSampler<? extends NativeType<?>, ? extends ArrayDataAccess<?>, ? extends AbstractCell<?>>)cursorOnCells)
-                    .getCell().getData()).getCurrentStorageArray());
+            out.writeArray(((ArrayDataAccess<? extends ArrayDataAccess<?>>)cursorOnCells.getCell().getData())
+                    .getCurrentStorageArray());
 
             if (indicateStop) {
                 break;
@@ -169,10 +166,10 @@ public class CellImgExt1 implements Externalizer<CellImg> {
 
     }
 
-    private class DirectCellCursor<T extends NativeType<T>, A extends ArrayDataAccess<A>, C extends AbstractCell<A>>
-            extends CellCursor<T, A, C> {
+    private class DirectCellCursor<T extends NativeType<T>, A extends ArrayDataAccess<A>, C extends Cell<A>>
+            extends CellCursor<T, C> {
 
-        protected DirectCellCursor(final CellCursor<T, A, C> cursor) {
+        protected DirectCellCursor(final CellCursor<T, C> cursor) {
             super(cursor);
         }
 
