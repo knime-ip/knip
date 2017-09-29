@@ -239,4 +239,22 @@ public final class KNIPThreadService extends AbstractService implements ThreadSe
         throw new UnsupportedOperationException("Executor Context can't be set");
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Future<?> queue(final String id, final Runnable code) {
+        // NB: We ignore the request for the specific thread for now
+        return pool.enqueue(wrap(code));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <V> Future<V> queue(final String id, final Callable<V> code) {
+        // NB: We ignore the request for the specific thread for now
+        return pool.enqueue(wrap(code));
+    }
+
 }
