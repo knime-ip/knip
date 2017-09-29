@@ -60,8 +60,4 @@
 			features.
 		</outPort>
 	</ports>
-
-	<views>
-		<view index="0" name="Image Viewer">Image Viewer</view>
-	</views>
 </knimeNode>
