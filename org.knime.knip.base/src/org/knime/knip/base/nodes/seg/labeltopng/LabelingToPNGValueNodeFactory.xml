@@ -3,7 +3,7 @@
 	<name>Labeling to PNG Images</name>
 
 	<shortDescription>
-	Combines a labeling and its background image to a PNG image. 
+	Combines a labeling and its background image to a PNG image.
 	</shortDescription>
 
 	<fullDescription>
@@ -18,8 +18,8 @@
 				plane and, if needed, additionally the dimension of the channel</option>
 		</tab>
 		<tab name="Image Settings">
-			<option name="Transparency of Labels">
-			Adjust the label transparency value between 0 and 255 where 255 means the labels are completely opaque. 
+			<option name="Opacity of Labels">
+			Adjust the opacity value of the labels in the range between 0 and 255 where 255 means the labels are completely opaque.
 			</option>
 			<option name="Select a Renderer">
 				<ul>
@@ -46,7 +46,7 @@
 	</fullDescription>
 
 	<ports>
-		<inPort index="0" name="Labeling">Labelings and Images</inPort>		
+		<inPort index="0" name="Labeling">Labelings and Images</inPort>
 		<outPort index="0" name="PNG Images">PNG Images in Collection Cells</outPort>
 	</ports>
 </knimeNode>

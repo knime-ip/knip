@@ -91,7 +91,7 @@ public class LabelingToPNGValueNodeFactory<T extends RealType<T>, L extends Comp
             public void addDialogComponents() {
                 DialogComponentNumber transparency =
                         new DialogComponentNumber(LabelingToPNGValueNodeModel.createTransparencySM(),
-                                "Transparency of labels", 1);
+                                "Opacity of labels", 1);
                 DialogComponentStringListSelection rendererSelection =
                         new DialogComponentStringListSelection(LabelingToPNGValueNodeModel.createRendererSM(),
                                 "Select a renderer", Arrays.asList(LabelingToPNGValueNodeModel.RENDERER_NAMES),
