@@ -65,7 +65,8 @@ import net.imglib2.type.numeric.RealType;
  *
  * @author Benjamin Wilhelm, MPI-CBG, Dresden
  */
-public class TileIteratorLoopEndNodeFactory <T extends RealType<T>> extends NodeFactory<TileIteratorLoopEndNodeModel<T>> {
+public class TileIteratorLoopEndNodeFactory<T extends RealType<T>>
+        extends NodeFactory<TileIteratorLoopEndNodeModel<T>> {
 
     /**
      * {@inheritDoc}
@@ -77,8 +78,7 @@ public class TileIteratorLoopEndNodeFactory <T extends RealType<T>> extends Node
             {
                 createNewGroup("Image column to merge");
                 addDialogComponent(new DialogComponentColumnNameSelection(
-                        TileIteratorLoopEndNodeModel.createImgColumnModel(), "", 0,
-                        ImgPlusValue.class));
+                        TileIteratorLoopEndNodeModel.createImgColumnModel(), "", 0, ImgPlusValue.class));
                 closeCurrentGroup();
             }
         };
@@ -107,8 +107,8 @@ public class TileIteratorLoopEndNodeFactory <T extends RealType<T>> extends Node
      */
     @Override
     public NodeView<TileIteratorLoopEndNodeModel<T>> createNodeView(final int viewIndex,
-                                                                  final TileIteratorLoopEndNodeModel<T> nodeModel) {
-        return new CellNodeView<TileIteratorLoopEndNodeModel<T>>(nodeModel);
+                                                                    final TileIteratorLoopEndNodeModel<T> nodeModel) {
+        return new CellNodeView<>(nodeModel);
     }
 
     /**

@@ -58,8 +58,6 @@ import javax.swing.JLabel;
 import javax.swing.JSpinner;
 import javax.swing.JSpinner.DefaultEditor;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NotConfigurableException;
@@ -114,25 +112,19 @@ public class DialogComponentOptionalNumber extends DialogComponent {
 
         // Change listeners
 
-        m_spinner.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(final ChangeEvent e) {
-                try {
-                    updateModel();
-                } catch (final InvalidSettingsException ise) {
-                    // ignore it here.
-                }
+        m_spinner.addChangeListener(e -> {
+            try {
+                updateModel();
+            } catch (final InvalidSettingsException ise) {
+                // ignore it here.
             }
         });
 
-        m_checkBox.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(final ChangeEvent e) {
-                try {
-                    updateModel();
-                } catch (final InvalidSettingsException ise) {
-                    // ignore it here.
-                }
+        m_checkBox.addChangeListener(e -> {
+            try {
+                updateModel();
+            } catch (final InvalidSettingsException ise) {
+                // ignore it here.
             }
         });
 
@@ -140,12 +132,7 @@ public class DialogComponentOptionalNumber extends DialogComponent {
         // the value. We update the model right before save.
 
         // update the spinner, whenever the model changed
-        ((SettingsModelOptionalNumber)getModel()).prependChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(final ChangeEvent e) {
-                updateComponent();
-            }
-        });
+        ((SettingsModelOptionalNumber)getModel()).prependChangeListener(e -> updateComponent());
 
         // Add components
         getComponentPanel().add(m_checkBox);

@@ -224,7 +224,7 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>> extends NodeM
         RandomAccessibleInterval<T> extended = Views.interval(Views.extend(img, outOfBoundsFactory), min, max);
 
         // Tile the image
-        TiledView<T> tiledView = new TiledView<T>(extended, tileSize, m_currentOverlap);
+        TiledView<T> tiledView = new TiledView<>(extended, tileSize, m_currentOverlap);
 
         // Loop over all tiles and add them
         Cursor<RandomAccessibleInterval<T>> cursor = Views.flatIterable(tiledView).cursor();

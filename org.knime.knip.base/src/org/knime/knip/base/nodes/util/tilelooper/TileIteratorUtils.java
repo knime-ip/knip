@@ -67,6 +67,10 @@ import net.imagej.axis.TypedAxis;
 public class TileIteratorUtils {
     static final String ROW_KEY_DELIMITER = "#";
 
+    private TileIteratorUtils() {
+        // NB: Utility class
+    }
+
     /**
      * Writes the values of integer fields in the settings into an array using the order of dimensions of the image.
      *
