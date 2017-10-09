@@ -236,6 +236,7 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>> extends NodeM
             ImgPlusMetadata metadata =
                     MetadataUtil.copyImgPlusMetadata(imgMetadata, new DefaultImgMetadata(imgMetadata.numDimensions()));
             ImgPlus<T> tile = new ImgPlus<>(ImgView.wrap(tileRAI, imgFactory), metadata);
+            tile.setSource(metadata.getSource());
 
             // Add to table
             DataCell outCell = m_cellFactory.createCell(tile);
@@ -414,7 +415,7 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>> extends NodeM
         for (int i = 0; i < tileSize.length; i++) {
             // Use the dimension length of the image if the tile size wasn't set
             // or is bigger than the dimension length of the image.
-            tileSize[i] = tileSize[i] > 0 || tileSize[i] > dimSize[i] ? tileSize[i] : dimSize[i];
+            tileSize[i] = tileSize[i] > 0 && tileSize[i] < dimSize[i] ? tileSize[i] : dimSize[i];
         }
         return tileSize;
     }
