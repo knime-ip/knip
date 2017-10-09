@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2003 - 2014
+ *  Copyright (C) 2003 - 2017
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -43,7 +43,7 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ---------------------------------------------------------------------
  *
- * Created on 11.03.2013 by dietyc
+ * Created on 27 Sep 2017 by Benjamin Wilhelm
  */
 package org.knime.knip.base.nodes.util.tilelooper;
 

@@ -4,26 +4,30 @@
 	<name>Tile Loop End</name>
 
 	<shortDescription>
-		Collects tiles of Tile Loop Start and recombines them to images.
+		Collects tiles from the Tile Loop Start node and recombines them into images.
 	</shortDescription>
 
 	<fullDescription>
 		<intro>
-			Merges the tiles of a Tile Loop Start into the original images.
-			Also removes the overlap.
+			Node at the end of a Tile Loop. It collects the tiles created by the Tile Loop Start
+			and recombines them into images.
+			<p>
+			The output images have the same size as the input images of the corresponding Tile Loop Start node.
+			Therefore this node crops of all overlap added by the Tile Loop Start node.
+			</p>
 		</intro>
 
-		<option name="Image column to merge">
+		<option name="Tile Column">
 			The column which contains the tiles of the images.
 		</option>
 	</fullDescription>
 
 	<ports>
 		<inPort index="0" name="Processed tiles">
-			Processed tiles.
+			Input table containing the processed tiles from the Tile Loop Start node.
 		</inPort>
-		<outPort index="0" name="Merged images">
-			Merged images.
+		<outPort index="0" name="Recombined images">
+			Output table containing the recombined images.
 		</outPort>
 	</ports>
 

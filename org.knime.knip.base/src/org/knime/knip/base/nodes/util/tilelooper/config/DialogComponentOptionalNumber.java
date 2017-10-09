@@ -45,7 +45,7 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ---------------------------------------------------------------------
  *
- * Created on 27 Sep 2017 by bw
+ * Created on 27 Sep 2017 by Benjamin Wilhelm
  */
 package org.knime.knip.base.nodes.util.tilelooper.config;
 

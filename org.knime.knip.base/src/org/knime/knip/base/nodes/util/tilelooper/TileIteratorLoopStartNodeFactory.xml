@@ -7,11 +7,11 @@
 
 	<fullDescription>
 		<intro>
-			Tile Loop, creates tiles of equal size of an input image.
-			Only the chosen input images are processed. Other columns will removed from the table.
+			The Tile Loop Start node creates tiles of equal size of an input image.
+			Only the images in the chosen column are processed. Other columns will removed from the table.
 			The loop is executed once per input image.
 			<p>
-			The image is expanded so it can be split into tiles of equal size.
+			The image is expanded using the selected Out of Bounds strategy so it can be split into tiles of equal size.
 			</p>
 		</intro>
 
@@ -26,7 +26,7 @@
 			The overlap per dimension. Deselect the checkbox to use zero overlap in this dimension.
 		</option>
 		<option name="Out of bounds strategy">
-			The out of bounds strategy which is used if the tiles doesn't fit perfectly and
+			The Out of Bounds strategy which is used if the tiles doesn't fit perfectly and
 			for the overlap of the border tiles.
 		</option>
 	</fullDescription>

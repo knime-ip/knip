@@ -1,7 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright (C) 2003 - 2014
+ *  Copyright (C) 2003 - 2017
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -45,6 +45,7 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ---------------------------------------------------------------------
  *
+ * Created on 27 Sep 2017 by Benjamin Wilhelm
  */
 package org.knime.knip.base.nodes.util.tilelooper;
 
@@ -76,7 +77,7 @@ public class TileIteratorLoopEndNodeFactory<T extends RealType<T>>
 
         return new DefaultNodeSettingsPane() {
             {
-                createNewGroup("Image column to merge");
+                createNewGroup("Tile Column");
                 addDialogComponent(new DialogComponentColumnNameSelection(
                         TileIteratorLoopEndNodeModel.createImgColumnModel(), "", 0, ImgPlusValue.class));
                 closeCurrentGroup();
