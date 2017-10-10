@@ -222,7 +222,8 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>> extends NodeM
         }
         OutOfBoundsFactory<T, RandomAccessibleInterval<T>> outOfBoundsFactory =
                 getOutOfBoundsStrategy(img.firstElement());
-        RandomAccessibleInterval<T> extended = Views.interval(Views.extend(img, outOfBoundsFactory), min, max);
+        RandomAccessibleInterval<T> extended =
+                Views.zeroMin(Views.interval(Views.extend(img, outOfBoundsFactory), min, max));
 
         // Tile the image
         TiledView<T> tiledView = new TiledView<>(extended, tileSize, m_currentOverlap);
