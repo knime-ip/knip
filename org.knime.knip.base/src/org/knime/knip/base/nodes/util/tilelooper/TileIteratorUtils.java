@@ -52,8 +52,11 @@ package org.knime.knip.base.nodes.util.tilelooper;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.KNIMEKNIPPlugin;
+import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.nodes.util.tilelooper.config.SettingsModelOptionalNumber;
 
 import net.imagej.ImgPlusMetadata;
@@ -101,13 +104,10 @@ public class TileIteratorUtils {
      * @return The index.
      * @throws InvalidSettingsException If no column is selected.
      */
-    static int getSelectedColumnIndex(final DataTableSpec inSpec, final SettingsModelString columnSelection)
+    static int getSelectedColumnIndex(final DataTableSpec inSpec, final SettingsModelString columnSelection,
+                                      final Class<? extends NodeModel> nodeModelClass)
             throws InvalidSettingsException {
-        int columnIndex = inSpec.findColumnIndex(columnSelection.getStringValue());
-        if (columnIndex == -1) {
-            throw new InvalidSettingsException("No column selected.");
-        }
-        return columnIndex;
+        return NodeUtils.autoColumnSelection(inSpec, columnSelection, ImgPlusValue.class, nodeModelClass, -1);
     }
 
     /**
@@ -118,9 +118,10 @@ public class TileIteratorUtils {
      * @return The output table spec.
      * @throws InvalidSettingsException If no column is selected.
      */
-    static DataTableSpec createOutSpecs(final DataTableSpec inSpec, final SettingsModelString columnSelection)
+    static DataTableSpec createOutSpecs(final DataTableSpec inSpec, final SettingsModelString columnSelection,
+                                        final Class<? extends NodeModel> nodeModelClass)
             throws InvalidSettingsException {
-        int i = getSelectedColumnIndex(inSpec, columnSelection);
+        int i = getSelectedColumnIndex(inSpec, columnSelection, nodeModelClass);
         DataColumnSpec columnSpec = inSpec.getColumnSpec(i);
         return new DataTableSpec(columnSpec);
     }

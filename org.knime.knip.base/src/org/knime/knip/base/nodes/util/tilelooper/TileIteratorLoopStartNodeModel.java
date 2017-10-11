@@ -55,6 +55,7 @@ import java.io.IOException;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.MissingCell;
 import org.knime.core.data.container.CloseableRowIterator;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.node.BufferedDataContainer;
@@ -165,7 +166,7 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>> extends NodeM
     @Override
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
         assert m_iteration == 0;
-        return new DataTableSpec[]{TileIteratorUtils.createOutSpecs(inSpecs[0], m_columnSelection)};
+        return new DataTableSpec[]{TileIteratorUtils.createOutSpecs(inSpecs[0], m_columnSelection, this.getClass())};
     }
 
     /**
@@ -190,60 +191,72 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>> extends NodeM
         }
 
         // Create the output table
-        BufferedDataContainer cont =
-                exec.createDataContainer(TileIteratorUtils.createOutSpecs(table.getDataTableSpec(), m_columnSelection));
+        BufferedDataContainer cont = exec.createDataContainer(TileIteratorUtils
+                .createOutSpecs(table.getDataTableSpec(), m_columnSelection, this.getClass()));
 
-        // Get the image to tile
-        final DataRow dataRow = m_iterator.next();
-        final DataCell imgCell =
-                dataRow.getCell(TileIteratorUtils.getSelectedColumnIndex(table.getDataTableSpec(), m_columnSelection));
-        @SuppressWarnings("unchecked") // We only allow columns with images
-        ImgPlusValue<T> imgVal = (ImgPlusValue<T>)imgCell;
-        ImgPlus<T> img = imgVal.getImgPlus();
-        ImgPlusMetadata imgMetadata = imgVal.getMetadata();
-        ImgFactory<T> imgFactory = img.factory();
+        if (m_iterator.hasNext()) {
+            // Get the image to tile
+            final DataRow dataRow = m_iterator.next();
+            final DataCell imgCell = dataRow.getCell(TileIteratorUtils
+                    .getSelectedColumnIndex(table.getDataTableSpec(), m_columnSelection, this.getClass()));
 
-        // Resize the image so it fits the tiles
-        m_currentImgSize = Intervals.dimensionsAsLongArray(img);
-        long[] tileSize = getTileSize(m_currentImgSize, imgMetadata);
-        long[] min = new long[m_currentImgSize.length];
-        long[] max = new long[m_currentImgSize.length];
-        m_currentGrid = new long[m_currentImgSize.length];
-        m_currentOverlap = getOverlap(imgMetadata);
-        for (int i = 0; i < m_currentImgSize.length; i++) {
-            m_currentGrid[i] = (long)Math.ceil(m_currentImgSize[i] / (float)tileSize[i]);
-            min[i] = img.min(i);
-            max[i] = min[i] + m_currentGrid[i] * tileSize[i] - 1;
+            if (imgCell instanceof ImgPlusValue) {
+                @SuppressWarnings("unchecked")
+                ImgPlusValue<T> imgVal = (ImgPlusValue<T>)imgCell;
+                ImgPlus<T> img = imgVal.getImgPlus();
+                ImgPlusMetadata imgMetadata = imgVal.getMetadata();
+                ImgFactory<T> imgFactory = img.factory();
 
-            // Check if the tile size is very bad
-            if (max[i] - min[i] - m_currentImgSize[i] >= tileSize[i] * BAD_TILESIZE_WARNING_THRESHOLD) {
-                setWarningMessage(String.format(BAD_TILESIZE_WARNING_MESSAGE, imgMetadata.axis(i).type().getLabel()));
+                // Resize the image so it fits the tiles
+                m_currentImgSize = Intervals.dimensionsAsLongArray(img);
+                long[] tileSize = getTileSize(m_currentImgSize, imgMetadata);
+                long[] min = new long[m_currentImgSize.length];
+                long[] max = new long[m_currentImgSize.length];
+                m_currentGrid = new long[m_currentImgSize.length];
+                m_currentOverlap = getOverlap(imgMetadata);
+                for (int i = 0; i < m_currentImgSize.length; i++) {
+                    m_currentGrid[i] = (long)Math.ceil(m_currentImgSize[i] / (float)tileSize[i]);
+                    min[i] = img.min(i);
+                    max[i] = min[i] + m_currentGrid[i] * tileSize[i] - 1;
+
+                    // Check if the tile size is very bad
+                    if (max[i] - min[i] - m_currentImgSize[i] >= tileSize[i] * BAD_TILESIZE_WARNING_THRESHOLD) {
+                        setWarningMessage(String.format(BAD_TILESIZE_WARNING_MESSAGE, imgMetadata.axis(i).type().getLabel()));
+                    }
+                }
+                OutOfBoundsFactory<T, RandomAccessibleInterval<T>> outOfBoundsFactory =
+                        getOutOfBoundsStrategy(img.firstElement());
+                RandomAccessibleInterval<T> extended =
+                        Views.zeroMin(Views.interval(Views.extend(img, outOfBoundsFactory), min, max));
+
+                // Tile the image
+                TiledView<T> tiledView = new TiledView<>(extended, tileSize, m_currentOverlap);
+
+                // Loop over all tiles and add them
+                Cursor<RandomAccessibleInterval<T>> cursor = Views.flatIterable(tiledView).cursor();
+                int i = 0;
+                while (cursor.hasNext()) {
+                    RandomAccessibleInterval<T> tileRAI = cursor.next();
+
+                    // Create a ImgPlus using the metadata of the original image
+                    ImgPlusMetadata metadata =
+                            MetadataUtil.copyImgPlusMetadata(imgMetadata, new DefaultImgMetadata(imgMetadata.numDimensions()));
+                    ImgPlus<T> tile = new ImgPlus<>(ImgView.wrap(tileRAI, imgFactory), metadata);
+                    tile.setSource(metadata.getSource());
+
+                    // Add to table
+                    DataCell outCell = m_cellFactory.createCell(tile);
+                    cont.addRowToTable(new DefaultRow(dataRow.getKey().getString() + TileIteratorUtils.ROW_KEY_DELIMITER + ++i,
+                            outCell));
+                }
+            } else if (imgCell instanceof MissingCell){
+                // We just keep missing cells as they are
+                cont.addRowToTable(new DefaultRow(
+                        dataRow.getKey().getString() + TileIteratorUtils.ROW_KEY_DELIMITER, imgCell));
+            } else {
+                // We neither have an image nor a missing cell. This should not happen as we asked for an image column
+                throw new IllegalStateException("Cell of wrong type: " + imgCell.getType().getName());
             }
-        }
-        OutOfBoundsFactory<T, RandomAccessibleInterval<T>> outOfBoundsFactory =
-                getOutOfBoundsStrategy(img.firstElement());
-        RandomAccessibleInterval<T> extended =
-                Views.zeroMin(Views.interval(Views.extend(img, outOfBoundsFactory), min, max));
-
-        // Tile the image
-        TiledView<T> tiledView = new TiledView<>(extended, tileSize, m_currentOverlap);
-
-        // Loop over all tiles and add them
-        Cursor<RandomAccessibleInterval<T>> cursor = Views.flatIterable(tiledView).cursor();
-        int i = 0;
-        while (cursor.hasNext()) {
-            RandomAccessibleInterval<T> tileRAI = cursor.next();
-
-            // Create a ImgPlus using the metadata of the original image
-            ImgPlusMetadata metadata =
-                    MetadataUtil.copyImgPlusMetadata(imgMetadata, new DefaultImgMetadata(imgMetadata.numDimensions()));
-            ImgPlus<T> tile = new ImgPlus<>(ImgView.wrap(tileRAI, imgFactory), metadata);
-            tile.setSource(metadata.getSource());
-
-            // Add to table
-            DataCell outCell = m_cellFactory.createCell(tile);
-            cont.addRowToTable(new DefaultRow(dataRow.getKey().getString() + TileIteratorUtils.ROW_KEY_DELIMITER + ++i,
-                    outCell));
         }
 
         // This iteration is done now
