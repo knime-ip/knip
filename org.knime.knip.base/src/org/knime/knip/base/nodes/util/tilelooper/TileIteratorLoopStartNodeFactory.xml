@@ -1,0 +1,50 @@
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="tileiterator.png" type="LoopStart">
+	<name>Tile Loop Start</name>
+	<shortDescription>
+		Loops over tiles of equal size.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			The Tile Loop Start node creates tiles of equal size of an input image.
+			Only the images in the chosen column are processed. Other columns will removed from the table.
+			The loop is executed once per input image.
+			<p>
+			The image is expanded using the selected Out of Bounds strategy so it can be split into tiles of equal size.
+			</p>
+		</intro>
+
+		<option name="Image column to tile">
+			The column which contains the images which should be processed.
+		</option>
+		<option name="Tile size">
+			The tile size. Deselect the checkbox to use only one tile with the image size
+			in this dimension.
+		</option>
+		<option name="Overlap">
+			The overlap per dimension. Deselect the checkbox to use zero overlap in this dimension.
+		</option>
+		<option name="Out of bounds strategy">
+			The Out of Bounds strategy which is used if the tiles doesn't fit perfectly and
+			for the overlap of the border tiles.
+		</option>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Any datatable">
+			Any datatable containing images in one column.
+		</inPort>
+		<outPort index="0" name="Tiles of the current image">
+			Tiles of the current image. The table has one column which is named as
+			the chosen column of the input table and one row per tile.
+		</outPort>
+	</ports>
+
+
+	<views>
+		<view name="Image Viewer" index="0">
+			View image tiles.
+		</view>
+	</views>
+</knimeNode>

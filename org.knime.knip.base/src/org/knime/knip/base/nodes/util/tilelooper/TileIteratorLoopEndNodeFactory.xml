@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="tileiteratorend.png" type="LoopEnd">
+	<name>Tile Loop End</name>
+
+	<shortDescription>
+		Collects tiles from the Tile Loop Start node and recombines them into images.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			Node at the end of a Tile Loop. It collects the tiles created by the Tile Loop Start
+			and recombines them into images.
+			<p>
+			The output images have the same size as the input images of the corresponding Tile Loop Start node.
+			Therefore this node crops of all overlap added by the Tile Loop Start node.
+			</p>
+		</intro>
+
+		<option name="Tile Column">
+			The column which contains the tiles of the images.
+		</option>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Processed tiles">
+			Input table containing the processed tiles from the Tile Loop Start node.
+		</inPort>
+		<outPort index="0" name="Recombined images">
+			Output table containing the recombined images.
+		</outPort>
+	</ports>
+
+	<views>
+		<view name="Image Viewer" index="0">
+			View recombined images.
+		</view>
+	</views>
+
+</knimeNode>

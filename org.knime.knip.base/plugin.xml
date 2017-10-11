@@ -237,6 +237,14 @@
               factory-class="org.knime.knip.base.nodes.util.dontsave.DontSaveEndNodeFactory"
               id="org.knime.knip.base.nodes.util.dontsave.DontSaveEndNodeFactory">
         </node>
+        <node
+              category-path="/community/knip/image/misc"
+              factory-class="org.knime.knip.base.nodes.util.tilelooper.TileIteratorLoopStartNodeFactory">
+        </node>
+        <node
+              category-path="/community/knip/image/misc"
+              factory-class="org.knime.knip.base.nodes.util.tilelooper.TileIteratorLoopEndNodeFactory">
+        </node>
      </extension>
      <extension
            point="org.knime.core.DataType">
