@@ -193,8 +193,8 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 
 		// not a newly created node
 		if (imgNamColumn != null && !imgNamColumn.equals("") && !inSpecs[0].containsName(imgNamColumn)) {
-			throw new InvalidSettingsException("The configured Filename column: '" + m_filenameColumn.getStringValue()
-					+ "' is no longer avaiable!");
+			throw new InvalidSettingsException(
+					"The configured Filename column: '" + imgNamColumn + "' is no longer avaiable!");
 		}
 
 		// check img column
@@ -206,16 +206,16 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 				throw new InvalidSettingsException("No Image column avaiable!");
 			}
 		} else if (!inSpecs[0].containsName(imgColumn)) {
-			throw new InvalidSettingsException("The configured Filename column: '" + m_filenameColumn.getStringValue()
-					+ "' is no longer avaiable!");
+			throw new InvalidSettingsException(
+					"The configured image column: '" + imgColumn + "' is no longer avaiable!");
 		}
 		return null;
 	}
 
 	/**
-	 * Checks that the dimension mappings, making sure no dimensions are mapped
-	 * to the same label.
-	 * 
+	 * Checks that the dimension mappings, making sure no dimensions are mapped to
+	 * the same label.
+	 *
 	 * @throws InvalidSettingsException
 	 *             when dimensions are mapped to the same labels.
 	 */
@@ -366,7 +366,7 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 
 	/**
 	 * Creates and checks the output folder.
-	 * 
+	 *
 	 * @return the Path of the output folder.
 	 * @throws InvalidSettingsException
 	 * @throws IOException
@@ -413,7 +413,7 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 
 	/**
 	 * Creates the dimension mapping for the given Img.
-	 * 
+	 *
 	 * @param img
 	 *            the image
 	 * @return the dimension mapping
