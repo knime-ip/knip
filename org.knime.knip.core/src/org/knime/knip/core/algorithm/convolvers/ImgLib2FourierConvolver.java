@@ -113,6 +113,9 @@ public class ImgLib2FourierConvolver<T extends RealType<T>, K extends RealType<K
             m_fc.setOutput(out);
         }
 
+        // Needed to restore the original behavior of this convolver,
+        // results in it performing a correlation (convolution with flipped kernel).
+        m_fc.setComputeComplexConjugate(true);
         m_fc.convolve();
 
         return out;
