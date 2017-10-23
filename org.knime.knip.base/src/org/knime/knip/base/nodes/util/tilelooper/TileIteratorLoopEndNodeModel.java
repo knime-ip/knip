@@ -151,7 +151,7 @@ public class TileIteratorLoopEndNodeModel<T extends RealType<T>> extends NodeMod
         }
 
         // get the iterator
-        CloseableRowIterator iterator = table.iterator();
+        final CloseableRowIterator iterator = table.iterator();
 
         // check if table is not empty,
         // if it is empty we are finished here
@@ -162,9 +162,7 @@ public class TileIteratorLoopEndNodeModel<T extends RealType<T>> extends NodeMod
         }
 
         // Create the cell factory
-        if (m_cellFactory == null) {
-            m_cellFactory = new ImgPlusCellFactory(exec);
-        }
+        m_cellFactory = new ImgPlusCellFactory(exec);
 
         // Get the current grid at the start node (We may need to add or remove singleton dimensions)
         final long[] startGrid = loopStartNode.getCurrentGrid();
@@ -185,12 +183,12 @@ public class TileIteratorLoopEndNodeModel<T extends RealType<T>> extends NodeMod
         long[] imgSize = null;
 
         // Loop over the tiles and store them in a list
-        List<RandomAccessibleInterval<T>> tiles = new ArrayList<>();
-        int tilesIndex =
+        final List<RandomAccessibleInterval<T>> tiles = new ArrayList<>();
+        final int tilesIndex =
                 TileIteratorUtils.getSelectedColumnIndex(table.getDataTableSpec(), m_columnSelection, this.getClass());
         while (iterator.hasNext()) {
             // Get row
-            DataRow dataRow = iterator.next();
+            final DataRow dataRow = iterator.next();
 
             // Get the row key
             if (rowKey == null) {
@@ -200,13 +198,13 @@ public class TileIteratorLoopEndNodeModel<T extends RealType<T>> extends NodeMod
             }
 
             // Get the cell
-            DataCell cell = dataRow.getCell(tilesIndex);
+            final DataCell cell = dataRow.getCell(tilesIndex);
 
             // Check if it is an image and process it if it is
             if (cell instanceof ImgPlusValue) {
                 @SuppressWarnings("unchecked") // We check before that our column contains images
-                ImgPlusValue<T> imgVal = (ImgPlusValue<T>)cell;
-                ImgPlus<T> img = imgVal.getImgPlus();
+                final ImgPlusValue<T> imgVal = (ImgPlusValue<T>)cell;
+                final ImgPlus<T> img = imgVal.getImgPlus();
 
                 // Fix dimensions if this is the first tile:
                 // The user is allowed to remove dimensions in the end where the grid is 1 and overlap is 0.
@@ -220,9 +218,10 @@ public class TileIteratorLoopEndNodeModel<T extends RealType<T>> extends NodeMod
                         // If we have more dimensions now, add singleton dimensions to the grid
                         // and zeros to the overlap
                         grid = IntStream.range(0, newN).mapToLong(i -> i < startN ? startGrid[i] : 1).toArray();
-                        negOverlap = IntStream.range(0, newN).mapToLong(i -> i < startN ? -startOverlap[i] : 0).toArray();
-                        imgSize = IntStream.range(0, newN).mapToLong(i -> i < startN ? startImgSize[i] : img.dimension(i))
-                                .toArray();
+                        negOverlap =
+                                IntStream.range(0, newN).mapToLong(i -> i < startN ? -startOverlap[i] : 0).toArray();
+                        imgSize = IntStream.range(0, newN)
+                                .mapToLong(i -> i < startN ? startImgSize[i] : img.dimension(i)).toArray();
                     } else if (newN < startN) {
                         // If we have less dimensions now, check if we only removed dimensions
                         // with grid = 1 and overlap = 0
@@ -259,7 +258,7 @@ public class TileIteratorLoopEndNodeModel<T extends RealType<T>> extends NodeMod
                 }
 
                 // Remove overlap
-                RandomAccessibleInterval<T> tile = Views.zeroMin(Views.expandZero(img, negOverlap));
+                final RandomAccessibleInterval<T> tile = Views.zeroMin(Views.expandZero(img, negOverlap));
 
                 // Add to the list
                 tiles.add(tile);
@@ -282,7 +281,7 @@ public class TileIteratorLoopEndNodeModel<T extends RealType<T>> extends NodeMod
             resImg.setSource(metadata.getSource());
 
             // Add to table
-            DataCell outCell = m_cellFactory.createCell(resImg);
+            final DataCell outCell = m_cellFactory.createCell(resImg);
             m_resultContainer.addRowToTable(new DefaultRow(rowKey, outCell));
         } else {
             // If we got no tiles in a non empty table it probably only contains missing cells
