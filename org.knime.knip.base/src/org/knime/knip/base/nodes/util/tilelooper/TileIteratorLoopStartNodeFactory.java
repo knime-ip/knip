@@ -136,7 +136,7 @@ public class TileIteratorLoopStartNodeFactory <T extends RealType<T>> extends No
     @Override
     public NodeView<TileIteratorLoopStartNodeModel<T>> createNodeView(final int viewIndex,
                                                                     final TileIteratorLoopStartNodeModel<T> nodeModel) {
-        return new CellNodeView<TileIteratorLoopStartNodeModel<T>>(nodeModel, 0);
+        return new CellNodeView<>(nodeModel, 0);
     }
 
     /**

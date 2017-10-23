@@ -179,16 +179,10 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>> extends NodeM
 
         // Do some preperation
         if (m_iteration == 0) {
-            assert getLoopEndNode() == null : "1st iteration but end node set";
             m_table = table;
             m_iterator = table.iterator();
-        } else {
-            assert getLoopEndNode() != null : "No end node set";
-            assert table == m_table : "Input tables differ between iterations";
         }
-        if (m_cellFactory == null) {
-            m_cellFactory = new ImgPlusCellFactory(exec);
-        }
+        m_cellFactory = new ImgPlusCellFactory(exec);
 
         // Create the output table
         BufferedDataContainer cont = exec.createDataContainer(TileIteratorUtils
