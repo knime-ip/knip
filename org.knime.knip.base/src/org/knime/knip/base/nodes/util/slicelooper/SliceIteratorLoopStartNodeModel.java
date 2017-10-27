@@ -442,6 +442,7 @@ public class SliceIteratorLoopStartNodeModel<T extends RealType<T> & NativeType<
         isRowTerminated = false;
         areAllRowsTerminated = false;
         m_iterator = null;
+        m_data = null;
         m_imgPlusCellFactory = null;
         m_labelingCellFactory = null;
         m_allIntervals = null;

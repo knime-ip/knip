@@ -350,6 +350,7 @@ public class SliceIteratorLoopEndNodeModel<T extends RealType<T> & NativeType<T>
         m_cells = null;
         m_iterator = null;
         m_resultContainer = null;
+        m_data = null;
         m_currentRow = null;
         m_imgPlusCellFactory = null;
         m_labelingCellFactory = null;
