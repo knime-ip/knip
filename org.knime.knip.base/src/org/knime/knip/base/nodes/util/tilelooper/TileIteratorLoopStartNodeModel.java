@@ -137,8 +137,6 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>> extends NodeM
 
     private long m_iteration;
 
-    private BufferedDataTable m_table;
-
     private CloseableRowIterator m_iterator;
 
     private ImgPlusCellFactory m_cellFactory;
@@ -179,7 +177,6 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>> extends NodeM
 
         // Do some preperation
         if (m_iteration == 0) {
-            m_table = table;
             m_iterator = table.iterator();
         }
         m_cellFactory = new ImgPlusCellFactory(exec);
@@ -361,7 +358,7 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>> extends NodeM
             m_iterator.close();
         }
         m_iterator = null;
-        m_table = null;
+        m_dataTable = null;
         m_cellFactory = null;
     }
 
