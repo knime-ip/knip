@@ -119,13 +119,6 @@
          unpack="false"/>
 
    <plugin
-         id="jama"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="jep"
          download-size="0"
          install-size="0"
@@ -211,13 +204,6 @@
 
    <plugin
          id="args4j"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="commons-collections"
          download-size="0"
          install-size="0"
          version="0.0.0"
