@@ -102,6 +102,8 @@ import net.imglib2.view.Views;
  */
 public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, StringValue, IntervalValue {
 
+    private static final String LABELING_CELL_KEY = "LC";
+
     /**
      * ObjectRepository
      */
@@ -110,7 +112,7 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
     /**
      * UID
      */
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     /**
      * Convenience access method for DataType.getType(ImageCell.class).
@@ -159,7 +161,7 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
         m_labelingAccess = new CachedObjectAccess<>(fileStore, new LabelingView<L>(labeling));
         m_fileMetadata = new FileStoreCellMetadata(-1, false, null);
 
-        CACHE.put(this, this);
+        CACHE.put(this.stringHashCode(), this);
 
     }
 
@@ -173,7 +175,7 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
         }
 
         // set the labeling mapping
-        final ColorLabelingRenderer<L> rend = new ColorLabelingRenderer<L>();
+        final ColorLabelingRenderer<L> rend = new ColorLabelingRenderer<>();
         rend.setLabelMapping(lab2d.randomAccess().get().getMapping());
         int i = 0;
         final long[] max = new long[lab2d.numDimensions()];
@@ -202,7 +204,14 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
      */
     @Override
     protected boolean equalsDataCell(final DataCell dc) {
-        return dc.hashCode() == hashCode();
+        if (dc instanceof LabelingCell) {
+            LabelingCell dc2 = (LabelingCell)dc;
+            if (dc2.getFileStore().getFile().equals(this.getFileStore().getFile())
+                    && dc2.m_fileMetadata.getOffset() == this.m_fileMetadata.getOffset()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -360,11 +369,15 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
                         tmp = new LabelingCellMetadata(tmp.getLabelingMetadata(), tmp.getSize(), tmp.getDimensions(),
                                 createThumbnail(height / fullHeight)));
                 // update cached object
-                CACHE.put(this, this);
+                CACHE.put(this.stringHashCode(), this);
             }
             return tmp.getThumbnail();
         }
 
+    }
+
+    private String stringHashCode() {
+        return LABELING_CELL_KEY + getFileStore().getFile().getName() + m_fileMetadata.getOffset();
     }
 
     private int getThumbnailWidth(final int height) {
@@ -381,7 +394,7 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
      */
     @Override
     public int hashCode() {
-        return (int)(getFileStore().getFile().hashCode() + (31 * m_fileMetadata.getOffset()));
+        return stringHashCode().hashCode();
     }
 
     /**

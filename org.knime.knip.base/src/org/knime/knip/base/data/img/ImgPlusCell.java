@@ -107,6 +107,8 @@ import net.imglib2.view.Views;
 public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
         implements ImgPlusValue<T>, StringValue, IntervalValue {
 
+    private static final String IMG_PLUS_CELL_KEY = "IP";
+
     /**
      * Type
      *
@@ -122,7 +124,7 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
     /**
      * UID
      */
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     private FileStoreCellMetadata m_fileMetadata;
 
@@ -170,7 +172,7 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
 
         m_fileMetadata = new FileStoreCellMetadata(-1, false, null);
 
-        CACHE.put(this, this);
+        CACHE.put(this.stringHashCode(), this);
     }
 
     /**
@@ -241,7 +243,14 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
      */
     @Override
     protected boolean equalsDataCell(final DataCell dc) {
-        return dc.hashCode() == hashCode();
+        if (dc instanceof ImgPlusCell) {
+            ImgPlusCell dc2 = (ImgPlusCell)dc;
+            if (dc2.getFileStore().getFile().equals(this.getFileStore().getFile())
+                    && dc2.m_fileMetadata.getOffset() == this.m_fileMetadata.getOffset()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -461,7 +470,7 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
                         tmp = new ImgPlusCellMetadata(tmp.getMetadata(), tmp.getSize(), tmp.getMinimum(),
                                 tmp.getDimensions(), tmp.getPixelType(), createThumbnail(height / fullHeight)));
                 // update cached object
-                CACHE.put(this, this);
+                CACHE.put(this.stringHashCode(), this);
             }
             return tmp.getThumbnail();
         }
@@ -482,7 +491,11 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
      */
     @Override
     public int hashCode() {
-        return (int)(getFileStore().getFile().hashCode() + (31 * m_fileMetadata.getOffset()));
+        return stringHashCode().hashCode();
+    }
+
+    private String stringHashCode() {
+        return IMG_PLUS_CELL_KEY + getFileStore().getFile().getName() + m_fileMetadata.getOffset();
     }
 
     /**

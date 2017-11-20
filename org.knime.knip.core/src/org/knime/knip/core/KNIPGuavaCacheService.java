@@ -66,50 +66,44 @@ import com.google.common.cache.CacheBuilder;
 /**
  * {@link CacheService} implementation wrapping a guava {@link Cache}.
  */
-@Plugin(type = Service.class, priority = Priority.HIGH_PRIORITY)
+@Plugin(type = Service.class, priority = Priority.HIGH)
 public class KNIPGuavaCacheService extends AbstractService implements CacheService {
 
     @Parameter
     private MemoryService ms;
 
-    private Cache<Integer, Object> cache;
+    private Cache<String, Object> cache;
 
     private final Semaphore gate = new Semaphore(1);
 
     @Override
     public void initialize() {
         //FIXME: Make parameters accessible via image processing config at some point
-        cache = CacheBuilder.newBuilder().maximumSize(1000).weakValues()
-                .build();
+        cache = CacheBuilder.newBuilder().maximumSize(1000).weakValues().build();
 
-        ms.register(new MemoryAlertable() {
-
-            @Override
-            public void memoryLow() {
-                if (gate.tryAcquire()) {
-                    cache.invalidateAll();
-                    cache.cleanUp();
-                    gate.release();
-                }
-
+        ms.register(() -> {
+            if (gate.tryAcquire()) {
+                cache.invalidateAll();
+                cache.cleanUp();
+                gate.release();
             }
         });
     }
 
     @Override
     public void put(final Object key, final Object value) {
-        cache.put(key.hashCode(), value);
+        cache.put(key.toString(), value);
     }
 
     @Override
     public Object get(final Object key) {
-        return cache.getIfPresent(key.hashCode());
+        return cache.getIfPresent(key.toString());
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <V> V get(final Object key, final Callable<V> valueLoader) throws ExecutionException {
-        return (V)cache.get(key.hashCode(), valueLoader);
+        return (V)cache.get(key.toString(), valueLoader);
     }
 
     /**

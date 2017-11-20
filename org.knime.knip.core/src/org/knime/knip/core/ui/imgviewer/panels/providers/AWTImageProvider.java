@@ -92,6 +92,8 @@ public class AWTImageProvider extends HiddenViewerComponent {
 
     private static final NodeLogger LOGGER = NodeLogger.getLogger(AWTImageProvider.class);
 
+    private static final String AWT_IMAGE_PROVIDE_KEY = "AP";
+
     /**
      * Converts DoubleType to FloatType and preserves other types. This can be used to ensure that images (after calling
      * the method) are FloatType or smaller and thus can be normalized. However type safety is broken!
@@ -158,13 +160,13 @@ public class AWTImageProvider extends HiddenViewerComponent {
         Image awtImage = null;
         if (m_isCachingActive) {
 
-            final int hash = (31 + m_renderUnit.generateHashCode());
-            awtImage = (Image)KNIPGateway.cache().get(hash);
+            final String hashKey = AWT_IMAGE_PROVIDE_KEY + m_renderUnit.generateHashCode();
+            awtImage = (Image)KNIPGateway.cache().get(hashKey);
 
             if (awtImage == null) {
                 awtImage = m_renderUnit.createImage();
 
-                KNIPGateway.cache().put(hash, awtImage);
+                KNIPGateway.cache().put(hashKey, awtImage);
                 LOGGER.info("Caching Image ...");
             } else {
                 LOGGER.info("Image from Cache ...");
