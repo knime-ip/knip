@@ -59,8 +59,6 @@ import net.imagej.ops.special.hybrid.UnaryHybridCF;
  */
 public class KNIPCachedOpEnvironment extends CustomOpEnvironment {
 
-	@Parameter
-	private CacheService cs;
 	private Collection<Class<?>> ignored;
 
 	public KNIPCachedOpEnvironment(final OpEnvironment parent, final Collection<? extends OpInfo> prioritizedInfos,
