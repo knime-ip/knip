@@ -65,7 +65,6 @@ import org.knime.core.data.filestore.FileStore;
 import org.knime.core.data.filestore.FileStoreCell;
 import org.knime.knip.base.KNIMEKNIPPlugin;
 import org.knime.knip.base.data.CachedObjectAccess;
-import org.knime.knip.base.data.CachedObjectAccess.StreamSkipper;
 import org.knime.knip.base.data.FileStoreCellMetadata;
 import org.knime.knip.base.data.IntervalValue;
 import org.knime.knip.base.renderer.ThumbnailRenderer;
@@ -73,7 +72,6 @@ import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.awt.AWTImageTools;
 import org.knime.knip.core.awt.Real2GreyColorRenderer;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
-import org.knime.knip.core.io.externalization.BufferedDataInputStream;
 import org.knime.knip.core.io.externalization.ExternalizerManager;
 import org.knime.knip.core.util.MinimaUtils;
 import org.scijava.Named;
@@ -160,12 +158,12 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
             tmpImg = ((WrappedImg<T>)tmpImg).getImg();
         }
 
-        m_imgAccess = new CachedObjectAccess<Img<T>>(fileStore, tmpImg);
+        m_imgAccess = new CachedObjectAccess<>(fileStore, tmpImg);
 
         final long[] dimensions = new long[img.numDimensions()];
         img.dimensions(dimensions);
 
-        m_metadataAccess = new CachedObjectAccess<ImgPlusCellMetadata>(fileStore,
+        m_metadataAccess = new CachedObjectAccess<>(fileStore,
                 new ImgPlusCellMetadata(
                         MetadataUtil.copyImgPlusMetadata(metadata, new DefaultImgMetadata(dimensions.length)),
                         img.size(), getMinFromImg(img), dimensions, img.firstElement().getClass(), null));
@@ -317,7 +315,7 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
     @Override
     public synchronized ImgPlus<T> getImgPlusCopy() {
         final ImgPlus<T> source = getImgPlus();
-        final ImgPlus<T> dest = new ImgPlus<T>(source.copy());
+        final ImgPlus<T> dest = new ImgPlus<>(source.copy());
 
         MetadataUtil.copyImgPlusMetadata(source, dest);
 
@@ -530,28 +528,20 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
     protected void postConstruct() {
 
         @SuppressWarnings("unchecked")
-        final ImgPlusCell<T> tmp = (ImgPlusCell<T>)CACHE.get(this);
+        final ImgPlusCell<T> tmp = (ImgPlusCell<T>)CACHE.get(this.stringHashCode());
 
         if (tmp == null) {
-            m_metadataAccess =
-                    new CachedObjectAccess<ImgPlusCellMetadata>(getFileStore(), null, m_fileMetadata.getOffset(), null);
+            m_metadataAccess = new CachedObjectAccess<>(getFileStore(), null, m_fileMetadata.getOffset(), null);
 
-            m_imgAccess = new CachedObjectAccess<Img<T>>(getFileStore(), null, m_fileMetadata.getOffset(),
-                    new StreamSkipper() {
-                        /**
-                         * {@inheritDoc}
-                         */
-                        @Override
-                        public void skip(final BufferedDataInputStream in) {
-                            try {
-                                m_metadataAccess.setObject(ExternalizerManager.read(in));
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                    });
+            m_imgAccess = new CachedObjectAccess<>(getFileStore(), null, m_fileMetadata.getOffset(), in -> {
+                try {
+                    m_metadataAccess.setObject(ExternalizerManager.read(in));
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
 
-            CACHE.put(this, this);
+            CACHE.put(this.stringHashCode(), this);
         } else {
             m_metadataAccess = tmp.m_metadataAccess;
             m_imgAccess = tmp.m_imgAccess;

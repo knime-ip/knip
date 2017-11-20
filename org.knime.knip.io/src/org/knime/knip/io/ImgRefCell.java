@@ -331,7 +331,7 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends BlobDataC
 	 */
 	@Override
 	public ImgPlus<T> getImgPlusCopy() {
-		return new ImgPlus<T>(getImgCopy(), getMetadata());
+		return new ImgPlus<>(getImgCopy(), getMetadata());
 	}
 
 	/**
@@ -351,14 +351,14 @@ public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends BlobDataC
 			}
 		} catch (final Exception e) {
 			noAccessWarning(e);
-			tmpAxes = new ArrayList<CalibratedAxis>();
+			tmpAxes = new ArrayList<>();
 			for (int i = 0; i < getDimensions().length; i++) {
 				tmpAxes.add(new DefaultLinearAxis(Axes.get("Unknown " + i)));
 			}
 		}
 
 		// setting everything to metadata
-		final List<CalibratedAxis> axes = new ArrayList<CalibratedAxis>(tmpAxes);
+		final List<CalibratedAxis> axes = new ArrayList<>(tmpAxes);
 
 		// TODO: Can be replaced by FinalMetadata?!
 		return new ImgPlusMetadata() {

@@ -64,7 +64,6 @@ import org.knime.core.data.filestore.FileStore;
 import org.knime.core.data.filestore.FileStoreCell;
 import org.knime.knip.base.KNIMEKNIPPlugin;
 import org.knime.knip.base.data.CachedObjectAccess;
-import org.knime.knip.base.data.CachedObjectAccess.StreamSkipper;
 import org.knime.knip.base.data.FileStoreCellMetadata;
 import org.knime.knip.base.data.IntervalValue;
 import org.knime.knip.base.renderer.ThumbnailRenderer;
@@ -75,7 +74,6 @@ import org.knime.knip.core.awt.labelingcolortable.LabelingColorTableUtils;
 import org.knime.knip.core.awt.labelingcolortable.RandomMissingColorHandler;
 import org.knime.knip.core.data.LabelingView;
 import org.knime.knip.core.data.img.LabelingMetadata;
-import org.knime.knip.core.io.externalization.BufferedDataInputStream;
 import org.knime.knip.core.io.externalization.ExternalizerManager;
 import org.scijava.Named;
 import org.scijava.cache.CacheService;
@@ -156,9 +154,9 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
         super(fileStore);
         final long[] dimensions = new long[labeling.numDimensions()];
         labeling.dimensions(dimensions);
-        m_metadataAccess = new CachedObjectAccess<LabelingCellMetadata>(fileStore,
+        m_metadataAccess = new CachedObjectAccess<>(fileStore,
                 new LabelingCellMetadata(metadata, Views.iterable(labeling).size(), dimensions, null));
-        m_labelingAccess = new CachedObjectAccess<>(fileStore, new LabelingView<L>(labeling));
+        m_labelingAccess = new CachedObjectAccess<>(fileStore, new LabelingView<>(labeling));
         m_fileMetadata = new FileStoreCellMetadata(-1, false, null);
 
         CACHE.put(this.stringHashCode(), this);
@@ -365,7 +363,7 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
                 fullHeight = tmp.getDimensions()[1];
             }
             if ((tmp.getThumbnail() == null) || (tmp.getThumbnail().getHeight() != height)) {
-                m_metadataAccess = new CachedObjectAccess<LabelingCellMetadata>(getFileStore(),
+                m_metadataAccess = new CachedObjectAccess<>(getFileStore(),
                         tmp = new LabelingCellMetadata(tmp.getLabelingMetadata(), tmp.getSize(), tmp.getDimensions(),
                                 createThumbnail(height / fullHeight)));
                 // update cached object
@@ -428,27 +426,20 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
     protected void postConstruct() {
 
         @SuppressWarnings("unchecked")
-        final LabelingCell<L> tmp = (LabelingCell<L>)CACHE.get(this);
+        final LabelingCell<L> tmp = (LabelingCell<L>)CACHE.get(this.stringHashCode());
 
         if (tmp == null) {
             // Creates empty CachedObjectAccesses which know how to reconstruct the managed objects.
             m_metadataAccess = new CachedObjectAccess<>(getFileStore(), null, m_fileMetadata.getOffset(), null);
-            m_labelingAccess =
-                    new CachedObjectAccess<>(getFileStore(), null, m_fileMetadata.getOffset(), new StreamSkipper() {
-                        /**
-                         * {@inheritDoc}
-                         */
-                        @Override
-                        public void skip(final BufferedDataInputStream in) {
-                            try {
-                                m_metadataAccess.setObject(ExternalizerManager.read(in));
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                    });
+            m_labelingAccess = new CachedObjectAccess<>(getFileStore(), null, m_fileMetadata.getOffset(), in -> {
+                try {
+                    m_metadataAccess.setObject(ExternalizerManager.read(in));
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
 
-            CACHE.put(this, this);
+            CACHE.put(this.stringHashCode(), this);
         } else {
             m_labelingAccess = tmp.m_labelingAccess;
             m_metadataAccess = tmp.m_metadataAccess;
