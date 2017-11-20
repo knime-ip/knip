@@ -68,6 +68,7 @@ import org.knime.knip.base.renderer.ThumbnailRenderer;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
  */
+@Deprecated
 public interface ImgRefValue extends DataValue {
 
     /** Gathers meta information to this type. */

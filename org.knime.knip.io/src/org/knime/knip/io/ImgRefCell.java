@@ -105,6 +105,7 @@ import net.imglib2.type.numeric.integer.ByteType;
  *         Zinsmaier</a>
  */
 @SuppressWarnings("serial")
+@Deprecated
 public class ImgRefCell<T extends RealType<T> & NativeType<T>> extends BlobDataCell
 		implements ImgRefValue, ImgPlusValue<T>, StringValue {
 
