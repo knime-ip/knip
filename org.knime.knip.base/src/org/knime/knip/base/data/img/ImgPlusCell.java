@@ -303,7 +303,7 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
                 }
             }
         }
-        final ImgPlus<T> imgPlus = new ImgPlus<T>(tmpImg, m_metadataAccess.get().getMetadata());
+        final ImgPlus<T> imgPlus = new ImgPlus<>(tmpImg, m_metadataAccess.get().getMetadata());
         imgPlus.setSource(m_metadataAccess.get().getMetadata().getSource());
 
         return imgPlus;
@@ -493,7 +493,7 @@ public class ImgPlusCell<T extends RealType<T>> extends FileStoreCell
     }
 
     private String stringHashCode() {
-        return IMG_PLUS_CELL_KEY + getFileStore().getFile().getName() + m_fileMetadata.getOffset();
+        return IMG_PLUS_CELL_KEY + getFileStore().getFile().getAbsolutePath() + m_fileMetadata.getOffset();
     }
 
     /**

@@ -375,7 +375,7 @@ public class LabelingCell<L> extends FileStoreCell implements LabelingValue<L>, 
     }
 
     private String stringHashCode() {
-        return LABELING_CELL_KEY + getFileStore().getFile().getName() + m_fileMetadata.getOffset();
+        return LABELING_CELL_KEY + getFileStore().getFile().getAbsolutePath() + m_fileMetadata.getOffset();
     }
 
     private int getThumbnailWidth(final int height) {
