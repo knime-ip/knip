@@ -66,8 +66,8 @@ import net.imglib2.type.numeric.RealType;
  *
  * @author Benjamin Wilhelm, MPI-CBG, Dresden
  */
-public class TileIteratorLoopEndNodeFactory<T extends RealType<T>>
-        extends NodeFactory<TileIteratorLoopEndNodeModel<T>> {
+public class TileIteratorLoopEndNodeFactory<T extends RealType<T>, L extends Comparable<L>>
+        extends NodeFactory<TileIteratorLoopEndNodeModel<T, L>> {
 
     /**
      * {@inheritDoc}
@@ -89,7 +89,7 @@ public class TileIteratorLoopEndNodeFactory<T extends RealType<T>>
      * {@inheritDoc}
      */
     @Override
-    public TileIteratorLoopEndNodeModel<T> createNodeModel() {
+    public TileIteratorLoopEndNodeModel<T, L> createNodeModel() {
         return new TileIteratorLoopEndNodeModel<>();
     }
 
@@ -107,8 +107,8 @@ public class TileIteratorLoopEndNodeFactory<T extends RealType<T>>
      * {@inheritDoc}
      */
     @Override
-    public NodeView<TileIteratorLoopEndNodeModel<T>> createNodeView(final int viewIndex,
-                                                                    final TileIteratorLoopEndNodeModel<T> nodeModel) {
+    public NodeView<TileIteratorLoopEndNodeModel<T, L>>
+           createNodeView(final int viewIndex, final TileIteratorLoopEndNodeModel<T, L> nodeModel) {
         return new CellNodeView<>(nodeModel);
     }
 

@@ -100,7 +100,7 @@ import net.imglib2.view.Views;
  *
  * @author Benjamin Wilhelm, MPI-CBG, Dresden
  */
-public class TileIteratorLoopStartNodeModel<T extends RealType<T>> extends NodeModel
+public class TileIteratorLoopStartNodeModel<T extends RealType<T>, L extends Comparable<L>> extends NodeModel
         implements LoopStartNodeTerminator, BufferedDataTableHolder {
 
     // ----------------------------------------------- Static settings constants ----------------------

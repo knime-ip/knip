@@ -70,7 +70,8 @@ import net.imglib2.type.numeric.RealType;
  *
  * @author Benjamin Wilhelm, MPI-CBG, Dresden
  */
-public class TileIteratorLoopStartNodeFactory <T extends RealType<T>> extends NodeFactory<TileIteratorLoopStartNodeModel<T>> {
+public class TileIteratorLoopStartNodeFactory<T extends RealType<T>, L extends Comparable<L>>
+        extends NodeFactory<TileIteratorLoopStartNodeModel<T, L>> {
 
     /**
      * {@inheritDoc}
@@ -89,7 +90,8 @@ public class TileIteratorLoopStartNodeFactory <T extends RealType<T>> extends No
                 final String[] labels = KNIMEKNIPPlugin.parseDimensionLabels();
 
                 createNewGroup("Tile size");
-                final SettingsModelOptionalNumber[] tileSizeModels = TileIteratorLoopStartNodeModel.createTileSizeModels();
+                final SettingsModelOptionalNumber[] tileSizeModels =
+                        TileIteratorLoopStartNodeModel.createTileSizeModels();
                 int i = 0;
                 for (final SettingsModelOptionalNumber model : tileSizeModels) {
                     addDialogComponent(new DialogComponentOptionalNumber(model, labels[i++], 1));
@@ -97,7 +99,8 @@ public class TileIteratorLoopStartNodeFactory <T extends RealType<T>> extends No
                 closeCurrentGroup();
 
                 createNewGroup("Overlap size");
-                final SettingsModelOptionalNumber[] overlapModels = TileIteratorLoopStartNodeModel.createOverlapModels();
+                final SettingsModelOptionalNumber[] overlapModels =
+                        TileIteratorLoopStartNodeModel.createOverlapModels();
                 i = 0;
                 for (final SettingsModelOptionalNumber model : overlapModels) {
                     addDialogComponent(new DialogComponentOptionalNumber(model, labels[i++], 1));
@@ -116,7 +119,7 @@ public class TileIteratorLoopStartNodeFactory <T extends RealType<T>> extends No
      * {@inheritDoc}
      */
     @Override
-    public TileIteratorLoopStartNodeModel<T> createNodeModel() {
+    public TileIteratorLoopStartNodeModel<T, L> createNodeModel() {
         return new TileIteratorLoopStartNodeModel<>();
     }
 
@@ -134,8 +137,8 @@ public class TileIteratorLoopStartNodeFactory <T extends RealType<T>> extends No
      * {@inheritDoc}
      */
     @Override
-    public NodeView<TileIteratorLoopStartNodeModel<T>> createNodeView(final int viewIndex,
-                                                                    final TileIteratorLoopStartNodeModel<T> nodeModel) {
+    public NodeView<TileIteratorLoopStartNodeModel<T, L>>
+           createNodeView(final int viewIndex, final TileIteratorLoopStartNodeModel<T, L> nodeModel) {
         return new CellNodeView<>(nodeModel, 0);
     }
 

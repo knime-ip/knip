@@ -95,7 +95,7 @@ import net.imglib2.view.Views;
  *
  * @author Benjamin Wilhelm, MPI-CBG, Dresden
  */
-public class TileIteratorLoopEndNodeModel<T extends RealType<T>> extends NodeModel
+public class TileIteratorLoopEndNodeModel<T extends RealType<T>, L extends Comparable<L>> extends NodeModel
         implements LoopEndNode, BufferedDataTableHolder {
 
     private static final String IMG_COLUMN_CONF_KEY = "img_column_key";
@@ -142,7 +142,7 @@ public class TileIteratorLoopEndNodeModel<T extends RealType<T>> extends NodeMod
 
         // get loop start node
         @SuppressWarnings("unchecked")
-        final TileIteratorLoopStartNodeModel<T> loopStartNode = (TileIteratorLoopStartNodeModel<T>)getLoopStartNode();
+        final TileIteratorLoopStartNodeModel<T,L> loopStartNode = (TileIteratorLoopStartNodeModel<T,L>)getLoopStartNode();
 
         // create output container if it does not exist
         if (m_resultContainer == null) {
