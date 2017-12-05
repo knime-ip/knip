@@ -55,6 +55,7 @@ import org.knime.core.node.NodeView;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
 import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.cellviewer.CellNodeView;
 
 import net.imglib2.type.numeric.RealType;
@@ -79,7 +80,8 @@ public class TileIteratorLoopEndNodeFactory<T extends RealType<T>, L extends Com
             {
                 createNewGroup("Tile Column");
                 addDialogComponent(new DialogComponentColumnNameSelection(
-                        TileIteratorLoopEndNodeModel.createImgColumnModel(), "", 0, ImgPlusValue.class));
+                        TileIteratorLoopEndNodeModel.createImgColumnModel(), "", 0, ImgPlusValue.class,
+                        LabelingValue.class));
                 closeCurrentGroup();
             }
         };

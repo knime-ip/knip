@@ -56,6 +56,7 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.KNIMEKNIPPlugin;
 import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.nodes.util.tilelooper.config.SettingsModelOptionalNumber;
 
@@ -82,7 +83,8 @@ public class TileIteratorUtils {
      * @param models The {@link SettingsModelOptionalNumber} which stores the settings.
      * @return An array containing the values of the settings.
      */
-    static long[] modelToArray(final AnnotatedSpace<CalibratedAxis> imgAxis, final SettingsModelOptionalNumber[] models) {
+    static long[] modelToArray(final AnnotatedSpace<CalibratedAxis> imgAxis,
+                               final SettingsModelOptionalNumber[] models) {
         TypedAxis[] axis = KNIMEKNIPPlugin.parseDimensionLabelsAsAxis();
         long[] array = new long[imgAxis.numDimensions()];
         for (int i = 0; i < array.length; i++) {
@@ -108,7 +110,15 @@ public class TileIteratorUtils {
     static int getSelectedColumnIndex(final DataTableSpec inSpec, final SettingsModelString columnSelection,
                                       final Class<? extends NodeModel> nodeModelClass)
             throws InvalidSettingsException {
-        return NodeUtils.autoColumnSelection(inSpec, columnSelection, ImgPlusValue.class, nodeModelClass, -1);
+        int columnIndex = inSpec.findColumnIndex(columnSelection.getStringValue());
+        if (columnIndex == -1) {
+            try {
+                return NodeUtils.autoColumnSelection(inSpec, columnSelection, ImgPlusValue.class, nodeModelClass, -1);
+            } catch (InvalidSettingsException e) {
+                return NodeUtils.autoColumnSelection(inSpec, columnSelection, LabelingValue.class, nodeModelClass, -1);
+            }
+        }
+        return columnIndex;
     }
 
     /**

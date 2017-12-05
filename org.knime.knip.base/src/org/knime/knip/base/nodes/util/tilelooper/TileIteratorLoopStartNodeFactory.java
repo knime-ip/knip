@@ -56,6 +56,7 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
 import org.knime.knip.base.KNIMEKNIPPlugin;
 import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.dialog.DialogComponentOutOfBoundsSelection;
 import org.knime.knip.base.nodes.util.tilelooper.config.DialogComponentOptionalNumber;
 import org.knime.knip.base.nodes.util.tilelooper.config.SettingsModelOptionalNumber;
@@ -83,8 +84,8 @@ public class TileIteratorLoopStartNodeFactory<T extends RealType<T>, L extends C
             {
                 createNewGroup("Image column to tile");
                 addDialogComponent(new DialogComponentColumnNameSelection(
-                        TileIteratorLoopStartNodeModel.createImgColumnModel(), "", 0,
-                        ImgPlusValue.class));
+                        TileIteratorLoopStartNodeModel.createImgColumnModel(), "", 0, ImgPlusValue.class,
+                        LabelingValue.class));
                 closeCurrentGroup();
 
                 final String[] labels = KNIMEKNIPPlugin.parseDimensionLabels();
