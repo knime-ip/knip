@@ -83,11 +83,13 @@ import org.knime.knip.core.types.OutOfBoundsStrategyFactory;
 
 import net.imagej.ImgPlus;
 import net.imagej.ImgPlusMetadata;
-import net.imagej.ops.MetadataUtil;
+import net.imagej.axis.CalibratedAxis;
+import net.imagej.space.AnnotatedSpace;
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.img.ImgView;
+import net.imglib2.ops.util.MetadataUtil;
 import net.imglib2.outofbounds.OutOfBoundsFactory;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Intervals;
@@ -413,11 +415,11 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>, L extends Com
      * Calculates the tile size for the current image using the user settings.
      *
      * @param dimSize The size of the current image.
-     * @param metadata The metadata of the image for the axis names.
+     * @param imgAxis The metadata of the image for the axis names.
      * @return the tile size.
      */
-    protected long[] getTileSize(final long[] dimSize, final ImgPlusMetadata metadata) {
-        long[] tileSize = TileIteratorUtils.modelToArray(metadata, m_tileSizes);
+    protected long[] getTileSize(final long[] dimSize, final AnnotatedSpace<CalibratedAxis> imgAxis) {
+        long[] tileSize = TileIteratorUtils.modelToArray(imgAxis, m_tileSizes);
         for (int i = 0; i < tileSize.length; i++) {
             // Use the dimension length of the image if the tile size wasn't set
             // or is bigger than the dimension length of the image.
@@ -429,11 +431,11 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>, L extends Com
     /**
      * Calculates the overlap for the current image using the user settings.
      *
-     * @param metadata The metadata of the image for the axis names.
+     * @param imgAxis The metadata of the image for the axis names.
      * @return The overlap in each dimension.
      */
-    protected long[] getOverlap(final ImgPlusMetadata metadata) {
-        long[] overlap = TileIteratorUtils.modelToArray(metadata, m_overlap);
+    protected long[] getOverlap(final AnnotatedSpace<CalibratedAxis> imgAxis) {
+        long[] overlap = TileIteratorUtils.modelToArray(imgAxis, m_overlap);
         for (int i = 0; i < overlap.length; i++) {
             overlap[i] = overlap[i] > 0 ? overlap[i] : DEFAULT_OVERLAP;
         }

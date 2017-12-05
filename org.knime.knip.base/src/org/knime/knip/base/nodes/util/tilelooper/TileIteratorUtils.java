@@ -59,8 +59,9 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.nodes.util.tilelooper.config.SettingsModelOptionalNumber;
 
-import net.imagej.ImgPlusMetadata;
+import net.imagej.axis.CalibratedAxis;
 import net.imagej.axis.TypedAxis;
+import net.imagej.space.AnnotatedSpace;
 
 /**
  * Utilities for the tile loop.
@@ -77,17 +78,17 @@ public class TileIteratorUtils {
     /**
      * Writes the values of integer fields in the settings into an array using the order of dimensions of the image.
      *
-     * @param metadata The metadata of the image.
+     * @param imgAxis The metadata of the image.
      * @param models The {@link SettingsModelOptionalNumber} which stores the settings.
      * @return An array containing the values of the settings.
      */
-    static long[] modelToArray(final ImgPlusMetadata metadata, final SettingsModelOptionalNumber[] models) {
+    static long[] modelToArray(final AnnotatedSpace<CalibratedAxis> imgAxis, final SettingsModelOptionalNumber[] models) {
         TypedAxis[] axis = KNIMEKNIPPlugin.parseDimensionLabelsAsAxis();
-        long[] array = new long[metadata.numDimensions()];
+        long[] array = new long[imgAxis.numDimensions()];
         for (int i = 0; i < array.length; i++) {
             for (int j = 0; j < axis.length; j++) {
                 // TODO think about a more elegant solution
-                if (axis[j].type().getLabel().equals(metadata.axis(i).type().getLabel())) {
+                if (axis[j].type().getLabel().equals(imgAxis.axis(i).type().getLabel())) {
                     array[i] = models[j].hasNumber() ? models[j].getIntValue() : -1;
                     break;
                 }
