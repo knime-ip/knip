@@ -74,10 +74,14 @@ import org.knime.core.node.workflow.LoopStartNodeTerminator;
 import org.knime.knip.base.KNIMEKNIPPlugin;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
+import org.knime.knip.base.data.labeling.LabelingCellFactory;
+import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.nodes.util.tilelooper.config.SettingsModelOptionalNumber;
 import org.knime.knip.base.nodes.util.tilelooper.config.SettingsModelOptionalNumberRange;
 import org.knime.knip.base.nodes.util.tilelooper.imglib2.TiledView;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
+import org.knime.knip.core.data.img.DefaultLabelingMetadata;
+import org.knime.knip.core.data.img.LabelingMetadata;
 import org.knime.knip.core.types.OutOfBoundsStrategyEnum;
 import org.knime.knip.core.types.OutOfBoundsStrategyFactory;
 
@@ -85,12 +89,15 @@ import net.imagej.ImgPlus;
 import net.imagej.ImgPlusMetadata;
 import net.imagej.axis.CalibratedAxis;
 import net.imagej.space.AnnotatedSpace;
+import net.imagej.space.CalibratedSpace;
 import net.imglib2.Cursor;
+import net.imglib2.Interval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.img.ImgView;
 import net.imglib2.ops.util.MetadataUtil;
 import net.imglib2.outofbounds.OutOfBoundsFactory;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Intervals;
 import net.imglib2.view.Views;
@@ -141,7 +148,9 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>, L extends Com
 
     private CloseableRowIterator m_iterator;
 
-    private ImgPlusCellFactory m_cellFactory;
+    private ImgPlusCellFactory m_imgCellFactory;
+
+    private LabelingCellFactory m_labelingCellFactory;
 
     private long[] m_currentGrid;
 
@@ -181,7 +190,8 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>, L extends Com
         if (m_iteration == 0) {
             m_iterator = table.iterator();
         }
-        m_cellFactory = new ImgPlusCellFactory(exec);
+        m_imgCellFactory = new ImgPlusCellFactory(exec);
+        m_labelingCellFactory = new LabelingCellFactory(exec);
 
         // Create the output table
         BufferedDataContainer cont = exec.createDataContainer(TileIteratorUtils
@@ -205,18 +215,8 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>, L extends Com
                 long[] tileSize = getTileSize(m_currentImgSize, imgMetadata);
                 long[] min = new long[m_currentImgSize.length];
                 long[] max = new long[m_currentImgSize.length];
-                m_currentGrid = new long[m_currentImgSize.length];
-                m_currentOverlap = getOverlap(imgMetadata);
-                for (int i = 0; i < m_currentImgSize.length; i++) {
-                    m_currentGrid[i] = (long)Math.ceil(m_currentImgSize[i] / (float)tileSize[i]);
-                    min[i] = img.min(i);
-                    max[i] = min[i] + m_currentGrid[i] * tileSize[i] - 1;
+                calculateTileSize(img, imgMetadata, tileSize, min, max);
 
-                    // Check if the tile size is very bad
-                    if (max[i] - min[i] - m_currentImgSize[i] >= tileSize[i] * BAD_TILESIZE_WARNING_THRESHOLD) {
-                        setWarningMessage(String.format(BAD_TILESIZE_WARNING_MESSAGE, imgMetadata.axis(i).type().getLabel()));
-                    }
-                }
                 OutOfBoundsFactory<T, RandomAccessibleInterval<T>> outOfBoundsFactory =
                         getOutOfBoundsStrategy(img.firstElement());
                 RandomAccessibleInterval<T> extended =
@@ -232,20 +232,56 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>, L extends Com
                     RandomAccessibleInterval<T> tileRAI = cursor.next();
 
                     // Create a ImgPlus using the metadata of the original image
-                    ImgPlusMetadata metadata =
-                            MetadataUtil.copyImgPlusMetadata(imgMetadata, new DefaultImgMetadata(imgMetadata.numDimensions()));
+                    ImgPlusMetadata metadata = MetadataUtil
+                            .copyImgPlusMetadata(imgMetadata, new DefaultImgMetadata(imgMetadata.numDimensions()));
                     ImgPlus<T> tile = new ImgPlus<>(ImgView.wrap(tileRAI, imgFactory), metadata);
                     tile.setSource(metadata.getSource());
 
                     // Add to table
-                    DataCell outCell = m_cellFactory.createCell(tile);
-                    cont.addRowToTable(new DefaultRow(dataRow.getKey().getString() + TileIteratorUtils.ROW_KEY_DELIMITER + ++i,
-                            outCell));
+                    DataCell outCell = m_imgCellFactory.createCell(tile);
+                    cont.addRowToTable(new DefaultRow(
+                            dataRow.getKey().getString() + TileIteratorUtils.ROW_KEY_DELIMITER + ++i, outCell));
                 }
-            } else if (imgCell instanceof MissingCell){
+            } else if (imgCell instanceof LabelingValue) {
+                LabelingValue<L> labVal = (LabelingValue<L>)imgCell;
+                RandomAccessibleInterval<LabelingType<L>> lab = labVal.getLabeling();
+                LabelingMetadata labMetadata = labVal.getLabelingMetadata();
+
+                m_currentImgSize = Intervals.dimensionsAsLongArray(lab);
+                long[] tileSize = getTileSize(m_currentImgSize, labMetadata);
+                long[] min = new long[m_currentImgSize.length];
+                long[] max = new long[m_currentImgSize.length];
+                calculateTileSize(lab, labMetadata, tileSize, min, max);
+
+                // TODO Think about OutOfBounds strategies for labelings. Extend border is possible and currently used.
+                RandomAccessibleInterval<LabelingType<L>> extended =
+                        Views.zeroMin(Views.interval(Views.extendBorder(lab), min, max));
+
+                // Tile the labeling
+                TiledView<LabelingType<L>> tiledView = new TiledView<>(extended, tileSize, m_currentOverlap);
+
+                // Loop over all tiles and add them
+                Cursor<RandomAccessibleInterval<LabelingType<L>>> cursor = Views.flatIterable(tiledView).cursor();
+                int i = 0;
+                while (cursor.hasNext()) {
+                    RandomAccessibleInterval<LabelingType<L>> tileLab = cursor.next();
+
+                    // Create metadata for the tile
+                    LabelingMetadata metadata = new DefaultLabelingMetadata(labMetadata.numDimensions(),
+                            labMetadata.getLabelingColorTable());
+                    MetadataUtil.copyName(labMetadata, metadata);
+                    MetadataUtil.copySource(labMetadata, metadata);
+                    MetadataUtil.copyTypedSpace(labMetadata, metadata);
+
+                    // Add to table
+                    DataCell outCell = m_labelingCellFactory.createCell(tileLab, metadata);
+                    cont.addRowToTable(new DefaultRow(
+                            dataRow.getKey().getString() + TileIteratorUtils.ROW_KEY_DELIMITER + ++i, outCell));
+                }
+            } else if (imgCell instanceof MissingCell) {
                 // We just keep missing cells as they are
-                cont.addRowToTable(new DefaultRow(
-                        dataRow.getKey().getString() + TileIteratorUtils.ROW_KEY_DELIMITER, imgCell));
+                cont.addRowToTable(new DefaultRow(dataRow.getKey().getString() + TileIteratorUtils.ROW_KEY_DELIMITER,
+                        imgCell));
             } else {
                 // We neither have an image nor a missing cell. This should not happen as we asked for an image column
                 throw new IllegalStateException("Cell of wrong type: " + imgCell.getType().getName());
@@ -257,6 +293,31 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>, L extends Com
         cont.close();
         m_dataTable = cont.getTable();
         return new BufferedDataTable[]{m_dataTable};
+    }
+
+    /**
+     * TODO write javadoc
+     *
+     * @param img
+     * @param imgAxis
+     * @param tileSize
+     * @param min
+     * @param max
+     */
+    private void calculateTileSize(final Interval img, final CalibratedSpace<CalibratedAxis> imgAxis,
+                                   final long[] tileSize, final long[] min, final long[] max) {
+        m_currentGrid = new long[m_currentImgSize.length];
+        m_currentOverlap = getOverlap(imgAxis);
+        for (int i = 0; i < m_currentImgSize.length; i++) {
+            m_currentGrid[i] = (long)Math.ceil(m_currentImgSize[i] / (float)tileSize[i]);
+            min[i] = img.min(i);
+            max[i] = min[i] + m_currentGrid[i] * tileSize[i] - 1;
+
+            // Check if the tile size is very bad
+            if (max[i] - min[i] - m_currentImgSize[i] >= tileSize[i] * BAD_TILESIZE_WARNING_THRESHOLD) {
+                setWarningMessage(String.format(BAD_TILESIZE_WARNING_MESSAGE, imgAxis.axis(i).type().getLabel()));
+            }
+        }
     }
 
     /**
@@ -361,7 +422,8 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>, L extends Com
         }
         m_iterator = null;
         m_dataTable = null;
-        m_cellFactory = null;
+        m_imgCellFactory = null;
+        m_labelingCellFactory = null;
     }
 
     // ----------------- Static methods for settings models -------------------------
