@@ -50,12 +50,9 @@ package org.knime.knip.base.nodes.util.tilelooper;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.IntStream;
 
 import org.knime.core.data.DataCell;
-import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.MissingCell;
 import org.knime.core.data.container.CloseableRowIterator;
@@ -74,19 +71,20 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.workflow.LoopEndNode;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
-import org.knime.knip.base.nodes.util.tilelooper.imglib2.ArrangedView;
-import org.knime.knip.base.nodes.util.tilelooper.imglib2.CombinedView;
+import org.knime.knip.base.data.labeling.LabelingCellFactory;
+import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
+import org.knime.knip.core.data.img.LabelingMetadata;
+import org.scijava.Named;
 
 import net.imagej.ImgPlus;
 import net.imagej.ImgPlusMetadata;
-import net.imagej.ops.MetadataUtil;
-import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.img.ImgView;
+import net.imglib2.ops.util.MetadataUtil;
+import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.view.Views;
 
 /**
  * Node model for the tile loop end node.
@@ -104,13 +102,17 @@ public class TileIteratorLoopEndNodeModel<T extends RealType<T>, L extends Compa
 
     private BufferedDataContainer m_resultContainer;
 
+    private TileIteratorLoopStartNodeModel<T, L> m_loopStartNode;
+
     // ---------------------------------------------- Misc --------------------------------------------
 
     private final SettingsModelString m_columnSelection = createImgColumnModel();
 
     private BufferedDataTable m_dataTable;
 
-    private ImgPlusCellFactory m_cellFactory;
+    private ImgPlusCellFactory m_imgCellFactory;
+
+    private LabelingCellFactory m_labelingCellFactory;
 
     /**
      * Creates a new node model for the tile loop end node.
@@ -141,8 +143,7 @@ public class TileIteratorLoopEndNodeModel<T extends RealType<T>, L extends Compa
         }
 
         // get loop start node
-        @SuppressWarnings("unchecked")
-        final TileIteratorLoopStartNodeModel<T,L> loopStartNode = (TileIteratorLoopStartNodeModel<T,L>)getLoopStartNode();
+        m_loopStartNode = (TileIteratorLoopStartNodeModel<T, L>)getLoopStartNode();
 
         // create output container if it does not exist
         if (m_resultContainer == null) {
@@ -161,136 +162,90 @@ public class TileIteratorLoopEndNodeModel<T extends RealType<T>, L extends Compa
             return new BufferedDataTable[]{m_dataTable};
         }
 
-        // Create the cell factory
-        m_cellFactory = new ImgPlusCellFactory(exec);
+        // Create the cell factories
+        m_imgCellFactory = new ImgPlusCellFactory(exec);
+        m_labelingCellFactory = new LabelingCellFactory(exec);
 
         // Get the current grid at the start node (We may need to add or remove singleton dimensions)
-        final long[] startGrid = loopStartNode.getCurrentGrid();
-
+        final long[] startGrid = m_loopStartNode.getCurrentGrid();
         // Get the overlap and make it negative in order to remove it
-        final long[] startOverlap = loopStartNode.getCurrentOverlap();
-
+        final long[] startOverlap = m_loopStartNode.getCurrentOverlap();
         // Get the image size
-        final long[] startImgSize = loopStartNode.getCurrentImgSize();
+        final long[] startImgSize = m_loopStartNode.getCurrentImgSize();
 
+        // List for all tiles per column
+        List<TileIteratorLoopMerger<?>> columnsTiles = new ArrayList<>();
+        // List for the metadata per column
+        List<Named> metadatas = new ArrayList<>();
+        // List for factories per column
+        List<ImgFactory<T>> factories = new ArrayList<>();
 
-        // Stuff to initialize
-        ImgPlusMetadata tileMetadata = null;
-        ImgFactory<T> imgFactory = null;
-        String rowKey = null;
-        long[] grid = null;
-        long[] negOverlap = null;
-        long[] imgSize = null;
+        // Get row key from loop start node
+        String rowKey = m_loopStartNode.getCurrentRowKey();
 
-        // Loop over the tiles and store them in a list
-        final List<RandomAccessibleInterval<T>> tiles = new ArrayList<>();
+        // Currently only one column is allowed
         final int tilesIndex =
                 TileIteratorUtils.getSelectedColumnIndex(table.getDataTableSpec(), m_columnSelection, this.getClass());
-        while (iterator.hasNext()) {
-            // Get row
-            final DataRow dataRow = iterator.next();
+        columnsTiles.add(new TileIteratorLoopImageMerger<>(startGrid, startOverlap, startImgSize));
 
-            // Get the row key
-            if (rowKey == null) {
-                final String key = dataRow.getKey().getString();
-                final int splitPoint = key.lastIndexOf(TileIteratorUtils.ROW_KEY_DELIMITER);
-                rowKey = key.substring(0, splitPoint);
-            }
-
-            // Get the cell
-            final DataCell cell = dataRow.getCell(tilesIndex);
-
-            // Check if it is an image and process it if it is
+        // Add RAI and Metadata to Lists
+        table.forEach((row) -> {
+            boolean saveMetadata = metadatas.isEmpty();
+            DataCell cell = row.getCell(tilesIndex);
             if (cell instanceof ImgPlusValue) {
-                @SuppressWarnings("unchecked") // We check before that our column contains images
-                final ImgPlusValue<T> imgVal = (ImgPlusValue<T>)cell;
-                final ImgPlus<T> img = imgVal.getImgPlus();
-
-                // Fix dimensions if this is the first tile:
-                // The user is allowed to remove dimensions in the end where the grid is 1 and overlap is 0.
-                // The user is allowed to add dimensions to the end.
-                if (grid == null) {
-                    // Number of dimensions at the start node
-                    final int startN = startImgSize.length;
-                    final int newN = img.numDimensions();
-
-                    if (newN > startN) {
-                        // If we have more dimensions now, add singleton dimensions to the grid
-                        // and zeros to the overlap
-                        grid = IntStream.range(0, newN).mapToLong(i -> i < startN ? startGrid[i] : 1).toArray();
-                        negOverlap =
-                                IntStream.range(0, newN).mapToLong(i -> i < startN ? -startOverlap[i] : 0).toArray();
-                        imgSize = IntStream.range(0, newN)
-                                .mapToLong(i -> i < startN ? startImgSize[i] : img.dimension(i)).toArray();
-                    } else if (newN < startN) {
-                        // If we have less dimensions now, check if we only removed dimensions
-                        // with grid = 1 and overlap = 0
-                        if (!Arrays.stream(startGrid, newN, startN).allMatch(g -> g == 1)) {
-                            throw new IllegalStateException("Removed dimension where grid is not 1.");
-                        }
-                        if (!Arrays.stream(startOverlap, newN, startN).allMatch(o -> o == 0)) {
-                            throw new IllegalStateException("Removed dimension where overlap is not 0.");
-                        }
-                        grid = Arrays.copyOf(startGrid, newN);
-                        negOverlap = Arrays.stream(startOverlap, 0, newN).map(l -> -l).toArray();
-                        imgSize = Arrays.copyOf(startImgSize, newN);
-                    } else {
-                        // We have the same dimensions... That's easy
-                        grid = startGrid.clone();
-                        negOverlap = Arrays.stream(startOverlap).map(l -> -l).toArray();
-                        imgSize = startImgSize.clone();
-                    }
-                } else {
-                    // Not the first tile. Make sure that this tile has the same number of dimensions
-                    if (img.numDimensions() != grid.length) {
-                        throw new IllegalStateException("The table contains tiles with different number of dimensions.");
-                    }
+                ImgPlusValue<T> imgPlusCell = (ImgPlusValue<T>)cell;
+                columnsTiles.get(0).addTile((RandomAccessibleInterval)imgPlusCell.getImgPlus());
+                if (saveMetadata) {
+                    metadatas.add(imgPlusCell.getMetadata());
+                    factories.add(imgPlusCell.getImgPlus().factory());
                 }
-
-                // Get the metadata
-                if (tileMetadata == null) {
-                    tileMetadata = imgVal.getMetadata();
+            } else if (cell instanceof LabelingValue) {
+                LabelingValue<LabelingType<L>> labelingCell = (LabelingValue<LabelingType<L>>)cell;
+                columnsTiles.get(0).addTile((RandomAccessibleInterval)labelingCell.getLabeling());
+                if (saveMetadata) {
+                    metadatas.add(labelingCell.getLabelingMetadata());
+                    factories.add(null);
                 }
-
-                // Get the factory
-                if (imgFactory == null) {
-                    imgFactory = img.factory();
-                }
-
-                // Remove overlap
-                final RandomAccessibleInterval<T> tile = Views.zeroMin(Views.expandZero(img, negOverlap));
-
-                // Add to the list
-                tiles.add(tile);
+            } else {
+                System.out.println("No imgplus or labeling");
+                // TODO what happens now?
             }
-        }
+        });
 
-        if (!tiles.isEmpty()) {
-            // Combine the images
-            ArrangedView<RandomAccessibleInterval<T>> arrangedView = new ArrangedView<>(tiles, grid);
-            RandomAccessibleInterval<T> resultImage = new CombinedView<>(arrangedView);
+        // Loop over lists of tiles and merge the tiles
+        for (int i = 0; i < columnsTiles.size(); i++) {
+            DataCell outCell = null;
+            if (!columnsTiles.get(i).isEmpty()) {
+                RandomAccessibleInterval<?> merged = columnsTiles.get(i).mergeTiles();
 
-            // Crop to original size
-            resultImage = Views.interval(resultImage, new FinalInterval(imgSize));
+                if (metadatas.get(i) instanceof ImgPlusMetadata) {
+                    // Column contains images
+                    ImgPlusMetadata tileMetadata = (ImgPlusMetadata)metadatas.get(i);
+                    ImgPlusMetadata metadata = MetadataUtil
+                            .copyImgPlusMetadata(tileMetadata, new DefaultImgMetadata(tileMetadata.numDimensions()));
+                    ImgPlus<T> resImg = new ImgPlus<>(
+                            ImgView.wrap((RandomAccessibleInterval<T>)merged, factories.get(i)), metadata);
+                    resImg.setSource(metadata.getSource());
 
-            // Create a ImgPlus using the metadata of the first tile
-            @SuppressWarnings("null")
-            ImgPlusMetadata metadata =
-                    MetadataUtil.copyImgPlusMetadata(tileMetadata, new DefaultImgMetadata(tileMetadata.numDimensions()));
-            ImgPlus<T> resImg = new ImgPlus<>(ImgView.wrap(resultImage, imgFactory), metadata);
-            resImg.setSource(metadata.getSource());
+                    // Create cell
+                    outCell = m_imgCellFactory.createCell(resImg);
+                } else if (metadatas.get(i) instanceof LabelingMetadata) {
+                    // Column contains labelings
+                    // TODO
+                    throw new IllegalStateException("Labelings are not implemented yet!");
+                }
+            } else {
+                outCell = new MissingCell(null);
+            }
 
-            // Add to table
-            final DataCell outCell = m_cellFactory.createCell(resImg);
-            m_resultContainer.addRowToTable(new DefaultRow(rowKey, outCell));
-        } else {
-            // If we got no tiles in a non empty table it probably only contains missing cells
-            // In all cases we can not construct an image but the row should not disappear. Therefore we add a MissingCell
-            m_resultContainer.addRowToTable(new DefaultRow(rowKey, new MissingCell(null)));
+            if (outCell != null) {
+                // Add to table
+                m_resultContainer.addRowToTable(new DefaultRow(rowKey, outCell));
+            }
         }
 
         // finished
-        if (loopStartNode.terminateLoop()) {
+        if (m_loopStartNode.terminateLoop()) {
             m_resultContainer.close();
             m_dataTable = m_resultContainer.getTable();
             return new BufferedDataTable[]{m_dataTable};
@@ -368,7 +323,7 @@ public class TileIteratorLoopEndNodeModel<T extends RealType<T>, L extends Compa
     protected void reset() {
         m_resultContainer = null;
         m_dataTable = null;
-        m_cellFactory = null;
+        m_imgCellFactory = null;
 
     }
 

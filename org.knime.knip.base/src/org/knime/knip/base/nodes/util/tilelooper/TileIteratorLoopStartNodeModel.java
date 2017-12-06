@@ -158,6 +158,8 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>, L extends Com
 
     private long[] m_currentOverlap;
 
+    private String m_currentRowKey;
+
     // ----------------------------------------------- Misc --------------------------------------------
 
     private BufferedDataTable m_dataTable;
@@ -203,6 +205,9 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>, L extends Com
             final DataCell imgCell = dataRow.getCell(TileIteratorUtils
                     .getSelectedColumnIndex(table.getDataTableSpec(), m_columnSelection, this.getClass()));
 
+            // Save the current row key
+            m_currentRowKey = dataRow.getKey().getString();
+
             if (imgCell instanceof ImgPlusValue) {
                 @SuppressWarnings("unchecked")
                 ImgPlusValue<T> imgVal = (ImgPlusValue<T>)imgCell;
@@ -239,8 +244,8 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>, L extends Com
 
                     // Add to table
                     DataCell outCell = m_imgCellFactory.createCell(tile);
-                    cont.addRowToTable(new DefaultRow(
-                            dataRow.getKey().getString() + TileIteratorUtils.ROW_KEY_DELIMITER + ++i, outCell));
+                    cont.addRowToTable(new DefaultRow(m_currentRowKey + TileIteratorUtils.ROW_KEY_DELIMITER + ++i,
+                            outCell));
                 }
             } else if (imgCell instanceof LabelingValue) {
                 LabelingValue<L> labVal = (LabelingValue<L>)imgCell;
@@ -275,13 +280,12 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>, L extends Com
 
                     // Add to table
                     DataCell outCell = m_labelingCellFactory.createCell(tileLab, metadata);
-                    cont.addRowToTable(new DefaultRow(
-                            dataRow.getKey().getString() + TileIteratorUtils.ROW_KEY_DELIMITER + ++i, outCell));
+                    cont.addRowToTable(new DefaultRow(m_currentRowKey + TileIteratorUtils.ROW_KEY_DELIMITER + ++i,
+                            outCell));
                 }
             } else if (imgCell instanceof MissingCell) {
                 // We just keep missing cells as they are
-                cont.addRowToTable(new DefaultRow(dataRow.getKey().getString() + TileIteratorUtils.ROW_KEY_DELIMITER,
-                        imgCell));
+                cont.addRowToTable(new DefaultRow(m_currentRowKey + TileIteratorUtils.ROW_KEY_DELIMITER, imgCell));
             } else {
                 // We neither have an image nor a missing cell. This should not happen as we asked for an image column
                 throw new IllegalStateException("Cell of wrong type: " + imgCell.getType().getName());
@@ -526,5 +530,9 @@ public class TileIteratorLoopStartNodeModel<T extends RealType<T>, L extends Com
 
     long[] getCurrentOverlap() {
         return m_currentOverlap;
+    }
+
+    String getCurrentRowKey() {
+        return m_currentRowKey;
     }
 }
