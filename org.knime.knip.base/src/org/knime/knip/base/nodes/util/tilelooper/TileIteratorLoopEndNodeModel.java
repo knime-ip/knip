@@ -74,6 +74,7 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingCellFactory;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
+import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.data.img.LabelingMetadata;
 import org.scijava.Named;
 
@@ -186,7 +187,11 @@ public class TileIteratorLoopEndNodeModel<T extends RealType<T>, L extends Compa
         // Currently only one column is allowed
         final int tilesIndex =
                 TileIteratorUtils.getSelectedColumnIndex(table.getDataTableSpec(), m_columnSelection, this.getClass());
-        columnsTiles.add(new TileIteratorLoopImageMerger<>(startGrid, startOverlap, startImgSize));
+        if (table.getDataTableSpec().getColumnSpec(tilesIndex).getType().isAdaptable(ImgPlusValue.class)) {
+            columnsTiles.add(new TileIteratorLoopImageMerger<>(startGrid, startOverlap, startImgSize));
+        } else {
+            columnsTiles.add(new TileIteratorLoopLabelingMerger<>(startGrid, startOverlap, startImgSize));
+        }
 
         // Add RAI and Metadata to Lists
         table.forEach((row) -> {
@@ -231,8 +236,15 @@ public class TileIteratorLoopEndNodeModel<T extends RealType<T>, L extends Compa
                     outCell = m_imgCellFactory.createCell(resImg);
                 } else if (metadatas.get(i) instanceof LabelingMetadata) {
                     // Column contains labelings
-                    // TODO
-                    throw new IllegalStateException("Labelings are not implemented yet!");
+                    LabelingMetadata tileMetadata = (LabelingMetadata)metadatas.get(i);
+                    LabelingMetadata metadata = new DefaultLabelingMetadata(tileMetadata.numDimensions(),
+                            tileMetadata.getLabelingColorTable());
+                    MetadataUtil.copyName(tileMetadata, metadata);
+                    MetadataUtil.copySource(tileMetadata, metadata);
+                    MetadataUtil.copyTypedSpace(tileMetadata, metadata);
+
+                    outCell = m_labelingCellFactory.createCell((RandomAccessibleInterval<LabelingType<L>>)merged,
+                                                               metadata);
                 }
             } else {
                 outCell = new MissingCell(null);
