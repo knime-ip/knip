@@ -73,6 +73,7 @@ import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingCellFactory;
 import org.knime.knip.base.data.labeling.LabelingValue;
+import org.knime.knip.base.nodes.util.tilelooper.mergers.TileIteratorLoopMerger;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
 import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.data.img.LabelingMetadata;
@@ -99,6 +100,8 @@ public class TileIteratorLoopEndNodeModel<T extends RealType<T>, L extends Compa
 
     private static final String IMG_COLUMN_CONF_KEY = "img_column_key";
 
+    private static final String MERGER_STRATEGY_CONF_KEY = "merger_strategy_key";
+
     // ---------------------------------------------- Loop helper stuff -------------------------------
 
     private BufferedDataContainer m_resultContainer;
@@ -108,6 +111,8 @@ public class TileIteratorLoopEndNodeModel<T extends RealType<T>, L extends Compa
     // ---------------------------------------------- Misc --------------------------------------------
 
     private final SettingsModelString m_columnSelection = createImgColumnModel();
+
+    private final SettingsModelString m_mergerSelection = createMergerStringModel();
 
     private BufferedDataTable m_dataTable;
 
@@ -187,11 +192,8 @@ public class TileIteratorLoopEndNodeModel<T extends RealType<T>, L extends Compa
         // Currently only one column is allowed
         final int tilesIndex =
                 TileIteratorUtils.getSelectedColumnIndex(table.getDataTableSpec(), m_columnSelection, this.getClass());
-        if (table.getDataTableSpec().getColumnSpec(tilesIndex).getType().isAdaptable(ImgPlusValue.class)) {
-            columnsTiles.add(new TileIteratorLoopImageMerger<>(startGrid, startOverlap, startImgSize));
-        } else {
-            columnsTiles.add(new TileIteratorLoopLabelingMerger<>(startGrid, startOverlap, startImgSize));
-        }
+        columnsTiles.add(TileIteratorUtils.createMerger(m_mergerSelection.getStringValue()));
+        columnsTiles.get(0).initialize(startGrid, startOverlap, startImgSize);
 
         // Add RAI and Metadata to Lists
         table.forEach((row) -> {
@@ -310,6 +312,7 @@ public class TileIteratorLoopEndNodeModel<T extends RealType<T>, L extends Compa
     @Override
     protected void saveSettingsTo(final NodeSettingsWO settings) {
         m_columnSelection.saveSettingsTo(settings);
+        m_mergerSelection.saveSettingsTo(settings);
     }
 
     /**
@@ -318,6 +321,7 @@ public class TileIteratorLoopEndNodeModel<T extends RealType<T>, L extends Compa
     @Override
     protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
         m_columnSelection.validateSettings(settings);
+        m_mergerSelection.validateSettings(settings);
     }
 
     /**
@@ -326,6 +330,7 @@ public class TileIteratorLoopEndNodeModel<T extends RealType<T>, L extends Compa
     @Override
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
         m_columnSelection.loadSettingsFrom(settings);
+        m_mergerSelection.loadSettingsFrom(settings);
     }
 
     /**
@@ -346,5 +351,12 @@ public class TileIteratorLoopEndNodeModel<T extends RealType<T>, L extends Compa
      */
     static SettingsModelString createImgColumnModel() {
         return new SettingsModelString(IMG_COLUMN_CONF_KEY, "");
+    }
+
+    /**
+     * @return
+     */
+    static SettingsModelString createMergerStringModel() {
+        return new SettingsModelString(MERGER_STRATEGY_CONF_KEY, "");
     }
 }

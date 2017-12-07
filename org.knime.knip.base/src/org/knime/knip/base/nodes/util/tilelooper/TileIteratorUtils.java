@@ -49,8 +49,12 @@
  */
 package org.knime.knip.base.nodes.util.tilelooper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DataValue;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
@@ -59,6 +63,9 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.nodes.util.tilelooper.config.SettingsModelOptionalNumber;
+import org.knime.knip.base.nodes.util.tilelooper.mergers.TileIteratorLoopImageMerger;
+import org.knime.knip.base.nodes.util.tilelooper.mergers.TileIteratorLoopMerger;
+import org.knime.knip.base.nodes.util.tilelooper.mergers.TileIteratorLoopTrivialLabelingMerger;
 
 import net.imagej.axis.CalibratedAxis;
 import net.imagej.axis.TypedAxis;
@@ -135,5 +142,21 @@ public class TileIteratorUtils {
         int i = getSelectedColumnIndex(inSpec, columnSelection, nodeModelClass);
         DataColumnSpec columnSpec = inSpec.getColumnSpec(i);
         return new DataTableSpec(columnSpec);
+    }
+
+    static List<String> getMergerNames(final Class<? extends DataValue> type) {
+        List<String> names = new ArrayList<>();
+        names.add("Image tile merger");
+        names.add("Trivial labeling tile merger");
+        return names;
+    }
+
+    static TileIteratorLoopMerger<?> createMerger(final String name) {
+        if (name.equals("Image tile merger")) {
+            return new TileIteratorLoopImageMerger<>();
+        } else if (name.equals("Trivial labeling tile merger")) {
+            return new TileIteratorLoopTrivialLabelingMerger<>();
+        }
+        throw new IllegalStateException("Unsupported merger: " + name);
     }
 }

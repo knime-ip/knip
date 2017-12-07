@@ -49,11 +49,13 @@
  */
 package org.knime.knip.base.nodes.util.tilelooper;
 
+import org.knime.core.data.DataValue;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
+import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.cellviewer.CellNodeView;
@@ -79,9 +81,17 @@ public class TileIteratorLoopEndNodeFactory<T extends RealType<T>, L extends Com
         return new DefaultNodeSettingsPane() {
             {
                 createNewGroup("Tile Column");
+                // TODO allow multiple columns
                 addDialogComponent(new DialogComponentColumnNameSelection(
                         TileIteratorLoopEndNodeModel.createImgColumnModel(), "", 0, ImgPlusValue.class,
                         LabelingValue.class));
+                closeCurrentGroup();
+
+                createNewGroup("Merging strategy");
+                // TODO only show mergers matching the column type.
+                addDialogComponent(new DialogComponentStringSelection(
+                        TileIteratorLoopEndNodeModel.createMergerStringModel(), "Strategy",
+                        TileIteratorUtils.getMergerNames(DataValue.class)));
                 closeCurrentGroup();
             }
         };

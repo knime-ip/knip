@@ -47,7 +47,7 @@
  *
  * Created on 6 Dec 2017 by bw
  */
-package org.knime.knip.base.nodes.util.tilelooper;
+package org.knime.knip.base.nodes.util.tilelooper.mergers;
 
 import org.knime.knip.base.nodes.util.tilelooper.imglib2.ArrangedView;
 import org.knime.knip.base.nodes.util.tilelooper.imglib2.CombinedView;
@@ -64,17 +64,10 @@ import net.imglib2.view.Views;
 public class TileIteratorLoopImageMerger<T extends RealType<T>> extends TileIteratorLoopMerger<T> {
 
     /**
-     * TODO add javadoc
-     */
-    TileIteratorLoopImageMerger(final long[] startGrid, final long[] startOverlap, final long[] startImgSize) {
-        super(startGrid, startOverlap, startImgSize);
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
-    RandomAccessibleInterval<T> mergeTiles() {
+    public RandomAccessibleInterval<T> mergeTiles() {
         ArrangedView<RandomAccessibleInterval<T>> arrangedView = new ArrangedView<>(tiles, m_grid);
         RandomAccessibleInterval<T> resultImage = new CombinedView<>(arrangedView);
 

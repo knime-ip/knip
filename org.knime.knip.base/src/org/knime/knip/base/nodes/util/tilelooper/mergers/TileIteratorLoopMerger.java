@@ -47,7 +47,7 @@
  *
  * Created on 6 Dec 2017 by bw
  */
-package org.knime.knip.base.nodes.util.tilelooper;
+package org.knime.knip.base.nodes.util.tilelooper.mergers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,15 +62,15 @@ import net.imglib2.view.Views;
  *
  * @author Benjamin Wilhelm
  */
-abstract class TileIteratorLoopMerger<T> {
+public abstract class TileIteratorLoopMerger<T> {
 
-    protected final long[] m_startGrid;
+    protected long[] m_startGrid;
 
-    protected final long[] m_startOverlap;
+    protected long[] m_startOverlap;
 
-    protected final long[] m_startImgSize;
+    protected long[] m_startImgSize;
 
-    protected final List<RandomAccessibleInterval<T>> tiles;
+    protected List<RandomAccessibleInterval<T>> tiles;
 
     protected long[] m_grid;
 
@@ -81,19 +81,18 @@ abstract class TileIteratorLoopMerger<T> {
     /**
      * TODO javadoc
      */
-    TileIteratorLoopMerger(final long[] startGrid, final long[] startOverlap, final long[] startImgSize) {
+    public void initialize(final long[] startGrid, final long[] startOverlap, final long[] startImgSize) {
         m_startGrid = startGrid;
         m_startOverlap = startOverlap;
         m_startImgSize = startImgSize;
         tiles = new ArrayList<>();
     }
-
     /**
      * TODO add javadoc
      *
      * @param tile
      */
-    void addTile(final RandomAccessibleInterval<T> tile) {
+    public void addTile(final RandomAccessibleInterval<T> tile) {
         if (tiles.isEmpty()) {
             // Create the dimensions with the first tile
             // The user is allowed to remove dimensions in the end where the grid is 1 and overlap is 0.
@@ -146,9 +145,9 @@ abstract class TileIteratorLoopMerger<T> {
      * TODO javadoc
      * @return
      */
-    boolean isEmpty() {
+    public boolean isEmpty() {
         return tiles.isEmpty();
     }
 
-    abstract RandomAccessibleInterval<T> mergeTiles();
+    public abstract RandomAccessibleInterval<T> mergeTiles();
 }

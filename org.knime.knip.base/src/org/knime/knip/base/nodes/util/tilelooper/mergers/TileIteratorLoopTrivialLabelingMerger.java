@@ -45,9 +45,9 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ---------------------------------------------------------------------
  *
- * Created on 6 Dec 2017 by bw
+ * Created on 7 Dec 2017 by bw
  */
-package org.knime.knip.base.nodes.util.tilelooper;
+package org.knime.knip.base.nodes.util.tilelooper.mergers;
 
 import org.knime.knip.base.nodes.util.tilelooper.imglib2.ArrangedView;
 import org.knime.knip.base.nodes.util.tilelooper.imglib2.CombinedView;
@@ -61,20 +61,13 @@ import net.imglib2.view.Views;
  *
  * @author Benjamin Wilhelm
  */
-public class TileIteratorLoopLabelingMerger<L extends Comparable<L>> extends TileIteratorLoopMerger<LabelingType<L>> {
-
-    /**
-     * TODO add javadoc
-     */
-    TileIteratorLoopLabelingMerger(final long[] startGrid, final long[] startOverlap, final long[] startImgSize) {
-        super(startGrid, startOverlap, startImgSize);
-    }
+public class TileIteratorLoopTrivialLabelingMerger<L extends Comparable<L>> extends TileIteratorLoopLabelingMerger<L> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    RandomAccessibleInterval<LabelingType<L>> mergeTiles() {
+    public RandomAccessibleInterval<LabelingType<L>> mergeTiles() {
         // TODO implement smart labeling merging. This is not as trivial as below
         ArrangedView<RandomAccessibleInterval<LabelingType<L>>> arrangedView = new ArrangedView<>(tiles, m_grid);
         RandomAccessibleInterval<LabelingType<L>> resultImage = new CombinedView<>(arrangedView);
@@ -82,5 +75,4 @@ public class TileIteratorLoopLabelingMerger<L extends Comparable<L>> extends Til
         // Crop to original size
         return Views.interval(resultImage, new FinalInterval(m_imgSize));
     }
-
 }
