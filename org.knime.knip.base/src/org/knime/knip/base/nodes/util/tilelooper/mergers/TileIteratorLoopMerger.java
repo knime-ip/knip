@@ -55,7 +55,6 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 
 /**
@@ -74,7 +73,7 @@ public abstract class TileIteratorLoopMerger<T> {
 
     protected long[] m_grid;
 
-    protected long[] negOverlap;
+    protected long[] m_negOverlap;
 
     protected long[] m_imgSize;
 
@@ -87,6 +86,7 @@ public abstract class TileIteratorLoopMerger<T> {
         m_startImgSize = startImgSize;
         tiles = new ArrayList<>();
     }
+
     /**
      * TODO add javadoc
      *
@@ -106,9 +106,9 @@ public abstract class TileIteratorLoopMerger<T> {
                 // If we have more dimensions now, add singleton dimensions to the grid
                 // and zeros to the overlap
                 m_grid = IntStream.range(0, newN).mapToLong(i -> i < startN ? m_startGrid[i] : 1).toArray();
-                negOverlap = IntStream.range(0, newN).mapToLong(i -> i < startN ? -m_startOverlap[i] : 0).toArray();
-                m_imgSize = IntStream.range(0, newN)
-                        .mapToLong(i -> i < startN ? m_startImgSize[i] : tile.dimension(i)).toArray();
+                m_negOverlap = IntStream.range(0, newN).mapToLong(i -> i < startN ? -m_startOverlap[i] : 0).toArray();
+                m_imgSize = IntStream.range(0, newN).mapToLong(i -> i < startN ? m_startImgSize[i] : tile.dimension(i))
+                        .toArray();
             } else if (newN < startN) {
                 // If we have less dimensions now, check if we only removed dimensions
                 // with grid = 1 and overlap = 0
@@ -119,30 +119,41 @@ public abstract class TileIteratorLoopMerger<T> {
                     throw new IllegalStateException("Removed dimension where overlap is not 0.");
                 }
                 m_grid = Arrays.copyOf(m_startGrid, newN);
-                negOverlap = Arrays.stream(m_startOverlap, 0, newN).map(l -> -l).toArray();
+                m_negOverlap = Arrays.stream(m_startOverlap, 0, newN).map(l -> -l).toArray();
                 m_imgSize = Arrays.copyOf(m_startImgSize, newN);
             } else {
                 // We have the same dimensions... That's easy
                 m_grid = m_startGrid.clone();
-                negOverlap = Arrays.stream(m_startOverlap).map(l -> -l).toArray();
+                m_negOverlap = Arrays.stream(m_startOverlap).map(l -> -l).toArray();
                 m_imgSize = m_startImgSize.clone();
             }
-        }  else {
+        } else {
             // Not the first tile. Make sure that this tile has the same number of dimensions
             if (tile.numDimensions() != m_grid.length) {
-                throw new IllegalStateException(
-                        "The table contains tiles with different number of dimensions.");
+                throw new IllegalStateException("The table contains tiles with different number of dimensions.");
             }
         }
 
-        // TODO remove overlap
-       IntervalView<T> croppedTile = Views.zeroMin(Views.expandBorder(tile, negOverlap));
+        // Remove overlap
+        RandomAccessibleInterval<T> croppedTile = removeOverlap(tile);
 
         tiles.add(croppedTile);
     }
 
     /**
+     * Removes the overlap of a given tile. Subclasses can override this method if they do not want to simply remove the
+     * overlap but do something special.
+     *
+     * @param tile The tile to crop.
+     * @return A crop of the tile where the overlap is cropped away.
+     */
+    protected RandomAccessibleInterval<T> removeOverlap(final RandomAccessibleInterval<T> tile) {
+        return Views.zeroMin(Views.expandBorder(tile, m_negOverlap));
+    }
+
+    /**
      * TODO javadoc
+     *
      * @return
      */
     public boolean isEmpty() {
