@@ -61,7 +61,7 @@ import net.imglib2.view.Views;
  *
  * @author Benjamin Wilhelm
  */
-public class TileIteratorLoopTrivialLabelingMerger<L extends Comparable<L>> extends TileIteratorLoopLabelingMerger<L> {
+public class TileIteratorLoopTrivialLabelingMerger<L extends Comparable<L>> extends TileIteratorLoopLabelingMerger<L, L> {
 
     /**
      * {@inheritDoc}

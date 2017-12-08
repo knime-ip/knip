@@ -180,7 +180,7 @@ public class TileIteratorLoopEndNodeModel<T extends RealType<T>, L extends Compa
         final long[] startImgSize = m_loopStartNode.getCurrentImgSize();
 
         // List for all tiles per column
-        List<TileIteratorLoopMerger<?>> columnsTiles = new ArrayList<>();
+        List<TileIteratorLoopMerger<?, ?>> columnsTiles = new ArrayList<>();
         // List for the metadata per column
         List<Named> metadatas = new ArrayList<>();
         // List for factories per column

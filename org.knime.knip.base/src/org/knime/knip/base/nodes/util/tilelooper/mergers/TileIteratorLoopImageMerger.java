@@ -61,7 +61,7 @@ import net.imglib2.view.Views;
  *
  * @author Benjamin Wilhelm
  */
-public class TileIteratorLoopImageMerger<T extends RealType<T>> extends TileIteratorLoopMerger<T> {
+public class TileIteratorLoopImageMerger<T extends RealType<T>> extends TileIteratorLoopMerger<T, T> {
 
     /**
      * {@inheritDoc}

@@ -61,7 +61,7 @@ import net.imglib2.view.Views;
  *
  * @author Benjamin Wilhelm
  */
-public abstract class TileIteratorLoopMerger<T> {
+public abstract class TileIteratorLoopMerger<T, U> {
 
     protected long[] m_startGrid;
 
@@ -160,5 +160,5 @@ public abstract class TileIteratorLoopMerger<T> {
         return tiles.isEmpty();
     }
 
-    public abstract RandomAccessibleInterval<T> mergeTiles();
+    public abstract RandomAccessibleInterval<U> mergeTiles();
 }

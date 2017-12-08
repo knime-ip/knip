@@ -55,7 +55,7 @@ import net.imglib2.roi.labeling.LabelingType;
  *
  * @author Benjamin Wilhelm
  */
-public abstract class TileIteratorLoopLabelingMerger<L extends Comparable<L>>
-        extends TileIteratorLoopMerger<LabelingType<L>> {
+public abstract class TileIteratorLoopLabelingMerger<L extends Comparable<L>, M extends Comparable<M>>
+        extends TileIteratorLoopMerger<LabelingType<L>, LabelingType<M>> {
 
 }

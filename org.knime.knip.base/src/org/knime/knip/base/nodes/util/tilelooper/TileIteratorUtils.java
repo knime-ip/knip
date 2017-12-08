@@ -63,6 +63,7 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.NodeUtils;
 import org.knime.knip.base.nodes.util.tilelooper.config.SettingsModelOptionalNumber;
+import org.knime.knip.base.nodes.util.tilelooper.mergers.TileIteratorLoopCCALabelingMerger;
 import org.knime.knip.base.nodes.util.tilelooper.mergers.TileIteratorLoopImageMerger;
 import org.knime.knip.base.nodes.util.tilelooper.mergers.TileIteratorLoopMerger;
 import org.knime.knip.base.nodes.util.tilelooper.mergers.TileIteratorLoopTrivialLabelingMerger;
@@ -146,16 +147,20 @@ public class TileIteratorUtils {
 
     static List<String> getMergerNames(final Class<? extends DataValue> type) {
         List<String> names = new ArrayList<>();
+        // TODO consider data type!
         names.add("Image tile merger");
         names.add("Trivial labeling tile merger");
+        names.add("CCA labeling tile merger");
         return names;
     }
 
-    static TileIteratorLoopMerger<?> createMerger(final String name) {
+    static TileIteratorLoopMerger<?, ?> createMerger(final String name) {
         if (name.equals("Image tile merger")) {
             return new TileIteratorLoopImageMerger<>();
         } else if (name.equals("Trivial labeling tile merger")) {
             return new TileIteratorLoopTrivialLabelingMerger<>();
+        } else if (name.equals("CCA labeling tile merger")) {
+            return new TileIteratorLoopCCALabelingMerger<>();
         }
         throw new IllegalStateException("Unsupported merger: " + name);
     }
