@@ -45,7 +45,7 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ---------------------------------------------------------------------
  *
- * Created on 7 Dec 2017 by bw
+ * Created on 7 Dec 2017 by Benjamin Wilhelm
  */
 package org.knime.knip.base.nodes.util.tilelooper.mergers;
 
@@ -168,7 +168,6 @@ public class TileIteratorLoopCCALabelingMerger<L extends Comparable<L>>
         }
     }
 
-    // TODO maybe move it somewhere...
     // TODO synchronize
     private void processBorderPixels(final Localizable tile1Idx, final Localizable tile2Idx, final LabelingType<L> p1,
                                      final LabelingType<L> p2) {
@@ -180,15 +179,23 @@ public class TileIteratorLoopCCALabelingMerger<L extends Comparable<L>>
         // First check if they are both or one of them is already mapped to something
         Key key1 = new Key(tile1Idx, p1.getIndex());
         Key key2 = new Key(tile2Idx, p2.getIndex());
-        Integer label1 = mapping.get(key1);
-        Integer label2 = mapping.get(key2);
 
         // Both are already mapped to something
+        if (mapping.get(key1) != null && mapping.get(key1).equals(mapping.get(key2))) {
+            // They are mapped to the same thing. Nothing to do anymore
+            return;
+        }
+        // We need to adjust the mapping. This needs to happen synchronized.
+        matchLabels(key1, key2);
+    }
+
+    private synchronized void matchLabels(final Key key1, final Key key2) {
+        Integer label1 = mapping.get(key1);
+        Integer label2 = mapping.get(key2);
+        if (label1 != null && label1.equals(label2)) {
+            return; // They where mapped to the same thing in the meantime
+        }
         if (label1 != null && label2 != null) {
-            if (label1.equals(label2)) {
-                // They are mapped to the same thing. Nothing to do anymore
-                return;
-            }
             // Worst possible case: Both are mapped already but not to the same labels
             // Map everything connected to the label of the first pixel
             for (Map.Entry<Key, Integer> entry : mapping.entrySet()) {
@@ -214,18 +221,17 @@ public class TileIteratorLoopCCALabelingMerger<L extends Comparable<L>>
         }
 
         // They are not mapped to anything. We have to add a new label for them
-        // TODO: Do we need to make sure this label isn't taken yet? Or is this already the case?
-        Integer label = labelGenerator.createLabel();
+        Integer label = labelGenerator.nextLabel();
         mapping.put(key1, label);
         mapping.put(key2, label);
     }
 
     /**
-     * TODO write javadoc
+     * Get the label for the given tile and label index. Creates a new one if there is none yet.
      *
-     * @param tileCursor
-     * @param labelIdx
-     * @return
+     * @param tileIdx index of the tile
+     * @param labelIdx index of the label
+     * @return the label for this tile and label index.
      */
     private Integer getLabel(final Localizable tileIdx, final IntegerType<?> labelIdx) {
         Key key = new Key(tileIdx, labelIdx);
@@ -237,26 +243,37 @@ public class TileIteratorLoopCCALabelingMerger<L extends Comparable<L>>
     }
 
     /**
-     * TODO javadoc
+     * Creates a new label with the key if no label for the key was generated yet. Similar to
+     * {@link #getLabel(Localizable, IntegerType)} but synchronized. Use {@link #getLabel(Localizable, IntegerType)} as
+     * it will call the synchronized version when necessary.
      *
      * @param key
-     * @return
+     * @return the new label.
      */
     private synchronized Integer createLabel(final Key key) {
         // Check if it was created in the meantime
         if (mapping.containsKey(key)) {
             return mapping.get(key);
         } else {
-            Integer label = labelGenerator.createLabel();
+            Integer label = labelGenerator.nextLabel();
             mapping.put(key, label);
             return label;
         }
     }
 
+    /**
+     * Small class to use as key in a mapping from labels of specific tiles to merged labels.
+     */
     private class Key {
 
         private long[] value;
 
+        /**
+         * Create a new key with the given indices.
+         *
+         * @param tileIdx Index of the tile
+         * @param labelIdx Index of the label
+         */
         private Key(final Localizable tileIdx, final IntegerType<?> labelIdx) {
             value = new long[tileIdx.numDimensions() + 1];
             for (int i = 0; i < tileIdx.numDimensions(); i++) {
@@ -271,7 +288,8 @@ public class TileIteratorLoopCCALabelingMerger<L extends Comparable<L>>
         @Override
         public boolean equals(final Object obj) {
             if (obj instanceof TileIteratorLoopCCALabelingMerger.Key) {
-                TileIteratorLoopCCALabelingMerger.Key point = (TileIteratorLoopCCALabelingMerger.Key)obj;
+                @SuppressWarnings("unchecked")
+                Key point = (Key)obj;
                 if (value.length == point.value.length) {
                     for (int i = 0; i < value.length; i++) {
                         if (point.value[i] != value[i]) {
@@ -302,10 +320,13 @@ public class TileIteratorLoopCCALabelingMerger<L extends Comparable<L>>
         }
     }
 
-    // TODO make the LabelGenerator reuse labels
+    /**
+     * Helper class which generates integer labels. A label can also be freed if it isn't used anymore and it will be
+     * returned again.
+     */
     private class LabelGenerator {
 
-        private Integer next = 1;
+        private int next = 1;
 
         private SortedSet<Integer> deleted = new TreeSet<>();
 
@@ -314,7 +335,7 @@ public class TileIteratorLoopCCALabelingMerger<L extends Comparable<L>>
          *
          * @return A new label;
          */
-        private synchronized Integer createLabel() {
+        private synchronized Integer nextLabel() {
             if (!deleted.isEmpty()) {
                 Integer label = deleted.first();
                 deleted.remove(label);
