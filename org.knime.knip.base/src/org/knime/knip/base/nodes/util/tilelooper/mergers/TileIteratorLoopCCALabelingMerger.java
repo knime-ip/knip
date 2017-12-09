@@ -178,36 +178,35 @@ public class TileIteratorLoopCCALabelingMerger<L extends Comparable<L>>
         // First check if they are both or one of them is already mapped to something
         Key key1 = new Key(tile1Idx, p1.getIndex());
         Key key2 = new Key(tile2Idx, p2.getIndex());
-        boolean contains1 = mapping.containsKey(key1);
-        boolean contains2 = mapping.containsKey(key2);
+        Integer label1 = mapping.get(key1);
+        Integer label2 = mapping.get(key2);
+
         // Both are already mapped to something
-        if (contains1 && contains2) {
-            if (mapping.get(key1).equals(mapping.get(key2))) {
+        if (label1 != null && label2 != null) {
+            if (label1.equals(label2)) {
                 // They are mapped to the same thing. Nothing to do anymore
                 return;
             }
             // Worst possible case: Both are mapped already but not to the same labels
             // Map everything connected to the label of the first pixel
-            Integer label = mapping.get(key1);
             for (Map.Entry<Key, Integer> entry : mapping.entrySet()) {
-                if (entry.getValue().equals(mapping.get(key1))) {
-                    mapping.put(entry.getKey(), label);
-                }
-                if (entry.getValue().equals(mapping.get(key2))) {
-                    mapping.put(entry.getKey(), label);
+                if (entry.getValue().equals(label1)) {
+                    mapping.put(entry.getKey(), label1);
+                } else if (entry.getValue().equals(label2)) {
+                    mapping.put(entry.getKey(), label1);
                 }
             }
             return;
         }
 
         // Only the first is already mapped: We map the second to the same
-        if (contains1) {
-            mapping.put(key2, mapping.get(key1));
+        if (label1 != null) {
+            mapping.put(key2, label1);
             return;
         }
         // Only the second is already mapped: We map the first to the same
-        if (contains2) {
-            mapping.put(key1, mapping.get(key2));
+        if (label2 != null) {
+            mapping.put(key1, label2);
             return;
         }
 
