@@ -51,6 +51,8 @@ package org.knime.knip.base.nodes.util.tilelooper.mergers;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.IntStream;
 
@@ -196,6 +198,7 @@ public class TileIteratorLoopCCALabelingMerger<L extends Comparable<L>>
                     mapping.put(entry.getKey(), label1);
                 }
             }
+            labelGenerator.freeLabel(label2);
             return;
         }
 
@@ -302,7 +305,9 @@ public class TileIteratorLoopCCALabelingMerger<L extends Comparable<L>>
     // TODO make the LabelGenerator reuse labels
     private class LabelGenerator {
 
-        private Integer next = 0;
+        private Integer next = 1;
+
+        private SortedSet<Integer> deleted = new TreeSet<>();
 
         /**
          * Create a label which is not used yet.
@@ -310,7 +315,13 @@ public class TileIteratorLoopCCALabelingMerger<L extends Comparable<L>>
          * @return A new label;
          */
         private synchronized Integer createLabel() {
-            return next++;
+            if (!deleted.isEmpty()) {
+                Integer label = deleted.first();
+                deleted.remove(label);
+                return label;
+            } else {
+                return next++;
+            }
         }
 
         /**
@@ -320,7 +331,7 @@ public class TileIteratorLoopCCALabelingMerger<L extends Comparable<L>>
          * @param label to free
          */
         private synchronized void freeLabel(final Integer label) {
-            // TODO implement
+            deleted.add(label);
         }
     }
 }
