@@ -96,30 +96,6 @@ public class TileIteratorLoopCCALabelingMerger<L extends Comparable<L>>
         // Arrange the tiles
         ArrangedView<RandomAccessibleInterval<LabelingType<L>>> arrangedView = new ArrangedView<>(tiles, m_grid);
 
-        // Process borders TODO remove if the other approach works
-        //        for (int d = 0; d < n; d++) {
-        //            for (int i = 0; i + 1 < m_grid[d]; i++) {
-        //                // Get cursors which loop over all tiles which have the index i and i+1 in dimension d
-        //                Cursor<RandomAccessibleInterval<LabelingType<L>>> cursor1 =
-        //                        Views.flatIterable(Views.hyperSlice(arrangedView, d, i)).cursor();
-        //                Cursor<RandomAccessibleInterval<LabelingType<L>>> cursor2 =
-        //                        Views.flatIterable(Views.hyperSlice(arrangedView, d, i + 1)).cursor();
-        //
-        //                // Loop over all tiles which have a common border in dimension d at index i/i+1
-        //                while (cursor1.hasNext()) {
-        //                    RandomAccessibleInterval<LabelingType<L>> left = cursor1.next();
-        //                    RandomAccessibleInterval<LabelingType<L>> right = cursor2.next();
-        //                    IterableInterval<LabelingType<L>> borderLeft =
-        //                            Views.flatIterable(Views.hyperSlice(left, d, left.max(d)));
-        //                    IterableInterval<LabelingType<L>> borderRight =
-        //                            Views.flatIterable(Views.hyperSlice(right, d, right.min(d)));
-        //                    // TODO find the index of the tile
-        //                    // TODO parallelize
-        //                    processBorder(cursor1, cursor2, borderLeft, borderRight);
-        //                }
-        //            }
-        //        }
-
         Cursor<RandomAccessibleInterval<LabelingType<L>>> tileCursor = arrangedView.cursor();
         RandomAccess<RandomAccessibleInterval<LabelingType<L>>> tileRandomAccess = arrangedView.randomAccess();
 
@@ -127,20 +103,22 @@ public class TileIteratorLoopCCALabelingMerger<L extends Comparable<L>>
             RandomAccessibleInterval<LabelingType<L>> leftTile = tileCursor.next();
 
             // For each dimension where there is a tile right of this tile: process the border
-            for (int d = 0; d < n && tileCursor.getLongPosition(d) + 1 < m_grid[d]; d++) {
-                // Position the random access and get the other tile
-                tileRandomAccess.setPosition(tileCursor);
-                tileRandomAccess.fwd(d);
-                RandomAccessibleInterval<LabelingType<L>> rightTile = tileRandomAccess.get();
+            for (int d = 0; d < n; d++) {
+                if (tileCursor.getLongPosition(d) + 1 < m_grid[d]) {
+                    // Position the random access and get the other tile
+                    tileRandomAccess.setPosition(tileCursor);
+                    tileRandomAccess.fwd(d);
+                    RandomAccessibleInterval<LabelingType<L>> rightTile = tileRandomAccess.get();
 
-                // Get the borders of both tiles
-                IterableInterval<LabelingType<L>> borderLeft =
-                        Views.flatIterable(Views.hyperSlice(leftTile, d, leftTile.max(d)));
-                IterableInterval<LabelingType<L>> borderRight =
-                        Views.flatIterable(Views.hyperSlice(rightTile, d, rightTile.min(d)));
+                    // Get the borders of both tiles
+                    IterableInterval<LabelingType<L>> borderLeft =
+                            Views.flatIterable(Views.hyperSlice(leftTile, d, leftTile.max(d)));
+                    IterableInterval<LabelingType<L>> borderRight =
+                            Views.flatIterable(Views.hyperSlice(rightTile, d, rightTile.min(d)));
 
-                // Process the border
-                processBorder(tileCursor, tileRandomAccess, borderLeft, borderRight);
+                    // Process the border
+                    processBorder(tileCursor, tileRandomAccess, borderLeft, borderRight);
+                }
             }
         }
 
