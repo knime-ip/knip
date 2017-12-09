@@ -52,7 +52,6 @@ package org.knime.knip.base.nodes.util.tilelooper.mergers;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import org.knime.knip.base.nodes.util.tilelooper.imglib2.ArrangedView;
@@ -77,7 +76,7 @@ import net.imglib2.view.Views;
 public class TileIteratorLoopCCALabelingMerger<L extends Comparable<L>>
         extends TileIteratorLoopLabelingMerger<L, Integer> {
 
-    private AtomicInteger labelGenerator = new AtomicInteger();
+    private LabelGenerator labelGenerator = new LabelGenerator();
 
     private Map<Key, Integer> mapping;
 
@@ -214,7 +213,7 @@ public class TileIteratorLoopCCALabelingMerger<L extends Comparable<L>>
 
         // They are not mapped to anything. We have to add a new label for them
         // TODO: Do we need to make sure this label isn't taken yet? Or is this already the case?
-        Integer label = new Integer(labelGenerator.incrementAndGet());
+        Integer label = labelGenerator.createLabel();
         mapping.put(key1, label);
         mapping.put(key2, label);
     }
@@ -246,7 +245,7 @@ public class TileIteratorLoopCCALabelingMerger<L extends Comparable<L>>
         if (mapping.containsKey(key)) {
             return mapping.get(key);
         } else {
-            Integer label = labelGenerator.incrementAndGet();
+            Integer label = labelGenerator.createLabel();
             mapping.put(key, label);
             return label;
         }
@@ -289,6 +288,40 @@ public class TileIteratorLoopCCALabelingMerger<L extends Comparable<L>>
         @Override
         public int hashCode() {
             return Arrays.hashCode(value);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String toString() {
+            return "Tile: " + Arrays.toString(Arrays.copyOf(value, value.length - 1)) + ", Label index: "
+                    + value[value.length - 1];
+        }
+    }
+
+    // TODO make the LabelGenerator reuse labels
+    private class LabelGenerator {
+
+        private Integer next = 0;
+
+        /**
+         * Create a label which is not used yet.
+         *
+         * @return A new label;
+         */
+        private synchronized Integer createLabel() {
+            return next++;
+        }
+
+        /**
+         * Frees a label such that is can be created again. The caller needs to make sure that this label isn't used
+         * anymore.
+         *
+         * @param label to free
+         */
+        private synchronized void freeLabel(final Integer label) {
+            // TODO implement
         }
     }
 }
