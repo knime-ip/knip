@@ -74,7 +74,6 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.workflow.LoopEndNode;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
-import org.knime.knip.base.nodes.util.tilelooper.imglib2.ArrangedView;
 import org.knime.knip.base.nodes.util.tilelooper.imglib2.CombinedView;
 import org.knime.knip.core.data.img.DefaultImgMetadata;
 
@@ -85,6 +84,7 @@ import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.img.ImgView;
+import net.imglib2.img.list.ListImg;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 
@@ -267,7 +267,7 @@ public class TileIteratorLoopEndNodeModel<T extends RealType<T>> extends NodeMod
 
         if (!tiles.isEmpty()) {
             // Combine the images
-            ArrangedView<RandomAccessibleInterval<T>> arrangedView = new ArrangedView<>(tiles, grid);
+            ListImg<RandomAccessibleInterval<T>> arrangedView = new ListImg<>(tiles, grid);
             RandomAccessibleInterval<T> resultImage = new CombinedView<>(arrangedView);
 
             // Crop to original size
