@@ -48,6 +48,7 @@
  */
 package org.knime.knip.base.data.ui;
 
+import org.knime.knip.bdv.BigDataViewerUI;
 import org.knime.knip.core.ui.imgviewer.CombinedImgViewer;
 import org.knime.knip.core.ui.imgviewer.ExpandingPanel;
 import org.knime.knip.core.ui.imgviewer.ImgCanvas;
@@ -66,6 +67,8 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.IntegerType;
+import net.imglib2.type.numeric.NumericType;
 import net.imglib2.type.numeric.RealType;
 
 /**
@@ -152,6 +155,16 @@ public class ViewerFactory {
         viewer.addViewerComponent(new ImgCanvas<T, Img<T>>());
 
         return viewer;
+
+    }
+
+    /**
+     * @return new BigDataViewerUI
+     */
+    public static <I extends IntegerType<I>, T extends NumericType<T>, L> BigDataViewerUI<I, T, L>
+           createBDV() {
+
+        return new BigDataViewerUI<I, T, L>(null);
 
     }
 
