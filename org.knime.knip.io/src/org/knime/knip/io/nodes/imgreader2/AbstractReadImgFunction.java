@@ -104,7 +104,7 @@ public abstract class AbstractReadImgFunction<T extends RealType<T> & NativeType
 			cells[cells.length - 1] = new MissingCell("Exception while processing  " + path + "!\nCaught Exception"
 					+ exc.getMessage() + "\n" + exc.getStackTrace());
 		}
-		return new Pair<DataRow, Optional<Throwable>>(new DefaultRow(path, cells), Optional.of(exc));
+		return new Pair<DataRow, Optional<Throwable>>(new DefaultRow(rowKey, cells), Optional.of(exc));
 
 	}
 
