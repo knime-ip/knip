@@ -248,32 +248,6 @@ public class ScifioImgSource implements ImgSource {
 
 		org.apache.log4j.Logger.getLogger(KNIPLogService.class.getSimpleName()).setLevel(Level.ERROR);
 
-		// FIXME: WORKAROUND till bug 3391 is fixed (support for
-		// SCIFIOImgPlus)
-		if (m_imgFactory instanceof CellImgFactory) {
-
-			LOGGER.warn(
-					"Cell images are not fully supported, yet. Images are read but potential subset selection is ignored.");
-
-			// copy scifio img plus to an ordinary cell img
-
-			final SCIFIOImgPlus<RealType> scifio = (SCIFIOImgPlus<RealType>) IO.open(imgRef);
-			final Img<RealType> tmp = new CellImgFactory().create(scifio, scifio.firstElement().createVariable());
-			final Cursor<RealType> inCur = scifio.cursor();
-			final RandomAccess<RealType> outRA = tmp.randomAccess();
-			while (inCur.hasNext()) {
-				inCur.fwd();
-				outRA.setPosition(inCur);
-				outRA.get().set(inCur.get());
-			}
-			final ImgPlus<RealType> res = new ImgPlus<RealType>(tmp, scifio);
-			// register
-			final Context ctx = m_imgOpener.getContext();
-			final RefManagerService refManagerService = ctx.getService(RefManagerService.class);
-			refManagerService.manage(res, ctx);
-			return res;
-		}
-
 		final SCIFIOConfig options = new SCIFIOConfig();
 		options.imgOpenerSetComputeMinMax(false);
 		options.imgOpenerSetIndex(currentSeries);
@@ -318,32 +292,6 @@ public class ScifioImgSource implements ImgSource {
 			final Pair<TypedAxis, long[]>[] axisSelectionConstraints, T type) throws Exception {
 
 		org.apache.log4j.Logger.getLogger(KNIPLogService.class.getSimpleName()).setLevel(Level.ERROR);
-
-		// FIXME: WORKAROUND till bug 3391 is fixed (support for
-		// SCIFIOImgPlus)
-		if (m_imgFactory instanceof CellImgFactory) {
-
-			LOGGER.warn(
-					"Cell images are not fully supported, yet. Images are read but potential subset selection is ignored.");
-
-			// copy scifio img plus to an ordinary cell img
-
-			final SCIFIOImgPlus<T> scifio = (SCIFIOImgPlus<T>) IO.openImg(imgRef, type);
-			final Img<T> tmp = new CellImgFactory().create(scifio, type);
-			final Cursor<T> inCur = scifio.cursor();
-			final RandomAccess<T> outRA = tmp.randomAccess();
-			while (inCur.hasNext()) {
-				inCur.fwd();
-				outRA.setPosition(inCur);
-				outRA.get().set(inCur.get());
-			}
-			final ImgPlus<T> res = new ImgPlus<T>(tmp, scifio);
-			// register
-			final Context ctx = m_imgOpener.getContext();
-			final RefManagerService refManagerService = ctx.getService(RefManagerService.class);
-			refManagerService.manage(res, ctx);
-			return res;
-		}
 
 		final SCIFIOConfig options = new SCIFIOConfig();
 		options.imgOpenerSetComputeMinMax(false);
