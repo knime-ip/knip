@@ -52,14 +52,16 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.io.IOException;
 import java.io.ObjectInput;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.knime.knip.core.ui.imgviewer.overlay.OverlayElementStatus;
 
 import net.imglib2.IterableInterval;
-import net.imglib2.Point;
-import net.imglib2.roi.geometric.Polygon;
+import net.imglib2.roi.Masks;
+import net.imglib2.roi.Regions;
+import net.imglib2.roi.geom.GeomMasks;
+import net.imglib2.roi.geom.real.Box;
+import net.imglib2.util.Intervals;
+import net.imglib2.view.Views;
 
 /**
  *
@@ -73,9 +75,9 @@ public class RectangleOverlayElement extends AbstractPolygonOverlayElement {
 
     private Rectangle m_rect;
 
-    private double[] m_origin;
+    private final double[] m_origin;
 
-    private double[] m_extend;
+    private final double[] m_extend;
 
     public RectangleOverlayElement(final long[] planePos, final int[] orientation, final String... labels) {
         this(new Rectangle(), planePos, orientation, labels);
@@ -163,18 +165,10 @@ public class RectangleOverlayElement extends AbstractPolygonOverlayElement {
 
     @Override
     public IterableInterval<Void> getRegionOfInterest() {
-        m_origin[0] = m_rect.x;
-        m_origin[1] = m_rect.y;
-        m_extend[0] = m_rect.width;
-        m_extend[1] = m_rect.height;
-
-        final List<Point> list = new ArrayList<>();
-        list.add(new Point(m_rect.x, m_rect.y));
-        list.add(new Point(m_rect.x + m_rect.width, m_rect.y));
-        list.add(new Point(m_rect.x + m_rect.width, m_rect.y + m_rect.height));
-        list.add(new Point(m_rect.x, m_rect.y + m_rect.height));
-
-        return new Polygon(list).rasterize();
+        final Box b = GeomMasks.closedBox(new double[]{m_rect.x, m_rect.y},
+                                          new double[]{m_rect.x + m_rect.width, m_rect.y + m_rect.height});
+        return Regions.iterable(Views.interval(Views.raster(Masks.toRealRandomAccessibleRealInterval(b)),
+                                               Intervals.smallestContainingInterval(b)));
     }
 
     @Override
@@ -183,7 +177,6 @@ public class RectangleOverlayElement extends AbstractPolygonOverlayElement {
             g.fillOval(m_poly.xpoints[i] - DRAWING_RADIUS, m_poly.ypoints[i] - DRAWING_RADIUS, 2 * DRAWING_RADIUS,
                        2 * DRAWING_RADIUS);
         }
-
     }
 
     @Override

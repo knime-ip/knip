@@ -61,6 +61,13 @@ import org.knime.knip.core.ui.imgviewer.overlay.OverlayElementStatus;
 
 import net.imglib2.IterableInterval;
 import net.imglib2.RealPoint;
+import net.imglib2.RealRandomAccessibleRealInterval;
+import net.imglib2.roi.Masks;
+import net.imglib2.roi.Regions;
+import net.imglib2.roi.geom.real.ClosedWritablePolygon2D;
+import net.imglib2.type.logic.BoolType;
+import net.imglib2.util.Intervals;
+import net.imglib2.view.Views;
 
 /**
  *
@@ -173,12 +180,14 @@ public abstract class AbstractPolygonOverlayElement extends OverlayElement2D {
 
     @Override
     public IterableInterval<Void> getRegionOfInterest() {
-        final ArrayList<RealPoint> vertices = new ArrayList<RealPoint>();
+        final ArrayList<RealPoint> vertices = new ArrayList<>();
         for (int i = 0; i < m_poly.npoints; i++) {
             vertices.add(new RealPoint(m_poly.xpoints[i], m_poly.ypoints[i]));
         }
 
-        return new net.imglib2.roi.geometric.Polygon(vertices).rasterize();
+        ClosedWritablePolygon2D poly = new ClosedWritablePolygon2D(vertices);
+        RealRandomAccessibleRealInterval<BoolType> real = Masks.toRealRandomAccessibleRealInterval(poly);
+        return Regions.iterable(Views.interval(Views.raster(real), Intervals.smallestContainingInterval(poly)));
     }
 
     @Override

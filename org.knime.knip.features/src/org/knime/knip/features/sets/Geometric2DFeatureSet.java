@@ -53,7 +53,7 @@ import net.imagej.ops.Ops.Geometric.Size;
 import net.imagej.ops.geom.geom2d.DefaultSizePolygon;
 import net.imagej.ops.special.function.Functions;
 import net.imagej.ops.special.function.UnaryFunctionOp;
-import net.imglib2.roi.geometric.Polygon;
+import net.imglib2.roi.geom.real.Polygon2D;
 import net.imglib2.roi.labeling.LabelRegion;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.DoubleType;
@@ -136,9 +136,9 @@ public class Geometric2DFeatureSet<L, O extends RealType<O>> extends AbstractOpR
 			@Attr(name = ATTR_TYPE, value = PKG + "Solidity") })
 	private boolean isSolidityActive = true;
 
-	private UnaryFunctionOp<LabelRegion<L>, Polygon> converter;
+	private UnaryFunctionOp<LabelRegion<L>, Polygon2D> converter;
 
-	private UnaryFunctionOp<Polygon, DoubleType> polygonSize;
+	private UnaryFunctionOp<Polygon2D, DoubleType> polygonSize;
 
 	@SuppressWarnings("unchecked")
 	public Geometric2DFeatureSet() {
@@ -148,8 +148,8 @@ public class Geometric2DFeatureSet<L, O extends RealType<O>> extends AbstractOpR
 	@Override
 	public void initialize() {
 		super.initialize();
-		converter = Functions.unary(ops(), Contour.class, Polygon.class, in(), true);
-		polygonSize = Functions.unary(ops(), Size.class, DoubleType.class, Polygon.class);
+		converter = Functions.unary(ops(), Contour.class, Polygon2D.class, in(), true);
+		polygonSize = Functions.unary(ops(), Size.class, DoubleType.class, Polygon2D.class);
 	}
 
 	@SuppressWarnings("unchecked")

@@ -54,13 +54,17 @@ import java.awt.Rectangle;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Arrays;
 
 import org.knime.knip.core.ui.imgviewer.overlay.OverlayElement2D;
 
-import net.imglib2.IterableInterval;
-import net.imglib2.Point;
-import net.imglib2.roi.geometric.PointCollection;
+import net.imglib2.roi.IterableRegion;
+import net.imglib2.roi.Masks;
+import net.imglib2.roi.Regions;
+import net.imglib2.roi.geom.GeomMasks;
+import net.imglib2.roi.geom.real.Sphere;
+import net.imglib2.type.logic.BoolType;
+import net.imglib2.util.Intervals;
+import net.imglib2.view.Views;
 
 /**
  *
@@ -78,8 +82,6 @@ public class PointOverlayElement extends OverlayElement2D {
 
     private int m_x;
 
-    private PointCollection m_roi;
-
     public PointOverlayElement() {
         //
     }
@@ -89,7 +91,6 @@ public class PointOverlayElement extends OverlayElement2D {
         super(pos, orientation, labels);
         m_x = x;
         m_y = y;
-        m_roi = new PointCollection(Arrays.asList(new Point(pos)));
     }
 
     @Override
@@ -114,8 +115,10 @@ public class PointOverlayElement extends OverlayElement2D {
     }
 
     @Override
-    public IterableInterval<Void> getRegionOfInterest() {
-        return m_roi;
+    public IterableRegion<BoolType> getRegionOfInterest() {
+        final Sphere s = GeomMasks.closedSphere(new double[]{m_x, m_y}, 1);
+        return Regions.iterable(Views.interval(Views.raster(Masks.toRealRandomAccessibleRealInterval(s)),
+                                               Intervals.smallestContainingInterval(s)));
     }
 
     @Override
@@ -136,8 +139,6 @@ public class PointOverlayElement extends OverlayElement2D {
         super.readExternal(in);
         m_x = in.readInt();
         m_y = in.readInt();
-        m_roi = new PointCollection(Arrays.asList(new Point(m_x, m_y)));
-
     }
 
     @Override

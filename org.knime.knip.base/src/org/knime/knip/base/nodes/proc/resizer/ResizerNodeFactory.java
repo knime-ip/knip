@@ -402,7 +402,7 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
                                        resultingInterval),
                         img.factory()), img.factory().create(resultingInterval, img.firstElement().createVariable()));
             case NEAREST_NEIGHBOR:
-                return (Img<T>)new ImgCopyOperation<T>().compute(new ImgView<T>(
+                return (Img<T>)new ImgCopyOperation<T>().compute(ImgView.wrap(
                         Views.interval(Views.raster(
                                                     RealViews.affineReal(
                                                                          Views.interpolate(Views.extendBorder(img),
@@ -410,6 +410,15 @@ public class ResizerNodeFactory<T extends RealType<T>> extends ValueToCellNodeFa
                                                                          new Scale(scaleFactors))),
                                        resultingInterval),
                         img.factory()), img.factory().create(resultingInterval, img.firstElement().createVariable()));
+
+//                return (Img<T>)new ImgCopyOperation<T>().compute(new ImgView<T>(
+//                        Views.interval(Views.raster(
+//                                                    RealViews.affineReal(
+//                                                                         Views.interpolate(Views.extendBorder(img),
+//                                                                                           new NearestNeighborInterpolatorFactory<T>()),
+//                                                                         new Scale(scaleFactors))),
+//                                       resultingInterval),
+//                        img.factory()), img.factory().create(resultingInterval, img.firstElement().createVariable()));
             case LANCZOS:
                 return (Img<T>)new ImgCopyOperation<T>().compute(new ImgView<T>(
                         Views.interval(Views.raster(
