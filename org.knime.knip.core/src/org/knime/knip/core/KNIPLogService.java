@@ -50,7 +50,11 @@ package org.knime.knip.core;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeLogger.LEVEL;
 import org.scijava.Priority;
+import org.scijava.log.LogListener;
+import org.scijava.log.LogMessage;
 import org.scijava.log.LogService;
+import org.scijava.log.LogSource;
+import org.scijava.log.Logger;
 import org.scijava.plugin.Plugin;
 import org.scijava.service.AbstractService;
 import org.scijava.service.Service;
@@ -248,6 +252,62 @@ public class KNIPLogService extends AbstractService implements LogService {
     public void setLevel(final String appender, final int level) {
         //TODO this behavior is not correct. we would have to dig deeper into the KNIME code to understand to fully support the specification of setLevel
         NodeLogger.setAppenderLevelRange(appender, NodeLogger.LEVEL.values()[level], NodeLogger.LEVEL.values()[level]);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void alwaysLog(final int level, final Object msg, final Throwable t) {
+       LOGGER.warn(msg);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public LogSource getSource() {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Logger subLogger(final String name, final int level) {
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addLogListener(final LogListener listener) {
+       // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void removeLogListener(final LogListener listener) {
+       // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void notifyListeners(final LogMessage message) {
+       // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setLevelForLogger(final String source, final int level) {
+       // no-op
     }
 
 }
