@@ -180,6 +180,11 @@ public class HDomeNodeFactory<T extends RealType<T> & NativeType<T>, TMP extends
                         public <S> ImgFactory<S> imgFactory(final S type) throws IncompatibleTypeException {
                             throw new UnsupportedOperationException("not supported by wrapped factory");
                         }
+
+                        @Override
+                        public Img<T> create(long... dimensions) {
+                            return new ImgView<T>(factory.create(dimensions), this);
+                        }
                     };
                 }
 

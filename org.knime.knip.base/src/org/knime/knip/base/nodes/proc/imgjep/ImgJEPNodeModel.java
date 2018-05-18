@@ -616,4 +616,12 @@ class WrappedFactory<V extends NativeType<V>> extends ImgFactory<V> {
     public <S> ImgFactory<S> imgFactory(final S type) throws IncompatibleTypeException {
         return (ImgFactory<S>)this;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Img<V> create(final long... dimensions) {
+        return fac.create(dimensions);
+    }
 }
