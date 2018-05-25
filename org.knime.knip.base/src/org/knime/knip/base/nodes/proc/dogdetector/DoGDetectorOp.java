@@ -65,6 +65,7 @@ import net.imglib2.outofbounds.OutOfBoundsFactory;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.type.numeric.integer.ShortType;
 import net.imglib2.view.Views;
 
 /**
@@ -74,8 +75,8 @@ import net.imglib2.view.Views;
  *
  * @param <T>
  */
-public class DoGDetectorOp<T extends RealType<T> & NativeType<T>> implements
-        UnaryOutputOperation<ImgPlus<T>, ImgPlus<BitType>> {
+public class DoGDetectorOp<T extends RealType<T> & NativeType<T>>
+        implements UnaryOutputOperation<ImgPlus<T>, ImgPlus<BitType>> {
 
     private final ExtremaType m_type;
 
@@ -123,9 +124,13 @@ public class DoGDetectorOp<T extends RealType<T> & NativeType<T>> implements
             calibration[d] = input.axis(d).calibratedValue(1);
         }
 
-        DogDetection<T> dogDetection =
-                new DogDetection<T>(Views.extend(input, m_oob), input, calibration, m_sigma1, m_sigma2, m_type,
-                        m_threshold, m_normalize, input.firstElement().createVariable());
+        if (input.firstElement() instanceof ShortType) {
+            throw new IllegalArgumentException(
+                    "Due to upstream changes shorttype images produce different results now, please update this node to continue using it with short type images.");
+        }
+
+        DogDetection<T> dogDetection = new DogDetection<T>(Views.extend(input, m_oob), input, calibration, m_sigma1,
+                m_sigma2, m_type, m_threshold, m_normalize, input.firstElement().createVariable());
 
         dogDetection.setExecutorService(m_service);
 
@@ -141,17 +146,13 @@ public class DoGDetectorOp<T extends RealType<T> & NativeType<T>> implements
 
     @Override
     public UnaryObjectFactory<ImgPlus<T>, ImgPlus<BitType>> bufferFactory() {
-        return new UnaryObjectFactory<ImgPlus<T>, ImgPlus<BitType>>() {
-
-            @Override
-            public ImgPlus<BitType> instantiate(final ImgPlus<T> img) {
-                try {
-                    return new ImgPlus<BitType>(img.factory().imgFactory(new BitType()).create(img, new BitType()), img);
-                } catch (IncompatibleTypeException e) {
-                    return new ImgPlus<BitType>(new ArrayImgFactory<BitType>().create(img, new BitType()), img);
-                }
-
+        return img -> {
+            try {
+                return new ImgPlus<>(img.factory().imgFactory(new BitType()).create(img), img);
+            } catch (IncompatibleTypeException e) {
+                return new ImgPlus<>(new ArrayImgFactory<>(new BitType()).create(img), img);
             }
+
         };
     }
 
