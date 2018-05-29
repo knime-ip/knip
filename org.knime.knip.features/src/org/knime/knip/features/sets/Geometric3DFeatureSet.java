@@ -53,7 +53,7 @@ import net.imagej.ops.Ops.Geometric.MarchingCubes;
 import net.imagej.ops.Ops.Geometric.MedianElongation;
 import net.imagej.ops.Ops.Geometric.Size;
 import net.imagej.ops.Ops.Geometric.Spareness;
-import net.imagej.ops.geom.geom3d.mesh.Mesh;
+import net.imagej.mesh.Mesh;
 import net.imagej.ops.special.function.Functions;
 import net.imagej.ops.special.function.UnaryFunctionOp;
 import net.imglib2.roi.labeling.LabelRegion;
