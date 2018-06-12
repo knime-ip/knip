@@ -241,7 +241,7 @@ public class ConvertImgNodeFactory<T extends RealType<T> & NativeType<T>>
                                                 new ImgConvert<T, O>(img.firstElement().createVariable(), outType, mode)
                                                         .createOp(img),
                                                 outType),
-                                        ImgFactoryTypes.<T> getImgFactory(facType, img));
+                                        ImgFactoryTypes.<T> getImgFactory(facType, img).imgFactory(outType));
             }
 
             /**
