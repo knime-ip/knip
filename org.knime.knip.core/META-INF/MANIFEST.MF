@@ -28,7 +28,8 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.6.0",
  jfreechart;bundle-version="1.0.19",
  org.knime.knip.cellviewer;bundle-version="1.5.0",
  org.apache.commons.math3;bundle-version="3.4.1",
- com.google.guava;bundle-version="19.0.0"
+ com.google.guava;bundle-version="19.0.0",
+ scijava-search;bundle-version="0.4.1"
 Bundle-ActivationPolicy: lazy
 Export-Package: org.knime.knip.core,
  org.knime.knip.core.algorithm,
