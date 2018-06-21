@@ -1,6 +1,7 @@
 /*
  * ------------------------------------------------------------------------
  *
+ *  Copyright (C) 2003 - 2018
  *  University of Konstanz, Germany and
  *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
@@ -44,270 +45,49 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ---------------------------------------------------------------------
  *
+ * Created on Jun 21, 2018 by gabriel
  */
 package org.knime.knip.core;
 
 import org.knime.core.node.NodeLogger;
-import org.knime.core.node.NodeLogger.LEVEL;
 import org.scijava.Priority;
-import org.scijava.log.LogListener;
+import org.scijava.log.AbstractLogService;
+import org.scijava.log.LogLevel;
 import org.scijava.log.LogMessage;
 import org.scijava.log.LogService;
-import org.scijava.log.LogSource;
-import org.scijava.log.Logger;
 import org.scijava.plugin.Plugin;
-import org.scijava.service.AbstractService;
-import org.scijava.service.Service;
 
 /**
+ * {@link LogService}
  *
- * @author Christian Dietz, University of Konstanz
+ * @author gabriel
  */
-@Plugin(type = Service.class, priority = Priority.HIGH_PRIORITY)
-public class KNIPLogService extends AbstractService implements LogService {
+@Plugin(type = LogService.class, priority = Priority.HIGH)
+public class KNIPLogService extends AbstractLogService {
 
-    private final NodeLogger LOGGER = NodeLogger.getLogger(KNIPLogService.class.getSimpleName());
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void debug(final Object arg0) {
-        LOGGER.debug(arg0);
-    }
+    private static final NodeLogger LOG = NodeLogger.getLogger(KNIPLogService.class.getSimpleName());
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void debug(final Throwable arg0) {
-        LOGGER.debug(arg0);
+    protected void messageLogged(final LogMessage message) {
+        int level = message.level();
+        if (level == LogLevel.DEBUG) {
+            LOG.debug(message.text());
+        } else if (level == LogLevel.INFO) {
+            LOG.info(message.text());
+        } else if (level == LogLevel.WARN) {
+            LOG.warn(message.text());
+        } else if (level == LogLevel.ERROR) {
+            Throwable t = message.throwable();
+            if (t != null) {
+                LOG.error(message);
+            } else {
+                LOG.error(message.text());
+            }
+        } else {
+            LOG.info(message);
+        }
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void debug(final Object arg0, final Throwable arg1) {
-        LOGGER.debug(arg0, arg1);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void error(final Object arg0) {
-        LOGGER.error(arg0);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void error(final Throwable arg0) {
-        LOGGER.error(arg0);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void error(final Object arg0, final Throwable arg1) {
-        LOGGER.error(arg0, arg1);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getLevel() {
-        return LOGGER.getLevel().ordinal();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void info(final Object arg0) {
-        LOGGER.info(arg0);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void info(final Throwable arg0) {
-        LOGGER.info(arg0);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void info(final Object arg0, final Throwable arg1) {
-        LOGGER.info(arg0, arg1);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isDebug() {
-        return LOGGER.isDebugEnabled();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isError() {
-        return LOGGER.isEnabledFor(LEVEL.ERROR);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isInfo() {
-        return LOGGER.isInfoEnabled();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isTrace() {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isWarn() {
-        return LOGGER.isEnabledFor(LEVEL.WARN);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setLevel(final int arg0) {
-        NodeLogger.setAppenderLevelRange(NodeLogger.KNIME_CONSOLE_APPENDER, NodeLogger.LEVEL.values()[arg0],
-                                         NodeLogger.LEVEL.values()[arg0]);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void trace(final Object arg0) {
-        LOGGER.debug(arg0);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void trace(final Throwable arg0) {
-        LOGGER.debug(arg0);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void trace(final Object arg0, final Throwable arg1) {
-        LOGGER.debug(arg0, arg1);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void warn(final Object arg0) {
-        LOGGER.warn(arg0);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void warn(final Throwable arg0) {
-        LOGGER.warn(arg0);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void warn(final Object arg0, final Throwable arg1) {
-        LOGGER.warn(arg0, arg1);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setLevel(final String appender, final int level) {
-        //TODO this behavior is not correct. we would have to dig deeper into the KNIME code to understand to fully support the specification of setLevel
-        NodeLogger.setAppenderLevelRange(appender, NodeLogger.LEVEL.values()[level], NodeLogger.LEVEL.values()[level]);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void alwaysLog(final int level, final Object msg, final Throwable t) {
-       LOGGER.warn(msg);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public LogSource getSource() {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Logger subLogger(final String name, final int level) {
-        return this;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void addLogListener(final LogListener listener) {
-       // no-op
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void removeLogListener(final LogListener listener) {
-       // no-op
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void notifyListeners(final LogMessage message) {
-       // no-op
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setLevelForLogger(final String source, final int level) {
-       // no-op
-    }
-
 }
