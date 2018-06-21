@@ -137,7 +137,8 @@ public class KNIPGateway {
 
     private KNIPGateway() {
         // set log level
-        System.setProperty(LogService.LOG_LEVEL_PROPERTY, "error");
+        System.setProperty(LogService.LOG_LEVEL_PROPERTY, "warn");
+        System.setProperty("scijava.plugin.blacklist", ".*StderrLogService");
 
         m_context = new Context(new PluginIndex(
                 new DefaultPluginFinder(new ResourceAwareClassLoader(getClass().getClassLoader(), getClass()))));
