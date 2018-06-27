@@ -30,6 +30,7 @@ import org.knime.knip.bdv.uicomponents.InterpolationModePanel;
 import org.knime.knip.bdv.uicomponents.SelectionAndGroupingTabs;
 import org.knime.knip.bdv.uicomponents.SourceProperties;
 import org.knime.knip.bdv.uicomponents.TransformationPanel;
+import org.knime.knip.core.KNIPGateway;
 import org.scijava.Context;
 import org.scijava.event.EventService;
 
@@ -141,7 +142,7 @@ public class BigDataViewerUI<I extends IntegerType<I>, T extends NumericType<T>,
 	};
 
 	public BigDataViewerUI(final JFrame frame) {
-		Context c = new Context();
+		Context c = KNIPGateway.getInstance().ctx();
 		c.inject(this);
 		EventService es = c.getService(EventService.class);
 		es.subscribe(this);
