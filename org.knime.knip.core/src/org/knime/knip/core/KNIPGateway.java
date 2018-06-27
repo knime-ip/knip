@@ -136,8 +136,9 @@ public class KNIPGateway {
     private final Context m_context;
 
     private KNIPGateway() {
-        // set log level
+        // set log level to warn to ignore plug-in loading log events
         System.setProperty(LogService.LOG_LEVEL_PROPERTY, "warn");
+        // blacklist StderrLogService to prevent logging to stdout / stderr
         System.setProperty("scijava.plugin.blacklist", ".*StderrLogService");
 
         m_context = new Context(new PluginIndex(
