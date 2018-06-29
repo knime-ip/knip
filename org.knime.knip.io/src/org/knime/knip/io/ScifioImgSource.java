@@ -54,6 +54,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.transaction.xa.Xid;
+
 import org.apache.log4j.Level;
 import org.knime.core.node.NodeLogger;
 import org.knime.knip.base.exceptions.KNIPRuntimeException;
@@ -376,15 +378,15 @@ public class ScifioImgSource implements ImgSource {
 	 */
 	@Override
 	public BufferedImage getThumbnail(final String imgRef, final int planeNo) throws Exception {
+		LOGGER.warn("Thumbnails for ImgRefs are no longer supported, replaced by empty thumbnail!");
 		final Reader r = getReader(imgRef);
 		final int sizeX = (int) r.getMetadata().get(0).getThumbSizeX();
 		final int sizeY = (int) r.getMetadata().get(0).getThumbSizeY();
+//
+//		// image index / plane index
 
-		// image index / plane index
-		final Plane pl = r.openThumbPlane(0, 0);
-
-		return AWTImageTools.makeImage(pl.getBytes(), sizeX, sizeY,
-				NativeTypes.getPixelType(getPixelType(imgRef, 0)).isSigned());
+		byte[] bytes = new byte[sizeX * sizeY];
+		return AWTImageTools.makeImage(bytes, sizeX, sizeY, false);
 	}
 
 	// META DATA
