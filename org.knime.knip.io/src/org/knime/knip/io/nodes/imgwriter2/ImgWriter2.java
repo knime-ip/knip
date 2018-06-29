@@ -55,6 +55,7 @@ import java.util.HashMap;
 import org.knime.core.node.NodeLogger;
 import org.knime.knip.io.ScifioGateway;
 import org.scijava.Context;
+import org.scijava.util.ArrayUtils;
 
 import io.scif.DependencyException;
 import io.scif.Format;
@@ -62,7 +63,6 @@ import io.scif.FormatException;
 import io.scif.MissingLibraryException;
 import io.scif.SCIFIO;
 import io.scif.Writer;
-import io.scif.common.DataTools;
 import io.scif.config.SCIFIOConfig;
 import io.scif.img.ImgIOException;
 import io.scif.img.ImgSaver;
@@ -328,8 +328,7 @@ public class ImgWriter2 {
                     compressionType);
 
             final int pixeltype = SCIFIO.imgUtil().makeType(imp.firstElement());
-            if (!DataTools.containsValue(
-                    tempWriter.getPixelTypes(compressionType), pixeltype)) {
+            if (!ArrayUtils.contains(tempWriter.getPixelTypes(compressionType), pixeltype)) {
                 throw new ImgIOException(compressionType);
             }
 
