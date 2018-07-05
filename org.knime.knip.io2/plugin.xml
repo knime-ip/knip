@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+   <extension-point id="SciJavaPlugin" name="SciJava Plugin" schema="schema/SciJavaPlugin.exsd"/>
+     <extension
+           point="org.knime.workbench.repository.nodesets">
+        <nodeset
+              expert-flag="false"
+              factory-class="org.knime.knip.io2.nodes.NIONodeSetFactory"
+              id="org.knime.knip.io.nodes.NIONodeSetFactory">
+        </nodeset>
+     </extension>
+</plugin>
