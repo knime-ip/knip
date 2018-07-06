@@ -1,15 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?><!-- Copyright (c) 2010 IBM Corporation
-	and others. All rights reserved. This program and the accompanying materials
-	are made available under the terms of the Eclipse Public License v1.0 which
-	accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (c) 2010 IBM Corporation 
+	and others. All rights reserved. This program and the accompanying materials 
+	are made available under the terms of the Eclipse Public License v1.0 which 
+	accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html 
 	Contributors: IBM Corporation - initial API and implementation -->
 
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="imgreader.png" type="Manipulator">
 	<name>Image Reader (Table) Remote</name>
 	<shortDescription>
-	Reads images from possibly different remote locations into a
-	KNIME-internal image format.
+		Reads images from possibly different remote locations
+		into a
+		KNIME-internal image format.
 	</shortDescription>
 
 	<fullDescription>
@@ -17,24 +18,13 @@
 			Reads images from various file formats supported by the Bio-Formats
 			library and imports them to the KNIME-internal image format.
 			A list of the supported formats can be found here:
-			<a href="http://loci.wisc.edu/bio-formats/formats">http://loci.wisc.edu/bio-formats/formats</a>.
+			<a href="http://loci.wisc.edu/bio-formats/formats">http://loci.wisc.edu/bio-formats/formats</a>
+			.
 
-			The image locations have to be provides as URI's as well as a fitting connection information needs to be present. 
+			The image locations have to be provided as URI's as well as a
+			fitting connection information needs to be present. 
 		</intro>
 		<tab name="Options">
-			<option name="File name column in input table">If another node with a string column is plugged
-				to the optional in-port, the column, which contains the potential
-				file paths, can be selected.</option>
-			<option name="OME-XML-metadata">
-				You can either add a column containing the metadata formated as
-				an OML-XML-String, read only the metadata from the images files, or just read the
-				images (default).
-				(for more details see:
-				<a href="http://www.ome-xml.org/">http://www.ome-xml.org/</a>).
-			</option>
-			<option name="Read non OME-XML Metadata">
-				Read metadata that is not part of the ome-xml specification.
-				It will be appended as XML annotation to the ome-xml metadata. </option>
 			<option name="Image Factory">Defines the way how the images are created and
 				therewith kept in memory: Array Image Factory (stored as ONE array;
 				pros: fast pixel access; cons: limited number of pixels per image),
@@ -42,85 +32,22 @@
 				are read faster; cons: limited number of pixels in an XY-plane,
 				slower pixel access), and Cell Image Factory (multiple arrays of
 				fixed sizes are used, pros: unlimited number of pixels per images;
-				cons: very slow pixel reading and pixel access))</option>
-			<option name="Pixel type">
-				Set the numeric type of the pixel values, this can save memory when reading e.g. a binary image saved as integer image. <br/>
-				<b>Attention</b> this option can lead to unexpected results if the selected pixel type does not fit the read data.
-				Make sure you are not reading unsigned values into a signed data type or signed values into an unsigned data type. 
-				In most cases the right choice is "Automatic".
-			</option>
-			<option name="Check file format for each file">Checks for each file individually the
-				file-format, if checked. Else, the file format as assumed to be the
-				same for all files and only if the reading fails, the new file
-				format will be determined.</option>
-			<option name="Read all series">Some image file formats might contain multiple
-				images (called series). One can either read all available series
-				(each appended as own table row) or one can specify with a range
-				which indices from the series should be read.
-			</option>
-			<option name="Load group files">If selected, related group files will be read as
-				well.</option>
-
-		</tab>
-		<tab name="Subset Selection">
-			<option name="Image Subset Selection">
-				Select the image planes here you actually want to
-				open. Use shift or
-				ctrl-keys to mark more than one plane or the
-				"all"-checkbox to select
-				all available planes. Detailed informations
-				about the sizes of the
-				individual
-				dimensions can be obtained from the
-				image metadata.
-
-				<p>Alternatively, selecting subsets can be done in three ways using the text field below each selection list:</p>
-
-				<p><b>Discrete Element Selection</b>
-				Every element that shall be selected can
-				be entered on it's own, separated by commas.
-				e.g. "1, 5, 8, 9"</p>
-				<p><b>Cohesive Element Selection</b>
-				Selecting a complete region "from" a given
-				value "to" another can be done by putting a
-				hyphen between two values, marking the first
-				as the region start and the second as the end.
-				Comma-separation still holds and can separate
-				either complete regions, or regions and discrete
-				selections.
-				e.g. 1-5, 8-10, 11</p>
-				<p><b>Function Based Selection</b>
-				Selection values based on a given function
-				can be done by marking the function with a
-				leading "f=" and entering the desired
-				functionality thereafter. Any single variable
-				function or constant contained within the
-				javascript math package can be used with
-				standard javascript syntax.
-				(e.g. math.pow(2, i) for selecting 2, 4, 8,...)</p>
-				<p><b>Combining</b>
-				The above mentioned functionalities can be
-				arbitrarily intermingled as every comma separated
-				entry is read and interpreted on it's own.
-				e.g. Selecting all Values from 1-10, every eleventh
-				entry and the twentieth entry for some reason can
-				be done by entering:
-				"1-10, 20, f=11*i"	</p>
+				cons: slower pixel reading and pixel access))
 			</option>
 		</tab>
 
 	</fullDescription>
 
 	<ports>
-		<inPort name="Conenction information" index="0">Connection
-			information needed to connect to a remote host.</inPort>
-		<inPort name="URIs" index="1">Input table
+		<inPort name="URIs" index="0">Input table
 			with a column containing
-			uris of image file.
+			uris of image files.
+		</inPort>
+		<inPort name="Conenction information" index="1" optional="true">
+			(Optional) connection information needed to connect to a remote host.
 		</inPort>
 		<outPort index="0" name="Images">
-			The opened images and optionally a
-			column with the metadata.
+			The opened images and optionally a column with the metadata.
 		</outPort>
 	</ports>
 

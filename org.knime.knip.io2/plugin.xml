@@ -6,8 +6,7 @@
            point="org.knime.workbench.repository.nodesets">
         <nodeset
               expert-flag="false"
-              factory-class="org.knime.knip.io2.nodes.NIONodeSetFactory"
-              id="org.knime.knip.io.nodes.NIONodeSetFactory">
+              factory-class="org.knime.knip.io2.nodes.IO2NodeSetFactory">
         </nodeset>
      </extension>
 </plugin>

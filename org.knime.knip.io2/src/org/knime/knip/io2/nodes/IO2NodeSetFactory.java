@@ -61,7 +61,7 @@ import org.knime.knip.io2.nodes.imgreader3.table.ImgReaderTableNodeFactory;
 /**
  * @author Gabriel Einsdorf (KNIME GmbH)
  */
-public class NIONodeSetFactory implements NodeSetFactory {
+public class IO2NodeSetFactory implements NodeSetFactory {
 
 	private final Map<String, String> m_nodeFactories = new HashMap<>();
 

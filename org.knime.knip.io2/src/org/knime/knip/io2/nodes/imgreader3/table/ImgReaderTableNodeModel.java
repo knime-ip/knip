@@ -1,6 +1,7 @@
 package org.knime.knip.io2.nodes.imgreader3.table;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -12,6 +13,7 @@ import net.imglib2.type.numeric.RealType;
 
 import org.knime.base.filehandling.remote.connectioninformation.port.ConnectionInformation;
 import org.knime.base.filehandling.remote.connectioninformation.port.ConnectionInformationPortObject;
+import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
@@ -61,8 +63,8 @@ import org.scijava.io.location.LocationService;
 
 public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> extends AbstractImgReaderNodeModel<T> {
 
-	private static final int CONNECTION = 0;
-	private static final int DATA = 1;
+	private static final int CONNECTION = 1;
+	private static final int DATA = 0;
 	protected static final NodeLogger LOGGER = NodeLogger.getLogger(ImgReaderTableNodeModel.class);
 
 	/** Settings Models */
@@ -74,7 +76,7 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 	private final LocationService loc = IO2Gateway.locations();
 
 	protected ImgReaderTableNodeModel() {
-		super(new PortType[] { ConnectionInformationPortObject.TYPE_OPTIONAL, BufferedDataTable.TYPE },
+		super(new PortType[] { BufferedDataTable.TYPE, ConnectionInformationPortObject.TYPE_OPTIONAL },
 				new PortType[] { BufferedDataTable.TYPE });
 
 		addAdditionalSettingsModels(Arrays.asList(m_filenameColumnModel));
