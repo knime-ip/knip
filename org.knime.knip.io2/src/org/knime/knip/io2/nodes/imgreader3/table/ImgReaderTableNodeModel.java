@@ -19,10 +19,12 @@ import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataTableSpecCreator;
+import org.knime.core.data.MissingCell;
 import org.knime.core.data.RowKey;
-import org.knime.core.data.append.AppendedColumnRow;
+import org.knime.core.data.container.CellFactory;
 import org.knime.core.data.container.ColumnRearranger;
 import org.knime.core.data.def.DefaultRow;
+import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.data.uri.URIDataValue;
 import org.knime.core.node.BufferedDataContainer;
@@ -45,6 +47,7 @@ import org.knime.core.node.streamable.PortOutput;
 import org.knime.core.node.streamable.RowInput;
 import org.knime.core.node.streamable.RowOutput;
 import org.knime.core.node.streamable.StreamableOperator;
+import org.knime.core.util.UniqueNameGenerator;
 import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.node.NodeUtils;
@@ -104,7 +107,6 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 		}
 
 		final BufferedDataTable in = (BufferedDataTable) inObjects[DATA];
-		final BufferedDataContainer container = exec.createDataContainer((DataTableSpec) outSpec[0]);
 		final int uriColIdx = getUriColIdx(in.getDataTableSpec());
 
 		final boolean checkFormat = m_checkFileFormatModel.getBooleanValue();
@@ -118,31 +120,79 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 
 		final ScifioImgSource source = new ScifioImgSource(factory, checkFormat, isGroup);
 
-		// use a column rearanger for replace
-		if (columnCreationMode == ColumnCreationMode.REPLACE) {
-			return new BufferedDataTable[] {
-					exec.createColumnRearrangeTable(in, createRearanger(), exec.createSubProgress(1)) };
-		}
-
-		for (final DataRow row : in) {
-			final URI uri = ((URIDataValue) row.getCell(uriColIdx)).getURIContent().getURI();
-			final DataCell[] cells = readFromURI(uri, connectionInfo, source, cellFactory);
-
-			if (columnCreationMode == ColumnCreationMode.APPEND) {
-				container.addRowToTable(new AppendedColumnRow(row, cells));
-			} else if (columnCreationMode == ColumnCreationMode.NEW_TABLE) {
+		// new table
+		if (columnCreationMode == ColumnCreationMode.NEW_TABLE) {
+			final BufferedDataContainer container = exec.createDataContainer((DataTableSpec) outSpec[0]);
+			for (final DataRow row : in) {
+				final URI uri = ((URIDataValue) row.getCell(uriColIdx)).getURIContent().getURI();
+				final DataCell[] cells = readFromURI(uri, connectionInfo, source, cellFactory);
 				container.addRowToTable(new DefaultRow(row.getKey(), cells));
 			}
+			container.close();
 
+			setInternalTables(new BufferedDataTable[] { container.getTable() });
+			return new PortObject[] { container.getTable() };
 		}
 
-		container.close();
-		setInternalTables(new BufferedDataTable[] { container.getTable() });
-		return new PortObject[] { container.getTable() };
+		// use a column rearanger for replace and append
+		final ColumnRearranger r = new ColumnRearranger(in.getDataTableSpec());
+		final CellFactory rearangerFactory = rearangerFactory(in.getSpec(), cellFactory, uriColIdx, connectionInfo,
+				source);
+		if (columnCreationMode == ColumnCreationMode.REPLACE) {
+			r.replace(rearangerFactory, uriColIdx);
+		} else if (columnCreationMode == ColumnCreationMode.APPEND) {
+			r.append(rearangerFactory);
+		}
+		final BufferedDataTable[] tables = new BufferedDataTable[] {
+				exec.createColumnRearrangeTable(in, r, exec.createSubProgress(1)) };
+		setInternalTables(tables);
+		return tables;
+
 	}
 
-	private ColumnRearranger createRearanger() {
-		throw new UnsupportedOperationException("NYI");
+	/**
+	 * creates the cellfactory for the column rearangers
+	 *
+	 * @param inspec
+	 * @param cellFactory
+	 * @param uriColIdx
+	 * @param connectionInfo
+	 * @param source
+	 * @return
+	 */
+	private CellFactory rearangerFactory(final DataTableSpec inspec, final ImgPlusCellFactory cellFactory,
+			final int uriColIdx, final ConnectionInformation connectionInfo, final ScifioImgSource source) {
+		return new CellFactory() {
+			final UniqueNameGenerator gen = new UniqueNameGenerator(inspec);
+
+			@Override
+			public void setProgress(final int curRowNr, final int rowCount, final RowKey lastKey,
+					final ExecutionMonitor ex) {
+				ex.setProgress((double) curRowNr / rowCount);
+			}
+
+			@Override
+			public DataColumnSpec[] getColumnSpecs() {
+				if (m_appendSeriesNumberModel.getBooleanValue()) {
+					return new DataColumnSpec[] { gen.newColumn("Image", ImgPlusCell.TYPE),
+							gen.newColumn("Series ID", IntCell.TYPE) };
+				}
+				return new DataColumnSpec[] { new DataColumnSpecCreator("Image", ImgPlusCell.TYPE).createSpec() };
+			}
+
+			@Override
+			public DataCell[] getCells(final DataRow row) {
+				final URI uri = ((URIDataValue) row.getCell(uriColIdx)).getURIContent().getURI();
+				try {
+					return readFromURI(uri, connectionInfo, source, cellFactory);
+				} catch (final Exception e) {
+					if (m_appendSeriesNumberModel.getBooleanValue()) {
+						return new DataCell[] { new MissingCell(e.getMessage()), new IntCell(-1) };
+					}
+					return new DataCell[] { new MissingCell(e.getMessage()) };
+				}
+			}
+		};
 	}
 
 	private DataCell[] readFromURI(final URI uri, final ConnectionInformation connectionInfo,
