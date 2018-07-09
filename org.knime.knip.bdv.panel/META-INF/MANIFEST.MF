@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-SymbolicName: org.knime.knip.bdv.panel;singleton:=true
 Bundle-ManifestVersion: 2
-Bundle-Version: 0.1.0.qualifier
+Bundle-Version: 1.7.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .
 Bundle-Name: KNIP ImgLib2 UI Integration

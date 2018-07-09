@@ -2,7 +2,7 @@
 <feature
       id="org.knime.knip.feature"
       label="KNIME Image Processing"
-      version="1.6.1.qualifier"
+      version="1.7.0.qualifier"
       provider-name="University of Konstanz / KNIME">
 
    <description>

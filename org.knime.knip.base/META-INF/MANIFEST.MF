@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-Name: KNIME Image Types and Nodes
 Bundle-SymbolicName: org.knime.knip.base;singleton:=true
 Bundle-ManifestVersion: 2
-Bundle-Version: 1.6.1.qualifier
+Bundle-Version: 1.7.0.qualifier
 Bundle-Vendor: University of Konstanz
 Eclipse-RegisterBuddy: org.knime.core
 Require-Bundle: org.knime.base;bundle-version="[3.0.0,4.0.0)",
@@ -21,7 +21,7 @@ Require-Bundle: org.knime.base;bundle-version="[3.0.0,4.0.0)",
  jep;bundle-version="2.4.2",
  imglib2-roi;bundle-version="0.3.2",
  imagej-ops;bundle-version="0.16.0",
- org.knime.core,
+ org.knime.core;bundle-version="[3.0.0,4.0.0)",
  knip-tmp-imglib2-ops;bundle-version="0.4.0",
  org.knime.knip.cellviewer;bundle-version="1.5.1",
  org.apache.commons.math3;bundle-version="3.4.1",

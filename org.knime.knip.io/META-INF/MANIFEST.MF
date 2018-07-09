@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-Name: KNIME Image IO
 Bundle-SymbolicName: org.knime.knip.io;singleton:=true
 Bundle-ManifestVersion: 2
-Bundle-Version: 1.6.1.qualifier
+Bundle-Version: 1.7.0.qualifier
 Eclipse-BuddyPolicy: registered
 Bundle-Vendor: University of Konstanz
 Require-Bundle: org.knime.base;bundle-version="[3.0.0,4.0.0)",
