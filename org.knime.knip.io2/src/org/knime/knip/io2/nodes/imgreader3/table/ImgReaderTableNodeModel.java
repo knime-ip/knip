@@ -19,13 +19,12 @@ import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataTableSpecCreator;
-import org.knime.core.data.MissingCell;
 import org.knime.core.data.RowKey;
 import org.knime.core.data.append.AppendedColumnRow;
+import org.knime.core.data.container.ColumnRearranger;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.data.uri.URIDataValue;
-import org.knime.core.data.xml.XMLCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
@@ -79,14 +78,12 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 		super(new PortType[] { BufferedDataTable.TYPE, ConnectionInformationPortObject.TYPE_OPTIONAL },
 				new PortType[] { BufferedDataTable.TYPE });
 
-		addAdditionalSettingsModels(Arrays.asList(m_filenameColumnModel));
-//						m_columnCreationModeModel,
-//						m_columnSuffixModel));
+		addAdditionalSettingsModels(
+				Arrays.asList(m_filenameColumnModel, m_columnCreationModeModel, m_columnSuffixModel));
 	}
 
 	@Override
 	protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
-
 		return createOutSpec(inSpecs);
 	}
 
@@ -100,7 +97,7 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 		if (inObjects[CONNECTION] != null) {
 			connectionInfo = ((ConnectionInformationPortObject) inObjects[CONNECTION]).getConnectionInformation();
 			outSpec = createOutSpec(
-					new PortObjectSpec[] { inObjects[CONNECTION].getSpec(), inObjects[DATA].getSpec() });
+					new PortObjectSpec[] { inObjects[DATA].getSpec(), inObjects[CONNECTION].getSpec(), });
 		} else {
 			connectionInfo = null;
 			outSpec = createOutSpec(new PortObjectSpec[] { null, inObjects[DATA].getSpec() });
@@ -116,40 +113,63 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 
 		final boolean isGroup = m_isGroupFilesModel.getBooleanValue();
 
+		final ColumnCreationMode columnCreationMode = EnumUtils.valueForName(m_columnCreationModeModel.getStringValue(),
+				ColumnCreationMode.values());
+
 		final ScifioImgSource source = new ScifioImgSource(factory, checkFormat, isGroup);
+
+		// use a column rearanger for replace
+		if (columnCreationMode == ColumnCreationMode.REPLACE) {
+			return new BufferedDataTable[] {
+					exec.createColumnRearrangeTable(in, createRearanger(), exec.createSubProgress(1)) };
+		}
+
 		for (final DataRow row : in) {
 			final URI uri = ((URIDataValue) row.getCell(uriColIdx)).getURIContent().getURI();
-			Location resolved;
-			final LocationResolver resolver = loc.getResolver(uri);
-			if (resolver == null) {
-				throw new IllegalArgumentException("No resulver found for location: " + loc.toString());
+			final DataCell[] cells = readFromURI(uri, connectionInfo, source, cellFactory);
+
+			if (columnCreationMode == ColumnCreationMode.APPEND) {
+				container.addRowToTable(new AppendedColumnRow(row, cells));
+			} else if (columnCreationMode == ColumnCreationMode.NEW_TABLE) {
+				container.addRowToTable(new DefaultRow(row.getKey(), cells));
 			}
 
-			//
-			if (resolver instanceof AuthAwareResolver) {
-				if (connectionInfo == null) {
-					// FIXME log warning, increase warning counter
-					container.addRowToTable(new AppendedColumnRow(row,
-							new MissingCell("Connection information required but not provided!")));
-					continue;
-				}
-				resolved = ((AuthAwareResolver) resolver).resolveWithAuth(uri, connectionInfo);
-			} else {
-				resolved = resolver.resolve(uri);
-			}
-
-			if (resolved == null) {
-				throw new IllegalArgumentException("Could not resolve url: " + uri.toString());
-			}
-
-			// TODO add series reading!
-			final ImgPlus<RealType> img = source.getImg(resolved, 0);
-			container.addRowToTable(new AppendedColumnRow(row, cellFactory.createCell(img)));
 		}
 
 		container.close();
 		setInternalTables(new BufferedDataTable[] { container.getTable() });
 		return new PortObject[] { container.getTable() };
+	}
+
+	private ColumnRearranger createRearanger() {
+		throw new UnsupportedOperationException("NYI");
+	}
+
+	private DataCell[] readFromURI(final URI uri, final ConnectionInformation connectionInfo,
+			final ScifioImgSource source, final ImgPlusCellFactory cellFactory) throws Exception {
+
+		Location resolved;
+		final LocationResolver resolver = loc.getResolver(uri);
+		if (resolver == null) {
+			throw new IllegalArgumentException("No resulver found for location: " + loc.toString());
+		}
+		// handle authentication
+		if (resolver instanceof AuthAwareResolver) {
+			if (connectionInfo == null) {
+				throw new IOException("Connection information required but not provided!");
+			}
+			resolved = ((AuthAwareResolver) resolver).resolveWithAuth(uri, connectionInfo);
+		} else {
+			resolved = resolver.resolve(uri);
+		}
+
+		if (resolved == null) {
+			throw new IllegalArgumentException("Could not resolve url: " + uri.toString());
+		}
+		final ImgPlus<RealType> img = source.getImg(resolved, 0);
+		final ImgPlusCell cell = cellFactory.createCell(img);
+		return new DataCell[] { cell };
+
 	}
 
 	private PortObjectSpec[] createOutSpec(final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
@@ -161,84 +181,79 @@ public class ImgReaderTableNodeModel<T extends RealType<T> & NativeType<T>> exte
 
 		final DataTableSpec spec = (DataTableSpec) inSpecs[DATA];
 
-		final DataColumnSpec imgSpec = new DataColumnSpecCreator(
-				DataTableSpec.getUniqueColumnName(spec, "Image" + m_columnSuffixModel.getStringValue()),
-				ImgPlusCell.TYPE).createSpec();
+//		final DataTableSpec outSpec = new DataTableSpecCreator(spec).addColumns(imgSpec).createSpec();
+//		return new PortObjectSpec[] { outSpec };
 
-		final DataTableSpec outSpec = new DataTableSpecCreator(spec).addColumns(imgSpec).createSpec();
-		return new PortObjectSpec[] { outSpec };
-
-//		final MetadataMode metaDataMode = EnumUtils.valueForName(metadataModeModel.getStringValue(),
+//		final MetadataMode metaDataMode = EnumUtils.valueForName(m_metadataModeModel.getStringValue(),
 //				MetadataMode.values());
-//		final DataTableSpec spec = (DataTableSpec) inSpecs[DATA_PORT];
-//
+
 //		final boolean readImage = metaDataMode == MetadataMode.NO_METADATA
 //				|| metaDataMode == MetadataMode.APPEND_METADATA;
 //		final boolean readMetadata = metaDataMode == MetadataMode.APPEND_METADATA
 //				|| metaDataMode == MetadataMode.METADATA_ONLY;
-//
-//		final ColumnCreationMode columnCreationMode = EnumUtils.valueForName(m_columnCreationModeModel.getStringValue(),
-//				ColumnCreationMode.values());
-//
-		// Create the outspec
-//
-//		final DataTableSpec outSpec;
-//		if (columnCreationMode == ColumnCreationMode.NEW_TABLE) {
-//
-//			final DataTableSpecCreator specBuilder = new DataTableSpecCreator();
-//			specBuilder.addColumns(new DataColumnSpecCreator("Image", ImgPlusCell.TYPE).createSpec());
+
+		final ColumnCreationMode columnCreationMode = EnumUtils.valueForName(m_columnCreationModeModel.getStringValue(),
+				ColumnCreationMode.values());
+
+//		 Create the outspec
+
+		final DataTableSpec outSpec;
+		if (columnCreationMode == ColumnCreationMode.NEW_TABLE) {
+
+			final DataTableSpecCreator specBuilder = new DataTableSpecCreator();
+			specBuilder.addColumns(new DataColumnSpecCreator("Image", ImgPlusCell.TYPE).createSpec());
+			// TODO add series reading
 //			if (m_readAllSeriesModel.getBooleanValue() || m_appendSeriesNumberModel.getBooleanValue()) {
 //				specBuilder.addColumns(new DataColumnSpecCreator("Series Number", StringCell.TYPE).createSpec());
 //			}
-//
-//			outSpec = specBuilder.createSpec();
-//
-//		} else { // Append and replace
-//
-//			final DataColumnSpec imgSpec = new DataColumnSpecCreator(
-//					DataTableSpec.getUniqueColumnName(spec, "Image" + m_columnSuffixModel.getStringValue()),
-//					ImgPlusCell.TYPE).createSpec();
+
+			outSpec = specBuilder.createSpec();
+
+		} else { // Append and replace
+			final DataColumnSpec imgSpec = new DataColumnSpecCreator(
+					DataTableSpec.getUniqueColumnName(spec, "Image" + m_columnSuffixModel.getStringValue()),
+					ImgPlusCell.TYPE).createSpec();
 //			final DataColumnSpec metaDataSpec = new DataColumnSpecCreator(
 //					DataTableSpec.getUniqueColumnName(spec, "OME-XML Metadata" + m_columnSuffixModel.getStringValue()),
 //					XMLCell.TYPE).createSpec();
-//			final DataColumnSpec seriesNumberSpec = new DataColumnSpecCreator(
-//					DataTableSpec.getUniqueColumnName(spec, "Series Number"), StringCell.TYPE).createSpec();
-//
-//			final DataTableSpecCreator outSpecBuilder = new DataTableSpecCreator(spec);
-//
-//			if (columnCreationMode == ColumnCreationMode.APPEND) {
-//				outSpecBuilder.addColumns(imgSpec);
-//				if (m_appendSeriesNumberModel.getBooleanValue()) {
-//					outSpecBuilder.addColumns(seriesNumberSpec);
-//				}
-//
-//				outSpec = outSpecBuilder.createSpec();
-//
-//			} else if (columnCreationMode == ColumnCreationMode.REPLACE) {
-//
-//				// As we can only replace the URI column, we append all
-//				// additional columns.
-//				boolean replaced = false;
-//
-//				// replaced is always false in this case
-//				outSpecBuilder.replaceColumn(uriColIdx, imgSpec);
-//				replaced = true;
-//				if (m_appendSeriesNumberModel.getBooleanValue()) {
-//					if (!replaced) {
-//						outSpecBuilder.replaceColumn(uriColIdx, seriesNumberSpec);
-//					} else {
-//						outSpecBuilder.addColumns(seriesNumberSpec);
-//					}
-//				}
-//
-//				outSpec = outSpecBuilder.createSpec();
-//			} else {
-//				// should really not happen
-//				throw new IllegalStateException("Support for the columncreation mode"
-//						+ m_columnCreationModeModel.getStringValue() + " is not implemented!");
-//			}
-//		}
-//		return new PortObjectSpec[] { outSpec };
+			final DataColumnSpec seriesNumberSpec = new DataColumnSpecCreator(
+					DataTableSpec.getUniqueColumnName(spec, "Series Number"), StringCell.TYPE).createSpec();
+
+			final DataTableSpecCreator outSpecBuilder = new DataTableSpecCreator(spec);
+
+			if (columnCreationMode == ColumnCreationMode.APPEND) {
+				outSpecBuilder.addColumns(imgSpec);
+				if (m_appendSeriesNumberModel.getBooleanValue()) {
+					outSpecBuilder.addColumns(seriesNumberSpec);
+				}
+
+				outSpec = outSpecBuilder.createSpec();
+
+			} else if (columnCreationMode == ColumnCreationMode.REPLACE) {
+
+				// As we can only replace the URI column, we append all
+				// additional columns.
+				boolean replaced = false;
+
+				// replaced is always false in this case
+				outSpecBuilder.replaceColumn(uriColIdx, imgSpec);
+				replaced = true;
+				if (m_appendSeriesNumberModel.getBooleanValue()) {
+					if (!replaced) {
+						outSpecBuilder.replaceColumn(uriColIdx, seriesNumberSpec);
+					} else {
+						outSpecBuilder.addColumns(seriesNumberSpec);
+					}
+				}
+
+				outSpec = outSpecBuilder.createSpec();
+			} else {
+				// should really not happen
+				throw new IllegalStateException("Support for the columncreation mode"
+						+ m_columnCreationModeModel.getStringValue() + " is not implemented!");
+			}
+		}
+		return new PortObjectSpec[] { outSpec };
 	}
 
 	private int getUriColIdx(final PortObjectSpec inSpec) throws InvalidSettingsException {
