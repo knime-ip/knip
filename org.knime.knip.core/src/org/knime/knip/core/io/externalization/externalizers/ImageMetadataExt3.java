@@ -50,6 +50,10 @@ package org.knime.knip.core.io.externalization.externalizers;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.knime.knip.core.data.img.DefaultImageMetadata;
@@ -63,14 +67,12 @@ import net.imglib2.display.ColorTable16;
 import net.imglib2.display.ColorTable8;
 
 /**
- * TODO Auto-generated
+ * {@link Externalizer} for {@link ImageMetadata}. De-duplicates color tables before saving, which can save a lot of
+ * memory on images with many planes.
  *
- * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
+ * @author Gabriel
  */
-@Deprecated
-public class ImageMetadataExt2 implements Externalizer<ImageMetadata> {
+public class ImageMetadataExt3 implements Externalizer<ImageMetadata> {
 
     private enum ColorTables {
         ColorTable8, ColorTable16
@@ -88,101 +90,123 @@ public class ImageMetadataExt2 implements Externalizer<ImageMetadata> {
 
     @Override
     public int getPriority() {
-        return 2;
+        return 3;
     }
 
     @Override
     public ImageMetadata read(final BufferedDataInputStream in) throws Exception {
-        final DefaultImageMetadata obj = new DefaultImageMetadata();
+        final DefaultImageMetadata meta = new DefaultImageMetadata();
 
         // Valid bits are deserialized
-        obj.setValidBits(in.readInt());
+        meta.setValidBits(in.readInt());
 
         // Channel Min/Max are deserialized
         final int numChannels = in.readInt();
 
         for (int c = 0; c < numChannels; c++) {
-            obj.setChannelMinimum(c, in.readDouble());
-            obj.setChannelMaximum(c, in.readDouble());
+            meta.setChannelMinimum(c, in.readDouble());
+            meta.setChannelMaximum(c, in.readDouble());
         }
 
         // Colortables are deserialized
         final int numColorTables = in.readInt();
-        obj.initializeColorTables(numColorTables);
+        final int numDedupedColorTables = in.readInt();
 
-        for (int t = 0; t < numColorTables; t++) {
+        meta.initializeColorTables(numColorTables);
 
-            if (in.readBoolean()) {
+        for (int t = 0; t < numDedupedColorTables; t++) {
+
+            // read the number and idx of duplicate color tables
+            final int dupcount = in.readInt();
+            final int[] dupIdxes = new int[dupcount];
+            in.read(dupIdxes);
+
+            ColorTable ct = null;
+
+            final boolean nonNullColorTable = in.readBoolean();
+            if (nonNullColorTable) {
+
+                // read the color table
                 final int componentCount = in.readInt();
                 final int length = in.readInt();
 
-                switch (ColorTables.values()[in.readInt()]) {
-                    case ColorTable8:
-                        final byte[][] ct8 = new byte[componentCount][length];
-
-                        for (int c = 0; c < componentCount; c++) {
-                            in.read(ct8[c]);
-                        }
-
-                        obj.setColorTable(new ColorTable8(ct8), t);
-                        break;
-                    case ColorTable16:
-                        final short[][] ct16 = new short[componentCount][length];
-
-                        for (int c = 0; c < componentCount; c++) {
-                            in.read(ct16[c]);
-                        }
-
-                        obj.setColorTable(new ColorTable16(ct16), t);
-                        break;
-                    default:
-                        throw new IllegalArgumentException(
-                                "Fatal error! Unknown ColorTable in ImageMetadataExt2.java! Please contact Administrators!");
+                final ColorTables colorTables = ColorTables.values()[in.readInt()];
+                if (colorTables == ColorTables.ColorTable8) {
+                    final byte[][] ct8 = new byte[componentCount][length];
+                    for (int c = 0; c < componentCount; c++) {
+                        in.read(ct8[c]);
+                    }
+                    ct = new ColorTable8(ct8);
+                } else if (colorTables == ColorTables.ColorTable16) {
+                    final short[][] ct16 = new short[componentCount][length];
+                    for (int c = 0; c < componentCount; c++) {
+                        in.read(ct16[c]);
+                    }
+                    ct = new ColorTable16(ct16);
+                } else {
+                    throw new IllegalArgumentException(
+                            "Fatal error! Unknown ColorTable in ImageMetadataExt3.java! Please contact Administrators!");
                 }
+            }
 
+            // set the color table
+            for (final int idx : dupIdxes) {
+                meta.setColorTable(ct, idx);
             }
         }
 
-        int numObjects = in.readInt();
+        // read the properties
+        final int numObjects = in.readInt();
         final ObjectInputStream ois = new ObjectInputStream(in);
         for (int n = 0; n < numObjects; n++) {
-            obj.getProperties().put((String)ois.readObject(), ois.readObject());
+            meta.getProperties().put((String)ois.readObject(), ois.readObject());
         }
 
-        return obj;
+        return meta;
     }
 
     @Override
-    public void write(final BufferedDataOutputStream out, final ImageMetadata obj) throws Exception {
+    public void write(final BufferedDataOutputStream out, final ImageMetadata meta) throws Exception {
 
         // Valid bits
-        out.writeInt(obj.getValidBits());
+        out.writeInt(meta.getValidBits());
 
         // Channels are serialized
-        final int numChannels = obj.getCompositeChannelCount();
+        final int numChannels = meta.getCompositeChannelCount();
         out.writeInt(numChannels);
 
         for (int c = 0; c < numChannels; c++) {
-            out.writeDouble(obj.getChannelMinimum(c));
-            out.writeDouble(obj.getChannelMaximum(c));
+            out.writeDouble(meta.getChannelMinimum(c));
+            out.writeDouble(meta.getChannelMaximum(c));
         }
 
         // Color Tables are serialized
-        final int numTables = obj.getColorTableCount();
-
+        final int numTables = meta.getColorTableCount();
         out.writeInt(numTables);
 
-        for (int t = 0; t < numTables; t++) {
-            final ColorTable table = obj.getColorTable(t);
+        // occurences list
+        final Map<ColorTable, List<Integer>> tables = deduplicateColorTables(meta);
+
+        // number of deduped tables
+        out.writeInt(tables.size());
+
+        for (final Entry<ColorTable, List<Integer>> entry : tables.entrySet()) {
+            final ColorTable table = entry.getKey();
+            final int[] occurences = toPrimitiveIntArray(entry.getValue());
+
+            out.writeInt(occurences.length); // number of duplicates
+            out.write(occurences); // the indexes of the duplicates
+
             out.writeBoolean(table != null);
 
             if (table != null) {
+                // write the color table
                 out.writeInt(table.getComponentCount());
                 out.writeInt(table.getLength());
                 if (table instanceof ColorTable8) {
                     out.writeInt(ColorTables.ColorTable8.ordinal());
 
-                    byte[][] values = ((ColorTable8)table).getValues();
+                    final byte[][] values = ((ColorTable8)table).getValues();
 
                     for (int s = 0; s < values.length; s++) {
                         out.write(values[s]);
@@ -190,7 +214,7 @@ public class ImageMetadataExt2 implements Externalizer<ImageMetadata> {
                 } else if (table instanceof ColorTable16) {
                     out.writeInt(ColorTables.ColorTable16.ordinal());
 
-                    short[][] values = ((ColorTable16)table).getValues();
+                    final short[][] values = ((ColorTable16)table).getValues();
 
                     for (int s = 0; s < values.length; s++) {
                         out.write(values[s]);
@@ -199,12 +223,50 @@ public class ImageMetadataExt2 implements Externalizer<ImageMetadata> {
             }
         }
 
-        out.writeInt(obj.getProperties().size());
+        // write metadata properties
+        out.writeInt(meta.getProperties().size());
 
         final ObjectOutputStream oos = new ObjectOutputStream(out);
-        for (Entry<String, Object> entry : obj.getProperties().entrySet()) {
+        for (final Entry<String, Object> entry : meta.getProperties().entrySet()) {
             oos.writeObject(entry.getKey());
             oos.writeObject(entry.getValue());
         }
+    }
+
+    /**
+     * Deduplicates the color-tables contained in the given {@link ImageMetadata};
+     *
+     * @param obj the {@link ImageMetadata} which may contain duplicate color tables
+     * @return a Map which maps a {@link ColorTable} to all it's duplicate occurrences.
+     */
+    private Map<ColorTable, List<Integer>> deduplicateColorTables(final ImageMetadata obj) {
+        final Map<ColorTable, List<Integer>> tables = new HashMap<>();
+
+        final int numTables = obj.getColorTableCount();
+        for (int t = 0; t < numTables; t++) {
+            final ColorTable ct = obj.getColorTable(t);
+            if (tables.containsKey(ct)) {
+                tables.get(ct).add(t);
+            } else {
+                final List<Integer> occurences = new ArrayList<>();
+                occurences.add(t);
+                tables.put(ct, occurences);
+            }
+        }
+        return tables;
+    }
+
+    /**
+     * Transforms a {@code List<Integer>} to a {@code{int[]}.
+     *
+     * @param list the list
+     * @return the array
+     */
+    private int[] toPrimitiveIntArray(final List<Integer> list) {
+        final int[] out = new int[list.size()];
+        for (int i = 0; i < out.length; i++) {
+            out[i] = list.get(i);
+        }
+        return out;
     }
 }

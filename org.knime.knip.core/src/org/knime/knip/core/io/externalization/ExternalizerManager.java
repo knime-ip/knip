@@ -69,6 +69,7 @@ import org.knime.knip.core.io.externalization.externalizers.DefaultLinearSpaceEx
 import org.knime.knip.core.io.externalization.externalizers.ImageMetadataExt0;
 import org.knime.knip.core.io.externalization.externalizers.ImageMetadataExt1;
 import org.knime.knip.core.io.externalization.externalizers.ImageMetadataExt2;
+import org.knime.knip.core.io.externalization.externalizers.ImageMetadataExt3;
 import org.knime.knip.core.io.externalization.externalizers.ImgExt0;
 import org.knime.knip.core.io.externalization.externalizers.ImgExt1;
 import org.knime.knip.core.io.externalization.externalizers.ImgExt2;
@@ -154,6 +155,7 @@ public final class ExternalizerManager {
         registerExternalizer(new ImageMetadataExt0());
         registerExternalizer(new ImageMetadataExt1());
         registerExternalizer(new ImageMetadataExt2());
+        registerExternalizer(new ImageMetadataExt3());
 
         registerExternalizer(new DefaultLinearSpaceExt0());
 
