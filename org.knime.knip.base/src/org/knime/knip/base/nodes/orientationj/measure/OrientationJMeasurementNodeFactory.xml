@@ -11,8 +11,8 @@
 			the
 			<a href="https://imagej.net/">ImageJ</a>
 			plugin
-			<a href="http://bigwww.epfl.ch/demo/orientation/">OrientationJ</a>
-			written by Daniel Sage at the
+			<a href="http://bigwww.epfl.ch/demo/orientation/">OrientationJ</a><sup>1</sup>
+			by the
 			<a href="http://bigwww.epfl.ch/">Biomedical Imaging Group (BIG)</a>
 			. It is able to extract the following features from an image: energy,
 			orientation and coherency. A brief theoretical background can be
@@ -28,6 +28,11 @@
 			be sliced with the
 			<i>Image Cropper</i>
 			node.
+			<br/>
+			<br/><sup>1</sup>
+			Z. Püspöki, M. Storath, D. Sage, M. Unser<br/>
+			Transforms and Operators for Directional Bioimage Analysis: A Survey<br/>
+			Advances in Anatomy, Embryology and Cell Biology, vol. 219, Springer International Publishing, ch. 3, 2016.<br/>
 		</intro>
 		<tab name="Options">
 			<option name="Laplacian of Gaussian (sigma)">
