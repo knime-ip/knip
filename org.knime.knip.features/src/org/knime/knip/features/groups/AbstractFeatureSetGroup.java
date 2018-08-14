@@ -55,6 +55,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.imagej.ImgPlus;
+import net.imagej.axis.CalibratedAxis;
 import net.imagej.ops.OpEnvironment;
 import net.imagej.ops.special.computer.AbstractUnaryComputerOp;
 import net.imglib2.img.Img;
@@ -84,7 +85,7 @@ import org.knime.knip.features.sets.RequireNumDimensions;
 /**
  * FIXME: Design of FeatureGroups is really weak. However, we can redesign it
  * whenever we have more time, without destroying backwards compatibility.
- * 
+ *
  * @author Christian Dietz, University of Konstanz
  *
  * @param <L>
@@ -210,13 +211,14 @@ public abstract class AbstractFeatureSetGroup implements FeatureSetGroup {
 
 	protected <L> void appendRegionOptions(final LabelRegion<L> region, final List<DataCell> cells,
 			final ImgPlusCellFactory imgPlusCellFactory, final Map<L, List<L>> dependencies,
-			final boolean appendOverlappingLabels, final OpEnvironment ops) {
+			final boolean appendOverlappingLabels, final OpEnvironment ops, final CalibratedAxis[] axes) {
 		if (imgPlusCellFactory != null) {
 			@SuppressWarnings("unchecked")
-			Img<BitType> bitmask = (Img<BitType>) ops.run(LabelRegionToBitmaskConverter.class, region);
+			final Img<BitType> bitmask = (Img<BitType>) ops.run(LabelRegionToBitmaskConverter.class, region);
 			try {
-				cells.add(imgPlusCellFactory.createCell(new ImgPlus<BitType>(bitmask)));
-			} catch (IOException exc) {
+				final ImgPlus<BitType> imgPlus = new ImgPlus<>(bitmask, "bitmask", axes);
+				cells.add(imgPlusCellFactory.createCell(imgPlus));
+			} catch (final IOException exc) {
 				KNIPGateway.log()
 						.warn("Could not create bitmask for label " + region.toString() + ". Inserted missing cell.");
 				cells.add(DataType.getMissingCell());

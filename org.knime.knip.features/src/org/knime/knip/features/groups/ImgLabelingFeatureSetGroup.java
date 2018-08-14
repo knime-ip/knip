@@ -54,6 +54,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import net.imagej.axis.CalibratedAxis;
 import net.imagej.ops.slice.SlicesII;
 import net.imagej.ops.special.computer.UnaryComputerOp;
 import net.imglib2.Cursor;
@@ -78,6 +79,7 @@ import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.KNIPGateway;
+import org.knime.knip.core.data.img.LabelingMetadata;
 import org.knime.knip.core.ops.misc.LabelingDependency;
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter;
 import org.knime.knip.features.DataRowUtil;
@@ -88,6 +90,7 @@ import org.knime.knip.features.sets.FeatureSet;
 /**
  * FIXME: Design of FeatureGroups is really weak. However, we can redesign it
  * whenever we have more time, without destroying backwards compatibility.
+ *
  * @author Christian Dietz, University of Konstanz
  *
  * @param <L>
@@ -183,8 +186,9 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 				final RandomAccessibleInterval<LabelingType<L>> labeling = labValue.getLabeling();
 				// here we have to loop!!!
 
+				final LabelingMetadata labelingMetadata = labValue.getLabelingMetadata();
 				final SlicesII<LabelingType<L>> slicer = new SlicesII<>(labeling,
-						dimSelection.getSelectedDimIndices(labValue.getLabelingMetadata()), true);
+						dimSelection.getSelectedDimIndices(labelingMetadata), true);
 
 				final Cursor<RandomAccessibleInterval<LabelingType<L>>> slicingCursor = slicer.cursor();
 
@@ -222,6 +226,11 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 						intervalDef = " Pos[" + Arrays.toString(pos) + "]";
 
 					}
+					final CalibratedAxis[] labelAxes = new CalibratedAxis[dimSelection.getNumSelectedDimLabels()];
+					final int[] selectedIdx = dimSelection.getSelectedDimIndices(labelingMetadata);
+					for (int i = 0; i < selectedIdx.length; i++) {
+						labelAxes[i] = labelingMetadata.axis(selectedIdx[i]);
+					}
 
 					final ArrayList<Future<Pair<String, List<DataCell>>>> futures = new ArrayList<>();
 					for (final LabelRegion<L> region : regions) {
@@ -231,8 +240,8 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 						futures.add(KNIPGateway.threads().run(() -> {
 							final List<DataCell> cells = new ArrayList<>();
 
-								appendRegionOptions(region, cells, imgPlusCellFactory, dependencies,
-										appendOverlappingSegments, ops());
+							appendRegionOptions(region, cells, imgPlusCellFactory, dependencies,
+									appendOverlappingSegments, ops(), labelAxes);
 
 							cells.addAll(computeOnFeatureSets(featureSets, region));
 
