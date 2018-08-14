@@ -51,10 +51,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import net.imagej.axis.CalibratedAxis;
 import net.imagej.ops.slice.SlicesII;
 import net.imagej.ops.special.computer.UnaryComputerOp;
 import net.imglib2.Cursor;
@@ -79,6 +79,7 @@ import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.KNIPGateway;
+import org.knime.knip.core.data.img.LabelingMetadata;
 import org.knime.knip.core.ops.misc.LabelingDependency;
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter;
 import org.knime.knip.features.DataRowUtil;
@@ -89,7 +90,7 @@ import org.knime.knip.features.sets.FeatureSet;
 /**
  * FIXME: Design of FeatureGroups is really weak. However, we can redesign it
  * whenever we have more time, without destroying backwards compatibility.
- * 
+ *
  * @author Christian Dietz, University of Konstanz
  *
  * @param <L>
@@ -139,7 +140,7 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 	@Override
 	public DataTableSpec createSpec(final DataTableSpec inSpec) {
 
-		final List<DataColumnSpec> spec = new ArrayList<DataColumnSpec>();
+		final List<DataColumnSpec> spec = new ArrayList<>();
 
 		if (append) {
 			for (int i = 0; i < inSpec.getNumColumns(); i++) {
@@ -158,7 +159,7 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 		final ImgPlusCellFactory imgPlusCellFactory;
 		final LabelingDependency<L> dependencyOp;
 
-		dependencyOp = new LabelingDependency<L>(filterLabel, filterOverlappingLabel, intersectionMode);
+		dependencyOp = new LabelingDependency<>(filterLabel, filterOverlappingLabel, intersectionMode);
 
 		if (appendSegmentInformation) {
 			imgPlusCellFactory = new ImgPlusCellFactory(exec);
@@ -185,16 +186,16 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 				final RandomAccessibleInterval<LabelingType<L>> labeling = labValue.getLabeling();
 				// here we have to loop!!!
 
-				final SlicesII<LabelingType<L>> slicer = new SlicesII<LabelingType<L>>(labeling,
-						dimSelection.getSelectedDimIndices(labValue.getLabelingMetadata()), true);
+				final LabelingMetadata labelingMetadata = labValue.getLabelingMetadata();
+				final SlicesII<LabelingType<L>> slicer = new SlicesII<>(labeling,
+						dimSelection.getSelectedDimIndices(labelingMetadata), true);
 
 				final Cursor<RandomAccessibleInterval<LabelingType<L>>> slicingCursor = slicer.cursor();
 
-				boolean slicingActive = (slicer.size() == 1);
+				final boolean slicingActive = (slicer.size() == 1);
 
 				while (slicingCursor.hasNext()) {
-					final RandomAccessibleInterval<LabelingType<L>> slice = ((RandomAccessibleInterval<LabelingType<L>>) slicingCursor
-							.next());
+					final RandomAccessibleInterval<LabelingType<L>> slice = (slicingCursor.next());
 
 					final Map<L, List<L>> dependencies;
 					if (dependencyOp != null) {
@@ -205,7 +206,7 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 
 					final LabelRegions<L> regions = KNIPGateway.regions().regions(slice);
 
-					if (regions.getExistingLabels().size() == 0) {
+					if (regions.getExistingLabels().isEmpty()) {
 						continue;
 					}
 
@@ -220,10 +221,15 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 					String intervalDef = null;
 					if (!slicingActive) {
 
-						long[] pos = new long[slicingCursor.numDimensions()];
+						final long[] pos = new long[slicingCursor.numDimensions()];
 						slicingCursor.localize(pos);
 						intervalDef = " Pos[" + Arrays.toString(pos) + "]";
 
+					}
+					final CalibratedAxis[] labelAxes = new CalibratedAxis[dimSelection.getNumSelectedDimLabels()];
+					final int[] selectedIdx = dimSelection.getSelectedDimIndices(labelingMetadata);
+					for (int i = 0; i < selectedIdx.length; i++) {
+						labelAxes[i] = labelingMetadata.axis(selectedIdx[i]);
 					}
 
 					final ArrayList<Future<Pair<String, List<DataCell>>>> futures = new ArrayList<>();
@@ -231,19 +237,15 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 						if (dependencies != null && !dependencies.keySet().contains(region.getLabel())) {
 							continue;
 						}
-						futures.add(KNIPGateway.threads().run(new Callable<Pair<String, List<DataCell>>>() {
+						futures.add(KNIPGateway.threads().run(() -> {
+							final List<DataCell> cells = new ArrayList<>();
 
-							@Override
-							public Pair<String, List<DataCell>> call() throws Exception {
-								final List<DataCell> cells = new ArrayList<DataCell>();
+							appendRegionOptions(region, cells, imgPlusCellFactory, dependencies,
+									appendOverlappingSegments, ops(), labelAxes);
 
-								appendRegionOptions(region, cells, imgPlusCellFactory, dependencies,
-										appendOverlappingSegments, ops());
+							cells.addAll(computeOnFeatureSets(featureSets, region));
 
-								cells.addAll(computeOnFeatureSets(featureSets, region));
-
-								return new ValuePair<>(region.getLabel().toString(), cells);
-							}
+							return new ValuePair<>(region.getLabel().toString(), cells);
 						}));
 					}
 
@@ -251,7 +253,7 @@ public class ImgLabelingFeatureSetGroup<L, R extends RealType<R>> extends Abstra
 						try {
 							final Pair<String, List<DataCell>> res = future.get();
 							final String newKey = row.getKey().getString() + KNIPConstants.IMGID_LABEL_DELIMITER
-									+ res.getA().toString()
+									+ res.getA()
 									+ (intervalDef != null ? KNIPConstants.IMGID_LABEL_DELIMITER + intervalDef : "");
 							container.addRowToTable(append ? DataRowUtil.appendCells(newKey, row, res.getB())
 									: new DefaultRow(newKey, res.getB()));

@@ -49,7 +49,6 @@ package org.knime.knip.features;
 
 import net.imagej.ops.Ops;
 import net.imagej.ops.special.function.AbstractUnaryFunctionOp;
-import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.converter.Converter;
 import net.imglib2.converter.Converters;
 import net.imglib2.img.Img;
@@ -68,18 +67,8 @@ public class LabelRegionToBitmaskConverter<B extends BooleanType<B>>
 
 	@Override
 	public Img<BitType> calculate(final LabelRegion<B> labelRegion) {
-
-		final RandomAccessibleInterval<BitType> convert = Converters.convert(labelRegion,
-				new Converter<BoolType, BitType>() {
-
-					@Override
-					public void convert(BoolType arg0, BitType arg1) {
-						arg1.set(arg0.get());
-					}
-
-				}, new BitType());
-
-		return ImgView.wrap(convert, new ArrayImgFactory<BitType>());
+		return ImgView.wrap(Converters.convert(labelRegion,
+				(Converter<BoolType, BitType>) (bool, bit) -> bit.set(bool.get()), new BitType()),
+				new ArrayImgFactory<>(new BitType()));
 	}
-
 }

@@ -52,11 +52,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import net.imagej.ImgPlus;
+import net.imagej.axis.CalibratedAxis;
 import net.imagej.ops.slice.SlicesII;
 import net.imagej.ops.special.computer.UnaryComputerOp;
 import net.imglib2.Cursor;
@@ -85,6 +85,7 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 import org.knime.knip.core.KNIPGateway;
+import org.knime.knip.core.data.img.LabelingMetadata;
 import org.knime.knip.core.ops.misc.LabelingDependency;
 import org.knime.knip.core.ui.imgviewer.events.RulebasedLabelFilter;
 import org.knime.knip.core.util.MiscViews;
@@ -96,7 +97,7 @@ import org.knime.knip.features.sets.FeatureSet;
 /**
  * FIXME: Design of FeatureGroups is really weak. However, we can redesign it
  * whenever we have more time, without destroying backwards compatibility.
- * 
+ *
  * @author Christian Dietz, University of Konstanz
  *
  * @param <L>
@@ -177,7 +178,7 @@ public class PairedFeatureSetGroup<L, T extends RealType<T>, O extends RealType<
 		final LabelingDependency<L> dependencyOp;
 
 		if (appendOverlappingSegments) {
-			dependencyOp = new LabelingDependency<L>(labelFilter, labelOverlappingFilter, intersectionMode);
+			dependencyOp = new LabelingDependency<>(labelFilter, labelOverlappingFilter, intersectionMode);
 		} else {
 			dependencyOp = null;
 		}
@@ -214,16 +215,17 @@ public class PairedFeatureSetGroup<L, T extends RealType<T>, O extends RealType<
 				final ImgPlus<T> imgPlus = ((ImgPlusValue<T>) imgPlusCell).getImgPlus();
 				RandomAccessibleInterval<LabelingType<L>> labeling = val.getLabeling();
 
+				LabelingMetadata labelingMetadata = val.getLabelingMetadata();
 				if (!Intervals.equalDimensions(imgPlus, labeling)) {
 					KNIPGateway.log().warn("The dimensions of Labeling and Image in Row " + row.getKey()
 							+ " are not compatible. Dimensions of labeling are virtually adjusted to match size.");
 
-					labeling = MiscViews.synchronizeDimensionality(labeling, val.getLabelingMetadata(), imgPlus,
+					labeling = MiscViews.synchronizeDimensionality(labeling, labelingMetadata, imgPlus,
 							imgPlus);
 				}
 
 				final SlicesII<LabelingType<L>> slicerLab = new SlicesII<>(labeling,
-						dimSelection.getSelectedDimIndices(val.getLabelingMetadata()), true);
+						dimSelection.getSelectedDimIndices(labelingMetadata), true);
 
 				final SlicesII<T> slicerImg = new SlicesII<>(imgPlus, dimSelection.getSelectedDimIndices(imgPlus),
 						true);
@@ -231,13 +233,11 @@ public class PairedFeatureSetGroup<L, T extends RealType<T>, O extends RealType<
 				final Cursor<RandomAccessibleInterval<T>> slicingImgCursor = slicerImg.cursor();
 				final Cursor<RandomAccessibleInterval<LabelingType<L>>> slicingLabCursor = slicerLab.cursor();
 
-				boolean slicingActive = (slicerImg.size() == 1);
+				final boolean slicingActive = (slicerImg.size() == 1);
 				while (slicingImgCursor.hasNext() && slicingLabCursor.hasNext()) {
-					final RandomAccessibleInterval<LabelingType<L>> sliceLab = ((RandomAccessibleInterval<LabelingType<L>>) slicingLabCursor
-							.next());
+					final RandomAccessibleInterval<LabelingType<L>> sliceLab = slicingLabCursor.next();
 
-					final RandomAccessibleInterval<T> sliceImgPlus = ((RandomAccessibleInterval<T>) slicingImgCursor
-							.next());
+					final RandomAccessibleInterval<T> sliceImgPlus = slicingImgCursor.next();
 
 					final Map<L, List<L>> dependencies;
 					if (dependencyOp != null) {
@@ -259,39 +259,39 @@ public class PairedFeatureSetGroup<L, T extends RealType<T>, O extends RealType<
 							KNIPGateway.log().warn(
 									"Not all features can be calculated on the given inputs. Missing cells are inserted!");
 						}
-						;
 						isInitialized = true;
 					}
 
 					String intervalDef = null;
 					if (!slicingActive) {
 
-						long[] pos = new long[slicingImgCursor.numDimensions()];
+						final long[] pos = new long[slicingImgCursor.numDimensions()];
 						slicingImgCursor.localize(pos);
 						intervalDef = " Pos[" + Arrays.toString(pos) + "]";
 
 					}
 
+					final CalibratedAxis[] labelAxes = new CalibratedAxis[dimSelection.getNumSelectedDimLabels()];
+					final int[] selectedIdx = dimSelection.getSelectedDimIndices(labelingMetadata);
+					for (int i = 0; i < selectedIdx.length; i++) {
+						labelAxes[i] = labelingMetadata.axis(selectedIdx[i]);
+					}
 					final ArrayList<Future<Pair<String, List<DataCell>>>> futures = new ArrayList<>();
 					for (final LabelRegion<L> region : regions) {
 						if (!labelFilter.getRules().isEmpty() && !labelFilter.isValid(region.getLabel())) {
 							continue;
 						}
 
-						futures.add(KNIPGateway.threads().run(new Callable<Pair<String, List<DataCell>>>() {
+						futures.add(KNIPGateway.threads().run(() -> {
+							final List<DataCell> cells = new ArrayList<>();
 
-							@Override
-							public Pair<String, List<DataCell>> call() throws Exception {
-								final List<DataCell> cells = new ArrayList<DataCell>();
+							appendRegionOptions(region, cells, imgPlusCellFactory, dependencies,
+									appendOverlappingSegments, ops(), labelAxes);
 
-								appendRegionOptions(region, cells, imgPlusCellFactory, dependencies,
-										appendOverlappingSegments, ops());
+							cells.addAll(computeOnFeatureSets(regionSets, region));
+							cells.addAll(computeOnFeatureSets(iterableSets, Regions.sample(region, sliceImgPlus)));
 
-								cells.addAll(computeOnFeatureSets(regionSets, region));
-								cells.addAll(computeOnFeatureSets(iterableSets, Regions.sample(region, sliceImgPlus)));
-
-								return new ValuePair<>(region.getLabel().toString(), cells);
-							}
+							return new ValuePair<>(region.getLabel().toString(), cells);
 						}));
 					}
 
