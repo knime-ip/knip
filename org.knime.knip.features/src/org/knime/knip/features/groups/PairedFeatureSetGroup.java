@@ -52,7 +52,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -177,7 +176,7 @@ public class PairedFeatureSetGroup<L, T extends RealType<T>, O extends RealType<
 		final LabelingDependency<L> dependencyOp;
 
 		if (appendOverlappingSegments) {
-			dependencyOp = new LabelingDependency<L>(labelFilter, labelOverlappingFilter, intersectionMode);
+			dependencyOp = new LabelingDependency<>(labelFilter, labelOverlappingFilter, intersectionMode);
 		} else {
 			dependencyOp = null;
 		}
@@ -231,13 +230,11 @@ public class PairedFeatureSetGroup<L, T extends RealType<T>, O extends RealType<
 				final Cursor<RandomAccessibleInterval<T>> slicingImgCursor = slicerImg.cursor();
 				final Cursor<RandomAccessibleInterval<LabelingType<L>>> slicingLabCursor = slicerLab.cursor();
 
-				boolean slicingActive = (slicerImg.size() == 1);
+				final boolean slicingActive = (slicerImg.size() == 1);
 				while (slicingImgCursor.hasNext() && slicingLabCursor.hasNext()) {
-					final RandomAccessibleInterval<LabelingType<L>> sliceLab = ((RandomAccessibleInterval<LabelingType<L>>) slicingLabCursor
-							.next());
+					final RandomAccessibleInterval<LabelingType<L>> sliceLab = slicingLabCursor.next();
 
-					final RandomAccessibleInterval<T> sliceImgPlus = ((RandomAccessibleInterval<T>) slicingImgCursor
-							.next());
+					final RandomAccessibleInterval<T> sliceImgPlus = slicingImgCursor.next();
 
 					final Map<L, List<L>> dependencies;
 					if (dependencyOp != null) {
@@ -259,14 +256,13 @@ public class PairedFeatureSetGroup<L, T extends RealType<T>, O extends RealType<
 							KNIPGateway.log().warn(
 									"Not all features can be calculated on the given inputs. Missing cells are inserted!");
 						}
-						;
 						isInitialized = true;
 					}
 
 					String intervalDef = null;
 					if (!slicingActive) {
 
-						long[] pos = new long[slicingImgCursor.numDimensions()];
+						final long[] pos = new long[slicingImgCursor.numDimensions()];
 						slicingImgCursor.localize(pos);
 						intervalDef = " Pos[" + Arrays.toString(pos) + "]";
 
@@ -278,20 +274,18 @@ public class PairedFeatureSetGroup<L, T extends RealType<T>, O extends RealType<
 							continue;
 						}
 
-						futures.add(KNIPGateway.threads().run(new Callable<Pair<String, List<DataCell>>>() {
-
-							@Override
-							public Pair<String, List<DataCell>> call() throws Exception {
-								final List<DataCell> cells = new ArrayList<DataCell>();
+						futures.add(KNIPGateway.threads().run(() -> {
+							final List<DataCell> cells = new ArrayList<>();
 
 								appendRegionOptions(region, cells, imgPlusCellFactory, dependencies,
 										appendOverlappingSegments, ops());
 
 								cells.addAll(computeOnFeatureSets(regionSets, region));
 								cells.addAll(computeOnFeatureSets(iterableSets, Regions.sample(region, sliceImgPlus)));
+							cells.addAll(computeOnFeatureSets(regionSets, region));
+							cells.addAll(computeOnFeatureSets(iterableSets, Regions.sample(region, sliceImgPlus)));
 
-								return new ValuePair<>(region.getLabel().toString(), cells);
-							}
+							return new ValuePair<>(region.getLabel().toString(), cells);
 						}));
 					}
 

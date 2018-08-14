@@ -157,7 +157,7 @@ public abstract class AbstractFeatureSetGroup implements FeatureSetGroup {
 
 	private List<DataColumnSpec> createSegmentInformationColumnSpec(final UniqueNameGenerator colNameGenerator) {
 
-		List<DataColumnSpec> specs = new ArrayList<DataColumnSpec>();
+		final List<DataColumnSpec> specs = new ArrayList<>();
 
 		specs.add(new DataColumnSpecCreator(colNameGenerator.newName("Bitmask"), ImgPlusCell.TYPE).createSpec());
 		specs.add(new DataColumnSpecCreator(colNameGenerator.newName("Label"), StringCell.TYPE).createSpec());
@@ -203,7 +203,6 @@ public abstract class AbstractFeatureSetGroup implements FeatureSetGroup {
 									+ "feature sets suitable for input dimensions. Inserting missing cell.");
 				}
 			}
-
 			return cells;
 		}
 
@@ -225,9 +224,9 @@ public abstract class AbstractFeatureSetGroup implements FeatureSetGroup {
 			cells.add(new StringCell(region.getLabel().toString()));
 		}
 		if (appendOverlappingLabels) {
-			final StringBuffer buf = new StringBuffer();
+			final StringBuilder buf = new StringBuilder();
 			if (!dependencies.isEmpty()) {
-				List<L> list = dependencies.get(region.getLabel());
+				final List<L> list = dependencies.get(region.getLabel());
 				if (list != null) {
 					for (final L s : list) {
 						buf.append(s.toString());
