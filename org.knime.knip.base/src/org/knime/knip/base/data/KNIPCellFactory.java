@@ -120,7 +120,7 @@ public abstract class KNIPCellFactory implements DataCellFactory {
         // Each cell needs to be associated with  one filestore as KNIME can't handle n cells to one filestore since now. Needs to be discussed for 1.1.0 (dietzc)
         if ((m_currentFileStore == null) || ((m_currentFileSize + objSize) >= KNIMEKNIPPlugin.getMaxFileSizeInByte())) {
 
-            LOGGER.debug("New file created. Last file has approx. " + (m_currentFileSize / (1024.0 * 1024.0)) + "MB.");
+//            LOGGER.debug("New file created. Last file has approx. " + (m_currentFileSize / (1024.0 * 1024.0)) + "MB.");
 
             if (m_exec != null) {
                 m_currentFileStore = m_exec.createFileStore(UUID.randomUUID().toString() + "");
