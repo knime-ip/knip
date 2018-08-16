@@ -218,11 +218,13 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 		preferredClasses = generateClassList(rowIndices, colIndices);
 		m_cellValues = generateValuesList(rowIndices, colIndices);
 
+		if (preferredClasses.isEmpty()) { // empty selection
+			return;
+		}
+
 		// Get providing factories of registered compatible views
-
-		List<CellViewFactory> compatibleFactories;
-
-		compatibleFactories = CellViewsManager.getInstance().getCompatibleFactories(preferredClasses);
+		final List<CellViewFactory> compatibleFactories = CellViewsManager.getInstance()
+				.getCompatibleFactories(preferredClasses);
 
 		// Update the navigation panel
 		if (rowIndices.length == 1 && colIndices.length == 1) {
