@@ -4,8 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -27,9 +25,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 import javax.swing.border.BevelBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.knime.core.data.DataValue;
@@ -101,8 +96,7 @@ import org.knime.knip.cellviewer.panels.NavigationPanel;
  * @author <a href="mailto:andreas.burger@uni-konstanz.de">Andreas Burger</a>
  * @author <a href="mailto:jonathan.hale@uni.kn">Jonathan Hale</a>
  *
- * @param <T>
- *            {@link NodeModel} subclass this {@link CellNodeView} belongs to.
+ * @param <T> {@link NodeModel} subclass this {@link CellNodeView} belongs to.
  */
 public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends NodeView<T> {
 
@@ -138,9 +132,7 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 
 	protected boolean m_tableExpanded = false;
 
-	private JLabel m_statusLabel;
-
-	protected static final String m_defStatusBarText = "Click on a cell or drag and select multiple cells to continue ...";
+	private static final String m_defStatusBarText = "Click on a cell or drag and select multiple cells to continue ...";
 
 	private NavigationPanel m_navPanel;
 
@@ -154,9 +146,6 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 		this(nodeModel, 0);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public CellNodeView(final T nodeModel, final int portIdx) {
 		super(nodeModel);
 		m_portIdx = portIdx;
@@ -167,40 +156,21 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 	}
 
 	/**
-	 * Helper function to check if a call to getValueAt(row, col) would return
-	 * an IOOBEx
+	 * Helper function to check if a call to getValueAt(row, col) would return an
+	 * IOOBEx
 	 **/
 	private boolean cellExists(final int row, final int col) {
 		if (m_tableModel == null) {
 			return false;
-		} else {
-			return (col >= 0 && col < m_tableModel.getColumnCount() && row >= 0 && row < m_tableModel.getRowCount());
 		}
-	}
-
-	/**
-	 * Use this method to change the selection to a single Cell
-	 * 
-	 * @param row
-	 *            The row-index of the cell
-	 * @param col
-	 *            The column-index of the cell
-	 */
-	private void cellSelectionChanged(final int row, final int col) {
-		if (cellExists(row, col)) {
-			int[] cols = new int[] { col };
-			int[] rows = new int[] { row };
-			rowColIntervalSelectionChanged(rows, cols);
-		}
+		return (col >= 0 && col < m_tableModel.getColumnCount() && row >= 0 && row < m_tableModel.getRowCount());
 	}
 
 	/**
 	 * This method is called whenever the selection changes.
-	 * 
-	 * @param rowIndices
-	 *            An array holding the row-indices of the selected cells
-	 * @param colIndices
-	 *            An array holding the column-indices of the selected cells
+	 *
+	 * @param rowIndices An array holding the row-indices of the selected cells
+	 * @param colIndices An array holding the column-indices of the selected cells
 	 */
 	private void rowColIntervalSelectionChanged(final int[] rowIndices, final int[] colIndices) {
 
@@ -243,7 +213,7 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 		// miss,
 		// instantiate and cache
 
-		for (CellViewFactory fac : compatibleFactories) {
+		for (final CellViewFactory fac : compatibleFactories) {
 			if (!m_cellViewCache.containsKey(fac.getCellViewName())) {
 				m_cellViewCache.put(fac.getCellViewName(), fac.createCellView());
 			}
@@ -254,7 +224,7 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 		String selected = "";
 
 		if (m_viewsPane.getTabCount() > 0) {
-			int index = m_viewsPane.getSelectedIndex();
+			final int index = m_viewsPane.getSelectedIndex();
 			if (index != -1)
 				selected = m_viewsPane.getTitleAt(index);
 			m_viewsPane.removeAll();
@@ -263,18 +233,18 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 		m_updatingTabs = true;
 
 		// Add all compatible views to the tabbed pane
-		for (CellViewFactory fac : compatibleFactories) {
+		for (final CellViewFactory fac : compatibleFactories) {
 			try {
-				CellView p = m_cellViewCache.get(fac.getCellViewName());
+				final CellView p = m_cellViewCache.get(fac.getCellViewName());
 				m_viewsPane.insertTab(fac.getCellViewName(), null, p.getViewComponent(), "", m_viewsPane.getTabCount());
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				LOGGER.error("Error while adding tab " + fac.getCellViewName());
 			}
 		}
 
 		// Keep the current viewer selected if possible.
 		if (!selected.isEmpty()) {
-			int index = m_viewsPane.indexOfTab(selected);
+			final int index = m_viewsPane.indexOfTab(selected);
 
 			if (index != -1)
 				m_viewsPane.setSelectedIndex(index);
@@ -287,7 +257,7 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 		m_updatingTabs = false;
 
 		// Update the viewers contents
-		CellView p = m_cellViewCache.get(m_viewsPane.getTitleAt(m_viewsPane.getSelectedIndex()));
+		final CellView p = m_cellViewCache.get(m_viewsPane.getTitleAt(m_viewsPane.getSelectedIndex()));
 		p.updateComponent(m_cellValues);
 
 		// Ensure the content is shown, not the table overview
@@ -297,13 +267,12 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 	}
 
 	/**
-	 * Generates a list of preferred classes by checking the given
-	 * cell-coordinates.
+	 * Generates a list of preferred classes by checking the given cell-coordinates.
 	 */
 	private List<Class<? extends DataValue>> generateClassList(final int[] rowIndices, final int[] colIndices) {
-		List<Class<? extends DataValue>> result = new LinkedList<Class<? extends DataValue>>();
-		for (int i : rowIndices) {
-			for (int j : colIndices) {
+		final List<Class<? extends DataValue>> result = new LinkedList<>();
+		for (final int i : rowIndices) {
+			for (final int j : colIndices) {
 				if (cellExists(i, j)) {
 					result.add(
 							m_tableContentView.getContentModel().getValueAt(i, j).getType().getPreferredValueClass());
@@ -317,9 +286,9 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 	 * Fetches a list of values from the table using the provided indices.
 	 */
 	private List<DataValue> generateValuesList(final int[] rowIndices, final int[] colIndices) {
-		List<DataValue> result = new LinkedList<DataValue>();
-		for (int i : rowIndices) {
-			for (int j : colIndices) {
+		final List<DataValue> result = new LinkedList<>();
+		for (final int i : rowIndices) {
+			for (final int j : colIndices) {
 				if (cellExists(i, j)) {
 					result.add(m_tableContentView.getContentModel().getValueAt(i, j));
 				}
@@ -339,11 +308,11 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 		final JPanel loadpanel = new JPanel(new BorderLayout());
 		loadpanel.setPreferredSize(new Dimension(1024, 768));
 		final JLabel loadlabel = new JLabel("Loading ...");
-		loadlabel.setHorizontalAlignment(JLabel.CENTER);
+		loadlabel.setHorizontalAlignment(SwingConstants.CENTER);
 		loadpanel.add(loadlabel, BorderLayout.CENTER);
 
 		// Show waiting indicator and work in background.
-		SwingWorker<T, Integer> worker = new SwingWorker<T, Integer>() {
+		final SwingWorker<T, Integer> worker = new SwingWorker<T, Integer>() {
 
 			@Override
 			protected T doInBackground() throws Exception {
@@ -376,17 +345,14 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 
 		m_tableContentView.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 
-		ListSelectionListener listener = new ListSelectionListener() {
-			@Override
-			public void valueChanged(final ListSelectionEvent e) {
-				// Ensures that the listener fires exactly once per selection
-				if (m_tableContentView.getSelectionModel().getValueIsAdjusting()
-						&& m_tableContentView.getColumnModel().getSelectionModel().getValueIsAdjusting()) {
-					return;
-				}
-				rowColIntervalSelectionChanged(m_tableContentView.getSelectedRows(),
-						m_tableContentView.getSelectedColumns());
+		final ListSelectionListener listener = e -> {
+			// Ensures that the listener fires exactly once per selection
+			if (m_tableContentView.getSelectionModel().getValueIsAdjusting()
+					&& m_tableContentView.getColumnModel().getSelectionModel().getValueIsAdjusting()) {
+				return;
 			}
+			rowColIntervalSelectionChanged(m_tableContentView.getSelectedRows(),
+					m_tableContentView.getSelectedColumns());
 		};
 
 		m_tableContentView.getSelectionModel().addListSelectionListener(listener);
@@ -405,7 +371,7 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 		// Set preferred height to ~ 1 row
 		m_tableView.setPreferredSize(new Dimension(0, (m_tableView.getRowHeight() + 16)));
 
-		m_cellViewCache = new HashMap<String, CellView>();
+		m_cellViewCache = new HashMap<>();
 	}
 
 	/**
@@ -456,7 +422,7 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 	 */
 	@Override
 	protected void onOpen() {
-
+		// nothing to do here
 	}
 
 	public void toggleOverview() {
@@ -471,11 +437,11 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 
 	/**
 	 * Creates the main panel of the dialog.
-	 * 
+	 *
 	 * @return The main panel of the dialog-frame.
 	 */
 	private JPanel createPanel() {
-		JPanel result = new JPanel();
+		final JPanel result = new JPanel();
 		result.setLayout(new BorderLayout());
 
 		m_splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
@@ -485,28 +451,28 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 		m_splitPane.setTopComponent(createTopPanel());
 		m_splitPane.setResizeWeight(1);
 
-		JPanel statusBar = new JPanel();
+		final JPanel statusBar = new JPanel();
 		statusBar.setBorder(new BevelBorder(BevelBorder.LOWERED));
 		result.add(statusBar, BorderLayout.SOUTH);
 		statusBar.setPreferredSize(new Dimension(0, 16));
 		statusBar.setLayout(new BoxLayout(statusBar, BoxLayout.X_AXIS));
-		m_statusLabel = new JLabel(m_defStatusBarText);
-		m_statusLabel.setHorizontalAlignment(SwingConstants.LEFT);
-		statusBar.add(m_statusLabel);
+		final JLabel statusLabel = new JLabel(m_defStatusBarText);
+		statusLabel.setHorizontalAlignment(SwingConstants.LEFT);
+		statusBar.add(statusLabel);
 
 		return result;
 	}
 
 	/**
-	 * Creates the top component of the split pane, i.e. the actual panel
-	 * containing the viewers and the navigation.
-	 * 
+	 * Creates the top component of the split pane, i.e. the actual panel containing
+	 * the viewers and the navigation.
+	 *
 	 * @return The top panel of the split pane.
 	 */
 	private JComponent createTopPanel() {
-		JPanel result = new JPanel(new GridBagLayout());
+		final JPanel result = new JPanel(new GridBagLayout());
 
-		GridBagConstraints gbc = new GridBagConstraints();
+		final GridBagConstraints gbc = new GridBagConstraints();
 
 		gbc.gridheight = 1;
 		gbc.gridwidth = GridBagConstraints.REMAINDER;
@@ -522,22 +488,17 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.weighty = 0;
 
-		JComponent navbar = createNavBar();
+		final JComponent navbar = createNavBar();
 
 		result.add(navbar, gbc);
 
-		m_viewsPane.addChangeListener(new ChangeListener() {
+		m_viewsPane.addChangeListener(e -> {
+			if (m_viewsPane.getSelectedIndex() == -1 || m_updatingTabs)
+				return;
 
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				if (m_viewsPane.getSelectedIndex() == -1 || m_updatingTabs)
-					return;
-
-				String title = m_viewsPane.getTitleAt(m_viewsPane.getSelectedIndex());
-				CellView p = m_cellViewCache.get(title);
-				p.updateComponent(m_cellValues);
-
-			}
+			final String title = m_viewsPane.getTitleAt(m_viewsPane.getSelectedIndex());
+			final CellView p = m_cellViewCache.get(title);
+			p.updateComponent(m_cellValues);
 
 		});
 
@@ -546,35 +507,28 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 
 	/**
 	 * Creates the Navigation panel at the bottom of the view.
-	 * 
+	 *
 	 * @return The navigation panel
 	 */
 	private JComponent createNavBar() {
 
-		Box navbar = new Box(BoxLayout.X_AXIS);
+		final Box navbar = new Box(BoxLayout.X_AXIS);
 
 		navbar.add(Box.createRigidArea(new Dimension(10, 40)));
 
-		Box firstPanel = new Box(BoxLayout.X_AXIS);
+		final Box firstPanel = new Box(BoxLayout.X_AXIS);
 
-		JButton overviewButton = new JButton("Back to Table");
+		final JButton overviewButton = new JButton("Back to Table");
 		overviewButton.setMnemonic(KeyEvent.VK_B);
 		firstPanel.add(overviewButton);
 
-		overviewButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				toggleOverview();
-			}
-
-		});
+		overviewButton.addActionListener(e -> toggleOverview());
 
 		firstPanel.add(Box.createHorizontalStrut(20));
 
-		Box quickViewButtonPanel = new Box(BoxLayout.X_AXIS);
+		final Box quickViewButtonPanel = new Box(BoxLayout.X_AXIS);
 
-		JToggleButton quickViewButton = new JToggleButton("Expand Table View");
+		final JToggleButton quickViewButton = new JToggleButton("Expand Table View");
 
 		quickViewButtonPanel.add(quickViewButton);
 
@@ -582,7 +536,7 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 
 		firstPanel.add(Box.createHorizontalStrut(20));
 
-		Box colourButtonPanel = new Box(BoxLayout.X_AXIS);
+		final Box colourButtonPanel = new Box(BoxLayout.X_AXIS);
 
 		firstPanel.add(colourButtonPanel);
 
@@ -590,40 +544,30 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 
 		navbar.add(Box.createHorizontalGlue());
 
-		quickViewButton.addActionListener(new ActionListener() {
+		quickViewButton.addActionListener(e -> {
+			if (!m_tableExpanded)
+				showTableView();
+			else
+				hideTableView();
 
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				if (!m_tableExpanded)
-					showTableView();
-				else
-					hideTableView();
-
-				m_tableExpanded = !m_tableExpanded;
-			}
-
+			m_tableExpanded = !m_tableExpanded;
 		});
 
 		m_navPanel = new NavigationPanel();
 		navbar.add(m_navPanel);
 		navbar.add(Box.createHorizontalGlue());
 
-		Box thirdPanel = new Box(BoxLayout.X_AXIS);
+		final Box thirdPanel = new Box(BoxLayout.X_AXIS);
 		thirdPanel.add(Box.createHorizontalGlue());
-		JButton helpButton = new JButton("?");
+		final JButton helpButton = new JButton("?");
 		thirdPanel.add(helpButton);
 
-		helpButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JDialog helpFrame = new CellViewerHelpDialog();
-				if (KNIMEConstants.KNIME16X16 != null)
-					helpFrame.setIconImage(KNIMEConstants.KNIME16X16.getImage());
-				helpFrame.pack();
-				helpFrame.setVisible(true);
-
-			}
+		helpButton.addActionListener(e -> {
+			final JDialog helpFrame = new CellViewerHelpDialog();
+			if (KNIMEConstants.KNIME16X16 != null)
+				helpFrame.setIconImage(KNIMEConstants.KNIME16X16.getImage());
+			helpFrame.pack();
+			helpFrame.setVisible(true);
 
 		});
 
@@ -631,41 +575,17 @@ public class CellNodeView<T extends NodeModel & BufferedDataTableHolder> extends
 
 		navbar.add(thirdPanel);
 
-		m_navPanel.getUpButton().addActionListener(new ActionListener() {
+		m_navPanel.getUpButton()
+				.addActionListener(e -> m_tableContentView.changeSelection(m_row - 1, m_col, false, false));
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				m_tableContentView.changeSelection(m_row - 1, m_col, false, false);
+		m_navPanel.getDownButton()
+				.addActionListener(e -> m_tableContentView.changeSelection(m_row + 1, m_col, false, false));
 
-			}
-		});
+		m_navPanel.getLeftButton()
+				.addActionListener(e -> m_tableContentView.changeSelection(m_row, m_col - 1, false, false));
 
-		m_navPanel.getDownButton().addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				m_tableContentView.changeSelection(m_row + 1, m_col, false, false);
-
-			}
-		});
-
-		m_navPanel.getLeftButton().addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				m_tableContentView.changeSelection(m_row, m_col - 1, false, false);
-
-			}
-		});
-
-		m_navPanel.getRightButton().addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				m_tableContentView.changeSelection(m_row, m_col + 1, false, false);
-
-			}
-		});
+		m_navPanel.getRightButton()
+				.addActionListener(e -> m_tableContentView.changeSelection(m_row, m_col + 1, false, false));
 
 		return navbar;
 	}
