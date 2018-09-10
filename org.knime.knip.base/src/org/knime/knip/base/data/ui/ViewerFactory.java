@@ -48,7 +48,7 @@
  */
 package org.knime.knip.base.data.ui;
 
-import org.knime.knip.bdv.BigDataViewerUI;
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.core.ui.imgviewer.CombinedImgViewer;
 import org.knime.knip.core.ui.imgviewer.ExpandingPanel;
 import org.knime.knip.core.ui.imgviewer.ImgCanvas;
@@ -63,12 +63,12 @@ import org.knime.knip.core.ui.imgviewer.panels.providers.HistogramRU;
 import org.knime.knip.core.ui.imgviewer.panels.providers.ImageRU;
 import org.knime.knip.core.ui.imgviewer.panels.providers.LabelingRU;
 
+import bdv.ui.panel.BigDataViewerUI;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.roi.labeling.LabelingType;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.IntegerType;
-import net.imglib2.type.numeric.NumericType;
 import net.imglib2.type.numeric.RealType;
 
 /**
@@ -161,10 +161,10 @@ public class ViewerFactory {
     /**
      * @return new BigDataViewerUI
      */
-    public static <I extends IntegerType<I>, T extends NumericType<T>, L> BigDataViewerUI<I, T, L>
+    public static <I extends IntegerType<I>, T extends RealType<T>, L> BigDataViewerUI<I, T, L>
            createBDV() {
 
-        return new BigDataViewerUI<I, T, L>(null);
+        return new BigDataViewerUI<I, T, L>(null, KNIPGateway.getInstance().ctx());
 
     }
 

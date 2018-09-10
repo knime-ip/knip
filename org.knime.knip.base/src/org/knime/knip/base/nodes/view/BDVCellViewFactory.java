@@ -65,7 +65,6 @@ import org.knime.core.data.MissingValue;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.data.labeling.LabelingValue;
 import org.knime.knip.base.data.ui.ViewerFactory;
-import org.knime.knip.bdv.BigDataViewerUI;
 import org.knime.knip.cellviewer.interfaces.CellView;
 import org.knime.knip.cellviewer.interfaces.CellViewFactory;
 import org.knime.knip.core.awt.labelingcolortable.DefaultLabelingColorTable;
@@ -73,9 +72,11 @@ import org.knime.knip.core.data.img.DefaultLabelingMetadata;
 import org.knime.knip.core.data.img.LabelingMetadata;
 import org.knime.knip.core.util.waitingindicator.WaitingIndicatorUtils;
 
+import bdv.ui.panel.BigDataViewerUI;
 import gnu.trove.map.hash.TIntIntHashMap;
 import net.imagej.ImgPlusMetadata;
 import net.imagej.axis.CalibratedAxis;
+import net.imagej.axis.IdentityAxis;
 import net.imagej.space.DefaultCalibratedSpace;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
@@ -123,6 +124,7 @@ public class BDVCellViewFactory<I extends IntegerType<I>, T extends RealType<T>,
             @Override
             public void onClose() {
                 m_view.removeAll();
+                m_view.unsubscribe();
             }
 
             @Override
@@ -148,13 +150,11 @@ public class BDVCellViewFactory<I extends IntegerType<I>, T extends RealType<T>,
                             groupNames.add("Group-" + meta.getName());
 
                             final T type = Util.getTypeFromInterval(img2d);
-                            final CalibratedAxis[] axes = new CalibratedAxis[meta.numDimensions()];
-                            meta.axes(axes);
+                            final CalibratedAxis[] axes = new CalibratedAxis[2];
+                            axes[0] = meta.axis(0);
+                            axes[1] = new IdentityAxis();
 
-                            m_view.addImage(img2d, type.getClass().getSimpleName(), meta.getName(), true, groupNames,
-                                            Color.white, createAxisCalibration(axes), type.getMinValue(),
-                                            type.getMaxValue());
-
+                            prepareForBDV(img2d, axes, meta.getName(), type.getClass().getSimpleName(), null);
                         } else {
                             final Img<T> img = imgPlusValue.getImgPlus().getImg();
                             final ImgPlusMetadata meta = imgPlusValue.getMetadata();
@@ -297,9 +297,19 @@ public class BDVCellViewFactory<I extends IntegerType<I>, T extends RealType<T>,
                 } else if (dims.size() > 2) {
                     // 3D
                     m_view.switch2D(false);
+                    for (int i = 0; i < 3; i++) {
+                        if (dims.size() > 0) {
+                            dims.remove(dims.keySet().iterator().next());
+                        }
+                    }
                 } else {
                     // 2D
                     m_view.switch2D(true);
+                    for (int i = 0; i < 2; i++) {
+                        if (dims.size() > 0) {
+                            dims.remove(dims.keySet().iterator().next());
+                        }
+                    }
                 }
 
                 if (lut != null) {
@@ -309,6 +319,7 @@ public class BDVCellViewFactory<I extends IntegerType<I>, T extends RealType<T>,
                 }
             }
 
+            @SuppressWarnings("unchecked")
             private void addLabsToBDV(final RandomAccessibleInterval<LabelingType<L>> img, final CalibratedAxis[] axes,
                                       final String name, final String type, final Map<String, Integer> dims,
                                       final TIntIntHashMap lut) {
@@ -333,6 +344,7 @@ public class BDVCellViewFactory<I extends IntegerType<I>, T extends RealType<T>,
                 }
             }
 
+            @SuppressWarnings("unchecked")
             private void addImgsToBDV(final RandomAccessibleInterval<T> img, final CalibratedAxis[] axes,
                                       final String name, final Map<String, Integer> dims) {
                 final Set<String> groups = new HashSet<>();
@@ -341,7 +353,7 @@ public class BDVCellViewFactory<I extends IntegerType<I>, T extends RealType<T>,
                 final T type = Util.getTypeFromInterval(img);
                 if (dims.isEmpty()) {
                     m_view.addImage(img, type.getClass().getSimpleName(), name, true, groups, Color.white, t,
-                                    type.getMinValue(), type.getMaxValue());
+                                    getMin(type), getMax(type));
                 } else {
                     List<Pair<String, RandomAccessibleInterval<?>>> imgs = new ArrayList<>();
                     imgs.add(new ValuePair<String, RandomAccessibleInterval<?>>("", img));
@@ -354,10 +366,17 @@ public class BDVCellViewFactory<I extends IntegerType<I>, T extends RealType<T>,
 
                         Util.getTypeFromInterval(img).createVariable();
                         m_view.addImage((RandomAccessibleInterval<T>)slicedImg, type.getClass().getSimpleName(),
-                                        name + pair.getA(), true, groups, Color.white, t, type.getMinValue(),
-                                        type.getMaxValue());
+                                        name + pair.getA(), true, groups, Color.white, t, getMin(type), getMax(type));
                     }
                 }
+            }
+
+            private double getMin(final T type) {
+                return Double.NaN;
+            }
+
+            private double getMax(final T type) {
+                return Double.NaN;
             }
 
             private List<Pair<String, RandomAccessibleInterval<?>>>

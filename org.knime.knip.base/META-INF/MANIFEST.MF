@@ -25,8 +25,16 @@ Require-Bundle: org.knime.base;bundle-version="[3.0.0,4.0.0)",
  knip-tmp-imglib2-ops;bundle-version="0.4.0",
  org.knime.knip.cellviewer;bundle-version="1.5.1",
  org.apache.commons.math3;bundle-version="3.4.1",
- org.knime.knip.bdv.panel;bundle-version="0.1.0",
- trove4j;bundle-version="3.0.3"
+ trove4j;bundle-version="3.0.3",
+ parsington;bundle-version="1.0.1",
+ imglib2-ui;bundle-version="2.0.0",
+ bigdataviewer-vistools;bundle-version="1.0.11",
+ bigdataviewer-core;bundle-version="5.0.0",
+ ui-behaviour;bundle-version="1.7.3",
+ org.jdom.2;bundle-version="2.0.6",
+ spim_data;bundle-version="2.2.1",
+ miglayout;bundle-version="3.7.4",
+ bigdataviewer-ui-panel;bundle-version="0.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: knip-base.jar
 Bundle-ActivationPolicy: lazy
