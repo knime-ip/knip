@@ -50,7 +50,9 @@ public abstract class AbstractAnimatedIcon extends AnimatedIcon {
 	/** Ensure the timer stops running, so it, too can be GC'd. */
 	@Override
     protected void finalize() {
-		timer.stop();
+        if (timer != null) {
+            timer.stop();
+        }
 	}
 
 	/** Setting a frame interval of zero stops automatic animation. */

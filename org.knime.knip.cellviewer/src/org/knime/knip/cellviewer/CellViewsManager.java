@@ -55,8 +55,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.event.ListSelectionEvent;
-
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IExtensionRegistry;
@@ -78,8 +76,8 @@ import org.knime.knip.cellviewer.interfaces.CellViewFactory;
 public final class CellViewsManager {
 
 	/**
-	 * The attribute of the table cell view extension point pointing to the
-	 * factory class
+	 * The attribute of the table cell view extension point pointing to the factory
+	 * class
 	 */
 	public static final String EXT_POINT_ATTR_DF = "CellViewProviderFactory";
 
@@ -100,9 +98,9 @@ public final class CellViewsManager {
 		return instance;
 	}
 
-	private final Map<CellViewFactory, List<String>> m_viewDescriptions = new HashMap<CellViewFactory, List<String>>();
+	private final Map<CellViewFactory, List<String>> m_viewDescriptions = new HashMap<>();
 
-	private List<CellViewFactory> m_viewFactories = new LinkedList<CellViewFactory>();
+	private final List<CellViewFactory> m_viewFactories = new LinkedList<>();
 
 	/**
 	 * Singleton, use getInstance()
@@ -113,14 +111,13 @@ public final class CellViewsManager {
 
 	/**
 	 * Adds the factory to the list of known factories
-	 * 
-	 * @param fac
-	 *            the factory to add
+	 *
+	 * @param fac the factory to add
 	 */
 	private void addTableCellViewFactory(final CellViewFactory fac) {
 		List<String> descs = m_viewDescriptions.get(fac);
 		if (descs == null) {
-			descs = new ArrayList<String>();
+			descs = new ArrayList<>();
 			m_viewDescriptions.put(fac, descs);
 		}
 		m_viewFactories.add(fac);
@@ -129,19 +126,18 @@ public final class CellViewsManager {
 	}
 
 	/**
-	 * 
-	 * Returns a list of CellViewProviders capable of displaying the given
-	 * Values
-	 * 
-	 * @param <V>
+	 *
+	 * Returns a list of CellViewProviders capable of displaying the given Values
+	 *
+	 * @param           <V>
 	 * @param dataValue
 	 * @return
 	 */
 	public List<CellView> createTableCellViews(final List<Class<? extends DataValue>> valueClasses) {
-		final List<CellView> views = new ArrayList<CellView>();
+		final List<CellView> views = new ArrayList<>();
 
-		final List<CellViewFactory> facs = new LinkedList<CellViewFactory>();
-		for (CellViewFactory f : m_viewFactories) {
+		final List<CellViewFactory> facs = new LinkedList<>();
+		for (final CellViewFactory f : m_viewFactories) {
 			if (f.isCompatible(valueClasses)) {
 				facs.add(f);
 			}
@@ -158,14 +154,13 @@ public final class CellViewsManager {
 
 	/**
 	 * Returns a list of compatible CellViewProviderFactories.
-	 * 
-	 * @param valueClasses
-	 *            A list of classes to display
+	 *
+	 * @param valueClasses A list of classes to display
 	 * @return a list of compatible CellViewProviderFactories
 	 */
 	public List<CellViewFactory> getCompatibleFactories(final List<Class<? extends DataValue>> valueClasses) {
-		final List<CellViewFactory> facs = new LinkedList<CellViewFactory>();
-		for (CellViewFactory f : m_viewFactories) {
+		final List<CellViewFactory> facs = new LinkedList<>();
+		for (final CellViewFactory f : m_viewFactories) {
 			if (f.isCompatible(valueClasses)) {
 				facs.add(f);
 			}
@@ -176,8 +171,8 @@ public final class CellViewsManager {
 	}
 
 	/**
-	 * @return descriptions of the table cell views (format:
-	 *         "[name]: [description]");
+	 * @return descriptions of the table cell views (format: "[name]:
+	 *         [description]");
 	 */
 	public Map<CellViewFactory, List<String>> getTableCellViewDescriptions() {
 		return m_viewDescriptions;
