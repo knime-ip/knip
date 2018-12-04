@@ -54,6 +54,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import org.knime.base.node.parallel.appender.AppendColumn;
 import org.knime.base.node.parallel.appender.ColumnDestination;
@@ -66,7 +67,7 @@ import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTable;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.collection.CollectionCellFactory;
-import org.knime.core.data.collection.SetCell;
+import org.knime.core.data.collection.ListCell;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
@@ -88,6 +89,8 @@ import net.imglib2.img.Img;
 import net.imglib2.iterator.IntervalIterator;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.util.Intervals;
+import net.imglib2.util.Pair;
+import net.imglib2.util.ValuePair;
 import net.imglib2.view.Views;
 
 /**
@@ -187,7 +190,7 @@ public class CompareSegmentsNodeModel extends ThreadedColAppenderNodeModel {
                     colSpecs.add(new DataColumnSpecCreator("number of overlaps", IntCell.TYPE).createSpec());
                 }
                 if (m_smAppendOverlapRowkeys.getBooleanValue()) {
-                    colSpecs.add(new DataColumnSpecCreator("overlap keys", SetCell.getCollectionType(StringCell.TYPE))
+                    colSpecs.add(new DataColumnSpecCreator("overlap keys", ListCell.getCollectionType(StringCell.TYPE))
                             .createSpec());
                 }
                 return colSpecs.toArray(new DataColumnSpec[colSpecs.size()]);
@@ -197,22 +200,21 @@ public class CompareSegmentsNodeModel extends ThreadedColAppenderNodeModel {
             public DataCell[] getCells(final DataRow row) {
                 ImgPlusValue<BitType> tarVal = (ImgPlusValue<BitType>)row.getCell(tarColIdx);
                 double overlap;
+                double iou;
                 int count = 0;
                 double numPix1 = numPix(tarVal);
                 double res = Double.MIN_VALUE;
-                ArrayList<StringCell> keys = null;
-                if (refKeys != null) {
-                    keys = new ArrayList<StringCell>();
-                }
+                final ArrayList<Pair<StringCell, Double>> keys = new ArrayList<>();
                 for (int i = 0; i < refSegs.length; i++) {
                     overlap = overlap(refSegs[i], tarVal);
+                    iou = overlap / (numPix1 + numPix[i] - overlap);
                     if (overlap > 0) {
                         count++;
-                        if (keys != null) {
-                            keys.add(new StringCell(refKeys[i]));
+                        if (refKeys != null) {
+                            keys.add(new ValuePair<>(new StringCell(refKeys[i]), iou));
                         }
                     }
-                    res = Math.max(res, overlap / (numPix1 + numPix[i] - overlap));
+                    res = Math.max(res, iou);
                 }
                 ArrayList<DataCell> cells = new ArrayList<DataCell>(3);
                 cells.add(new DoubleCell(res));
@@ -220,7 +222,9 @@ public class CompareSegmentsNodeModel extends ThreadedColAppenderNodeModel {
                     cells.add(new IntCell(count));
                 }
                 if (m_smAppendOverlapRowkeys.getBooleanValue()) {
-                    cells.add(CollectionCellFactory.createSetCell(keys));
+                    keys.sort((o1, o2) -> Double.compare(o2.getB(), o1.getB()));
+                    cells.add(CollectionCellFactory
+                            .createListCell(keys.stream().map(Pair::getA).collect(Collectors.toList())));
                 }
                 return cells.toArray(new DataCell[cells.size()]);
             }

@@ -17,24 +17,15 @@
 
 	<fullDescription>
 		<intro>
-			Compares two tables of segments (binary images)
-			according to how
-			many relativ pixels they have in common. Hence the
-			actual segment
-			shape AND the offset (minimum) of the bitmasks are
-			considered. NOTE
-			that the sources of the bitmasks have to be the same! A
-			column with
-			the relative pixel aggreement with respect
-			to the
-			reference segments is
-			appended to the target column. Also,
-			optionally, the number
-			of overlaps
-			and a collection of all overlapping
-			row keys of the
-			overlapping
-			segments are appended.
+			Compares two tables of segments (binary images) according to
+			how many relativ pixels they have in common (Number of the pixels of
+			the intersection divided by the number of pixels of the union (IoU)).
+			Hence the actual segment shape AND the offset (minimum) of the
+			bitmasks are considered. NOTE that the sources of the bitmasks have
+			to be the same! A column with the relative pixel aggreement with
+			respect to the reference segments is appended to the target column.
+			Also, optionally, the number of overlaps and a collection of all
+			overlapping row keys of the overlapping segments are appended.
 		</intro>
 		<option name="Append number of overlaps">
 			Appends the number of overlapping segments of the
@@ -50,10 +41,12 @@
 
 	<ports>
 		<inPort index="0" name="Target segment table">The segments whose maximum pixel
-			aggreement with respect to the reference segments will be calculated.</inPort>
+			aggreement with respect to the reference segments will be calculated.
+		</inPort>
 		<inPort index="1" name="Reference segment table">The reference segments.</inPort>
 		<outPort index="0" name="Target segment table">The target segment table with three
-			additional columns.</outPort>
+			additional columns.
+		</outPort>
 	</ports>
 </knimeNode>
 
