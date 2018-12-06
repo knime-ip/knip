@@ -14,13 +14,6 @@
          version="0.0.0"/>
 
    <plugin
-         id="imglib2"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="imglib2-algorithm"
          download-size="0"
          install-size="0"
@@ -43,27 +36,6 @@
 
    <plugin
          id="imglib2-ij"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="imglib2-realtransform"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="imglib2-roi"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="scijava-common"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -155,13 +127,6 @@
 
    <plugin
          id="knip-tmp-imglib2-ops"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="trove4j"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -265,35 +230,7 @@
          unpack="false"/>
 
    <plugin
-         id="eventbus"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="imglib2-cache"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="parsington"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.jdom.2"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="ui-behaviour"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -322,6 +259,41 @@
 
    <plugin
          id="imglib2-ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="net.imglib2.cache"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="net.imglib2"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="net.imglib2.realtransform"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="net.imglib2.roi"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="net.sf.trove4j"
          download-size="0"
          install-size="0"
          version="0.0.0"
