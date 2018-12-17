@@ -6,12 +6,12 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .
 Bundle-Name: KNIP ImgLib2 UI Integration
 Export-Package: org.knime.knip.bdv
-Require-Bundle: scijava-common;bundle-version="2.36.0",
+Require-Bundle: org.scijava.common;bundle-version="2.76.1",
  net.sf.trove4j;bundle-version="3.0.3",
  org.knime.knip.core;bundle-version="1.6.0",
  org.jdom.2;bundle-version="2.0.6",
- ui-behaviour;bundle-version="1.2.0",
- parsington;bundle-version="1.0.1",
+ org.scijava.ui-behaviour;bundle-version="1.7.3",
+ org.scijava.parsington;bundle-version="1.0.4",
  net.imglib2;bundle-version="5.4.0",
  imglib2-ui;bundle-version="2.0.0",
  net.imglib2.realtransform;bundle-version="2.0.0",
@@ -20,4 +20,4 @@ Require-Bundle: scijava-common;bundle-version="2.36.0",
  bigdataviewer-core;bundle-version="5.0.0",
  spim_data;bundle-version="2.2.1",
  miglayout;bundle-version="3.7.4",
- eventbus;bundle-version="1.4.0"
+ org.bushe.eventbus;bundle-version="1.4.0"
