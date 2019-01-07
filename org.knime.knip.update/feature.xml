@@ -42,13 +42,6 @@
          unpack="false"/>
 
    <plugin
-         id="scijava-common"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="scijava-cache"
          download-size="0"
          install-size="0"
@@ -237,28 +230,7 @@
          unpack="false"/>
 
    <plugin
-         id="eventbus"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="parsington"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.jdom.2"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="ui-behaviour"
          download-size="0"
          install-size="0"
          version="0.0.0"
