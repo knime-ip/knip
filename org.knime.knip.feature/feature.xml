@@ -13,19 +13,10 @@
       This feature contains work protected by copyright law.
    </copyright>
 
-   <license>
-      GNU GENERAL PUBLIC LICENSE with Additional Permissions according to Sec. 7
-*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** 
-Please see below the General Public License (GPL), Version 3, 
-and the Additional Permissions according to Sec. 7 
-applying to the files in this folder:
+     <license url="http://www.gnu.org/licenses/gpl-3.0.html">
+GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 
-*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** 
-
-                    GNU GENERAL PUBLIC LICENSE
-                       Version 3, 29 June 2007
-
- Copyright (C) 2007 Free Software Foundation, Inc. &lt;http://fsf.org/&gt;
+ Copyright (C) 2007 Free Software Foundation, Inc. &lt;https://fsf.org/&gt;
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 
@@ -655,7 +646,7 @@ to attach them to the start of each source file to most effectively
 state the exclusion of warranty; and each file should have at least
 the &quot;copyright&quot; line and a pointer to where the full notice is found.
 
-    lt;one line to give the program&apos;s name and a brief idea of what it does.&gt;
+    &lt;one line to give the program&apos;s name and a brief idea of what it does.&gt;
     Copyright (C) &lt;year&gt;  &lt;name of author&gt;
 
     This program is free software: you can redistribute it and/or modify
@@ -669,7 +660,7 @@ the &quot;copyright&quot; line and a pointer to where the full notice is found.
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+    along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
 Also add information on how to contact you by electronic and paper mail.
 
@@ -688,43 +679,14 @@ might be different; for a GUI interface, you would use an &quot;about box&quot;.
   You should also get your employer (if you work as a programmer) or school,
 if any, to sign a &quot;copyright disclaimer&quot; for the program, if necessary.
 For more information on this, and how to apply and follow the GNU GPL, see
-&lt;http://www.gnu.org/licenses/&gt;.
+&lt;https://www.gnu.org/licenses/&gt;.
 
   The GNU General Public License does not permit incorporating your program
 into proprietary programs.  If your program is a subroutine library, you
 may consider it more useful to permit linking proprietary applications with
 the library.  If this is what you want to do, use the GNU Lesser General
 Public License instead of this License.  But first, please read
-&lt;http://www.gnu.org/philosophy/why-not-lgpl.html&gt;.
-
-*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** 
-
-Additional permissions under GNU GPL Version 3 Section 7:
- 
-KNIME interoperates with ECLIPSE solely via ECLIPSE&apos;s plug-in APIs.
-Hence, KNIME and ECLIPSE are both independent programs and are not
-derived from each other. Should, however, the interpretation of the
-GNU GPL Version 3 (&quot;License&quot;) under any applicable laws result in
-KNIME and ECLIPSE being a combined program, KNIME GMBH herewith grants
-you the additional permission to use and propagate KNIME together with
-ECLIPSE with only the license terms in place for ECLIPSE applying to
-ECLIPSE and the GNU GPL Version 3 applying for KNIME, provided the
-license terms of ECLIPSE themselves allow for the respective use and
-propagation of ECLIPSE together with KNIME.
- 
- 
-Additional permission relating to nodes for KNIME that extend the Node
-Extension (and in particular that are based on subclasses of NodeModel,
-NodeDialog, and NodeView) and that only interoperate with KNIME through
-standard APIs (&quot;Nodes&quot;):
-Nodes are deemed to be separate and independent programs and to not be
-covered works.  Notwithstanding anything to the contrary in the License,
-the License does not apply to Nodes, you are not required to license Nodes
-under the License, and you are granted a license to prepare and propagate
-Nodes, in each case even if such Nodes are propagated with or for
-interoperation with KNIME.  The owner of a Node may freely choose the
-license terms applicable to such Node, including when such Node is
-propagated with or for interoperation with KNIME.
+&lt;https://www.gnu.org/licenses/why-not-lgpl.html&gt;.
    </license>
 
    <plugin
