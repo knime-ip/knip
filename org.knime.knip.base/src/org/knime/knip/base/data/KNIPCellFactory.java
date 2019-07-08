@@ -136,4 +136,11 @@ public abstract class KNIPCellFactory implements DataCellFactory {
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void initFactory(final FileStoreFactory fileStore) {
+        m_fsFactory = fileStore;
+    }
 }
