@@ -6,15 +6,15 @@ Bundle-Version: 1.7.0.qualifier
 Bundle-Vendor: University of Konstanz
 Eclipse-RegisterBuddy: org.knime.knip.core
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.0.0",
- imglib2;bundle-version="2.2.0",
+ net.imglib2;bundle-version="5.4.0",
  imglib2-algorithm;bundle-version="0.2.0",
  imglib2-algorithm-fft;bundle-version="0.1.1",
  imglib2-algorithm-gpl;bundle-version="0.1.2",
  imglib2-ij;bundle-version="2.0.0",
  org.knime.knip.base;bundle-version="1.5.0",
- scijava-common;bundle-version="2.47.0",
+ org.scijava.common;bundle-version="2.76.1",
  imagej-common;bundle-version="0.18.0",
- imglib2-roi;bundle-version="0.5.1",
+ net.imglib2.roi;bundle-version="0.5.2",
  org.knime.knip.core;bundle-version="1.5.0",
  imagej-ops;bundle-version="0.22.0",
  knip-tmp-imglib2-ops;bundle-version="0.4.1",
