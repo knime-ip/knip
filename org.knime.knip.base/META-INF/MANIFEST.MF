@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-Name: KNIME Image Types and Nodes
 Bundle-SymbolicName: org.knime.knip.base;singleton:=true
 Bundle-ManifestVersion: 2
-Bundle-Version: 1.7.0.qualifier
+Bundle-Version: 1.8.0.qualifier
 Bundle-Vendor: University of Konstanz
 Eclipse-RegisterBuddy: org.knime.core
 Require-Bundle: org.knime.base;bundle-version="[3.0.0,5.0.0)",
