@@ -13,8 +13,8 @@
       This feature contains work protected by copyright law.
    </copyright>
 
-     <license url="http://www.gnu.org/licenses/gpl-3.0.html">
-GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
+   <license url="http://www.gnu.org/licenses/gpl-3.0.html">
+      GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 
  Copyright (C) 2007 Free Software Foundation, Inc. &lt;https://fsf.org/&gt;
  Everyone is permitted to copy and distribute verbatim copies
@@ -725,11 +725,5 @@ Public License instead of this License.  But first, please read
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-
-   <plugin
-         id="org.knime.knip.io2"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
 
 </feature>
