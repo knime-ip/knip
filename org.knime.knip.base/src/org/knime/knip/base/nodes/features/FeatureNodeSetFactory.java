@@ -111,11 +111,12 @@ public class FeatureNodeSetFactory implements NodeSetFactory {
      */
     @Override
     public Collection<String> getNodeFactoryIds() {
-        m_nodeFactories.put(ImgFeatureSetNodeFactory.class.getCanonicalName(), "/community/knip/features");
-        m_nodeFactories.put(ImgLabFeatureSetNodeFactory.class.getCanonicalName(), "/community/knip/features");
-        m_nodeFactories.put(LabFeatureSetNodeFactory.class.getCanonicalName(), "/community/knip/features");
-        m_nodeFactories.put(ImgPropertiesNodeFactory.class.getCanonicalName(), "/community/knip/features");
-        m_nodeFactories.put(LabelingPropertiesNodeFactory.class.getCanonicalName(), "/community/knip/features");
+        final String category = "/community/knip/features";
+        m_nodeFactories.put(ImgFeatureSetNodeFactory.class.getCanonicalName(), category);
+        m_nodeFactories.put(ImgLabFeatureSetNodeFactory.class.getCanonicalName(), category);
+        m_nodeFactories.put(LabFeatureSetNodeFactory.class.getCanonicalName(), category);
+        m_nodeFactories.put(ImgPropertiesNodeFactory.class.getCanonicalName(), category);
+        m_nodeFactories.put(LabelingPropertiesNodeFactory.class.getCanonicalName(), category);
 
         return m_nodeFactories.keySet();
     }

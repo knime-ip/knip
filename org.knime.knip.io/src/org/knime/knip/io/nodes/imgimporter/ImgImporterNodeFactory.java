@@ -79,6 +79,7 @@ import net.imglib2.type.numeric.RealType;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
  */
+@Deprecated
 public class ImgImporterNodeFactory<T extends RealType<T> & NativeType<T>>
         extends ValueToCellNodeFactory<ImgRefValue> {
 

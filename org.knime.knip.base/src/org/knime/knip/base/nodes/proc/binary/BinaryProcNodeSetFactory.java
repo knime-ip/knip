@@ -110,11 +110,12 @@ public class BinaryProcNodeSetFactory implements NodeSetFactory {
      */
     @Override
     public Collection<String> getNodeFactoryIds() {
-        m_nodeFactories.put(ConvexHullNodeFactory.class.getCanonicalName(), "/community/knip/image/binary");
-        m_nodeFactories.put(DistanceMapNodeFactory.class.getCanonicalName(), "/community/knip/image/binary");
-        m_nodeFactories.put(FillHolesNodeFactory.class.getCanonicalName(), "/community/knip/image/binary");
-        m_nodeFactories.put(BinaryArithmeticNodeFactory.class.getCanonicalName(), "/community/knip/image/binary");
-        m_nodeFactories.put(MorphImgOpsNodeFactory.class.getCanonicalName(), "/community/knip/image/binary");
+        final String categoryKey = "/community/knip/image/binary";
+        m_nodeFactories.put(ConvexHullNodeFactory.class.getCanonicalName(), categoryKey);
+        m_nodeFactories.put(DistanceMapNodeFactory.class.getCanonicalName(), categoryKey);
+        m_nodeFactories.put(FillHolesNodeFactory.class.getCanonicalName(), categoryKey);
+        m_nodeFactories.put(BinaryArithmeticNodeFactory.class.getCanonicalName(), categoryKey);
+        m_nodeFactories.put(MorphImgOpsNodeFactory.class.getCanonicalName(), categoryKey);
 
         return m_nodeFactories.keySet();
     }

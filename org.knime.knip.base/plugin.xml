@@ -103,44 +103,34 @@
      <extension
            point="org.knime.workbench.repository.nodesets">
         <nodeset
-              factory-class="org.knime.knip.base.nodes.proc.ProcNodeSetFactory"
-              id="org.knime.knip.base.nodes.proc.ProcNodeSetFactory">
+              factory-class="org.knime.knip.base.nodes.proc.ProcNodeSetFactory">
         </nodeset>
         <nodeset
-              factory-class="org.knime.knip.base.nodes.seg.LabNodeSetFactory"
-              id="org.knime.knip.base.nodes.seg.LabNodeSetFactory">
+              factory-class="org.knime.knip.base.nodes.seg.LabNodeSetFactory">
         </nodeset>
         <nodeset
-              factory-class="org.knime.knip.base.nodes.view.ViewsNodeSetFactory"
-              id="org.knime.knip.base.nodes.view.ViewsNodeSetFactory">
+              factory-class="org.knime.knip.base.nodes.view.ViewsNodeSetFactory">
         </nodeset>
         <nodeset
-              factory-class="org.knime.knip.base.nodes.features.FeatureNodeSetFactory"
-              id="org.knime.knip.base.nodes.features.FeatureNodeSetFactory">
+              factory-class="org.knime.knip.base.nodes.features.FeatureNodeSetFactory">
         </nodeset>
         <nodeset
-              factory-class="org.knime.knip.base.nodes.proc.binary.BinaryProcNodeSetFactory"
-              id="org.knime.knip.base.nodes.proc.binary.BinaryProcNodeSetFactory">
+              factory-class="org.knime.knip.base.nodes.proc.binary.BinaryProcNodeSetFactory">
         </nodeset>
         <nodeset
-              factory-class="org.knime.knip.base.nodes.filter.FilterNodeSetFactory"
-              id="org.knime.knip.base.nodes.filter.FilterNodeSetFactory">
+              factory-class="org.knime.knip.base.nodes.filter.FilterNodeSetFactory">
         </nodeset>
         <nodeset
-              factory-class="org.knime.knip.base.nodes.metadata.MetadataNodeSetFactory"
-              id="org.knime.knip.base.nodes.metadata.MetadataNodeSetFactory">
+              factory-class="org.knime.knip.base.nodes.metadata.MetadataNodeSetFactory">
         </nodeset>
         <nodeset
-              factory-class="org.knime.knip.base.nodes.knimeimagebridge.ConversionNodeSetFactory"
-              id="org.knime.knip.base.nodes.knimeimagebridge.ConversionNodeSetFactory">
+              factory-class="org.knime.knip.base.nodes.knimeimagebridge.ConversionNodeSetFactory">
         </nodeset>
         <nodeset
-              factory-class="org.knime.knip.base.nodes.misc.MiscNodeSetFactory"
-              id="org.knime.knip.base.nodes.misc.MiscNodeSetFactory">
+              factory-class="org.knime.knip.base.nodes.misc.MiscNodeSetFactory">
         </nodeset>
         <nodeset
-              factory-class="org.knime.knip.base.nodes.io.IONodeSetFactory"
-              id="org.knime.knip.base.nodes.io.IONodeSetFactory">
+              factory-class="org.knime.knip.base.nodes.io.IONodeSetFactory">
         </nodeset>
      </extension>
      <extension
@@ -219,27 +209,23 @@
            point="org.knime.workbench.repository.nodes">
         <node
               category-path="/community/knip/image/misc"
-              factory-class="org.knime.knip.base.nodes.util.slicelooper.SliceIteratorLoopStartNodeFactory"
-              id="org.knime.knip.base.nodes.util.slicelooper.SliceIteratorNodeFactory">
+              factory-class="org.knime.knip.base.nodes.util.slicelooper.SliceIteratorLoopStartNodeFactory">
         </node>
         <node
               category-path="/community/knip/image/misc"
-              factory-class="org.knime.knip.base.nodes.util.slicelooper.SliceIteratorLoopEndNodeFactory"
-              id="org.knime.knip.base.nodes.util.slicelooper.CollectSlicesNodeFactory">
+              factory-class="org.knime.knip.base.nodes.util.slicelooper.SliceIteratorLoopEndNodeFactory">
         </node>
         <node
               category-path="/community/knip/image/misc"
-              factory-class="org.knime.knip.base.nodes.util.dontsave.DontSaveStartNodeFactory"
-              id="org.knime.knip.base.nodes.util.dontsave.DontSaveStartNodeFactory">
+              factory-class="org.knime.knip.base.nodes.util.dontsave.DontSaveStartNodeFactory">
         </node>
         <node
               category-path="/community/knip/image/misc"
-              factory-class="org.knime.knip.base.nodes.util.dontsave.DontSaveEndNodeFactory"
-              id="org.knime.knip.base.nodes.util.dontsave.DontSaveEndNodeFactory">
+              factory-class="org.knime.knip.base.nodes.util.dontsave.DontSaveEndNodeFactory">
         </node>
         <node
               category-path="/community/knip/image/misc"
-              factory-class="org.knime.knip.base.nodes.util.tilelooper.TileIteratorLoopStartNodeFactory">
+              factory-class="org.knime.knip.base.nodes.util.tilelooper.TileIteratorLoopStartNodeFactory">>
         </node>
         <node
               category-path="/community/knip/image/misc"

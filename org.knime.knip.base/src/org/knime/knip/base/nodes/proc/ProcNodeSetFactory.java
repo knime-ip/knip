@@ -63,7 +63,9 @@ import org.knime.knip.base.nodes.misc.splitter.UCSplitterNodeFactory;
 import org.knime.knip.base.nodes.orientationj.measure.OrientationJMeasurementNodeFactory;
 import org.knime.knip.base.nodes.proc.binner.IntensityBinnerNodeFactory;
 import org.knime.knip.base.nodes.proc.clahe.ClaheNodeFactory;
+import org.knime.knip.base.nodes.proc.dogdetector.DoGDetector2NodeFactory;
 import org.knime.knip.base.nodes.proc.dogdetector.DoGDetector3NodeFactory;
+import org.knime.knip.base.nodes.proc.dogdetector.DoGDetectorNodeFactory;
 import org.knime.knip.base.nodes.proc.imgjep.ImgJEPNodeFactory;
 import org.knime.knip.base.nodes.proc.maxfinder.MaximumFinderNodeFactory;
 import org.knime.knip.base.nodes.proc.multilvlthresholding.MultilevelThresholderNodeFactory;
@@ -82,7 +84,7 @@ import org.knime.knip.base.nodes.seg.local.LocalThresholderNodeFactory2;
  */
 public class ProcNodeSetFactory implements NodeSetFactory {
 
-    private final Map<String, String> m_nodeFactories = new HashMap<String, String>();
+    private final Map<String, String> m_nodeFactories = new HashMap<>();
 
     /**
      * {@inheritDoc}
@@ -126,59 +128,58 @@ public class ProcNodeSetFactory implements NodeSetFactory {
      */
     @Override
     public Collection<String> getNodeFactoryIds() {
-        m_nodeFactories.put(LocalThresholderNodeFactory2.class.getCanonicalName(), "/community/knip/image/process");
-        m_nodeFactories.put(MultilevelThresholderNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
-        //        m_nodeFactories.put(AlignerNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
-        m_nodeFactories.put(ThinningNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
-        m_nodeFactories.put(ImgJEPNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
-        m_nodeFactories.put(ConvertImgNodeFactory.class.getCanonicalName(), "/community/knip/image");
-        m_nodeFactories.put(LocalMaximaForDistanceMapNodeFactory.class.getCanonicalName(),
-                            "/community/knip/image/process");
+        String processKey = "/community/knip/image/process";
+        m_nodeFactories.put(LocalThresholderNodeFactory2.class.getCanonicalName(), processKey);
+        m_nodeFactories.put(MultilevelThresholderNodeFactory.class.getCanonicalName(), processKey);
+        m_nodeFactories.put(AlignerNodeFactory.class.getCanonicalName(), processKey);
+        m_nodeFactories.put(ThinningNodeFactory.class.getCanonicalName(), processKey);
+        m_nodeFactories.put(ImgJEPNodeFactory.class.getCanonicalName(), processKey);
+        m_nodeFactories.put(ProjectorNodeFactory.class.getCanonicalName(), processKey);
+        m_nodeFactories.put(LocalMaximaForDistanceMapNodeFactory.class.getCanonicalName(), processKey);
+        m_nodeFactories.put(GrayscaleReconstructionNodeFactory.class.getCanonicalName(), processKey);
 
-        m_nodeFactories.put(ProjectorNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
-        m_nodeFactories.put(Rotation2DNodeFactory.class.getCanonicalName(), "/community/knip/image");
-        m_nodeFactories.put(ResizerNodeFactory.class.getCanonicalName(), "/community/knip/image");
-        m_nodeFactories.put(LabelingResizerNodeFactory.class.getCanonicalName(), "/community/knip/image");
-        m_nodeFactories.put(UCSplitterNodeFactory.class.getCanonicalName(), "/community/knip/image");
-        m_nodeFactories.put(DimensionSwapperNodeFactory.class.getCanonicalName(), "/community/knip/image");
-        m_nodeFactories.put(Splitter2NodeFactory.class.getCanonicalName(), "/community/knip/image");
-        m_nodeFactories.put(MergerNodeFactory.class.getCanonicalName(), "/community/knip/image");
-        //        m_nodeFactories.put(ImgCropperNodeFactory.class.getCanonicalName(), "/community/knip/image");
-        m_nodeFactories.put(AutoCropNodeFactory.class.getCanonicalName(), "/community/knip/image");
+        String imageKey = "/community/knip/image";
+        m_nodeFactories.put(ConvertImgNodeFactory.class.getCanonicalName(), imageKey);
+        m_nodeFactories.put(Rotation2DNodeFactory.class.getCanonicalName(), imageKey);
+        m_nodeFactories.put(ResizerNodeFactory.class.getCanonicalName(), imageKey);
+        m_nodeFactories.put(LabelingResizerNodeFactory.class.getCanonicalName(), imageKey);
+        m_nodeFactories.put(UCSplitterNodeFactory.class.getCanonicalName(), imageKey);
+        m_nodeFactories.put(DimensionSwapperNodeFactory.class.getCanonicalName(), imageKey);
+        m_nodeFactories.put(Splitter2NodeFactory.class.getCanonicalName(), imageKey);
+        m_nodeFactories.put(MergerNodeFactory.class.getCanonicalName(), imageKey);
+        m_nodeFactories.put(ImgCropperNodeFactory.class.getCanonicalName(), imageKey);
+        m_nodeFactories.put(AutoCropNodeFactory.class.getCanonicalName(), imageKey);
 
-        m_nodeFactories.put(GrayscaleReconstructionNodeFactory.class.getCanonicalName(),
-                            "/community/knip/image/process");
 
-        m_nodeFactories.put(HDomeNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
-        m_nodeFactories.put(MaximumFinderNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
-
-        m_nodeFactories.put(WaveletSpotDetectionNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
+        m_nodeFactories.put(HDomeNodeFactory.class.getCanonicalName(), processKey);
+        m_nodeFactories.put(MaximumFinderNodeFactory.class.getCanonicalName(), processKey);
+        m_nodeFactories.put(WaveletSpotDetectionNodeFactory.class.getCanonicalName(), processKey);
 
         // new node: UCM
-        m_nodeFactories.put(UCMNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
+        m_nodeFactories.put(UCMNodeFactory.class.getCanonicalName(), processKey);
 
         // ROI based nodes (which deprecated the old implementations)
-        m_nodeFactories.put(ImgNormalizerNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
-        m_nodeFactories.put(InverterNodeFactory2.class.getCanonicalName(), "/community/knip/image/process");
-        m_nodeFactories.put(ThresholderNodeFactory3.class.getCanonicalName(), "/community/knip/image/process");
+        m_nodeFactories.put(ImgNormalizerNodeFactory.class.getCanonicalName(), processKey);
+        m_nodeFactories.put(InverterNodeFactory2.class.getCanonicalName(), processKey);
+        m_nodeFactories.put(ThresholderNodeFactory3.class.getCanonicalName(), processKey);
 
         // Deprecated ClaheNodeFactory
-        m_nodeFactories.put(ClaheNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
+        m_nodeFactories.put(ClaheNodeFactory.class.getCanonicalName(), processKey);
 
         // DoG Detection
-//        m_nodeFactories.put(DoGDetectorNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
-//        m_nodeFactories.put(DoGDetector2NodeFactory.class.getCanonicalName(), "/community/knip/image/process");
-        m_nodeFactories.put(DoGDetector3NodeFactory.class.getCanonicalName(), "/community/knip/image/process");
+        m_nodeFactories.put(DoGDetectorNodeFactory.class.getCanonicalName(), processKey);
+        m_nodeFactories.put(DoGDetector2NodeFactory.class.getCanonicalName(), processKey);
+        m_nodeFactories.put(DoGDetector3NodeFactory.class.getCanonicalName(), processKey);
 
         // new version
-        m_nodeFactories.put(ImgCropperNodeFactory2.class.getCanonicalName(), "/community/knip/image/process");
-        m_nodeFactories.put(AlignerNodeFactory2.class.getCanonicalName(), "/community/knip/image/process");
+        m_nodeFactories.put(ImgCropperNodeFactory2.class.getCanonicalName(), processKey);
+        m_nodeFactories.put(AlignerNodeFactory2.class.getCanonicalName(), processKey);
 
-        m_nodeFactories.put(ColorspaceConvertNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
+        m_nodeFactories.put(ColorspaceConvertNodeFactory.class.getCanonicalName(), processKey);
 
-        m_nodeFactories.put(IntensityBinnerNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
+        m_nodeFactories.put(IntensityBinnerNodeFactory.class.getCanonicalName(), processKey);
 
-        m_nodeFactories.put(OrientationJMeasurementNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
+        m_nodeFactories.put(OrientationJMeasurementNodeFactory.class.getCanonicalName(), processKey);
 
         return m_nodeFactories.keySet();
     }

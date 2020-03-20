@@ -51,17 +51,6 @@ package org.knime.knip.base.nodes.seg;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.imagej.axis.CalibratedAxis;
-import net.imglib2.Interval;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.ops.operation.Operations;
-import net.imglib2.ops.operation.labeling.unary.MergeLabelings;
-import net.imglib2.roi.labeling.ImgLabeling;
-import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.type.numeric.IntegerType;
-import net.imglib2.util.Util;
-import net.imglib2.view.Views;
-
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
@@ -76,6 +65,17 @@ import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.base.node.dialog.DialogComponentSubsetSelection;
 import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
 
+import net.imagej.axis.CalibratedAxis;
+import net.imglib2.Interval;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.operation.labeling.unary.MergeLabelings;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.roi.labeling.LabelingType;
+import net.imglib2.type.numeric.IntegerType;
+import net.imglib2.util.Util;
+import net.imglib2.view.Views;
+
 /**
  * Factory class to produce the Histogram Operations Node.
  *
@@ -85,6 +85,7 @@ import org.knime.knip.base.node.nodesettings.SettingsModelSubsetSelection;
  *
  * @param <L>
  */
+@Deprecated
 public class LabelingOrthoCropperNodeFactory<L extends Comparable<L>> extends ValueToCellNodeFactory<LabelingValue<L>> {
 
     private static SettingsModelBoolean createAdjustDimModel() {

@@ -65,16 +65,17 @@ import org.knime.knip.base.node.nodesettings.SettingsModelDimSelection;
 
 /**
  * The Dialog for the Image Processing Node.
- * 
+ *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael Zinsmaier</a>
  */
+@Deprecated
 public class SplitterNodeDialog extends DefaultNodeSettingsPane {
 
     /**
      * Dialog with Column Selection.
-     * 
+     *
      */
     @SuppressWarnings("unchecked")
     public SplitterNodeDialog() {

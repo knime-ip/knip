@@ -64,6 +64,7 @@ import net.imglib2.type.numeric.RealType;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
  */
+@Deprecated
 public class ImgReaderNodeFactory<T extends NativeType<T> & RealType<T>>
         extends NodeFactory<ImgReaderNodeModel<T>> {
 

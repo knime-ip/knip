@@ -61,6 +61,7 @@ import org.knime.knip.base.nodes.view.TableCellViewNodeView;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
  */
+@Deprecated
 public class ImageFileRefNodeFactory extends NodeFactory<ImageFileRefNodeModel> {
 
     /**

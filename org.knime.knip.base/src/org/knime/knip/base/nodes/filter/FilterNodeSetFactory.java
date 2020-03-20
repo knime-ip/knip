@@ -125,7 +125,7 @@ public class FilterNodeSetFactory implements NodeSetFactory {
         m_nodeFactories.put(MaxFilterNodeFactory.class.getCanonicalName(), "/community/knip/image/filters");
         m_nodeFactories.put(AverageFilterNodeFactory.class.getCanonicalName(), "/community/knip/image/filters");
         m_nodeFactories.put(VarianceFilterNodeFactory.class.getCanonicalName(), "/community/knip/image/filters");
-        //        m_nodeFactories.put(GaussNativeTypeNodeFactory.class.getCanonicalName(), "/community/knip/image/filters");
+        m_nodeFactories.put(GaussNativeTypeNodeFactory.class.getCanonicalName(), "/community/knip/image/filters");
         m_nodeFactories.put(GaussNativeTypeNodeFactory2.class.getCanonicalName(), "/community/knip/image/filters");
         m_nodeFactories.put(SobelNodeFactory.class.getCanonicalName(), "/community/knip/image/filters");
         m_nodeFactories.put(QuantileFilterNodeFactory.class.getCanonicalName(), "/community/knip/image/filters");

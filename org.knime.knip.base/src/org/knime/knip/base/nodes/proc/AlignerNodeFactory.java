@@ -85,6 +85,7 @@ import net.imglib2.type.numeric.RealType;
  * @param <T>
  * @param <V>
  */
+@Deprecated
 public class AlignerNodeFactory<T extends RealType<T>, V extends RealType<V>>
         extends TwoValuesToCellNodeFactory<ImgPlusValue<T>, ImgPlusValue<V>> {
 

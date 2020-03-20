@@ -82,6 +82,7 @@ import net.imglib2.type.numeric.RealType;
  *
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  */
+@Deprecated
 public class DoGDetectorNodeFactory<T extends RealType<T> & NativeType<T>> extends
         ImgPlusToImgPlusNodeFactory<T, BitType> {
 
