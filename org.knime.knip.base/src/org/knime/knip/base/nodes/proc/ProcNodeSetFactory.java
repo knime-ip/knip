@@ -59,11 +59,14 @@ import org.knime.core.node.config.ConfigRO;
 import org.knime.knip.base.nodes.misc.dimswap.DimensionSwapperNodeFactory;
 import org.knime.knip.base.nodes.misc.merger.MergerNodeFactory;
 import org.knime.knip.base.nodes.misc.splitter.Splitter2NodeFactory;
+import org.knime.knip.base.nodes.misc.splitter.SplitterNodeFactory;
 import org.knime.knip.base.nodes.misc.splitter.UCSplitterNodeFactory;
 import org.knime.knip.base.nodes.orientationj.measure.OrientationJMeasurementNodeFactory;
 import org.knime.knip.base.nodes.proc.binner.IntensityBinnerNodeFactory;
 import org.knime.knip.base.nodes.proc.clahe.ClaheNodeFactory;
+import org.knime.knip.base.nodes.proc.dogdetector.DoGDetector2NodeFactory;
 import org.knime.knip.base.nodes.proc.dogdetector.DoGDetector3NodeFactory;
+import org.knime.knip.base.nodes.proc.dogdetector.DoGDetectorNodeFactory;
 import org.knime.knip.base.nodes.proc.imgjep.ImgJEPNodeFactory;
 import org.knime.knip.base.nodes.proc.maxfinder.MaximumFinderNodeFactory;
 import org.knime.knip.base.nodes.proc.multilvlthresholding.MultilevelThresholderNodeFactory;
@@ -72,6 +75,7 @@ import org.knime.knip.base.nodes.proc.resizer.ResizerNodeFactory;
 import org.knime.knip.base.nodes.proc.spotdetection.WaveletSpotDetectionNodeFactory;
 import org.knime.knip.base.nodes.proc.thinning.ThinningNodeFactory;
 import org.knime.knip.base.nodes.proc.ucm.UCMNodeFactory;
+import org.knime.knip.base.nodes.seg.local.LocalThresholderNodeFactory;
 import org.knime.knip.base.nodes.seg.local.LocalThresholderNodeFactory2;
 
 /**
@@ -126,9 +130,10 @@ public class ProcNodeSetFactory implements NodeSetFactory {
      */
     @Override
     public Collection<String> getNodeFactoryIds() {
+        m_nodeFactories.put(LocalThresholderNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(LocalThresholderNodeFactory2.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(MultilevelThresholderNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
-        //        m_nodeFactories.put(AlignerNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
+        m_nodeFactories.put(AlignerNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(ThinningNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(ImgJEPNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(ConvertImgNodeFactory.class.getCanonicalName(), "/community/knip/image");
@@ -141,9 +146,10 @@ public class ProcNodeSetFactory implements NodeSetFactory {
         m_nodeFactories.put(LabelingResizerNodeFactory.class.getCanonicalName(), "/community/knip/image");
         m_nodeFactories.put(UCSplitterNodeFactory.class.getCanonicalName(), "/community/knip/image");
         m_nodeFactories.put(DimensionSwapperNodeFactory.class.getCanonicalName(), "/community/knip/image");
+        m_nodeFactories.put(SplitterNodeFactory.class.getCanonicalName(), "/community/knip/image");
         m_nodeFactories.put(Splitter2NodeFactory.class.getCanonicalName(), "/community/knip/image");
         m_nodeFactories.put(MergerNodeFactory.class.getCanonicalName(), "/community/knip/image");
-        //        m_nodeFactories.put(ImgCropperNodeFactory.class.getCanonicalName(), "/community/knip/image");
+        m_nodeFactories.put(ImgCropperNodeFactory.class.getCanonicalName(), "/community/knip/image");
         m_nodeFactories.put(AutoCropNodeFactory.class.getCanonicalName(), "/community/knip/image");
 
         m_nodeFactories.put(GrayscaleReconstructionNodeFactory.class.getCanonicalName(),
@@ -159,15 +165,18 @@ public class ProcNodeSetFactory implements NodeSetFactory {
 
         // ROI based nodes (which deprecated the old implementations)
         m_nodeFactories.put(ImgNormalizerNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
+        m_nodeFactories.put(InvertNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(InverterNodeFactory2.class.getCanonicalName(), "/community/knip/image/process");
+        m_nodeFactories.put(ThresholderNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
+        m_nodeFactories.put(ThresholderNodeFactory2.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(ThresholderNodeFactory3.class.getCanonicalName(), "/community/knip/image/process");
 
         // Deprecated ClaheNodeFactory
         m_nodeFactories.put(ClaheNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
 
         // DoG Detection
-//        m_nodeFactories.put(DoGDetectorNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
-//        m_nodeFactories.put(DoGDetector2NodeFactory.class.getCanonicalName(), "/community/knip/image/process");
+        m_nodeFactories.put(DoGDetectorNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
+        m_nodeFactories.put(DoGDetector2NodeFactory.class.getCanonicalName(), "/community/knip/image/process");
         m_nodeFactories.put(DoGDetector3NodeFactory.class.getCanonicalName(), "/community/knip/image/process");
 
         // new version
@@ -178,7 +187,8 @@ public class ProcNodeSetFactory implements NodeSetFactory {
 
         m_nodeFactories.put(IntensityBinnerNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
 
-        m_nodeFactories.put(OrientationJMeasurementNodeFactory.class.getCanonicalName(), "/community/knip/image/process");
+        m_nodeFactories.put(OrientationJMeasurementNodeFactory.class.getCanonicalName(),
+                            "/community/knip/image/process");
 
         return m_nodeFactories.keySet();
     }
