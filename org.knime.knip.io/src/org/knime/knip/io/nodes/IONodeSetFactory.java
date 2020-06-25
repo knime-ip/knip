@@ -60,6 +60,7 @@ import org.knime.knip.io.nodes.annotation.create.OverlayAnnotatorNodeFactory;
 import org.knime.knip.io.nodes.annotation.edit.LabelingEditorNodeFactory;
 import org.knime.knip.io.nodes.fileref.ImageFileRefNodeFactory;
 import org.knime.knip.io.nodes.imgimporter.ImgImporterNodeFactory;
+import org.knime.knip.io.nodes.imgreader.ImgReaderNodeFactory;
 import org.knime.knip.io.nodes.imgreader2.readfromdialog.ImgReader2NodeFactory;
 import org.knime.knip.io.nodes.imgreader2.readfrominput.ImgReaderTableNodeFactory;
 import org.knime.knip.io.nodes.imgwriter2.ImgWriter2NodeFactory;
@@ -119,8 +120,9 @@ public class IONodeSetFactory implements NodeSetFactory {
 	 */
 	@Override
 	public Collection<String> getNodeFactoryIds() {
-		// m_nodeFactories.put(ImgReaderNodeFactory.class.getCanonicalName(),
-		// "/community/knip/io");
+		m_nodeFactories.put(org.knime.knip.base.nodes.io.imgreader.ImgReaderNodeFactory.class.getCanonicalName(),
+				"/community/knip/io");
+		m_nodeFactories.put(ImgReaderNodeFactory.class.getCanonicalName(), "/community/knip/io");
 		m_nodeFactories.put(ImgWriter2NodeFactory.class.getCanonicalName(), "/community/knip/io");
 		m_nodeFactories.put(ImgImporterNodeFactory.class.getCanonicalName(), "/community/knip/io/other");
 		m_nodeFactories.put(OverlayAnnotatorNodeFactory.class.getCanonicalName(), "/community/knip/labeling");

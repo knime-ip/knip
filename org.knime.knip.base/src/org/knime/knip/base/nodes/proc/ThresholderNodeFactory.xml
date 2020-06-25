@@ -4,7 +4,7 @@
 	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
 	IBM Corporation - initial API and implementation -->
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
-<knimeNode icon="icons/thresholder.png" type="Manipulator">
+<knimeNode icon="icons/thresholder.png" type="Manipulator" deprecated="true">
 	<name>Global Thresholder (deprecated)</name>
 	<shortDescription>
 		A threshold is determined manually or calculated

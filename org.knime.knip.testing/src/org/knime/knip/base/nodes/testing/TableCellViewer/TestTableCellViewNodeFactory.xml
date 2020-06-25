@@ -6,7 +6,7 @@
 	IBM Corporation - initial API and implementation -->
 
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
-<knimeNode icon="tablecellviewer.png" type="Visualizer">
+<knimeNode icon="tablecellviewer.png" type="Visualizer" deprecated="true">
 	<name>Table Cell Test Viewer</name>
 	<shortDescription>Test viewer useful for automated testing.</shortDescription>
 

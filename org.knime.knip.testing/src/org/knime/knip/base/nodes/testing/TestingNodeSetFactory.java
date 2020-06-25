@@ -56,6 +56,7 @@ import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSetFactory;
 import org.knime.core.node.config.ConfigRO;
+import org.knime.knip.base.nodes.testing.TableCellViewer.TestTableCellViewNodeFactory;
 
 /**
  *
@@ -74,7 +75,7 @@ public class TestingNodeSetFactory implements NodeSetFactory {
     public Collection<String> getNodeFactoryIds() {
         m_nodeFactories.put(ImgComparatorNodeFactory.class.getCanonicalName(), "/community/knip/kniptesting");
         m_nodeFactories.put(LabelingComparatorNodeFactory.class.getCanonicalName(), "/community/knip/kniptesting");
-//        m_nodeFactories.put(TestTableCellViewNodeFactory.class.getCanonicalName(), "/community/knip/kniptesting");
+        m_nodeFactories.put(TestTableCellViewNodeFactory.class.getCanonicalName(), "/community/knip/kniptesting");
         return m_nodeFactories.keySet();
     }
 
