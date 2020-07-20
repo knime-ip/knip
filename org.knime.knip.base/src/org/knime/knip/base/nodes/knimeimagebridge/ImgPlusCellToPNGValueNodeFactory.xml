@@ -1,5 +1,5 @@
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
-<knimeNode icon="ImgToPng.png" type="Manipulator" deprecated="true">
+<knimeNode icon="ImgToPng.png" type="Manipulator" deprecated="false">
 	<name> ImgPlus to PNG Images </name>
 
 	<shortDescription>
