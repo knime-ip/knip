@@ -314,12 +314,12 @@ public class ImgWriter2NodeModel<T extends RealType<T>> extends NodeModel {
 
 			if (f.exists()) {
 				if (overwrite) {
-					LOGGER.warn("The file " + outfile + " already exits and will be OVERWRITTEN.");
+					LOGGER.warn("The file " + outfile + " already exists and will be OVERWRITTEN.");
 					f.delete();
 
 				} else {
 					throw new InvalidSettingsException(
-							"The file " + outfile + " exits and must not be overwritten due to user settings.");
+							"The file " + outfile + " exists and must not be overwritten due to user settings.");
 				}
 				// filename contained path to non existent directory
 			} else if (!f.getParentFile().exists()) {
