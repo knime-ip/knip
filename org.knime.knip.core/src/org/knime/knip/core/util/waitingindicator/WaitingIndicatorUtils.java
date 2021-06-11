@@ -136,7 +136,7 @@ public final class WaitingIndicatorUtils {
         WaitIndicator w = (WaitIndicator)jc.getClientProperty("error");
         if (w == null) {
             if (display) {
-                w = style.getConstructor(new Class[]{JPanel.class, String.class}).newInstance(jc, message);
+                w = style.getConstructor(JPanel.class, String.class).newInstance(jc, message);
             }
         } else if (!display) {
             w.dispose();

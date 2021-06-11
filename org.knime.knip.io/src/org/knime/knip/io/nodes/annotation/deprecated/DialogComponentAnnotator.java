@@ -55,6 +55,7 @@ import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -65,7 +66,6 @@ import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
 import org.apache.log4j.spi.LoggerFactory;
-import org.apache.xmlbeans.impl.util.Base64;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NotConfigurableException;
@@ -259,8 +259,7 @@ public class DialogComponentAnnotator<T extends RealType<T> & NativeType<T>> ext
 
 				}
 				totalOut.close();
-				res = new String(new Base64().encode(totalBytes.toByteArray()));
-
+				res = Base64.getMimeEncoder().encodeToString(totalBytes.toByteArray());
 			} catch (final IOException e) {
 				e.printStackTrace();
 			}
@@ -286,7 +285,7 @@ public class DialogComponentAnnotator<T extends RealType<T> & NativeType<T>> ext
 			}
 
 			try {
-				final byte[] bytes = new Base64().decode(base64coded.getBytes());
+				final byte[] bytes = Base64.getMimeDecoder().decode(base64coded.getBytes());
 				final ObjectInputStream totalIn = new ObjectInputStream(new ByteArrayInputStream(bytes));
 
 				final int num = totalIn.readInt();

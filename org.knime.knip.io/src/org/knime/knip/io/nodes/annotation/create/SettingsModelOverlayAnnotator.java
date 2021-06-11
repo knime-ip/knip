@@ -51,11 +51,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.xmlbeans.impl.util.Base64;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
@@ -63,6 +63,8 @@ import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.knip.core.ui.imgviewer.annotator.RowColKey;
 import org.knime.knip.core.ui.imgviewer.overlay.Overlay;
 import org.knime.knip.io.nodes.annotation.SettingsModelAnnotatorView;
+
+import net.imglib2.type.label.BasePairBitType.Base;
 
 /**
  * SettingsModel for the annotator. Stores a annotations for an image as
@@ -117,8 +119,8 @@ public class SettingsModelOverlayAnnotator extends SettingsModelAnnotatorView<Ov
 				out.writeObject(entry.getValue());
 			}
 			out.flush();
-
-			settings.addString("labeling", new String(Base64.encode(baos.toByteArray())));
+			String labeling64 = Base64.getMimeEncoder().encodeToString(baos.toByteArray());
+			settings.addString("labeling", labeling64);
 			out.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -137,7 +139,7 @@ public class SettingsModelOverlayAnnotator extends SettingsModelAnnotatorView<Ov
 			m_labelingMap = new HashMap<RowColKey, Overlay>();
 
 			ByteArrayInputStream bais = new ByteArrayInputStream(
-					Base64.decode(settings.getString("labeling").getBytes()));
+					Base64.getMimeDecoder().decode(settings.getString("labeling").getBytes()));
 			ObjectInputStream in = new ObjectInputStream(bais);
 
 			for (int i = 0; i < numOverlays; i++) {

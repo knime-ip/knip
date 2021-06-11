@@ -52,10 +52,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.xmlbeans.impl.util.Base64;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeSettingsRO;
@@ -168,10 +168,10 @@ public class SettingsModelSerializableObjects<S extends Serializable> extends Se
         if (settings.getString(m_configName) != null) {
             byte[] bytes;
             try {
-                new Base64();
                 // use base64 to increase the performance
                 // compared to the settings.addByteArray method
-                bytes = Base64.decode(settings.getString(m_configName).getBytes());
+
+                bytes = Base64.getMimeDecoder().decode(settings.getString(m_configName).getBytes());
                 final BufferedDataInputStream in = new BufferedDataInputStream(new ByteArrayInputStream(bytes));
                 final int num = in.readInt();
                 m_objects.clear();
@@ -212,10 +212,9 @@ public class SettingsModelSerializableObjects<S extends Serializable> extends Se
                 }
             }
             out.close();
-            new Base64();
             // use base64 to increase the performance compared to
             // the settings.addByteArray method
-            res = new String(Base64.encode(baos.toByteArray()));
+            res = Base64.getMimeEncoder().encodeToString(baos.toByteArray());
         } catch (final Exception e) {
             logger.error("Exception while saving object", e);
         }

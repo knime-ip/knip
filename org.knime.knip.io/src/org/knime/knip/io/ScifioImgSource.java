@@ -54,13 +54,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.transaction.xa.Xid;
-
 import org.apache.log4j.Level;
 import org.knime.core.node.NodeLogger;
 import org.knime.knip.base.exceptions.KNIPRuntimeException;
 import org.knime.knip.core.KNIPLogService;
-import org.knime.knip.core.types.NativeTypes;
 import org.knime.knip.core.util.MiscViews;
 import org.scijava.Context;
 
@@ -68,7 +65,6 @@ import io.scif.Format;
 import io.scif.FormatException;
 import io.scif.Metadata;
 import io.scif.Parser;
-import io.scif.Plane;
 import io.scif.Reader;
 import io.scif.config.SCIFIOConfig;
 import io.scif.filters.ChannelFiller;
