@@ -2,8 +2,6 @@
 <cspecExtension xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bc="http://www.eclipse.org/buckminster/Common-1.0"
     xmlns="http://www.eclipse.org/buckminster/CSpec-1.0">
     <dependencies>
-        <!-- necessary for for the automated build system -->
-        <dependency name="org.knime.workbench.help" versionDesignator="2.4.0" componentType="osgi.bundle" />
         <!-- necessary for all SWT fragments -->
         <dependency name="org.eclipse.platform" componentType="eclipse.feature" />
 
