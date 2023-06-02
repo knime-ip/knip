@@ -4,7 +4,7 @@ Bundle-SymbolicName: org.knime.knip.core;singleton:=true
 Bundle-ManifestVersion: 2
 Bundle-Version: 1.8.3.qualifier
 Bundle-Vendor: University of Konstanz
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ClassPath: knip-core.jar
 Eclipse-BuddyPolicy: registered
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.6.0",

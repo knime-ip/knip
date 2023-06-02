@@ -35,7 +35,7 @@ Require-Bundle: org.knime.base;bundle-version="[3.0.0,6.0.0)",
  spim_data;bundle-version="2.2.1",
  miglayout;bundle-version="3.7.4",
  bigdataviewer-ui-panel;bundle-version="0.1.1"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ClassPath: knip-base.jar
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.knime.knip.base.KNIMEKNIPPlugin

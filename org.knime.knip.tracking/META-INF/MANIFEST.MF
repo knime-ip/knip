@@ -21,6 +21,6 @@ Require-Bundle: org.knime.base;bundle-version="[3.0.0,6.0.0)",
  knip-trackmate-fork;bundle-version="2.7.3",
  imagej-ops;bundle-version="0.16.0",
  org.knime.knip.cellviewer;bundle-version="1.5.1"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ClassPath: kniptracking.jar
 
