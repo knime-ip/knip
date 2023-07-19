@@ -1,5 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
+Automatic-Module-Name: org.knime.knip.features
 Bundle-Name: KNIME Featurenode extension for KNIME Workbench
 Bundle-SymbolicName: org.knime.knip.features;singleton:=true
 Bundle-Version: 1.8.3.qualifier

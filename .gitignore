@@ -1,2 +1,10 @@
 *.class
 */bin*
+target/
+.polyglot.*
+org.knime.knip.base/knip-base.jar
+org.knime.knip.core/knip-core.jar
+org.knime.knip.io/knip-io.jar
+org.knime.knip.io2/knip-io2.jar
+org.knime.knip.testing/kniptesting.jar
+org.knime.knip.tracking/kniptracking.jar

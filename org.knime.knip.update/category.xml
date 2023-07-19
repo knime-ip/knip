@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature id="org.knime.knip.feature" version="0.0.0">
+       <category name="knip" />
+   </feature>
+   <feature id="org.knime.knip.testing.feature" version="0.0.0">
+       <category name="knip" />
+   </feature>
+
+<bundle id="imglib2"/>
+<bundle id="imglib2-algorithm"/>
+<bundle id="imglib2-algorithm-fft"/>
+<bundle id="imglib2-algorithm-gpl"/>
+<bundle id="imglib2-ij"/>
+<bundle id="imglib2-realtransform"/>
+<bundle id="imglib2-roi"/>
+<bundle id="scijava-common"/>
+<bundle id="scijava-cache"/>
+<bundle id="scifio"/>
+<bundle id="scifio-bf-compat"/>
+<bundle id="scifio-lifesci"/>
+<bundle id="scijava-plugins-text-plain"/>
+<bundle id="imagej-common"/>
+<bundle id="imagej-ops"/>
+<bundle id="jep"/>
+<bundle id="scijava-plugins-commands"/>
+<bundle id="scijava-plugins-text-markdown"/>
+<bundle id="scijava-ui-awt"/>
+<bundle id="scijava-ui-swing"/>
+<bundle id="knip-tmp-imglib2-ops"/>
+<bundle id="trove4j"/>
+<bundle id="imagej-plugins-commands"/>
+<bundle id="imagej-ui-awt"/>
+<bundle id="knip-trackmate-fork"/>
+<bundle id="ij"/>
+<bundle id="miglayout"/>
+<bundle id="args4j"/>
+<bundle id="xml-apis"/>
+<bundle id="org.knime.scijava.core"/>
+<bundle id="jfreechart"/>
+<bundle id="imagej-ui-swing"/>
+<bundle id="imagej-deprecated"/>
+<bundle id="imagej-updater"/>
+<bundle id="imagej-mesh"/>
+<bundle id="scijava-search"/>
+<bundle id="eventbus"/>
+<bundle id="imglib2-cache"/>
+<bundle id="parsington"/>
+<bundle id="org.jdom.2"/>
+<bundle id="ui-behaviour"/>
+<bundle id="bigdataviewer-vistools"/>
+<bundle id="bigdataviewer-core"/>
+<bundle id="spim_data"/>
+<bundle id="imglib2-ui"/>
+<bundle id="bigdataviewer-ui-panel"/>
+
+   <category-def name="knip" label="Build artifacts from knip">
+       <description>Build artifacts from knip </description>
+   </category-def>
+</site>

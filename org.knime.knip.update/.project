@@ -6,12 +6,12 @@
 	</projects>
 	<buildSpec>
 		<buildCommand>
-			<name>org.eclipse.pde.FeatureBuilder</name>
+			<name>org.eclipse.pde.UpdateSiteBuilder</name>
 			<arguments>
 			</arguments>
 		</buildCommand>
 	</buildSpec>
 	<natures>
-		<nature>org.eclipse.pde.FeatureNature</nature>
+		<nature>org.eclipse.pde.UpdateSiteNature</nature>
 	</natures>
 </projectDescription>
