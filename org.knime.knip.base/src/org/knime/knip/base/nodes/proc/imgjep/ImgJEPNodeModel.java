@@ -405,7 +405,7 @@ public class ImgJEPNodeModel extends NodeModel implements BufferedDataTableHolde
             final int rowCount = in.getRowCount();
             while (rowIt.hasNext()) {
                 final DataRow row = rowIt.next();
-                con.addRowToTable(new DefaultRow(row.getKey(), cellFac.getCells(row)));
+                con.addRowToTable(new DefaultRow(row.getKey(), cellFac.getCells(row, rowNr)));
                 cellFac.setProgress(rowNr++, rowCount, row.getKey(), exec);
                 exec.checkCanceled();
             }
