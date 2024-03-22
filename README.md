@@ -29,3 +29,10 @@ https://hub.knime.com/knime/spaces/Examples/latest/99_Community/01_Image_Process
 # For Developers
 
 See [this repository](https://github.com/knime-ip/knip-sdk-setup) for instructions.
+
+## How to build KNIME Image Processing extension
+
+Set the following environment variables:
+- `KNIP_EXTERNALS_US=...` (path to the update site of knip-externals) 
+- `KNIP_SCIJAVA_US` (path to the update site of knip-scijava)
+- `JAVA8` (path to the java binary of a java 8 installation)

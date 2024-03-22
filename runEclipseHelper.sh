@@ -4,7 +4,7 @@
 # skip execution if we are in the root dir
 if [[ -f "$(pwd)/runEclipseHelper.sh" ]]; then
 	echo "skipping execution in the root directory"
-	return 0
+	exit 0
 fi
 
 if [[ -z $JAVA8 ]]; then
