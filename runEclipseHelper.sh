@@ -22,4 +22,13 @@ outputDir=$1
 
 # find scijava_common.jar
 scijavaCommonJar=$(find "$KNIP_EXTERNALS_US" -name 'scijava-common_*.jar' | head -n 1)
-$JAVA8 -Dscijava.log.level=debug -classpath "$scijavaCommonJar:$outputDir" org.scijava.annotations.EclipseHelper 
+$JAVA8 -Dscijava.log.level=debug -classpath "$scijavaCommonJar:$outputDir" org.scijava.annotations.EclipseHelper
+
+# if there are scijava plugin annotations, this file will be created
+scijavaPluginFile="${outputDir}/META-INF/json/org.scijava.plugin.Plugin"
+
+if [[ -f $scijavaPluginFile ]]; then
+	mkdir -p "$outputDir/../META-INF/json/"
+	mv "$scijavaPluginFile" "$outputDir/../META-INF/json/org.scijava.plugin.Plugin"
+	echo "Scijava plugin file detected, moving it to the META-INF directory"
+fi

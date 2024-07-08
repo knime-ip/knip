@@ -157,7 +157,7 @@
 				</executions>
 				<configuration>
 					<executable>${session.executionRootDirectory}/runEclipseHelper.sh</executable>
-					<commandlineArgs>${project.build.outputDirectory}</commandlineArgs>
+					<commandlineArgs>${project.build.directory}</commandlineArgs>
 				</configuration>
 			</plugin>
 			<plugin>
