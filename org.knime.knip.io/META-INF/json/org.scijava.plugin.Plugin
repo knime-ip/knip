@@ -1,0 +1,1 @@
+{"class":"classes.org.knime.knip.io.formats.ICSFormat","values":{"name":"Image Cytometry Standard","priority":100.0,"type":"io.scif.Format"}}{"class":"classes.org.knime.knip.io.formats.ICSFormat$ICSTranslator","values":{"priority":-100.0,"type":"io.scif.Translator"}}

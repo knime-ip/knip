@@ -1,0 +1,1 @@
+{"class":"classes.org.knime.knip.io2.resolver.KNIMELocationResolver","values":{"type":"org.scijava.io.location.LocationResolver"}}{"class":"classes.org.knime.knip.io2.resolver.DefaultKNIMELocationService","values":{"priority":10000.0,"type":"org.scijava.service.Service"}}
