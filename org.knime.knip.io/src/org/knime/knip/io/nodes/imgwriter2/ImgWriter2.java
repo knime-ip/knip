@@ -292,7 +292,7 @@ public class ImgWriter2 {
         if (sizeC > 3) {
             LOGGER.warn(
                     "Image has more than 3 channels. These channels might be "
-                            + "ignored my some formats.");
+                            + "ignored by some formats.");
         }
 
         final int sizeT = (img.numDimensions() > map[2]) && (map[2] != -1)
