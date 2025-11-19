@@ -7,8 +7,8 @@ if [[ -f "$(pwd)/runEclipseHelper.sh" ]]; then
 	exit 0
 fi
 
-if [[ -z $JAVA8 ]]; then
-	echo "JAVA8 environment variable not set. Please set it to the path of a Java 8 java executable"
+if [[ -z $JAVA_HOME ]]; then
+	echo "JAVA_HOME environment variable not set. Please set it to the path of a Java 21 java executable"
 	exit 1
 fi
 
@@ -22,7 +22,7 @@ outputDir=$1
 
 # find scijava_common.jar
 scijavaCommonJar=$(find "$KNIP_EXTERNALS_US" -name 'scijava-common_*.jar' | head -n 1)
-$JAVA8 -Dscijava.log.level=debug -classpath "$scijavaCommonJar:$outputDir" org.scijava.annotations.EclipseHelper
+$JAVA_HOME/bin/java -Dscijava.log.level=debug -classpath "$scijavaCommonJar:$outputDir" org.scijava.annotations.EclipseHelper
 
 # if there are scijava plugin annotations, this file will be created
 scijavaPluginFile="${outputDir}/META-INF/json/org.scijava.plugin.Plugin"
