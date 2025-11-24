@@ -31,3 +31,4 @@ Export-Package: org.knime.knip.io,
  org.knime.knip.io.node.dialog,
  org.knime.knip.io.nodes.imgreader,
  org.knime.knip.io.nodes.imgwriter2
+Import-Package: org.w3c.dom
