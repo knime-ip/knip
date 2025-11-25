@@ -140,7 +140,7 @@
 				<plugin>
 					<groupId>org.eclipse.tycho.extras</groupId>
 					<artifactId>tycho-dependency-tools-plugin</artifactId>
-					<version>1.7.0</version>
+					<version>${tycho.version}</version>
 					<executions>
 						<execution>
 							<id>list-dependencies</id>
@@ -232,15 +232,6 @@
 				<artifactId>target-platform-configuration</artifactId>
 				<configuration>
 					<executionEnvironment>JavaSE-21</executionEnvironment>
-					<dependency-resolution>
-						<extraRequirements>
-							<requirement>
-								<type>eclipse-plugin</type>
-								<id>javax.xml</id>
-								<versionRange>0.0.0</versionRange>
-							</requirement>
-						</extraRequirements>
-					</dependency-resolution>
 					<environments>
 						<!-- These can be removed once we shut down the Buckminster build -->
 						<environment>
