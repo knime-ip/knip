@@ -157,10 +157,12 @@
 			<FileExtension extension="zvi"></FileExtension>
         </FileExtensionMapping>
      </extension>
+     <!-- Temporarily disabled due to split package issue with org.w3c.dom in Java 21 / Tycho 4.x
      <extension
            point="org.knime.knip.cellviewer.cellviews">
         <CellView
               CellViewProviderFactory="org.knime.knip.io.view.XMLCellViewFactory">
         </CellView>
      </extension>
+     -->
 </plugin>
