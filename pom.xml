@@ -12,11 +12,14 @@
 	<properties>
 		<revision>1.0.0</revision>
 		<changelist>-SNAPSHOT</changelist>
-		<knime.version>5.2</knime.version>
-		<tycho.version>2.7.5</tycho.version>
+		<knime.version>nightly</knime.version>
+		<tycho.version>4.0.13</tycho.version>
 		<tycho.extras.version>${tycho.version}</tycho.extras.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<maven.compiler.source>21</maven.compiler.source>
+		<maven.compiler.target>21</maven.compiler.target>
+		<maven.compiler.release>21</maven.compiler.release>
 	</properties>
 
 	<!-- List the modules of your project here -->
@@ -58,6 +61,16 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.9.11</version>
+					<configuration>
+						<source>21</source>
+						<target>21</target>
+						<release>21</release>
+					</configuration>
+				</plugin>
+				<plugin>
 					<groupId>org.eclipse.tycho</groupId>
 					<artifactId>tycho-maven-plugin</artifactId>
 					<version>${tycho.version}</version>
@@ -83,21 +96,30 @@
 					<artifactId>tycho-p2-director-plugin</artifactId>
 					<version>${tycho.version}</version>
 				</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-compiler-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<configuration>
+					<release>21</release>
+					<useJDK>BREE</useJDK>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-surefire-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<configuration>
+					<trimStackTrace>false</trimStackTrace>
+					<includes>
+						<include>%regex[.*]</include>
+					</includes>
+				</configuration>
+			</plugin>
 				<plugin>
 					<groupId>org.eclipse.tycho</groupId>
-					<artifactId>tycho-surefire-plugin</artifactId>
-					<version>${tycho.version}</version>
-					<configuration>
-						<trimStackTrace>false</trimStackTrace>
-						<includes>
-							<include>%regex[.*]</include>
-						</includes>
-					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.eclipse.tycho.extras</groupId>
 					<artifactId>tycho-buildtimestamp-jgit</artifactId>
-					<version>${tycho.extras.version}</version>
+					<version>${tycho.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.eclipse.tycho.extras</groupId>
@@ -107,11 +129,6 @@
 				<plugin>
 					<groupId>org.eclipse.tycho.extras</groupId>
 					<artifactId>tycho-p2-extras-plugin</artifactId>
-					<version>${tycho.extras.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.eclipse.tycho.extras</groupId>
-					<artifactId>tycho-source-feature-plugin</artifactId>
 					<version>${tycho.extras.version}</version>
 				</plugin>
 				<plugin>
@@ -127,7 +144,7 @@
 				<plugin>
 					<groupId>org.eclipse.tycho.extras</groupId>
 					<artifactId>tycho-dependency-tools-plugin</artifactId>
-					<version>1.7.0</version>
+					<version>${tycho.extras.version}</version>
 					<executions>
 						<execution>
 							<id>list-dependencies</id>
@@ -145,7 +162,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
-				<version>1.6.0</version>
+				<version>3.2.0</version>
 				<executions>
 					<execution>
 						<id>run-eclipse-helper</id>
@@ -164,14 +181,14 @@
 
 				<!-- This plugin configuration block is only needed if the repository contains plug-ins that don't have any sources. If it is omitted
 		 		Tycho will complain. -->
-				<groupId>org.eclipse.tycho.extras</groupId>
-				<artifactId>tycho-source-feature-plugin</artifactId>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-source-plugin</artifactId>
 				<executions>
 					<execution>
-						<id>source-feature</id>
+						<id>feature-source</id>
 						<phase>package</phase>
 						<goals>
-							<goal>source-feature</goal>
+							<goal>feature-source</goal>
 						</goals>
 					</execution>
 				</executions>
@@ -192,9 +209,9 @@
 				<artifactId>tycho-packaging-plugin</artifactId>
 				<dependencies>
 					<dependency>
-						<groupId>org.eclipse.tycho.extras</groupId>
+						<groupId>org.eclipse.tycho</groupId>
 						<artifactId>tycho-buildtimestamp-jgit</artifactId>
-						<version>${tycho.extras.version}</version>
+						<version>${tycho.version}</version>
 					</dependency>
 				</dependencies>
 				<configuration>
@@ -218,6 +235,8 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
 				<configuration>
+					<executionEnvironment>JavaSE-21</executionEnvironment>
+					<pomDependencies>consider</pomDependencies>
 					<environments>
 						<!-- These can be removed once we shut down the Buckminster build -->
 						<environment>
